@@ -1,0 +1,17 @@
+trigger:
+  - master
+
+pr:
+  - master
+  
+resources:
+  repositories:
+    - repository: templates
+      type: git
+      name: Core/build-templates
+
+stages:
+- stage: Build
+  displayName: Build
+  jobs:
+    - template: job-build-springboot.yaml@templates
