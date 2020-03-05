@@ -1,0 +1,88 @@
+management.endpoints:
+  web:
+    base-path: /api/actuator
+    exposure.include: health
+
+springdoc:
+  api-docs:
+    enabled: ${SWAGGER_ENABLED}
+    path: /api-docs
+  swagger-ui:
+    path: /swagger
+
+spring:
+  application.name: beneficiary-core-service
+  profiles.active: ${ACTIVE_PROFILE:local}
+  datasource:
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    url: ${MSSQL_DEV_URL}
+    username: ${MSSQL_DEV_USERNAME}
+    password: ${MSSQL_DB_KEY}
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.SQLServer2012Dialect
+        enable_lazy_load_no_trans: true
+#  cache:
+#    type: redis
+#  redis:
+#    host: ${REDIS_HOST}
+#    port: ${REDIS_PORT}
+#    password: ${REDIS_PASS}
+#    lettuce:
+#      pool:
+#        max-active: 7
+#        max-idle: 7
+#        min-idle: 2
+#        max-wait: -1ms
+#        shutdown-timeout: 200ms
+  main:
+    banner-mode: 'off'
+    lazy-initialization: true
+
+esb-service:
+    url: ${CDM_URL:http://172.24.70.29:7800/AllOperationsSOAP_HTTP_Service}
+    app-id: ${SOAP_SERVICE_APPID:SITAPPS}
+    origin-id: ${SOAP_SERVICE_ORIGINID:AE}
+    channel: ${SOAP_SERVICE_USERID:MOBANKUSER}
+    connect-timeout: ${SOAP_SERVICE_CONNECTIONTIMEOUT:15000}
+    read-timeout: ${SOAP_SERVICE_READTIMEOUT:30000}
+    enquiry:
+      service-codes.AADC: QBADEWA
+      service-types.AADC: AADC
+
+      service-codes.ADDC: QBADEWA
+      service-types.ADDC: ADDC
+
+      service-codes.DEWA: QBDEWA
+      service-types.DEWA: UNKNOWN
+
+      service-codes.FEWA: QBEFEWA
+      service-types.FEWA: Fewabill
+
+      service-codes.SEWA: QBSEWA
+      service-types.SEWA: UNKNOWN
+
+      service-codes.du-prepaid-mobile: QBDU
+      service-types.du-prepaid-mobile:
+      service-codes.du-postpaid-landline: QBDU
+      service-types.du-postpaid-landline:
+      service-codes.du-postpaid-mobile: QBDU
+      service-types.du-postpaid-mobile:
+
+      service-codes.etisalat-prepaid: QBET
+      service-types.etisalat-prepaid: WaselRecharge
+      service-codes.etisalat-postpaid: QBET
+      service-types.etisalat-postpaid: GSM
+      service-codes.etisalat-elife: QBET
+      service-types.etisalat-elife: DEL
+      service-codes.etisalat-landline: QBET
+      service-types.etisalat-landline: DEL
+
+      service-codes.Salik: QBSALIK
+      service-types.Salik: UNKNOWN_salik_pay_service_type
+
+      service-codes.Noqodi: QNQINQ
+      service-types.Noqodi:
+
