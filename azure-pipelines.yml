@@ -1,20 +1,19 @@
 trigger:
   - master
-  - development
+  - develop
 
 pr:
   - master
-  - development
-
-variables:
-  npm_config_cache: $(Pipeline.Workspace)/.npm
+  - develop
 
 resources:
   repositories:
     - repository: templates
       type: git
       name: Core/build-templates
-      ref: refs/tags/v1.3 # pin to version
 
-jobs:
-  - template: react.yaml@templates
+stages:
+  - stage: Build
+    displayName: Build
+    jobs:
+      - template: job-build-springboot.yaml@templates
