@@ -4,7 +4,7 @@
 
     <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%clr(%d{YYYY-MM-dd HH:mm:ss.SSS}){faint} %clr(%thread){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}</pattern>
+            <pattern>%clr(%d{YYYY-MM-dd HH:mm:ss.SSS}){faint} %clr(%thread){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(%-40.40logger{39}){cyan} %clr(:){faint} [X-CHANNEL-TRACE-ID: %X{X-CHANNEL-TRACE-ID:-}]  %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}</pattern>
             <charset>utf8</charset>
         </encoder>
     </appender>

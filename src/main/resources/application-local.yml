@@ -22,10 +22,6 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: validate
-  #  redis:
-  #    host: localhost
-  #    port: 6379
-  #    password: admin
 
 logging.level:
   ROOT: warn

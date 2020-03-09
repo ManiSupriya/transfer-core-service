@@ -42,6 +42,8 @@
         <com.mashreq.webcore>1.0.17</com.mashreq.webcore>
         <com.mashreq.logcore>1.0.4</com.mashreq.logcore>
         <com.mashreq.encryption>1.0.0</com.mashreq.encryption>
+        <com.mashreq.encryption>1.0.0</com.mashreq.encryption>
+        <com.mashreq.ms.ms-commons>0.0.2</com.mashreq.ms.ms-commons>
 
         <!-- additional deps and plugins versions -->
         <apache.commons.lang.version>3.9</apache.commons.lang.version>
@@ -133,6 +135,11 @@
             <version>${com.mashreq.logcore}</version>
         </dependency>
         <dependency>
+            <groupId>com.mashreq.ms</groupId>
+            <artifactId>ms-commons</artifactId>
+            <version>${com.mashreq.ms.ms-commons}</version>
+        </dependency>
+        <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
             <version>${springfox.version}</version>
@@ -177,6 +184,7 @@
             <artifactId>h2</artifactId>
             <scope>runtime</scope>
         </dependency>
+
         <!-- Testing -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

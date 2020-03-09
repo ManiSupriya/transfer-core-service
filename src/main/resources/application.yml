@@ -24,19 +24,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.SQLServer2012Dialect
         enable_lazy_load_no_trans: true
-#  cache:
-#    type: redis
-#  redis:
-#    host: ${REDIS_HOST}
-#    port: ${REDIS_PORT}
-#    password: ${REDIS_PASS}
-#    lettuce:
-#      pool:
-#        max-active: 7
-#        max-idle: 7
-#        min-idle: 2
-#        max-wait: -1ms
-#        shutdown-timeout: 200ms
+
   main:
     banner-mode: 'off'
     lazy-initialization: true
@@ -86,3 +74,13 @@ esb-service:
       service-codes.Noqodi: QNQINQ
       service-types.Noqodi:
 
+app:
+  services:
+    maintenance: ${MAINTENANCE_SERVICE_URL:http://maintenance-service:8080}
+    customers: ${CUSTOMER_SERVICE_URL:http://customers-service:8080}
+    accounts: ${ACCOUNT_SERVICE_URL:http://accounts-service:8080}
+    cards: ${CARD_SERVICE_URL:http://cards-service:8080}
+    otp: ${SERVICE_OTP_URL:http://otp-service:8080}
+    oauth: ${OAUTH_URL:http://ldap-service:8080}
+    notification: ${NOTIFICATION_SERVICE:http://notification-service:8080}
+    mobcustomer: ${MOB_CUSTOMER_SERVICE:http://mob-customer-service:8080}
