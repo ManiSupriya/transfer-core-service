@@ -9,9 +9,9 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import java.text.NumberFormat;
 
 @Slf4j
-@EnableAutoConfiguration
-@SpringBootApplication
 @EnableFeignClients
+@EnableAutoConfiguration
+@SpringBootApplication(scanBasePackages = {"com.mashreq.transfercoreservice", "com.mashreq.ms"})
 public class TransferApplication {
 
     public static void main(String[] args) {

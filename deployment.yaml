@@ -24,9 +24,9 @@ spec:
           - configMapRef:
               name: configmap-appdynamics
           - configMapRef:
-              name: configmap-mob-dashboard
+              name: configmap-transfer-core-service
           - secretRef:
-              name: secrets-mob-dashboard
+              name: secrets-transfer-core-service
           
 ---
 kind: Service
