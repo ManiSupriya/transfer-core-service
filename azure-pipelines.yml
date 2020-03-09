@@ -1,9 +1,11 @@
 trigger:
   - master
+  - develop
 
 pr:
   - master
-  
+  - develop
+
 resources:
   repositories:
     - repository: templates
@@ -11,7 +13,7 @@ resources:
       name: Core/build-templates
 
 stages:
-- stage: Build
-  displayName: Build
-  jobs:
-    - template: job-build-springboot.yaml@templates
+  - stage: Build
+    displayName: Build
+    jobs:
+      - template: job-build-springboot.yaml@templates
