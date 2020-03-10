@@ -20,19 +20,4 @@ import static com.mashreq.transfercoreservice.paymentoptions.PaymentOptionType.g
 @RequiredArgsConstructor
 public class FundTransferController {
 
-    private final PaymentOptionsService paymentOptionsService;
-
-    @GetMapping("/options/{filterType}")
-    public Response getPaymentOptions(@NotNull @RequestHeader("X-CIF-ID") String cifId,
-                                      @NotNull @PathVariable String filterType) {
-
-        log.info("Fetch Payment options for {} ", filterType);
-        PaymentOptionType paymentOptionType = getPaymentOptionsByType(filterType);
-        PaymentOptionRequest paymentOptionRequest = PaymentOptionRequest.builder()
-                .cifId(cifId)
-                .paymentOptionType(paymentOptionType)
-                .build();
-
-        return Response.builder().data(paymentOptionsService.getPaymentSource(paymentOptionRequest)).build();
-    }
 }
