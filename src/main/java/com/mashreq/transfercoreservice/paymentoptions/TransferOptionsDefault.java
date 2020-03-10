@@ -29,7 +29,7 @@ public class TransferOptionsDefault implements FetchPaymentOptionsService {
 
         List<AccountDetailsDTO> sourceAccounts = coreAccounts.stream()
                 .filter(PaymentPredicates.fundTransferAccountFilterSource())
-                .sorted(Comparator.comparing(AccountDetailsDTO::getAvailableBalance))
+                .sorted(Comparator.comparing(AccountDetailsDTO::getAvailableBalance).reversed())
                 .collect(Collectors.toList());
         log.info("Found {} Source Accounts ", sourceAccounts);
         log.debug("Source Accounts {} ", sourceAccounts);
