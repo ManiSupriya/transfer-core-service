@@ -3,14 +3,12 @@ package com.mashreq.transfercoreservice.http;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.slf4j.MDC;
 
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.HEADER_MISSING_CIF;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -42,11 +40,6 @@ public class ChannelTraceInterceptor implements HandlerInterceptor {
         MDC.put(X_CHANNEL_TRACE_ID, xChannelTraceId);
         response.setHeader(X_CHANNEL_TRACE_ID, String.valueOf(request.getAttribute(X_CHANNEL_TRACE_ID)));
         return true;
-    }
-
-    @Override
-    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-        log.info("CHANNEL-TRACE-ID {}  RESPONSE {} ", request.getAttribute(X_CHANNEL_TRACE_ID), response);
     }
 
     private String getChannel(String userAgent) {
