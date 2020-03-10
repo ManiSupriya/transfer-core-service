@@ -15,9 +15,10 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_P
 @Slf4j
 public enum PaymentOptionType {
 
-    BILL_PAYMENTS_SOURCE("billPaymentsSource"),
-    FUND_TRANSFER_SOURCE("fundTransferSource"),
-    FUND_TRANSFER_OWN_ACCOUNT_DESTINATION("fundTransferOwnDestination");
+    TRANSFER_OPTION_OWN_ACC("own-account"),
+    TRANSFER_OPTION_MASHREQ("within-mashreq"),
+    TRANSFER_OPTION_LOCAL("local"),
+    TRANSFER_OPTION_INTERNATIONAL("international");
 
     private String name;
 

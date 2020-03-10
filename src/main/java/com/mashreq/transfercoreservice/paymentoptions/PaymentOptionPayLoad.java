@@ -11,19 +11,22 @@ import java.util.List;
 
 /**
  * @author shahbazkh
- * @date 2/20/20
+ * @date 3/10/20
  */
-
 @Data
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class PaymentsOptionsResponse {
+public class PaymentOptionPayLoad {
 
-    @JsonProperty("source")
-    PaymentOptionPayLoad source;
+    @JsonProperty("accounts")
+    List<AccountDetailsDTO> accounts;
 
-    @JsonProperty("destination")
-    PaymentOptionPayLoad destination;
+    @JsonProperty("cards")
+    List<CardDetailsDTO> creditCards;
 
+    @JsonProperty("suggestedCard")
+    CardDetailsDTO defaultCard;
+
+    @JsonProperty("suggestedAccount")
+    AccountDetailsDTO defaultAccount;
 }
-

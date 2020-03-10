@@ -23,16 +23,16 @@ import static com.mashreq.transfercoreservice.paymentoptions.PaymentOptionType.*
 public class PaymentOptionsService {
 
     private Map<PaymentOptionType, FetchPaymentOptionsService> paymentOptionsLookUp;
-    private final FetchBillPaymentSourcesService fetchBillPaymentSources;
-    private final FetchFundTransferSourcesService fetchFundTransferSources;
-    private final FetchOwnFundTransferDestinationService fetchOwnFundTransferDestination;
+    private final TransferOptionsOwnAccount transferOptionsOwnAccount;
+    private final TransferOptionsDefault transferOptionsDefault;
 
     @PostConstruct
     public void init() {
         paymentOptionsLookUp = new HashMap<>();
-        paymentOptionsLookUp.put(BILL_PAYMENTS_SOURCE, fetchBillPaymentSources);
-        paymentOptionsLookUp.put(FUND_TRANSFER_SOURCE, fetchFundTransferSources);
-        paymentOptionsLookUp.put(FUND_TRANSFER_OWN_ACCOUNT_DESTINATION, fetchOwnFundTransferDestination);
+        paymentOptionsLookUp.put(TRANSFER_OPTION_OWN_ACC, transferOptionsOwnAccount);
+        paymentOptionsLookUp.put(TRANSFER_OPTION_MASHREQ, transferOptionsDefault);
+        paymentOptionsLookUp.put(TRANSFER_OPTION_LOCAL, transferOptionsDefault);
+        paymentOptionsLookUp.put(TRANSFER_OPTION_INTERNATIONAL, transferOptionsDefault);
     }
 
     public PaymentsOptionsResponse getPaymentSource(PaymentOptionRequest request) {
