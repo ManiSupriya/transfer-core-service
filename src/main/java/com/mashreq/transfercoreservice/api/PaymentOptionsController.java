@@ -1,8 +1,8 @@
 package com.mashreq.transfercoreservice.api;
 
-import com.mashreq.transfercoreservice.paymentoptions.PaymentOptionRequest;
-import com.mashreq.transfercoreservice.paymentoptions.PaymentOptionType;
-import com.mashreq.transfercoreservice.paymentoptions.PaymentOptionsService;
+import com.mashreq.transfercoreservice.paymentoptions.dto.PaymentOptionRequest;
+import com.mashreq.transfercoreservice.paymentoptions.service.PaymentOptionType;
+import com.mashreq.transfercoreservice.paymentoptions.service.PaymentOptionsService;
 import com.mashreq.webcore.dto.response.Response;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
 
-import static com.mashreq.transfercoreservice.paymentoptions.PaymentOptionType.getPaymentOptionsByType;
+import static com.mashreq.transfercoreservice.paymentoptions.service.PaymentOptionType.getPaymentOptionsByType;
 
 /**
  * @author shahbazkh

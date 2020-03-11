@@ -1,7 +1,11 @@
-package com.mashreq.transfercoreservice.paymentoptions;
+package com.mashreq.transfercoreservice.paymentoptions.service;
 
-import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
+import com.mashreq.transfercoreservice.client.service.AccountService;
+import com.mashreq.transfercoreservice.paymentoptions.utils.PaymentPredicates;
+import com.mashreq.transfercoreservice.paymentoptions.dto.PaymentOptionPayLoad;
+import com.mashreq.transfercoreservice.paymentoptions.dto.PaymentOptionRequest;
+import com.mashreq.transfercoreservice.paymentoptions.dto.PaymentsOptionsResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,7 +22,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class TransferOptionsDefault implements FetchPaymentOptionsService {
+public class TransferOptionsOwnAccount implements FetchPaymentOptionsService {
 
     private final AccountService accountService;
 
@@ -43,8 +47,21 @@ public class TransferOptionsDefault implements FetchPaymentOptionsService {
                 .defaultAccount(defaultSourceAccountOptional.orElse(null))
                 .build();
 
+        List<AccountDetailsDTO> destinationAccounts = coreAccounts.stream()
+                .filter(PaymentPredicates.fundTransferOwnAccountFilterDestination())
+                .sorted(Comparator.comparing(AccountDetailsDTO::getAvailableBalance))
+                .collect(Collectors.toList());
+
+        log.info("Found {} Destination Accounts ", destinationAccounts);
+        log.debug("Destination Accounts {} ", destinationAccounts);
+
+        PaymentOptionPayLoad destination = PaymentOptionPayLoad.builder()
+                .accounts(destinationAccounts)
+                .build();
+
         return PaymentsOptionsResponse.builder()
                 .source(source)
+                .destination(destination)
                 .build();
     }
 }

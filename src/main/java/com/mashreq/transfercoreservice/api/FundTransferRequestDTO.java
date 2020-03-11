@@ -23,24 +23,25 @@ public class FundTransferRequestDTO {
     @Account
     private String toAccount;
 
-    @NotBlank
-    @Positive
+    @NotNull(message = "Amount cannot be empty")
+    @Positive(message = "Should be positive")
     private BigDecimal amount;
 
     @NotBlank
     private String serviceType;
 
-    @NotBlank
+    @NotBlank(message = "Currency Cannot be empty")
+    @Size(max = 3, min = 3, message = "Size should be 3")
     private String currency;
 
-    @NotBlank
+    @NotBlank(message = "Purpose code cannot be empty")
     private String purposeCode;
 
     private String dealNumber;
 
-    @NotBlank
+    @NotBlank(message = "Financial Transaction Number cannot be empty")
     private String finTxnNo;
 
-    @NotBlank
-    private Long beneficiaryId;
+    @NotBlank(message = "Beneficiary Id cannot be empty")
+    private String beneficiaryId;
 }

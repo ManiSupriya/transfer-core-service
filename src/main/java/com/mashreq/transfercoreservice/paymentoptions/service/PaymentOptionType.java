@@ -1,4 +1,4 @@
-package com.mashreq.transfercoreservice.paymentoptions;
+package com.mashreq.transfercoreservice.paymentoptions.service;
 
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import lombok.extern.slf4j.Slf4j;

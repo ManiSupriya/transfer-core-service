@@ -20,7 +20,7 @@ public enum TransferErrorCode implements ErrorCode {
     private final String message;
 
     @Override
-    public String customName() {
+    public String customErrorCode() {
         return customName;
     }
 }

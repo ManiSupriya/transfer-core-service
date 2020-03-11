@@ -1,4 +1,4 @@
-package com.mashreq.transfercoreservice.paymentoptions;
+package com.mashreq.transfercoreservice.paymentoptions.utils;
 
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.CardDetailsDTO;

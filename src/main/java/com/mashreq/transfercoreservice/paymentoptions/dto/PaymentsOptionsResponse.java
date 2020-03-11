@@ -1,13 +1,9 @@
-package com.mashreq.transfercoreservice.paymentoptions;
+package com.mashreq.transfercoreservice.paymentoptions.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
-import com.mashreq.transfercoreservice.client.dto.CardDetailsDTO;
 import lombok.Builder;
 import lombok.Data;
-
-import java.util.List;
 
 /**
  * @author shahbazkh

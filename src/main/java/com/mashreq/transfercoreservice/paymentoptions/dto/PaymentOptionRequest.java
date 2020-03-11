@@ -1,5 +1,6 @@
-package com.mashreq.transfercoreservice.paymentoptions;
+package com.mashreq.transfercoreservice.paymentoptions.dto;
 
+import com.mashreq.transfercoreservice.paymentoptions.service.PaymentOptionType;
 import lombok.Builder;
 import lombok.Data;
 
