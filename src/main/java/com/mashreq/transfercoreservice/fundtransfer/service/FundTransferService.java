@@ -1,8 +1,11 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
-/**
- * @author shahbazkh
- * @date 3/11/20
- */
-public class FundTransferService {
+import com.mashreq.transfercoreservice.dto.PaymentHistoryDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+
+
+public interface FundTransferService {
+
+    PaymentHistoryDTO transferFund(FundTransferRequestDTO fundTransferRequestDTO);
+
 }
