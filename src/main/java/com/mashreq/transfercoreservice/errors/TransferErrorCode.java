@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 public enum TransferErrorCode implements ErrorCode {
 
     INVALID_PAYMENT_OPTIONS("TRANS-4000", "Invalid Payment Option Mode"),
-    HEADER_MISSING_CIF("TRANS-4000", "CIF-ID is missing in Header");
+    HEADER_MISSING_CIF("TRANS-4001", "CIF-ID is missing in Header");
 
     private final String customName;
     private final String message;

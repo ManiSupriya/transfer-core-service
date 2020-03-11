@@ -29,7 +29,7 @@ public class PaymentOptionsController {
 
     @GetMapping("/{optionType}")
     public Response getPaymentOptions(@NotNull @RequestHeader("X-CIF-ID") String cifId,
-                                      @NotNull @PathVariable(required = true) String optionType) {
+                                      @PathVariable(required = true) String optionType) {
 
         log.info("Fetch Payment options for {} ", optionType);
         PaymentOptionType paymentOptionType = getPaymentOptionsByType(optionType);

@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.client.service;
 
+import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.AccountClient;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.CifProductsDto;

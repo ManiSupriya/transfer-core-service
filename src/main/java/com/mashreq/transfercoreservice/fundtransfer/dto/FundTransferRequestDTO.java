@@ -2,6 +2,7 @@ package com.mashreq.transfercoreservice.fundtransfer.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.mashreq.transfercoreservice.annotations.Account;
+import com.mashreq.transfercoreservice.annotations.TransactionAmount;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -23,8 +24,7 @@ public class FundTransferRequestDTO {
     @Account
     private String toAccount;
 
-    @NotNull(message = "Amount cannot be empty")
-    @Positive(message = "Should be positive")
+    @TransactionAmount
     private BigDecimal amount;
 
     @NotBlank
