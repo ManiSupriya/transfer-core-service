@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.api;
 
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.webcore.dto.response.Response;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

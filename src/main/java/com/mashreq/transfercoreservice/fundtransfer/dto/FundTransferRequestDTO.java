@@ -1,4 +1,4 @@
-package com.mashreq.transfercoreservice.api;
+package com.mashreq.transfercoreservice.fundtransfer.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.mashreq.transfercoreservice.annotations.Account;
