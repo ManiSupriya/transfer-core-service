@@ -1,4 +1,4 @@
-package com.mashreq.transfercoreservice.dto;
+package com.mashreq.transfercoreservice.fundtransfer.dto;
 
 import lombok.Builder;
 import lombok.Data;
