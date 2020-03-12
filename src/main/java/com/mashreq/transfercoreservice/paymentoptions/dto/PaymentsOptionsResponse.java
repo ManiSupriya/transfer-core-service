@@ -1,13 +1,9 @@
-package com.mashreq.transfercoreservice.paymentoptions;
+package com.mashreq.transfercoreservice.paymentoptions.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
-import com.mashreq.transfercoreservice.client.dto.CardDetailsDTO;
 import lombok.Builder;
 import lombok.Data;
-
-import java.util.List;
 
 /**
  * @author shahbazkh
@@ -15,7 +11,7 @@ import java.util.List;
  */
 
 @Data
-@Builder
+@Builder(toBuilder = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PaymentsOptionsResponse {
 
@@ -24,6 +20,9 @@ public class PaymentsOptionsResponse {
 
     @JsonProperty("destination")
     PaymentOptionPayLoad destination;
+
+    @JsonProperty("financialTxnNumber")
+    private String finTxnNo;
 
 }
 

@@ -1,7 +1,11 @@
-package com.mashreq.transfercoreservice.paymentoptions;
+package com.mashreq.transfercoreservice.paymentoptions.service;
 
-import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.service.AccountService;
+import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
+import com.mashreq.transfercoreservice.paymentoptions.utils.PaymentPredicates;
+import com.mashreq.transfercoreservice.paymentoptions.dto.PaymentOptionPayLoad;
+import com.mashreq.transfercoreservice.paymentoptions.dto.PaymentOptionRequest;
+import com.mashreq.transfercoreservice.paymentoptions.dto.PaymentsOptionsResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,7 +22,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class TransferOptionsOwnAccount implements FetchPaymentOptionsService {
+public class TransferOptionsDefault implements FetchPaymentOptionsService {
 
     private final AccountService accountService;
 
@@ -43,28 +47,9 @@ public class TransferOptionsOwnAccount implements FetchPaymentOptionsService {
                 .defaultAccount(defaultSourceAccountOptional.orElse(null))
                 .build();
 
-        List<AccountDetailsDTO> destinationAccounts = coreAccounts.stream()
-                .filter(PaymentPredicates.fundTransferOwnAccountFilterDestination())
-                .sorted(Comparator.comparing(AccountDetailsDTO::getAvailableBalance))
-                .collect(Collectors.toList());
-
-        log.info("Found {} Destination Accounts ", destinationAccounts);
-        log.debug("Destination Accounts {} ", destinationAccounts);
-
-        Optional<AccountDetailsDTO> defaultDestinationAccountOptional = destinationAccounts.stream()
-                .filter(account -> !account.getNumber().equals(defaultSourceAccountOptional.orElse(null)))
-                .findFirst();
-
-        log.info("Default Destination Accounts present = {} ", defaultDestinationAccountOptional.isPresent());
-
-        PaymentOptionPayLoad destination = PaymentOptionPayLoad.builder()
-                .accounts(destinationAccounts)
-                .defaultAccount(defaultDestinationAccountOptional.orElse(null))
-                .build();
-
         return PaymentsOptionsResponse.builder()
                 .source(source)
-                .destination(destination)
+                .finTxnNo(FinTxnNumberGenerator.generate())
                 .build();
     }
 }

@@ -1,6 +1,8 @@
-package com.mashreq.transfercoreservice.paymentoptions;
+package com.mashreq.transfercoreservice.paymentoptions.service;
 
 import com.mashreq.logcore.annotations.TrackExecTimeAndResult;
+import com.mashreq.transfercoreservice.paymentoptions.dto.PaymentOptionRequest;
+import com.mashreq.transfercoreservice.paymentoptions.dto.PaymentsOptionsResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -9,7 +11,7 @@ import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.mashreq.transfercoreservice.paymentoptions.PaymentOptionType.*;
+import static com.mashreq.transfercoreservice.paymentoptions.service.PaymentOptionType.*;
 
 /**
  * @author shahbazkh
