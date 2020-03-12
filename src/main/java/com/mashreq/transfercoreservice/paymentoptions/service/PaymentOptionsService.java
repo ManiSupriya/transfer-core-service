@@ -43,7 +43,7 @@ public class PaymentOptionsService {
 
         FetchPaymentOptionsService fetchPaymentOptionsService = paymentOptionsLookUp.get(paymentOptionType);
         PaymentsOptionsResponse response = fetchPaymentOptionsService.getPaymentOptions(request);
-        log.info("Fetched Payment Options {} ", response);
+        log.info("Fetched Payment Options  with finTxnNo = {} ", response.getFinTxnNo());
 
         return response;
     }
