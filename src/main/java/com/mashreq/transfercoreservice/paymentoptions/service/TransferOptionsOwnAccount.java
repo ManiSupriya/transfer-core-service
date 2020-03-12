@@ -35,8 +35,8 @@ public class TransferOptionsOwnAccount implements FetchPaymentOptionsService {
                 .filter(PaymentPredicates.fundTransferAccountFilterSource())
                 .sorted(Comparator.comparing(AccountDetailsDTO::getAvailableBalance).reversed())
                 .collect(Collectors.toList());
-        log.info("Found {} Source Accounts ", sourceAccounts);
-        log.debug("Source Accounts {} ", sourceAccounts);
+        log.info("Found {} Source Accounts ", sourceAccounts.size());
+        log.debug("Source Accounts {} ", sourceAccounts.stream().map(AccountDetailsDTO::getNumber).collect(Collectors.joining(",")));
 
         Optional<AccountDetailsDTO> defaultSourceAccountOptional = sourceAccounts.stream().findFirst();
 
@@ -52,8 +52,8 @@ public class TransferOptionsOwnAccount implements FetchPaymentOptionsService {
                 .sorted(Comparator.comparing(AccountDetailsDTO::getAvailableBalance))
                 .collect(Collectors.toList());
 
-        log.info("Found {} Destination Accounts ", destinationAccounts);
-        log.debug("Destination Accounts {} ", destinationAccounts);
+        log.info("Found {} Destination Accounts ", destinationAccounts.size());
+        log.debug("Destination Accounts {} ", destinationAccounts.stream().map(AccountDetailsDTO::getNumber).collect(Collectors.joining(",")));
 
         PaymentOptionPayLoad destination = PaymentOptionPayLoad.builder()
                 .accounts(destinationAccounts)
