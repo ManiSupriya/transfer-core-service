@@ -35,8 +35,8 @@ public class TransferOptionsDefault implements FetchPaymentOptionsService {
                 .filter(PaymentPredicates.fundTransferAccountFilterSource())
                 .sorted(Comparator.comparing(AccountDetailsDTO::getAvailableBalance).reversed())
                 .collect(Collectors.toList());
-        log.info("Found {} Source Accounts ", sourceAccounts);
-        log.debug("Source Accounts {} ", sourceAccounts);
+        log.info("Found {} Source Accounts ", sourceAccounts.size());
+        log.debug("Source Accounts {} ", sourceAccounts.stream().map(AccountDetailsDTO::getNumber).collect(Collectors.joining(",")));
 
         Optional<AccountDetailsDTO> defaultSourceAccountOptional = sourceAccounts.stream().findFirst();
 

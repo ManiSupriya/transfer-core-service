@@ -11,7 +11,7 @@ import java.util.UUID;
 @Slf4j
 public class FinTxnNumberGenerator {
 
-    private static final String TEMPLATE = "{DOM}{UUID}";
+    private static final String TEMPLATE = "{DOM}-{UUID}";
 
     public static String generate() {
         final String finTxnNumber = TEMPLATE.replace("{DOM}", "FT")
