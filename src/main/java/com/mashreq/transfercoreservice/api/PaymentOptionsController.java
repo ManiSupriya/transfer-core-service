@@ -1,6 +1,7 @@
 package com.mashreq.transfercoreservice.api;
 
 import com.mashreq.transfercoreservice.paymentoptions.dto.PaymentOptionRequest;
+import com.mashreq.transfercoreservice.paymentoptions.dto.PaymentsOptionsResponse;
 import com.mashreq.transfercoreservice.paymentoptions.service.PaymentOptionType;
 import com.mashreq.transfercoreservice.paymentoptions.service.PaymentOptionsService;
 import com.mashreq.webcore.dto.response.Response;
@@ -38,6 +39,9 @@ public class PaymentOptionsController {
                 .paymentOptionType(paymentOptionType)
                 .build();
 
-        return Response.builder().data(paymentOptionsService.getPaymentSource(paymentOptionRequest)).build();
+        PaymentsOptionsResponse response = paymentOptionsService.getPaymentSource(paymentOptionRequest);
+        log.info("Payment Options for option type {} is = {} ",optionType,response);
+
+        return Response.builder().data(response).build();
     }
 }

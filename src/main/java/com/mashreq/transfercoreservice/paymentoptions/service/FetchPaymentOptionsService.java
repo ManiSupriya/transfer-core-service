@@ -13,8 +13,4 @@ import java.math.BigDecimal;
 public interface FetchPaymentOptionsService {
 
     PaymentsOptionsResponse getPaymentOptions(PaymentOptionRequest request);
-
-    default BigDecimal getMinAmountToBeAvailable(PaymentOptionRequest request) {
-        return request.getMinAmountToBeAvailable() == null ? BigDecimal.ZERO : request.getMinAmountToBeAvailable();
-    }
 }

@@ -59,9 +59,11 @@ public class TransferOptionsOwnAccount implements FetchPaymentOptionsService {
                 .accounts(destinationAccounts)
                 .build();
 
+
         return PaymentsOptionsResponse.builder()
                 .source(source)
                 .destination(destination)
+                .finTxnNo(FinTxnNumberGenerator.generate())
                 .build();
     }
 }

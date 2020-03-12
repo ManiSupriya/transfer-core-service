@@ -11,7 +11,7 @@ import lombok.Data;
  */
 
 @Data
-@Builder
+@Builder(toBuilder = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PaymentsOptionsResponse {
 
@@ -20,6 +20,9 @@ public class PaymentsOptionsResponse {
 
     @JsonProperty("destination")
     PaymentOptionPayLoad destination;
+
+    @JsonProperty("financialTxnNumber")
+    private String finTxnNo;
 
 }
 

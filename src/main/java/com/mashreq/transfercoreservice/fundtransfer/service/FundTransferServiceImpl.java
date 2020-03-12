@@ -23,8 +23,6 @@ public class FundTransferServiceImpl implements FundTransferService {
      */
     public PaymentHistoryDTO transferFund(FundTransferRequestDTO fundTransferRequestDTO) {
 
-
-
         CoreFundTransferRequestDto coreFundTransferRequestDto = CoreFundTransferRequestDto.builder()
                 .fromAccount(fundTransferRequestDTO.getFromAccount())
                 .toAccount(fundTransferRequestDTO.getToAccount())

@@ -24,7 +24,7 @@ import javax.validation.Valid;
 @RequiredArgsConstructor
 public class FundTransferController {
 
-    private FundTransferService fundTransferService;
+    private final FundTransferService fundTransferService;
 
     @ApiOperation(value = "Processes to start payment", response = FundTransferRequestDTO.class)
     @ApiResponses(value = {
