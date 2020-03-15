@@ -2,12 +2,16 @@ package com.mashreq.transfercoreservice.limits;
 
 import com.mashreq.transfercoreservice.fundtransfer.dto.DigitalUserLimitUsageDTO;
 import com.mashreq.transfercoreservice.model.DigitalUserLimitUsage;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.mapstruct.Mapper;
 
 import java.math.BigDecimal;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class LimitDTO {
     private BigDecimal maxAmountDaily;
     private BigDecimal maxAmountMonthly;
@@ -16,19 +20,5 @@ public class LimitDTO {
     private Integer maxCountMonthly;
     private String versionUuid;
 
-    /**
-     * @Author KetulkumarS
-     */
-    @Mapper(componentModel = "spring")
-    public static interface LimitPackageDefaultMapper {
-        LimitDTO limitDtoFromEntity(LimitPackageDefault limitPackageDefault);
-    }
 
-    /**
-     * @Author KetulkumarS
-     */
-    @Mapper(componentModel = "spring")
-    public static interface DigitalUserLimitUsageMapper {
-        DigitalUserLimitUsage userLimitUsageDTOToEntity(DigitalUserLimitUsageDTO digitalUserLimitUsageDTO);
-    }
 }

@@ -1,9 +1,10 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
-import com.mashreq.payments.billpayments.dto.PaymentHistoryDTO;
-import com.mashreq.payments.billpayments.mapper.PaymentHistoryMapper;
-import com.mashreq.payments.model.PaymentHistory;
-import com.mashreq.payments.repository.PaymentHistoryRepository;
+
+import com.mashreq.transfercoreservice.fundtransfer.dto.PaymentHistoryDTO;
+import com.mashreq.transfercoreservice.mapper.PaymentHistoryMapper;
+import com.mashreq.transfercoreservice.model.PaymentHistory;
+import com.mashreq.transfercoreservice.repository.PaymentHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

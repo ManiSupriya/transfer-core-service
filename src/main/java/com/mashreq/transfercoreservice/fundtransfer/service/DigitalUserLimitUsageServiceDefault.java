@@ -3,6 +3,7 @@ package com.mashreq.transfercoreservice.fundtransfer.service;
 
 import com.mashreq.transfercoreservice.fundtransfer.dto.DigitalUserLimitUsageDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserLimitUsageDTO;
+import com.mashreq.transfercoreservice.limits.DigitalUserLimitUsageMapper;
 import com.mashreq.transfercoreservice.limits.LimitDTO;
 import com.mashreq.transfercoreservice.model.DigitalUserLimitUsage;
 import com.mashreq.transfercoreservice.limits.DigitalUserLimitUsageRepository;
@@ -21,7 +22,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class DigitalUserLimitUsageServiceDefault implements DigitalUserLimitUsageService {
 
-    private final LimitDTO.DigitalUserLimitUsageMapper digitalUserLimitUsageMapper;
+    private final DigitalUserLimitUsageMapper digitalUserLimitUsageMapper;
     private final DigitalUserLimitUsageRepository digitalUserLimitUsageRepository;
 
     @Override
