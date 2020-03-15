@@ -2,7 +2,10 @@ package com.mashreq.transfercoreservice.fundtransfer.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.mashreq.transfercoreservice.annotations.Account;
+import com.mashreq.transfercoreservice.annotations.ConditionalRequired;
 import com.mashreq.transfercoreservice.annotations.TransactionAmount;
+import com.mashreq.transfercoreservice.annotations.ValueOfEnum;
+import com.mashreq.transfercoreservice.fundtransfer.ServiceType;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,7 @@ import java.math.BigDecimal;
  */
 
 @Data
+@ConditionalRequired(fieldName = "beneficiaryId", dependentFieldName = "serviceType", noneMatch = "own-account", message = "Beneficiary ID is mandatory")
 public class FundTransferRequestDTO {
 
     @Account
@@ -27,7 +31,7 @@ public class FundTransferRequestDTO {
     @TransactionAmount
     private BigDecimal amount;
 
-    @NotBlank
+    @ValueOfEnum(enumClass = ServiceType.class, message = "Not a valid value for service Type")
     private String serviceType;
 
     @NotBlank(message = "Currency Cannot be empty")
@@ -42,6 +46,7 @@ public class FundTransferRequestDTO {
     @NotBlank(message = "Financial Transaction Number cannot be empty")
     private String finTxnNo;
 
-    @NotBlank(message = "Beneficiary Id cannot be empty")
     private String beneficiaryId;
+
+    private String beneficaryCurrency;
 }
