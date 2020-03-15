@@ -35,7 +35,7 @@ public enum PaymentOptionType {
 
     public static PaymentOptionType getPaymentOptionsByType(String name) {
         if (!paymentOptionLookup.containsKey(name))
-            GenericExceptionHandler.handleError(INVALID_PAYMENT_OPTIONS, INVALID_PAYMENT_OPTIONS.getMessage());
+            GenericExceptionHandler.handleError(INVALID_PAYMENT_OPTIONS, INVALID_PAYMENT_OPTIONS.getErrorMessage());
 
         return paymentOptionLookup.get(name);
     }
