@@ -72,7 +72,6 @@ public class FundTransferServiceDefault implements FundTransferService {
 
     @Override
     public PaymentHistoryDTO transferFund(FundTransferMetadata metadata, FundTransferRequestDTO request) {
-
         log.info("Starting fund transfer for {} ", request.getServiceType());
 
         log.info("Validating Financial Transaction number {} ", request.getFinTxnNo());
@@ -80,6 +79,7 @@ public class FundTransferServiceDefault implements FundTransferService {
 
         log.info("Validating Account number {} ", request.getFinTxnNo());
         validateAccountNumbers(metadata, request);
+
 
         log.info("Finding Digital User for CIF-ID {}", metadata.getPrimaryCif());
         DigitalUser digitalUser = getDigitalUser(metadata);
@@ -137,11 +137,16 @@ public class FundTransferServiceDefault implements FundTransferService {
 
         log.info("Validating account belong to same cif for own-account transfer");
         if (request.getServiceType().equals("own-account")) {
+
+
             if (!isAccountNumberBelongsToCif(coreAccounts, toAccountNUmber))
                 GenericExceptionHandler.handleError(ACCOUNT_NOT_BELONG_TO_CIF, ACCOUNT_NOT_BELONG_TO_CIF.getErrorMessage());
 
             if (!isAccountNumberBelongsToCif(coreAccounts, fromAccountNumber))
                 GenericExceptionHandler.handleError(ACCOUNT_NOT_BELONG_TO_CIF, ACCOUNT_NOT_BELONG_TO_CIF.getErrorMessage());
+
+            if (!validateToAccountCurrency(coreAccounts, request.getCurrency(), request.getToAccount()))
+                GenericExceptionHandler.handleError(TO_ACCOUNT_CURRENCY_MISMATCH, TO_ACCOUNT_CURRENCY_MISMATCH.getErrorMessage());
         } else {
 
             // All other transfer modes should have to-account which should not belong to sender's cif
@@ -149,6 +154,12 @@ public class FundTransferServiceDefault implements FundTransferService {
                 GenericExceptionHandler.handleError(ACCOUNT_NOT_BELONG_TO_CIF, ACCOUNT_NOT_BELONG_TO_CIF.getErrorMessage());
         }
 
+    }
+
+    private boolean validateToAccountCurrency(List<AccountDetailsDTO> coreAccounts, String toAcctCurrency, String toAccountNum) {
+        return coreAccounts.stream()
+                .filter(account -> account.getNumber().equals(toAccountNum))
+                .anyMatch(account -> account.getCurrency().equals(toAcctCurrency));
     }
 
     private boolean isAccountNumberBelongsToCif(List<AccountDetailsDTO> coreAccounts, String accountNumber) {
