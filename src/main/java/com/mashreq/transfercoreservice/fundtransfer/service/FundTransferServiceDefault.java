@@ -27,6 +27,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mashreq.transfercoreservice.client.dto.BeneficiaryStatus.ACTIVE;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
 
 @Slf4j
@@ -79,7 +80,6 @@ public class FundTransferServiceDefault implements FundTransferService {
 
         log.info("Validating Account number {} ", request.getFinTxnNo());
         validateAccountNumbers(metadata, request);
-
 
         log.info("Finding Digital User for CIF-ID {}", metadata.getPrimaryCif());
         DigitalUser digitalUser = getDigitalUser(metadata);
@@ -149,7 +149,7 @@ public class FundTransferServiceDefault implements FundTransferService {
                 GenericExceptionHandler.handleError(TO_ACCOUNT_CURRENCY_MISMATCH, TO_ACCOUNT_CURRENCY_MISMATCH.getErrorMessage());
         } else {
 
-            // All other transfer modes should have to-account which should not belong to sender's cif
+            //TODO All other transfer modes should have to-account which should not belong to sender's cif
             if (isAccountNumberBelongsToCif(coreAccounts, toAccountNUmber))
                 GenericExceptionHandler.handleError(ACCOUNT_NOT_BELONG_TO_CIF, ACCOUNT_NOT_BELONG_TO_CIF.getErrorMessage());
         }
@@ -189,7 +189,12 @@ public class FundTransferServiceDefault implements FundTransferService {
             if (!request.getCurrency().equals(beneficiaryDto.getCurrency()))
                 GenericExceptionHandler.handleError(BENE_CUR_NOT_MATCH, BENE_CUR_NOT_MATCH.getErrorMessage());
 
+            if (ACTIVE != beneficiaryDto.getStatus())
+                GenericExceptionHandler.handleError(BENE_NOT_ACTIVE, BENE_NOT_ACTIVE.getErrorMessage());
+
         }
+
+
     }
 
 
