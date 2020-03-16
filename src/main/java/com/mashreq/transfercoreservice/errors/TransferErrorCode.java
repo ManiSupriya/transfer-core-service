@@ -19,7 +19,20 @@ public enum TransferErrorCode implements ErrorCode {
     TO_ACCOUNT_IS_INVALID("TNF-ACC-5001", "To Account is Invalid"),
     NOT_ENOUGH_RESOURCES("TNF-CORE-412", "Not enough resources in account"),
     SAME_DEBIT_CREDIT_ACC("TNF-ESB-2262", "Same Debit and Credit Account"),
-    INVALID_REQ_BODY("ACC-CORE-400", "Please validate your request body"),
+    INVALID_REQ_BODY("TNF-CORE-400", "Please validate your request body"),
+    REQ_PARAM_MISSING("TNF_CORE_406", "Request parameter is missing"),
+    NO_HANDLER_FOUND("TNF-CORE-407", "Handler not found for requested method"),
+    SOMETHING_WRONG_IN_ACCOUNT_SEVICE("TNF-CORE-999", "Something went wrong"),
+    QACLNTN_EAI_FCI_BRK_115("QACLNTN-EAI-FCI-BRK-115", "No data found for given input"),
+    TFTN_EAI_FCI_BRK_2471("TFTN-EAI-FCI-BRK-2471", "Debit Amount Cannot be less than or equal to Zero,Credit Amount " +
+            "Cannot be less than or equal to Zero"),
+    ACC_ESB_TIMEOUT("TNF-ESB-TIMEOUT", "Esb response timeouts"),
+
+    ACCOUNT_NOT_BELONG_TO_CIF("TNF-API-011", "Account does not belong to CIF"),
+    CREDIT_AND_DEBIT_ACC_SAME("TNF-API-012", "Credit and Debit Account cannot be same"),
+    TO_ACCOUNT_SHOULD_BE_DIFFERENT_CIF("TNF-API-013", "To Account should belong to a different CIF"),
+    TO_ACCOUNT_CURRENCY_MISMATCH("TNF-API-014", "To Account currency does not match with given currency"),
+
     BENE_NOT_FOUND("TNF-BEN-001", "Beneficiary Not Found"),
     BENE_ACC_NOT_MATCH("TNF-BEN-002", "Beneficiary Account Number does not match"),
     BENE_CUR_NOT_MATCH("TNF-BEN-003", "Beneficiary Currency does not match"),
