@@ -28,6 +28,7 @@ public enum TransferErrorCode implements ErrorCode {
             "Cannot be less than or equal to Zero"),
     ACC_ESB_TIMEOUT("TNF-ESB-TIMEOUT", "Esb response timeouts"),
 
+    ACCOUNT_NOT_BELONG_TO_CIF("TNF-API-011", "Account does not belong to CIF"),
 
     BENE_NOT_FOUND("TNF-BEN-001", "Beneficiary Not Found"),
     BENE_ACC_NOT_MATCH("TNF-BEN-002", "Beneficiary Account Number does not match"),

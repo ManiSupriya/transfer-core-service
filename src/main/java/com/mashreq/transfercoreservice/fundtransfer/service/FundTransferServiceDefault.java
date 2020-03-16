@@ -5,6 +5,7 @@ import com.mashreq.transfercoreservice.client.BeneficiaryClient;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferRequestDto;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
+import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.CoreTransferService;
 import com.mashreq.transfercoreservice.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.fundtransfer.ServiceType;
@@ -37,6 +38,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final PaymentHistoryService paymentHistoryService;
     private final DigitalUserLimitUsageService digitalUserLimitUsageService;
     private final BeneficiaryClient beneficiaryClient;
+    private final AccountService accountService;
     private EnumMap<ServiceType, FundTransferStrategy> fundTransferStrategies;
 
     @PostConstruct
@@ -73,6 +75,9 @@ public class FundTransferServiceDefault implements FundTransferService {
 
         log.info("Validating Financial Transaction number {} ", request.getFinTxnNo());
         validateFinTxnNo(request);
+
+        log.info("Validating Account number {} ", request.getFinTxnNo());
+        validateOwnCIFAccountNumbers(metadata, request);
 
         log.info("Finding Digital User for CIF-ID {}", metadata.getPrimaryCif());
         DigitalUser digitalUser = getDigitalUser(metadata);
@@ -117,6 +122,26 @@ public class FundTransferServiceDefault implements FundTransferService {
         }
 
         return paymentHistoryDTO;
+    }
+
+    private void validateOwnCIFAccountNumbers(FundTransferMetadata metadata, FundTransferRequestDTO request) {
+        log.info("Validating account belong to same cif for own-account transfer");
+        if (request.getServiceType().equals("own-account")) {
+            String toAccountNUmber = request.getToAccount();
+            String fromAccountNumber = request.getFromAccount();
+
+            if (!isAccountNumberBelongsToCif(metadata, toAccountNUmber))
+                GenericExceptionHandler.handleError(ACCOUNT_NOT_BELONG_TO_CIF, ACCOUNT_NOT_BELONG_TO_CIF.getErrorMessage());
+
+            if (!isAccountNumberBelongsToCif(metadata, fromAccountNumber))
+                GenericExceptionHandler.handleError(ACCOUNT_NOT_BELONG_TO_CIF, ACCOUNT_NOT_BELONG_TO_CIF.getErrorMessage());
+        }
+    }
+
+    private boolean isAccountNumberBelongsToCif(FundTransferMetadata metadata, String toAccountNUmber) {
+        return accountService.getAccountsFromCore(metadata.getPrimaryCif())
+                .stream()
+                .anyMatch(x -> x.getNumber().equals(toAccountNUmber));
     }
 
     private void validateFinTxnNo(FundTransferRequestDTO request) {
