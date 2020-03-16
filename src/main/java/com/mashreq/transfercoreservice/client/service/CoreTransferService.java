@@ -1,6 +1,5 @@
 package com.mashreq.transfercoreservice.client.service;
 
-import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.transfercoreservice.client.CoreTransferClient;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferRequestDto;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
@@ -8,7 +7,6 @@ import com.mashreq.transfercoreservice.client.dto.FundTransferMWResponse;
 import com.mashreq.transfercoreservice.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.errors.FundTransferException;
 import com.mashreq.webcore.dto.response.Response;
-import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
