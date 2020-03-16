@@ -33,6 +33,7 @@ public enum TransferErrorCode implements ErrorCode {
     TO_ACCOUNT_SHOULD_BE_DIFFERENT_CIF("TNF-API-013", "To Account should belong to a different CIF"),
     TO_ACCOUNT_CURRENCY_MISMATCH("TNF-API-014", "To Account currency does not match with given currency"),
 
+
     BENE_NOT_FOUND("TNF-BEN-001", "Beneficiary Not Found"),
     BENE_ACC_NOT_MATCH("TNF-BEN-002", "Beneficiary Account Number does not match"),
     BENE_CUR_NOT_MATCH("TNF-BEN-003", "Beneficiary Currency does not match"),
