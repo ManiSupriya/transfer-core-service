@@ -31,7 +31,7 @@ public class ChannelTraceInterceptor implements HandlerInterceptor {
         log.info("URI : {}, USER-AGENT : {}, CIF {}", request.getRequestURI(), request.getHeader("user-agent"), request.getHeader("X-CIF-ID"), request.getRequestURI());
 
         if (isBlank(request.getHeader("X-CIF-ID")))
-            GenericExceptionHandler.handleError(HEADER_MISSING_CIF, HEADER_MISSING_CIF.getMessage());
+            GenericExceptionHandler.handleError(HEADER_MISSING_CIF, HEADER_MISSING_CIF.getErrorMessage());
 
         final String xChannelTraceId = channelTracerGenerator.channelTraceId(request.getHeader("user-agent"), request.getHeader("X-CIF-ID"));
         request.setAttribute(X_CHANNEL_TRACE_ID, xChannelTraceId);

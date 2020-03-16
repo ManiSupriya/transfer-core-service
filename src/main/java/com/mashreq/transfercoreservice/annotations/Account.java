@@ -14,7 +14,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * @author shahbazkh
  */
 @NotBlank(message = "Account Number cannot be empty")
-@Pattern(regexp = "[\\s]*[0-9]*[1-9]+", message = "Account Number should be Numeric")
+@Pattern(regexp = "[\\s]*[0-9]+", message = "Account Number should be Numeric")
 @Size(min = 9, max = 12, message = "Account number should be 9 to 12 digits")
 @Target(FIELD)
 @Retention(RUNTIME)

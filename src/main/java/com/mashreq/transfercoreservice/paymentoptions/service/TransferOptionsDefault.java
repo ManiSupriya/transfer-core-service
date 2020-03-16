@@ -49,7 +49,7 @@ public class TransferOptionsDefault implements FetchPaymentOptionsService {
 
         return PaymentsOptionsResponse.builder()
                 .source(source)
-                .finTxnNo(FinTxnNumberGenerator.generate())
+                .finTxnNo(FinTxnNumberGenerator.generate(request.getPaymentOptionType()))
                 .build();
     }
 }

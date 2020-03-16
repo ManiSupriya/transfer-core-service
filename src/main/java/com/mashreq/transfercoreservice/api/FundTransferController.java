@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.api;
 
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferService;
 import com.mashreq.webcore.dto.response.Response;
@@ -9,11 +10,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -32,8 +29,21 @@ public class FundTransferController {
             @ApiResponse(code = 500, message = "Something went wrong")
     })
     @PostMapping
-    public Response transferFunds(@RequestHeader("X-CIF-ID") final String cifId,
+    public Response transferFunds(@RequestAttribute("X-CHANNEL-TRACE-ID") String channelTraceId,
+                                  @RequestAttribute("X-CHANNEL-HOST") String channelHost,
+                                  @RequestAttribute("X-CHANNEL-NAME") String channelName,
+                                  @RequestHeader("X-CIF-ID") final String cifId,
                                   @Valid @RequestBody FundTransferRequestDTO request) {
-        return Response.builder().data(fundTransferService.transferFund(request)).build();
+
+        log.info("{} Fund transfer for request received ", request.getServiceType());
+        FundTransferMetadata metadata = FundTransferMetadata.builder()
+                .channel(channelName)
+                .channelTraceId(channelTraceId)
+                .channelHost(channelHost)
+                .primaryCif(cifId)
+                .build();
+
+        log.info("Fund transfer meta data created {} ", metadata);
+        return Response.builder().data(fundTransferService.transferFund(metadata, request)).build();
     }
 }

@@ -1,9 +1,11 @@
 package com.mashreq.transfercoreservice.client.service;
 
+import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.transfercoreservice.client.CoreTransferClient;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferRequestDto;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
 import com.mashreq.transfercoreservice.enums.MwResponseStatus;
+import com.mashreq.transfercoreservice.errors.FundTransferException;
 import com.mashreq.webcore.dto.response.Response;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
@@ -21,21 +23,25 @@ public class CoreTransferService {
      * Fund Transfer
      */
     public CoreFundTransferResponseDto transferFundsBetweenAccounts(CoreFundTransferRequestDto coreFundTransferRequestDto) {
-
-        CoreFundTransferResponseDto coreFundTransferResponseDto = CoreFundTransferResponseDto.builder().build();
-
         try {
             Response<String> transferFundsResponse =
                     coreTransferClient.transferFundsBetweenAccounts(coreFundTransferRequestDto);
-            coreFundTransferResponseDto.setTransactionRefNo(transferFundsResponse.getData());
-            coreFundTransferResponseDto.setMwResponseStatus(MwResponseStatus.S);
+            log.info("Response for fund-transfer call {} ", transferFundsResponse);
+            return CoreFundTransferResponseDto.builder()
+                    .transactionRefNo(transferFundsResponse.getData())
+                    .mwResponseStatus(MwResponseStatus.S)
+                    .build();
 
-        } catch (FeignException e) {
+        } catch (FundTransferException e) {
             log.debug("Fund Transfer From account {}, to account {} failed ",
                     coreFundTransferRequestDto.getFromAccount(), coreFundTransferRequestDto.getToAccount());
-            coreFundTransferResponseDto.setMwResponseStatus(MwResponseStatus.F);
+
+            return CoreFundTransferResponseDto.builder()
+                    .mwResponseStatus(MwResponseStatus.F)
+                    .transferErrorCode(e.getTransferErrorCode())
+                    .externalErrorMessage(e.getTransferErrorCode().getErrorMessage() + " -- " + e.getMessage())
+                    .build();
         }
 
-        return coreFundTransferResponseDto;
     }
 }

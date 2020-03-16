@@ -10,4 +10,6 @@ import java.util.List;
 public interface PaymentHistoryRepository extends JpaRepository<PaymentHistory, Long> {
 
     List<PaymentHistory> findByBeneficiaryTypeCode(String beneficiaryTypeCode);
+    boolean existsPaymentHistoryByFinancialTransactionNo(String financialTransactionNo);
+
 }

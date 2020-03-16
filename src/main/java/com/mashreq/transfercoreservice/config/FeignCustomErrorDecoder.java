@@ -3,11 +3,19 @@ package com.mashreq.transfercoreservice.config;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mashreq.ms.exceptions.GenericBusinessException;
+import com.mashreq.ms.exceptions.GenericException;
+import com.mashreq.ms.exceptions.GenericExceptionHandler;
+import com.mashreq.transfercoreservice.errors.FundTransferErrorMapper;
+import com.mashreq.transfercoreservice.errors.FundTransferException;
+import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import feign.Response;
 import feign.codec.ErrorDecoder;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.DUPLICATION_FUND_TRANSFER_REQUEST;
 
 /**
  * @author shahbazkh
@@ -32,10 +40,8 @@ public class FeignCustomErrorDecoder implements ErrorDecoder {
             log.error("Error Response from Feign {} {} {} ",
                     response.request().url(), jsonNode.get(ERROR_CODE).asText(),
                     jsonNode.get(MESSAGE).asText());
-
-            /*MobError mobError = MiddleWareErrorCodeResolver.getError(jsonNode.get(ERROR_CODE).asText());
-            return new MobException(mobError.getErrorCode(), mobError.getErrorMessage());*/
-            return new RuntimeException();
+            TransferErrorCode errorCode = FundTransferErrorMapper.getTransferErrorCode(jsonNode.get(ERROR_CODE).asText());
+            return new FundTransferException(errorCode, jsonNode.get(MESSAGE).asText());
 
         } catch (IOException e) {
             // Adding this catch block but ideally this should never

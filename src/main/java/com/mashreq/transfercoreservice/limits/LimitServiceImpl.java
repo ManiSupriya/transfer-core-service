@@ -11,7 +11,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class LimitServiceImpl implements LimitService {
 
-    private final LimitDTO.LimitPackageDefaultMapper limitPackageDefaultMapper;
+    private final LimitPackageDefaultMapper limitPackageDefaultMapper;
     private final LimitPackageDefaultRepository limitPackageDefaultRepository;
 
     @Override
