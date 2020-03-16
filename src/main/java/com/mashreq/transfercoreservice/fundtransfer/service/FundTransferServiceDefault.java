@@ -1,11 +1,12 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
+import com.mashreq.transfercoreservice.client.BeneficiaryClient;
+import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferRequestDto;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
 import com.mashreq.transfercoreservice.client.service.CoreTransferService;
 import com.mashreq.transfercoreservice.enums.MwResponseStatus;
-import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.FundTransferStrategy;
@@ -16,6 +17,7 @@ import com.mashreq.transfercoreservice.model.DigitalUser;
 import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -29,14 +31,12 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
 @RequiredArgsConstructor
 public class FundTransferServiceDefault implements FundTransferService {
 
-    //    private final OwnAccountStrategy ownAccountStrategy;
-//    private final WithinMashreqStrategy withinMashreqStrategy;
     private final CoreTransferService coreTransferService;
     private final DigitalUserRepository digitalUserRepository;
     private final LimitValidator limitValidator;
     private final PaymentHistoryService paymentHistoryService;
     private final DigitalUserLimitUsageService digitalUserLimitUsageService;
-
+    private final BeneficiaryClient beneficiaryClient;
     private EnumMap<ServiceType, FundTransferStrategy> fundTransferStrategies;
 
     @PostConstruct
@@ -80,6 +80,9 @@ public class FundTransferServiceDefault implements FundTransferService {
         log.info("Creating  User DTO");
         UserDTO userDTO = createUserDTO(metadata, digitalUser);
 
+        log.info("Validating Beneficiary {} ", request.getBeneficiaryId());
+        validateBeneficiary(metadata, request);
+
         LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), request.getAmount());
         log.info("Limit Validation successful");
 
@@ -119,6 +122,25 @@ public class FundTransferServiceDefault implements FundTransferService {
     private void validateFinTxnNo(FundTransferRequestDTO request) {
         if (paymentHistoryService.isFinancialTransactionPresent(request.getFinTxnNo())) {
             GenericExceptionHandler.handleError(DUPLICATION_FUND_TRANSFER_REQUEST, DUPLICATION_FUND_TRANSFER_REQUEST.getErrorMessage());
+        }
+    }
+
+    private void validateBeneficiary(FundTransferMetadata metadata, FundTransferRequestDTO request) {
+        if (StringUtils.isNotBlank(request.getBeneficiaryId())
+                && !request.getServiceType().equalsIgnoreCase("own-account")) {
+
+            BeneficiaryDto beneficiaryDto = beneficiaryClient.getBydId(
+                    metadata.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId())).getData();
+
+            if (beneficiaryDto == null)
+                GenericExceptionHandler.handleError(BENE_NOT_FOUND, BENE_NOT_FOUND.getErrorMessage());
+
+            if (!beneficiaryDto.getAccountNumber().equals(request.getToAccount()))
+                GenericExceptionHandler.handleError(BENE_ACC_NOT_MATCH, BENE_ACC_NOT_MATCH.getErrorMessage());
+
+            if (!request.getCurrency().equals(beneficiaryDto.getCurrency()))
+                GenericExceptionHandler.handleError(BENE_CUR_NOT_MATCH, BENE_CUR_NOT_MATCH.getErrorMessage());
+
         }
     }
 

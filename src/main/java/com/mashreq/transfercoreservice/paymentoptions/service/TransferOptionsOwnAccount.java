@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -86,6 +87,7 @@ public class TransferOptionsOwnAccount implements FetchPaymentOptionsService {
                 .finTxnNo(isPayloadEmpty(sourceAccounts, null)
                         ? null
                         : FinTxnNumberGenerator.generate(request.getPaymentOptionType()))
+                .destination(PaymentOptionPayLoad.builder().accounts(Collections.EMPTY_LIST).build())
                 .build();
     }
 
