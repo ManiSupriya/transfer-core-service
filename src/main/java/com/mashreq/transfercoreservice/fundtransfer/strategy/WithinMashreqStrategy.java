@@ -4,7 +4,7 @@
 //import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
 //import com.mashreq.transfercoreservice.enums.MwResponseStatus;
 //import com.mashreq.transfercoreservice.fundtransfer.dto.*;
-//import com.mashreq.transfercoreservice.fundtransfer.service.DigitalUserLimitUsageService;
+//import com.mashreq.transfercoreservice.limits.DigitalUserLimitUsageService;
 //import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferService;
 //import com.mashreq.transfercoreservice.fundtransfer.service.PaymentHistoryService;
 //import com.mashreq.transfercoreservice.limits.LimitValidator;

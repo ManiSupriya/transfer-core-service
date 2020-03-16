@@ -35,12 +35,15 @@ public class FundTransferController {
                                   @RequestHeader("X-CIF-ID") final String cifId,
                                   @Valid @RequestBody FundTransferRequestDTO request) {
 
+        log.info("{} Fund transfer for request received ", request.getServiceType());
         FundTransferMetadata metadata = FundTransferMetadata.builder()
                 .channel(channelName)
                 .channelTraceId(channelTraceId)
                 .channelHost(channelHost)
                 .primaryCif(cifId)
                 .build();
-        return Response.builder().data(fundTransferService.transferFund(metadata,request)).build();
+
+        log.info("Fund transfer meta data created {} ", metadata);
+        return Response.builder().data(fundTransferService.transferFund(metadata, request)).build();
     }
 }

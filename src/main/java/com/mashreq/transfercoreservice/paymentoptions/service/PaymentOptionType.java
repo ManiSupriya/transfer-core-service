@@ -15,10 +15,32 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_P
 @Slf4j
 public enum PaymentOptionType {
 
-    TRANSFER_OPTION_OWN_ACC("own-account"),
-    TRANSFER_OPTION_MASHREQ("within-mashreq"),
-    TRANSFER_OPTION_LOCAL("local"),
-    TRANSFER_OPTION_INTERNATIONAL("international");
+    TRANSFER_OPTION_OWN_ACC("own-account") {
+        @Override
+        String prefixCode() {
+            return "fto";
+        }
+    },
+    TRANSFER_OPTION_MASHREQ("within-mashreq") {
+        @Override
+        String prefixCode() {
+            return "ftm";
+        }
+    },
+    TRANSFER_OPTION_LOCAL("local") {
+        @Override
+        String prefixCode() {
+            return "ftl";
+        }
+    },
+    TRANSFER_OPTION_INTERNATIONAL("international") {
+        @Override
+        String prefixCode() {
+            return "fti";
+        }
+    };
+
+    abstract String prefixCode();
 
     private String name;
 

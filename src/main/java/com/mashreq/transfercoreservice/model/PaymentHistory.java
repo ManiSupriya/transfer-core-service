@@ -52,4 +52,5 @@ public class PaymentHistory extends AbstractAuditingEntity {
     private String status;
 
     private String ipAddress;
+    private String financialTransactionNo;
 }

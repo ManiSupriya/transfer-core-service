@@ -19,8 +19,13 @@ public class PaymentHistoryServiceDefault implements PaymentHistoryService {
 
     @Override
     public void insert(PaymentHistoryDTO paymentHistoryDTO) {
-        log.info("Store payment history for cif={} and billertype ", paymentHistoryDTO.getCif());
+        log.info("Store payment history for cif = {} and beneficiary type {} ", paymentHistoryDTO.getCif(), paymentHistoryDTO.getBeneficiaryTypeCode());
         PaymentHistory paymentHistory = paymentHistoryMapper.paymentHistoryDtoToEntity(paymentHistoryDTO);
         paymentHistoryRepository.save(paymentHistory);
+    }
+
+    @Override
+    public boolean isFinancialTransactionPresent(String financialTransactionNo) {
+        return paymentHistoryRepository.existsPaymentHistoryByFinancialTransactionNo(financialTransactionNo);
     }
 }

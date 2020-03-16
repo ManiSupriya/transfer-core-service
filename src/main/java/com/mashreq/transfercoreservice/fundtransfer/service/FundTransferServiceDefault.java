@@ -5,9 +5,11 @@ import com.mashreq.transfercoreservice.client.dto.CoreFundTransferRequestDto;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
 import com.mashreq.transfercoreservice.client.service.CoreTransferService;
 import com.mashreq.transfercoreservice.enums.MwResponseStatus;
+import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.FundTransferStrategy;
+import com.mashreq.transfercoreservice.limits.DigitalUserLimitUsageService;
 import com.mashreq.transfercoreservice.limits.LimitValidator;
 import com.mashreq.transfercoreservice.limits.LimitValidatorResultsDto;
 import com.mashreq.transfercoreservice.model.DigitalUser;
@@ -20,10 +22,7 @@ import javax.annotation.PostConstruct;
 import java.util.EnumMap;
 import java.util.Optional;
 
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.PAYMENT_FAILURE;
-import static com.mashreq.transfercoreservice.fundtransfer.ServiceType.OWN_ACCOUNT;
-import static com.mashreq.transfercoreservice.fundtransfer.ServiceType.WITHIN_MASHREQ;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
 
 @Slf4j
 @Service
@@ -48,30 +47,32 @@ public class FundTransferServiceDefault implements FundTransferService {
     }
 
     /**
-     *
      * 1. validate financial_trx_no for the given request
-     *
+     * <p>
      * 1. user CIF exists or not
-     *
+     * <p>
      * 2. if within cif then both account should be of same user
      * 3. if another mashreq then to account should be of user with given CIF
-     *
+     * <p>
      * 1. source account should be active  - already in transfer call of account-service
      * 2. destination should be active/dormant - already in transfer call of account-service
      * 3. validate transactionAmount with respect to available balance of source account - already in transfer call of account-service
-     *
-     *
+     * <p>
+     * <p>
      * 3.1 call mw which does all 1,2,3
-     *
+     * <p>
      * 3. validate limit ( copy from bill payment )
      * 4. update limit on success
      * 5. store payment history
-     *
      */
 
     @Override
     public PaymentHistoryDTO transferFund(FundTransferMetadata metadata, FundTransferRequestDTO request) {
+
         log.info("Starting fund transfer for {} ", request.getServiceType());
+
+        log.info("Validating Financial Transaction number {} ", request.getFinTxnNo());
+        validateFinTxnNo(request);
 
         log.info("Finding Digital User for CIF-ID {}", metadata.getPrimaryCif());
         DigitalUser digitalUser = getDigitalUser(metadata);
@@ -80,7 +81,7 @@ public class FundTransferServiceDefault implements FundTransferService {
         UserDTO userDTO = createUserDTO(metadata, digitalUser);
 
         LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), request.getAmount());
-        log.info("Limit Validation successful ");
+        log.info("Limit Validation successful");
 
         CoreFundTransferRequestDto coreFundTransferRequestDto = CoreFundTransferRequestDto.builder()
                 .fromAccount(request.getFromAccount())
@@ -91,6 +92,7 @@ public class FundTransferServiceDefault implements FundTransferService {
                 .purposeCode(request.getPurposeCode())
                 .build();
 
+        log.info("Calling external service for fundtransfer {} ", coreFundTransferRequestDto);
         CoreFundTransferResponseDto response = coreTransferService.transferFundsBetweenAccounts(coreFundTransferRequestDto);
 
         if (response.getMwResponseStatus().equals(MwResponseStatus.S)) {
@@ -107,11 +109,17 @@ public class FundTransferServiceDefault implements FundTransferService {
         paymentHistoryService.insert(paymentHistoryDTO);
 
         if (MwResponseStatus.F.equals(response.getMwResponseStatus())) {
-            GenericExceptionHandler.handleError(PAYMENT_FAILURE, String.format(PAYMENT_FAILURE.getErrorMessage(),
-                    response.getMwReferenceNo()));
+            GenericExceptionHandler.handleError(response.getTransferErrorCode(),
+                    String.format("%s : %s ", request.getFinTxnNo(), response.getExternalErrorMessage()));
         }
 
         return paymentHistoryDTO;
+    }
+
+    private void validateFinTxnNo(FundTransferRequestDTO request) {
+        if (paymentHistoryService.isFinancialTransactionPresent(request.getFinTxnNo())) {
+            GenericExceptionHandler.handleError(DUPLICATION_FUND_TRANSFER_REQUEST, DUPLICATION_FUND_TRANSFER_REQUEST.getErrorMessage());
+        }
     }
 
 
@@ -164,11 +172,12 @@ public class FundTransferServiceDefault implements FundTransferService {
                 .paidAmount(request.getAmount())
                 //.dueAmount(request.getDueAmount())
                 //.toCurrency(PaymentConstants.BILL_PAYMENT_TO_CURRENCY)
-                //.status(mwResponse.getMwResponseStatus().name())
+                .status(coreResponse.getMwResponseStatus().name())
                 .mwReferenceNo(coreResponse.getMwReferenceNo())
                 .mwResponseCode(coreResponse.getMwResponseCode())
                 .mwResponseDescription(coreResponse.getMwResponseDescription())
                 .accountFrom(request.getFromAccount())
+                .financialTransactionNo(request.getFinTxnNo())
                 //.encryptedCardFrom(request.getDebitAccountNo())
 //                .encryptedCardFromFourdigit(
 //                        StringUtils.isEmpty(request.getDebitAccountNo()) ? null :

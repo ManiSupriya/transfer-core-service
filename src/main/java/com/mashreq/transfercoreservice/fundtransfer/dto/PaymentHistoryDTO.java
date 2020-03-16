@@ -37,6 +37,7 @@ public class PaymentHistoryDTO {
     private String status;
 
     private String ipAddress;
+    private String financialTransactionNo;
 
 
 }
