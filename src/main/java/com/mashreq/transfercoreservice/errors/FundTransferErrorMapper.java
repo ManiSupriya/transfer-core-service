@@ -14,6 +14,7 @@ public class FundTransferErrorMapper {
         put("ACC-5001", TransferErrorCode.TO_ACCOUNT_IS_INVALID);
         put("ACC-CORE-412", TransferErrorCode.FROM_ACCOUNT_IS_NON_ACTIVE);
         put("ACC-ESB-2262", TransferErrorCode.SAME_DEBIT_CREDIT_ACC);
+        put("ACC-CORE-400", TransferErrorCode.INVALID_REQ_BODY);
     }};
 
     public static TransferErrorCode getTransferErrorCode(String errorCode) {

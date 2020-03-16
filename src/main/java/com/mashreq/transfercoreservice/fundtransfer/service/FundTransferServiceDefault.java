@@ -16,6 +16,7 @@ import com.mashreq.transfercoreservice.model.DigitalUser;
 import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -74,6 +75,7 @@ public class FundTransferServiceDefault implements FundTransferService {
         log.info("Validating Financial Transaction number {} ", request.getFinTxnNo());
         validateFinTxnNo(request);
 
+
         log.info("Finding Digital User for CIF-ID {}", metadata.getPrimaryCif());
         DigitalUser digitalUser = getDigitalUser(metadata);
 
@@ -119,6 +121,12 @@ public class FundTransferServiceDefault implements FundTransferService {
     private void validateFinTxnNo(FundTransferRequestDTO request) {
         if (paymentHistoryService.isFinancialTransactionPresent(request.getFinTxnNo())) {
             GenericExceptionHandler.handleError(DUPLICATION_FUND_TRANSFER_REQUEST, DUPLICATION_FUND_TRANSFER_REQUEST.getErrorMessage());
+        }
+    }
+
+    private void validateBeneficiary(FundTransferRequestDTO request) {
+        if (StringUtils.isNotBlank(request.getBeneficiaryId())) {
+            
         }
     }
 

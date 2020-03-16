@@ -19,6 +19,7 @@ public enum TransferErrorCode implements ErrorCode {
     TO_ACCOUNT_IS_INVALID("TNF-ACC-5001", "To Account is Invalid"),
     NOT_ENOUGH_RESOURCES("TNF-CORE-412", "Not enough resources in account"),
     SAME_DEBIT_CREDIT_ACC("TNF-ESB-2262", "Same Debit and Credit Account"),
+    INVALID_REQ_BODY("ACC-CORE-400","Please validate your request body"),
 
 
     INVALID_PAYMENT_OPTIONS("TNF-API-001", "Invalid Payment Option Mode"),

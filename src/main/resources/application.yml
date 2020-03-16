@@ -47,3 +47,4 @@ app:
     cards: ${CARD_SERVICE_URL:http://cards-service:8080}
     notification: ${NOTIFICATION_SERVICE:http://notification-service:8080}
     mobcustomer: ${MOB_CUSTOMER_SERVICE:http://mob-customer-service:8080}
+    beneficiary: ${BENEFICIARY_CORE_SERVICE:http://beneficiary-core-service:8080}
