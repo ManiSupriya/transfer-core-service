@@ -127,6 +127,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     private void validateOwnCIFAccountNumbers(FundTransferMetadata metadata, FundTransferRequestDTO request) {
         log.info("Validating account belong to same cif for own-account transfer");
         if (request.getServiceType().equals("own-account")) {
+
             String toAccountNUmber = request.getToAccount();
             String fromAccountNumber = request.getFromAccount();
 
