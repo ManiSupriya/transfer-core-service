@@ -28,8 +28,6 @@ public class FundTransferController {
     private final FundTransferService fundTransferService;
 
 
-
-
     @ApiOperation(value = "Processes to start payment", response = FundTransferRequestDTO.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully processed"),

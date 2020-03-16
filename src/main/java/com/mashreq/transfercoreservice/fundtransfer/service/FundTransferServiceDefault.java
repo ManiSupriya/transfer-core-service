@@ -2,10 +2,7 @@ package com.mashreq.transfercoreservice.fundtransfer.service;
 
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.BeneficiaryClient;
-import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
-import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
-import com.mashreq.transfercoreservice.client.dto.CoreFundTransferRequestDto;
-import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
+import com.mashreq.transfercoreservice.client.dto.*;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.CoreTransferService;
 import com.mashreq.transfercoreservice.enums.MwResponseStatus;
@@ -23,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Optional;
@@ -133,11 +131,11 @@ public class FundTransferServiceDefault implements FundTransferService {
         if (toAccountNUmber.equals(fromAccountNumber))
             GenericExceptionHandler.handleError(CREDIT_AND_DEBIT_ACC_SAME, CREDIT_AND_DEBIT_ACC_SAME.getErrorMessage());
 
+
         List<AccountDetailsDTO> coreAccounts = accountService.getAccountsFromCore(metadata.getPrimaryCif());
 
         log.info("Validating account belong to same cif for own-account transfer");
-        if (request.getServiceType().equals("own-account")) {
-
+        if (ServiceType.OWN_ACCOUNT.getName().equals(request.getServiceType())) {
 
             if (!isAccountNumberBelongsToCif(coreAccounts, toAccountNUmber))
                 GenericExceptionHandler.handleError(ACCOUNT_NOT_BELONG_TO_CIF, ACCOUNT_NOT_BELONG_TO_CIF.getErrorMessage());
@@ -147,13 +145,27 @@ public class FundTransferServiceDefault implements FundTransferService {
 
             if (!validateToAccountCurrency(coreAccounts, request.getCurrency(), request.getToAccount()))
                 GenericExceptionHandler.handleError(TO_ACCOUNT_CURRENCY_MISMATCH, TO_ACCOUNT_CURRENCY_MISMATCH.getErrorMessage());
-        } else {
 
-            //TODO All other transfer modes should have to-account which should not belong to sender's cif
+
+        } else if (ServiceType.CHARITY_ACCOUNT.getName().equals(request.getServiceType())) {
+
+            if(!validateCharityAccount(request.getBeneficiaryId(), toAccountNUmber))
+                GenericExceptionHandler.handleError(BENE_ACC_NOT_MATCH, BENE_ACC_NOT_MATCH.getErrorMessage());
+
+            if (!validateToAccountCurrency(coreAccounts, request.getCurrency(), request.getToAccount()))
+                GenericExceptionHandler.handleError(TO_ACCOUNT_CURRENCY_MISMATCH, TO_ACCOUNT_CURRENCY_MISMATCH.getErrorMessage());
+
+        } else {
+            // All other transfer modes should have to-account which should not belong to sender's cif
+
             if (isAccountNumberBelongsToCif(coreAccounts, toAccountNUmber))
                 GenericExceptionHandler.handleError(ACCOUNT_NOT_BELONG_TO_CIF, ACCOUNT_NOT_BELONG_TO_CIF.getErrorMessage());
         }
+    }
 
+    private boolean validateCharityAccount(String charityBeneficiaryId, String toAccountNumber) {
+        CharityBeneficiaryDto charityBeneficiaryDto = beneficiaryClient.getCharity(charityBeneficiaryId).getData();
+        return charityBeneficiaryDto.getAccountNumber().equals(toAccountNumber);
     }
 
     private boolean validateToAccountCurrency(List<AccountDetailsDTO> coreAccounts, String toAcctCurrency, String toAccountNum) {
