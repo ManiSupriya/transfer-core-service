@@ -2,6 +2,7 @@ package com.mashreq.transfercoreservice.api;
 
 import com.mashreq.transfercoreservice.paymentoptions.dto.PaymentOptionRequest;
 import com.mashreq.transfercoreservice.paymentoptions.dto.PaymentsOptionsResponse;
+import com.mashreq.transfercoreservice.paymentoptions.service.FinTxnNumberGenerator;
 import com.mashreq.transfercoreservice.paymentoptions.service.PaymentOptionType;
 import com.mashreq.transfercoreservice.paymentoptions.service.PaymentOptionsService;
 import com.mashreq.webcore.dto.response.Response;
@@ -40,8 +41,23 @@ public class PaymentOptionsController {
                 .build();
 
         PaymentsOptionsResponse response = paymentOptionsService.getPaymentSource(paymentOptionRequest);
-        log.info("Payment Options for option type {} is = {} ",optionType,response);
+        log.info("Payment Options for option type {} is = {} ", optionType, response);
 
         return Response.builder().data(response).build();
+    }
+
+
+    //TODO : To be decided if this API is required or not, only use case is try again when it can be needed
+    @GetMapping("{optionType}/finTxnNo")
+    public Response fixTxNo(@RequestAttribute("X-CHANNEL-TRACE-ID") String channelTraceId,
+                            @RequestAttribute("X-CHANNEL-HOST") String channelHost,
+                            @RequestAttribute("X-CHANNEL-NAME") String channelName,
+                            @RequestHeader("X-CIF-ID") final String cifId,
+                            @PathVariable final String optionType) {
+
+        log.info("Request received to generate finTxnNo for {} ", optionType);
+        String finTxnNo = FinTxnNumberGenerator.generate(PaymentOptionType.getPaymentOptionsByType(optionType));
+        log.info("finTxnNo generated for optionType {} ", optionType);
+        return Response.builder().data(finTxnNo).build();
     }
 }

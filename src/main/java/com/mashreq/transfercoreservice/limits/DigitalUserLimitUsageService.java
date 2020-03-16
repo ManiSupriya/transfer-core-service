@@ -1,4 +1,4 @@
-package com.mashreq.transfercoreservice.fundtransfer.service;
+package com.mashreq.transfercoreservice.limits;
 
 
 import com.mashreq.transfercoreservice.fundtransfer.dto.DigitalUserLimitUsageDTO;

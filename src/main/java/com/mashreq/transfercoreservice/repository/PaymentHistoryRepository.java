@@ -1,6 +1,5 @@
 package com.mashreq.transfercoreservice.repository;
 
-import com.mashreq.transfercoreservice.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.model.PaymentHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -12,6 +11,8 @@ import java.util.List;
 public interface PaymentHistoryRepository extends JpaRepository<PaymentHistory, Long> {
 
     List<PaymentHistory> findByBeneficiaryTypeCode(String beneficiaryTypeCode);
+
+    boolean existsPaymentHistoryByFinancialTransactionNo(String financialTransactionNo);
 
     @Query(value = "SELECT SUM(ph.paidAmount) as amount FROM PaymentHistory as ph WHERE " +
             "ph.cif = :cif and " +

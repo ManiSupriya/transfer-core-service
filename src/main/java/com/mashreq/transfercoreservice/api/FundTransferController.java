@@ -3,6 +3,8 @@ package com.mashreq.transfercoreservice.api;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferService;
+import com.mashreq.transfercoreservice.paymentoptions.service.FinTxnNumberGenerator;
+import com.mashreq.transfercoreservice.paymentoptions.service.PaymentOptionType;
 import com.mashreq.webcore.dto.response.Response;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -14,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
+import static com.mashreq.transfercoreservice.paymentoptions.service.FinTxnNumberGenerator.generate;
+
 @Slf4j
 @RestController
 @RequestMapping("/v1/transfer")
@@ -22,6 +26,9 @@ import javax.validation.Valid;
 public class FundTransferController {
 
     private final FundTransferService fundTransferService;
+
+
+
 
     @ApiOperation(value = "Processes to start payment", response = FundTransferRequestDTO.class)
     @ApiResponses(value = {
@@ -35,12 +42,15 @@ public class FundTransferController {
                                   @RequestHeader("X-CIF-ID") final String cifId,
                                   @Valid @RequestBody FundTransferRequestDTO request) {
 
+        log.info("{} Fund transfer for request received ", request.getServiceType());
         FundTransferMetadata metadata = FundTransferMetadata.builder()
                 .channel(channelName)
                 .channelTraceId(channelTraceId)
                 .channelHost(channelHost)
                 .primaryCif(cifId)
                 .build();
-        return Response.builder().data(fundTransferService.transferFund(metadata,request)).build();
+
+        log.info("Fund transfer meta data created {} ", metadata);
+        return Response.builder().data(fundTransferService.transferFund(metadata, request)).build();
     }
 }

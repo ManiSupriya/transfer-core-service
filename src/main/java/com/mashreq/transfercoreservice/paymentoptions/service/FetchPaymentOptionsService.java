@@ -1,9 +1,11 @@
 package com.mashreq.transfercoreservice.paymentoptions.service;
 
+import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.paymentoptions.dto.PaymentOptionRequest;
 import com.mashreq.transfercoreservice.paymentoptions.dto.PaymentsOptionsResponse;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * @author shahbazkh
@@ -13,4 +15,8 @@ import java.math.BigDecimal;
 public interface FetchPaymentOptionsService {
 
     PaymentsOptionsResponse getPaymentOptions(PaymentOptionRequest request);
+
+     default boolean isPayloadEmpty(List<AccountDetailsDTO> sourceAccounts, List<AccountDetailsDTO> destinationAccounts) {
+        return sourceAccounts == null && destinationAccounts == null;
+    }
 }
