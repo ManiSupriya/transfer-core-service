@@ -29,6 +29,8 @@ public enum TransferErrorCode implements ErrorCode {
     ACC_ESB_TIMEOUT("TNF-ESB-TIMEOUT", "Esb response timeouts"),
 
     ACCOUNT_NOT_BELONG_TO_CIF("TNF-API-011", "Account does not belong to CIF"),
+    CREDIT_AND_DEBIT_ACC_SAME("TNF-API-012", "Credit and Debit Account cannot be same"),
+    TO_ACCOUNT_SHOULD_BE_DIFFERENT_CIF("TNF-API-013", "To Account should belong to a different CIF"),
 
     BENE_NOT_FOUND("TNF-BEN-001", "Beneficiary Not Found"),
     BENE_ACC_NOT_MATCH("TNF-BEN-002", "Beneficiary Account Number does not match"),
