@@ -49,7 +49,9 @@ public class TransferOptionsDefault implements FetchPaymentOptionsService {
 
         return PaymentsOptionsResponse.builder()
                 .source(source)
-                .finTxnNo(FinTxnNumberGenerator.generate(request.getPaymentOptionType()))
+                .finTxnNo(isPayloadEmpty(sourceAccounts, null)
+                        ? null
+                        : FinTxnNumberGenerator.generate(request.getPaymentOptionType()))
                 .build();
     }
 }
