@@ -1,13 +1,12 @@
 package com.mashreq.transfercoreservice.client.service;
 
-import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.transfercoreservice.client.CoreTransferClient;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferRequestDto;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
+import com.mashreq.transfercoreservice.client.dto.FundTransferMWResponse;
 import com.mashreq.transfercoreservice.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.errors.FundTransferException;
 import com.mashreq.webcore.dto.response.Response;
-import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,12 +23,17 @@ public class CoreTransferService {
      */
     public CoreFundTransferResponseDto transferFundsBetweenAccounts(CoreFundTransferRequestDto coreFundTransferRequestDto) {
         try {
-            Response<String> transferFundsResponse =
+            Response<FundTransferMWResponse> transferFundsResponse =
                     coreTransferClient.transferFundsBetweenAccounts(coreFundTransferRequestDto);
+
             log.info("Response for fund-transfer call {} ", transferFundsResponse);
+
             return CoreFundTransferResponseDto.builder()
-                    .transactionRefNo(transferFundsResponse.getData())
-                    .mwResponseStatus(MwResponseStatus.S)
+                    .transactionRefNo(transferFundsResponse.getData().getTransactionRefNo())
+                    .mwReferenceNo(transferFundsResponse.getData().getMwReferenceNo())
+                    .mwResponseStatus(transferFundsResponse.getData().getMwResponseStatus())
+                    .mwResponseCode(transferFundsResponse.getData().getMwResponseCode())
+                    .mwResponseDescription(transferFundsResponse.getData().getMwResponseDescription())
                     .build();
 
         } catch (FundTransferException e) {

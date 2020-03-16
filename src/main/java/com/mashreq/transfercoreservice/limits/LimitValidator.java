@@ -32,34 +32,34 @@ public class LimitValidator {
      */
     public LimitValidatorResultsDto validate(final UserDTO userDTO, final String beneficiaryType, final BigDecimal paidAmount) throws GenericException {
 
-        return LimitValidatorResultsDto.builder()
-                .availableLimitAmount(new BigDecimal("5000"))
-                .availableLimitCount(100)
-                .limitVersionUuid("TEST")
-                .isValid(true)
-                .build();
+//        return LimitValidatorResultsDto.builder()
+//                .availableLimitAmount(new BigDecimal("5000"))
+//                .availableLimitCount(100)
+//                .limitVersionUuid("TEST")
+//                .isValid(true)
+//                .build();
 
-//        log.info("[LimitValidator] - Validating limit for cif={} and billerType={} ", userDTO.getCifId(), beneficiaryType);
-//        long startTime = System.nanoTime();
-//
-//        Optional<LimitDTO> defaultLP = limitService.getDefaultLPByBeneficiaryTypeAndSegmentAndCountry(
-//                beneficiaryType,
-//                userDTO.getSegmentId(),
-//                userDTO.getCountryId()
-//        );
-//
-//        if(!defaultLP.isPresent()){
-//            log.warn("[LimitValidator] - Limit is not defined for biller type {} ", beneficiaryType);
-//            GenericExceptionHandler.handleError(TransferTransferErrorCode.LIMIT_PACKAGE_NOT_FOUND, "");
-//        }
-//
-//        LimitValidatorResultsDto limitValidatorResultsDto = validateLimitWithDefaultLP(defaultLP.get(), beneficiaryType, paidAmount, userDTO);
-//
-//        long endTime   = System.nanoTime();
-//        long totalTime = endTime - startTime;
-//        log.info("[LimitValidator] - Limit validation is successful in {} ", totalTime);
-//
-//        return limitValidatorResultsDto;
+        log.info("[LimitValidator] - Validating limit for cif={} and billerType={} ", userDTO.getCifId(), beneficiaryType);
+        long startTime = System.nanoTime();
+
+        Optional<LimitDTO> defaultLP = limitService.getDefaultLPByBeneficiaryTypeAndSegmentAndCountry(
+                beneficiaryType,
+                userDTO.getSegmentId(),
+                userDTO.getCountryId()
+        );
+
+        if(!defaultLP.isPresent()){
+            log.warn("[LimitValidator] - Limit is not defined for biller type {} ", beneficiaryType);
+            GenericExceptionHandler.handleError(TransferErrorCode.LIMIT_PACKAGE_NOT_FOUND, "");
+        }
+
+        LimitValidatorResultsDto limitValidatorResultsDto = validateLimitWithDefaultLP(defaultLP.get(), beneficiaryType, paidAmount, userDTO);
+
+        long endTime   = System.nanoTime();
+        long totalTime = endTime - startTime;
+        log.info("[LimitValidator] - Limit validation is successful in {} ", totalTime);
+
+        return limitValidatorResultsDto;
 
     }
 
