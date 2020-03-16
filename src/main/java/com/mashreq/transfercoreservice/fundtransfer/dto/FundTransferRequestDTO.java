@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 
 @Data
 @ConditionalRequired(fieldName = "beneficiaryId", dependentFieldName = "serviceType", noneMatch = "own-account", message = "Beneficiary ID is mandatory")
+@ConditionalRequired(fieldName = "purposeCode", dependentFieldName = "serviceType", anyMatch = "international", message = "Purpost code cannot be empty")
 public class FundTransferRequestDTO {
 
     @Account
@@ -38,7 +39,6 @@ public class FundTransferRequestDTO {
     @Size(max = 3, min = 3, message = "Size should be 3")
     private String currency;
 
-    @NotBlank(message = "Purpose code cannot be empty")
     private String purposeCode;
 
     private String dealNumber;
