@@ -1,6 +1,6 @@
 package com.mashreq.transfercoreservice.enums;
 
 public enum MwResponseStatus {
-    S,
-    F
+    S, //Success
+    F //Fail
 }
