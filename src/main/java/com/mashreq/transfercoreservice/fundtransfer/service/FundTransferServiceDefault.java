@@ -149,24 +149,21 @@ public class FundTransferServiceDefault implements FundTransferService {
 
         } else if (ServiceType.CHARITY_ACCOUNT.getName().equals(request.getServiceType())) {
 
-            if(!validateCharityAccount(request.getBeneficiaryId(), toAccountNUmber))
+            CharityBeneficiaryDto charityBeneficiaryDto = beneficiaryClient.getCharity(request.getBeneficiaryId()).getData();
+
+            if(!toAccountNUmber.equals(charityBeneficiaryDto.getAccountNumber()))
                 GenericExceptionHandler.handleError(BENE_ACC_NOT_MATCH, BENE_ACC_NOT_MATCH.getErrorMessage());
 
-            if (!validateToAccountCurrency(coreAccounts, request.getCurrency(), request.getToAccount()))
+            if(!charityBeneficiaryDto.getCurrencyCode().equals(request.getCurrency()))
                 GenericExceptionHandler.handleError(TO_ACCOUNT_CURRENCY_MISMATCH, TO_ACCOUNT_CURRENCY_MISMATCH.getErrorMessage());
 
         } else {
             // All other transfer modes should have to-account which should not belong to sender's cif
-
             if (isAccountNumberBelongsToCif(coreAccounts, toAccountNUmber))
                 GenericExceptionHandler.handleError(ACCOUNT_NOT_BELONG_TO_CIF, ACCOUNT_NOT_BELONG_TO_CIF.getErrorMessage());
         }
     }
 
-    private boolean validateCharityAccount(String charityBeneficiaryId, String toAccountNumber) {
-        CharityBeneficiaryDto charityBeneficiaryDto = beneficiaryClient.getCharity(charityBeneficiaryId).getData();
-        return charityBeneficiaryDto.getAccountNumber().equals(toAccountNumber);
-    }
 
     private boolean validateToAccountCurrency(List<AccountDetailsDTO> coreAccounts, String toAcctCurrency, String toAccountNum) {
         return coreAccounts.stream()
