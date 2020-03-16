@@ -29,8 +29,10 @@ public class TransferOptionsOwnAccount implements FetchPaymentOptionsService {
     @Override
     public PaymentsOptionsResponse getPaymentOptions(PaymentOptionRequest request) {
 
+        //Fetch Accounts from Core
         List<AccountDetailsDTO> coreAccounts = accountService.getAccountsFromCore(request.getCifId());
 
+        //Extract Source Accounts
         List<AccountDetailsDTO> sourceAccounts = coreAccounts.stream()
                 .filter(PaymentPredicates.fundTransferAccountFilterSource())
                 .sorted(Comparator.comparing(AccountDetailsDTO::getAvailableBalance).reversed())
@@ -38,14 +40,21 @@ public class TransferOptionsOwnAccount implements FetchPaymentOptionsService {
         log.info("Found {} Source Accounts ", sourceAccounts.size());
         log.debug("Source Accounts {} ", sourceAccounts.stream().map(AccountDetailsDTO::getNumber).collect(Collectors.joining(",")));
 
-        Optional<AccountDetailsDTO> defaultSourceAccountOptional = sourceAccounts.stream().findFirst();
 
+        // Compute Suggested Account
+        Optional<AccountDetailsDTO> defaultSourceAccountOptional = sourceAccounts.stream().findFirst();
         log.info("Default Source Accounts present = {} ", defaultSourceAccountOptional.isPresent());
 
+        // Construct Source Payload
         PaymentOptionPayLoad source = PaymentOptionPayLoad.builder()
                 .accounts(sourceAccounts)
                 .defaultAccount(defaultSourceAccountOptional.orElse(null))
                 .build();
+
+        // If only one Account present the return with only source payload
+        if (coreAccounts.size() == 1) {
+            return returnWithSourcePayloadOnly(request, sourceAccounts, source);
+        }
 
         List<AccountDetailsDTO> destinationAccounts = coreAccounts.stream()
                 .filter(PaymentPredicates.fundTransferOwnAccountFilterDestination())
@@ -68,6 +77,16 @@ public class TransferOptionsOwnAccount implements FetchPaymentOptionsService {
                 .build();
 
 
+    }
+
+    private PaymentsOptionsResponse returnWithSourcePayloadOnly(PaymentOptionRequest request, List<AccountDetailsDTO> sourceAccounts, PaymentOptionPayLoad source) {
+        log.info("Only one account present returning it as source payload = {} ", source);
+        return PaymentsOptionsResponse.builder()
+                .source(source)
+                .finTxnNo(isPayloadEmpty(sourceAccounts, null)
+                        ? null
+                        : FinTxnNumberGenerator.generate(request.getPaymentOptionType()))
+                .build();
     }
 
 
