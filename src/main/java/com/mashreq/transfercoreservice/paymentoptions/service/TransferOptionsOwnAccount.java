@@ -52,7 +52,7 @@ public class TransferOptionsOwnAccount implements FetchPaymentOptionsService {
                 .build();
 
         // If only one Account present the return with only source payload
-        if (coreAccounts.size() == 1) {
+        if (sourceAccounts.size() == 1) {
             return returnWithSourcePayloadOnly(request, sourceAccounts, source);
         }
 
