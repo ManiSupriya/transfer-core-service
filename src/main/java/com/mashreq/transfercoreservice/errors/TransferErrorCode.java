@@ -32,6 +32,7 @@ public enum TransferErrorCode implements ErrorCode {
     CREDIT_AND_DEBIT_ACC_SAME("TNF-API-012", "Credit and Debit Account cannot be same"),
     TO_ACCOUNT_SHOULD_BE_DIFFERENT_CIF("TNF-API-013", "To Account should belong to a different CIF"),
     TO_ACCOUNT_CURRENCY_MISMATCH("TNF-API-014", "To Account currency does not match with given currency"),
+    TO_ACCOUNT_BELONGS_TO_SAME_CIF("TNF-API-015", "To Account belongs to same CIF"),
 
 
     BENE_NOT_FOUND("TNF-BEN-001", "Beneficiary Not Found"),
