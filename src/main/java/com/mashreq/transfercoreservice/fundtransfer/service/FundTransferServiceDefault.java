@@ -123,7 +123,7 @@ public class FundTransferServiceDefault implements FundTransferService {
                 GenericExceptionHandler.handleError(ACCOUNT_NOT_BELONG_TO_CIF, ACCOUNT_NOT_BELONG_TO_CIF.getErrorMessage());
 
             if (!validateToAccountCurrency(coreAccounts, request.getCurrency(), request.getToAccount()))
-                GenericExceptionHandler.handleError(TO_ACCOUNT_CURRENCY_MISMATCH, TO_ACCOUNT_CURRENCY_MISMATCH.getErrorMessage());
+                GenericExceptionHandler.handleError(ACCOUNT_CURRENCY_MISMATCH, ACCOUNT_CURRENCY_MISMATCH.getErrorMessage());
 
 
         } else if (ServiceType.CHARITY_ACCOUNT.getName().equals(request.getServiceType())) {
@@ -134,7 +134,7 @@ public class FundTransferServiceDefault implements FundTransferService {
                 GenericExceptionHandler.handleError(BENE_ACC_NOT_MATCH, BENE_ACC_NOT_MATCH.getErrorMessage());
 
             if (!charityBeneficiaryDto.getCurrencyCode().equals(request.getCurrency()))
-                GenericExceptionHandler.handleError(TO_ACCOUNT_CURRENCY_MISMATCH, TO_ACCOUNT_CURRENCY_MISMATCH.getErrorMessage());
+                GenericExceptionHandler.handleError(ACCOUNT_CURRENCY_MISMATCH, ACCOUNT_CURRENCY_MISMATCH.getErrorMessage());
 
         } else {
             //TODO Discuss with Bala
