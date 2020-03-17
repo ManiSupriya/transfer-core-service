@@ -9,5 +9,10 @@ import java.util.Map;
  * @author shahbazkh
  */
 public interface Validator {
-    ValidationResult validate(FundTransferRequestDTO request, FundTransferMetadata metadata, ValidationContext context );
+
+    default ValidationResult validate(final FundTransferRequestDTO request, final FundTransferMetadata metadata) {
+        return validate(request, metadata, null);
+    }
+
+    ValidationResult validate(FundTransferRequestDTO request, FundTransferMetadata metadata, ValidationContext context);
 }

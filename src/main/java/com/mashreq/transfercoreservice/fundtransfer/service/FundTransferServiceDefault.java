@@ -10,6 +10,7 @@ import com.mashreq.transfercoreservice.fundtransfer.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.FundTransferStrategy;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.OwnAccountStrategy;
+import com.mashreq.transfercoreservice.fundtransfer.validators.FinTxnNoValidator;
 import com.mashreq.transfercoreservice.limits.DigitalUserLimitUsageService;
 import com.mashreq.transfercoreservice.limits.LimitValidator;
 import com.mashreq.transfercoreservice.limits.LimitValidatorResultsDto;
@@ -42,17 +43,20 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final AccountService accountService;
     private EnumMap<ServiceType, FundTransferStrategy> fundTransferStrategies;
     private OwnAccountStrategy ownAccountStrategy;
+    private final FinTxnNoValidator finTxnNoValidator;
 
     @PostConstruct
     public void init() {
         fundTransferStrategies = new EnumMap<>(ServiceType.class);
         fundTransferStrategies.put(ServiceType.OWN_ACCOUNT, ownAccountStrategy);
-//        fundTransferStrategies.put(WITHIN_MASHREQ, withinMashreqStrategy);
     }
 
     @Override
     public PaymentHistoryDTO transferFund(FundTransferMetadata metadata, FundTransferRequestDTO request) {
         log.info("Starting fund transfer for {} ", request.getServiceType());
+
+//        final FundTransferStrategy strategy = fundTransferStrategies.get(ServiceType.valueOf(request.getServiceType()));
+//        strategy.execute(metadata, request);
 
         log.info("Validating Financial Transaction number {} ", request.getFinTxnNo());
         validateFinTxnNo(request);
@@ -60,14 +64,14 @@ public class FundTransferServiceDefault implements FundTransferService {
         log.info("Validating Account number {} ", request.getFinTxnNo());
         validateAccountNumbers(metadata, request);
 
+        log.info("Validating Beneficiary {} ", request.getBeneficiaryId());
+        validateBeneficiary(metadata, request);
+
         log.info("Finding Digital User for CIF-ID {}", metadata.getPrimaryCif());
         DigitalUser digitalUser = getDigitalUser(metadata);
 
         log.info("Creating  User DTO");
         UserDTO userDTO = createUserDTO(metadata, digitalUser);
-
-        log.info("Validating Beneficiary {} ", request.getBeneficiaryId());
-        validateBeneficiary(metadata, request);
 
         LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), request.getAmount());
         log.info("Limit Validation successful");

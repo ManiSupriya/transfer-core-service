@@ -4,9 +4,7 @@ import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.validators.AccountBelongsToCifValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
-import com.sun.org.apache.xpath.internal.operations.Bool;
+import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,19 +18,30 @@ import java.util.List;
 @Service
 public class OwnAccountStrategy implements FundTransferStrategy {
 
-    private AccountBelongsToCifValidator accountBelongsToCifValidator;
+    private final AccountBelongsToCifValidator accountBelongsToCifValidator;
+    private final SameAccountValidator sameAccountValidator;
+    private final FinTxnNoValidator finTxnNoValidator;
+    private final CurrencyValidator currencyValidator;
     private AccountService accountService;
 
     @Override
     public void execute(FundTransferMetadata metadata, FundTransferRequestDTO request) {
+
+        responseHandler(finTxnNoValidator.validate(request, metadata));
+        responseHandler(sameAccountValidator.validate(request, metadata));
+
         final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metadata.getPrimaryCif());
 
-        ValidationContext validateAccountContext = new ValidationContext();
+        final ValidationContext validateAccountContext = new ValidationContext();
         validateAccountContext.add("account-details", List.class, accountsFromCore);
         validateAccountContext.add("validate-to-account", Boolean.class, Boolean.TRUE);
         validateAccountContext.add("validate-from-account", Boolean.class, Boolean.TRUE);
+        responseHandler(accountBelongsToCifValidator.validate(request, metadata, validateAccountContext));
 
-        accountBelongsToCifValidator.validate(request, metadata, validateAccountContext);
+
+
+
+
         // validate fin txn no
         // validate account numbers
         // find digital user

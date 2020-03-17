@@ -9,7 +9,8 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
  * @date 3/17/20
  */
 public class SameAccountValidator implements Validator {
-    
+
+
     @Override
     public ValidationResult validate(FundTransferRequestDTO request, FundTransferMetadata metadata, ValidationContext context) {
         if (request.getToAccount().equals(request.getFromAccount()))
