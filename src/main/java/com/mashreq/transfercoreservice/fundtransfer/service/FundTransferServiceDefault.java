@@ -42,21 +42,17 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final BeneficiaryClient beneficiaryClient;
     private final AccountService accountService;
     private EnumMap<ServiceType, FundTransferStrategy> fundTransferStrategies;
-    private OwnAccountStrategy ownAccountStrategy;
-    private final FinTxnNoValidator finTxnNoValidator;
 
     @PostConstruct
     public void init() {
         fundTransferStrategies = new EnumMap<>(ServiceType.class);
-        fundTransferStrategies.put(ServiceType.OWN_ACCOUNT, ownAccountStrategy);
+//        fundTransferStrategies.put(OWN_ACCOUNT, ownAccountStrategy);
+//        fundTransferStrategies.put(WITHIN_MASHREQ, withinMashreqStrategy);
     }
 
     @Override
     public PaymentHistoryDTO transferFund(FundTransferMetadata metadata, FundTransferRequestDTO request) {
         log.info("Starting fund transfer for {} ", request.getServiceType());
-
-//        final FundTransferStrategy strategy = fundTransferStrategies.get(ServiceType.valueOf(request.getServiceType()));
-//        strategy.execute(metadata, request);
 
         log.info("Validating Financial Transaction number {} ", request.getFinTxnNo());
         validateFinTxnNo(request);
@@ -120,11 +116,14 @@ public class FundTransferServiceDefault implements FundTransferService {
         List<AccountDetailsDTO> coreAccounts = accountService.getAccountsFromCore(metadata.getPrimaryCif());
 
         log.info("Validating account belong to same cif for own-account transfer");
-        final FundTransferStrategy fundTransferStrategy = fundTransferStrategies.get(ServiceType.valueOf(request.getServiceType()));
-        fundTransferStrategy.execute(metadata, request);
 
-        //TODO:Deepa remove condition check
         if (ServiceType.OWN_ACCOUNT.getName().equals(request.getServiceType())) {
+
+            if (!isAccountNumberBelongsToCif(coreAccounts, toAccountNUmber))
+                GenericExceptionHandler.handleError(ACCOUNT_NOT_BELONG_TO_CIF, ACCOUNT_NOT_BELONG_TO_CIF.getErrorMessage());
+
+            if (!isAccountNumberBelongsToCif(coreAccounts, fromAccountNumber))
+                GenericExceptionHandler.handleError(ACCOUNT_NOT_BELONG_TO_CIF, ACCOUNT_NOT_BELONG_TO_CIF.getErrorMessage());
 
             if (!validateToAccountCurrency(coreAccounts, request.getCurrency(), request.getToAccount()))
                 GenericExceptionHandler.handleError(ACCOUNT_CURRENCY_MISMATCH, ACCOUNT_CURRENCY_MISMATCH.getErrorMessage());
