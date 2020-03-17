@@ -27,11 +27,12 @@ public enum TransferErrorCode implements ErrorCode {
     TFTN_EAI_FCI_BRK_2471("TFTN-EAI-FCI-BRK-2471", "Debit Amount Cannot be less than or equal to Zero,Credit Amount " +
             "Cannot be less than or equal to Zero"),
     ACC_ESB_TIMEOUT("TNF-ESB-TIMEOUT", "Esb response timeouts"),
+    FROM_ACCOUNT_DEBIT_NOT_ALLOWED("TNF-FCI-BRK-15401","Debit Account KYC Expired"),
 
     ACCOUNT_NOT_BELONG_TO_CIF("TNF-API-011", "Account does not belong to CIF"),
     CREDIT_AND_DEBIT_ACC_SAME("TNF-API-012", "Credit and Debit Account cannot be same"),
     TO_ACCOUNT_SHOULD_BE_DIFFERENT_CIF("TNF-API-013", "To Account should belong to a different CIF"),
-    TO_ACCOUNT_CURRENCY_MISMATCH("TNF-API-014", "To Account currency does not match with given currency"),
+    ACCOUNT_CURRENCY_MISMATCH("TNF-API-014", "Account currency does not match with given currency"),
     TO_ACCOUNT_BELONGS_TO_SAME_CIF("TNF-API-015", "To Account belongs to same CIF"),
 
 
