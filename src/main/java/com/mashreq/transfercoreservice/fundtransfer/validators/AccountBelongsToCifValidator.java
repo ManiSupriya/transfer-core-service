@@ -3,6 +3,8 @@ package com.mashreq.transfercoreservice.fundtransfer.validators;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
@@ -12,6 +14,9 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_N
  * @author shahbazkh
  * @date 3/17/20
  */
+
+@Slf4j
+@Component
 public class AccountBelongsToCifValidator implements Validator {
 
     @Override
