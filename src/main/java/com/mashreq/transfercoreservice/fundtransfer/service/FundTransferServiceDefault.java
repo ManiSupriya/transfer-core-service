@@ -158,9 +158,10 @@ public class FundTransferServiceDefault implements FundTransferService {
                 GenericExceptionHandler.handleError(TO_ACCOUNT_CURRENCY_MISMATCH, TO_ACCOUNT_CURRENCY_MISMATCH.getErrorMessage());
 
         } else {
-            // All other transfer modes should have to-account which should not belong to sender's cif
+            //TODO Dosc
+            //TODO All other transfer modes should have to-account which should not belong to sender's cif
             if (isAccountNumberBelongsToCif(coreAccounts, toAccountNUmber))
-                GenericExceptionHandler.handleError(ACCOUNT_NOT_BELONG_TO_CIF, ACCOUNT_NOT_BELONG_TO_CIF.getErrorMessage());
+                GenericExceptionHandler.handleError(TO_ACCOUNT_BELONGS_TO_SAME_CIF, TO_ACCOUNT_BELONGS_TO_SAME_CIF.getErrorMessage());
         }
     }
 

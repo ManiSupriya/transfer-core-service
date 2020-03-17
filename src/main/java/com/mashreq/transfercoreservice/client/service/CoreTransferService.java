@@ -37,13 +37,14 @@ public class CoreTransferService {
                     .build();
 
         } catch (FundTransferException e) {
-            log.debug("Fund Transfer From account {}, to account {} failed ",
+            log.error("Fund Transfer From account {}, to account {} failed",
                     coreFundTransferRequestDto.getFromAccount(), coreFundTransferRequestDto.getToAccount());
+            log.error("Error {} ", e);
 
             return CoreFundTransferResponseDto.builder()
                     .mwResponseStatus(MwResponseStatus.F)
                     .transferErrorCode(e.getTransferErrorCode())
-                    .externalErrorMessage(e.getTransferErrorCode().getErrorMessage() + " -- " + e.getMessage())
+                    .externalErrorMessage(e.getTransferErrorCode().getErrorMessage())
                     .build();
         }
 
