@@ -18,11 +18,10 @@ public interface FundTransferStrategy {
     // validate beneficiary
     // validate limit
 
-    void validate(FundTransferMetadata metadata, FundTransferRequestDTO request);
+    void execute(FundTransferMetadata metadata, FundTransferRequestDTO request);
 
     default void validateFinTxnNumber(FundTransferRequestDTO requestDTO) {
 
     }
-
 
 }
