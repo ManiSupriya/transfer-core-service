@@ -15,7 +15,7 @@ public class ValidationContext {
 
     private Map<ContextKey, Object> map;
 
-    ValidationContext() {
+    public ValidationContext() {
         map = new HashMap<>();
     }
 
