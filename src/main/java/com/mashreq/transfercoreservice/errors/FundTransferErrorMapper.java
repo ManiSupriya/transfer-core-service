@@ -21,6 +21,8 @@ public class FundTransferErrorMapper {
         put("ACC-ESB-TIMEOUT", TransferErrorCode.ACC_ESB_TIMEOUT);
         put("QACLNTN-EAI-FCI-BRK-115", TransferErrorCode.QACLNTN_EAI_FCI_BRK_115);
         put("TFTN-EAI-FCI-BRK-2471", TransferErrorCode.TFTN_EAI_FCI_BRK_2471);
+        put("EAI-FCI-BRK-15401", TransferErrorCode.FROM_ACCOUNT_DEBIT_NOT_ALLOWED);
+
     }};
 
     public static TransferErrorCode getTransferErrorCode(String errorCode) {

@@ -20,7 +20,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.Collection;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Optional;
@@ -48,26 +47,6 @@ public class FundTransferServiceDefault implements FundTransferService {
 //        fundTransferStrategies.put(OWN_ACCOUNT, ownAccountStrategy);
 //        fundTransferStrategies.put(WITHIN_MASHREQ, withinMashreqStrategy);
     }
-
-    /**
-     * 1. validate financial_trx_no for the given request
-     * <p>
-     * 1. user CIF exists or not
-     * <p>
-     * 2. if within cif then both account should be of same user
-     * 3. if another mashreq then to account should be of user with given CIF
-     * <p>
-     * 1. source account should be active  - already in transfer call of account-service
-     * 2. destination should be active/dormant - already in transfer call of account-service
-     * 3. validate transactionAmount with respect to available balance of source account - already in transfer call of account-service
-     * <p>
-     * <p>
-     * 3.1 call mw which does all 1,2,3
-     * <p>
-     * 3. validate limit ( copy from bill payment )
-     * 4. update limit on success
-     * 5. store payment history
-     */
 
     @Override
     public PaymentHistoryDTO transferFund(FundTransferMetadata metadata, FundTransferRequestDTO request) {
@@ -151,14 +130,14 @@ public class FundTransferServiceDefault implements FundTransferService {
 
             CharityBeneficiaryDto charityBeneficiaryDto = beneficiaryClient.getCharity(request.getBeneficiaryId()).getData();
 
-            if(!toAccountNUmber.equals(charityBeneficiaryDto.getAccountNumber()))
+            if (!toAccountNUmber.equals(charityBeneficiaryDto.getAccountNumber()))
                 GenericExceptionHandler.handleError(BENE_ACC_NOT_MATCH, BENE_ACC_NOT_MATCH.getErrorMessage());
 
-            if(!charityBeneficiaryDto.getCurrencyCode().equals(request.getCurrency()))
+            if (!charityBeneficiaryDto.getCurrencyCode().equals(request.getCurrency()))
                 GenericExceptionHandler.handleError(TO_ACCOUNT_CURRENCY_MISMATCH, TO_ACCOUNT_CURRENCY_MISMATCH.getErrorMessage());
 
         } else {
-            //TODO Dosc
+            //TODO Discuss with Bala
             //TODO All other transfer modes should have to-account which should not belong to sender's cif
             if (isAccountNumberBelongsToCif(coreAccounts, toAccountNUmber))
                 GenericExceptionHandler.handleError(TO_ACCOUNT_BELONGS_TO_SAME_CIF, TO_ACCOUNT_BELONGS_TO_SAME_CIF.getErrorMessage());
