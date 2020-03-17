@@ -11,6 +11,18 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
  */
 public interface FundTransferStrategy {
 
-    PaymentHistoryDTO transferFund(FundTransferMetadata fundTransferMetadata,
-                                   FundTransferRequestDTO fundTransferRequestDTO, UserDTO userDTO);
+    // validate fin txn no
+    // validate account numbers
+    // find digital user
+    // find user dto
+    // validate beneficiary
+    // validate limit
+
+    void validate(FundTransferMetadata metadata, FundTransferRequestDTO request);
+
+    default void validateFinTxnNumber(FundTransferRequestDTO requestDTO) {
+
+    }
+
+
 }
