@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
+import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import lombok.Builder;
 import lombok.Data;

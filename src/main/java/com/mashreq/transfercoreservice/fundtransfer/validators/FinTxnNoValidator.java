@@ -20,7 +20,8 @@ public class FinTxnNoValidator implements Validator {
 
     private final PaymentHistoryService paymentHistoryService;
 
-    public ValidationResult validate(FundTransferRequestDTO request, FundTransferMetadata metadata, ValidationContext context) {
+    @Override
+    public ValidationResult validate(final FundTransferRequestDTO request, final FundTransferMetadata metadata, final ValidationContext context) {
         log.info("Validation fin-txn-no {} ", request.getFinTxnNo());
         if (paymentHistoryService.isFinancialTransactionPresent(request.getFinTxnNo()))
             return ValidationResult.builder()
