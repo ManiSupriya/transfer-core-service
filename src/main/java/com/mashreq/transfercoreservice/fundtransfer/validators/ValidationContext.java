@@ -24,10 +24,11 @@ public class ValidationContext {
     }
 
     public <T> T get(String key, Class<T> clazz) {
-        if (!map.containsKey(new ContextKey(key, clazz)))
-            throw new RuntimeException("Error while fetching Validation context");
+        ContextKey contextKey = new ContextKey(key, clazz);
+        if (!map.containsKey(contextKey))
+            return null;
 
-        return clazz.cast(map.get(key));
+        return clazz.cast(map.get(contextKey));
     }
 
     private static class ContextKey {

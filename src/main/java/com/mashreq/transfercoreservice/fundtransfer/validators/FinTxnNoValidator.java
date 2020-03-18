@@ -22,13 +22,15 @@ public class FinTxnNoValidator implements Validator {
 
     @Override
     public ValidationResult validate(final FundTransferRequestDTO request, final FundTransferMetadata metadata, final ValidationContext context) {
-        log.info("Validation fin-txn-no {} ", request.getFinTxnNo());
-        if (paymentHistoryService.isFinancialTransactionPresent(request.getFinTxnNo()))
+        log.info("Validating fin-txn-no {} for service type [ {} ] ", request.getFinTxnNo(), request.getServiceType());
+        if (paymentHistoryService.isFinancialTransactionPresent(request.getFinTxnNo())) {
+            log.warn("Duplicate fin-txn-no {} found for service type [ {} ] ", request.getFinTxnNo(), request.getServiceType());
             return ValidationResult.builder()
                     .success(false)
                     .transferErrorCode(TransferErrorCode.DUPLICATION_FUND_TRANSFER_REQUEST)
                     .build();
-
+        }
+        log.info("Financial Txn No Validating successful service type [ {} ] ", request.getServiceType());
         return ValidationResult.builder().success(true).build();
     }
 }

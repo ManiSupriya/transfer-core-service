@@ -21,11 +21,15 @@ public class CharityValidator implements Validator {
     @Override
     public ValidationResult validate(FundTransferRequestDTO request, FundTransferMetadata metadata, ValidationContext context) {
 
+        log.info("Validating charity beneficiary for service type [ {} ] ", request.getServiceType());
         final CharityBeneficiaryDto charityBeneficiaryDto = context.get("charity-beneficiary-dto", CharityBeneficiaryDto.class);
 
-        if (!request.getToAccount().equals(charityBeneficiaryDto.getAccountNumber()))
+        if (!request.getToAccount().equals(charityBeneficiaryDto.getAccountNumber())) {
+            log.warn("Charity Beneficiary not found for service type [ {} ] ", request.getServiceType());
             return ValidationResult.builder().success(false).transferErrorCode(BENE_ACC_NOT_MATCH).build();
+        }
 
+        log.info("Charity Beneficiary Validating successful service type [ {} ] ", request.getServiceType());
         return ValidationResult.builder().success(true).build();
     }
 }

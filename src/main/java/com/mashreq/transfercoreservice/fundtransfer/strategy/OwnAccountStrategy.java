@@ -17,7 +17,6 @@ import java.util.List;
 @AllArgsConstructor
 @Service
 public class OwnAccountStrategy implements FundTransferStrategy {
-
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
     private final SameAccountValidator sameAccountValidator;
     private final FinTxnNoValidator finTxnNoValidator;
@@ -25,8 +24,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     private AccountService accountService;
 
     @Override
-    public void execute(FundTransferRequestDTO request,FundTransferMetadata metadata) {
-
+    public void execute(FundTransferRequestDTO request, FundTransferMetadata metadata) {
         responseHandler(finTxnNoValidator.validate(request, metadata));
         responseHandler(sameAccountValidator.validate(request, metadata));
 
@@ -38,16 +36,18 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         validateAccountContext.add("validate-from-account", Boolean.class, Boolean.TRUE);
         responseHandler(accountBelongsToCifValidator.validate(request, metadata, validateAccountContext));
 
+        final AccountDetailsDTO toAccount = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getToAccount());
+        final AccountDetailsDTO fromAccount = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
 
+        validateAccountContext.add("from-account", AccountDetailsDTO.class, fromAccount);
+        validateAccountContext.add("to-account", AccountDetailsDTO.class, toAccount);
 
+        responseHandler(currencyValidator.validate(request, metadata, validateAccountContext));
+    }
 
-
-        // validate fin txn no
-        // validate account numbers
-        // find digital user
-        // find user dto
-        // validate beneficiary
-        // validate limit
-
+    private AccountDetailsDTO getAccountDetailsBasedOnAccountNumber(List<AccountDetailsDTO> coreAccounts, String accountNumber) {
+        return coreAccounts.stream()
+                .filter(account -> account.getNumber().equals(accountNumber))
+                .findFirst().orElse(null);
     }
 }
