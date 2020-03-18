@@ -31,16 +31,17 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metadata.getPrimaryCif());
 
         final ValidationContext validateAccountContext = new ValidationContext();
-        validateAccountContext.add("account-details", List.class, accountsFromCore);
-        validateAccountContext.add("validate-to-account", Boolean.class, Boolean.TRUE);
-        validateAccountContext.add("validate-from-account", Boolean.class, Boolean.TRUE);
+        validateAccountContext.add("account-details", accountsFromCore);
+        validateAccountContext.add("validate-to-account", Boolean.TRUE);
+        validateAccountContext.add("validate-from-account", Boolean.TRUE);
+
         responseHandler(accountBelongsToCifValidator.validate(request, metadata, validateAccountContext));
 
         final AccountDetailsDTO toAccount = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getToAccount());
         final AccountDetailsDTO fromAccount = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
 
-        validateAccountContext.add("from-account", AccountDetailsDTO.class, fromAccount);
-        validateAccountContext.add("to-account", AccountDetailsDTO.class, toAccount);
+        validateAccountContext.add("from-account", fromAccount);
+        validateAccountContext.add("to-account", toAccount);
 
         responseHandler(currencyValidator.validate(request, metadata, validateAccountContext));
     }

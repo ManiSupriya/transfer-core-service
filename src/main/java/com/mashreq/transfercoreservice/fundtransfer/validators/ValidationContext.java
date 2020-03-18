@@ -19,8 +19,8 @@ public class ValidationContext {
         map = new HashMap<>();
     }
 
-    public void add(String key, Class clazz, Object value) {
-        map.put(new ContextKey(key, clazz), value);
+    public void add(String key, Object value) {
+        map.put(new ContextKey(key, value.getClass()), value);
     }
 
     public <T> T get(String key, Class<T> clazz) {

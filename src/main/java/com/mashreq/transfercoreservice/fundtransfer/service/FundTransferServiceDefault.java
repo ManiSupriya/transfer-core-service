@@ -41,8 +41,6 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final LimitValidator limitValidator;
     private final PaymentHistoryService paymentHistoryService;
     private final DigitalUserLimitUsageService digitalUserLimitUsageService;
-    private final BeneficiaryClient beneficiaryClient;
-    private final AccountService accountService;
     private final OwnAccountStrategy ownAccountStrategy;
     private final WithinMashreqStrategy withinMashreqStrategy;
     private final CharityStrategy charityStrategy;
@@ -105,19 +103,6 @@ public class FundTransferServiceDefault implements FundTransferService {
 
         return paymentHistoryDTO;
     }
-
-
-    private boolean validateToAccountCurrency(List<AccountDetailsDTO> coreAccounts, String toAcctCurrency, String toAccountNum) {
-        return coreAccounts.stream()
-                .filter(account -> account.getNumber().equals(toAccountNum))
-                .anyMatch(account -> account.getCurrency().equals(toAcctCurrency));
-    }
-
-    private boolean isAccountNumberBelongsToCif(List<AccountDetailsDTO> coreAccounts, String accountNumber) {
-        return coreAccounts.stream()
-                .anyMatch(x -> x.getNumber().equals(accountNumber));
-    }
-
 
     private DigitalUser getDigitalUser(FundTransferMetadata fundTransferMetadata) {
         Optional<DigitalUser> digitalUserOptional = digitalUserRepository.findByCifEquals(fundTransferMetadata.getPrimaryCif());
