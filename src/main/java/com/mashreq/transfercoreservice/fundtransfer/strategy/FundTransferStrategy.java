@@ -22,9 +22,9 @@ public interface FundTransferStrategy {
     // validate beneficiary
     // validate limit
 
-    void execute(FundTransferMetadata metadata, FundTransferRequestDTO request);
+    void execute(FundTransferRequestDTO request, FundTransferMetadata metadata);
 
-    default void responseHandler(ValidationResult validationResult){
+    default void responseHandler(ValidationResult validationResult) {
         if (!validationResult.isSuccess()) {
             GenericExceptionHandler.handleError(validationResult.getTransferErrorCode(), validationResult.getTransferErrorCode().getErrorMessage());
         }
