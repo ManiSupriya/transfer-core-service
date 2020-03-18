@@ -46,7 +46,7 @@ public class CurrencyValidator implements Validator {
         }
 
         log.info("Currency Validating successful service type [ {} ] ", request.getServiceType());
-        return ValidationResult.builder().success(false).transferErrorCode(TransferErrorCode.ACCOUNT_CURRENCY_MISMATCH).build();
+        return ValidationResult.builder().success(true).build();
 
     }
 
