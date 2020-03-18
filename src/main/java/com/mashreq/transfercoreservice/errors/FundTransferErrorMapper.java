@@ -25,6 +25,10 @@ public class FundTransferErrorMapper {
 
     }};
 
+    private FundTransferErrorMapper(){
+
+    }
+
     public static TransferErrorCode getTransferErrorCode(String errorCode) {
         // TODO Handle default null case
         return errorLookUp.get(errorCode);

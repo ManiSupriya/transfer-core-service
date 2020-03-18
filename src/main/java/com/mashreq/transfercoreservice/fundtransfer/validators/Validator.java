@@ -3,8 +3,6 @@ package com.mashreq.transfercoreservice.fundtransfer.validators;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 
-import java.util.Map;
-
 /**
  * @author shahbazkh
  */

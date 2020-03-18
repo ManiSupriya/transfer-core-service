@@ -19,6 +19,8 @@ public final class PaymentPredicates {
     private static final String CURRENT_ACCOUNT = "CA";
     private static final String SAVINGS_ACCOUNT = "SA";
 
+    private PaymentPredicates(){}
+
     public static final Predicate<CardDetailsDTO> billPaymentCardFilterSource() {
         return isActiveCard().and(isPrimaryCard());
     }

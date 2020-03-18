@@ -3,8 +3,6 @@ package com.mashreq.transfercoreservice.api;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferService;
-import com.mashreq.transfercoreservice.paymentoptions.service.FinTxnNumberGenerator;
-import com.mashreq.transfercoreservice.paymentoptions.service.PaymentOptionType;
 import com.mashreq.webcore.dto.response.Response;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -15,8 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-
-import static com.mashreq.transfercoreservice.paymentoptions.service.FinTxnNumberGenerator.generate;
 
 @Slf4j
 @RestController

@@ -8,8 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.EnumMap;
 
 import static com.mashreq.transfercoreservice.paymentoptions.service.PaymentOptionType.*;
 
@@ -24,13 +23,13 @@ import static com.mashreq.transfercoreservice.paymentoptions.service.PaymentOpti
 @RequiredArgsConstructor
 public class PaymentOptionsService {
 
-    private Map<PaymentOptionType, FetchPaymentOptionsService> paymentOptionsLookUp;
+    private EnumMap<PaymentOptionType, FetchPaymentOptionsService> paymentOptionsLookUp;
     private final TransferOptionsOwnAccount transferOptionsOwnAccount;
     private final TransferOptionsDefault transferOptionsDefault;
 
     @PostConstruct
     public void init() {
-        paymentOptionsLookUp = new HashMap<>();
+        paymentOptionsLookUp = new EnumMap<PaymentOptionType, FetchPaymentOptionsService>(PaymentOptionType.class);
         paymentOptionsLookUp.put(TRANSFER_OPTION_OWN_ACC, transferOptionsOwnAccount);
         paymentOptionsLookUp.put(TRANSFER_OPTION_MASHREQ, transferOptionsDefault);
         paymentOptionsLookUp.put(TRANSFER_OPTION_LOCAL, transferOptionsDefault);

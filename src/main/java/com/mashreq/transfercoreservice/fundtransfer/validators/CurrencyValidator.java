@@ -4,7 +4,6 @@ import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CharityBeneficiaryDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
-import com.mashreq.transfercoreservice.fundtransfer.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import lombok.extern.slf4j.Slf4j;

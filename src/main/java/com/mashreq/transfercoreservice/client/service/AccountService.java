@@ -1,6 +1,5 @@
 package com.mashreq.transfercoreservice.client.service;
 
-import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.AccountClient;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.CifProductsDto;
@@ -38,7 +37,7 @@ public class AccountService {
 
             if (isNotBlank(cifProductsResponse.getErrorCode())) {
                 log.warn("Not able to fetch accounts, returning empty list instead");
-                return Collections.EMPTY_LIST;
+                return Collections.emptyList();
             }
 
             List<AccountDetailsDTO> accounts = convertResponseToAccounts(cifProductsResponse.getData());
@@ -47,7 +46,7 @@ public class AccountService {
 
         } catch (Exception e) {
             log.error("Error occurred while calling account client {} ", e);
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
     }
 

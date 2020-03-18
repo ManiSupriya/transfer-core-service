@@ -3,9 +3,6 @@ package com.mashreq.transfercoreservice.config;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mashreq.ms.exceptions.GenericBusinessException;
-import com.mashreq.ms.exceptions.GenericException;
-import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.errors.FundTransferErrorMapper;
 import com.mashreq.transfercoreservice.errors.FundTransferException;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
@@ -14,8 +11,6 @@ import feign.codec.ErrorDecoder;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.DUPLICATION_FUND_TRANSFER_REQUEST;
 
 /**
  * @author shahbazkh

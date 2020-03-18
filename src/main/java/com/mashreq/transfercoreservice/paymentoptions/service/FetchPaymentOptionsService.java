@@ -4,7 +4,6 @@ import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.paymentoptions.dto.PaymentOptionRequest;
 import com.mashreq.transfercoreservice.paymentoptions.dto.PaymentsOptionsResponse;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 /**

@@ -13,7 +13,7 @@ import java.time.format.DateTimeFormatter;
 @Component
 public class ChannelTracerGenerator {
 
-    private final String traceTemplate = "{CHANNEL}{REGION}{CIF}{DATE-TIME-FORMAT}";
+    private static final String traceTemplate = "{CHANNEL}{REGION}{CIF}{DATE-TIME-FORMAT}";
 
     //TODO Remove hardcoded region
     public String channelTraceId(final String userAgent, final String cifId) {

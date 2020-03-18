@@ -4,10 +4,7 @@ import com.mashreq.transfercoreservice.client.dto.CifProductsDto;
 import com.mashreq.transfercoreservice.config.FeignConfig;
 import com.mashreq.webcore.dto.response.Response;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -18,6 +15,6 @@ import java.util.List;
 @FeignClient(name = "accounts", url = "${app.services.accounts}", configuration = FeignConfig.class)
 public interface AccountClient {
 
-    @RequestMapping(method = RequestMethod.GET, value = "/api/accounts/cif/{cifId}")
+    @GetMapping(value = "/api/accounts/cif/{cifId}")
     Response<CifProductsDto> searchAccounts(@PathVariable("cifId") String cifId, @RequestParam(required = false) List<String> linkedCifs);
 }

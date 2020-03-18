@@ -1,6 +1,5 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
-import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.CharityBeneficiaryDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;

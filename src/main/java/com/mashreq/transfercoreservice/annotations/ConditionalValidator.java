@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.annotations;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.ConstraintValidator;
@@ -14,9 +15,9 @@ import static org.apache.commons.beanutils.BeanUtils.getProperty;
  * @author shahbazkh
  * @date 3/4/20
  */
+@Slf4j
 public class ConditionalValidator implements ConstraintValidator<ConditionalRequired, Object> {
 
-    private static final int CHECK_DIGIT_LENGTH = 4;
     private String fieldName;
     private String dependentFieldName;
     private String[] anyMatch;
@@ -61,6 +62,7 @@ public class ConditionalValidator implements ConstraintValidator<ConditionalRequ
             }
 
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            log.error("Error pccured while resolving custom annotations ", e);
             throw new RuntimeException(e);
         }
         return true;
