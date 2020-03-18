@@ -2,6 +2,7 @@ package com.mashreq.transfercoreservice.fundtransfer.validators;
 
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
+import com.mashreq.transfercoreservice.client.dto.CharityBeneficiaryDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
@@ -23,9 +24,15 @@ public class CurrencyValidator implements Validator {
         AccountDetailsDTO fromAccount = context.get("from-account", AccountDetailsDTO.class);
         AccountDetailsDTO toAccount = context.get("to-account", AccountDetailsDTO.class);
         BeneficiaryDto beneficiaryDto = context.get("beneficiary-dto", BeneficiaryDto.class);
+        CharityBeneficiaryDto charityBeneficiaryDto = context.get("charity-beneficiary-dto", CharityBeneficiaryDto.class);
+
         String requestedCurrency = request.getCurrency();
 
         if (beneficiaryDto != null && isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), beneficiaryDto.getCurrency())) {
+            return ValidationResult.builder().success(false).transferErrorCode(TransferErrorCode.CURRENCY_IS_INVALID).build();
+        }
+
+        if (charityBeneficiaryDto != null && isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), charityBeneficiaryDto.getAccountNumber())) {
             return ValidationResult.builder().success(false).transferErrorCode(TransferErrorCode.CURRENCY_IS_INVALID).build();
         }
 

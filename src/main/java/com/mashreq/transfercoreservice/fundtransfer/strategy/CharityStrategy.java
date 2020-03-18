@@ -7,10 +7,7 @@ import com.mashreq.transfercoreservice.client.dto.CharityBeneficiaryDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.validators.AccountBelongsToCifValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.FinTxnNoValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.SameAccountValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
+import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -35,6 +32,8 @@ public class CharityStrategy implements FundTransferStrategy {
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
     private final AccountService accountService;
     private final BeneficiaryClient beneficiaryClient;
+    private final CharityValidator charityValidator;
+    private final CurrencyValidator currencyValidator;
 
     @Override
     public void execute(FundTransferRequestDTO request, FundTransferMetadata metadata) {
@@ -44,21 +43,17 @@ public class CharityStrategy implements FundTransferStrategy {
 
         final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metadata.getPrimaryCif());
 
-        final ValidationContext validateAccountContext = new ValidationContext();
-        validateAccountContext.add("account-details", List.class, accountsFromCore);
-        validateAccountContext.add("validate-from-account", Boolean.class, Boolean.TRUE);
-        responseHandler(accountBelongsToCifValidator.validate(request, metadata, validateAccountContext));
+        final ValidationContext validateContext = new ValidationContext();
+        validateContext.add("account-details", List.class, accountsFromCore);
+        validateContext.add("validate-from-account", Boolean.class, Boolean.TRUE);
+        responseHandler(accountBelongsToCifValidator.validate(request, metadata, validateContext));
 
 
         CharityBeneficiaryDto charityBeneficiaryDto = beneficiaryClient.getCharity(request.getBeneficiaryId()).getData();
+        validateContext.add("", CharityBeneficiaryDto.class, charityBeneficiaryDto);
+        responseHandler(charityValidator.validate(request, metadata, validateContext));
 
-//        if (!toAccountNUmber.equals(charityBeneficiaryDto.getAccountNumber()))
-//            GenericExceptionHandler.handleError(BENE_ACC_NOT_MATCH, BENE_ACC_NOT_MATCH.getErrorMessage());
-//
-//        if (!charityBeneficiaryDto.getCurrencyCode().equals(request.getCurrency()))
-//            GenericExceptionHandler.handleError(ACCOUNT_CURRENCY_MISMATCH, ACCOUNT_CURRENCY_MISMATCH.getErrorMessage());
-
-
+        responseHandler(currencyValidator.validate(request, metadata, validateContext));
 
     }
 }
