@@ -8,6 +8,7 @@ import com.mashreq.transfercoreservice.client.service.CoreTransferService;
 import com.mashreq.transfercoreservice.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.fundtransfer.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.CharityStrategy;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.FundTransferStrategy;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.OwnAccountStrategy;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.WithinMashreqStrategy;
@@ -29,8 +30,7 @@ import java.util.Optional;
 
 import static com.mashreq.transfercoreservice.client.dto.BeneficiaryStatus.ACTIVE;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
-import static com.mashreq.transfercoreservice.fundtransfer.ServiceType.OWN_ACCOUNT;
-import static com.mashreq.transfercoreservice.fundtransfer.ServiceType.WITHIN_MASHREQ;
+import static com.mashreq.transfercoreservice.fundtransfer.ServiceType.*;
 
 @Slf4j
 @Service
@@ -46,6 +46,8 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final AccountService accountService;
     private final OwnAccountStrategy ownAccountStrategy;
     private final WithinMashreqStrategy withinMashreqStrategy;
+    private final CharityStrategy charityStrategy;
+
     private EnumMap<ServiceType, FundTransferStrategy> fundTransferStrategies;
 
     @PostConstruct
@@ -53,6 +55,7 @@ public class FundTransferServiceDefault implements FundTransferService {
         fundTransferStrategies = new EnumMap<>(ServiceType.class);
         fundTransferStrategies.put(OWN_ACCOUNT, ownAccountStrategy);
         fundTransferStrategies.put(WITHIN_MASHREQ, withinMashreqStrategy);
+        fundTransferStrategies.put(CHARITY_ACCOUNT, charityStrategy);
     }
 
     @Override
