@@ -9,6 +9,8 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import static com.mashreq.transfercoreservice.fundtransfer.ServiceType.*;
+
 /**
  * @author shahbazkh
  * @date 3/17/20
@@ -30,17 +32,17 @@ public class CurrencyValidator implements Validator {
         String requestedCurrency = request.getCurrency();
         log.info("Requested currency [ {} ] service type [ {} ] ", requestedCurrency, request.getServiceType());
 
-        if (beneficiaryDto != null && isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), beneficiaryDto.getCurrency())) {
+        if (WITHIN_MASHREQ.getName().equals(request.getServiceType()) &&  beneficiaryDto != null && isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), beneficiaryDto.getCurrency())) {
             log.warn("Beneficiary Currency and Requested Currency does not match for service type [ {} ]  ", request.getServiceType());
             return ValidationResult.builder().success(false).transferErrorCode(TransferErrorCode.CURRENCY_IS_INVALID).build();
         }
 
-        if (charityBeneficiaryDto != null && isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), charityBeneficiaryDto.getAccountNumber())) {
+        if (CHARITY_ACCOUNT.getName().equals(request.getServiceType()) && charityBeneficiaryDto != null && isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), charityBeneficiaryDto.getAccountNumber())) {
             log.warn("Charity Currency and Requested Currency does not match for service type [ {} ]  ", request.getServiceType());
             return ValidationResult.builder().success(false).transferErrorCode(TransferErrorCode.CURRENCY_IS_INVALID).build();
         }
 
-        if (!(requestedCurrency.equals(fromAccount.getCurrency()) || requestedCurrency.equals(toAccount.getCurrency()))) {
+        if (OWN_ACCOUNT.getName().equals(request.getServiceType()) && !(requestedCurrency.equals(fromAccount.getCurrency()) || requestedCurrency.equals(toAccount.getCurrency()))) {
             log.warn("To Account Currency and Requested Currency does not match for service type [ {} ]  ", request.getServiceType());
             return ValidationResult.builder().success(false).transferErrorCode(TransferErrorCode.ACCOUNT_CURRENCY_MISMATCH).build();
         }

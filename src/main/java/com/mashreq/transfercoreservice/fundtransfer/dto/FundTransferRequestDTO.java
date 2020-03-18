@@ -1,16 +1,14 @@
 package com.mashreq.transfercoreservice.fundtransfer.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.mashreq.transfercoreservice.annotations.Account;
 import com.mashreq.transfercoreservice.annotations.ConditionalRequired;
 import com.mashreq.transfercoreservice.annotations.TransactionAmount;
 import com.mashreq.transfercoreservice.annotations.ValueOfEnum;
 import com.mashreq.transfercoreservice.fundtransfer.ServiceType;
 import lombok.Data;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 
 /**

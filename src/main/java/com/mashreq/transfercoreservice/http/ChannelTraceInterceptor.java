@@ -24,19 +24,21 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 public class ChannelTraceInterceptor implements HandlerInterceptor {
 
     public static final String X_CHANNEL_TRACE_ID = "X-CHANNEL-TRACE-ID";
+    public static final String USER_AGENT_KEY = "user-agent";
+    public static final String CIF_KEY = "X-CIF-ID";
     private final ChannelTracerGenerator channelTracerGenerator;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        log.info("URI : {}, USER-AGENT : {}, CIF {}", request.getRequestURI(), request.getHeader("user-agent"), request.getHeader("X-CIF-ID"), request.getRequestURI());
+        log.info("URI : {}, USER-AGENT : {}, CIF {}", request.getRequestURI(), request.getHeader(USER_AGENT_KEY), request.getHeader(CIF_KEY), request.getRequestURI());
 
-        if (isBlank(request.getHeader("X-CIF-ID")))
+        if (isBlank(request.getHeader(CIF_KEY)))
             GenericExceptionHandler.handleError(HEADER_MISSING_CIF, HEADER_MISSING_CIF.getErrorMessage());
 
-        final String xChannelTraceId = channelTracerGenerator.channelTraceId(request.getHeader("user-agent"), request.getHeader("X-CIF-ID"));
+        final String xChannelTraceId = channelTracerGenerator.channelTraceId(request.getHeader(USER_AGENT_KEY), request.getHeader(CIF_KEY));
         request.setAttribute(X_CHANNEL_TRACE_ID, xChannelTraceId);
         request.setAttribute("X-CHANNEL-HOST", request.getRemoteAddr());
-        request.setAttribute("X-CHANNEL-NAME", getChannel(request.getHeader("user-agent")));
+        request.setAttribute("X-CHANNEL-NAME", getChannel(request.getHeader(USER_AGENT_KEY)));
         MDC.put(X_CHANNEL_TRACE_ID, xChannelTraceId);
         response.setHeader(X_CHANNEL_TRACE_ID, String.valueOf(request.getAttribute(X_CHANNEL_TRACE_ID)));
         return true;

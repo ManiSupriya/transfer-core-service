@@ -3,8 +3,6 @@ package com.mashreq.transfercoreservice.fundtransfer.strategy;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.PaymentHistoryDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 
 /**
@@ -14,13 +12,6 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 
 @FunctionalInterface
 public interface FundTransferStrategy {
-
-    // validate fin txn no
-    // validate account numbers
-    // find digital user
-    // find user dto
-    // validate beneficiary
-    // validate limit
 
     void execute(FundTransferRequestDTO request, FundTransferMetadata metadata);
 

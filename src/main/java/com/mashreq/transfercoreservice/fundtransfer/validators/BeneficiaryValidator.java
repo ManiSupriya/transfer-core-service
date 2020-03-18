@@ -1,6 +1,5 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
-import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
@@ -9,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 import static com.mashreq.transfercoreservice.client.dto.BeneficiaryStatus.ACTIVE;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_NOT_ACTIVE;
 
 /**
  * @author shahbazkh

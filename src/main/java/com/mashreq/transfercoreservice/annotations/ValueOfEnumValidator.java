@@ -20,7 +20,7 @@ public class ValueOfEnumValidator implements ConstraintValidator<ValueOfEnum, Ch
         isRequired = annotation.isRequired();
         acceptedValues = Stream.of(annotation.enumClass().getEnumConstants())
                 .map(validEmum -> (ValidEnum) validEmum)
-                .map(validEmum -> validEmum.getName())
+                .map(ValidEnum::getName)
                 .collect(Collectors.toList());
     }
 

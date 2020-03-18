@@ -34,7 +34,7 @@ public class CardService {
 
             if (isNotBlank(cardsResponse.getErrorCode())) {
                 log.warn("Not able to fetch cards, returning empty list instead");
-                return Collections.EMPTY_LIST;
+                return Collections.emptyList();
             }
 
             List<CardDetailsDTO> cards = convertResponseToCards(cardsResponse.getData());
@@ -43,7 +43,7 @@ public class CardService {
 
         } catch (Exception e) {
             log.error("Error occurred while calling card client {} ", e);
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
     }
 

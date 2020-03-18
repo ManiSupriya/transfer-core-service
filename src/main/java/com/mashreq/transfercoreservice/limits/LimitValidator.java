@@ -31,14 +31,6 @@ public class LimitValidator {
      * Method to get the limits and validate against user's consumed limit
      */
     public LimitValidatorResultsDto validate(final UserDTO userDTO, final String beneficiaryType, final BigDecimal paidAmount) throws GenericException {
-
-//        return LimitValidatorResultsDto.builder()
-//                .availableLimitAmount(new BigDecimal("5000"))
-//                .availableLimitCount(100)
-//                .limitVersionUuid("TEST")
-//                .isValid(true)
-//                .build();
-
         log.info("[LimitValidator] - Validating limit for cif={} and billerType={} ", userDTO.getCifId(), beneficiaryType);
         long startTime = System.nanoTime();
 

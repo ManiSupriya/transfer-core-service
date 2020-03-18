@@ -87,7 +87,7 @@ public class TransferOptionsOwnAccount implements FetchPaymentOptionsService {
                 .finTxnNo(isPayloadEmpty(sourceAccounts, null)
                         ? null
                         : FinTxnNumberGenerator.generate(request.getPaymentOptionType()))
-                .destination(PaymentOptionPayLoad.builder().accounts(Collections.EMPTY_LIST).build())
+                .destination(PaymentOptionPayLoad.builder().accounts(Collections.emptyList()).build())
                 .build();
     }
 
