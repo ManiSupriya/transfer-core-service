@@ -1,6 +1,14 @@
 package com.mashreq.transfercoreservice.fundtransfer;
 
+import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.annotations.ValidEnum;
+import com.mashreq.transfercoreservice.paymentoptions.service.PaymentOptionType;
+
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_PAYMENT_OPTIONS;
 
 /**
  * @author shahbazkh
@@ -15,6 +23,18 @@ public enum ServiceType implements ValidEnum {
     CHARITY_ACCOUNT("charity-account");
 
     private String name;
+
+
+    private static final Map<String, ServiceType> serviceTypeLookup = Stream.of(ServiceType.values())
+            .collect(Collectors.toMap(ServiceType::getName, serviceType -> serviceType));
+
+    public static ServiceType getServiceByType(String name) {
+        if (!serviceTypeLookup.containsKey(name))
+            GenericExceptionHandler.handleError(INVALID_PAYMENT_OPTIONS, INVALID_PAYMENT_OPTIONS.getErrorMessage());
+
+        return serviceTypeLookup.get(name);
+    }
+
 
     ServiceType(String name) {
         this.name = name;

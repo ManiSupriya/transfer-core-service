@@ -59,8 +59,8 @@ public class FundTransferServiceDefault implements FundTransferService {
     public PaymentHistoryDTO transferFund(FundTransferMetadata metadata, FundTransferRequestDTO request) {
         log.info("Starting fund transfer for {} ", request.getServiceType());
 
-        FundTransferStrategy strategy = fundTransferStrategies.get(request.getServiceType());
-        strategy.execute(request,metadata);
+        FundTransferStrategy strategy = fundTransferStrategies.get(ServiceType.getServiceByType(request.getServiceType()));
+        strategy.execute(request, metadata);
 
         log.info("Finding Digital User for CIF-ID {}", metadata.getPrimaryCif());
         DigitalUser digitalUser = getDigitalUser(metadata);
