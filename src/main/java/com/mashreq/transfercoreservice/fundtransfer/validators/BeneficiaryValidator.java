@@ -4,6 +4,8 @@ import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import static com.mashreq.transfercoreservice.client.dto.BeneficiaryStatus.ACTIVE;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
@@ -13,6 +15,8 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_NOT_
  * @author shahbazkh
  * @date 3/18/20
  */
+@Slf4j
+@Component
 public class BeneficiaryValidator implements Validator {
 
 

@@ -10,6 +10,7 @@ import com.mashreq.transfercoreservice.fundtransfer.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.FundTransferStrategy;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.OwnAccountStrategy;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.WithinMashreqStrategy;
 import com.mashreq.transfercoreservice.fundtransfer.validators.FinTxnNoValidator;
 import com.mashreq.transfercoreservice.limits.DigitalUserLimitUsageService;
 import com.mashreq.transfercoreservice.limits.LimitValidator;
@@ -28,6 +29,8 @@ import java.util.Optional;
 
 import static com.mashreq.transfercoreservice.client.dto.BeneficiaryStatus.ACTIVE;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
+import static com.mashreq.transfercoreservice.fundtransfer.ServiceType.OWN_ACCOUNT;
+import static com.mashreq.transfercoreservice.fundtransfer.ServiceType.WITHIN_MASHREQ;
 
 @Slf4j
 @Service
@@ -41,27 +44,23 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final DigitalUserLimitUsageService digitalUserLimitUsageService;
     private final BeneficiaryClient beneficiaryClient;
     private final AccountService accountService;
+    private final OwnAccountStrategy ownAccountStrategy;
+    private final WithinMashreqStrategy withinMashreqStrategy;
     private EnumMap<ServiceType, FundTransferStrategy> fundTransferStrategies;
 
     @PostConstruct
     public void init() {
         fundTransferStrategies = new EnumMap<>(ServiceType.class);
-//        fundTransferStrategies.put(OWN_ACCOUNT, ownAccountStrategy);
-//        fundTransferStrategies.put(WITHIN_MASHREQ, withinMashreqStrategy);
+        fundTransferStrategies.put(OWN_ACCOUNT, ownAccountStrategy);
+        fundTransferStrategies.put(WITHIN_MASHREQ, withinMashreqStrategy);
     }
 
     @Override
     public PaymentHistoryDTO transferFund(FundTransferMetadata metadata, FundTransferRequestDTO request) {
         log.info("Starting fund transfer for {} ", request.getServiceType());
 
-        log.info("Validating Financial Transaction number {} ", request.getFinTxnNo());
-        validateFinTxnNo(request);
-
-        log.info("Validating Account number {} ", request.getFinTxnNo());
-        validateAccountNumbers(metadata, request);
-
-        log.info("Validating Beneficiary {} ", request.getBeneficiaryId());
-        validateBeneficiary(metadata, request);
+        FundTransferStrategy strategy = fundTransferStrategies.get(request.getServiceType());
+        strategy.execute(request,metadata);
 
         log.info("Finding Digital User for CIF-ID {}", metadata.getPrimaryCif());
         DigitalUser digitalUser = getDigitalUser(metadata);
@@ -117,7 +116,7 @@ public class FundTransferServiceDefault implements FundTransferService {
 
         log.info("Validating account belong to same cif for own-account transfer");
 
-        if (ServiceType.OWN_ACCOUNT.getName().equals(request.getServiceType())) {
+        if (OWN_ACCOUNT.getName().equals(request.getServiceType())) {
 
             if (!isAccountNumberBelongsToCif(coreAccounts, toAccountNUmber))
                 GenericExceptionHandler.handleError(ACCOUNT_NOT_BELONG_TO_CIF, ACCOUNT_NOT_BELONG_TO_CIF.getErrorMessage());

@@ -35,7 +35,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     private final BeneficiaryClient beneficiaryClient;
 
     @Override
-    public void execute(FundTransferMetadata metadata, FundTransferRequestDTO request) {
+    public void execute(FundTransferRequestDTO request,FundTransferMetadata metadata) {
 
         responseHandler(finTxnNoValidator.validate(request, metadata));
         responseHandler(sameAccountValidator.validate(request, metadata));

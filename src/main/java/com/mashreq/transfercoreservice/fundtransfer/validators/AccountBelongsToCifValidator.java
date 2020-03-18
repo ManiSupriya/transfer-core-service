@@ -28,7 +28,7 @@ public class AccountBelongsToCifValidator implements Validator {
         if (validateToAccount && isAccountNumberBelongsToCif(accounts, request.getToAccount()))
             return prepareValidationResult(Boolean.FALSE);
 
-        if (validateFromAccount && isAccountNumberBelongsToCif(accounts, request.getFromAccount()))
+        if (validateFromAccount && isAccountNumberBelongsToCif(accounts,request.getFromAccount()))
             return prepareValidationResult(Boolean.FALSE);
 
         return prepareValidationResult(Boolean.TRUE);
