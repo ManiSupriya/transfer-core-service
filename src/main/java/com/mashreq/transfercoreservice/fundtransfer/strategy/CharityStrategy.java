@@ -40,13 +40,13 @@ public class CharityStrategy implements FundTransferStrategy {
         final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metadata.getPrimaryCif());
 
         final ValidationContext validateContext = new ValidationContext();
-        validateContext.add("account-details", List.class, accountsFromCore);
-        validateContext.add("validate-from-account", Boolean.class, Boolean.TRUE);
+        validateContext.add("account-details", accountsFromCore);
+        validateContext.add("validate-from-account", Boolean.TRUE);
         responseHandler(accountBelongsToCifValidator.validate(request, metadata, validateContext));
 
 
         CharityBeneficiaryDto charityBeneficiaryDto = beneficiaryClient.getCharity(request.getBeneficiaryId()).getData();
-        validateContext.add("charity-beneficiary-dto", CharityBeneficiaryDto.class, charityBeneficiaryDto);
+        validateContext.add("charity-beneficiary-dto", charityBeneficiaryDto);
         responseHandler(charityValidator.validate(request, metadata, validateContext));
 
         responseHandler(currencyValidator.validate(request, metadata, validateContext));
