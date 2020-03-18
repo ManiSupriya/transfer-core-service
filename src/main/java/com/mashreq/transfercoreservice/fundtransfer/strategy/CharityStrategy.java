@@ -50,7 +50,7 @@ public class CharityStrategy implements FundTransferStrategy {
 
 
         CharityBeneficiaryDto charityBeneficiaryDto = beneficiaryClient.getCharity(request.getBeneficiaryId()).getData();
-        validateContext.add("", CharityBeneficiaryDto.class, charityBeneficiaryDto);
+        validateContext.add("charity-beneficiary-dto", CharityBeneficiaryDto.class, charityBeneficiaryDto);
         responseHandler(charityValidator.validate(request, metadata, validateContext));
 
         responseHandler(currencyValidator.validate(request, metadata, validateContext));
