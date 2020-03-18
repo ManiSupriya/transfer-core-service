@@ -21,6 +21,9 @@ public class AccountBelongsToCifValidator implements Validator {
 
     @Override
     public ValidationResult validate(FundTransferRequestDTO request, FundTransferMetadata metadata, ValidationContext context) {
+
+        log.info("Validating Account for service type [ {} ] ", request.getServiceType());
+
         final List<AccountDetailsDTO> accounts = context.get("account-details", List.class);
         final Boolean validateToAccount = context.get("validate-to-account", Boolean.class);
         final Boolean validateFromAccount = context.get("validate-from-account", Boolean.class);
@@ -28,9 +31,10 @@ public class AccountBelongsToCifValidator implements Validator {
         if (validateToAccount && isAccountNumberBelongsToCif(accounts, request.getToAccount()))
             return prepareValidationResult(Boolean.FALSE);
 
-        if (validateFromAccount && isAccountNumberBelongsToCif(accounts,request.getFromAccount()))
+        if (validateFromAccount && isAccountNumberBelongsToCif(accounts, request.getFromAccount()))
             return prepareValidationResult(Boolean.FALSE);
 
+        log.info("Account validation Successful for service type [ {} ] ", request.getServiceType());
         return prepareValidationResult(Boolean.TRUE);
     }
 

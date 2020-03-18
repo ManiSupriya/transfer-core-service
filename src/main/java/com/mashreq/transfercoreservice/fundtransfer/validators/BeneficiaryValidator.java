@@ -24,6 +24,7 @@ public class BeneficiaryValidator implements Validator {
     public ValidationResult validate(FundTransferRequestDTO request, FundTransferMetadata metadata, ValidationContext context) {
 
         final BeneficiaryDto beneficiaryDto = context.get("beneficiary-dto", BeneficiaryDto.class);
+        log.info("Validating Beneficiary for service type [ {} ] ", request.getServiceType());
 
         if (beneficiaryDto == null)
             return ValidationResult.builder().success(false).transferErrorCode(BENE_NOT_FOUND)
@@ -37,6 +38,7 @@ public class BeneficiaryValidator implements Validator {
             return ValidationResult.builder().success(false).transferErrorCode(BENE_NOT_ACTIVE)
                     .build();
 
+        log.info("Beneficiary validation successful for service type [ {} ] ", request.getServiceType());
         return ValidationResult.builder().success(true).build();
     }
 }

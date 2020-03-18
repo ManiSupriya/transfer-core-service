@@ -16,12 +16,15 @@ import org.springframework.stereotype.Component;
 public class SameAccountValidator implements Validator {
     @Override
     public ValidationResult validate(FundTransferRequestDTO request, FundTransferMetadata metadata, ValidationContext context) {
-        if (request.getToAccount().equals(request.getFromAccount()))
+        log.info("Validating same-credit-and-debit account for service type [ {} ] ", request.getFinTxnNo(), request.getServiceType());
+        if (request.getToAccount().equals(request.getFromAccount())) {
+            log.warn("Same Debit and credit account found service type [ {} ] ", request.getServiceType());
             return ValidationResult.builder()
                     .success(false)
                     .transferErrorCode(TransferErrorCode.CREDIT_AND_DEBIT_ACC_SAME)
                     .build();
-
+        }
+        log.info("Same Credit/Debit Account Validating successful service type [ {} ] ", request.getServiceType());
         return ValidationResult.builder().success(true).build();
     }
 }
