@@ -18,6 +18,7 @@ import static org.apache.commons.beanutils.BeanUtils.getProperty;
 @Slf4j
 public class ConditionalValidator implements ConstraintValidator<ConditionalRequired, Object> {
 
+    public static final String EMPTY_STRING = "";
     private String fieldName;
     private String dependentFieldName;
     private String[] anyMatch;
@@ -56,13 +57,11 @@ public class ConditionalValidator implements ConstraintValidator<ConditionalRequ
                     } else {
                         return fieldValue.length() > 0;
                     }
-
                 }
-
             }
 
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            log.error("Error pccured while resolving custom annotations ", e);
+            log.error("Error occurred while resolving custom annotations ", e);
             throw new RuntimeException(e);
         }
         return true;
@@ -70,14 +69,16 @@ public class ConditionalValidator implements ConstraintValidator<ConditionalRequ
 
     private String getFieldValue(final String fieldName, final boolean decodeBase64, final Object object) throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         final String fieldValue = StringUtils.trim(getProperty(object, fieldName));
-
-
         return StringUtils.isBlank(fieldValue)
-                ? ""
-                : decodeBase64
-                ? new String(Base64.getDecoder().decode(fieldValue))
-                : fieldValue;
+                ? EMPTY_STRING
+                : getDecodedValue(decodeBase64, fieldValue);
 
+    }
+
+    private String getDecodedValue(boolean decodeBase64, String fieldValue) {
+        return decodeBase64
+        ? new String(Base64.getDecoder().decode(fieldValue))
+        : fieldValue;
     }
 
     private String getDependentFieldValue(final String dependentFieldName, final Object object) throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
