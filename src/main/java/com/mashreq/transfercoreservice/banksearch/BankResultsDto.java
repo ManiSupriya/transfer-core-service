@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.banksearch;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.mashreq.esbcore.bindings.account.mbcdm.IBANDetailsResType;
 import com.mashreq.esbcore.bindings.customer.mbcdm.AccuityDetailsTypes;
 import lombok.Data;
@@ -9,6 +10,7 @@ import lombok.Data;
  * @date 2/15/20
  */
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class BankResultsDto {
     private String bankName;
     private String bankCountry;

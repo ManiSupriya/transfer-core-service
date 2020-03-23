@@ -44,8 +44,11 @@ public class ConditionalValidator implements ConstraintValidator<ConditionalRequ
             if (null != anyMatch && anyMatch.length > 0) {
                 if (Stream.of(anyMatch).anyMatch(x -> x.equals(dependentFieldValue))) {
                     final String fieldValue = getFieldValue(fieldName, decodeBase64, object);
-                    if (size != -1 && fieldValue.length() != size)
+                    if (size != -1 && fieldValue.length() != size) {
                         return false;
+                    } else {
+                        return fieldValue.length() > 0;
+                    }
                 }
             }
 

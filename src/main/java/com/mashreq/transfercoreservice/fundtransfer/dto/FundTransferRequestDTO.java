@@ -27,7 +27,7 @@ public class FundTransferRequestDTO {
     @Account
     private String toAccount;
 
-    //@TransactionAmount
+    @TransactionAmount
     private BigDecimal amount;
 
     @ValueOfEnum(enumClass = ServiceType.class, message = "Not a valid value for service Type")

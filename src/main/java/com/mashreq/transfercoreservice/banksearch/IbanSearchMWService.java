@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -31,13 +32,13 @@ public class IbanSearchMWService {
     private static final String SUCCESS_CODE_ENDS_WITH = "-000";
 
 
-    public BankResultsDto fetchBankDetailsWithIban(String channelTraceId, String ibanValue) {
+    public List<BankResultsDto> fetchBankDetailsWithIban(String channelTraceId, String ibanValue) {
         log.info("Searching for Bank details with iban [ {} ]", ibanValue);
 
         EAIServices response = (EAIServices) webServiceClient.exchange(this.getIbanEAIRequest(channelTraceId, ibanValue));
         validateOMWResponse(response);
         BankResultsDto resultsDto = new BankResultsDto(response.getBody().getIBANDetailsRes());
-        return resultsDto;
+        return Arrays.asList(resultsDto);
 
     }
 
