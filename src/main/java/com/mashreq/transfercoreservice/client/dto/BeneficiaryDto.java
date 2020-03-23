@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.client.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -17,7 +18,7 @@ public class BeneficiaryDto {
     private String category;
     private String serviceType;
     private String serviceTypeCode;
-    private BeneficiaryStatus status;
+    private String status;
     private Instant createdDate;
     private Instant activeAfter;
     private String activeAfterDuration;
@@ -30,5 +31,31 @@ public class BeneficiaryDto {
     private String billRefNo;
     private BigDecimal dueAmount;
     private String outstandingAmount;
-    private String currency;
+    private String currentBalance;
+    private String balanceAmount;
+
+    //For fund transfer
+    private String beneficiaryCurrency;
+
+    //LOCAL AND INTERNATIONAL
+    private String fullName;
+    private String bankName;
+    private String swiftCode;
+    private String routingCode;
+
+    private String finalName;
+    private String bankCountry;
+    private String bankCountryISO;
+    private String bankCity;
+    private String bankBranchName;
+    private String bankRoutingCode;
+    private String bankState;
+
+    private String beneficiaryAccountType;
+    private String addressLine1;
+    private String addressLine2;
+    private String addressLine3;
+
 }
+
+

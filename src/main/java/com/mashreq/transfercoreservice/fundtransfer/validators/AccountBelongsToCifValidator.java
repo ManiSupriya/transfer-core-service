@@ -28,7 +28,7 @@ public class AccountBelongsToCifValidator implements Validator {
         final Boolean validateToAccount = context.get("validate-to-account", Boolean.class);
         final Boolean validateFromAccount = context.get("validate-from-account", Boolean.class);
 
-        if (validateToAccount != null && validateFromAccount && isAccountNumberBelongsToCif(accounts, request.getToAccount()))
+        if (validateToAccount != null && validateToAccount && isAccountNumberBelongsToCif(accounts, request.getToAccount()))
             return prepareValidationResult(Boolean.FALSE);
 
         if (validateFromAccount !=null && validateFromAccount && isAccountNumberBelongsToCif(accounts, request.getFromAccount()))
