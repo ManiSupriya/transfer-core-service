@@ -13,7 +13,7 @@ import javax.validation.constraints.NotEmpty;
 
 @Data
 @ConditionalRequired(fieldName = "countryCode", dependentFieldName = "type", noneMatch = {"iban"}, message = "Country is required")
-@ConditionalRequired(fieldName = "routingCodeType", dependentFieldName = "type", anyMatch = {"routing-code"}, message = "Routing code type is required")
+@ConditionalRequired(fieldName = "routingCodeType", dependentFieldName = "type", anyMatch = {"routing-code","swift"}, message = "Routing code type is required")
 public class BankDetailRequestDto {
 
     @NotEmpty
