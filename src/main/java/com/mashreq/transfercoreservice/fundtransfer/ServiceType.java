@@ -34,7 +34,6 @@ public enum ServiceType implements ValidEnum {
         return serviceTypeLookup.get(name);
     }
 
-
     ServiceType(String name) {
         this.name = name;
     }

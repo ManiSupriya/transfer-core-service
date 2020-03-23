@@ -17,10 +17,14 @@ import java.util.List;
 public class BankDetailService {
 
     private final IbanSearchMWService ibanSearchMWService;
+    private final RoutingCodeSearchMWService routingCodeSearchMWService;
 
-    public BankResultsDto getBankDetails(String channelTraceId, BankDetailRequestDto bankDetailRequest) {
-        BankResultsDto bankResultsDto = ibanSearchMWService.fetchBankDetailsWithIban(channelTraceId, bankDetailRequest.getValue());
-        return bankResultsDto;
+    public List<BankResultsDto> getBankDetails(String channelTraceId, BankDetailRequestDto bankDetailRequest) {
+
+        if ("iban".equals(bankDetailRequest.getType())) {
+            return ibanSearchMWService.fetchBankDetailsWithIban(channelTraceId, bankDetailRequest.getValue());
+        }
+        return routingCodeSearchMWService.fetchBankDetailsWithRoutingCode(channelTraceId, bankDetailRequest);
     }
 
 }

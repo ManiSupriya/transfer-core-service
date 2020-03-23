@@ -40,6 +40,7 @@ esb-service:
   service-codes:
     fundTransfer: TFT
     ibanSearch: ${ACCUITYIBAN_SERVICE_CODE:QIBANVAL}
+    routingCodeSearch: ${ACCUITYROUTING_SERVICE_CODE:QFAD}
 
 app:
   services:

@@ -57,7 +57,10 @@ public enum TransferErrorCode implements ErrorCode {
     MONTH_COUNT_LIMIT_REACHED("TNF-API-010", "Month Count Limit Reached"),
 
 
-    IBAN_NOT_FOUND("TNF-API-011", "IBAN not found");
+    IBAN_NOT_FOUND("TNF-API-017", "IBAN not found"),
+    ROUTING_CODE_NOT_FOUND("TNF-API-018", "Routing Code not found"),
+    INVALID_ROUTING_CODE("TNF-API-019", "Invalid Routing Option Mode"),
+    INVALID_COUNTRY_CODE("TNF-API-020", "Invalid Country Code");
 
 
     private String customErrorCode;

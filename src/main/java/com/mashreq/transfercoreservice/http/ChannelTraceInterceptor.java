@@ -3,6 +3,7 @@ package com.mashreq.transfercoreservice.http;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -32,10 +33,12 @@ public class ChannelTraceInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         log.info("URI : {}, USER-AGENT : {}, CIF {}", request.getRequestURI(), request.getHeader(USER_AGENT_KEY), request.getHeader(CIF_KEY), request.getRequestURI());
 
-        if (isBlank(request.getHeader(CIF_KEY)))
-            GenericExceptionHandler.handleError(HEADER_MISSING_CIF, HEADER_MISSING_CIF.getErrorMessage());
+        final String cifId = StringUtils.isBlank(request.getHeader(CIF_KEY)) ? "" : request.getHeader(CIF_KEY);
 
-        final String xChannelTraceId = channelTracerGenerator.channelTraceId(request.getHeader(USER_AGENT_KEY), request.getHeader(CIF_KEY));
+//        if (isBlank(request.getHeader(CIF_KEY)))
+//            GenericExceptionHandler.handleError(HEADER_MISSING_CIF, HEADER_MISSING_CIF.getErrorMessage());
+
+        final String xChannelTraceId = channelTracerGenerator.channelTraceId(request.getHeader(USER_AGENT_KEY), cifId);
         request.setAttribute(X_CHANNEL_TRACE_ID, xChannelTraceId);
         request.setAttribute("X-CHANNEL-HOST", request.getRemoteAddr());
         request.setAttribute("X-CHANNEL-NAME", getChannel(request.getHeader(USER_AGENT_KEY)));
