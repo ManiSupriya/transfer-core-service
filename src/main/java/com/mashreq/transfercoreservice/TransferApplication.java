@@ -20,7 +20,7 @@ public class TransferApplication {
     }
 
     /**
-     * Print Memory info
+     * Print Memory information
      */
     private static void printMetrix() {
         Runtime runtime = Runtime.getRuntime();

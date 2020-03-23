@@ -43,15 +43,15 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metadata.getPrimaryCif());
         final ValidationContext validationContext = new ValidationContext();
         validationContext.add("account-details", accountsFromCore);
-        validationContext.add("validate-from-account", accountsFromCore);
-        responseHandler(accountBelongsToCifValidator.validate(request, metadata, validationContext));
+        validationContext.add("validate-from-account", Boolean.TRUE);
+        //responseHandler(accountBelongsToCifValidator.validate(request, metadata, validationContext));
 
 
-        BeneficiaryDto beneficiaryDto = beneficiaryClient.getBydId(metadata.getPrimaryCif(), valueOf(request.getBeneficiaryId()))
-                .getData();
-
-        validationContext.add("beneficiary-dto", beneficiaryDto);
-        responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
-        responseHandler(currencyValidator.validate(request, metadata, validationContext));
+//        BeneficiaryDto beneficiaryDto = beneficiaryClient.getBydId(metadata.getPrimaryCif(), valueOf(request.getBeneficiaryId()))
+//                .getData();
+//
+//        validationContext.add("beneficiary-dto", beneficiaryDto);
+//        responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
+//        responseHandler(currencyValidator.validate(request, metadata, validationContext));
     }
 }
