@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 import static java.lang.Long.valueOf;
 
@@ -46,6 +47,13 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         validationContext.add("validate-from-account", Boolean.TRUE);
         responseHandler(accountBelongsToCifValidator.validate(request, metadata, validationContext));
 
+
+        Optional<AccountDetailsDTO> fromAccountOpt = accountsFromCore.stream()
+                .filter(x -> request.getFromAccount().equals(x.getNumber()))
+                .findFirst();
+
+        //from account will always be present as it has been validated in the accountBelongsToCifValidator
+        validationContext.add("from-account", fromAccountOpt.get());
 
         BeneficiaryDto beneficiaryDto = beneficiaryClient.getBydId(metadata.getPrimaryCif(), valueOf(request.getBeneficiaryId()))
                 .getData();
