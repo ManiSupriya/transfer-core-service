@@ -24,7 +24,7 @@ public class FundTransferRequestDTO {
     @Account
     private String fromAccount;
 
-    @Account
+//    @Account
     private String toAccount;
 
     @TransactionAmount
@@ -32,9 +32,9 @@ public class FundTransferRequestDTO {
 
     @ValueOfEnum(enumClass = ServiceType.class, message = "Not a valid value for service Type")
     private String serviceType;
-
-    @NotBlank(message = "Currency Cannot be empty")
-    @Size(max = 3, min = 3, message = "Size should be 3")
+//
+//    @NotBlank(message = "Currency Cannot be empty")
+//    @Size(max = 3, min = 3, message = "Size should be 3")
     private String currency;
 
     private String purposeCode;
