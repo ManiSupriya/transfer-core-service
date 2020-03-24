@@ -43,7 +43,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
                 .getData();
         validationContext.add("beneficiary-dto", beneficiaryDto);
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
-
+        ibanValidator.validate(request,metadata, validationContext);
 
     }
 

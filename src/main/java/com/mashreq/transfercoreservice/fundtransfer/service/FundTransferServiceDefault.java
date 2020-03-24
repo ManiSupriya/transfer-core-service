@@ -10,10 +10,7 @@ import com.mashreq.transfercoreservice.client.service.CoreTransferService;
 import com.mashreq.transfercoreservice.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.fundtransfer.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.CharityStrategy;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.FundTransferStrategy;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.OwnAccountStrategy;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.WithinMashreqStrategy;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.*;
 import com.mashreq.transfercoreservice.limits.DigitalUserLimitUsageService;
 import com.mashreq.transfercoreservice.limits.LimitValidator;
 import com.mashreq.transfercoreservice.limits.LimitValidatorResultsDto;
@@ -43,6 +40,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final DigitalUserLimitUsageService digitalUserLimitUsageService;
     private final OwnAccountStrategy ownAccountStrategy;
     private final WithinMashreqStrategy withinMashreqStrategy;
+    private final LocalFundTransferStrategy localFundTransferStrategy;
     private final CharityStrategy charityStrategy;
 
     private EnumMap<ServiceType, FundTransferStrategy> fundTransferStrategies;
@@ -53,6 +51,7 @@ public class FundTransferServiceDefault implements FundTransferService {
         fundTransferStrategies.put(OWN_ACCOUNT, ownAccountStrategy);
         fundTransferStrategies.put(WITHIN_MASHREQ, withinMashreqStrategy);
         fundTransferStrategies.put(CHARITY_ACCOUNT, charityStrategy);
+        fundTransferStrategies.put(LOCAL,localFundTransferStrategy);
     }
 
     @Override

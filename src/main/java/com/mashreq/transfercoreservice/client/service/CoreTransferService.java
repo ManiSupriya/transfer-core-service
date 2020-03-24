@@ -6,6 +6,7 @@ import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
 import com.mashreq.transfercoreservice.client.dto.FundTransferMWResponse;
 import com.mashreq.transfercoreservice.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.errors.FundTransferException;
+import com.mashreq.transfercoreservice.middleware.WebServiceClient;
 import com.mashreq.webcore.dto.response.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 public class CoreTransferService {
 
     private final CoreTransferClient coreTransferClient;
+    private final WebServiceClient webServiceClient;
 
     /**
      * Fund Transfer
