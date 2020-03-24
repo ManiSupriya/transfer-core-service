@@ -33,7 +33,7 @@ public class ChannelTraceInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         log.info("URI : {}, USER-AGENT : {}, CIF {}", request.getRequestURI(), request.getHeader(USER_AGENT_KEY), request.getHeader(CIF_KEY), request.getRequestURI());
 
-        final String cifId = StringUtils.isBlank(request.getHeader(CIF_KEY)) ? "" : request.getHeader(CIF_KEY);
+        final String cifId = StringUtils.isBlank(request.getHeader(CIF_KEY)) ? "XXXXXXXXX" : request.getHeader(CIF_KEY);
 
 //        if (isBlank(request.getHeader(CIF_KEY)))
 //            GenericExceptionHandler.handleError(HEADER_MISSING_CIF, HEADER_MISSING_CIF.getErrorMessage());
