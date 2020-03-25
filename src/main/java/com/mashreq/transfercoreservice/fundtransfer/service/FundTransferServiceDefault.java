@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Optional;
@@ -72,8 +73,8 @@ public class FundTransferServiceDefault implements FundTransferService {
         FundTransferResponse response = strategy.execute(request, metadata, userDTO);
 
         if (response.getResponseDto().getMwResponseStatus().equals(MwResponseStatus.S)) {
-            String versionUuid = response.getLimitVersionUuid();
-            DigitalUserLimitUsageDTO digitalUserLimitUsageDTO = generateUserLimitUsage(request, userDTO, metadata, versionUuid);
+            DigitalUserLimitUsageDTO digitalUserLimitUsageDTO = generateUserLimitUsage(
+                    request.getServiceType(), response.getLimitUsageAmount(), userDTO, metadata, response.getLimitVersionUuid());
             log.info("Inserting into limits table {} ", digitalUserLimitUsageDTO);
             digitalUserLimitUsageService.insert(digitalUserLimitUsageDTO);
         }
@@ -108,19 +109,20 @@ public class FundTransferServiceDefault implements FundTransferService {
         userDTO.setUserId(digitalUser.getId());
         userDTO.setSegmentId(digitalUser.getDigitalUserGroup().getSegment().getId());
         userDTO.setCountryId(digitalUser.getDigitalUserGroup().getCountry().getId());
+        userDTO.setLocalCurrency(digitalUser.getDigitalUserGroup().getCountry().getLocalCurrency());
 
         log.info("User DTO  created {} ", userDTO);
         return userDTO;
     }
 
-    private DigitalUserLimitUsageDTO generateUserLimitUsage(FundTransferRequestDTO request, UserDTO userDTO,
+    private DigitalUserLimitUsageDTO generateUserLimitUsage(String serviceType, BigDecimal usageAmount, UserDTO userDTO,
                                                             FundTransferMetadata fundTransferMetadata, String versionUuid) {
         return DigitalUserLimitUsageDTO.builder()
                 .digitalUserId(userDTO.getUserId())
                 .cif(fundTransferMetadata.getPrimaryCif())
                 .channel(fundTransferMetadata.getChannel())
-                .beneficiaryTypeCode(request.getServiceType())
-                .paidAmount(request.getAmount())
+                .beneficiaryTypeCode(serviceType)
+                .paidAmount(usageAmount)
                 .versionUuid(versionUuid)
                 .createdBy(String.valueOf(userDTO.getUserId()))
                 .build();

@@ -21,6 +21,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,14 +68,19 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         responseHandler(ibanValidator.validate(request, metadata, validationContext));
         log.info("IBAN validation successful");
 
-        LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), request.getAmount());
+        log.info("Limit Validation start.");
+        // Assuming to account is always in local currency so on currency conversion required
+        BigDecimal limitUsageAmount = request.getAmount();
+        LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount);
         log.info("Limit validation successful");
 
         log.info("Local Fund transfer initiated.......");
         final FundTransferResponse fundTransferResponse = fundTransferMWService.sendMoneyToIBAN(metadata, request, fromAccountDetails);
         log.info("Local Fund transfer successful........");
 
-        return fundTransferResponse.toBuilder().limitVersionUuid(validationResult.getLimitVersionUuid()).build();
+        return fundTransferResponse.toBuilder()
+                .limitUsageAmount(limitUsageAmount)
+                .limitVersionUuid(validationResult.getLimitVersionUuid()).build();
 
     }
 

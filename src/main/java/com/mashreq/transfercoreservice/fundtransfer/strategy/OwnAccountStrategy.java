@@ -1,9 +1,12 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
+import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
+import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.client.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.CoreTransferService;
+import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
@@ -14,6 +17,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -31,6 +35,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     private final LimitValidator limitValidator;
     private AccountService accountService;
     private final CoreTransferService coreTransferService;
+    private final MaintenanceService maintenanceService;
 
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO) {
@@ -54,12 +59,23 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 
         responseHandler(currencyValidator.validate(request, metadata, validateAccountContext));
 
-        LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), request.getAmount());
+        // As per current implementation with FE they are sending toCurrency and its value for within and own
+        log.info("Limit Validation start.");
+        BigDecimal limitUsageAmount = request.getAmount();
+        if(!userDTO.getLocalCurrency().equalsIgnoreCase(request.getCurrency())){
+            CoreCurrencyConversionRequestDto requestDto = generateCurrencyConversionRequest(request.getCurrency(), request.getToAccount(),request.getAmount(),
+                    request.getDealNumber(), userDTO.getLocalCurrency());
+            CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(requestDto);
+            limitUsageAmount = currencyConversionDto.getTransactionAmount();
+        }
+        LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount);
         log.info("Limit Validation successful");
 
         final FundTransferResponse fundTransferResponse = coreTransferService.transferFundsBetweenAccounts(request);
 
-        return fundTransferResponse.toBuilder().limitVersionUuid(validationResult.getLimitVersionUuid()).build();
+        return fundTransferResponse.toBuilder()
+                .limitUsageAmount(limitUsageAmount)
+                .limitVersionUuid(validationResult.getLimitVersionUuid()).build();
 
     }
 
