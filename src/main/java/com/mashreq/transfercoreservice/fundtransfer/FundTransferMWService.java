@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.security.SecureRandom;
 import java.util.List;
 
 
@@ -61,27 +62,39 @@ public class FundTransferMWService {
         if (!(StringUtils.endsWith(response.getBody().getExceptionDetails().getErrorCode(), SUCCESS_CODE_ENDS_WITH)
                 && SUCCESS.equals(response.getHeader().getStatus()))) {
             log.debug("Exception during local fund transfer. Code: {} , Description: {}", response.getBody()
-                    .getExceptionDetails().getErrorCode(),response.getBody().getExceptionDetails().getData());
+                    .getExceptionDetails().getErrorCode(), response.getBody().getExceptionDetails().getData());
             GenericExceptionHandler.handleError(TransferErrorCode.FUND_TRANSFER_FAILED,
                     response.getBody().getExceptionDetails().getErrorDescription());
         }
     }
 
     public EAIServices generateEAIRequest(String channelTranceId, FundTransferRequestDTO requestDTO, AccountDetailsDTO fromAccountDetails) {
+
+
+        //TODO remove this
+        SecureRandom secureRandom = new SecureRandom();
+        int batchTransIdTemporatry = (int) (secureRandom.nextInt() * 9000) + 1000;
+        String channelTraceIdTemporary = channelTranceId.substring(0, 12);
+        String debitTraceIdTemporary = channelTranceId.substring(0, 15);
+
+
         EAIServices request = new EAIServices();
-        request.setHeader(headerFactory.getHeader(soapServiceProperties.getServiceCodes().getFundTransfer(), "UAE01005995620"));
+        request.setHeader(headerFactory.getHeader(soapServiceProperties.getServiceCodes().getFundTransfer(), channelTraceIdTemporary));
         request.setBody(new EAIServices.Body());
 
         //Setting individual components
         FundTransferReqType fundTransferReqType = new FundTransferReqType();
-        fundTransferReqType.setBatchTransactionId("1584");
+
+        //TODO Change this to proper batch id
+        fundTransferReqType.setBatchTransactionId(batchTransIdTemporatry + "");
+
         fundTransferReqType.setProductId("DBLC");
         fundTransferReqType.setTransTypeCode("FAM");
 
         List<FundTransferReqType.Transfer> transferList = fundTransferReqType.getTransfer();
         FundTransferReqType.Transfer.CreditLeg creditLeg = new FundTransferReqType.Transfer.CreditLeg();
         FundTransferReqType.Transfer.DebitLeg debitLeg = new FundTransferReqType.Transfer.DebitLeg();
-        debitLeg.setDebitRefNo("A200218163859008");
+        debitLeg.setDebitRefNo(debitTraceIdTemporary);
         debitLeg.setAccountNo("010490730773");
         debitLeg.setTransferBranch("005");
         debitLeg.setCurrency("AED");
@@ -105,7 +118,7 @@ public class FundTransferMWService {
 
 
         request.getBody().setFundTransferReq(fundTransferReqType);
-        log.info("EAI Service request for fund transfer prepared {}",request);
+        log.info("EAI Service request for fund transfer prepared {}", request);
         return request;
     }
 
