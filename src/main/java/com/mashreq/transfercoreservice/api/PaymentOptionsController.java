@@ -31,12 +31,14 @@ public class PaymentOptionsController {
 
     @GetMapping("/{optionType}")
     public Response getPaymentOptions(@NotNull @RequestHeader("X-CIF-ID") String cifId,
+                                      @RequestAttribute("X-CHANNEL-NAME") String channelName,
                                       @PathVariable(required = true) String optionType) {
 
         log.info("Fetch Payment options for {} ", optionType);
         PaymentOptionType paymentOptionType = getPaymentOptionsByType(optionType);
         PaymentOptionRequest paymentOptionRequest = PaymentOptionRequest.builder()
                 .cifId(cifId)
+                .channelName(channelName)
                 .paymentOptionType(paymentOptionType)
                 .build();
 
@@ -56,7 +58,7 @@ public class PaymentOptionsController {
                             @PathVariable final String optionType) {
 
         log.info("Request received to generate finTxnNo for {} ", optionType);
-        String finTxnNo = FinTxnNumberGenerator.generate(channelName, cifId, PaymentOptionType.getPaymentOptionsByType(optionType));
+        String finTxnNo = FinTxnNumberGenerator.generate(channelName, cifId, getPaymentOptionsByType(optionType));
         log.info("finTxnNo generated for optionType {} ", optionType);
         return Response.builder().data(finTxnNo).build();
     }

@@ -15,7 +15,7 @@ public interface FetchPaymentOptionsService {
 
     PaymentsOptionsResponse getPaymentOptions(PaymentOptionRequest request);
 
-     default boolean isPayloadEmpty(List<AccountDetailsDTO> sourceAccounts, List<AccountDetailsDTO> destinationAccounts) {
+    default boolean isPayloadEmpty(List<AccountDetailsDTO> sourceAccounts, List<AccountDetailsDTO> destinationAccounts) {
         return sourceAccounts == null && destinationAccounts == null;
     }
 }

@@ -42,7 +42,7 @@ public class TransferOptionsDefault implements FetchPaymentOptionsService {
 
         log.info("Default Source Accounts present = {} ", defaultSourceAccountOptional.isPresent());
 
-        PaymentOptionPayLoad source = PaymentOptionPayLoad.builder()
+        final PaymentOptionPayLoad source = PaymentOptionPayLoad.builder()
                 .accounts(sourceAccounts)
                 .defaultAccount(defaultSourceAccountOptional.orElse(null))
                 .build();
@@ -51,7 +51,7 @@ public class TransferOptionsDefault implements FetchPaymentOptionsService {
                 .source(source)
                 .finTxnNo(isPayloadEmpty(sourceAccounts, null)
                         ? null
-                        : FinTxnNumberGenerator.generate(request.getPaymentOptionType()))
+                        : FinTxnNumberGenerator.generate(request.getChannelName(), request.getCifId(), request.getPaymentOptionType()))
                 .build();
     }
 }
