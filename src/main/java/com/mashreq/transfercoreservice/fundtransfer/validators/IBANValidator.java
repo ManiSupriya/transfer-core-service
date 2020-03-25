@@ -22,10 +22,10 @@ public class IBANValidator implements Validator {
     private static final int END_CHAR = 7;
 
     @Value("${app.uae.iban.length:23}")
-    private final int ibanLength;
+    private int ibanLength;
 
     @Value("${app.bank.code:033}")
-    private final String bankCode;
+    private String bankCode;
 
     @Override
     public ValidationResult validate(FundTransferRequestDTO request, FundTransferMetadata metadata, ValidationContext context) {
@@ -35,7 +35,7 @@ public class IBANValidator implements Validator {
             return ValidationResult.builder().success(false).transferErrorCode(IBAN_LENGTH_NOT_VALID)
                     .build();
 
-        if (bankCode.equals(StringUtils.substring(request.getToAccount(),4,7)))
+        if (bankCode.equals(StringUtils.substring(request.getToAccount(),START_CHAR,END_CHAR)))
             return ValidationResult.builder().success(false).transferErrorCode(SAME_BANK_IBAN)
                     .build();
         return null;

@@ -44,6 +44,7 @@ esb-service:
 
 app:
   uae:
+    address: 'UNITED ARAB EMIRATES'
     iban:
       length: 23
   bank:
