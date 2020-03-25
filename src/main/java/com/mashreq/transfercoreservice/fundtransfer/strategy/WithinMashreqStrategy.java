@@ -53,19 +53,12 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         validationContext.add("validate-from-account", Boolean.TRUE);
         responseHandler(accountBelongsToCifValidator.validate(request, metadata, validationContext));
 
-
-
-
-
         Optional<AccountDetailsDTO> fromAccountOpt = accountsFromCore.stream()
                 .filter(x -> request.getFromAccount().equals(x.getNumber()))
                 .findFirst();
 
         //from account will always be present as it has been validated in the accountBelongsToCifValidator
         validationContext.add("from-account", fromAccountOpt.get());
-
-
-
 
         BeneficiaryDto beneficiaryDto = beneficiaryClient.getById(metadata.getPrimaryCif(), valueOf(request.getBeneficiaryId()))
                 .getData();
