@@ -8,4 +8,5 @@ public class UserDTO {
     private Long userId;
     private Long segmentId;
     private Long countryId;
+    private String localCurrency;
 }

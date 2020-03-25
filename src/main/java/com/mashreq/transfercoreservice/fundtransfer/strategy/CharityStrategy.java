@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -58,12 +59,17 @@ public class CharityStrategy implements FundTransferStrategy {
 
         responseHandler(currencyValidator.validate(request, metadata, validateContext));
 
-        LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), request.getAmount());
+        // Assuming to account is always in AED
+        log.info("Limit Validation start.");
+        BigDecimal limitUsageAmount = request.getAmount();
+        LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount);
         log.info("Limit Validation successful");
 
         final FundTransferResponse fundTransferResponse = coreTransferService.transferFundsBetweenAccounts(request);
 
-        return fundTransferResponse.toBuilder().limitVersionUuid(validationResult.getLimitVersionUuid()).build();
+        return fundTransferResponse.toBuilder()
+                .limitUsageAmount(limitUsageAmount)
+                .limitVersionUuid(validationResult.getLimitVersionUuid()).build();
 
     }
 }

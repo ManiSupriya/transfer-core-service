@@ -65,6 +65,8 @@ public enum TransferErrorCode implements ErrorCode {
     IBAN_LENGTH_NOT_VALID("TNF-API-012","IBAN should be 23 characters long"),
     SAME_BANK_IBAN("TNF-API-013","Beneficiary Bank is same as sender bank"),
 
+    CURRENCY_CONVERSION_FAIL("TNF-MAN-001", "Currency conversion failed."),
+
     FUND_TRANSFER_FAILED("TNF-API-021", "Fund transfer failed");
 
     private String customErrorCode;
