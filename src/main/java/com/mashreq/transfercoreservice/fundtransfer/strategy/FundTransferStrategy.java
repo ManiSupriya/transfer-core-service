@@ -2,7 +2,7 @@ package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
-import com.mashreq.transfercoreservice.client.dto.FundTransferResponse;
+import com.mashreq.transfercoreservice.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;

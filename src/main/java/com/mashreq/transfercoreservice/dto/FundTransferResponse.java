@@ -4,6 +4,8 @@ import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
 import lombok.Builder;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 /**
  *
  */
@@ -13,5 +15,6 @@ public class FundTransferResponse {
 
     private CoreFundTransferResponseDto responseDto;
     private String limitVersionUuid;
+    private BigDecimal limitUsageAmount;
 
 }
