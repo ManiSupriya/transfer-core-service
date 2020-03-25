@@ -2,6 +2,8 @@ package com.mashreq.transfercoreservice.paymentoptions.service;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 /**
@@ -11,15 +13,29 @@ import java.util.UUID;
 @Slf4j
 public class FinTxnNumberGenerator {
 
-    private static final String TEMPLATE = "{DOM}-{UUID}";
+    private static final String traceTemplate = "{DOM}-{CHANNEL}{REGION}-{CIF}-{DATE-TIME-FORMAT}";
 
-    private FinTxnNumberGenerator(){}
-
-    public static String generate(PaymentOptionType type) {
-
-        final String finTxnNumber = TEMPLATE.replace("{DOM}", type.prefixCode())
-                .replace("{UUID}", UUID.randomUUID().toString());
-        log.info("Generating Financial Transaction Number {} ", finTxnNumber);
-        return finTxnNumber;
+    public static String generate(final String channel, final String cifId, final PaymentOptionType type) {
+        String dateTime = DateTimeFormatter.ofPattern("ddHHmms").format(LocalDateTime.now());
+        return traceTemplate
+                .replace("{DOM}", type.prefixCode())
+                .replace("{CHANNEL}", getChannelCode(channel))
+                .replace("{REGION}", "AE")
+                .replace("{CIF}", cifId)
+                .replace("{DATE-TIME-FORMAT}", dateTime);
     }
+
+    private FinTxnNumberGenerator() {
+    }
+
+    private static String getChannelCode(String userAgent) {
+        if ("MOBILE".equalsIgnoreCase(userAgent)) {
+            return "M";
+        } else if ("WEB".equalsIgnoreCase(userAgent)) {
+            return "W";
+        } else {
+            return "U";
+        }
+    }
+
 }

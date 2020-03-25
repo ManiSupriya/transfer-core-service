@@ -56,7 +56,7 @@ public class PaymentOptionsController {
                             @PathVariable final String optionType) {
 
         log.info("Request received to generate finTxnNo for {} ", optionType);
-        String finTxnNo = FinTxnNumberGenerator.generate(PaymentOptionType.getPaymentOptionsByType(optionType));
+        String finTxnNo = FinTxnNumberGenerator.generate(channelName, cifId, PaymentOptionType.getPaymentOptionsByType(optionType));
         log.info("finTxnNo generated for optionType {} ", optionType);
         return Response.builder().data(finTxnNo).build();
     }

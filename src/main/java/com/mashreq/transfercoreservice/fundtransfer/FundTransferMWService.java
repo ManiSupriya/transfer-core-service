@@ -73,20 +73,20 @@ public class FundTransferMWService {
 
         //TODO remove this
         SecureRandom secureRandom = new SecureRandom();
-        int batchTransIdTemporatry = (int) (secureRandom.nextInt() * 9000) + 1000;
-        String channelTraceIdTemporary = channelTranceId.substring(0, 12);
-        String debitTraceIdTemporary = channelTranceId.substring(0, 15);
+        int batchTransIdTemporary = Math.abs((int) (secureRandom.nextInt() * 9000) + 1000);
+        //String channelTraceIdTemporary = channelTranceId.substring(0, 12);
+        //String debitTraceIdTemporary = channelTranceId.substring(0, 15);
 
 
         EAIServices request = new EAIServices();
-        request.setHeader(headerFactory.getHeader(soapServiceProperties.getServiceCodes().getFundTransfer(), channelTraceIdTemporary));
+        request.setHeader(headerFactory.getHeader(soapServiceProperties.getServiceCodes().getFundTransfer(), channelTranceId));
         request.setBody(new EAIServices.Body());
 
         //Setting individual components
         FundTransferReqType fundTransferReqType = new FundTransferReqType();
 
         //TODO Change this to proper batch id
-        fundTransferReqType.setBatchTransactionId(batchTransIdTemporatry + "");
+        fundTransferReqType.setBatchTransactionId(batchTransIdTemporary + "");
 
         fundTransferReqType.setProductId("DBLC");
         fundTransferReqType.setTransTypeCode("FAM");
@@ -94,7 +94,7 @@ public class FundTransferMWService {
         List<FundTransferReqType.Transfer> transferList = fundTransferReqType.getTransfer();
         FundTransferReqType.Transfer.CreditLeg creditLeg = new FundTransferReqType.Transfer.CreditLeg();
         FundTransferReqType.Transfer.DebitLeg debitLeg = new FundTransferReqType.Transfer.DebitLeg();
-        debitLeg.setDebitRefNo(debitTraceIdTemporary);
+        debitLeg.setDebitRefNo(requestDTO.getFinTxnNo());
         debitLeg.setAccountNo("010490730773");
         debitLeg.setTransferBranch("005");
         debitLeg.setCurrency("AED");
