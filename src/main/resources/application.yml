@@ -43,6 +43,10 @@ esb-service:
     routingCodeSearch: ${ACCUITYROUTING_SERVICE_CODE:QFAD}
 
 app:
+  local:
+    currency: 'AED'
+    transaction.code: '015'
+    transfer.product.id: 'DBLC'
   uae:
     address: 'UNITED ARAB EMIRATES'
     iban:

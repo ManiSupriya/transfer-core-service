@@ -30,6 +30,10 @@ logging.level:
 
 
 app:
+  local:
+    currency: 'AED'
+    transaction.code: '015'
+    transfer.product.id: 'DBLC'
   uae:
     address: 'UNITED ARAB EMIRATES'
     iban:

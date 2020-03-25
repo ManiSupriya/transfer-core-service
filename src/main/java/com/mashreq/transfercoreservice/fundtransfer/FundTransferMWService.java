@@ -6,8 +6,10 @@ import com.mashreq.esbcore.bindings.accountservices.mbcdm.fundtransfer.EAIServic
 import com.mashreq.esbcore.bindings.header.mbcdm.ErrorType;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
+import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
-import com.mashreq.transfercoreservice.client.dto.FundTransferResponse;
+import com.mashreq.transfercoreservice.dto.FundTransferRequest;
+import com.mashreq.transfercoreservice.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
@@ -18,9 +20,9 @@ import com.mashreq.transfercoreservice.middleware.WebServiceClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.util.List;
 
@@ -35,17 +37,31 @@ public class FundTransferMWService {
     private final SoapServiceProperties soapServiceProperties;
     private static final String SUCCESS = "S";
     private static final String SUCCESS_CODE_ENDS_WITH = "-000";
+    private static final String NARRATION_PREFIX = "Fund Transfer-";
+    private static final String NARRATION_SUFFIX = " Banking";
+    private static final String PAYMENT_DETAIL_PREFIX = "/REF/ ";
 
+    @Value("${app.uae.address}")
+    private String address;
 
-    public FundTransferResponse sendMoneyToIBAN(FundTransferMetadata metadata, FundTransferRequestDTO request,
-                                                AccountDetailsDTO fromAccountDetails) {
-        log.info("Fund transfer initiated for IBAN [ {} ]", request.getToAccount());
+    @Value("${app.local.transfer.product.id}")
+    private String productId;
 
-        EAIServices response = (EAIServices) webServiceClient.exchange(generateEAIRequest(metadata.getChannelTraceId(), request, fromAccountDetails));
+    @Value("${app.local.transaction.code}")
+    private String transactionCode;
+
+    @Value("${app.local.currency}")
+    private String localCurrency;
+
+    public FundTransferResponse sendMoneyToIBAN(FundTransferRequest request) {
+        log.info("Fund transfer initiated for IBAN [ {} ]", request.getFundTransferRequestDTO().getToAccount());
+
+        EAIServices response = (EAIServices) webServiceClient.exchange(generateEAIRequest(request));
+
         validateOMWResponse(response);
         final FundTransferResType.Transfer transfer = response.getBody().getFundTransferRes().getTransfer().get(0);
         final ErrorType exceptionDetails = response.getBody().getExceptionDetails();
-        log.info("Fund transfer successful for IBAN [ {} ]", request.getToAccount());
+        log.info("Fund transfer successful for IBAN [ {} ]", request.getFundTransferRequestDTO().getToAccount());
         final CoreFundTransferResponseDto coreFundTransferResponseDto = CoreFundTransferResponseDto.builder()
                 .transactionRefNo(transfer.getTransactionRefNo())
                 .externalErrorMessage(exceptionDetails.getErrorDescription())
@@ -68,19 +84,21 @@ public class FundTransferMWService {
         }
     }
 
-    public EAIServices generateEAIRequest(String channelTranceId, FundTransferRequestDTO requestDTO, AccountDetailsDTO fromAccountDetails) {
-
-
+    public EAIServices generateEAIRequest(FundTransferRequest request) {
+        final FundTransferMetadata fundTransferMetadata = request.getFundTransferMetadata();
+        final FundTransferRequestDTO requestDTO = request.getFundTransferRequestDTO();
+        final AccountDetailsDTO fromAccountDetails = request.getAccountDetailsDTO();
+        final BeneficiaryDto beneficiaryDto = request.getBeneficiaryDto();
         //TODO remove this
         SecureRandom secureRandom = new SecureRandom();
-        int batchTransIdTemporary = Math.abs((int) (secureRandom.nextInt() * 9000) + 1000);
-        //String channelTraceIdTemporary = channelTranceId.substring(0, 12);
-        //String debitTraceIdTemporary = channelTranceId.substring(0, 15);
+        int batchTransIdTemporatry = Math.abs((secureRandom.nextInt() * 9000) + 1000);
+        //String channelTraceIdTemporary = fundTransferMetadata.getChannelTraceId().substring(0, 12);
+        //String debitTraceIdTemporary = fundTransferMetadata.getChannelTraceId().substring(0, 15);
 
+        EAIServices services = new EAIServices();
+        services.setHeader(headerFactory.getHeader(soapServiceProperties.getServiceCodes().getFundTransfer(), channelTraceIdTemporary));
+        services.setBody(new EAIServices.Body());
 
-        EAIServices request = new EAIServices();
-        request.setHeader(headerFactory.getHeader(soapServiceProperties.getServiceCodes().getFundTransfer(), channelTranceId));
-        request.setBody(new EAIServices.Body());
 
         //Setting individual components
         FundTransferReqType fundTransferReqType = new FundTransferReqType();
@@ -88,39 +106,47 @@ public class FundTransferMWService {
         //TODO Change this to proper batch id
         fundTransferReqType.setBatchTransactionId(batchTransIdTemporary + "");
 
-        fundTransferReqType.setProductId("DBLC");
-        fundTransferReqType.setTransTypeCode("FAM");
+        fundTransferReqType.setProductId(productId);
+        fundTransferReqType.setTransTypeCode(requestDTO.getPurposeCode());
 
         List<FundTransferReqType.Transfer> transferList = fundTransferReqType.getTransfer();
         FundTransferReqType.Transfer.CreditLeg creditLeg = new FundTransferReqType.Transfer.CreditLeg();
         FundTransferReqType.Transfer.DebitLeg debitLeg = new FundTransferReqType.Transfer.DebitLeg();
-        debitLeg.setDebitRefNo(requestDTO.getFinTxnNo());
-        debitLeg.setAccountNo("010490730773");
-        debitLeg.setTransferBranch("005");
-        debitLeg.setCurrency("AED");
-        debitLeg.setNarration1("Fund Transfer-Mobile Banking");
 
-        creditLeg.setAccountNo("AE120260001015673975601");
-        creditLeg.setTransactionCode("015");
-        creditLeg.setAmount(new BigDecimal(20.00));
-        creditLeg.setCurrency("AED");
-        creditLeg.setChargeBearer("O");
-        creditLeg.setPaymentDetails("/REF/ Family Support");
-        creditLeg.setBenName("Hasneet Singh Nehra");
-        creditLeg.setBenAddr2("UNITED ARAB EMIRATES");
-        creditLeg.setAWInstName("EMIRATES NBD PJSC");
-        creditLeg.setAWInstBICCode("EBILAEADXXX");
-        creditLeg.setAWInstAddr2("DUBAI");
+        debitLeg.setDebitRefNo(debitTraceIdTemporary);
+        debitLeg.setAccountNo(fromAccountDetails.getNumber());
+        debitLeg.setTransferBranch(fromAccountDetails.getBranchCode());
+        debitLeg.setCurrency(fromAccountDetails.getCurrency());
+        debitLeg.setNarration1(generateNarration(fundTransferMetadata.getChannel()));
+
+        creditLeg.setAccountNo(requestDTO.getToAccount());
+        creditLeg.setTransactionCode(transactionCode);
+        creditLeg.setAmount(requestDTO.getAmount());
+        creditLeg.setCurrency(localCurrency);
+        creditLeg.setChargeBearer(requestDTO.getChargeBearer());
+        creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + requestDTO.getPurposeDesc());
+        creditLeg.setBenName(beneficiaryDto.getFullName());
+        creditLeg.setBenAddr2(address);
+        creditLeg.setAWInstName(beneficiaryDto.getBankName());
+        creditLeg.setAWInstBICCode(beneficiaryDto.getSwiftCode());
+
+
         FundTransferReqType.Transfer transfer = new FundTransferReqType.Transfer();
         transfer.setCreditLeg(creditLeg);
         transfer.setDebitLeg(debitLeg);
         transferList.add(transfer);
 
 
-        request.getBody().setFundTransferReq(fundTransferReqType);
-        log.info("EAI Service request for fund transfer prepared {}", request);
-        return request;
+        services.getBody().setFundTransferReq(fundTransferReqType);
+        log.info("EAI Service request for fund transfer prepared {}", services);
+        return services;
     }
+
+    private String generateNarration(String channel) {
+        return NARRATION_PREFIX + channel + NARRATION_SUFFIX;
+    }
+
+
 
 
 }

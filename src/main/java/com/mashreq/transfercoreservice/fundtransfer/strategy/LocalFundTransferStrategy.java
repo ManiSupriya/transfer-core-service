@@ -5,7 +5,8 @@ import com.mashreq.transfercoreservice.client.BeneficiaryClient;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
-import com.mashreq.transfercoreservice.client.dto.FundTransferResponse;
+import com.mashreq.transfercoreservice.dto.FundTransferRequest;
+import com.mashreq.transfercoreservice.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.fundtransfer.FundTransferMWService;
@@ -56,7 +57,6 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
         responseHandler(accountBelongsToCifValidator.validate(request, metadata, validationContext));
         log.info("Account belongs to cif validation successful");
-
         final AccountDetailsDTO fromAccountDetails = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
 
         BeneficiaryDto beneficiaryDto = beneficiaryClient.getById(metadata.getPrimaryCif(), valueOf(request.getBeneficiaryId()))
@@ -74,8 +74,9 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount);
         log.info("Limit validation successful");
 
+        final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountDetails, beneficiaryDto);
         log.info("Local Fund transfer initiated.......");
-        final FundTransferResponse fundTransferResponse = fundTransferMWService.sendMoneyToIBAN(metadata, request, fromAccountDetails);
+        final FundTransferResponse fundTransferResponse = fundTransferMWService.sendMoneyToIBAN(fundTransferRequest);
         log.info("Local Fund transfer successful........");
 
         return fundTransferResponse.toBuilder()
@@ -84,10 +85,24 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
     }
 
+    private FundTransferRequest prepareFundTransferRequestPayload(FundTransferMetadata metadata, FundTransferRequestDTO request,
+                                                                  AccountDetailsDTO accountDetails, BeneficiaryDto beneficiaryDto) {
+        return FundTransferRequest.builder()
+                .accountDetailsDTO(accountDetails)
+                .beneficiaryDto(beneficiaryDto)
+                .fundTransferMetadata(metadata)
+                .fundTransferRequestDTO(request)
+                .build();
+
+    }
+
+
     private AccountDetailsDTO getAccountDetailsBasedOnAccountNumber(List<AccountDetailsDTO> coreAccounts, String accountNumber) {
         return coreAccounts.stream()
                 .filter(account -> account.getNumber().equals(accountNumber))
                 .findFirst().orElse(null);
     }
+
+
 
 }

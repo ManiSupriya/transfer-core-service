@@ -3,7 +3,7 @@ package com.mashreq.transfercoreservice.fundtransfer.strategy;
 import com.mashreq.transfercoreservice.client.BeneficiaryClient;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.CharityBeneficiaryDto;
-import com.mashreq.transfercoreservice.client.dto.FundTransferResponse;
+import com.mashreq.transfercoreservice.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.CoreTransferService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
