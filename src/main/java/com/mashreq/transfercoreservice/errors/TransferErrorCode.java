@@ -60,7 +60,9 @@ public enum TransferErrorCode implements ErrorCode {
     IBAN_NOT_FOUND("TNF-API-017", "IBAN not found"),
     ROUTING_CODE_NOT_FOUND("TNF-API-018", "Routing Code not found"),
     INVALID_ROUTING_CODE("TNF-API-019", "Invalid Routing Option Mode"),
-    INVALID_COUNTRY_CODE("TNF-API-020", "Invalid Country Code");
+    INVALID_COUNTRY_CODE("TNF-API-020", "Invalid Country Code"),
+
+    CURRENCY_CONVERSION_FAIL("TNF-MAN-001", "Currency conversion failed.");
 
 
     private String customErrorCode;

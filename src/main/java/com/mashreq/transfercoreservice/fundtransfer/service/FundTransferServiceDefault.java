@@ -3,10 +3,13 @@ package com.mashreq.transfercoreservice.fundtransfer.service;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.BeneficiaryClient;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
+import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferRequestDto;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
+import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.CoreTransferService;
+import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.fundtransfer.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
@@ -24,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Optional;
@@ -44,6 +48,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final OwnAccountStrategy ownAccountStrategy;
     private final WithinMashreqStrategy withinMashreqStrategy;
     private final CharityStrategy charityStrategy;
+    private final MaintenanceService maintenanceService;
 
     private EnumMap<ServiceType, FundTransferStrategy> fundTransferStrategies;
 
@@ -68,7 +73,20 @@ public class FundTransferServiceDefault implements FundTransferService {
         log.info("Creating  User DTO");
         UserDTO userDTO = createUserDTO(metadata, digitalUser);
 
-        LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), request.getAmount());
+        // As per current implementation with FE they are sending toCurrency and its value for within and own
+        String givenCurrency = "AED";
+        if(request.getServiceType().equalsIgnoreCase(OWN_ACCOUNT.getName())
+                || request.getServiceType().equalsIgnoreCase(WITHIN_MASHREQ.name())){
+            givenCurrency = request.getCurrency();
+        }
+
+        // if givenCurrency is different then localCurrency then do conversion
+        BigDecimal limitUsageAmount = request.getAmount();
+        if(!userDTO.getLocalCurrency().equalsIgnoreCase(givenCurrency)){
+            limitUsageAmount = getConvertedAmount(givenCurrency, request.getToAccount(),
+                    request.getAmount(), request.getDealNumber(), userDTO.getLocalCurrency());
+        }
+        LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount);
         log.info("Limit Validation successful");
 
         CoreFundTransferRequestDto coreFundTransferRequestDto = CoreFundTransferRequestDto.builder()
@@ -85,7 +103,7 @@ public class FundTransferServiceDefault implements FundTransferService {
 
         if (response.getMwResponseStatus().equals(MwResponseStatus.S)) {
             String versionUuid = validationResult.getLimitVersionUuid();
-            DigitalUserLimitUsageDTO digitalUserLimitUsageDTO = generateUserLimitUsage(request, userDTO, metadata, versionUuid);
+            DigitalUserLimitUsageDTO digitalUserLimitUsageDTO = generateUserLimitUsage(request.getServiceType(), limitUsageAmount, userDTO, metadata, versionUuid);
             log.info("Inserting into limits table {} ", digitalUserLimitUsageDTO);
             digitalUserLimitUsageService.insert(digitalUserLimitUsageDTO);
         }
@@ -104,6 +122,23 @@ public class FundTransferServiceDefault implements FundTransferService {
         return paymentHistoryDTO;
     }
 
+    /**
+     * Always take from accountCurrency and accountCurrencyAmount
+     * @Return transactionAmount
+     */
+    private BigDecimal getConvertedAmount(String givenCurrency, String givenAccount, BigDecimal givenAmount, String dealNumber,
+                                          String localCurrency) {
+        CoreCurrencyConversionRequestDto requestDto = CoreCurrencyConversionRequestDto.builder()
+                .accountNumber(givenAccount)
+                .accountCurrency(givenCurrency)
+                .accountCurrencyAmount(givenAmount)
+                .dealNumber(dealNumber)
+                .transactionCurrency(localCurrency)
+                .build();
+        CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(requestDto);
+        return currencyConversionDto.getTransactionAmount();
+    }
+
     private DigitalUser getDigitalUser(FundTransferMetadata fundTransferMetadata) {
         Optional<DigitalUser> digitalUserOptional = digitalUserRepository.findByCifEquals(fundTransferMetadata.getPrimaryCif());
         if (!digitalUserOptional.isPresent()) {
@@ -119,19 +154,20 @@ public class FundTransferServiceDefault implements FundTransferService {
         userDTO.setUserId(digitalUser.getId());
         userDTO.setSegmentId(digitalUser.getDigitalUserGroup().getSegment().getId());
         userDTO.setCountryId(digitalUser.getDigitalUserGroup().getCountry().getId());
+        userDTO.setLocalCurrency(digitalUser.getDigitalUserGroup().getCountry().getLocalCurrency());
 
         log.info("User DTO  created {} ", userDTO);
         return userDTO;
     }
 
-    private DigitalUserLimitUsageDTO generateUserLimitUsage(FundTransferRequestDTO request, UserDTO userDTO,
+    private DigitalUserLimitUsageDTO generateUserLimitUsage(String serviceType, BigDecimal limitUsageAmount, UserDTO userDTO,
                                                             FundTransferMetadata fundTransferMetadata, String versionUuid) {
         return DigitalUserLimitUsageDTO.builder()
                 .digitalUserId(userDTO.getUserId())
                 .cif(fundTransferMetadata.getPrimaryCif())
                 .channel(fundTransferMetadata.getChannel())
-                .beneficiaryTypeCode(request.getServiceType())
-                .paidAmount(request.getAmount())
+                .beneficiaryTypeCode(serviceType)
+                .paidAmount(limitUsageAmount)
                 .versionUuid(versionUuid)
                 .createdBy(String.valueOf(userDTO.getUserId()))
                 .build();
