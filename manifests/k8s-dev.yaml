@@ -61,8 +61,6 @@ spec:
           name: http
           protocol: TCP
         volumeMounts:
-        - mountPath: /usr/images
-          name: backend-pv-storage
         - mountPath: /opt/appd
           name: appd-agent-repo
       initContainers:
@@ -76,8 +74,5 @@ spec:
         - mountPath: /opt/appd
           name: appd-agent-repo
       volumes:
-      - name: backend-pv-storage
-        persistentVolumeClaim:
-          claimName: digital-dev-pvc
       - emptyDir: {}
         name: appd-agent-repo
