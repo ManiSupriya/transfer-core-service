@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 @Builder
 public class PaymentOptionRequest {
     private String cifId;
+    private String channelName;
     private PaymentOptionType paymentOptionType;
     private BigDecimal minAmountToBeAvailable;
 }
