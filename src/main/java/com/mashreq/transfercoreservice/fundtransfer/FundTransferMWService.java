@@ -5,15 +5,11 @@ import com.mashreq.esbcore.bindings.account.mbcdm.FundTransferResType;
 import com.mashreq.esbcore.bindings.accountservices.mbcdm.fundtransfer.EAIServices;
 import com.mashreq.esbcore.bindings.header.mbcdm.ErrorType;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
-import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
-import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
 import com.mashreq.transfercoreservice.dto.FundTransferRequest;
 import com.mashreq.transfercoreservice.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.middleware.HeaderFactory;
 import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
 import com.mashreq.transfercoreservice.middleware.WebServiceClient;
@@ -54,14 +50,14 @@ public class FundTransferMWService {
     private String localCurrency;
 
     public FundTransferResponse sendMoneyToIBAN(FundTransferRequest request) {
-        log.info("Fund transfer initiated for IBAN [ {} ]", request.getFundTransferRequestDTO().getToAccount());
+        log.info("Fund transfer initiated for IBAN [ {} ]", request.getToAccount());
 
         EAIServices response = (EAIServices) webServiceClient.exchange(generateEAIRequest(request));
 
         validateOMWResponse(response);
         final FundTransferResType.Transfer transfer = response.getBody().getFundTransferRes().getTransfer().get(0);
         final ErrorType exceptionDetails = response.getBody().getExceptionDetails();
-        log.info("Fund transfer successful for IBAN [ {} ]", request.getFundTransferRequestDTO().getToAccount());
+        log.info("Fund transfer successful for IBAN [ {} ]", request.getToAccount());
         final CoreFundTransferResponseDto coreFundTransferResponseDto = CoreFundTransferResponseDto.builder()
                 .transactionRefNo(transfer.getTransactionRefNo())
                 .externalErrorMessage(exceptionDetails.getErrorDescription())
@@ -85,15 +81,12 @@ public class FundTransferMWService {
     }
 
     public EAIServices generateEAIRequest(FundTransferRequest request) {
-        final FundTransferMetadata fundTransferMetadata = request.getFundTransferMetadata();
-        final FundTransferRequestDTO requestDTO = request.getFundTransferRequestDTO();
-        final AccountDetailsDTO fromAccountDetails = request.getAccountDetailsDTO();
-        final BeneficiaryDto beneficiaryDto = request.getBeneficiaryDto();
+
         //TODO remove this
         SecureRandom secureRandom = new SecureRandom();
-        int batchTransIdTemporatry = Math.abs((secureRandom.nextInt() * 9000) + 1000);
-        //String channelTraceIdTemporary = fundTransferMetadata.getChannelTraceId().substring(0, 12);
-        //String debitTraceIdTemporary = fundTransferMetadata.getChannelTraceId().substring(0, 15);
+        int batchTransIdTemporary = Math.abs((secureRandom.nextInt() * 9000) + 1000);
+        String channelTraceIdTemporary = request.getChannelTraceId().substring(0, 12);
+        String debitTraceIdTemporary = request.getChannelTraceId().substring(0, 15);
 
         EAIServices services = new EAIServices();
         services.setHeader(headerFactory.getHeader(soapServiceProperties.getServiceCodes().getFundTransfer(), channelTraceIdTemporary));
@@ -107,28 +100,28 @@ public class FundTransferMWService {
         fundTransferReqType.setBatchTransactionId(batchTransIdTemporary + "");
 
         fundTransferReqType.setProductId(productId);
-        fundTransferReqType.setTransTypeCode(requestDTO.getPurposeCode());
+        fundTransferReqType.setTransTypeCode(request.getPurposeCode());
 
         List<FundTransferReqType.Transfer> transferList = fundTransferReqType.getTransfer();
         FundTransferReqType.Transfer.CreditLeg creditLeg = new FundTransferReqType.Transfer.CreditLeg();
         FundTransferReqType.Transfer.DebitLeg debitLeg = new FundTransferReqType.Transfer.DebitLeg();
 
         debitLeg.setDebitRefNo(debitTraceIdTemporary);
-        debitLeg.setAccountNo(fromAccountDetails.getNumber());
-        debitLeg.setTransferBranch(fromAccountDetails.getBranchCode());
-        debitLeg.setCurrency(fromAccountDetails.getCurrency());
-        debitLeg.setNarration1(generateNarration(fundTransferMetadata.getChannel()));
+        debitLeg.setAccountNo(request.getFromAccount());
+        debitLeg.setTransferBranch(request.getSourceBranchCode());
+        debitLeg.setCurrency(request.getSourceCurrency());
+        debitLeg.setNarration1(generateNarration(request.getChannel()));
 
-        creditLeg.setAccountNo(requestDTO.getToAccount());
+        creditLeg.setAccountNo(request.getToAccount());
         creditLeg.setTransactionCode(transactionCode);
-        creditLeg.setAmount(requestDTO.getAmount());
+        creditLeg.setAmount(request.getAmount());
         creditLeg.setCurrency(localCurrency);
-        creditLeg.setChargeBearer(requestDTO.getChargeBearer());
-        creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + requestDTO.getPurposeDesc());
-        creditLeg.setBenName(beneficiaryDto.getFullName());
+        creditLeg.setChargeBearer(request.getChargeBearer());
+        creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc());
+        creditLeg.setBenName(request.getBeneficiaryFullName());
         creditLeg.setBenAddr2(address);
-        creditLeg.setAWInstName(beneficiaryDto.getBankName());
-        creditLeg.setAWInstBICCode(beneficiaryDto.getSwiftCode());
+        creditLeg.setAWInstName(request.getDestinationBankName());
+        creditLeg.setAWInstBICCode(request.getSwiftCode());
 
 
         FundTransferReqType.Transfer transfer = new FundTransferReqType.Transfer();

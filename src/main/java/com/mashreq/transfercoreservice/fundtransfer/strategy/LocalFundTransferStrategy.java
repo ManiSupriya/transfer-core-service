@@ -1,32 +1,23 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
-import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.BeneficiaryClient;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
-import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
 import com.mashreq.transfercoreservice.dto.FundTransferRequest;
 import com.mashreq.transfercoreservice.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.client.service.AccountService;
-import com.mashreq.transfercoreservice.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.fundtransfer.FundTransferMWService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
-import com.mashreq.transfercoreservice.fundtransfer.service.PaymentHistoryService;
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
-import com.mashreq.transfercoreservice.limits.DigitalUserLimitUsageService;
 import com.mashreq.transfercoreservice.limits.LimitValidator;
 import com.mashreq.transfercoreservice.limits.LimitValidatorResultsDto;
-import com.mashreq.transfercoreservice.model.DigitalUser;
-import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
 import static java.lang.Long.valueOf;
 
 /**
@@ -88,10 +79,20 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     private FundTransferRequest prepareFundTransferRequestPayload(FundTransferMetadata metadata, FundTransferRequestDTO request,
                                                                   AccountDetailsDTO accountDetails, BeneficiaryDto beneficiaryDto) {
         return FundTransferRequest.builder()
-                .accountDetailsDTO(accountDetails)
-                .beneficiaryDto(beneficiaryDto)
-                .fundTransferMetadata(metadata)
-                .fundTransferRequestDTO(request)
+                .amount(request.getAmount())
+                .channel(metadata.getChannel())
+                .channelTraceId(metadata.getChannelTraceId())
+                .fromAccount(request.getFromAccount())
+                .toAccount(request.getToAccount())
+                .purposeCode(request.getPurposeCode())
+                .purposeDesc(request.getPurposeDesc())
+                .chargeBearer(request.getChargeBearer())
+                .finTxnNo(request.getFinTxnNo())
+                .sourceCurrency(accountDetails.getCurrency())
+                .sourceBranchCode(accountDetails.getBranchCode())
+                .beneficiaryFullName(beneficiaryDto.getFullName())
+                .destinationBankName(beneficiaryDto.getBankName())
+                .swiftCode(beneficiaryDto.getSwiftCode())
                 .build();
 
     }
