@@ -85,11 +85,11 @@ public class FundTransferMWService {
         //TODO remove this
         SecureRandom secureRandom = new SecureRandom();
         int batchTransIdTemporary = Math.abs((secureRandom.nextInt() * 9000) + 1000);
-        String channelTraceIdTemporary = request.getChannelTraceId().substring(0, 12);
-        String debitTraceIdTemporary = request.getChannelTraceId().substring(0, 15);
+        //String channelTraceIdTemporary = request.getChannelTraceId().substring(0, 12);
+        //String debitTraceIdTemporary = request.getChannelTraceId().substring(0, 15);
 
         EAIServices services = new EAIServices();
-        services.setHeader(headerFactory.getHeader(soapServiceProperties.getServiceCodes().getFundTransfer(), channelTraceIdTemporary));
+        services.setHeader(headerFactory.getHeader(soapServiceProperties.getServiceCodes().getFundTransfer(), request.getChannelTraceId()));
         services.setBody(new EAIServices.Body());
 
 
@@ -106,7 +106,7 @@ public class FundTransferMWService {
         FundTransferReqType.Transfer.CreditLeg creditLeg = new FundTransferReqType.Transfer.CreditLeg();
         FundTransferReqType.Transfer.DebitLeg debitLeg = new FundTransferReqType.Transfer.DebitLeg();
 
-        debitLeg.setDebitRefNo(debitTraceIdTemporary);
+        debitLeg.setDebitRefNo(request.getFinTxnNo());
         debitLeg.setAccountNo(request.getFromAccount());
         debitLeg.setTransferBranch(request.getSourceBranchCode());
         debitLeg.setCurrency(request.getSourceCurrency());
