@@ -69,7 +69,7 @@ public class FundTransferMWService {
 
     public EAIServices generateEAIRequest(String channelTranceId, FundTransferRequestDTO requestDTO, AccountDetailsDTO fromAccountDetails) {
         EAIServices request = new EAIServices();
-        request.setHeader(headerFactory.getHeader(soapServiceProperties.getServiceCodes().getFundTransfer(), channelTranceId));
+        request.setHeader(headerFactory.getHeader(soapServiceProperties.getServiceCodes().getFundTransfer(), "UAE01005995620"));
         request.setBody(new EAIServices.Body());
 
         //Setting individual components
