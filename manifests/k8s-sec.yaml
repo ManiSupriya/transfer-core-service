@@ -58,7 +58,7 @@ spec:
             name: configmap-transfer-core-service
         - secretRef:
               name: secrets-transfer-core-service
-        image: mashrequae.azurecr.io/#{Build.Repository.Name}#:#{Build.BuildId}#
+        image: mashrequae.azurecr.io/#{Build.Repository.Name}#:#{Build.BuildId}#-instrument
         name: #{Build.Repository.Name}#
         ports:
         - containerPort: 8080
