@@ -1,0 +1,83 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: #{Build.Repository.Name}#
+spec:
+  ports:
+  - name: http
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: #{Build.Repository.Name}#
+  type: ClusterIP
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: #{Build.Repository.Name}#
+    app-type: microservice
+    build-tools: v1
+  name: #{Build.Repository.Name}#
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: #{Build.Repository.Name}#
+  template:
+    metadata:
+      annotations:
+        collectord.io/stderr-logs-type: log4j
+        collectord.io/stdout-logs-type: log4j
+      labels:
+        app: #{Build.Repository.Name}#
+        app-type: microservice
+        build-tools: v1
+    spec:
+      containers:
+      - env:
+        - name: APPLICATION_NAME
+          value: #{Build.Repository.Name}#
+        - name: ENVIRONMENT_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: APPDYNAMICS_AGENT_APPLICATION_NAME
+          value: $(APPLICATION_NAME)-$(ENVIRONMENT_NAME)
+        - name: JAVA_OPTS
+          value: -Xms512m -Xmx1200m
+        envFrom:
+        - configMapRef:
+            name: configmap-appdynamics
+        - configMapRef:
+            name: configmap-transfer-core-service
+        - secretRef:
+              name: secrets-transfer-core-service
+        image: mashrequae.azurecr.io/#{Build.Repository.Name}#:#{Build.BuildId}#
+        name: #{Build.Repository.Name}#
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /usr/images
+          name: backend-pv-storage
+        - mountPath: /opt/appd
+          name: appd-agent-repo
+      initContainers:
+      - command:
+        - /bin/sh
+        - -c
+        - cp -ra /opt/appdynamics/. /opt/appd/ && chmod -R 0777 /opt/appd/
+        image: mashrequae.azurecr.io/appd-java-agent:4.5.13
+        name: appd-init
+        volumeMounts:
+        - mountPath: /opt/appd
+          name: appd-agent-repo
+      volumes:
+      - name: backend-pv-storage
+        persistentVolumeClaim:
+          claimName: digital-dev-pvc
+      - emptyDir: {}
+        name: appd-agent-repo
