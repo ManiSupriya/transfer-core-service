@@ -1,5 +1,6 @@
-package com.mashreq.transfercoreservice.client.dto;
+package com.mashreq.transfercoreservice.dto;
 
+import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
 import lombok.Builder;
 import lombok.Data;
 

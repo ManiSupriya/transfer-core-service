@@ -4,7 +4,7 @@ import com.mashreq.transfercoreservice.client.CoreTransferClient;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferRequestDto;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
 import com.mashreq.transfercoreservice.client.dto.FundTransferMWResponse;
-import com.mashreq.transfercoreservice.client.dto.FundTransferResponse;
+import com.mashreq.transfercoreservice.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.errors.FundTransferException;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
