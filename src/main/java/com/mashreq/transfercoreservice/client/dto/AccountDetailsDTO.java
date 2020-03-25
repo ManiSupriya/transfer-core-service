@@ -39,4 +39,7 @@ public class AccountDetailsDTO {
 
     @JsonProperty("segment")
     private String segment;
+
+    @JsonProperty("branch")
+    private String branchCode;
 }

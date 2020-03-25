@@ -35,7 +35,7 @@ public class IbanSearchMWService {
     public List<BankResultsDto> fetchBankDetailsWithIban(String channelTraceId, String ibanValue) {
         log.info("Searching for Bank details with iban [ {} ]", ibanValue);
 
-        EAIServices response = (EAIServices) webServiceClient.exchange(this.getIbanEAIRequest(channelTraceId, ibanValue));
+        EAIServices response = (EAIServices) webServiceClient.exchange(getIbanEAIRequest(channelTraceId, ibanValue));
         validateOMWResponse(response);
         BankResultsDto resultsDto = new BankResultsDto(response.getBody().getIBANDetailsRes());
         return Arrays.asList(resultsDto);

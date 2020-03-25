@@ -32,7 +32,7 @@ public class CurrencyValidator implements Validator {
         String requestedCurrency = request.getCurrency();
         log.info("Requested currency [ {} ] service type [ {} ] ", requestedCurrency, request.getServiceType());
 
-        if (WITHIN_MASHREQ.getName().equals(request.getServiceType()) &&  beneficiaryDto != null && isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), beneficiaryDto.getCurrency())) {
+        if (WITHIN_MASHREQ.getName().equals(request.getServiceType()) &&  beneficiaryDto != null && isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), beneficiaryDto.getBeneficiaryCurrency())) {
             log.warn("Beneficiary Currency and Requested Currency does not match for service type [ {} ]  ", request.getServiceType());
             return ValidationResult.builder().success(false).transferErrorCode(TransferErrorCode.CURRENCY_IS_INVALID).build();
         }

@@ -39,6 +39,10 @@ public class FundTransferRequestDTO {
 
     private String purposeCode;
 
+    private String purposeDesc;
+
+    private String chargeBearer;
+
     private String dealNumber;
 
     @NotBlank(message = "Financial Transaction Number cannot be empty")
