@@ -38,6 +38,6 @@ public class IBANValidator implements Validator {
         if (bankCode.equals(StringUtils.substring(request.getToAccount(),START_CHAR,END_CHAR)))
             return ValidationResult.builder().success(false).transferErrorCode(SAME_BANK_IBAN)
                     .build();
-        return null;
+        return ValidationResult.builder().success(true).build();
     }
 }

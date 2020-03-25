@@ -5,7 +5,9 @@ import com.mashreq.esbcore.bindings.account.mbcdm.FundTransferResType;
 import com.mashreq.esbcore.bindings.accountservices.mbcdm.fundtransfer.EAIServices;
 import com.mashreq.esbcore.bindings.header.mbcdm.ErrorType;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
+import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
+import com.mashreq.transfercoreservice.client.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
@@ -34,15 +36,16 @@ public class FundTransferMWService {
     private static final String SUCCESS_CODE_ENDS_WITH = "-000";
 
 
-    public CoreFundTransferResponseDto sendMoneyToIBAN(FundTransferMetadata metadata, FundTransferRequestDTO request) {
+    public FundTransferResponse sendMoneyToIBAN(FundTransferMetadata metadata, FundTransferRequestDTO request,
+                                                AccountDetailsDTO fromAccountDetails) {
         log.info("Fund transfer initiated for IBAN [ {} ]", request.getToAccount());
 
-        EAIServices response = (EAIServices) webServiceClient.exchange(generateEAIRequest(metadata.getChannelTraceId(), request));
+        EAIServices response = (EAIServices) webServiceClient.exchange(generateEAIRequest(metadata.getChannelTraceId(), request, fromAccountDetails));
         validateOMWResponse(response);
         final FundTransferResType.Transfer transfer = response.getBody().getFundTransferRes().getTransfer().get(0);
         final ErrorType exceptionDetails = response.getBody().getExceptionDetails();
         log.info("Fund transfer successful for IBAN [ {} ]", request.getToAccount());
-        return CoreFundTransferResponseDto.builder()
+        final CoreFundTransferResponseDto coreFundTransferResponseDto = CoreFundTransferResponseDto.builder()
                 .transactionRefNo(transfer.getTransactionRefNo())
                 .externalErrorMessage(exceptionDetails.getErrorDescription())
                 .mwReferenceNo(exceptionDetails.getReferenceNo())
@@ -50,6 +53,7 @@ public class FundTransferMWService {
                 .mwResponseStatus(MwResponseStatus.S)
                 .mwResponseCode(exceptionDetails.getErrorCode())
                 .build();
+        return FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
     }
 
     private void validateOMWResponse(EAIServices response) {
@@ -63,22 +67,21 @@ public class FundTransferMWService {
         }
     }
 
-    public EAIServices generateEAIRequest(String channelTranceId, FundTransferRequestDTO requestDTO) {
+    public EAIServices generateEAIRequest(String channelTranceId, FundTransferRequestDTO requestDTO, AccountDetailsDTO fromAccountDetails) {
         EAIServices request = new EAIServices();
         request.setHeader(headerFactory.getHeader(soapServiceProperties.getServiceCodes().getFundTransfer(), channelTranceId));
         request.setBody(new EAIServices.Body());
 
         //Setting individual components
         FundTransferReqType fundTransferReqType = new FundTransferReqType();
-        fundTransferReqType.setBatchTransactionId("1587");
-        fundTransferReqType.setPostingGroup("U");
+        fundTransferReqType.setBatchTransactionId("1584");
         fundTransferReqType.setProductId("DBLC");
         fundTransferReqType.setTransTypeCode("FAM");
 
-        List<FundTransferReqType.Transfer> transfer = fundTransferReqType.getTransfer();
+        List<FundTransferReqType.Transfer> transferList = fundTransferReqType.getTransfer();
         FundTransferReqType.Transfer.CreditLeg creditLeg = new FundTransferReqType.Transfer.CreditLeg();
         FundTransferReqType.Transfer.DebitLeg debitLeg = new FundTransferReqType.Transfer.DebitLeg();
-        debitLeg.setDebitRefNo("A200218163859000");
+        debitLeg.setDebitRefNo("A200218163859008");
         debitLeg.setAccountNo("010490730773");
         debitLeg.setTransferBranch("005");
         debitLeg.setCurrency("AED");
@@ -86,19 +89,20 @@ public class FundTransferMWService {
 
         creditLeg.setAccountNo("AE120260001015673975601");
         creditLeg.setTransactionCode("015");
-        creditLeg.setAmount(new BigDecimal(200.00));
+        creditLeg.setAmount(new BigDecimal(20.00));
         creditLeg.setCurrency("AED");
         creditLeg.setChargeBearer("O");
         creditLeg.setPaymentDetails("/REF/ Family Support");
-        creditLeg.setBenName("Hasneet Nehra");
+        creditLeg.setBenName("Hasneet Singh Nehra");
         creditLeg.setBenAddr2("UNITED ARAB EMIRATES");
         creditLeg.setAWInstName("EMIRATES NBD PJSC");
         creditLeg.setAWInstBICCode("EBILAEADXXX");
         creditLeg.setAWInstAddr2("DUBAI");
-        creditLeg.setAWInstAddr3("UNITED ARAB EMIRATES");
+        FundTransferReqType.Transfer transfer = new FundTransferReqType.Transfer();
+        transfer.setCreditLeg(creditLeg);
+        transfer.setDebitLeg(debitLeg);
+        transferList.add(transfer);
 
-        transfer.get(0).setCreditLeg(creditLeg);
-        transfer.get(0).setDebitLeg(debitLeg);
 
         request.getBody().setFundTransferReq(fundTransferReqType);
         log.info("EAI Service request for fund transfer prepared {}",request);

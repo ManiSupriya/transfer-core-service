@@ -7,6 +7,7 @@ import com.mashreq.transfercoreservice.client.BeneficiaryClient;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferRequestDto;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
+import com.mashreq.transfercoreservice.client.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.CoreTransferService;
 import com.mashreq.transfercoreservice.enums.MwResponseStatus;
@@ -39,17 +40,13 @@ import static com.mashreq.transfercoreservice.fundtransfer.ServiceType.*;
 @RequiredArgsConstructor
 public class FundTransferServiceDefault implements FundTransferService {
 
-    private final CoreTransferService coreTransferService;
     private final DigitalUserRepository digitalUserRepository;
-    private final LimitValidator limitValidator;
     private final PaymentHistoryService paymentHistoryService;
     private final DigitalUserLimitUsageService digitalUserLimitUsageService;
     private final OwnAccountStrategy ownAccountStrategy;
     private final WithinMashreqStrategy withinMashreqStrategy;
     private final LocalFundTransferStrategy localFundTransferStrategy;
     private final CharityStrategy charityStrategy;
-    private final FundTransferMWService fundTransferMWService;
-
     private EnumMap<ServiceType, FundTransferStrategy> fundTransferStrategies;
 
     @PostConstruct
@@ -58,16 +55,12 @@ public class FundTransferServiceDefault implements FundTransferService {
         fundTransferStrategies.put(OWN_ACCOUNT, ownAccountStrategy);
         fundTransferStrategies.put(WITHIN_MASHREQ, withinMashreqStrategy);
         fundTransferStrategies.put(CHARITY_ACCOUNT, charityStrategy);
-        fundTransferStrategies.put(LOCAL,localFundTransferStrategy);
+        fundTransferStrategies.put(LOCAL, localFundTransferStrategy);
     }
 
     @Override
     public PaymentHistoryDTO transferFund(FundTransferMetadata metadata, FundTransferRequestDTO request) {
         log.info("Starting fund transfer for {} ", request.getServiceType());
-        CoreFundTransferResponseDto response = null;
-
-        FundTransferStrategy strategy = fundTransferStrategies.get(ServiceType.getServiceByType(request.getServiceType()));
-        strategy.execute(request, metadata);
 
         log.info("Finding Digital User for CIF-ID {}", metadata.getPrimaryCif());
         DigitalUser digitalUser = getDigitalUser(metadata);
@@ -75,33 +68,25 @@ public class FundTransferServiceDefault implements FundTransferService {
         log.info("Creating  User DTO");
         UserDTO userDTO = createUserDTO(metadata, digitalUser);
 
-        LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), request.getAmount());
-        log.info("Limit Validation successful");
+        FundTransferStrategy strategy = fundTransferStrategies.get(ServiceType.getServiceByType(request.getServiceType()));
+        FundTransferResponse response = strategy.execute(request, metadata, userDTO);
 
-        if (!ServiceType.LOCAL.getName().equals(request.getServiceType())) {
-            response = coreTransferService.transferFundsBetweenAccounts(request);
-        }
-        else {
-            response = fundTransferMWService.sendMoneyToIBAN(metadata, request);
-        }
-
-
-        if (response.getMwResponseStatus().equals(MwResponseStatus.S)) {
-            String versionUuid = validationResult.getLimitVersionUuid();
+        if (response.getResponseDto().getMwResponseStatus().equals(MwResponseStatus.S)) {
+            String versionUuid = response.getLimitVersionUuid();
             DigitalUserLimitUsageDTO digitalUserLimitUsageDTO = generateUserLimitUsage(request, userDTO, metadata, versionUuid);
             log.info("Inserting into limits table {} ", digitalUserLimitUsageDTO);
             digitalUserLimitUsageService.insert(digitalUserLimitUsageDTO);
         }
 
         // Insert payment history irrespective of mw payment fails or success
-        PaymentHistoryDTO paymentHistoryDTO = generatePaymentHistory(request, response, userDTO, metadata);
+        PaymentHistoryDTO paymentHistoryDTO = generatePaymentHistory(request, response.getResponseDto(), userDTO, metadata);
 
         log.info("Inserting into Payments History table {} ", paymentHistoryDTO);
         paymentHistoryService.insert(paymentHistoryDTO);
 
-        if (MwResponseStatus.F.equals(response.getMwResponseStatus())) {
-            GenericExceptionHandler.handleError(response.getTransferErrorCode(),
-                    String.format("%s : %s ", request.getFinTxnNo(), response.getExternalErrorMessage()));
+        if (MwResponseStatus.F.equals(response.getResponseDto().getMwResponseStatus())) {
+            GenericExceptionHandler.handleError(response.getResponseDto().getTransferErrorCode(),
+                    String.format("%s : %s ", request.getFinTxnNo(), response.getResponseDto().getExternalErrorMessage()));
         }
 
         return paymentHistoryDTO;
