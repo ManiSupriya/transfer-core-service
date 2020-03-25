@@ -2,6 +2,7 @@ package com.mashreq.transfercoreservice.fundtransfer;
 
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.annotations.ValidEnum;
+import lombok.Getter;
 
 import java.util.Map;
 import java.util.stream.Collectors;

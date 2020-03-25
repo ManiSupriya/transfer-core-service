@@ -18,6 +18,7 @@ public class SoapServiceProperties {
 
     @Data
     public static class ServiceCodes{
+        private String fundTransfer;
         private String ibanSearch;
         private String routingCodeSearch;
     }

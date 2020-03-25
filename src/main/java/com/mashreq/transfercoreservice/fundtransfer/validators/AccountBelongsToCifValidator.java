@@ -28,10 +28,10 @@ public class AccountBelongsToCifValidator implements Validator {
         final Boolean validateToAccount = context.get("validate-to-account", Boolean.class);
         final Boolean validateFromAccount = context.get("validate-from-account", Boolean.class);
 
-        if (validateToAccount != null && validateFromAccount && isAccountNumberBelongsToCif(accounts, request.getToAccount()))
+        if (validateToAccount != null && validateToAccount && !isAccountNumberBelongsToCif(accounts, request.getToAccount()))
             return prepareValidationResult(Boolean.FALSE);
 
-        if (validateFromAccount !=null && validateFromAccount && isAccountNumberBelongsToCif(accounts, request.getFromAccount()))
+        if (validateFromAccount !=null && validateFromAccount && !isAccountNumberBelongsToCif(accounts, request.getFromAccount()))
             return prepareValidationResult(Boolean.FALSE);
 
         log.info("Account validation Successful for service type [ {} ] ", request.getServiceType());
@@ -40,7 +40,7 @@ public class AccountBelongsToCifValidator implements Validator {
 
     private boolean isAccountNumberBelongsToCif(List<AccountDetailsDTO> coreAccounts, String accountNumber) {
         return coreAccounts.stream()
-                .noneMatch(x -> x.getNumber().equals(accountNumber));
+                .anyMatch(x -> x.getNumber().equals(accountNumber));
     }
 
     private ValidationResult prepareValidationResult(boolean status) {

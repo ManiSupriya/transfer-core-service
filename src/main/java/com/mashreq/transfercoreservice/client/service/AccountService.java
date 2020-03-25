@@ -62,6 +62,7 @@ public class AccountService {
                 .number(coreAccount.getNumber())
                 .status(coreAccount.getStatus())
                 .segment("conventional")
+                .branchCode(coreAccount.getBranch())
                 .build();
     }
 

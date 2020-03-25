@@ -5,9 +5,7 @@ import com.mashreq.transfercoreservice.client.dto.CharityBeneficiaryDto;
 import com.mashreq.transfercoreservice.config.FeignConfig;
 import com.mashreq.webcore.dto.response.Response;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
 
@@ -20,7 +18,7 @@ import javax.validation.constraints.NotNull;
 public interface BeneficiaryClient {
 
     @GetMapping("/v1/beneficiary/{id}")
-    Response<BeneficiaryDto> getBydId(@RequestHeader("X-CIF-ID") String cifId, @NotNull @PathVariable Long id);
+    Response<BeneficiaryDto> getById(@RequestHeader("X-CIF-ID") String cifId, @NotNull @PathVariable Long id);
 
     @GetMapping("/v1/charity-beneficiary/{id}")
     Response<CharityBeneficiaryDto> getCharity(@NotNull @PathVariable String id);
