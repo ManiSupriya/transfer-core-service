@@ -25,23 +25,22 @@ public class CurrencyValidator implements Validator {
 
         log.info("Validating currency for service type [ {} ] ", request.getServiceType());
         AccountDetailsDTO fromAccount = context.get("from-account", AccountDetailsDTO.class);
-        AccountDetailsDTO toAccount = context.get("to-account", AccountDetailsDTO.class);
-        BeneficiaryDto beneficiaryDto = context.get("beneficiary-dto", BeneficiaryDto.class);
-        CharityBeneficiaryDto charityBeneficiaryDto = context.get("charity-beneficiary-dto", CharityBeneficiaryDto.class);
-
         String requestedCurrency = request.getCurrency();
         log.info("Requested currency [ {} ] service type [ {} ] ", requestedCurrency, request.getServiceType());
 
-        if (WITHIN_MASHREQ.getName().equals(request.getServiceType()) &&  beneficiaryDto != null && isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), beneficiaryDto.getBeneficiaryCurrency())) {
+        BeneficiaryDto beneficiaryDto = context.get("beneficiary-dto", BeneficiaryDto.class);
+        if (WITHIN_MASHREQ.getName().equals(request.getServiceType()) && beneficiaryDto != null && isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), beneficiaryDto.getBeneficiaryCurrency())) {
             log.warn("Beneficiary Currency and Requested Currency does not match for service type [ {} ]  ", request.getServiceType());
             return ValidationResult.builder().success(false).transferErrorCode(TransferErrorCode.CURRENCY_IS_INVALID).build();
         }
 
+        CharityBeneficiaryDto charityBeneficiaryDto = context.get("charity-beneficiary-dto", CharityBeneficiaryDto.class);
         if (CHARITY_ACCOUNT.getName().equals(request.getServiceType()) && charityBeneficiaryDto != null && isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), charityBeneficiaryDto.getAccountNumber())) {
             log.warn("Charity Currency and Requested Currency does not match for service type [ {} ]  ", request.getServiceType());
             return ValidationResult.builder().success(false).transferErrorCode(TransferErrorCode.CURRENCY_IS_INVALID).build();
         }
 
+        AccountDetailsDTO toAccount = context.get("to-account", AccountDetailsDTO.class);
         if (OWN_ACCOUNT.getName().equals(request.getServiceType()) && !(requestedCurrency.equals(fromAccount.getCurrency()) || requestedCurrency.equals(toAccount.getCurrency()))) {
             log.warn("To Account Currency and Requested Currency does not match for service type [ {} ]  ", request.getServiceType());
             return ValidationResult.builder().success(false).transferErrorCode(TransferErrorCode.ACCOUNT_CURRENCY_MISMATCH).build();
