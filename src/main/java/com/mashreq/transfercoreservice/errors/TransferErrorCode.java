@@ -63,9 +63,9 @@ public enum TransferErrorCode implements ErrorCode {
     INVALID_ROUTING_CODE("TNF-API-019", "Invalid Routing Option Mode"),
     INVALID_COUNTRY_CODE("TNF-API-020", "Invalid Country Code"),
     IBAN_LENGTH_NOT_VALID("TNF-API-012","IBAN should be 23 characters long"),
-    SAME_BANK_IBAN("TNF-API-013","Beneficiary Bank is same as sender bank");
+    SAME_BANK_IBAN("TNF-API-013","Beneficiary Bank is same as sender bank"),
 
-
+    FUND_TRANSFER_FAILED("TNF-API-021", "Fund transfer failed");
 
     private String customErrorCode;
     private String errorMessage;

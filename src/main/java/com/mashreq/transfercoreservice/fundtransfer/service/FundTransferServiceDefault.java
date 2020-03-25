@@ -1,5 +1,7 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
+import com.mashreq.esbcore.bindings.account.mbcdm.IBANDetailsReqType;
+import com.mashreq.esbcore.bindings.accountservices.mbcdm.ibandetails.EAIServices;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.BeneficiaryClient;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
@@ -8,12 +10,16 @@ import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.CoreTransferService;
 import com.mashreq.transfercoreservice.enums.MwResponseStatus;
+import com.mashreq.transfercoreservice.fundtransfer.FundTransferMWService;
 import com.mashreq.transfercoreservice.fundtransfer.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.*;
 import com.mashreq.transfercoreservice.limits.DigitalUserLimitUsageService;
 import com.mashreq.transfercoreservice.limits.LimitValidator;
 import com.mashreq.transfercoreservice.limits.LimitValidatorResultsDto;
+import com.mashreq.transfercoreservice.middleware.HeaderFactory;
+import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
+import com.mashreq.transfercoreservice.middleware.WebServiceClient;
 import com.mashreq.transfercoreservice.model.DigitalUser;
 import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +48,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final WithinMashreqStrategy withinMashreqStrategy;
     private final LocalFundTransferStrategy localFundTransferStrategy;
     private final CharityStrategy charityStrategy;
+    private final FundTransferMWService fundTransferMWService;
 
     private EnumMap<ServiceType, FundTransferStrategy> fundTransferStrategies;
 
@@ -57,6 +64,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     @Override
     public PaymentHistoryDTO transferFund(FundTransferMetadata metadata, FundTransferRequestDTO request) {
         log.info("Starting fund transfer for {} ", request.getServiceType());
+        CoreFundTransferResponseDto response = null;
 
         FundTransferStrategy strategy = fundTransferStrategies.get(ServiceType.getServiceByType(request.getServiceType()));
         strategy.execute(request, metadata);
@@ -70,17 +78,13 @@ public class FundTransferServiceDefault implements FundTransferService {
         LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), request.getAmount());
         log.info("Limit Validation successful");
 
-        CoreFundTransferRequestDto coreFundTransferRequestDto = CoreFundTransferRequestDto.builder()
-                .fromAccount(request.getFromAccount())
-                .toAccount(request.getToAccount())
-                .amount(request.getAmount())
-                .currency(request.getCurrency())
-                .dealNumber(request.getDealNumber())
-                .purposeCode(request.getPurposeCode())
-                .build();
+        if (!ServiceType.LOCAL.getName().equals(request.getServiceType())) {
+            response = coreTransferService.transferFundsBetweenAccounts(request);
+        }
+        else {
+            response = fundTransferMWService.sendMoneyToIBAN(metadata, request);
+        }
 
-        log.info("Calling external service for fundtransfer {} ", coreFundTransferRequestDto);
-        CoreFundTransferResponseDto response = coreTransferService.transferFundsBetweenAccounts(coreFundTransferRequestDto);
 
         if (response.getMwResponseStatus().equals(MwResponseStatus.S)) {
             String versionUuid = validationResult.getLimitVersionUuid();
@@ -102,6 +106,7 @@ public class FundTransferServiceDefault implements FundTransferService {
 
         return paymentHistoryDTO;
     }
+
 
     private DigitalUser getDigitalUser(FundTransferMetadata fundTransferMetadata) {
         Optional<DigitalUser> digitalUserOptional = digitalUserRepository.findByCifEquals(fundTransferMetadata.getPrimaryCif());

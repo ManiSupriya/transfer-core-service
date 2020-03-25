@@ -6,6 +6,7 @@ import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
 import com.mashreq.transfercoreservice.client.dto.FundTransferMWResponse;
 import com.mashreq.transfercoreservice.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.errors.FundTransferException;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.middleware.WebServiceClient;
 import com.mashreq.webcore.dto.response.Response;
 import lombok.RequiredArgsConstructor;
@@ -20,10 +21,25 @@ public class CoreTransferService {
     private final CoreTransferClient coreTransferClient;
     private final WebServiceClient webServiceClient;
 
+
+    public CoreFundTransferResponseDto transferFundsBetweenAccounts(FundTransferRequestDTO request) {
+        CoreFundTransferRequestDto coreFundTransferRequestDto = CoreFundTransferRequestDto.builder()
+                .fromAccount(request.getFromAccount())
+                .toAccount(request.getToAccount())
+                .amount(request.getAmount())
+                .currency(request.getCurrency())
+                .dealNumber(request.getDealNumber())
+                .purposeCode(request.getPurposeCode())
+                .build();
+
+        log.info("Calling external service for fundtransfer {} ", coreFundTransferRequestDto);
+        return transferFundsBetweenAccounts(coreFundTransferRequestDto);
+    }
+
     /**
      * Fund Transfer
      */
-    public CoreFundTransferResponseDto transferFundsBetweenAccounts(CoreFundTransferRequestDto coreFundTransferRequestDto) {
+    private CoreFundTransferResponseDto transferFundsBetweenAccounts(CoreFundTransferRequestDto coreFundTransferRequestDto) {
         try {
             Response<FundTransferMWResponse> transferFundsResponse =
                     coreTransferClient.transferFundsBetweenAccounts(coreFundTransferRequestDto);
