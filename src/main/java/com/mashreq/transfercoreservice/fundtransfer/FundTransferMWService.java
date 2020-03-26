@@ -60,9 +60,9 @@ public class FundTransferMWService {
         log.info("Fund transfer successful for IBAN [ {} ]", request.getToAccount());
         final CoreFundTransferResponseDto coreFundTransferResponseDto = CoreFundTransferResponseDto.builder()
                 .transactionRefNo(transfer.getTransactionRefNo())
-                .externalErrorMessage(exceptionDetails.getErrorDescription())
-                .mwReferenceNo(exceptionDetails.getReferenceNo())
-                .mwResponseDescription(exceptionDetails.getData())
+                .externalErrorMessage(exceptionDetails.getData())
+                .mwReferenceNo(transfer.getTransactionRefNo())
+                .mwResponseDescription(exceptionDetails.getErrorDescription())
                 .mwResponseStatus(MwResponseStatus.S)
                 .mwResponseCode(exceptionDetails.getErrorCode())
                 .build();
@@ -85,8 +85,6 @@ public class FundTransferMWService {
         //TODO remove this
         SecureRandom secureRandom = new SecureRandom();
         int batchTransIdTemporary = Math.abs((secureRandom.nextInt() * 9000) + 1000);
-        //String channelTraceIdTemporary = request.getChannelTraceId().substring(0, 12);
-        //String debitTraceIdTemporary = request.getChannelTraceId().substring(0, 15);
 
         EAIServices services = new EAIServices();
         services.setHeader(headerFactory.getHeader(soapServiceProperties.getServiceCodes().getFundTransfer(), request.getChannelTraceId()));
