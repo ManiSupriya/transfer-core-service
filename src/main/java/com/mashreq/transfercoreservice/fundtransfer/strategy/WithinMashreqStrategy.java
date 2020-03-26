@@ -77,7 +77,15 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         log.info("Limit Validation start.");
         BigDecimal limitUsageAmount = request.getAmount();
         if(!userDTO.getLocalCurrency().equalsIgnoreCase(request.getCurrency())){
-            CoreCurrencyConversionRequestDto requestDto = generateCurrencyConversionRequest(request.getCurrency(), request.getToAccount(),request.getAmount(),
+
+            // Since we support request currency it can be  debitLeg or creditLeg
+            String givenAccount = request.getToAccount();
+            if(request.getCurrency().equalsIgnoreCase(fromAccountOpt.get().getCurrency())){
+                log.info("Limit Validation with respect to from account.");
+                givenAccount = request.getFromAccount();
+            }
+            CoreCurrencyConversionRequestDto requestDto = generateCurrencyConversionRequest(request.getCurrency(),
+                    givenAccount, request.getAmount(),
                     request.getDealNumber(), userDTO.getLocalCurrency());
             CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(requestDto);
             limitUsageAmount = currencyConversionDto.getTransactionAmount();
