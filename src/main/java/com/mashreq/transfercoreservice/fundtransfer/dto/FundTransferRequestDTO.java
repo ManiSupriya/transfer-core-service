@@ -18,13 +18,15 @@ import java.math.BigDecimal;
 
 @Data
 @ConditionalRequired(fieldName = "beneficiaryId", dependentFieldName = "serviceType", noneMatch = "own-account", message = "Beneficiary ID is mandatory")
-@ConditionalRequired(fieldName = "purposeCode", dependentFieldName = "serviceType", anyMatch = "international", message = "Purpost code cannot be empty")
+@ConditionalRequired(fieldName = "purposeCode", dependentFieldName = "serviceType", anyMatch = {"international","local"}, message = "Purpose code cannot be empty")
+@ConditionalRequired(fieldName = "purposeDesc", dependentFieldName = "serviceType", anyMatch = {"international","local"}, message = "Purpose Description code cannot be empty")
+@ConditionalRequired(fieldName = "chargeBearer", dependentFieldName = "serviceType", anyMatch = "local", message = "Purpose Description code cannot be empty")
 public class FundTransferRequestDTO {
 
     @Account
     private String fromAccount;
 
-//    @Account
+    @Account
     private String toAccount;
 
     @TransactionAmount
@@ -49,6 +51,4 @@ public class FundTransferRequestDTO {
     private String finTxnNo;
 
     private String beneficiaryId;
-
-    private String beneficaryCurrency;
 }
