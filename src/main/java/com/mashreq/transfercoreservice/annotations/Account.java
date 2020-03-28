@@ -15,13 +15,13 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  */
 @NotBlank(message = "Account Number cannot be empty")
 @Pattern(regexp = "[\\s]*[0-9]+", message = "Account Number should be Numeric")
-@Size(min = 9, max = 12, message = "Account number should be 9 to 12 digits")
+@Size(min = 9, max = 34, message = "Account number should be 9 to 12 digits")
 @Target(FIELD)
 @Retention(RUNTIME)
 @Constraint(validatedBy = {})
 @Documented
 public @interface Account {
-    String message() default "9 to 12 digit Account Number is required ";
+    String message() default "Valid Account Number is required ";
 
     Class<?>[] groups() default {};
 

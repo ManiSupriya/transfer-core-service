@@ -37,6 +37,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     private AccountService accountService;
     private final CoreTransferService coreTransferService;
     private final MaintenanceService maintenanceService;
+    private final BalanceValidator balanceValidator;
 
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO) {
@@ -71,6 +72,8 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         }
         LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount);
         log.info("Limit Validation successful");
+
+        responseHandler(balanceValidator.validate(request,metadata));
 
         final FundTransferResponse fundTransferResponse = coreTransferService.transferFundsBetweenAccounts(request);
 
