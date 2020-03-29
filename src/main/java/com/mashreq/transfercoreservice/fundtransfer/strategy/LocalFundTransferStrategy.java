@@ -2,9 +2,7 @@ package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
 import com.mashreq.transfercoreservice.client.BeneficiaryClient;
 import com.mashreq.transfercoreservice.client.MaintenanceClient;
-import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
-import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
-import com.mashreq.transfercoreservice.client.dto.PurposeOfTransferDto;
+import com.mashreq.transfercoreservice.client.dto.*;
 import com.mashreq.transfercoreservice.dto.FundTransferRequest;
 import com.mashreq.transfercoreservice.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.client.service.AccountService;
@@ -15,6 +13,7 @@ import com.mashreq.transfercoreservice.limits.LimitValidator;
 import com.mashreq.transfercoreservice.limits.LimitValidatorResultsDto;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -42,10 +41,15 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     private final FundTransferMWService fundTransferMWService;
     private final MaintenanceClient maintenanceClient;
     private final PaymentPurposeValidator paymentPurposeValidator;
+    private final BalanceValidator balanceValidator;
+
+    @Value("${app.local.currency}")
+    private String localCurrency;
 
 
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO) {
+        request.setCurrency(localCurrency);
         responseHandler(finTxnNoValidator.validate(request, metadata));
         final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metadata.getPrimaryCif());
 
@@ -57,6 +61,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         validationContext.add("purposes", allPurposeCodes);
         responseHandler(paymentPurposeValidator.validate(request, metadata, validationContext));
         log.info("Purpose code and description validation successful");
+
 
         responseHandler(accountBelongsToCifValidator.validate(request, metadata, validationContext));
         log.info("Account belongs to cif validation successful");
@@ -70,6 +75,8 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
         responseHandler(ibanValidator.validate(request, metadata, validationContext));
         log.info("IBAN validation successful");
+
+        responseHandler(balanceValidator.validate(request, metadata, validationContext));
 
         log.info("Limit Validation start.");
         // Assuming to account is always in local currency so on currency conversion required

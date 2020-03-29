@@ -1,9 +1,14 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
+import com.mashreq.transfercoreservice.client.MaintenanceClient;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
+import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
+import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.webcore.dto.response.Response;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +20,10 @@ import java.math.BigDecimal;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class BalanceValidator implements Validator {
+
+    private final MaintenanceClient maintenanceClient;
 
     @Override
     public ValidationResult validate(FundTransferRequestDTO request, FundTransferMetadata metadata, ValidationContext context) {
@@ -26,11 +34,15 @@ public class BalanceValidator implements Validator {
         log.info("Balance in account [ {} {} ] ", fromAccount.getAvailableBalance(), fromAccount.getCurrency());
         log.info("Amount to be debited  [ {} {} ] ", request.getAmount(), request.getServiceType());
 
-        if (fromAccount.getCurrency().equalsIgnoreCase(request.getCurrency()))
+        if (fromAccount.getCurrency().equalsIgnoreCase(request.getCurrency())) {
             return isBalanceAvailable(fromAccount.getAvailableBalance(), request.getAmount());
+        } else {
+            final CoreCurrencyConversionRequestDto currencyRequest = CoreCurrencyConversionRequestDto.builder().accountNumber(fromAccount.getNumber())
+                    .accountCurrency(fromAccount.getCurrency()).transactionCurrency(request.getCurrency()).transactionAmount(request.getAmount()).build();
+            final CurrencyConversionDto currencyConversionDtoResponse = maintenanceClient.convertBetweenCurrencies(currencyRequest).getData();
+            return isBalanceAvailable(currencyConversionDtoResponse.getAccountCurrencyAmount(), request.getAmount());
 
-        //TODO Cross currency balance Validation with Limit Management
-        return ValidationResult.builder().success(true).build();
+        }
     }
 
     private ValidationResult isBalanceAvailable(BigDecimal availableBalance, BigDecimal paidAmount) {

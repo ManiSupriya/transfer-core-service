@@ -17,6 +17,7 @@ import com.mashreq.transfercoreservice.fundtransfer.FundTransferMWService;
 import com.mashreq.transfercoreservice.fundtransfer.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.*;
+import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
 import com.mashreq.transfercoreservice.limits.DigitalUserLimitUsageService;
 import com.mashreq.transfercoreservice.limits.LimitValidator;
 import com.mashreq.transfercoreservice.limits.LimitValidatorResultsDto;
@@ -51,6 +52,8 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final LocalFundTransferStrategy localFundTransferStrategy;
     private final CharityStrategy charityStrategy;
     private EnumMap<ServiceType, FundTransferStrategy> fundTransferStrategies;
+    private BalanceValidator balanceValidator;
+
 
     @PostConstruct
     public void init() {
