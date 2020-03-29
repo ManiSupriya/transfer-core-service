@@ -46,6 +46,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     private final LimitValidator limitValidator;
     private final CoreTransferService coreTransferService;
     private final MaintenanceService maintenanceService;
+    private final BalanceValidator balanceValidator;
 
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO) {
@@ -73,11 +74,21 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
         responseHandler(currencyValidator.validate(request, metadata, validationContext));
 
+
+
         // As per current implementation with FE they are sending toCurrency and its value for within and own
         log.info("Limit Validation start.");
         BigDecimal limitUsageAmount = request.getAmount();
         if(!userDTO.getLocalCurrency().equalsIgnoreCase(request.getCurrency())){
-            CoreCurrencyConversionRequestDto requestDto = generateCurrencyConversionRequest(request.getCurrency(), request.getToAccount(),request.getAmount(),
+
+            // Since we support request currency it can be  debitLeg or creditLeg
+            String givenAccount = request.getToAccount();
+            if(request.getCurrency().equalsIgnoreCase(fromAccountOpt.get().getCurrency())){
+                log.info("Limit Validation with respect to from account.");
+                givenAccount = request.getFromAccount();
+            }
+            CoreCurrencyConversionRequestDto requestDto = generateCurrencyConversionRequest(request.getCurrency(),
+                    givenAccount, request.getAmount(),
                     request.getDealNumber(), userDTO.getLocalCurrency());
             CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(requestDto);
             limitUsageAmount = currencyConversionDto.getTransactionAmount();
@@ -85,6 +96,8 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
 
         LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount);
         log.info("Limit Validation successful");
+
+        responseHandler(balanceValidator.validate(request,metadata));
 
         final FundTransferResponse fundTransferResponse = coreTransferService.transferFundsBetweenAccounts(request);
 
