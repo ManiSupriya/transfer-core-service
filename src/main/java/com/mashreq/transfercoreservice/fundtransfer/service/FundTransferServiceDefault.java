@@ -65,7 +65,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     }
 
     @Override
-    public PaymentHistoryDTO transferFund(FundTransferMetadata metadata, FundTransferRequestDTO request) {
+    public FundTransferResponseDTO transferFund(FundTransferMetadata metadata, FundTransferRequestDTO request) {
         log.info("Starting fund transfer for {} ", request.getServiceType());
 
         log.info("Finding Digital User for CIF-ID {}", metadata.getPrimaryCif());
@@ -96,7 +96,16 @@ public class FundTransferServiceDefault implements FundTransferService {
                     response.getResponseDto().getMwResponseCode());
         }
 
-        return paymentHistoryDTO;
+        return FundTransferResponseDTO.builder()
+                .accountTo(paymentHistoryDTO.getAccountTo())
+                .status(paymentHistoryDTO.getStatus())
+                .paidAmount(paymentHistoryDTO.getPaidAmount())
+                .mwReferenceNo(paymentHistoryDTO.getMwReferenceNo())
+                .mwResponseCode(paymentHistoryDTO.getMwResponseCode())
+                .mwResponseDescription(paymentHistoryDTO.getMwResponseDescription())
+                .financialTransactionNo(request.getFinTxnNo())
+                .build();
+
     }
 
     private String getFailureMessage(TransferErrorCode fundTransferFailed, FundTransferRequestDTO request, FundTransferResponse response) {
