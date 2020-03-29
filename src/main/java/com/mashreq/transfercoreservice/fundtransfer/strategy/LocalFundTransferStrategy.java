@@ -43,13 +43,13 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     private final PaymentPurposeValidator paymentPurposeValidator;
     private final BalanceValidator balanceValidator;
 
-    @Value("${app.local.currency}")
-    private String localCurrency;
+   /* @Value("${app.local.currency}")
+    private String localCurrency;*/
 
 
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO) {
-        request.setCurrency(localCurrency);
+        request.setCurrency("AED");
         responseHandler(finTxnNoValidator.validate(request, metadata));
         final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metadata.getPrimaryCif());
 
@@ -62,10 +62,10 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         responseHandler(paymentPurposeValidator.validate(request, metadata, validationContext));
         log.info("Purpose code and description validation successful");
 
-
         responseHandler(accountBelongsToCifValidator.validate(request, metadata, validationContext));
         log.info("Account belongs to cif validation successful");
         final AccountDetailsDTO fromAccountDetails = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
+        validationContext.add("from-account", fromAccountDetails);
 
         final BeneficiaryDto beneficiaryDto = beneficiaryClient.getById(metadata.getPrimaryCif(), valueOf(request.getBeneficiaryId()))
                 .getData();
