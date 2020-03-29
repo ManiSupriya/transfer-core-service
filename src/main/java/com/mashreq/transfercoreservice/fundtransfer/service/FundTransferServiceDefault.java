@@ -9,8 +9,10 @@ import com.mashreq.transfercoreservice.client.dto.CoreFundTransferRequestDto;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.CoreTransferService;
+import com.mashreq.transfercoreservice.dto.FundTransferRequest;
 import com.mashreq.transfercoreservice.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.enums.MwResponseStatus;
+import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.FundTransferMWService;
 import com.mashreq.transfercoreservice.fundtransfer.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
@@ -33,7 +35,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Optional;
 
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
 import static com.mashreq.transfercoreservice.fundtransfer.ServiceType.*;
 
 @Slf4j
@@ -86,11 +88,20 @@ public class FundTransferServiceDefault implements FundTransferService {
         paymentHistoryService.insert(paymentHistoryDTO);
 
         if (MwResponseStatus.F.equals(response.getResponseDto().getMwResponseStatus())) {
-            GenericExceptionHandler.handleError(response.getResponseDto().getTransferErrorCode(),
-                    String.format("%s : %s ", request.getFinTxnNo(), response.getResponseDto().getExternalErrorMessage()));
+            GenericExceptionHandler.handleError(FUND_TRANSFER_FAILED,
+                    getFailureMessage(FUND_TRANSFER_FAILED, request, response),
+                    response.getResponseDto().getMwResponseCode());
         }
 
         return paymentHistoryDTO;
+    }
+
+    private String getFailureMessage(TransferErrorCode fundTransferFailed, FundTransferRequestDTO request, FundTransferResponse response) {
+        return String.format("FIN-TXN-NO [%s] : REFERENCE-NO [%s] REFERENCE-MESSAGE [%s] : ",
+                request.getFinTxnNo(),
+                response.getResponseDto().getMwReferenceNo(),
+                fundTransferFailed.getErrorMessage()
+        );
     }
 
 

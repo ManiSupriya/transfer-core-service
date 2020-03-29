@@ -13,22 +13,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum TransferErrorCode implements ErrorCode {
 
-
-    FROM_ACCOUNT_IS_INVALID("TN-ESB-13239", "From Account is Invalid"),
-    FROM_ACCOUNT_IS_NON_ACTIVE("TN-CORE-412", "From Account is non active"),
-    TO_ACCOUNT_IS_INVALID("TN-ACC-5001", "To Account is Invalid"),
-    NOT_ENOUGH_RESOURCES("TN-CORE-412", "Not enough resources in account"),
-    SAME_DEBIT_CREDIT_ACC("TN-ESB-2262", "Same Debit and Credit Account"),
-    INVALID_REQ_BODY("TN-CORE-400", "Please validate your request body"),
-    REQ_PARAM_MISSING("TN_CORE_406", "Request parameter is missing"),
-    NO_HANDLER_FOUND("TN-CORE-407", "Handler not found for requested method"),
-    SOMETHING_WRONG_IN_ACCOUNT_SEVICE("TN-CORE-999", "Something went wrong"),
-    QACLNTN_EAI_FCI_BRK_115("QACLNTN-EAI-FCI-BRK-115", "No data found for given input"),
-    TFTN_EAI_FCI_BRK_2471("TFTN-EAI-FCI-BRK-2471", "Debit Amount Cannot be less than or equal to Zero,Credit Amount " +
-            "Cannot be less than or equal to Zero"),
-    ACC_ESB_TIMEOUT("TN-ESB-TIMEOUT", "Esb response timeouts"),
-    FROM_ACCOUNT_DEBIT_NOT_ALLOWED("TN-FCI-BRK-15401", "Debit Account KYC Expired"),
-    
     BENE_NOT_FOUND("TN-4001", "Beneficiary Not Found"),
     BENE_ACC_NOT_MATCH("TN-4002", "Beneficiary Account Number does not match"),
     BENE_CUR_NOT_MATCH("TN-4003", "Beneficiary Currency does not match"),
@@ -38,7 +22,7 @@ public enum TransferErrorCode implements ErrorCode {
     HEADER_MISSING_CIF("TN-4006", "CIF-ID is missing in Header"),
     INVALID_CIF("TN-4007", "CIF is invalid"),
     DUPLICATION_FUND_TRANSFER_REQUEST("TN-4008", "Duplicate Fund Transfer Request"),
-    
+
     LIMIT_PACKAGE_NOT_FOUND("TN-4009", "Limit Package not Found"),
     TRX_LIMIT_REACHED("TN-4010", "Transaction Limit Reached"),
     DAY_AMOUNT_LIMIT_REACHED("TN-4011", "Day Amount Limit Reached"),
@@ -63,10 +47,10 @@ public enum TransferErrorCode implements ErrorCode {
     ACCOUNT_CURRENCY_MISMATCH("TN-4026", "Account currency does not match with given currency"),
     TO_ACCOUNT_BELONGS_TO_SAME_CIF("TN-4027", "To Account belongs to same CIF"),
     CURRENCY_IS_INVALID("TN-4028", "Currency does not match"),
-
-    FUND_TRANSFER_FAILED("TN-4029", "Fund transfer failed"),
-    INVALID_PURPOSE_CODE("TN-4030", "Invalid purpose code"),
-    INVALID_PURPOSE_DESC("TN-4031", "Invalid purpose description");
+    INVALID_PURPOSE_CODE("TN-4029", "Invalid purpose code"),
+    INVALID_PURPOSE_DESC("TN-4030", "Invalid purpose description"),
+    INTERNAL_SERVICE_ERROR("TN-5000", "Something went wrong"),
+    FUND_TRANSFER_FAILED("TN-5001", "Fund transfer failed");
 
     private String customErrorCode;
     private String errorMessage;
