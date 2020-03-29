@@ -59,7 +59,7 @@ public class BalanceValidatorTest {
         mockFundTransferRequest.setCurrency("AED");
         mockFundTransferRequest.setServiceType("local");
 
-        BalanceValidator balanceValidator = new BalanceValidator();
+        BalanceValidator balanceValidator = new BalanceValidator(null);
         ValidationResult result = balanceValidator.validate(mockFundTransferRequest, null, mockValidationContext);
 
         assertThat(result).isNotNull();
@@ -82,7 +82,7 @@ public class BalanceValidatorTest {
         mockFundTransferRequest.setCurrency("AED");
         mockFundTransferRequest.setServiceType("local");
 
-        BalanceValidator balanceValidator = new BalanceValidator();
+        BalanceValidator balanceValidator = new BalanceValidator(null);
         ValidationResult result = balanceValidator.validate(mockFundTransferRequest, null, mockValidationContext);
 
         assertThat(result).isNotNull();
