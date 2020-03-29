@@ -77,6 +77,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         log.info("IBAN validation successful");
 
         responseHandler(balanceValidator.validate(request, metadata, validationContext));
+        log.info("Balance validation successful");
 
         log.info("Limit Validation start.");
         // Assuming to account is always in local currency so on currency conversion required
