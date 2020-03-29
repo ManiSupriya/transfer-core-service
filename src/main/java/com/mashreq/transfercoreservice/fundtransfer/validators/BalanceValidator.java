@@ -40,7 +40,7 @@ public class BalanceValidator implements Validator {
             final CoreCurrencyConversionRequestDto currencyRequest = CoreCurrencyConversionRequestDto.builder().accountNumber(fromAccount.getNumber())
                     .accountCurrency(fromAccount.getCurrency()).transactionCurrency(request.getCurrency()).transactionAmount(request.getAmount()).build();
             final CurrencyConversionDto currencyConversionDtoResponse = maintenanceClient.convertBetweenCurrencies(currencyRequest).getData();
-            return isBalanceAvailable(currencyConversionDtoResponse.getAccountCurrencyAmount(), request.getAmount());
+            return isBalanceAvailable(fromAccount.getAvailableBalance(), currencyConversionDtoResponse.getAccountCurrencyAmount());
 
         }
     }
