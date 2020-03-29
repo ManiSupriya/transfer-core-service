@@ -29,13 +29,13 @@ public class CurrencyValidator implements Validator {
         log.info("Requested currency [ {} ] service type [ {} ] ", requestedCurrency, request.getServiceType());
 
         BeneficiaryDto beneficiaryDto = context.get("beneficiary-dto", BeneficiaryDto.class);
-        if (WITHIN_MASHREQ.getName().equals(request.getServiceType()) && beneficiaryDto != null && isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), beneficiaryDto.getBeneficiaryCurrency())) {
+        if (WITHIN_MASHREQ.getName().equals(request.getServiceType()) && beneficiaryDto != null && !isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), beneficiaryDto.getBeneficiaryCurrency())) {
             log.warn("Beneficiary Currency and Requested Currency does not match for service type [ {} ]  ", request.getServiceType());
             return ValidationResult.builder().success(false).transferErrorCode(TransferErrorCode.CURRENCY_IS_INVALID).build();
         }
 
         CharityBeneficiaryDto charityBeneficiaryDto = context.get("charity-beneficiary-dto", CharityBeneficiaryDto.class);
-        if (CHARITY_ACCOUNT.getName().equals(request.getServiceType()) && charityBeneficiaryDto != null && isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), charityBeneficiaryDto.getAccountNumber())) {
+        if (CHARITY_ACCOUNT.getName().equals(request.getServiceType()) && charityBeneficiaryDto != null && !isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), charityBeneficiaryDto.getAccountNumber())) {
             log.warn("Charity Currency and Requested Currency does not match for service type [ {} ]  ", request.getServiceType());
             return ValidationResult.builder().success(false).transferErrorCode(TransferErrorCode.CURRENCY_IS_INVALID).build();
         }
