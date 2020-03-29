@@ -97,7 +97,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount);
         log.info("Limit Validation successful");
 
-        responseHandler(balanceValidator.validate(request,metadata));
+        //responseHandler(balanceValidator.validate(request,metadata));
 
         final FundTransferResponse fundTransferResponse = coreTransferService.transferFundsBetweenAccounts(request);
 
