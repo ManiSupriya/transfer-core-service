@@ -1,8 +1,10 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
 import com.mashreq.transfercoreservice.client.BeneficiaryClient;
+import com.mashreq.transfercoreservice.client.MaintenanceClient;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
+import com.mashreq.transfercoreservice.client.dto.PurposeOfTransferDto;
 import com.mashreq.transfercoreservice.dto.FundTransferRequest;
 import com.mashreq.transfercoreservice.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.client.service.AccountService;
@@ -11,12 +13,14 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import com.mashreq.transfercoreservice.limits.LimitValidator;
 import com.mashreq.transfercoreservice.limits.LimitValidatorResultsDto;
+import com.mashreq.webcore.dto.response.Response;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 
 import static java.lang.Long.valueOf;
 
@@ -28,6 +32,7 @@ import static java.lang.Long.valueOf;
 @Service
 public class LocalFundTransferStrategy implements FundTransferStrategy {
 
+    private static final String LOCAL = "LOCAL";
     private final IBANValidator ibanValidator;
     private final FinTxnNoValidator finTxnNoValidator;
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
@@ -36,6 +41,9 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     private final BeneficiaryClient beneficiaryClient;
     private final LimitValidator limitValidator;
     private final FundTransferMWService fundTransferMWService;
+    private final MaintenanceClient maintenanceClient;
+    private final PaymentPurposeValidator paymentPurposeValidator;
+
 
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO) {
@@ -46,11 +54,16 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         validationContext.add("account-details", accountsFromCore);
         validationContext.add("validate-from-account", Boolean.TRUE);
 
+        final Set<PurposeOfTransferDto> allPurposeCodes = maintenanceClient.getAllPurposeCodes(LOCAL).getData();
+        validationContext.add("purposes", allPurposeCodes);
+        responseHandler(paymentPurposeValidator.validate(request, metadata, validationContext));
+        log.info("Purpose code and description validation successful");
+
         responseHandler(accountBelongsToCifValidator.validate(request, metadata, validationContext));
         log.info("Account belongs to cif validation successful");
         final AccountDetailsDTO fromAccountDetails = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
 
-        BeneficiaryDto beneficiaryDto = beneficiaryClient.getById(metadata.getPrimaryCif(), valueOf(request.getBeneficiaryId()))
+        final BeneficiaryDto beneficiaryDto = beneficiaryClient.getById(metadata.getPrimaryCif(), valueOf(request.getBeneficiaryId()))
                 .getData();
         validationContext.add("beneficiary-dto", beneficiaryDto);
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
@@ -62,7 +75,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         log.info("Limit Validation start.");
         // Assuming to account is always in local currency so on currency conversion required
         BigDecimal limitUsageAmount = request.getAmount();
-        LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount);
+        final LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount);
         log.info("Limit validation successful");
 
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountDetails, beneficiaryDto);
