@@ -44,7 +44,7 @@ public class FundTransferRequestDTO {
 
     private String purposeDesc;
 
-    @ValueOfEnum(enumClass = ChargeBearer.class, message = "Not a valid charge bearer")
+    @ValueOfEnum(enumClass = ChargeBearer.class, message = "Not a valid charge bearer", isRequired = false)
     private String chargeBearer;
 
     private String dealNumber;
