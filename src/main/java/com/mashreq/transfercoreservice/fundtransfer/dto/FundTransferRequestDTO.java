@@ -4,6 +4,7 @@ import com.mashreq.transfercoreservice.annotations.Account;
 import com.mashreq.transfercoreservice.annotations.ConditionalRequired;
 import com.mashreq.transfercoreservice.annotations.TransactionAmount;
 import com.mashreq.transfercoreservice.annotations.ValueOfEnum;
+import com.mashreq.transfercoreservice.fundtransfer.ChargeBearer;
 import com.mashreq.transfercoreservice.fundtransfer.ServiceType;
 import lombok.Data;
 
@@ -20,7 +21,7 @@ import java.math.BigDecimal;
 @ConditionalRequired(fieldName = "beneficiaryId", dependentFieldName = "serviceType", noneMatch = "own-account", message = "Beneficiary ID is mandatory")
 @ConditionalRequired(fieldName = "purposeCode", dependentFieldName = "serviceType", anyMatch = {"international","local"}, message = "Purpose code cannot be empty")
 @ConditionalRequired(fieldName = "purposeDesc", dependentFieldName = "serviceType", anyMatch = {"international","local"}, message = "Purpose Description code cannot be empty")
-@ConditionalRequired(fieldName = "chargeBearer", dependentFieldName = "serviceType", anyMatch = "local", message = "Purpose Description code cannot be empty")
+@ConditionalRequired(fieldName = "chargeBearer", dependentFieldName = "serviceType", anyMatch = "local", message = "charge bearer cannot be empty")
 public class FundTransferRequestDTO {
 
     @Account
@@ -34,7 +35,7 @@ public class FundTransferRequestDTO {
 
     @ValueOfEnum(enumClass = ServiceType.class, message = "Not a valid value for service Type")
     private String serviceType;
-//
+
 //    @NotBlank(message = "Currency Cannot be empty")
 //    @Size(max = 3, min = 3, message = "Size should be 3")
     private String currency;
@@ -43,6 +44,7 @@ public class FundTransferRequestDTO {
 
     private String purposeDesc;
 
+    @ValueOfEnum(enumClass = ChargeBearer.class, message = "Not a valid charge bearer")
     private String chargeBearer;
 
     private String dealNumber;

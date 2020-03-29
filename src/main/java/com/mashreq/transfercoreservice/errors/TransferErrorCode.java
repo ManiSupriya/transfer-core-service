@@ -64,8 +64,9 @@ public enum TransferErrorCode implements ErrorCode {
     TO_ACCOUNT_BELONGS_TO_SAME_CIF("TN-4027", "To Account belongs to same CIF"),
     CURRENCY_IS_INVALID("TN-4028", "Currency does not match"),
 
-    FUND_TRANSFER_FAILED("TN-4029", "Fund transfer failed");
-
+    FUND_TRANSFER_FAILED("TN-4029", "Fund transfer failed"),
+    INVALID_PURPOSE_CODE("TN-4030", "Invalid purpose code"),
+    INVALID_PURPOSE_DESC("TN-4031", "Invalid purpose description");
 
     private String customErrorCode;
     private String errorMessage;
