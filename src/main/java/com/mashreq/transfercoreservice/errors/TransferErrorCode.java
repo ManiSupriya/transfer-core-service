@@ -48,9 +48,10 @@ public enum TransferErrorCode implements ErrorCode {
     INVALID_COUNTRY_CODE("TN-5104", "Invalid Country Code"),
     IBAN_LENGTH_NOT_VALID("TN-5105", "IBAN should be 23 characters long"),
     SAME_BANK_IBAN("TN-5106", "Beneficiary Bank is same as sender bank"),
-    
+
     INTERNAL_SERVICE_ERROR("TN-5000", "Something went wrong"),
-    FUND_TRANSFER_FAILED("TN-5001", "Fund transfer failed");
+    FUND_TRANSFER_FAILED("TN-5001", "Fund transfer failed"),
+    MW_CONNECTION_TIMEOUT("TN-5002", "Middleware Connection Timeout");
 
     private String customErrorCode;
     private String errorMessage;

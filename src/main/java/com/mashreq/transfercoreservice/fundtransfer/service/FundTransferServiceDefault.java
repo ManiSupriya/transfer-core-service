@@ -2,6 +2,7 @@ package com.mashreq.transfercoreservice.fundtransfer.service;
 
 import com.mashreq.esbcore.bindings.account.mbcdm.IBANDetailsReqType;
 import com.mashreq.esbcore.bindings.accountservices.mbcdm.ibandetails.EAIServices;
+import com.mashreq.logcore.annotations.TrackExec;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.BeneficiaryClient;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
@@ -29,6 +30,7 @@ import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StopWatch;
 
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
@@ -40,6 +42,7 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
 import static com.mashreq.transfercoreservice.fundtransfer.ServiceType.*;
 
 @Slf4j
+@TrackExec
 @Service
 @RequiredArgsConstructor
 public class FundTransferServiceDefault implements FundTransferService {
@@ -66,6 +69,10 @@ public class FundTransferServiceDefault implements FundTransferService {
 
     @Override
     public FundTransferResponseDTO transferFund(FundTransferMetadata metadata, FundTransferRequestDTO request) {
+//        final StopWatch stopWatch = new StopWatch("fundTransferService-" + request.getServiceType());
+//        stopWatch.start("fundTransferService-" + request.getServiceType());
+
+
         log.info("Starting fund transfer for {} ", request.getServiceType());
 
         log.info("Finding Digital User for CIF-ID {}", metadata.getPrimaryCif());
@@ -95,6 +102,9 @@ public class FundTransferServiceDefault implements FundTransferService {
                     getFailureMessage(FUND_TRANSFER_FAILED, request, response),
                     response.getResponseDto().getMwResponseCode());
         }
+
+//        stopWatch.start("fundTransferService-" + request.getServiceType());
+//        log.info("Total time taken {} fund transfer = {} seconds ", request.getServiceType(), stopWatch.getTotalTimeSeconds());
 
         return FundTransferResponseDTO.builder()
                 .accountTo(paymentHistoryDTO.getAccountTo())
