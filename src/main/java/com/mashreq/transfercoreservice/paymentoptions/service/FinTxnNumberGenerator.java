@@ -18,7 +18,7 @@ public class FinTxnNumberGenerator {
     public static String generate(final String channel, final String cifId, final PaymentOptionType type) {
         String dateTime = DateTimeFormatter.ofPattern("ddHHmms").format(LocalDateTime.now());
         return traceTemplate
-                .replace("{DOM}", type.prefixCode())
+                .replace("{DOM}", type.prefixCode().toUpperCase())
                 .replace("{CHANNEL}", getChannelCode(channel))
                 .replace("{REGION}", "AE")
                 .replace("{CIF}", cifId)

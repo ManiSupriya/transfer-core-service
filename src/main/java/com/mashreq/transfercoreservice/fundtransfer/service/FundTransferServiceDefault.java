@@ -69,8 +69,8 @@ public class FundTransferServiceDefault implements FundTransferService {
 
     @Override
     public FundTransferResponseDTO transferFund(FundTransferMetadata metadata, FundTransferRequestDTO request) {
-        final StopWatch stopWatch = new StopWatch("fundTransferService-" + request.getServiceType());
-        stopWatch.start("fundTransferService-" + request.getServiceType());
+//        final StopWatch stopWatch = new StopWatch("fundTransferService-" + request.getServiceType());
+//        stopWatch.start("fundTransferService-" + request.getServiceType());
 
 
         log.info("Starting fund transfer for {} ", request.getServiceType());
@@ -103,8 +103,8 @@ public class FundTransferServiceDefault implements FundTransferService {
                     response.getResponseDto().getMwResponseCode());
         }
 
-        stopWatch.start("fundTransferService-" + request.getServiceType());
-        log.info("Total time taken {} fund transfer = {} seconds ", request.getServiceType(), stopWatch.getTotalTimeSeconds());
+//        stopWatch.start("fundTransferService-" + request.getServiceType());
+//        log.info("Total time taken {} fund transfer = {} seconds ", request.getServiceType(), stopWatch.getTotalTimeSeconds());
 
         return FundTransferResponseDTO.builder()
                 .accountTo(paymentHistoryDTO.getAccountTo())
