@@ -15,5 +15,5 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface CoreTransferClient {
 
     @PostMapping("api/accounts/transfer")
-    Response<FundTransferMWResponse> transferFundsBetweenAccounts(@RequestBody CoreFundTransferRequestDto fundTransferDto) throws FundTransferException;
+    Response<FundTransferMWResponse> transferFundsBetweenAccounts(@RequestBody CoreFundTransferRequestDto fundTransferDto);
 }

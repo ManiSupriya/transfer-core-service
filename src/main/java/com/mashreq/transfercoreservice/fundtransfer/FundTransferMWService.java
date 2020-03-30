@@ -4,12 +4,10 @@ import com.mashreq.esbcore.bindings.account.mbcdm.FundTransferReqType;
 import com.mashreq.esbcore.bindings.account.mbcdm.FundTransferResType;
 import com.mashreq.esbcore.bindings.accountservices.mbcdm.fundtransfer.EAIServices;
 import com.mashreq.esbcore.bindings.header.mbcdm.ErrorType;
-import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
 import com.mashreq.transfercoreservice.dto.FundTransferRequest;
 import com.mashreq.transfercoreservice.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.enums.MwResponseStatus;
-import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.middleware.HeaderFactory;
 import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
 import com.mashreq.transfercoreservice.middleware.WebServiceClient;
@@ -54,30 +52,40 @@ public class FundTransferMWService {
 
         EAIServices response = (EAIServices) webServiceClient.exchange(generateEAIRequest(request));
 
-        validateOMWResponse(response);
         final FundTransferResType.Transfer transfer = response.getBody().getFundTransferRes().getTransfer().get(0);
         final ErrorType exceptionDetails = response.getBody().getExceptionDetails();
-        log.info("Fund transfer successful for IBAN [ {} ]", request.getToAccount());
-        final CoreFundTransferResponseDto coreFundTransferResponseDto = CoreFundTransferResponseDto.builder()
+        if (isSuccessfull(response)) {
+            log.info("Fund transfer successful for IBAN [ {} ]", request.getToAccount());
+            final CoreFundTransferResponseDto coreFundTransferResponseDto = constructFTResponseDTO(transfer, exceptionDetails, MwResponseStatus.S);
+            return FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
+        }
+
+        log.info("Fund transfer failed for IBAN [ {} ]", request.getToAccount());
+        final CoreFundTransferResponseDto coreFundTransferResponseDto = constructFTResponseDTO(transfer, exceptionDetails, MwResponseStatus.F);
+        return FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
+    }
+
+    private CoreFundTransferResponseDto constructFTResponseDTO(FundTransferResType.Transfer transfer, ErrorType exceptionDetails, MwResponseStatus s) {
+        return CoreFundTransferResponseDto.builder()
                 .transactionRefNo(transfer.getTransactionRefNo())
                 .externalErrorMessage(exceptionDetails.getData())
                 .mwReferenceNo(transfer.getTransactionRefNo())
                 .mwResponseDescription(exceptionDetails.getErrorDescription())
-                .mwResponseStatus(MwResponseStatus.S)
+                .mwResponseStatus(s)
                 .mwResponseCode(exceptionDetails.getErrorCode())
                 .build();
-        return FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
     }
 
-    private void validateOMWResponse(EAIServices response) {
-        log.debug("Validate response {}", response);
+    private boolean isSuccessfull(EAIServices response) {
+        log.info("Validate response {}", response);
         if (!(StringUtils.endsWith(response.getBody().getExceptionDetails().getErrorCode(), SUCCESS_CODE_ENDS_WITH)
                 && SUCCESS.equals(response.getHeader().getStatus()))) {
-            log.debug("Exception during local fund transfer. Code: {} , Description: {}", response.getBody()
+            log.error("Exception during local fund transfer. Code: {} , Description: {}", response.getBody()
                     .getExceptionDetails().getErrorCode(), response.getBody().getExceptionDetails().getData());
-            GenericExceptionHandler.handleError(TransferErrorCode.FUND_TRANSFER_FAILED,
-                    response.getBody().getExceptionDetails().getErrorDescription());
+
+            return false;
         }
+        return true;
     }
 
     public EAIServices generateEAIRequest(FundTransferRequest request) {
@@ -136,8 +144,6 @@ public class FundTransferMWService {
     private String generateNarration(String channel) {
         return NARRATION_PREFIX + channel + NARRATION_SUFFIX;
     }
-
-
 
 
 }

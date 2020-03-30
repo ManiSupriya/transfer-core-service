@@ -29,7 +29,7 @@ public class TransferOptionsDefault implements FetchPaymentOptionsService {
     @Override
     public PaymentsOptionsResponse getPaymentOptions(PaymentOptionRequest request) {
 
-        List<AccountDetailsDTO> coreAccounts = accountService.getAccountsFromCore(request.getCifId());
+        List<AccountDetailsDTO> coreAccounts = accountService.getAccountsFromCoreWithDefaults(request.getCifId());
 
         List<AccountDetailsDTO> sourceAccounts = coreAccounts.stream()
                 .filter(PaymentPredicates.fundTransferAccountFilterSource())

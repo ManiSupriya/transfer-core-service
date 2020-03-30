@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.Optional;
 
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
+
 /**
  * Note: we are considering only segment level limit
  * we may need to add/handle CIf and user level limit
@@ -42,7 +44,7 @@ public class LimitValidator {
 
         if(!defaultLP.isPresent()){
             log.warn("[LimitValidator] - Limit is not defined for biller type {} ", beneficiaryType);
-            GenericExceptionHandler.handleError(TransferErrorCode.LIMIT_PACKAGE_NOT_FOUND, "");
+            GenericExceptionHandler.handleError(LIMIT_PACKAGE_NOT_FOUND, LIMIT_PACKAGE_NOT_FOUND.getErrorMessage());
         }
 
         LimitValidatorResultsDto limitValidatorResultsDto = validateLimitWithDefaultLP(defaultLP.get(), beneficiaryType, paidAmount, userDTO);
@@ -116,7 +118,7 @@ public class LimitValidator {
     private Integer validateMonthlyCount(Integer usedCount, Integer countAllowed) {
         Integer availableCount = countAllowed - usedCount;
         if(availableCount - 1 <  0){
-            GenericExceptionHandler.handleError(TransferErrorCode.MONTH_COUNT_LIMIT_REACHED, "");
+            GenericExceptionHandler.handleError(MONTH_COUNT_LIMIT_REACHED, MONTH_COUNT_LIMIT_REACHED.getErrorMessage());
         }
         return availableCount;
     }
@@ -124,7 +126,7 @@ public class LimitValidator {
     private Integer validateDailyCount(Integer usedCount, Integer countAllowed) {
         Integer availableCount = countAllowed - usedCount;
         if(availableCount - 1 <  0){
-            GenericExceptionHandler.handleError(TransferErrorCode.DAY_COUNT_LIMIT_REACHED, "");
+            GenericExceptionHandler.handleError(DAY_COUNT_LIMIT_REACHED, DAY_COUNT_LIMIT_REACHED.getErrorMessage());
         }
         return availableCount;
     }
@@ -133,7 +135,7 @@ public class LimitValidator {
         BigDecimal availableAmount = amountAllowed.subtract(usedAmount);
 
         if(availableAmount.subtract(paidAmount).compareTo(new BigDecimal(0)) == -1){
-            GenericExceptionHandler.handleError(TransferErrorCode.MONTH_AMOUNT_LIMIT_REACHED, "");
+            GenericExceptionHandler.handleError(MONTH_AMOUNT_LIMIT_REACHED, MONTH_AMOUNT_LIMIT_REACHED.getErrorMessage());
         }
         return availableAmount;
     }
@@ -142,14 +144,14 @@ public class LimitValidator {
         BigDecimal availableAmount = amountAllowed.subtract(usedAmount);
 
         if(availableAmount.subtract(paidAmount).compareTo(new BigDecimal(0)) == -1){
-            GenericExceptionHandler.handleError(TransferErrorCode.DAY_AMOUNT_LIMIT_REACHED, "");
+            GenericExceptionHandler.handleError(DAY_AMOUNT_LIMIT_REACHED, DAY_AMOUNT_LIMIT_REACHED.getErrorMessage());
         }
         return availableAmount;
     }
 
     private void validateTransactionLimit(final BigDecimal paidAmount, final BigDecimal maxTrxAmount) {
         if(maxTrxAmount.compareTo(paidAmount) == -1){
-            GenericExceptionHandler.handleError(TransferErrorCode.TRX_LIMIT_REACHED, "");
+            GenericExceptionHandler.handleError(TRX_LIMIT_REACHED, TRX_LIMIT_REACHED.getErrorMessage());
         }
     }
 }

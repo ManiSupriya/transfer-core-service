@@ -7,11 +7,13 @@ package com.mashreq.transfercoreservice.errors;
 public class FundTransferException extends Exception {
 
     private final TransferErrorCode transferErrorCode;
+    private final String externalErrorCode;
 
 
-    public FundTransferException(TransferErrorCode transferErrorCode, String message) {
+    public FundTransferException(TransferErrorCode transferErrorCode, String message, String externalErrorCode) {
         super(message);
         this.transferErrorCode = transferErrorCode;
+        this.externalErrorCode = externalErrorCode;
     }
 
     public TransferErrorCode getTransferErrorCode() {

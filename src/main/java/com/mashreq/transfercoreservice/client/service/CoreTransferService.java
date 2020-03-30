@@ -24,7 +24,6 @@ public class CoreTransferService {
 
 
     public FundTransferResponse transferFundsBetweenAccounts(FundTransferRequestDTO request) {
-
         CoreFundTransferRequestDto coreFundTransferRequestDto = CoreFundTransferRequestDto.builder()
                 .fromAccount(request.getFromAccount())
                 .toAccount(request.getToAccount())
@@ -33,7 +32,6 @@ public class CoreTransferService {
                 .dealNumber(request.getDealNumber())
                 .purposeCode(request.getPurposeCode())
                 .build();
-
         log.info("Calling external service for fundtransfer {} ", coreFundTransferRequestDto);
         return transferFundsBetweenAccounts(coreFundTransferRequestDto);
     }
@@ -43,32 +41,18 @@ public class CoreTransferService {
      */
     private FundTransferResponse transferFundsBetweenAccounts(CoreFundTransferRequestDto coreFundTransferRequestDto) {
         final FundTransferResponse result = FundTransferResponse.builder().build();
-        try {
-            Response<FundTransferMWResponse> transferFundsResponse =
-                    coreTransferClient.transferFundsBetweenAccounts(coreFundTransferRequestDto);
+        Response<FundTransferMWResponse> transferFundsResponse =
+                coreTransferClient.transferFundsBetweenAccounts(coreFundTransferRequestDto);
 
-            log.info("Response for fund-transfer call {} ", transferFundsResponse);
-            final CoreFundTransferResponseDto coreResponse = CoreFundTransferResponseDto.builder()
-                    .transactionRefNo(transferFundsResponse.getData().getTransactionRefNo())
-                    .mwReferenceNo(transferFundsResponse.getData().getMwReferenceNo())
-                    .mwResponseStatus(transferFundsResponse.getData().getMwResponseStatus())
-                    .mwResponseCode(transferFundsResponse.getData().getMwResponseCode())
-                    .mwResponseDescription(transferFundsResponse.getData().getMwResponseDescription())
-                    .build();
-            return result.toBuilder().responseDto(coreResponse).build();
+        log.info("Response for fund-transfer call {} ", transferFundsResponse);
+        final CoreFundTransferResponseDto coreResponse = CoreFundTransferResponseDto.builder()
+                .transactionRefNo(transferFundsResponse.getData().getTransactionRefNo())
+                .mwReferenceNo(transferFundsResponse.getData().getMwReferenceNo())
+                .mwResponseStatus(transferFundsResponse.getData().getMwResponseStatus())
+                .mwResponseCode(transferFundsResponse.getData().getMwResponseCode())
+                .mwResponseDescription(transferFundsResponse.getData().getMwResponseDescription())
+                .build();
 
-        } catch (FundTransferException e) {
-            log.error("Fund Transfer From account {}, to account {} failed",
-                    coreFundTransferRequestDto.getFromAccount(), coreFundTransferRequestDto.getToAccount());
-            log.error("Error {} ", e);
-            final CoreFundTransferResponseDto coreResponse = CoreFundTransferResponseDto.builder()
-                    .mwResponseStatus(MwResponseStatus.F)
-                    .transferErrorCode(e.getTransferErrorCode())
-                    .externalErrorMessage(e.getTransferErrorCode().getErrorMessage())
-                    .build();
-
-            return result.toBuilder().responseDto(coreResponse).build();
-        }
-
+        return result.toBuilder().responseDto(coreResponse).build();
     }
 }

@@ -9,12 +9,15 @@ import com.mashreq.transfercoreservice.client.dto.CoreFundTransferRequestDto;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.CoreTransferService;
+import com.mashreq.transfercoreservice.dto.FundTransferRequest;
 import com.mashreq.transfercoreservice.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.enums.MwResponseStatus;
+import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.FundTransferMWService;
 import com.mashreq.transfercoreservice.fundtransfer.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.*;
+import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
 import com.mashreq.transfercoreservice.limits.DigitalUserLimitUsageService;
 import com.mashreq.transfercoreservice.limits.LimitValidator;
 import com.mashreq.transfercoreservice.limits.LimitValidatorResultsDto;
@@ -33,7 +36,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Optional;
 
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
 import static com.mashreq.transfercoreservice.fundtransfer.ServiceType.*;
 
 @Slf4j
@@ -49,6 +52,8 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final LocalFundTransferStrategy localFundTransferStrategy;
     private final CharityStrategy charityStrategy;
     private EnumMap<ServiceType, FundTransferStrategy> fundTransferStrategies;
+    private BalanceValidator balanceValidator;
+
 
     @PostConstruct
     public void init() {
@@ -60,7 +65,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     }
 
     @Override
-    public PaymentHistoryDTO transferFund(FundTransferMetadata metadata, FundTransferRequestDTO request) {
+    public FundTransferResponseDTO transferFund(FundTransferMetadata metadata, FundTransferRequestDTO request) {
         log.info("Starting fund transfer for {} ", request.getServiceType());
 
         log.info("Finding Digital User for CIF-ID {}", metadata.getPrimaryCif());
@@ -86,11 +91,29 @@ public class FundTransferServiceDefault implements FundTransferService {
         paymentHistoryService.insert(paymentHistoryDTO);
 
         if (MwResponseStatus.F.equals(response.getResponseDto().getMwResponseStatus())) {
-            GenericExceptionHandler.handleError(response.getResponseDto().getTransferErrorCode(),
-                    String.format("%s : %s ", request.getFinTxnNo(), response.getResponseDto().getExternalErrorMessage()));
+            GenericExceptionHandler.handleError(FUND_TRANSFER_FAILED,
+                    getFailureMessage(FUND_TRANSFER_FAILED, request, response),
+                    response.getResponseDto().getMwResponseCode());
         }
 
-        return paymentHistoryDTO;
+        return FundTransferResponseDTO.builder()
+                .accountTo(paymentHistoryDTO.getAccountTo())
+                .status(paymentHistoryDTO.getStatus())
+                .paidAmount(paymentHistoryDTO.getPaidAmount())
+                .mwReferenceNo(paymentHistoryDTO.getMwReferenceNo())
+                .mwResponseCode(paymentHistoryDTO.getMwResponseCode())
+                .mwResponseDescription(paymentHistoryDTO.getMwResponseDescription())
+                .financialTransactionNo(request.getFinTxnNo())
+                .build();
+
+    }
+
+    private String getFailureMessage(TransferErrorCode fundTransferFailed, FundTransferRequestDTO request, FundTransferResponse response) {
+        return String.format("FIN-TXN-NO [%s] : REFERENCE-NO [%s] REFERENCE-MESSAGE [%s] : ",
+                request.getFinTxnNo(),
+                response.getResponseDto().getMwReferenceNo(),
+                fundTransferFailed.getErrorMessage()
+        );
     }
 
 

@@ -13,8 +13,5 @@ public class CoreFundTransferResponseDto {
     private String mwResponseCode;
     private String mwReferenceNo;
     private String mwResponseDescription;
-
-    //TODO To be discussed
-    private TransferErrorCode transferErrorCode;
     private String externalErrorMessage;
 }

@@ -31,7 +31,7 @@ public class TransferOptionsOwnAccount implements FetchPaymentOptionsService {
     public PaymentsOptionsResponse getPaymentOptions(PaymentOptionRequest request) {
 
         //Fetch Accounts from Core
-        List<AccountDetailsDTO> coreAccounts = accountService.getAccountsFromCore(request.getCifId());
+        List<AccountDetailsDTO> coreAccounts = accountService.getAccountsFromCoreWithDefaults(request.getCifId());
 
         //Extract Source Accounts
         List<AccountDetailsDTO> sourceAccounts = coreAccounts.stream()
