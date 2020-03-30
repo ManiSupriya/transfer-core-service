@@ -32,7 +32,7 @@ public class BalanceValidator implements Validator {
         AccountDetailsDTO fromAccount = context.get("from-account", AccountDetailsDTO.class);
 
         log.info("Balance in account [ {} {} ] ", fromAccount.getAvailableBalance(), fromAccount.getCurrency());
-        log.info("Amount to be debited  [ {} {} ] ", request.getAmount(), request.getServiceType());
+        log.info("Amount to be debited  [ {} {} ] ", request.getAmount(), request.getCurrency());
 
         if (fromAccount.getCurrency().equalsIgnoreCase(request.getCurrency())) {
             return isBalanceAvailable(fromAccount.getAvailableBalance(), request.getAmount());
