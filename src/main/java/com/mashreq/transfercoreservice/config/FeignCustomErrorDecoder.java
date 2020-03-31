@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
-import com.mashreq.transfercoreservice.errors.FundTransferException;
 import feign.Response;
 import feign.codec.ErrorDecoder;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.IOException;
 import java.util.Optional;
 
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INTERNAL_SERVICE_ERROR;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.EXTERNAL_SERVICE_ERROR;
 
 /**
  * @author shahbazkh
@@ -46,7 +45,7 @@ public class FeignCustomErrorDecoder implements ErrorDecoder {
                     responseErrorMessage);
 
             final String errorDetails = appendToErrorDetails(resposneErrorDetails, responseErrorCode);
-            GenericExceptionHandler.handleError(INTERNAL_SERVICE_ERROR, INTERNAL_SERVICE_ERROR.getErrorMessage(), errorDetails);
+            GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR, EXTERNAL_SERVICE_ERROR.getErrorMessage(), errorDetails);
 
             //This line will to throw Runtime Exception will never get executed as the GenericExceptionHandler will throw the exception.
             // Adding this line as because of Feign framework

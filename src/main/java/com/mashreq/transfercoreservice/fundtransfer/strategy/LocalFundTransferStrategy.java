@@ -17,10 +17,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
 import static java.lang.Long.valueOf;
+import static java.time.Duration.between;
+import static java.time.Instant.now;
 
 /**
  *
@@ -49,6 +52,9 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO) {
+
+        Instant localStrategyStartTime = Instant.now();
+
         request.setCurrency("AED");
         responseHandler(finTxnNoValidator.validate(request, metadata));
         final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metadata.getPrimaryCif());
@@ -88,7 +94,8 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountDetails, beneficiaryDto);
         log.info("Local Fund transfer initiated.......");
         final FundTransferResponse fundTransferResponse = fundTransferMWService.sendMoneyToIBAN(fundTransferRequest);
-        log.info("Local Fund transfer successful........");
+
+        log.info("Total time taken for {} strategy {} milli seconds ", request.getServiceType(), between(localStrategyStartTime, now()).toMillis());
 
         return fundTransferResponse.toBuilder()
                 .limitUsageAmount(limitUsageAmount)
@@ -123,7 +130,6 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
                 .filter(account -> account.getNumber().equals(accountNumber))
                 .findFirst().orElse(null);
     }
-
 
 
 }

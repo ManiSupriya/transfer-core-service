@@ -29,17 +29,21 @@ import com.mashreq.transfercoreservice.model.DigitalUser;
 import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.time.StopWatch;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StopWatch;
 
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Optional;
 
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
 import static com.mashreq.transfercoreservice.fundtransfer.ServiceType.*;
+import static java.time.Duration.between;
+import static java.time.Instant.now;
 
 @Slf4j
 @TrackExec
@@ -69,10 +73,7 @@ public class FundTransferServiceDefault implements FundTransferService {
 
     @Override
     public FundTransferResponseDTO transferFund(FundTransferMetadata metadata, FundTransferRequestDTO request) {
-//        final StopWatch stopWatch = new StopWatch("fundTransferService-" + request.getServiceType());
-//        stopWatch.start("fundTransferService-" + request.getServiceType());
-
-
+        Instant start = now();
         log.info("Starting fund transfer for {} ", request.getServiceType());
 
         log.info("Finding Digital User for CIF-ID {}", metadata.getPrimaryCif());
@@ -84,7 +85,9 @@ public class FundTransferServiceDefault implements FundTransferService {
         FundTransferStrategy strategy = fundTransferStrategies.get(ServiceType.getServiceByType(request.getServiceType()));
         FundTransferResponse response = strategy.execute(request, metadata, userDTO);
 
+
         if (response.getResponseDto().getMwResponseStatus().equals(MwResponseStatus.S)) {
+
             DigitalUserLimitUsageDTO digitalUserLimitUsageDTO = generateUserLimitUsage(
                     request.getServiceType(), response.getLimitUsageAmount(), userDTO, metadata, response.getLimitVersionUuid());
             log.info("Inserting into limits table {} ", digitalUserLimitUsageDTO);
@@ -97,15 +100,13 @@ public class FundTransferServiceDefault implements FundTransferService {
         log.info("Inserting into Payments History table {} ", paymentHistoryDTO);
         paymentHistoryService.insert(paymentHistoryDTO);
 
+        log.info("Total time taken for {} Fund Transfer {} milli seconds ", request.getServiceType(), between(start, now()).toMillis());
+
         if (MwResponseStatus.F.equals(response.getResponseDto().getMwResponseStatus())) {
             GenericExceptionHandler.handleError(FUND_TRANSFER_FAILED,
                     getFailureMessage(FUND_TRANSFER_FAILED, request, response),
                     response.getResponseDto().getMwResponseCode());
         }
-
-//        stopWatch.start("fundTransferService-" + request.getServiceType());
-//        log.info("Total time taken {} fund transfer = {} seconds ", request.getServiceType(), stopWatch.getTotalTimeSeconds());
-
         return FundTransferResponseDTO.builder()
                 .accountTo(paymentHistoryDTO.getAccountTo())
                 .status(paymentHistoryDTO.getStatus())
@@ -133,6 +134,7 @@ public class FundTransferServiceDefault implements FundTransferService {
             GenericExceptionHandler.handleError(INVALID_CIF, INVALID_CIF.getErrorMessage());
         }
         log.info("Digital User found successfully {} ", digitalUserOptional.get());
+
         return digitalUserOptional.get();
     }
 

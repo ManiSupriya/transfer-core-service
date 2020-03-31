@@ -19,7 +19,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
+
+import static java.time.Duration.between;
+import static java.time.Instant.now;
 
 /**
  * @author shahbazkh
@@ -41,6 +45,9 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO) {
+
+        Instant ownAccStrategyStartTime = Instant.now();
+
         responseHandler(finTxnNoValidator.validate(request, metadata));
         responseHandler(sameAccountValidator.validate(request, metadata));
 
@@ -64,11 +71,11 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         // As per current implementation with FE they are sending toCurrency and its value for within and own
         log.info("Limit Validation start.");
         BigDecimal limitUsageAmount = request.getAmount();
-        if(!userDTO.getLocalCurrency().equalsIgnoreCase(request.getCurrency())){
+        if (!userDTO.getLocalCurrency().equalsIgnoreCase(request.getCurrency())) {
 
             // Since we support request currency it can be  debitLeg or creditLeg
             String givenAccount = request.getToAccount();
-            if(request.getCurrency().equalsIgnoreCase(fromAccount.getCurrency())){
+            if (request.getCurrency().equalsIgnoreCase(fromAccount.getCurrency())) {
                 log.info("Limit Validation with respect to from account.");
                 givenAccount = request.getFromAccount();
             }
@@ -81,9 +88,11 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount);
         log.info("Limit Validation successful");
 
-        responseHandler(balanceValidator.validate(request,metadata,validateAccountContext));
+        responseHandler(balanceValidator.validate(request, metadata, validateAccountContext));
 
         final FundTransferResponse fundTransferResponse = coreTransferService.transferFundsBetweenAccounts(request);
+
+        log.info("Total time taken for {} strategy {} milli seconds ", request.getServiceType(), between(ownAccStrategyStartTime, now()).toMillis());
 
         return fundTransferResponse.toBuilder()
                 .limitUsageAmount(limitUsageAmount)

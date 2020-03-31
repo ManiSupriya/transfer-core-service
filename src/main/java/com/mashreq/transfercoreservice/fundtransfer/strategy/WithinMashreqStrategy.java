@@ -21,10 +21,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
 import static java.lang.Long.valueOf;
+import static java.time.Duration.between;
+import static java.time.Instant.now;
 
 /**
  * @author shahbazkh
@@ -51,6 +54,8 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO) {
 
+        Instant withinMashreqStrategyStartTime = Instant.now();
+
         responseHandler(finTxnNoValidator.validate(request, metadata));
         responseHandler(sameAccountValidator.validate(request, metadata));
 
@@ -75,15 +80,14 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         responseHandler(currencyValidator.validate(request, metadata, validationContext));
 
 
-
         // As per current implementation with FE they are sending toCurrency and its value for within and own
         log.info("Limit Validation start.");
         BigDecimal limitUsageAmount = request.getAmount();
-        if(!userDTO.getLocalCurrency().equalsIgnoreCase(request.getCurrency())){
+        if (!userDTO.getLocalCurrency().equalsIgnoreCase(request.getCurrency())) {
 
             // Since we support request currency it can be  debitLeg or creditLeg
             String givenAccount = request.getToAccount();
-            if(request.getCurrency().equalsIgnoreCase(fromAccountOpt.get().getCurrency())){
+            if (request.getCurrency().equalsIgnoreCase(fromAccountOpt.get().getCurrency())) {
                 log.info("Limit Validation with respect to from account.");
                 givenAccount = request.getFromAccount();
             }
@@ -98,6 +102,9 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         log.info("Limit Validation successful");
 
         //responseHandler(balanceValidator.validate(request,metadata,validationContext));
+
+        log.info("Total time taken for {} strategy {} milli seconds ", request.getServiceType(), between(withinMashreqStrategyStartTime, now()).toMillis());
+
 
         final FundTransferResponse fundTransferResponse = coreTransferService.transferFundsBetweenAccounts(request);
 

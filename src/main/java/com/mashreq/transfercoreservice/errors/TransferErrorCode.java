@@ -49,9 +49,12 @@ public enum TransferErrorCode implements ErrorCode {
     IBAN_LENGTH_NOT_VALID("TN-5105", "IBAN should be 23 characters long"),
     SAME_BANK_IBAN("TN-5106", "Beneficiary Bank is same as sender bank"),
 
-    INTERNAL_SERVICE_ERROR("TN-5000", "Something went wrong"),
+    EXTERNAL_SERVICE_ERROR("TN-5000", "Something went wrong with external service"),
     FUND_TRANSFER_FAILED("TN-5001", "Fund transfer failed"),
-    MW_CONNECTION_TIMEOUT("TN-5002", "Middleware Connection Timeout");
+
+    //Middleware error codes
+    CONNECTION_TIMEOUT_MW("TN-5002", "Middleware Connection Timeout"),
+    EXTERNAL_SERVICE_ERROR_MW("TN-5003", "Something went wrong with middleware service");
 
     private String customErrorCode;
     private String errorMessage;
