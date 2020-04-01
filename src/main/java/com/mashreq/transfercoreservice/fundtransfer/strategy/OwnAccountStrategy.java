@@ -46,7 +46,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO) {
 
-        Instant ownAccStrategyStartTime = Instant.now();
+        Instant start = Instant.now();
 
         responseHandler(finTxnNoValidator.validate(request, metadata));
         responseHandler(sameAccountValidator.validate(request, metadata));
@@ -92,7 +92,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 
         final FundTransferResponse fundTransferResponse = coreTransferService.transferFundsBetweenAccounts(request);
 
-        log.info("Total time taken for {} strategy {} milli seconds ", request.getServiceType(), between(ownAccStrategyStartTime, now()).toMillis());
+        log.info("Total time taken for {} strategy {} milli seconds ", request.getServiceType(), between(start, now()).toMillis());
 
         return fundTransferResponse.toBuilder()
                 .limitUsageAmount(limitUsageAmount)

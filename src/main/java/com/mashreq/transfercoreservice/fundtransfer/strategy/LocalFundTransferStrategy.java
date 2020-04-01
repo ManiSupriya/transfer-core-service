@@ -1,19 +1,22 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
-import com.mashreq.transfercoreservice.client.BeneficiaryClient;
 import com.mashreq.transfercoreservice.client.MaintenanceClient;
-import com.mashreq.transfercoreservice.client.dto.*;
+import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
+import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
+import com.mashreq.transfercoreservice.client.dto.PurposeOfTransferDto;
+import com.mashreq.transfercoreservice.client.service.AccountService;
+import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.dto.FundTransferRequest;
 import com.mashreq.transfercoreservice.dto.FundTransferResponse;
-import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.fundtransfer.FundTransferMWService;
-import com.mashreq.transfercoreservice.fundtransfer.dto.*;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import com.mashreq.transfercoreservice.limits.LimitValidator;
 import com.mashreq.transfercoreservice.limits.LimitValidatorResultsDto;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -39,7 +42,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
     private final BeneficiaryValidator beneficiaryValidator;
     private final AccountService accountService;
-    private final BeneficiaryClient beneficiaryClient;
+    private final BeneficiaryService beneficiaryService;
     private final LimitValidator limitValidator;
     private final FundTransferMWService fundTransferMWService;
     private final MaintenanceClient maintenanceClient;
@@ -53,7 +56,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO) {
 
-        Instant localStrategyStartTime = Instant.now();
+        Instant start = Instant.now();
 
         request.setCurrency("AED");
         responseHandler(finTxnNoValidator.validate(request, metadata));
@@ -73,8 +76,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         final AccountDetailsDTO fromAccountDetails = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
         validationContext.add("from-account", fromAccountDetails);
 
-        final BeneficiaryDto beneficiaryDto = beneficiaryClient.getById(metadata.getPrimaryCif(), valueOf(request.getBeneficiaryId()))
-                .getData();
+        final BeneficiaryDto beneficiaryDto = beneficiaryService.getById((metadata.getPrimaryCif()),valueOf(request.getBeneficiaryId()));
         validationContext.add("beneficiary-dto", beneficiaryDto);
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
         log.info("Beneficiary validation successful");
@@ -95,7 +97,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         log.info("Local Fund transfer initiated.......");
         final FundTransferResponse fundTransferResponse = fundTransferMWService.sendMoneyToIBAN(fundTransferRequest);
 
-        log.info("Total time taken for {} strategy {} milli seconds ", request.getServiceType(), between(localStrategyStartTime, now()).toMillis());
+        log.info("Total time taken for {} strategy {} milli seconds ", request.getServiceType(), between(start, now()).toMillis());
 
         return fundTransferResponse.toBuilder()
                 .limitUsageAmount(limitUsageAmount)

@@ -7,6 +7,7 @@ import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestD
 import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 
 import com.mashreq.transfercoreservice.client.service.AccountService;
+import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.CoreTransferService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.dto.FundTransferResponse;
@@ -45,7 +46,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     private final CurrencyValidator currencyValidator;
     private final BeneficiaryValidator beneficiaryValidator;
     private final AccountService accountService;
-    private final BeneficiaryClient beneficiaryClient;
+    private final BeneficiaryService beneficiaryService;
     private final LimitValidator limitValidator;
     private final CoreTransferService coreTransferService;
     private final MaintenanceService maintenanceService;
@@ -54,7 +55,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO) {
 
-        Instant withinMashreqStrategyStartTime = Instant.now();
+        Instant start = Instant.now();
 
         responseHandler(finTxnNoValidator.validate(request, metadata));
         responseHandler(sameAccountValidator.validate(request, metadata));
@@ -72,8 +73,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         //from account will always be present as it has been validated in the accountBelongsToCifValidator
         validationContext.add("from-account", fromAccountOpt.get());
 
-        BeneficiaryDto beneficiaryDto = beneficiaryClient.getById(metadata.getPrimaryCif(), valueOf(request.getBeneficiaryId()))
-                .getData();
+        BeneficiaryDto beneficiaryDto = beneficiaryService.getById(metadata.getPrimaryCif(), valueOf(request.getBeneficiaryId()));
 
         validationContext.add("beneficiary-dto", beneficiaryDto);
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
@@ -103,7 +103,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
 
         //responseHandler(balanceValidator.validate(request,metadata,validationContext));
 
-        log.info("Total time taken for {} strategy {} milli seconds ", request.getServiceType(), between(withinMashreqStrategyStartTime, now()).toMillis());
+        log.info("Total time taken for {} strategy {} milli seconds ", request.getServiceType(), between(start, now()).toMillis());
 
 
         final FundTransferResponse fundTransferResponse = coreTransferService.transferFundsBetweenAccounts(request);
