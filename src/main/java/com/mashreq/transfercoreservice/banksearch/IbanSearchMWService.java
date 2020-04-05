@@ -46,9 +46,8 @@ public class IbanSearchMWService {
         log.debug("Validate response {}", response);
         if (!(StringUtils.endsWith(response.getBody().getExceptionDetails().getErrorCode(), SUCCESS_CODE_ENDS_WITH)
                 && SUCCESS.equals(response.getHeader().getStatus()))) {
-
             GenericExceptionHandler.handleError(TransferErrorCode.IBAN_NOT_FOUND,
-                    response.getBody().getExceptionDetails().getErrorDescription());
+                    response.getBody().getExceptionDetails().getErrorDescription(), response.getBody().getExceptionDetails().getErrorCode());
         }
     }
 

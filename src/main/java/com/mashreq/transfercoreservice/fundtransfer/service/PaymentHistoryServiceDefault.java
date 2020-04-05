@@ -2,8 +2,8 @@ package com.mashreq.transfercoreservice.fundtransfer.service;
 
 
 import com.mashreq.transfercoreservice.fundtransfer.dto.PaymentHistoryDTO;
-import com.mashreq.transfercoreservice.mapper.PaymentHistoryMapper;
 import com.mashreq.transfercoreservice.model.PaymentHistory;
+import com.mashreq.transfercoreservice.paymenthistory.PaymentHistoryMapper;
 import com.mashreq.transfercoreservice.repository.PaymentHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

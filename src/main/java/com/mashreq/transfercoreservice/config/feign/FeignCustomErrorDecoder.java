@@ -1,4 +1,4 @@
-package com.mashreq.transfercoreservice.config;
+package com.mashreq.transfercoreservice.config.feign;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;

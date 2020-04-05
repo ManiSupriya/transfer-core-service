@@ -1,4 +1,4 @@
-package com.mashreq.transfercoreservice.config;
+package com.mashreq.transfercoreservice.config.feign;
 
 import com.mashreq.webcore.dto.response.Response;
 import lombok.Data;

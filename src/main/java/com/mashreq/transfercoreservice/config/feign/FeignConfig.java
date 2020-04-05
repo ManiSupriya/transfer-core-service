@@ -1,16 +1,9 @@
-package com.mashreq.transfercoreservice.config;
+package com.mashreq.transfercoreservice.config.feign;
 
-import feign.Feign;
-import feign.FeignException;
-import feign.Response;
-import feign.codec.DecodeException;
 import feign.codec.Decoder;
 import feign.codec.ErrorDecoder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.io.IOException;
-import java.lang.reflect.Type;
 
 /**
  * @author shahbazkh

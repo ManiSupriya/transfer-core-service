@@ -7,7 +7,8 @@ import org.springframework.ws.client.WebServiceIOException;
 import org.springframework.ws.client.core.support.WebServiceGatewaySupport;
 import org.springframework.ws.transport.http.ClientHttpRequestMessageSender;
 
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.CONNECTION_TIMEOUT_MW;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.EXTERNAL_SERVICE_ERROR_MW;
 
 
 @Slf4j

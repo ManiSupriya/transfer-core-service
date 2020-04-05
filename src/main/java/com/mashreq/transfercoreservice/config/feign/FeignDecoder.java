@@ -1,23 +1,14 @@
-package com.mashreq.transfercoreservice.config;
+package com.mashreq.transfercoreservice.config.feign;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import feign.FeignException;
 import feign.Response;
-import feign.Util;
 import feign.codec.DecodeException;
 import feign.codec.Decoder;
-import feign.codec.StringDecoder;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.Optional;
-
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.EXTERNAL_SERVICE_ERROR;
 
 /**
  * @author shahbazkh

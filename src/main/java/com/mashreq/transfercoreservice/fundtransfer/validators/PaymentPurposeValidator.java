@@ -8,7 +8,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_PURPOSE_CODE;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_PURPOSE_DESC;
 
 @Slf4j
 @Component

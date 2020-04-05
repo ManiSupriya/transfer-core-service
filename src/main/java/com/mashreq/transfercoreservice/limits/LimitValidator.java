@@ -2,7 +2,6 @@ package com.mashreq.transfercoreservice.limits;
 
 import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
-import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserLimitUsageDTO;
 import lombok.RequiredArgsConstructor;

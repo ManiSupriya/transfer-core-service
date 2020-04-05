@@ -4,7 +4,7 @@ import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.BeneficiaryClient;
 import com.mashreq.transfercoreservice.client.ErrorUtils;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
-import com.mashreq.transfercoreservice.config.FeignResponse;
+import com.mashreq.transfercoreservice.config.feign.FeignResponse;
 import com.mashreq.webcore.dto.response.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -6,8 +6,8 @@ import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.PurposeOfTransferDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
-import com.mashreq.transfercoreservice.dto.FundTransferRequest;
-import com.mashreq.transfercoreservice.dto.FundTransferResponse;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.fundtransfer.FundTransferMWService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
@@ -58,18 +58,21 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
         Instant start = Instant.now();
 
+
         request.setCurrency("AED");
         responseHandler(finTxnNoValidator.validate(request, metadata));
-        final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metadata.getPrimaryCif());
 
+        final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metadata.getPrimaryCif());
         final ValidationContext validationContext = new ValidationContext();
         validationContext.add("account-details", accountsFromCore);
         validationContext.add("validate-from-account", Boolean.TRUE);
+
 
         final Set<PurposeOfTransferDto> allPurposeCodes = maintenanceClient.getAllPurposeCodes(LOCAL).getData();
         validationContext.add("purposes", allPurposeCodes);
         responseHandler(paymentPurposeValidator.validate(request, metadata, validationContext));
         log.info("Purpose code and description validation successful");
+
 
         responseHandler(accountBelongsToCifValidator.validate(request, metadata, validationContext));
         log.info("Account belongs to cif validation successful");

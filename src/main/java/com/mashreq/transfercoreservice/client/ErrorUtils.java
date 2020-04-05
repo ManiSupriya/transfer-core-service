@@ -1,6 +1,6 @@
 package com.mashreq.transfercoreservice.client;
 
-import com.mashreq.transfercoreservice.config.FeignResponse;
+import com.mashreq.transfercoreservice.config.feign.FeignResponse;
 import org.apache.commons.lang3.StringUtils;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;

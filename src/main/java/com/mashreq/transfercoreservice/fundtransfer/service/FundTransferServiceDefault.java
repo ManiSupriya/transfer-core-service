@@ -1,46 +1,31 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
-import com.mashreq.esbcore.bindings.account.mbcdm.IBANDetailsReqType;
-import com.mashreq.esbcore.bindings.accountservices.mbcdm.ibandetails.EAIServices;
 import com.mashreq.logcore.annotations.TrackExec;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
-import com.mashreq.transfercoreservice.client.BeneficiaryClient;
-import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
-import com.mashreq.transfercoreservice.client.dto.CoreFundTransferRequestDto;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
-import com.mashreq.transfercoreservice.client.service.AccountService;
-import com.mashreq.transfercoreservice.client.service.CoreTransferService;
-import com.mashreq.transfercoreservice.dto.FundTransferRequest;
-import com.mashreq.transfercoreservice.dto.FundTransferResponse;
-import com.mashreq.transfercoreservice.enums.MwResponseStatus;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
-import com.mashreq.transfercoreservice.fundtransfer.FundTransferMWService;
 import com.mashreq.transfercoreservice.fundtransfer.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.*;
 import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
 import com.mashreq.transfercoreservice.limits.DigitalUserLimitUsageService;
-import com.mashreq.transfercoreservice.limits.LimitValidator;
-import com.mashreq.transfercoreservice.limits.LimitValidatorResultsDto;
-import com.mashreq.transfercoreservice.middleware.HeaderFactory;
-import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
-import com.mashreq.transfercoreservice.middleware.WebServiceClient;
+import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.model.DigitalUser;
 import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
+import com.mashreq.transfercoreservice.settings.ApplicationSettingsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.time.StopWatch;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.EnumMap;
-import java.util.List;
 import java.util.Optional;
 
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.FUND_TRANSFER_FAILED;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
 import static com.mashreq.transfercoreservice.fundtransfer.ServiceType.*;
 import static java.time.Duration.between;
 import static java.time.Instant.now;
@@ -59,7 +44,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final LocalFundTransferStrategy localFundTransferStrategy;
     private final CharityStrategy charityStrategy;
     private EnumMap<ServiceType, FundTransferStrategy> fundTransferStrategies;
-    private BalanceValidator balanceValidator;
+    private final ApplicationSettingsService applicationSettingsService;
 
 
     @PostConstruct
