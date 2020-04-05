@@ -23,9 +23,9 @@ public class FeignConfig {
         return new FeignCustomErrorDecoder();
     }
 
-//    @Bean
-//    public Decoder decoder() {
-//        return new FeignDecoder();
-//    }
+    @Bean
+    public Decoder decoder() {
+        return new FeignDecoder();
+    }
 
 }
