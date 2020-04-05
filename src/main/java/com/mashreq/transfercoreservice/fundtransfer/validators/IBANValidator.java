@@ -1,6 +1,5 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
-import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import lombok.RequiredArgsConstructor;
@@ -9,9 +8,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.validation.Valid;
-
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.IBAN_LENGTH_NOT_VALID;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.SAME_BANK_IBAN;
 
 @Slf4j
 @Component

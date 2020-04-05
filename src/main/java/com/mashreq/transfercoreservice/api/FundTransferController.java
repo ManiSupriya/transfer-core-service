@@ -35,7 +35,6 @@ public class FundTransferController {
                                   @RequestAttribute("X-CHANNEL-NAME") String channelName,
                                   @RequestHeader("X-CIF-ID") final String cifId,
                                   @Valid @RequestBody FundTransferRequestDTO request) {
-
         log.info("{} Fund transfer for request received ", request.getServiceType());
         FundTransferMetadata metadata = FundTransferMetadata.builder()
                 .channel(channelName)

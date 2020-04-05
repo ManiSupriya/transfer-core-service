@@ -17,6 +17,7 @@ public class ChannelTracerGenerator {
 
     private static final String traceTemplate = "{CHANNEL}{REGION}{CIF}{DATE-TIME-FORMAT}";
 
+    //TODO To be confirmed with Bala
     private static final Map<Integer, String> monthMap = new HashMap<Integer, String>() {{
         put(1, "A");
         put(2, "B");

@@ -1,4 +1,4 @@
-package com.mashreq.transfercoreservice.mapper;
+package com.mashreq.transfercoreservice.paymenthistory;
 
 import com.mashreq.transfercoreservice.fundtransfer.dto.PaymentHistoryDTO;
 import com.mashreq.transfercoreservice.model.PaymentHistory;

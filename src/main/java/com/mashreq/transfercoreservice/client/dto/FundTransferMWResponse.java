@@ -1,6 +1,6 @@
 package com.mashreq.transfercoreservice.client.dto;
 
-import com.mashreq.transfercoreservice.enums.MwResponseStatus;
+import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import lombok.Builder;
 import lombok.Data;
 

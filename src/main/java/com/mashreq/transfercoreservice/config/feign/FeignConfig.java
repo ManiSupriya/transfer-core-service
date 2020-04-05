@@ -1,5 +1,6 @@
-package com.mashreq.transfercoreservice.config;
+package com.mashreq.transfercoreservice.config.feign;
 
+import feign.codec.Decoder;
 import feign.codec.ErrorDecoder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +21,11 @@ public class FeignConfig {
     @Bean
     public ErrorDecoder errorDecoder() {
         return new FeignCustomErrorDecoder();
+    }
+
+    @Bean
+    public Decoder decoder() {
+        return new FeignDecoder();
     }
 
 }

@@ -2,8 +2,7 @@ package com.mashreq.transfercoreservice.client;
 
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferRequestDto;
 import com.mashreq.transfercoreservice.client.dto.FundTransferMWResponse;
-import com.mashreq.transfercoreservice.config.FeignConfig;
-import com.mashreq.transfercoreservice.errors.FundTransferException;
+import com.mashreq.transfercoreservice.config.feign.FeignConfig;
 import com.mashreq.webcore.dto.response.Response;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;

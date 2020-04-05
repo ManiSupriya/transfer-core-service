@@ -1,15 +1,14 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
-import com.mashreq.transfercoreservice.client.BeneficiaryClient;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
 import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
-
 import com.mashreq.transfercoreservice.client.service.AccountService;
+import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.CoreTransferService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
-import com.mashreq.transfercoreservice.dto.FundTransferResponse;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
@@ -21,10 +20,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
 import static java.lang.Long.valueOf;
+import static java.time.Duration.between;
+import static java.time.Instant.now;
 
 /**
  * @author shahbazkh
@@ -42,7 +44,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     private final CurrencyValidator currencyValidator;
     private final BeneficiaryValidator beneficiaryValidator;
     private final AccountService accountService;
-    private final BeneficiaryClient beneficiaryClient;
+    private final BeneficiaryService beneficiaryService;
     private final LimitValidator limitValidator;
     private final CoreTransferService coreTransferService;
     private final MaintenanceService maintenanceService;
@@ -50,6 +52,8 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
 
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO) {
+
+        Instant start = Instant.now();
 
         responseHandler(finTxnNoValidator.validate(request, metadata));
         responseHandler(sameAccountValidator.validate(request, metadata));
@@ -67,23 +71,21 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         //from account will always be present as it has been validated in the accountBelongsToCifValidator
         validationContext.add("from-account", fromAccountOpt.get());
 
-        BeneficiaryDto beneficiaryDto = beneficiaryClient.getById(metadata.getPrimaryCif(), valueOf(request.getBeneficiaryId()))
-                .getData();
+        BeneficiaryDto beneficiaryDto = beneficiaryService.getById(metadata.getPrimaryCif(), valueOf(request.getBeneficiaryId()));
 
         validationContext.add("beneficiary-dto", beneficiaryDto);
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
         responseHandler(currencyValidator.validate(request, metadata, validationContext));
 
 
-
         // As per current implementation with FE they are sending toCurrency and its value for within and own
         log.info("Limit Validation start.");
         BigDecimal limitUsageAmount = request.getAmount();
-        if(!userDTO.getLocalCurrency().equalsIgnoreCase(request.getCurrency())){
+        if (!userDTO.getLocalCurrency().equalsIgnoreCase(request.getCurrency())) {
 
             // Since we support request currency it can be  debitLeg or creditLeg
             String givenAccount = request.getToAccount();
-            if(request.getCurrency().equalsIgnoreCase(fromAccountOpt.get().getCurrency())){
+            if (request.getCurrency().equalsIgnoreCase(fromAccountOpt.get().getCurrency())) {
                 log.info("Limit Validation with respect to from account.");
                 givenAccount = request.getFromAccount();
             }
@@ -98,6 +100,9 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         log.info("Limit Validation successful");
 
         //responseHandler(balanceValidator.validate(request,metadata,validationContext));
+
+        log.info("Total time taken for {} strategy {} milli seconds ", request.getServiceType(), between(start, now()).toMillis());
+
 
         final FundTransferResponse fundTransferResponse = coreTransferService.transferFundsBetweenAccounts(request);
 

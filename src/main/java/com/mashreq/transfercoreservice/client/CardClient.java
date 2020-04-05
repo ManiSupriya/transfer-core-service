@@ -2,13 +2,11 @@ package com.mashreq.transfercoreservice.client;
 
 import com.mashreq.transfercoreservice.client.dto.CardType;
 import com.mashreq.transfercoreservice.client.dto.CoreCardDetailsDto;
-import com.mashreq.transfercoreservice.config.FeignConfig;
+import com.mashreq.transfercoreservice.config.feign.FeignConfig;
 import com.mashreq.webcore.dto.response.Response;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.List;
 

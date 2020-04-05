@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_COUNTRY_CODE;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_PAYMENT_OPTIONS;
 
 /**
  * @author shahbazkh
@@ -37,7 +36,6 @@ public class RoutingCodeSearchMWService {
     public List<BankResultsDto> fetchBankDetailsWithRoutingCode(String channelTraceId, BankDetailRequestDto bankDetailRequest) {
         EAIServices response = (EAIServices) webServiceClient.exchange(
                 this.getRequestForRoutingCode(channelTraceId, bankDetailRequest));
-        validateOMWResponse(response);
 
         List<BankResultsDto> results = response.getBody().getFetchAccuityDataRes().getAccuityDetails()
                 .stream()
@@ -54,7 +52,7 @@ public class RoutingCodeSearchMWService {
                 && SUCCESS.equals(response.getHeader().getStatus()))) {
 
             GenericExceptionHandler.handleError(TransferErrorCode.ROUTING_CODE_NOT_FOUND,
-                    response.getBody().getExceptionDetails().getErrorDescription());
+                    response.getBody().getExceptionDetails().getErrorDescription(), response.getBody().getExceptionDetails().getErrorCode());
         }
     }
 
