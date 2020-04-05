@@ -26,15 +26,14 @@ public class BeneficiaryService {
 
     public BeneficiaryDto getById(final String cifId, final Long id) {
         Response<BeneficiaryDto> response = beneficiaryClient.getById(cifId, id);
-        FeignResponse<BeneficiaryDto> feignResponse = FeignResponse.class.cast(response);
 
-        if (ErrorUtils.hasError(feignResponse)) {
-            GenericExceptionHandler.handleError(
-                    BENE_NOT_FOUND,
-                    BENE_NOT_FOUND.getErrorMessage(),
-                    ErrorUtils.getErrorDetails(feignResponse));
-        }
-        return feignResponse.getData();
+//        if (ErrorUtils.hasError(response)) {
+//            GenericExceptionHandler.handleError(
+//                    BENE_NOT_FOUND,
+//                    BENE_NOT_FOUND.getErrorMessage(),
+//                    ErrorUtils.getErrorDetails(response));
+//        }
+        return response.getData();
     }
 
 }
