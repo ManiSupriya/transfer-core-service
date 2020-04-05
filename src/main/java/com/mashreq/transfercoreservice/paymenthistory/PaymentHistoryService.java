@@ -1,7 +1,7 @@
-package com.mashreq.transfercoreservice.service;
+package com.mashreq.transfercoreservice.paymenthistory;
 
 import com.mashreq.transfercoreservice.dto.CharityPaidDto;
-import com.mashreq.transfercoreservice.enums.MwResponseStatus;
+import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.repository.PaymentHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

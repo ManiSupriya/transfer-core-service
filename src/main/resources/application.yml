@@ -24,10 +24,16 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.SQLServer2012Dialect
         enable_lazy_load_no_trans: true
-
   main:
     banner-mode: 'off'
     lazy-initialization: true
+  cache:
+    type: redis
+  redis:
+    host: ${REDIS_HOST:kyc-redis}
+    port: ${REDIS_PORT:6379}
+    timeout: ${REDIS_TIMEOUT:5000}
+    cache-null-values: false
 
 esb-service:
   url: ${CDM_URL:http://172.24.70.29:7800/AllOperationsSOAP_HTTP_Service}
@@ -61,3 +67,4 @@ app:
     notification: ${NOTIFICATION_SERVICE:http://notification-service:8080}
     mobcustomer: ${MOB_CUSTOMER_SERVICE:http://mob-customer-service:8080}
     beneficiary: ${BENEFICIARY_CORE_SERVICE:http://beneficiary-core-service:8080}
+

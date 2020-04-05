@@ -1,6 +1,5 @@
 package com.mashreq.transfercoreservice.http;
 
-import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -10,9 +9,6 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.HEADER_MISSING_CIF;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * @author shahbazkh
@@ -34,9 +30,6 @@ public class ChannelTraceInterceptor implements HandlerInterceptor {
         log.info("URI : {}, USER-AGENT : {}, CIF {}", request.getRequestURI(), request.getHeader(USER_AGENT_KEY), request.getHeader(CIF_KEY), request.getRequestURI());
 
         final String cifId = StringUtils.isBlank(request.getHeader(CIF_KEY)) ? "XXXXXXXXX" : request.getHeader(CIF_KEY);
-
-//        if (isBlank(request.getHeader(CIF_KEY)))
-//            GenericExceptionHandler.handleError(HEADER_MISSING_CIF, HEADER_MISSING_CIF.getErrorMessage());
 
         final String xChannelTraceId = channelTracerGenerator.channelTraceId(request.getHeader(USER_AGENT_KEY), cifId);
         request.setAttribute(X_CHANNEL_TRACE_ID, xChannelTraceId);

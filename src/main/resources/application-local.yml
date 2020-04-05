@@ -22,6 +22,11 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: validate
+  cache:
+    type: redis
+  redis:
+    host: localhost
+    port: 6379
 
 logging.level:
   ROOT: warn
@@ -43,16 +48,9 @@ app:
   services:
     maintenance: ${MAINTENANCE_SERVICE_URL:http://maintenance-service:8080}
     customers: ${CUSTOMER_SERVICE_URL:http://customers-service:8080}
-    accounts: ${ACCOUNT_SERVICE_URL:https://digital-dev.mashreq.com/api/accounts-service}
+    accounts: ${ACCOUNT_SERVICE_URL:http://accounts-service:8080}
     cards: ${CARD_SERVICE_URL:http://cards-service:8080}
     notification: ${NOTIFICATION_SERVICE:http://notification-service:8080}
     mobcustomer: ${MOB_CUSTOMER_SERVICE:http://mob-customer-service:8080}
-    beneficiary: ${BENEFICIARY_CORE_SERVICE:https://digital-dev.mashreq.com/api/beneficiary-core-service}
+    beneficiary: ${BENEFICIARY_CORE_SERVICE:http://beneficiary-core-service:8080}
 
-
-
-feign:
-  client:
-    config:
-      unwrap:
-        exceptionPropagationPolicy=unwrap:
