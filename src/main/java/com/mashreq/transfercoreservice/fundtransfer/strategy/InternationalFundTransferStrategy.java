@@ -31,7 +31,7 @@ import static java.lang.Long.valueOf;
 @AllArgsConstructor
 @Slf4j
 @Service
-public class InternationalFundTransfer implements FundTransferStrategy {
+public class InternationalFundTransferStrategy implements FundTransferStrategy {
 
     private static final String INTERNATIONAL = "INTERNATIONAL";
     private static final String INTERNATIONAL_PRODUCT_ID = "DBFC";

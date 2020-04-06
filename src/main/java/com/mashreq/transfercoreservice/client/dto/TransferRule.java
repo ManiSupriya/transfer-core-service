@@ -1,20 +1,16 @@
 package com.mashreq.transfercoreservice.client.dto;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.StringJoiner;
 
-@Entity
-@Table(name = "country_transfer_rules")
-@Getter
-@Setter
+
+@Data
+@AllArgsConstructor
 @EqualsAndHashCode(of = {"id"})
 public class TransferRule {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private int id;
     private boolean routingCodeRequired;
     private boolean ibanRequired;
