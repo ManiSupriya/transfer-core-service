@@ -26,6 +26,7 @@ public class PaymentOptionsService {
     private EnumMap<PaymentOptionType, FetchPaymentOptionsService> paymentOptionsLookUp;
     private final TransferOptionsOwnAccount transferOptionsOwnAccount;
     private final TransferOptionsDefault transferOptionsDefault;
+    private final TransferOptionsCharity transferOptionsCharity;
 
     @PostConstruct
     public void init() {
@@ -34,7 +35,7 @@ public class PaymentOptionsService {
         paymentOptionsLookUp.put(TRANSFER_OPTION_MASHREQ, transferOptionsDefault);
         paymentOptionsLookUp.put(TRANSFER_OPTION_LOCAL, transferOptionsDefault);
         paymentOptionsLookUp.put(TRANSFER_OPTION_INTERNATIONAL, transferOptionsDefault);
-        paymentOptionsLookUp.put(TRANSFER_OPTION_CHARITY, transferOptionsDefault);
+        paymentOptionsLookUp.put(TRANSFER_OPTION_CHARITY, transferOptionsCharity);
     }
 
     public PaymentsOptionsResponse getPaymentSource(PaymentOptionRequest request) {
