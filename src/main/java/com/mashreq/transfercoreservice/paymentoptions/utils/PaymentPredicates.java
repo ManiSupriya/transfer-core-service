@@ -29,6 +29,10 @@ public final class PaymentPredicates {
         return isCasaAccount().and(isActiveAccount()).and(isAEDCurrencyAccount());
     }
 
+    public static final Predicate<AccountDetailsDTO> charityAccountFilterSource() {
+        return isCasaAccount().and(isActiveAccount()).and(isAEDCurrencyAccount());
+    }
+
     public static final Predicate<AccountDetailsDTO> fundTransferAccountFilterSource() {
         return isCasaAccount().and(isActiveAccount());
     }

@@ -34,6 +34,7 @@ public class PaymentOptionsService {
         paymentOptionsLookUp.put(TRANSFER_OPTION_MASHREQ, transferOptionsDefault);
         paymentOptionsLookUp.put(TRANSFER_OPTION_LOCAL, transferOptionsDefault);
         paymentOptionsLookUp.put(TRANSFER_OPTION_INTERNATIONAL, transferOptionsDefault);
+        paymentOptionsLookUp.put(TRANSFER_OPTION_CHARITY, transferOptionsDefault);
     }
 
     public PaymentsOptionsResponse getPaymentSource(PaymentOptionRequest request) {
