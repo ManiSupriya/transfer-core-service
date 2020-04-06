@@ -35,32 +35,26 @@ public class FundTransferMWService {
     private static final String NARRATION_SUFFIX = " Banking";
     private static final String PAYMENT_DETAIL_PREFIX = "/REF/ ";
 
-    @Value("${app.uae.address}")
-    private String address;
-
-    @Value("${app.local.transfer.product.id}")
-    private String productId;
 
     @Value("${app.local.transaction.code}")
     private String transactionCode;
 
-    @Value("${app.local.currency}")
-    private String localCurrency;
 
-    public FundTransferResponse sendMoneyToIBAN(FundTransferRequest request) {
-        log.info("Fund transfer initiated for IBAN [ {} ]", request.getToAccount());
+
+    public FundTransferResponse transfer(FundTransferRequest request) {
+        log.info("Fund transfer initiated from account [ {} ]", request.getFromAccount());
 
         EAIServices response = (EAIServices) webServiceClient.exchange(generateEAIRequest(request));
 
         final FundTransferResType.Transfer transfer = response.getBody().getFundTransferRes().getTransfer().get(0);
         final ErrorType exceptionDetails = response.getBody().getExceptionDetails();
         if (isSuccessfull(response)) {
-            log.info("Fund transfer successful for IBAN [ {} ]", request.getToAccount());
+            log.info("Fund transferred successfully to account [ {} ]", request.getToAccount());
             final CoreFundTransferResponseDto coreFundTransferResponseDto = constructFTResponseDTO(transfer, exceptionDetails, MwResponseStatus.S);
             return FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
         }
 
-        log.info("Fund transfer failed for IBAN [ {} ]", request.getToAccount());
+        log.info("Fund transfer failed to account [ {} ]", request.getToAccount());
         final CoreFundTransferResponseDto coreFundTransferResponseDto = constructFTResponseDTO(transfer, exceptionDetails, MwResponseStatus.F);
         return FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
     }
@@ -80,7 +74,7 @@ public class FundTransferMWService {
         log.info("Validate response {}", response);
         if (!(StringUtils.endsWith(response.getBody().getExceptionDetails().getErrorCode(), SUCCESS_CODE_ENDS_WITH)
                 && SUCCESS.equals(response.getHeader().getStatus()))) {
-            log.error("Exception during local fund transfer. Code: {} , Description: {}", response.getBody()
+            log.error("Exception during fund transfer. Code: {} , Description: {}", response.getBody()
                     .getExceptionDetails().getErrorCode(), response.getBody().getExceptionDetails().getData());
 
             return false;
@@ -105,7 +99,7 @@ public class FundTransferMWService {
         //TODO Change this to proper batch id
         fundTransferReqType.setBatchTransactionId(batchTransIdTemporary + "");
 
-        fundTransferReqType.setProductId(productId);
+        fundTransferReqType.setProductId(request.getProductId());
         fundTransferReqType.setTransTypeCode(request.getPurposeCode());
 
         List<FundTransferReqType.Transfer> transferList = fundTransferReqType.getTransfer();
@@ -120,21 +114,26 @@ public class FundTransferMWService {
 
         creditLeg.setAccountNo(request.getToAccount());
         creditLeg.setTransactionCode(transactionCode);
-        creditLeg.setAmount(request.getAmount());
-        creditLeg.setCurrency(localCurrency);
+        creditLeg.setCurrency(request.getDestinationCurrency());
         creditLeg.setChargeBearer(request.getChargeBearer());
         creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc());
         creditLeg.setBenName(request.getBeneficiaryFullName());
-        creditLeg.setBenAddr2(address);
-        creditLeg.setAWInstName(request.getDestinationBankName());
-        creditLeg.setAWInstBICCode(request.getSwiftCode());
+        creditLeg.setAWInstName(request.getAwInstName());
+        creditLeg.setAWInstBICCode(request.getAwInstBICCode());
+        creditLeg.setBenAddr1(request.getBeneficiaryAddressOne());
+        creditLeg.setBenAddr2(request.getBeneficiaryAddressTwo());
+        creditLeg.setBenAddr3(request.getBeneficiaryAddressThree());
 
+        if (request.isCreditLegAmount()) {
+            creditLeg.setAmount(request.getAmount());
+        } else {
+            debitLeg.setAmount(request.getAmount());
+        }
 
         FundTransferReqType.Transfer transfer = new FundTransferReqType.Transfer();
         transfer.setCreditLeg(creditLeg);
         transfer.setDebitLeg(debitLeg);
         transferList.add(transfer);
-
 
         services.getBody().setFundTransferReq(fundTransferReqType);
         log.info("EAI Service request for fund transfer prepared {}", services);

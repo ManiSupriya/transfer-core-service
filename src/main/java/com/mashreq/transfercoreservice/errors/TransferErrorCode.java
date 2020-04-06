@@ -46,8 +46,11 @@ public enum TransferErrorCode implements ErrorCode {
     ROUTING_CODE_NOT_FOUND("TN-5102", "Routing Code not found"),
     INVALID_ROUTING_CODE("TN-5103", "Invalid Routing Option Mode"),
     INVALID_COUNTRY_CODE("TN-5104", "Invalid Country Code"),
-    IBAN_LENGTH_NOT_VALID("TN-5105", "IBAN should be 23 characters long"),
+    IBAN_LENGTH_NOT_VALID("TN-5105", "IBAN length is not valid"),
     SAME_BANK_IBAN("TN-5106", "Beneficiary Bank is same as sender bank"),
+    ROUTING_CODE_EMPTY("TN-5107", "Beneficiary routing code cannot be empty"),
+    ROUTING_CODE_LENGTH_INVALID("TN-5108", "Beneficiary routing code length is invalid"),
+    SWIFT_CODE_EMPTY("TN-5109", "Beneficiary SWIFT code cannot be empty"),
 
     EXTERNAL_SERVICE_ERROR("TN-5000", "Something went wrong with external service"),
     FUND_TRANSFER_FAILED("TN-5001", "Fund transfer failed"),

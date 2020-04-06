@@ -19,9 +19,6 @@ public class IBANValidator implements Validator {
     private static final int START_CHAR = 4;
     private static final int END_CHAR = 7;
 
-    @Value("${app.uae.iban.length:23}")
-    private int ibanLength;
-
     @Value("${app.bank.code:033}")
     private String bankCode;
 
@@ -29,13 +26,21 @@ public class IBANValidator implements Validator {
     public ValidationResult validate(FundTransferRequestDTO request, FundTransferMetadata metadata, ValidationContext context) {
         log.info("Validating IBAN for service type [ {} ] ", request.getServiceType());
 
-        if (request.getToAccount().length() != ibanLength)
+        final int ibanLength = context.get("iban-length", Integer.class);
+        if (request.getToAccount().length() != ibanLength) {
+            log.info("IBAN length is invalid");
             return ValidationResult.builder().success(false).transferErrorCode(IBAN_LENGTH_NOT_VALID)
                     .build();
+        }
 
-        if (bankCode.equals(StringUtils.substring(request.getToAccount(),START_CHAR,END_CHAR)))
+
+        if (bankCode.equals(StringUtils.substring(request.getToAccount(),START_CHAR,END_CHAR))) {
+            log.info("Beneficiray bank IBAN same as sender bank IBAN");
             return ValidationResult.builder().success(false).transferErrorCode(SAME_BANK_IBAN)
                     .build();
+        }
+
+        log.info("IBAN validation successful");
         return ValidationResult.builder().success(true).build();
     }
 }

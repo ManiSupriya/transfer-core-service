@@ -101,7 +101,6 @@ public class FundTransferServiceDefault implements FundTransferService {
                 .mwResponseDescription(paymentHistoryDTO.getMwResponseDescription())
                 .financialTransactionNo(request.getFinTxnNo())
                 .build();
-
     }
 
     private String getFailureMessage(TransferErrorCode fundTransferFailed, FundTransferRequestDTO request, FundTransferResponse response) {
