@@ -38,6 +38,12 @@ public enum PaymentOptionType {
         String prefixCode() {
             return "fti";
         }
+    },
+    TRANSFER_OPTION_CHARITY("charity") {
+        @Override
+        String prefixCode() {
+            return "ftc";
+        }
     };
 
     abstract String prefixCode();
