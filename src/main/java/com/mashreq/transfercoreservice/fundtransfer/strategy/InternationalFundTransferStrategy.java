@@ -4,12 +4,10 @@ import com.mashreq.transfercoreservice.client.BeneficiaryClient;
 import com.mashreq.transfercoreservice.client.MaintenanceClient;
 import com.mashreq.transfercoreservice.client.dto.*;
 import com.mashreq.transfercoreservice.client.service.AccountService;
-import com.mashreq.transfercoreservice.dto.FundTransferRequest;
-import com.mashreq.transfercoreservice.dto.FundTransferResponse;
+
+
 import com.mashreq.transfercoreservice.fundtransfer.FundTransferMWService;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import com.mashreq.transfercoreservice.limits.LimitValidator;
 import com.mashreq.transfercoreservice.limits.LimitValidatorResultsDto;
@@ -35,6 +33,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
 
     private static final String INTERNATIONAL = "INTERNATIONAL";
     private static final String INTERNATIONAL_PRODUCT_ID = "DBFC";
+    private static final String ROUTING_CODE_PREFIX = "//";
     private final FinTxnNoValidator finTxnNoValidator;
     private final AccountService accountService;
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
@@ -91,13 +90,13 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest);
 
 
-
-
-        return null;
+        return fundTransferResponse.toBuilder()
+                .limitUsageAmount(limitUsageAmount)
+                .limitVersionUuid(validationResult.getLimitVersionUuid()).build();
     }
 
     private void validateIbanRoutingCodes(FundTransferRequestDTO request, FundTransferMetadata metadata,
-                                               ValidationContext validationContext, BeneficiaryDto beneficiaryDto) {
+                                          ValidationContext validationContext, BeneficiaryDto beneficiaryDto) {
 
         final String countryISO = beneficiaryDto.getBankCountryISO();
         final List<CountryDto> allCountries = maintenanceClient.getAllCountries().getData();
@@ -144,13 +143,12 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .isCreditLegAmount(false)
                 .build();
 
-        if(isRoutingCodeCountry(beneficiaryDto.getRoutingCode())) {
+        if (isRoutingCodeCountry(beneficiaryDto.getRoutingCode())) {
             return req.toBuilder()
-                    .awInstBICCode(beneficiaryDto.getRoutingCode())
+                    .awInstBICCode(ROUTING_CODE_PREFIX + beneficiaryDto.getRoutingCode())
                     .awInstName(beneficiaryDto.getSwiftCode())
                     .build();
-        }
-        else {
+        } else {
             return req.toBuilder()
                     .awInstBICCode(beneficiaryDto.getSwiftCode())
                     .awInstName(beneficiaryDto.getBankName())
@@ -159,7 +157,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     }
 
     private boolean isRoutingCodeCountry(String routingCode) {
-       return StringUtils.isNotBlank(routingCode);
+        return StringUtils.isNotBlank(routingCode);
     }
 
     private AccountDetailsDTO getAccountDetailsBasedOnAccountNumber(List<AccountDetailsDTO> coreAccounts, String accountNumber) {

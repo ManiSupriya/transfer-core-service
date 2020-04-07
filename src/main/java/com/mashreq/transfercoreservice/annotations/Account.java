@@ -15,7 +15,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * @author shahbazkh
  */
 @NotBlank(message = "Account Number cannot be empty")
-@Size(min = 9, max = 34, message = "Account number should be 9 to 34 digits")
+@Size(min = 8, max = 34, message = "Account number should be 8 to 34 digits")
 @Target(FIELD)
 @Retention(RUNTIME)
 @Constraint(validatedBy = {})
