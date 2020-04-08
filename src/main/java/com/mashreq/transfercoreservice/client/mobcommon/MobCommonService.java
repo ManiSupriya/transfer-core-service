@@ -12,7 +12,6 @@ import java.math.BigDecimal;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@TrackExec
 public class MobCommonService {
 
     private final MobCommonClient mobCommonClient;
