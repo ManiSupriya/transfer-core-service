@@ -1,4 +1,4 @@
-package com.mashreq.transfercoreservice.limits;
+package com.mashreq.transfercoreservice.client.mobcommon.dto;
 
 import lombok.Builder;
 import lombok.Data;

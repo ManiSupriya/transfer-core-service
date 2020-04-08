@@ -1,4 +1,4 @@
-package com.mashreq.transfercoreservice.limits;
+package com.mashreq.transfercoreservice.fundtransfer.limits;
 
 import lombok.Getter;
 import lombok.Setter;
