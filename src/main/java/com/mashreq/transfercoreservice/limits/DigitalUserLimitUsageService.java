@@ -1,7 +1,6 @@
 package com.mashreq.transfercoreservice.limits;
 
 
-import com.mashreq.transfercoreservice.fundtransfer.dto.DigitalUserLimitUsageDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

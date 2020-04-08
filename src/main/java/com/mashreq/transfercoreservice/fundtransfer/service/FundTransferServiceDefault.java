@@ -8,7 +8,7 @@ import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.*;
-import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
+import com.mashreq.transfercoreservice.limits.DigitalUserLimitUsageDTO;
 import com.mashreq.transfercoreservice.limits.DigitalUserLimitUsageService;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.model.DigitalUser;
