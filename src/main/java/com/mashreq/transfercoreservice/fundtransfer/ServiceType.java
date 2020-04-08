@@ -19,7 +19,7 @@ public enum ServiceType implements ValidEnum {
     WITHIN_MASHREQ("within-mashreq"),
     LOCAL("local"),
     INTERNATIONAL("international"),
-    CHARITY_ACCOUNT("charity-account");
+    CHARITY_ACCOUNT("charity");
 
     private String name;
 

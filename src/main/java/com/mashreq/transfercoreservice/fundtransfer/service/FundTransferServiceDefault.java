@@ -42,6 +42,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final OwnAccountStrategy ownAccountStrategy;
     private final WithinMashreqStrategy withinMashreqStrategy;
     private final LocalFundTransferStrategy localFundTransferStrategy;
+    private final InternationalFundTransferStrategy internationalFundTransferStrategy;
     private final CharityStrategy charityStrategy;
     private EnumMap<ServiceType, FundTransferStrategy> fundTransferStrategies;
     private final ApplicationSettingsService applicationSettingsService;
@@ -54,6 +55,7 @@ public class FundTransferServiceDefault implements FundTransferService {
         fundTransferStrategies.put(WITHIN_MASHREQ, withinMashreqStrategy);
         fundTransferStrategies.put(CHARITY_ACCOUNT, charityStrategy);
         fundTransferStrategies.put(LOCAL, localFundTransferStrategy);
+        fundTransferStrategies.put(INTERNATIONAL, internationalFundTransferStrategy);
     }
 
     @Override
@@ -101,7 +103,6 @@ public class FundTransferServiceDefault implements FundTransferService {
                 .mwResponseDescription(paymentHistoryDTO.getMwResponseDescription())
                 .financialTransactionNo(request.getFinTxnNo())
                 .build();
-
     }
 
     private String getFailureMessage(TransferErrorCode fundTransferFailed, FundTransferRequestDTO request, FundTransferResponse response) {

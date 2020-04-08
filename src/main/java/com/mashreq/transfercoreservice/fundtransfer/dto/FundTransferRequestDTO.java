@@ -20,7 +20,7 @@ import java.math.BigDecimal;
 @ConditionalRequired(fieldName = "beneficiaryId", dependentFieldName = "serviceType", noneMatch = "own-account", message = "Beneficiary ID is mandatory")
 @ConditionalRequired(fieldName = "purposeCode", dependentFieldName = "serviceType", anyMatch = {"international","local"}, message = "Purpose code cannot be empty")
 @ConditionalRequired(fieldName = "purposeDesc", dependentFieldName = "serviceType", anyMatch = {"international","local"}, message = "Purpose Description code cannot be empty")
-@ConditionalRequired(fieldName = "chargeBearer", dependentFieldName = "serviceType", anyMatch = "local", message = "charge bearer cannot be empty")
+@ConditionalRequired(fieldName = "chargeBearer", dependentFieldName = "serviceType", anyMatch = {"international","local"}, message = "charge bearer cannot be empty")
 public class FundTransferRequestDTO {
 
     @Account
