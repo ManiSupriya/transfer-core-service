@@ -21,13 +21,16 @@ public class MobCommonService {
 
         log.info("[MobCommonService] Calling MobCommonService for limit validation for cif={} beneficiaryTypeCode = {} and amount ={}",
                 cifId, beneficiaryTypeCode, amount);
+        long startTime = System.nanoTime();
 
         Response<LimitValidatorResultsDto> limitValidatorResultsDtoResponse =
                 mobCommonClient.validateAvailableLimit(cifId, beneficiaryTypeCode, amount);
 
         //TODO : handler error
 
-        log.info("[MobCommonService] MobCommonService response success");
+        long endTime   = System.nanoTime();
+        long totalTime = endTime - startTime;
+        log.info("[MobCommonService] MobCommonService response success in nanoseconds {} ", totalTime);
         return limitValidatorResultsDtoResponse.getData();
     }
 }

@@ -20,13 +20,6 @@ public class LimitValidator {
      * Method to get the limits and validate against user's consumed limit
      */
     public LimitValidatorResultsDto validate(final UserDTO userDTO, final String beneficiaryType, final BigDecimal paidAmount) {
-
-        //TODO: remove below commented code once testing done
-//        return LimitValidatorResultsDto.builder()
-//                .availableLimitAmount(new BigDecimal("50000"))
-//                .limitVersionUuid("TEST")
-//                .build();
-
         log.info("[LimitValidator] limit validator called cif ={} and beneficiaryType={} and paidAmount={}",
                 userDTO.getCifId(), beneficiaryType, paidAmount);
         return mobCommonService.validateAvailableLimit(userDTO.getCifId(), beneficiaryType, paidAmount);
