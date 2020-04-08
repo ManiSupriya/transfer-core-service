@@ -2,25 +2,22 @@ package com.mashreq.transfercoreservice.limits;
 
 
 import com.mashreq.transfercoreservice.fundtransfer.dto.DigitalUserLimitUsageDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.UserLimitUsageDTO;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class DigitalUserLimitUsageService {
 
-public interface DigitalUserLimitUsageService {
+    private final DigitalUserLimitUsageMapper digitalUserLimitUsageMapper;
+    private final DigitalUserLimitUsageRepository digitalUserLimitUsageRepository;
 
-    /**
-     *
-     */
-    public void insert(DigitalUserLimitUsageDTO digitalUserLimitUsageDTO);
-
-    /**
-     * Get consumed MONTHLY limit by cif and beneficiary type
-     */
-    public Optional<UserLimitUsageDTO> getMonthlyLimitUsageByBillerTypeAndCif(String beneficiaryTypeCode, String cif);
-
-    /**
-     * Get consumed DAILY limit by cif and beneficiary type
-     */
-    public Optional<UserLimitUsageDTO> getDailyLimitUsageByBillerTypeAndCif(String beneficiaryTypeCode, String cif);
-
+    public void insert(DigitalUserLimitUsageDTO digitalUserLimitUsageDTO) {
+        log.info("Store limit usage for CIF={} and beneficiaryTypeCode={} ",
+                digitalUserLimitUsageDTO.getCif(), digitalUserLimitUsageDTO.getDigitalUserId());
+        DigitalUserLimitUsage digitalUserLimitUsage = digitalUserLimitUsageMapper.userLimitUsageDTOToEntity(digitalUserLimitUsageDTO);
+        digitalUserLimitUsageRepository.save(digitalUserLimitUsage);
+    }
 }
