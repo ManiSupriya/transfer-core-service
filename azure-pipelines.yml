@@ -16,4 +16,4 @@ stages:
   - stage: Build
     displayName: Build
     jobs:
-      - template: job-build-springboot-ubtablet.yaml@templates
+      - template: job-build-springboot-jar.yaml@templates
