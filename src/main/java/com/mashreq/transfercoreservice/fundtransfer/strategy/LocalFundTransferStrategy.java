@@ -13,9 +13,8 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
-import com.mashreq.transfercoreservice.limits.LimitValidator;
-import com.mashreq.transfercoreservice.limits.LimitValidatorResultsDto;
-import lombok.AllArgsConstructor;
+import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
+import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,7 +26,6 @@ import java.util.List;
 import java.util.Set;
 
 import static java.lang.Long.valueOf;
-import static java.time.Duration.between;
 import static java.time.Instant.now;
 
 /**
