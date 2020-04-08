@@ -16,7 +16,9 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import com.mashreq.transfercoreservice.limits.LimitValidator;
 import com.mashreq.transfercoreservice.limits.LimitValidatorResultsDto;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -31,12 +33,14 @@ import static java.time.Instant.now;
 /**
  *
  */
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Slf4j
 @Service
 public class LocalFundTransferStrategy implements FundTransferStrategy {
 
     private static final String LOCAL = "LOCAL";
+    private static final int LOCAL_IBAN_LENGTH = 23;
+    private static final String LOCAL_PRODUCT_ID = "DBLC";
     private final IBANValidator ibanValidator;
     private final FinTxnNoValidator finTxnNoValidator;
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
@@ -48,6 +52,12 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     private final MaintenanceClient maintenanceClient;
     private final PaymentPurposeValidator paymentPurposeValidator;
     private final BalanceValidator balanceValidator;
+
+    @Value("${app.local.currency}")
+    private String localCurrency;
+
+    @Value("${app.uae.address}")
+    private String address;
 
    /* @Value("${app.local.currency}")
     private String localCurrency;*/
@@ -84,6 +94,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
         log.info("Beneficiary validation successful");
 
+        validationContext.add("iban-length",LOCAL_IBAN_LENGTH);
         responseHandler(ibanValidator.validate(request, metadata, validationContext));
         log.info("IBAN validation successful");
 
@@ -98,9 +109,9 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountDetails, beneficiaryDto);
         log.info("Local Fund transfer initiated.......");
-        final FundTransferResponse fundTransferResponse = fundTransferMWService.sendMoneyToIBAN(fundTransferRequest);
 
-        log.info("Total time taken for {} strategy {} milli seconds ", request.getServiceType(), between(start, now()).toMillis());
+        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest);
+
 
         return fundTransferResponse.toBuilder()
                 .limitUsageAmount(limitUsageAmount)
@@ -111,6 +122,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     private FundTransferRequest prepareFundTransferRequestPayload(FundTransferMetadata metadata, FundTransferRequestDTO request,
                                                                   AccountDetailsDTO accountDetails, BeneficiaryDto beneficiaryDto) {
         return FundTransferRequest.builder()
+                .productId(LOCAL_PRODUCT_ID)
                 .amount(request.getAmount())
                 .channel(metadata.getChannel())
                 .channelTraceId(metadata.getChannelTraceId())
@@ -123,8 +135,11 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
                 .sourceCurrency(accountDetails.getCurrency())
                 .sourceBranchCode(accountDetails.getBranchCode())
                 .beneficiaryFullName(beneficiaryDto.getFullName())
-                .destinationBankName(beneficiaryDto.getBankName())
-                .swiftCode(beneficiaryDto.getSwiftCode())
+                .destinationCurrency(localCurrency)
+                .awInstName(beneficiaryDto.getBankName())
+                .awInstBICCode(beneficiaryDto.getSwiftCode())
+                .beneficiaryAddressTwo(address)
+                .isCreditLegAmount(true)
                 .build();
 
     }

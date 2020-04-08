@@ -13,15 +13,22 @@ public class FundTransferRequest {
     private String channelTraceId;
     private String fromAccount;
     private String toAccount;
+    private String productId;
     private BigDecimal amount;
     private String purposeCode;
     private String purposeDesc;
     private String chargeBearer;
     private String finTxnNo;
     private String sourceCurrency;
+    private String destinationCurrency;
     private String sourceBranchCode;
     private String beneficiaryFullName;
-    private String destinationBankName;
-    private String swiftCode;
-    private String routingCode;
+    private String awInstBICCode;
+    private String awInstName;
+    private String beneficiaryAddressOne;
+    private String beneficiaryAddressTwo;
+    private String beneficiaryAddressThree;
+    private boolean isCreditLegAmount;
+    private boolean isRoutingCodeCountry;
+
 }
