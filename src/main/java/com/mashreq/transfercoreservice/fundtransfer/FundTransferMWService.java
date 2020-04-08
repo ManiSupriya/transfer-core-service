@@ -115,6 +115,7 @@ public class FundTransferMWService {
         creditLeg.setAccountNo(request.getToAccount());
         creditLeg.setTransactionCode(transactionCode);
         creditLeg.setCurrency(request.getDestinationCurrency());
+        creditLeg.setAmount(request.getAmount());
         creditLeg.setChargeBearer(request.getChargeBearer());
         creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc());
         creditLeg.setBenName(request.getBeneficiaryFullName());
@@ -124,11 +125,6 @@ public class FundTransferMWService {
         creditLeg.setBenAddr2(request.getBeneficiaryAddressTwo());
         creditLeg.setBenAddr3(request.getBeneficiaryAddressThree());
 
-        if (request.isCreditLegAmount()) {
-            creditLeg.setAmount(request.getAmount());
-        } else {
-            debitLeg.setAmount(request.getAmount());
-        }
 
         FundTransferReqType.Transfer transfer = new FundTransferReqType.Transfer();
         transfer.setCreditLeg(creditLeg);

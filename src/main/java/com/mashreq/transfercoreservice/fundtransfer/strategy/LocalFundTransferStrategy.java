@@ -66,10 +66,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO) {
 
-        Instant start = Instant.now();
-
-
-        request.setCurrency("AED");
+        request.setCurrency(localCurrency);
         responseHandler(finTxnNoValidator.validate(request, metadata));
 
         final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metadata.getPrimaryCif());
@@ -127,7 +124,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
                 .channel(metadata.getChannel())
                 .channelTraceId(metadata.getChannelTraceId())
                 .fromAccount(request.getFromAccount())
-                .toAccount(request.getToAccount())
+                .toAccount(beneficiaryDto.getAccountNumber())
                 .purposeCode(request.getPurposeCode())
                 .purposeDesc(request.getPurposeDesc())
                 .chargeBearer(request.getChargeBearer())
@@ -139,7 +136,6 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
                 .awInstName(beneficiaryDto.getBankName())
                 .awInstBICCode(beneficiaryDto.getSwiftCode())
                 .beneficiaryAddressTwo(address)
-                .isCreditLegAmount(true)
                 .build();
 
     }
