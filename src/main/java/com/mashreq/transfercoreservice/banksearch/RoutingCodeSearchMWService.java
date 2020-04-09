@@ -37,6 +37,8 @@ public class RoutingCodeSearchMWService {
         EAIServices response = (EAIServices) webServiceClient.exchange(
                 this.getRequestForRoutingCode(channelTraceId, bankDetailRequest));
 
+        validateOMWResponse(response);
+
         List<BankResultsDto> results = response.getBody().getFetchAccuityDataRes().getAccuityDetails()
                 .stream()
                 .map(x -> new BankResultsDto(x))
