@@ -32,7 +32,7 @@ import static java.time.Instant.now;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class CharityStrategy implements FundTransferStrategy {
+public class CharityStrategyDefault implements FundTransferStrategy {
 
     private final SameAccountValidator sameAccountValidator;
     private final FinTxnNoValidator finTxnNoValidator;
@@ -67,7 +67,6 @@ public class CharityStrategy implements FundTransferStrategy {
 
         //from account will always be present as it has been validated in the accountBelongsToCifValidator
         validateContext.add("from-account", fromAccountOpt.get());
-
 
         CharityBeneficiaryDto charityBeneficiaryDto = beneficiaryClient.getCharity(request.getBeneficiaryId()).getData();
         validateContext.add("charity-beneficiary-dto", charityBeneficiaryDto);

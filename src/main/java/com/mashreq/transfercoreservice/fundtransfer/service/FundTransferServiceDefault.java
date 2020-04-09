@@ -43,7 +43,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final WithinMashreqStrategy withinMashreqStrategy;
     private final LocalFundTransferStrategy localFundTransferStrategy;
     private final InternationalFundTransferStrategy internationalFundTransferStrategy;
-    private final CharityStrategy charityStrategy;
+    private final CharityStrategyDefault charityStrategyDefault;
     private EnumMap<ServiceType, FundTransferStrategy> fundTransferStrategies;
     private final ApplicationSettingsService applicationSettingsService;
 
@@ -53,9 +53,12 @@ public class FundTransferServiceDefault implements FundTransferService {
         fundTransferStrategies = new EnumMap<>(ServiceType.class);
         fundTransferStrategies.put(OWN_ACCOUNT, ownAccountStrategy);
         fundTransferStrategies.put(WITHIN_MASHREQ, withinMashreqStrategy);
-        fundTransferStrategies.put(CHARITY_ACCOUNT, charityStrategy);
         fundTransferStrategies.put(LOCAL, localFundTransferStrategy);
         fundTransferStrategies.put(INTERNATIONAL, internationalFundTransferStrategy);
+        fundTransferStrategies.put(BAIT_AL_KHAIR, charityStrategyDefault);
+        fundTransferStrategies.put(DUBAI_CARE, charityStrategyDefault);
+        fundTransferStrategies.put(DAR_AL_BER, charityStrategyDefault);
+
     }
 
     @Override
