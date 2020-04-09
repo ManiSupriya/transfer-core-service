@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 import static java.time.Duration.between;
 import static java.time.Instant.now;
@@ -59,6 +60,13 @@ public class CharityStrategy implements FundTransferStrategy {
         validateContext.add("validate-from-account", Boolean.TRUE);
         responseHandler(accountBelongsToCifValidator.validate(request, metadata, validateContext));
 
+
+        Optional<AccountDetailsDTO> fromAccountOpt = accountsFromCore.stream()
+                .filter(x -> request.getFromAccount().equals(x.getNumber()))
+                .findFirst();
+
+        //from account will always be present as it has been validated in the accountBelongsToCifValidator
+        validateContext.add("from-account", fromAccountOpt.get());
 
 
         CharityBeneficiaryDto charityBeneficiaryDto = beneficiaryClient.getCharity(request.getBeneficiaryId()).getData();
