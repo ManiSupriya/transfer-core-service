@@ -36,7 +36,7 @@ public class CurrencyValidator implements Validator {
             }
         }
 
-        if(CHARITY_ACCOUNT.getName().equals(request.getServiceType()) ) {
+        if(isCharityServiceType(request)) {
             CharityBeneficiaryDto charityBeneficiaryDto = context.get("charity-beneficiary-dto", CharityBeneficiaryDto.class);
             if (charityBeneficiaryDto != null && !isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), charityBeneficiaryDto.getAccountNumber())) {
                 log.warn("Charity Currency and Requested Currency does not match for service type [ {} ]  ", request.getServiceType());
@@ -54,6 +54,12 @@ public class CurrencyValidator implements Validator {
 
         log.info("Currency Validating successful service type [ {} ] ", request.getServiceType());
         return ValidationResult.builder().success(true).build();
+    }
+
+    private boolean isCharityServiceType(FundTransferRequestDTO request) {
+        return BAIT_AL_KHAIR.getName().equals(request.getServiceType())
+                || DUBAI_CARE.getName().equals(request.getServiceType())
+                || DAR_AL_BER.getName().equals(request.getServiceType());
     }
 
     private boolean isReqCurrencyValid(String requestedCurrency, String fromAccCurrency, String toCurrency) {
