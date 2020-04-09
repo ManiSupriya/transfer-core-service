@@ -43,6 +43,7 @@ public class CharityStrategyDefault implements FundTransferStrategy {
     private final CurrencyValidator currencyValidator;
     private final LimitValidator limitValidator;
     private final CoreTransferService coreTransferService;
+    private final BalanceValidator balanceValidator;
 
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO) {
@@ -70,8 +71,10 @@ public class CharityStrategyDefault implements FundTransferStrategy {
 
         CharityBeneficiaryDto charityBeneficiaryDto = beneficiaryClient.getCharity(request.getBeneficiaryId()).getData();
         validateContext.add("charity-beneficiary-dto", charityBeneficiaryDto);
+        validateContext.add("to-account-currency",charityBeneficiaryDto.getCurrencyCode());
         responseHandler(charityValidator.validate(request, metadata, validateContext));
         responseHandler(currencyValidator.validate(request, metadata, validateContext));
+        responseHandler(balanceValidator.validate(request, metadata,validateContext));
 
         // Assuming to account is always in AED
 
