@@ -24,7 +24,7 @@ public class RoutingCodeValidator implements Validator {
         final int routingCodeLength = context.get("routing-code-length", Integer.class);
         final BeneficiaryDto beneficiaryDto = context.get("beneficiary-dto", BeneficiaryDto.class);
 
-        if (StringUtils.isBlank(beneficiaryDto.getBankRoutingCode())) {
+        /*if (StringUtils.isBlank(beneficiaryDto.getBankRoutingCode())) {
             log.info("Routing code cannot be empty");
             return ValidationResult.builder().success(false).transferErrorCode(ROUTING_CODE_EMPTY)
                     .build();
@@ -36,7 +36,7 @@ public class RoutingCodeValidator implements Validator {
                     .build();
         }
 
-
+*/
         log.info("Routing code validation successful");
         return ValidationResult.builder().success(true).build();
     }

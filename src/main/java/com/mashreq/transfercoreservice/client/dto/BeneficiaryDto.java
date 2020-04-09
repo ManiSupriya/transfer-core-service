@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.client.dto;
 
+import com.mashreq.transfercoreservice.annotations.ValueOfEnum;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -33,24 +34,27 @@ public class BeneficiaryDto {
     private String currentBalance;
     private String balanceAmount;
 
-    //For fund transfer
-    private String beneficiaryCurrency;
-
     //LOCAL AND INTERNATIONAL
     private String fullName;
-    private String bankName;
+
+    //INTERNATIONAL
+    private String beneficiaryCountryISO;
+    private String beneficiaryCurrency;
+
+    private String finalName;
     private String swiftCode;
     private String routingCode;
 
-    private String finalName;
+    @ValueOfEnum(enumClass = BeneficiaryAccountType.class, isRequired = false, message = "Not a valid value beneficiaryAccountType")
+    private String beneficiaryAccountType;
+
+    private String bankName;
     private String bankCountry;
-    private String bankCountryISO;
+    private String bankState;
     private String bankCity;
     private String bankBranchName;
-    private String bankRoutingCode;
-    private String bankState;
 
-    private String beneficiaryAccountType;
+    // Beneficiary address for international beneficiary
     private String addressLine1;
     private String addressLine2;
     private String addressLine3;
