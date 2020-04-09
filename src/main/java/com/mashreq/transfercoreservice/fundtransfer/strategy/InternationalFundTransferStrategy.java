@@ -68,7 +68,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         log.info("Beneficiary validation successful");
 
         final AccountDetailsDTO accountDetailsDTO = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
-        request.setCurrency(accountDetailsDTO.getCurrency());
+        validationContext.add("to-account-currency",beneficiaryDto.getBeneficiaryCurrency());
 
         //validation of swift, iban and routing code is taken care during adding beneficiary, so not validating here
 

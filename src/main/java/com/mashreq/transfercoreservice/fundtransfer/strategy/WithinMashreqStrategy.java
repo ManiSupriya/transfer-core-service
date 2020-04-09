@@ -72,7 +72,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         validationContext.add("from-account", fromAccountOpt.get());
 
         BeneficiaryDto beneficiaryDto = beneficiaryService.getById(metadata.getPrimaryCif(), valueOf(request.getBeneficiaryId()));
-
+        validationContext.add("to-account-currency",beneficiaryDto.getBeneficiaryCurrency());
         validationContext.add("beneficiary-dto", beneficiaryDto);
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
         responseHandler(currencyValidator.validate(request, metadata, validationContext));

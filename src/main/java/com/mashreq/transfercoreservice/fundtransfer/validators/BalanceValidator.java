@@ -2,6 +2,7 @@ package com.mashreq.transfercoreservice.fundtransfer.validators;
 
 import com.mashreq.transfercoreservice.client.MaintenanceClient;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
+import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
 import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
@@ -29,16 +30,18 @@ public class BalanceValidator implements Validator {
 
         log.info("Validating Balance for service type [ {} ] ", request.getServiceType());
         AccountDetailsDTO fromAccount = context.get("from-account", AccountDetailsDTO.class);
+        String toAccountCurrency = context.get("to-account-currency", String.class);
 
         log.info("Balance in account [ {} {} ] ", fromAccount.getAvailableBalance(), fromAccount.getCurrency());
-        log.info("Amount to be debited  [ {} {} ] ", request.getAmount(), request.getCurrency());
+        log.info("Amount to be credited is [ {} {} ] ", request.getAmount(), toAccountCurrency);
 
-        if (fromAccount.getCurrency().equalsIgnoreCase(request.getCurrency())) {
+        if (fromAccount.getCurrency().equalsIgnoreCase(toAccountCurrency)) {
             return isBalanceAvailable(fromAccount.getAvailableBalance(), request.getAmount());
         } else {
             final CoreCurrencyConversionRequestDto currencyRequest = CoreCurrencyConversionRequestDto.builder().accountNumber(fromAccount.getNumber())
-                    .accountCurrency(fromAccount.getCurrency()).transactionCurrency(request.getCurrency()).transactionAmount(request.getAmount()).build();
+                    .accountCurrency(fromAccount.getCurrency()).transactionCurrency(toAccountCurrency).transactionAmount(request.getAmount()).build();
             final CurrencyConversionDto currencyConversionDtoResponse = maintenanceClient.convertBetweenCurrencies(currencyRequest).getData();
+            log.info("Converted amount {} is {}", fromAccount.getCurrency(), currencyConversionDtoResponse.getAccountCurrencyAmount());
             return isBalanceAvailable(fromAccount.getAvailableBalance(), currencyConversionDtoResponse.getAccountCurrencyAmount());
 
         }
