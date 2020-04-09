@@ -1,7 +1,8 @@
 package com.mashreq.transfercoreservice.client.mobcommon;
 
-import com.mashreq.logcore.annotations.TrackExec;
+import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
+import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.webcore.dto.response.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,16 +21,23 @@ public class MobCommonService {
 
         log.info("[MobCommonService] Calling MobCommonService for limit validation for cif={} beneficiaryTypeCode = {} and amount ={}",
                 cifId, beneficiaryTypeCode, amount);
-        long startTime = System.nanoTime();
 
-        Response<LimitValidatorResultsDto> limitValidatorResultsDtoResponse =
-                mobCommonClient.validateAvailableLimit(cifId, beneficiaryTypeCode, amount);
+        try{
 
-        //TODO : handler error
+            long startTime = System.nanoTime();
+            Response<LimitValidatorResultsDto> limitValidatorResultsDtoResponse =
+                    mobCommonClient.validateAvailableLimit(cifId, beneficiaryTypeCode, amount);
+            long endTime   = System.nanoTime();
+            long totalTime = endTime - startTime;
+            log.info("[MobCommonService] MobCommonService response success in nanoseconds {} ", totalTime);
 
-        long endTime   = System.nanoTime();
-        long totalTime = endTime - startTime;
-        log.info("[MobCommonService] MobCommonService response success in nanoseconds {} ", totalTime);
-        return limitValidatorResultsDtoResponse.getData();
+            return limitValidatorResultsDtoResponse.getData();
+
+        } catch (Exception e){
+            log.error("[MobCommonService] Exception in calling mob customer for limit validation ={} ", e.getMessage());
+            GenericExceptionHandler.handleError(TransferErrorCode.EXTERNAL_SERVICE_ERROR,
+                    TransferErrorCode.EXTERNAL_SERVICE_ERROR.getErrorMessage());
+        }
+        return LimitValidatorResultsDto.builder().build();
     }
 }

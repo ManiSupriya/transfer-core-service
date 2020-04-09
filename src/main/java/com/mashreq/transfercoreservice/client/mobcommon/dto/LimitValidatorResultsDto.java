@@ -8,9 +8,10 @@ import java.math.BigDecimal;
 @Data
 @Builder
 public class LimitValidatorResultsDto {
+    private boolean isValid;
     private String limitVersionUuid;
     private BigDecimal availableLimitAmount;
     private BigDecimal maxAmountDaily;
     private BigDecimal maxAmountMonthly;
-    private String limitType;
+    private LimitCheckType limitCheckType;
 }
