@@ -9,8 +9,8 @@ import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.fundtransfer.FundTransferMWService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
-import com.mashreq.transfercoreservice.limits.LimitValidator;
-import com.mashreq.transfercoreservice.limits.LimitValidatorResultsDto;
+import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
+import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -40,10 +40,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     private final MaintenanceClient maintenanceClient;
     private final PaymentPurposeValidator paymentPurposeValidator;
     private final BeneficiaryValidator beneficiaryValidator;
-    private final IBANValidator ibanValidator;
     private final BalanceValidator balanceValidator;
-    private final RoutingCodeValidator routingCodeValidator;
-    private final SwiftCodeValidator swiftCodeValidator;
     private final FundTransferMWService fundTransferMWService;
 
     private final BeneficiaryClient beneficiaryClient;
@@ -73,8 +70,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         final AccountDetailsDTO accountDetailsDTO = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
         request.setCurrency(accountDetailsDTO.getCurrency());
 
-        responseHandler(swiftCodeValidator.validate(request, metadata, validationContext));
-        //validateIbanRoutingCodes(request, metadata, validationContext, beneficiaryDto);
+        //validation of swift, iban and routing code is taken care during adding beneficiary, so not validating here
 
         validationContext.add("from-account", accountDetailsDTO);
         responseHandler(balanceValidator.validate(request, metadata, validationContext));
@@ -95,31 +91,6 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .limitVersionUuid(validationResult.getLimitVersionUuid()).build();
     }
 
-    private void validateIbanRoutingCodes(FundTransferRequestDTO request, FundTransferMetadata metadata,
-                                          ValidationContext validationContext, BeneficiaryDto beneficiaryDto) {
-
-        final String countryISO = beneficiaryDto.getBankCountryISO();
-        final List<CountryDto> allCountries = maintenanceClient.getAllCountries().getData();
-        final Optional<CountryDto> beneficiaryCountry = getBeneficiaryCountry(countryISO, allCountries);
-        /*if(beneficiaryCountry.isPresent()) {
-            if(beneficiaryCountry.get().getIban().getRequired()) {
-                validationContext.add("iban-length",beneficiaryCountry.get().getIban().getLength());
-                responseHandler(ibanValidator.validate(request, metadata, validationContext));
-            }
-
-            if(beneficiaryCountry.get().getRoutingCode().getRequired()) {
-                validationContext.add("routing-code-length",beneficiaryCountry.get().getRoutingCode().getLength());
-                responseHandler(routingCodeValidator.validate(request, metadata, validationContext));
-
-            }
-        }*/
-    }
-
-
-    private Optional<CountryDto> getBeneficiaryCountry(String countryISO, List<CountryDto> allCountries) {
-        return allCountries.stream().filter(country -> country.getCode().equals(countryISO)).findAny();
-    }
-
     private FundTransferRequest prepareFundTransferRequestPayload(FundTransferMetadata metadata, FundTransferRequestDTO request,
                                                                   AccountDetailsDTO accountDetails, BeneficiaryDto beneficiaryDto) {
         final FundTransferRequest req = FundTransferRequest.builder()
@@ -128,7 +99,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .channel(metadata.getChannel())
                 .channelTraceId(metadata.getChannelTraceId())
                 .fromAccount(request.getFromAccount())
-                .toAccount(request.getToAccount())
+                .toAccount(beneficiaryDto.getAccountNumber())
                 .purposeCode(request.getPurposeCode())
                 .purposeDesc(request.getPurposeDesc())
                 .chargeBearer(request.getChargeBearer())
@@ -140,7 +111,6 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .beneficiaryAddressOne(beneficiaryDto.getAddressLine1())
                 .beneficiaryAddressTwo(beneficiaryDto.getAddressLine2())
                 .beneficiaryAddressThree(beneficiaryDto.getAddressLine3())
-                .isCreditLegAmount(false)
                 .build();
 
         if (isRoutingCodeCountry(beneficiaryDto.getRoutingCode())) {

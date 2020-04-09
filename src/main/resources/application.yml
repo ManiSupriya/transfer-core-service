@@ -67,4 +67,4 @@ app:
     notification: ${NOTIFICATION_SERVICE:http://notification-service:8080}
     mobcustomer: ${MOB_CUSTOMER_SERVICE:http://mob-customer-service:8080}
     beneficiary: ${BENEFICIARY_CORE_SERVICE:http://beneficiary-core-service:8080}
-
+    mobcommon: ${MOB_COMMON_SERVICE:http://mob-common-service:8080}

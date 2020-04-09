@@ -1,7 +1,5 @@
-package com.mashreq.transfercoreservice.limits;
+package com.mashreq.transfercoreservice.fundtransfer.limits;
 
-import com.mashreq.transfercoreservice.fundtransfer.dto.DigitalUserLimitUsageDTO;
-import com.mashreq.transfercoreservice.model.DigitalUserLimitUsage;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
