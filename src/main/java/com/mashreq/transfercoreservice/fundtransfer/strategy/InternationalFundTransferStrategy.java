@@ -15,6 +15,7 @@ import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResult
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -49,6 +50,9 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     private final BeneficiaryClient beneficiaryClient;
     private final LimitValidator limitValidator;
 
+    @Value("${app.local.currency}")
+    private String localCurrency;
+
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO) {
         responseHandler(finTxnNoValidator.validate(request, metadata));
@@ -74,7 +78,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         validationContext.add("to-account-currency",beneficiaryDto.getBeneficiaryCurrency());
         validationContext.add("from-account", sourceAccountDetailsDTO);
         //validation of swift, iban and routing code is taken care during adding beneficiary, so not validating here
-        BigDecimal sourceAcctCurrencyAmt = null;
+        BigDecimal sourceAcctCurrencyAmt = request.getAmount();
         if (!sourceAccountDetailsDTO.getCurrency().equalsIgnoreCase(beneficiaryDto.getBeneficiaryCurrency())) {
             final CoreCurrencyConversionRequestDto currencyRequest = CoreCurrencyConversionRequestDto.builder()
                     .accountNumber(sourceAccountDetailsDTO.getNumber())
@@ -90,20 +94,13 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         log.info("Balance validation successful");
 
         log.info("Limit Validation start.");
-        BigDecimal limitUsageAmount = request.getAmount();
-        if (!userDTO.getLocalCurrency().equalsIgnoreCase(beneficiaryDto.getBeneficiaryCurrency())) {
-            // Since we support request currency it can be  debitLeg or creditLeg
-            CoreCurrencyConversionRequestDto requestDto;
-            if(Objects.nonNull(sourceAcctCurrencyAmt)) {
-                requestDto = generateCurrencyConversionRequest(sourceAccountDetailsDTO.getCurrency(),
-                        sourceAccountDetailsDTO.getNumber(), sourceAcctCurrencyAmt,
-                        request.getDealNumber(), userDTO.getLocalCurrency());
-            }
-            else {
-                requestDto = generateCurrencyConversionRequest(beneficiaryDto.getBeneficiaryCurrency(),
-                        beneficiaryDto.getAccountNumber(), request.getAmount(),
-                        request.getDealNumber(), userDTO.getLocalCurrency());
-            }
+        BigDecimal limitUsageAmount = sourceAcctCurrencyAmt;
+        if (!localCurrency.equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())) {
+
+            CoreCurrencyConversionRequestDto requestDto = generateCurrencyConversionRequest(sourceAccountDetailsDTO.getCurrency(),
+                        sourceAccountDetailsDTO.getNumber(), limitUsageAmount,
+                        request.getDealNumber(), localCurrency);
+
             CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(requestDto);
             limitUsageAmount = currencyConversionDto.getTransactionAmount();
         }

@@ -95,7 +95,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         responseHandler(ibanValidator.validate(request, metadata, validationContext));
         log.info("IBAN validation successful");
 
-        BigDecimal sourceAcctCurrencyAmt = null;
+        BigDecimal amtToBePaidInSrcCurrency = request.getAmount();
         if (!fromAccountDetails.getCurrency().equalsIgnoreCase(beneficiaryDto.getBeneficiaryCurrency())) {
             final CoreCurrencyConversionRequestDto currencyRequest = CoreCurrencyConversionRequestDto.builder()
                     .accountNumber(fromAccountDetails.getNumber())
@@ -103,29 +103,19 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
                     .transactionCurrency(beneficiaryDto.getBeneficiaryCurrency())
                     .transactionAmount(request.getAmount()).build();
             CurrencyConversionDto conversionResultInSourceAcctCurrency = maintenanceClient.convertBetweenCurrencies(currencyRequest).getData();
-            sourceAcctCurrencyAmt = conversionResultInSourceAcctCurrency.getAccountCurrencyAmount();
+            amtToBePaidInSrcCurrency = conversionResultInSourceAcctCurrency.getAccountCurrencyAmount();
             validationContext.add("transfer-amount-in-source-currency",conversionResultInSourceAcctCurrency.getAccountCurrencyAmount());
         }
-
         responseHandler(balanceValidator.validate(request, metadata, validationContext));
         log.info("Balance validation successful");
 
         log.info("Limit Validation start.");
-        // Assuming to account is always in local currency so on currency conversion required
-        BigDecimal limitUsageAmount = request.getAmount();
-        if (!userDTO.getLocalCurrency().equalsIgnoreCase(beneficiaryDto.getBeneficiaryCurrency())) {
+        BigDecimal limitUsageAmount = amtToBePaidInSrcCurrency;
+        if (!localCurrency.equalsIgnoreCase(fromAccountDetails.getCurrency())) {
             // Since we support request currency it can be  debitLeg or creditLeg
-            CoreCurrencyConversionRequestDto requestDto;
-            if(Objects.nonNull(sourceAcctCurrencyAmt)) {
-                requestDto = generateCurrencyConversionRequest(fromAccountDetails.getCurrency(),
-                        fromAccountDetails.getNumber(), sourceAcctCurrencyAmt,
-                        request.getDealNumber(), userDTO.getLocalCurrency());
-            }
-            else {
-                requestDto = generateCurrencyConversionRequest(beneficiaryDto.getBeneficiaryCurrency(),
-                        beneficiaryDto.getAccountNumber(), request.getAmount(),
-                        request.getDealNumber(), userDTO.getLocalCurrency());
-            }
+            CoreCurrencyConversionRequestDto requestDto = generateCurrencyConversionRequest(fromAccountDetails.getCurrency(),
+                    fromAccountDetails.getNumber(), limitUsageAmount,
+                    request.getDealNumber(), localCurrency);
             CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(requestDto);
             limitUsageAmount = currencyConversionDto.getTransactionAmount();
         }
