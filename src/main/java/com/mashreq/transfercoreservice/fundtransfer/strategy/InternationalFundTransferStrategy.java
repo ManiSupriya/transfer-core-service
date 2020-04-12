@@ -18,11 +18,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static java.lang.Long.valueOf;
 
@@ -49,6 +47,19 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
 
     private final BeneficiaryClient beneficiaryClient;
     private final LimitValidator limitValidator;
+
+    private final HashMap<String, String> countryToCurrencyMap = new HashMap<>();
+
+    //Todo: Replace with native currency fetched from API call
+    @PostConstruct
+    private void initCountryToNativeCurrencyMap() {
+        countryToCurrencyMap.put("IN","INR");
+        countryToCurrencyMap.put("AU","AUD");
+        countryToCurrencyMap.put("CA","CAD");
+        countryToCurrencyMap.put("NZ","NZD");
+        countryToCurrencyMap.put("UK","GBP");
+        countryToCurrencyMap.put("US","USD");
+    }
 
     @Value("${app.local.currency}")
     private String localCurrency;
@@ -119,7 +130,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
 
     private FundTransferRequest prepareFundTransferRequestPayload(FundTransferMetadata metadata, FundTransferRequestDTO request,
                                                                   AccountDetailsDTO accountDetails, BeneficiaryDto beneficiaryDto) {
-        final FundTransferRequest req = FundTransferRequest.builder()
+        final FundTransferRequest fundTransferRequest = FundTransferRequest.builder()
                 .productId(INTERNATIONAL_PRODUCT_ID)
                 .amount(request.getAmount())
                 .channel(metadata.getChannel())
@@ -139,22 +150,31 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .beneficiaryAddressThree(beneficiaryDto.getAddressLine3())
                 .build();
 
-        if (isRoutingCodeCountry(beneficiaryDto.getRoutingCode())) {
-            return req.toBuilder()
-                    .awInstBICCode(ROUTING_CODE_PREFIX + beneficiaryDto.getRoutingCode())
-                    .awInstName(beneficiaryDto.getSwiftCode())
-                    .build();
-        } else {
-            return req.toBuilder()
-                    .awInstBICCode(beneficiaryDto.getSwiftCode())
-                    .awInstName(beneficiaryDto.getBankName())
-                    .build();
-        }
+        return enrichFundTransferRequestByCountryCode(fundTransferRequest, beneficiaryDto);
     }
 
-    private boolean isRoutingCodeCountry(String routingCode) {
-        return StringUtils.isNotBlank(routingCode);
+    private FundTransferRequest enrichFundTransferRequestByCountryCode(FundTransferRequest request, BeneficiaryDto beneficiaryDto) {
+        List<CountryMasterDto> countryList = maintenanceClient.getAllCountries("MOB", "AE", Boolean.TRUE).getData();
+        final Optional<CountryMasterDto> countryDto = countryList.stream()
+                .filter(country -> country.getCode().equals(beneficiaryDto.getBeneficiaryCountryISO()))
+                .findAny();
+        if(countryDto.isPresent()) {
+            final CountryMasterDto countryMasterDto = countryDto.get();
+            if(StringUtils.isNotBlank(countryMasterDto.getRoutingCode()) && request.getDestinationCurrency()
+                    .equals(countryToCurrencyMap.get(beneficiaryDto.getBeneficiaryCountryISO())) ) {
+
+                return request.toBuilder()
+                        .awInstBICCode(ROUTING_CODE_PREFIX + beneficiaryDto.getRoutingCode())
+                        .awInstName(beneficiaryDto.getSwiftCode())
+                        .build();
+            }
+        }
+        return request.toBuilder()
+                .awInstBICCode(beneficiaryDto.getSwiftCode())
+                .awInstName(beneficiaryDto.getBankName())
+                .build();
     }
+
 
     private AccountDetailsDTO getAccountDetailsBasedOnAccountNumber(List<AccountDetailsDTO> coreAccounts, String accountNumber) {
         return coreAccounts.stream()
