@@ -17,6 +17,7 @@ import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -84,7 +85,8 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
         final BeneficiaryDto beneficiaryDto = beneficiaryService.getById((metadata.getPrimaryCif()),valueOf(request.getBeneficiaryId()));
         validationContext.add("beneficiary-dto", beneficiaryDto);
-        validationContext.add("to-account-currency",beneficiaryDto.getBeneficiaryCurrency());
+        validationContext.add("to-account-currency", StringUtils.isBlank(beneficiaryDto.getBeneficiaryCurrency())
+                ? localCurrency : beneficiaryDto.getBeneficiaryCurrency());
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
         log.info("Beneficiary validation successful");
 
