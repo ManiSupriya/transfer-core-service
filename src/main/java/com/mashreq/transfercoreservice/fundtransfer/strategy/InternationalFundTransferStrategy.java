@@ -78,7 +78,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         validationContext.add("to-account-currency",beneficiaryDto.getBeneficiaryCurrency());
         validationContext.add("from-account", sourceAccountDetailsDTO);
         //validation of swift, iban and routing code is taken care during adding beneficiary, so not validating here
-        BigDecimal sourceAcctCurrencyAmt = request.getAmount();
+        BigDecimal amtToBePaidInSrcCurrency = request.getAmount();
         if (!sourceAccountDetailsDTO.getCurrency().equalsIgnoreCase(beneficiaryDto.getBeneficiaryCurrency())) {
             final CoreCurrencyConversionRequestDto currencyRequest = CoreCurrencyConversionRequestDto.builder()
                     .accountNumber(sourceAccountDetailsDTO.getNumber())
@@ -86,15 +86,15 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                     .transactionCurrency(beneficiaryDto.getBeneficiaryCurrency())
                     .transactionAmount(request.getAmount()).build();
             CurrencyConversionDto conversionResultInSourceAcctCurrency = maintenanceClient.convertBetweenCurrencies(currencyRequest).getData();
-            sourceAcctCurrencyAmt = conversionResultInSourceAcctCurrency.getAccountCurrencyAmount();
-            validationContext.add("transfer-amount-in-source-currency",conversionResultInSourceAcctCurrency.getAccountCurrencyAmount());
+            amtToBePaidInSrcCurrency = conversionResultInSourceAcctCurrency.getAccountCurrencyAmount();
+            validationContext.add("transfer-amount-in-source-currency",amtToBePaidInSrcCurrency);
         }
 
         responseHandler(balanceValidator.validate(request, metadata, validationContext));
         log.info("Balance validation successful");
 
         log.info("Limit Validation start.");
-        BigDecimal limitUsageAmount = sourceAcctCurrencyAmt;
+        BigDecimal limitUsageAmount = amtToBePaidInSrcCurrency;
         if (!localCurrency.equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())) {
 
             CoreCurrencyConversionRequestDto requestDto = generateCurrencyConversionRequest(sourceAccountDetailsDTO.getCurrency(),

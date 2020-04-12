@@ -104,7 +104,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
                     .transactionAmount(request.getAmount()).build();
             CurrencyConversionDto conversionResultInSourceAcctCurrency = maintenanceClient.convertBetweenCurrencies(currencyRequest).getData();
             amtToBePaidInSrcCurrency = conversionResultInSourceAcctCurrency.getAccountCurrencyAmount();
-            validationContext.add("transfer-amount-in-source-currency",conversionResultInSourceAcctCurrency.getAccountCurrencyAmount());
+            validationContext.add("transfer-amount-in-source-currency",amtToBePaidInSrcCurrency);
         }
         responseHandler(balanceValidator.validate(request, metadata, validationContext));
         log.info("Balance validation successful");
