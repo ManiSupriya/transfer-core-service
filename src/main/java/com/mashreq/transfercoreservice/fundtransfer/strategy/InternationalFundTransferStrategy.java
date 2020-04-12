@@ -6,6 +6,7 @@ import com.mashreq.transfercoreservice.client.dto.*;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 
 
+import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.fundtransfer.FundTransferMWService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -42,6 +44,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     private final BeneficiaryValidator beneficiaryValidator;
     private final BalanceValidator balanceValidator;
     private final FundTransferMWService fundTransferMWService;
+    private final MaintenanceService maintenanceService;
 
     private final BeneficiaryClient beneficiaryClient;
     private final LimitValidator limitValidator;
@@ -67,21 +70,47 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
         log.info("Beneficiary validation successful");
 
-        final AccountDetailsDTO accountDetailsDTO = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
+        final AccountDetailsDTO sourceAccountDetailsDTO = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
         validationContext.add("to-account-currency",beneficiaryDto.getBeneficiaryCurrency());
-
+        validationContext.add("from-account", sourceAccountDetailsDTO);
         //validation of swift, iban and routing code is taken care during adding beneficiary, so not validating here
+        BigDecimal sourceAcctCurrencyAmt = null;
+        if (!sourceAccountDetailsDTO.getCurrency().equalsIgnoreCase(beneficiaryDto.getBeneficiaryCurrency())) {
+            final CoreCurrencyConversionRequestDto currencyRequest = CoreCurrencyConversionRequestDto.builder()
+                    .accountNumber(sourceAccountDetailsDTO.getNumber())
+                    .accountCurrency(sourceAccountDetailsDTO.getCurrency())
+                    .transactionCurrency(beneficiaryDto.getBeneficiaryCurrency())
+                    .transactionAmount(request.getAmount()).build();
+            CurrencyConversionDto conversionResultInSourceAcctCurrency = maintenanceClient.convertBetweenCurrencies(currencyRequest).getData();
+            sourceAcctCurrencyAmt = conversionResultInSourceAcctCurrency.getAccountCurrencyAmount();
+            validationContext.add("transfer-amount-in-source-currency",conversionResultInSourceAcctCurrency.getAccountCurrencyAmount());
+        }
 
-        validationContext.add("from-account", accountDetailsDTO);
         responseHandler(balanceValidator.validate(request, metadata, validationContext));
         log.info("Balance validation successful");
 
         log.info("Limit Validation start.");
         BigDecimal limitUsageAmount = request.getAmount();
+        if (!userDTO.getLocalCurrency().equalsIgnoreCase(beneficiaryDto.getBeneficiaryCurrency())) {
+            // Since we support request currency it can be  debitLeg or creditLeg
+            CoreCurrencyConversionRequestDto requestDto;
+            if(Objects.nonNull(sourceAcctCurrencyAmt)) {
+                requestDto = generateCurrencyConversionRequest(sourceAccountDetailsDTO.getCurrency(),
+                        sourceAccountDetailsDTO.getNumber(), sourceAcctCurrencyAmt,
+                        request.getDealNumber(), userDTO.getLocalCurrency());
+            }
+            else {
+                requestDto = generateCurrencyConversionRequest(beneficiaryDto.getBeneficiaryCurrency(),
+                        beneficiaryDto.getAccountNumber(), request.getAmount(),
+                        request.getDealNumber(), userDTO.getLocalCurrency());
+            }
+            CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(requestDto);
+            limitUsageAmount = currencyConversionDto.getTransactionAmount();
+        }
         final LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount);
         log.info("Limit validation successful");
 
-        final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, accountDetailsDTO, beneficiaryDto);
+        final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, sourceAccountDetailsDTO, beneficiaryDto);
         log.info("International Fund transfer initiated.......");
         final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest);
 

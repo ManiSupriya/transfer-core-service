@@ -23,8 +23,6 @@ import java.math.BigDecimal;
 @RequiredArgsConstructor
 public class BalanceValidator implements Validator {
 
-    private final MaintenanceClient maintenanceClient;
-
     @Override
     public ValidationResult validate(FundTransferRequestDTO request, FundTransferMetadata metadata, ValidationContext context) {
 
@@ -35,16 +33,13 @@ public class BalanceValidator implements Validator {
         log.info("Balance in account [ {} {} ] ", fromAccount.getAvailableBalance(), fromAccount.getCurrency());
         log.info("Amount to be credited is [ {} {} ] ", request.getAmount(), toAccountCurrency);
 
-        if (fromAccount.getCurrency().equalsIgnoreCase(toAccountCurrency)) {
-            return isBalanceAvailable(fromAccount.getAvailableBalance(), request.getAmount());
-        } else {
-            final CoreCurrencyConversionRequestDto currencyRequest = CoreCurrencyConversionRequestDto.builder().accountNumber(fromAccount.getNumber())
-                    .accountCurrency(fromAccount.getCurrency()).transactionCurrency(toAccountCurrency).transactionAmount(request.getAmount()).build();
-            final CurrencyConversionDto currencyConversionDtoResponse = maintenanceClient.convertBetweenCurrencies(currencyRequest).getData();
-            log.info("Converted amount {} is {}", fromAccount.getCurrency(), currencyConversionDtoResponse.getAccountCurrencyAmount());
-            return isBalanceAvailable(fromAccount.getAvailableBalance(), currencyConversionDtoResponse.getAccountCurrencyAmount());
+        if (!fromAccount.getCurrency().equalsIgnoreCase(toAccountCurrency)) {
+            BigDecimal paidAmountInSourceCurrency = context.get("transfer-amount-in-source-currency", BigDecimal.class);
+            log.info("Converted amount {} is {}", fromAccount.getCurrency(), paidAmountInSourceCurrency);
+            return isBalanceAvailable(fromAccount.getAvailableBalance(), paidAmountInSourceCurrency);
 
         }
+        return isBalanceAvailable(fromAccount.getAvailableBalance(), request.getAmount());
     }
 
     private ValidationResult isBalanceAvailable(BigDecimal availableBalance, BigDecimal paidAmount) {
