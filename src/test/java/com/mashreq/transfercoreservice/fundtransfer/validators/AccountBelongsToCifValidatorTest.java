@@ -141,7 +141,7 @@ public class AccountBelongsToCifValidatorTest {
     }
 
     @Test
-    public void shouldReturnSuccess_whenToAccount_doesnot_belongToCif_inLocal() {
+    public void shouldReturnFailure_whenToAccount_doesnot_belongToCif_inLocal() {
 
         //given
         AccountDetailsDTO fromAcc1 = AccountDetailsDTO.builder()
