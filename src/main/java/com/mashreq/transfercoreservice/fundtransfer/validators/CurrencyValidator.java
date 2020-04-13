@@ -38,7 +38,7 @@ public class CurrencyValidator implements Validator {
 
         if(isCharityServiceType(request)) {
             CharityBeneficiaryDto charityBeneficiaryDto = context.get("charity-beneficiary-dto", CharityBeneficiaryDto.class);
-            if (charityBeneficiaryDto != null && !isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), charityBeneficiaryDto.getAccountNumber())) {
+            if (charityBeneficiaryDto != null && !isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), charityBeneficiaryDto.getCurrencyCode())) {
                 log.warn("Charity Currency and Requested Currency does not match for service type [ {} ]  ", request.getServiceType());
                 return ValidationResult.builder().success(false).transferErrorCode(TransferErrorCode.CURRENCY_IS_INVALID).build();
             }
