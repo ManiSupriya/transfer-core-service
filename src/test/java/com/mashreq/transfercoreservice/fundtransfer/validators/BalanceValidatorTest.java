@@ -1,18 +1,12 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
-import com.mashreq.transfercoreservice.client.MaintenanceClient;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
-import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
-import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 
-import com.mashreq.webcore.dto.response.Response;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
@@ -30,8 +24,6 @@ public class BalanceValidatorTest {
     @InjectMocks
     private BalanceValidator balanceValidator;
 
-    @Mock
-    private MaintenanceClient maintenanceClient;
 
     @Test
     public void shouldReturnFailure_whenAvailableBalanceIsLess() {
@@ -43,7 +35,7 @@ public class BalanceValidatorTest {
                 .build();
 
         mockValidationContext.add("from-account", mockAccount);
-        mockValidationContext.add("to-account-currency","AED");
+        mockValidationContext.add("to-account-currency", "AED");
 
         FundTransferRequestDTO mockFundTransferRequest = new FundTransferRequestDTO();
         mockFundTransferRequest.setAmount(new BigDecimal(10));
@@ -67,7 +59,7 @@ public class BalanceValidatorTest {
                 .build();
 
         mockValidationContext.add("from-account", mockAccount);
-        mockValidationContext.add("to-account-currency","AED");
+        mockValidationContext.add("to-account-currency", "AED");
 
         FundTransferRequestDTO mockFundTransferRequest = new FundTransferRequestDTO();
         mockFundTransferRequest.setAmount(new BigDecimal(10));
@@ -80,7 +72,7 @@ public class BalanceValidatorTest {
         assertThat(result.isSuccess()).isTrue();
     }
 
-  @Test
+    @Test
     public void shouldReturnSuccess_whenAvailableBalanceIsGreater() {
 
         ValidationContext mockValidationContext = new ValidationContext();
@@ -90,7 +82,7 @@ public class BalanceValidatorTest {
                 .build();
 
         mockValidationContext.add("from-account", mockAccount);
-        mockValidationContext.add("to-account-currency","AED");
+        mockValidationContext.add("to-account-currency", "AED");
 
         FundTransferRequestDTO mockFundTransferRequest = new FundTransferRequestDTO();
         mockFundTransferRequest.setAmount(new BigDecimal(10));
@@ -115,18 +107,10 @@ public class BalanceValidatorTest {
                 .build();
 
         mockValidationContext.add("from-account", mockAccount);
-        mockValidationContext.add("to-account-currency","AED");
-          FundTransferRequestDTO mockFundTransferRequest = new FundTransferRequestDTO();
-          mockFundTransferRequest.setAmount(new BigDecimal(20));
-
-        final CoreCurrencyConversionRequestDto currencyRequest = CoreCurrencyConversionRequestDto.builder().accountNumber(mockAccount.getNumber())
-                  .accountCurrency(mockAccount.getCurrency()).transactionCurrency("AED").transactionAmount(mockFundTransferRequest.getAmount()).build();
-
-          CurrencyConversionDto currencyConversionDto = new CurrencyConversionDto();
-          currencyConversionDto.setAccountCurrencyAmount(new BigDecimal(8.17));
-          final Response<CurrencyConversionDto> response = Response.<CurrencyConversionDto>builder().data(currencyConversionDto).build();
-          Mockito.when(maintenanceClient.convertBetweenCurrencies(Mockito.eq(currencyRequest))).thenReturn(response);
-
+        mockValidationContext.add("to-account-currency", "AED");
+        mockValidationContext.add("transfer-amount-in-source-currency", new BigDecimal(8.17));
+        FundTransferRequestDTO mockFundTransferRequest = new FundTransferRequestDTO();
+        mockFundTransferRequest.setAmount(new BigDecimal(20));
 
         ValidationResult result = balanceValidator.validate(mockFundTransferRequest, null, mockValidationContext);
 
@@ -145,25 +129,16 @@ public class BalanceValidatorTest {
                 .build();
 
         mockValidationContext.add("from-account", mockAccount);
-        mockValidationContext.add("to-account-currency","AED");
+        mockValidationContext.add("to-account-currency", "AED");
+        mockValidationContext.add("transfer-amount-in-source-currency", new BigDecimal(108.90));
         FundTransferRequestDTO mockFundTransferRequest = new FundTransferRequestDTO();
         mockFundTransferRequest.setAmount(new BigDecimal(400));
-
-        final CoreCurrencyConversionRequestDto currencyRequest = CoreCurrencyConversionRequestDto.builder().accountNumber(mockAccount.getNumber())
-                .accountCurrency(mockAccount.getCurrency()).transactionCurrency("AED").transactionAmount(mockFundTransferRequest.getAmount()).build();
-
-        CurrencyConversionDto currencyConversionDto = new CurrencyConversionDto();
-        currencyConversionDto.setAccountCurrencyAmount(new BigDecimal(108.90));
-        final Response<CurrencyConversionDto> response = Response.<CurrencyConversionDto>builder().data(currencyConversionDto).build();
-        Mockito.when(maintenanceClient.convertBetweenCurrencies(Mockito.eq(currencyRequest))).thenReturn(response);
-
 
         ValidationResult result = balanceValidator.validate(mockFundTransferRequest, null, mockValidationContext);
 
         assertThat(result).isNotNull();
         assertThat(result.isSuccess()).isFalse();
     }
-
 
 
 }

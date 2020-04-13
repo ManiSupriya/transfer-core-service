@@ -6,6 +6,7 @@ import com.mashreq.transfercoreservice.client.dto.*;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 
 
+import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.fundtransfer.FundTransferMWService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
@@ -14,12 +15,12 @@ import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResult
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static java.lang.Long.valueOf;
 
@@ -42,9 +43,23 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     private final BeneficiaryValidator beneficiaryValidator;
     private final BalanceValidator balanceValidator;
     private final FundTransferMWService fundTransferMWService;
+    private final MaintenanceService maintenanceService;
 
     private final BeneficiaryClient beneficiaryClient;
     private final LimitValidator limitValidator;
+
+    private final HashMap<String, String> countryToCurrencyMap = new HashMap<>();
+
+    //Todo: Replace with native currency fetched from API call
+    @PostConstruct
+    private void initCountryToNativeCurrencyMap() {
+        countryToCurrencyMap.put("IN","INR");
+        countryToCurrencyMap.put("AU","AUD");
+        countryToCurrencyMap.put("CA","CAD");
+        countryToCurrencyMap.put("NZ","NZD");
+        countryToCurrencyMap.put("UK","GBP");
+        countryToCurrencyMap.put("US","USD");
+    }
 
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO) {
@@ -67,21 +82,40 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
         log.info("Beneficiary validation successful");
 
-        final AccountDetailsDTO accountDetailsDTO = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
+        final AccountDetailsDTO sourceAccountDetailsDTO = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
         validationContext.add("to-account-currency",beneficiaryDto.getBeneficiaryCurrency());
-
+        validationContext.add("from-account", sourceAccountDetailsDTO);
         //validation of swift, iban and routing code is taken care during adding beneficiary, so not validating here
+        BigDecimal amtToBePaidInSrcCurrency = request.getAmount();
+        if (!sourceAccountDetailsDTO.getCurrency().equalsIgnoreCase(beneficiaryDto.getBeneficiaryCurrency())) {
+            final CoreCurrencyConversionRequestDto currencyRequest = CoreCurrencyConversionRequestDto.builder()
+                    .accountNumber(sourceAccountDetailsDTO.getNumber())
+                    .accountCurrency(sourceAccountDetailsDTO.getCurrency())
+                    .transactionCurrency(beneficiaryDto.getBeneficiaryCurrency())
+                    .transactionAmount(request.getAmount()).build();
+            CurrencyConversionDto conversionResultInSourceAcctCurrency = maintenanceClient.convertBetweenCurrencies(currencyRequest).getData();
+            amtToBePaidInSrcCurrency = conversionResultInSourceAcctCurrency.getAccountCurrencyAmount();
+            validationContext.add("transfer-amount-in-source-currency",amtToBePaidInSrcCurrency);
+        }
 
-        validationContext.add("from-account", accountDetailsDTO);
         responseHandler(balanceValidator.validate(request, metadata, validationContext));
         log.info("Balance validation successful");
 
         log.info("Limit Validation start.");
-        BigDecimal limitUsageAmount = request.getAmount();
+        BigDecimal limitUsageAmount = amtToBePaidInSrcCurrency;
+        if (!"AED".equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())) {
+
+            CoreCurrencyConversionRequestDto requestDto = generateCurrencyConversionRequest(sourceAccountDetailsDTO.getCurrency(),
+                        sourceAccountDetailsDTO.getNumber(), limitUsageAmount,
+                        request.getDealNumber(), "AED");
+
+            CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(requestDto);
+            limitUsageAmount = currencyConversionDto.getTransactionAmount();
+        }
         final LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount);
         log.info("Limit validation successful");
 
-        final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, accountDetailsDTO, beneficiaryDto);
+        final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, sourceAccountDetailsDTO, beneficiaryDto);
         log.info("International Fund transfer initiated.......");
         final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest);
 
@@ -93,7 +127,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
 
     private FundTransferRequest prepareFundTransferRequestPayload(FundTransferMetadata metadata, FundTransferRequestDTO request,
                                                                   AccountDetailsDTO accountDetails, BeneficiaryDto beneficiaryDto) {
-        final FundTransferRequest req = FundTransferRequest.builder()
+        final FundTransferRequest fundTransferRequest = FundTransferRequest.builder()
                 .productId(INTERNATIONAL_PRODUCT_ID)
                 .amount(request.getAmount())
                 .channel(metadata.getChannel())
@@ -113,22 +147,31 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .beneficiaryAddressThree(beneficiaryDto.getAddressLine3())
                 .build();
 
-        if (isRoutingCodeCountry(beneficiaryDto.getRoutingCode())) {
-            return req.toBuilder()
-                    .awInstBICCode(ROUTING_CODE_PREFIX + beneficiaryDto.getRoutingCode())
-                    .awInstName(beneficiaryDto.getSwiftCode())
-                    .build();
-        } else {
-            return req.toBuilder()
-                    .awInstBICCode(beneficiaryDto.getSwiftCode())
-                    .awInstName(beneficiaryDto.getBankName())
-                    .build();
-        }
+        return enrichFundTransferRequestByCountryCode(fundTransferRequest, beneficiaryDto);
     }
 
-    private boolean isRoutingCodeCountry(String routingCode) {
-        return StringUtils.isNotBlank(routingCode);
+    private FundTransferRequest enrichFundTransferRequestByCountryCode(FundTransferRequest request, BeneficiaryDto beneficiaryDto) {
+        List<CountryMasterDto> countryList = maintenanceClient.getAllCountries("MOB", "AE", Boolean.TRUE).getData();
+        final Optional<CountryMasterDto> countryDto = countryList.stream()
+                .filter(country -> country.getCode().equals(beneficiaryDto.getBeneficiaryCountryISO()))
+                .findAny();
+        if(countryDto.isPresent()) {
+            final CountryMasterDto countryMasterDto = countryDto.get();
+            if(StringUtils.isNotBlank(countryMasterDto.getRoutingCode()) && request.getDestinationCurrency()
+                    .equals(countryToCurrencyMap.get(beneficiaryDto.getBeneficiaryCountryISO())) ) {
+
+                return request.toBuilder()
+                        .awInstBICCode(ROUTING_CODE_PREFIX + beneficiaryDto.getRoutingCode())
+                        .awInstName(beneficiaryDto.getSwiftCode())
+                        .build();
+            }
+        }
+        return request.toBuilder()
+                .awInstBICCode(beneficiaryDto.getSwiftCode())
+                .awInstName(beneficiaryDto.getBankName())
+                .build();
     }
+
 
     private AccountDetailsDTO getAccountDetailsBasedOnAccountNumber(List<AccountDetailsDTO> coreAccounts, String accountNumber) {
         return coreAccounts.stream()

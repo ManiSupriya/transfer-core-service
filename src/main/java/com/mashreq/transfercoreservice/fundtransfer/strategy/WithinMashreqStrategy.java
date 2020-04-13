@@ -77,7 +77,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
         responseHandler(currencyValidator.validate(request, metadata, validationContext));
 
-
+        responseHandler(balanceValidator.validate(request,metadata,validationContext));
         // As per current implementation with FE they are sending toCurrency and its value for within and own
         log.info("Limit Validation start.");
         BigDecimal limitUsageAmount = request.getAmount();
@@ -99,7 +99,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount);
         log.info("Limit Validation successful");
 
-        //responseHandler(balanceValidator.validate(request,metadata,validationContext));
+
 
         log.info("Total time taken for {} strategy {} milli seconds ", request.getServiceType(), between(start, now()).toMillis());
 
