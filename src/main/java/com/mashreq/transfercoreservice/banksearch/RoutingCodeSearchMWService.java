@@ -68,7 +68,7 @@ public class RoutingCodeSearchMWService {
             case "swift":
                 reqBody.setRoutingType(bankDetailRequest.getType());
                 reqBody.setRoutingCode(
-                        bankDetailRequest.getValue().length() == 8 ? bankDetailRequest.getValue() + "XXX" : bankDetailRequest.getValue());
+                        bankDetailRequest.getValue().length() == 8 ? bankDetailRequest.getValue() : bankDetailRequest.getValue());
                 break;
             case "routing-code":
                 reqBody.setRoutingType(getRoutingCodeType(bankDetailRequest));
