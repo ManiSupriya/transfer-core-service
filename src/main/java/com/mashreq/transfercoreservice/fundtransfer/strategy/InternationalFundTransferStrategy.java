@@ -61,9 +61,6 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         countryToCurrencyMap.put("US","USD");
     }
 
-    @Value("${app.local.currency}")
-    private String localCurrency;
-
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO) {
         responseHandler(finTxnNoValidator.validate(request, metadata));
@@ -106,11 +103,11 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
 
         log.info("Limit Validation start.");
         BigDecimal limitUsageAmount = amtToBePaidInSrcCurrency;
-        if (!localCurrency.equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())) {
+        if (!"AED".equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())) {
 
             CoreCurrencyConversionRequestDto requestDto = generateCurrencyConversionRequest(sourceAccountDetailsDTO.getCurrency(),
                         sourceAccountDetailsDTO.getNumber(), limitUsageAmount,
-                        request.getDealNumber(), localCurrency);
+                        request.getDealNumber(), "AED");
 
             CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(requestDto);
             limitUsageAmount = currencyConversionDto.getTransactionAmount();
