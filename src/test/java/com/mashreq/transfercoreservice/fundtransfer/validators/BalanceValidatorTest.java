@@ -119,7 +119,7 @@ public class BalanceValidatorTest {
     }
 
     @Test
-    public void shouldReturnSuccess_whenAvailableBalanceIsNotSufficient_andCurrencyDifferent() {
+    public void shouldReturnFailure_whenAvailableBalanceIsNotSufficient_andCurrencyDifferent() {
 
         ValidationContext mockValidationContext = new ValidationContext();
         AccountDetailsDTO mockAccount = AccountDetailsDTO.builder()
@@ -138,6 +138,28 @@ public class BalanceValidatorTest {
 
         assertThat(result).isNotNull();
         assertThat(result.isSuccess()).isFalse();
+    }
+
+    @Test
+    public void shouldReturnSuccess_whenAvailableBalanceIsSufficient_andCurrencyDifferent() {
+
+        ValidationContext mockValidationContext = new ValidationContext();
+        AccountDetailsDTO mockAccount = AccountDetailsDTO.builder()
+                .number("12345")
+                .availableBalance(new BigDecimal("1000"))
+                .currency("USD")
+                .build();
+
+        mockValidationContext.add("from-account", mockAccount);
+        mockValidationContext.add("to-account-currency", "AED");
+        mockValidationContext.add("transfer-amount-in-source-currency", new BigDecimal(108.90));
+        FundTransferRequestDTO mockFundTransferRequest = new FundTransferRequestDTO();
+        mockFundTransferRequest.setAmount(new BigDecimal(400));
+
+        ValidationResult result = balanceValidator.validate(mockFundTransferRequest, null, mockValidationContext);
+
+        assertThat(result).isNotNull();
+        assertThat(result.isSuccess()).isTrue();
     }
 
 
