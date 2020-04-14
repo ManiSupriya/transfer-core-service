@@ -74,7 +74,9 @@ public class CharityStrategyDefault implements FundTransferStrategy {
         validateContext.add("to-account-currency",charityBeneficiaryDto.getCurrencyCode());
         responseHandler(charityValidator.validate(request, metadata, validateContext));
         responseHandler(currencyValidator.validate(request, metadata, validateContext));
-        responseHandler(balanceValidator.validate(request, metadata,validateContext));
+
+        //TODO
+        //responseHandler(balanceValidator.validate(request, metadata,validateContext));
 
         // Assuming to account is always in AED
 
