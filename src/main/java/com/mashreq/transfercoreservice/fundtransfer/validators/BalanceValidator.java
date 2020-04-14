@@ -1,10 +1,6 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
-import com.mashreq.transfercoreservice.client.MaintenanceClient;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
-import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
-import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
-import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
@@ -28,23 +24,20 @@ public class BalanceValidator implements Validator {
 
         log.info("Validating Balance for service type [ {} ] ", request.getServiceType());
         AccountDetailsDTO fromAccount = context.get("from-account", AccountDetailsDTO.class);
-        String toAccountCurrency = context.get("to-account-currency", String.class);
-
         log.info("Balance in account [ {} {} ] ", fromAccount.getAvailableBalance(), fromAccount.getCurrency());
-        log.info("Amount to be credited is [ {} {} ] ", request.getAmount(), toAccountCurrency);
 
-        if (!fromAccount.getCurrency().equalsIgnoreCase(toAccountCurrency)) {
-            BigDecimal paidAmountInSourceCurrency = context.get("transfer-amount-in-source-currency", BigDecimal.class);
-            log.info("Converted amount {} is {}", fromAccount.getCurrency(), paidAmountInSourceCurrency);
-            return isBalanceAvailable(fromAccount.getAvailableBalance(), paidAmountInSourceCurrency);
+        BigDecimal transferAmountInSrcCurrency = context.get("transfer-amount-in-source-currency", BigDecimal.class);
+        log.info("Amount to be credited is [ {} {} ] ", transferAmountInSrcCurrency, fromAccount.getCurrency());
 
+        if (!isBalanceAvailable(fromAccount.getAvailableBalance(), transferAmountInSrcCurrency)) {
+            return ValidationResult.builder().success(false).transferErrorCode(TransferErrorCode.BALANCE_NOT_SUFFICIENT)
+                    .build();
         }
-        return isBalanceAvailable(fromAccount.getAvailableBalance(), request.getAmount());
+        log.info("Balance Validation successful");
+        return ValidationResult.builder().success(true).build();
     }
 
-    private ValidationResult isBalanceAvailable(BigDecimal availableBalance, BigDecimal paidAmount) {
-        return availableBalance.compareTo(paidAmount) >= 0
-                ? ValidationResult.builder().success(true).build()
-                : ValidationResult.builder().success(false).transferErrorCode(TransferErrorCode.BALANCE_NOT_SUFFICIENT).build();
+    private boolean isBalanceAvailable(BigDecimal availableBalance, BigDecimal paidAmount) {
+        return availableBalance.compareTo(paidAmount) >= 0;
     }
 }

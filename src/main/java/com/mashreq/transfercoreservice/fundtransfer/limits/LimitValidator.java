@@ -28,8 +28,8 @@ public class LimitValidator {
         LimitValidatorResultsDto limitValidatorResultsDto =
                 mobCommonService.validateAvailableLimit(userDTO.getCifId(), beneficiaryType, paidAmount);
 
-        if(!limitValidatorResultsDto.isValid()){
-            if(LimitCheckType.DAILY_AMOUNT.equals(limitValidatorResultsDto.getLimitCheckType())){
+        if (!limitValidatorResultsDto.isValid()) {
+            if (LimitCheckType.DAILY_AMOUNT.equals(limitValidatorResultsDto.getLimitCheckType())) {
                 GenericExceptionHandler.handleError(TransferErrorCode.DAY_AMOUNT_LIMIT_REACHED,
                         TransferErrorCode.DAY_AMOUNT_LIMIT_REACHED.getErrorMessage());
             } else {
@@ -37,7 +37,7 @@ public class LimitValidator {
                         TransferErrorCode.MONTH_AMOUNT_LIMIT_REACHED.getErrorMessage());
             }
         }
-
+        log.info("Limit validation successful");
         return limitValidatorResultsDto;
     }
 }

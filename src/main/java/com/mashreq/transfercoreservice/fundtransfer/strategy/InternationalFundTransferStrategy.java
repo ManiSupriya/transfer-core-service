@@ -15,7 +15,6 @@ import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResult
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -53,12 +52,12 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     //Todo: Replace with native currency fetched from API call
     @PostConstruct
     private void initCountryToNativeCurrencyMap() {
-        countryToCurrencyMap.put("IN","INR");
-        countryToCurrencyMap.put("AU","AUD");
-        countryToCurrencyMap.put("CA","CAD");
-        countryToCurrencyMap.put("NZ","NZD");
-        countryToCurrencyMap.put("UK","GBP");
-        countryToCurrencyMap.put("US","USD");
+        countryToCurrencyMap.put("IN", "INR");
+        countryToCurrencyMap.put("AU", "AUD");
+        countryToCurrencyMap.put("CA", "CAD");
+        countryToCurrencyMap.put("NZ", "NZD");
+        countryToCurrencyMap.put("UK", "GBP");
+        countryToCurrencyMap.put("US", "USD");
     }
 
     @Override
@@ -74,46 +73,30 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         final Set<PurposeOfTransferDto> allPurposeCodes = maintenanceClient.getAllPurposeCodes(INTERNATIONAL).getData();
         validationContext.add("purposes", allPurposeCodes);
         responseHandler(paymentPurposeValidator.validate(request, metadata, validationContext));
-        log.info("Purpose code and description validation successful");
+
 
         final BeneficiaryDto beneficiaryDto = beneficiaryClient.getById(metadata.getPrimaryCif(), valueOf(request.getBeneficiaryId()))
                 .getData();
         validationContext.add("beneficiary-dto", beneficiaryDto);
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
-        log.info("Beneficiary validation successful");
 
+
+        //Balance Validation
         final AccountDetailsDTO sourceAccountDetailsDTO = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
-        validationContext.add("to-account-currency",beneficiaryDto.getBeneficiaryCurrency());
+        validationContext.add("to-account-currency", beneficiaryDto.getBeneficiaryCurrency());
         validationContext.add("from-account", sourceAccountDetailsDTO);
-        //validation of swift, iban and routing code is taken care during adding beneficiary, so not validating here
-        BigDecimal amtToBePaidInSrcCurrency = request.getAmount();
-        if (!sourceAccountDetailsDTO.getCurrency().equalsIgnoreCase(beneficiaryDto.getBeneficiaryCurrency())) {
-            final CoreCurrencyConversionRequestDto currencyRequest = CoreCurrencyConversionRequestDto.builder()
-                    .accountNumber(sourceAccountDetailsDTO.getNumber())
-                    .accountCurrency(sourceAccountDetailsDTO.getCurrency())
-                    .transactionCurrency(beneficiaryDto.getBeneficiaryCurrency())
-                    .transactionAmount(request.getAmount()).build();
-            CurrencyConversionDto conversionResultInSourceAcctCurrency = maintenanceClient.convertBetweenCurrencies(currencyRequest).getData();
-            amtToBePaidInSrcCurrency = conversionResultInSourceAcctCurrency.getAccountCurrencyAmount();
-            validationContext.add("transfer-amount-in-source-currency",amtToBePaidInSrcCurrency);
-        }
 
+        final BigDecimal transferAmountInSrcCurrency = isCurrencySame(beneficiaryDto,sourceAccountDetailsDTO)
+                ? request.getAmount()
+                : getAmountInSrcCurrency(request, beneficiaryDto, sourceAccountDetailsDTO);
+        validationContext.add("transfer-amount-in-source-currency", transferAmountInSrcCurrency);
         responseHandler(balanceValidator.validate(request, metadata, validationContext));
-        log.info("Balance validation successful");
 
-        log.info("Limit Validation start.");
-        BigDecimal limitUsageAmount = amtToBePaidInSrcCurrency;
-        if (!"AED".equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())) {
 
-            CoreCurrencyConversionRequestDto requestDto = generateCurrencyConversionRequest(sourceAccountDetailsDTO.getCurrency(),
-                        sourceAccountDetailsDTO.getNumber(), limitUsageAmount,
-                        request.getDealNumber(), "AED");
-
-            CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(requestDto);
-            limitUsageAmount = currencyConversionDto.getTransactionAmount();
-        }
+        //Limit Validation
+        final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), sourceAccountDetailsDTO,transferAmountInSrcCurrency);
         final LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount);
-        log.info("Limit validation successful");
+
 
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, sourceAccountDetailsDTO, beneficiaryDto);
         log.info("International Fund transfer initiated.......");
@@ -123,6 +106,41 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         return fundTransferResponse.toBuilder()
                 .limitUsageAmount(limitUsageAmount)
                 .limitVersionUuid(validationResult.getLimitVersionUuid()).build();
+    }
+
+    private boolean isCurrencySame(BeneficiaryDto beneficiaryDto, AccountDetailsDTO sourceAccountDetailsDTO) {
+        return sourceAccountDetailsDTO.getCurrency().equalsIgnoreCase(beneficiaryDto.getBeneficiaryCurrency());
+    }
+
+    private BigDecimal convertAmountInLocalCurrency(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO, final BigDecimal transferAmountInSrcCurrency) {
+        CoreCurrencyConversionRequestDto currencyConversionRequestDto = CoreCurrencyConversionRequestDto.builder()
+                .accountNumber(sourceAccountDetailsDTO.getNumber())
+                .accountCurrency(sourceAccountDetailsDTO.getCurrency())
+                .accountCurrencyAmount(transferAmountInSrcCurrency)
+                .dealNumber(dealNumber)
+                .transactionCurrency("AED")
+                .build();
+
+        CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(currencyConversionRequestDto);
+        return currencyConversionDto.getTransactionAmount();
+    }
+
+    private BigDecimal getLimitUsageAmount(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO, final BigDecimal transferAmountInSrcCurrency) {
+        return "AED".equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
+                ? transferAmountInSrcCurrency
+                : convertAmountInLocalCurrency(dealNumber, sourceAccountDetailsDTO, transferAmountInSrcCurrency);
+    }
+
+    private BigDecimal getAmountInSrcCurrency(FundTransferRequestDTO request, BeneficiaryDto beneficiaryDto, AccountDetailsDTO sourceAccountDetailsDTO) {
+        BigDecimal amtToBePaidInSrcCurrency;
+        final CoreCurrencyConversionRequestDto currencyRequest = CoreCurrencyConversionRequestDto.builder()
+                .accountNumber(sourceAccountDetailsDTO.getNumber())
+                .accountCurrency(sourceAccountDetailsDTO.getCurrency())
+                .transactionCurrency(beneficiaryDto.getBeneficiaryCurrency())
+                .transactionAmount(request.getAmount()).build();
+        CurrencyConversionDto conversionResultInSourceAcctCurrency = maintenanceClient.convertBetweenCurrencies(currencyRequest).getData();
+        amtToBePaidInSrcCurrency = conversionResultInSourceAcctCurrency.getAccountCurrencyAmount();
+        return amtToBePaidInSrcCurrency;
     }
 
     private FundTransferRequest prepareFundTransferRequestPayload(FundTransferMetadata metadata, FundTransferRequestDTO request,
@@ -155,10 +173,10 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         final Optional<CountryMasterDto> countryDto = countryList.stream()
                 .filter(country -> country.getCode().equals(beneficiaryDto.getBeneficiaryCountryISO()))
                 .findAny();
-        if(countryDto.isPresent()) {
+        if (countryDto.isPresent()) {
             final CountryMasterDto countryMasterDto = countryDto.get();
-            if(StringUtils.isNotBlank(countryMasterDto.getRoutingCode()) && request.getDestinationCurrency()
-                    .equals(countryToCurrencyMap.get(beneficiaryDto.getBeneficiaryCountryISO())) ) {
+            if (StringUtils.isNotBlank(countryMasterDto.getRoutingCode()) && request.getDestinationCurrency()
+                    .equals(countryToCurrencyMap.get(beneficiaryDto.getBeneficiaryCountryISO()))) {
 
                 return request.toBuilder()
                         .awInstBICCode(ROUTING_CODE_PREFIX + beneficiaryDto.getRoutingCode())

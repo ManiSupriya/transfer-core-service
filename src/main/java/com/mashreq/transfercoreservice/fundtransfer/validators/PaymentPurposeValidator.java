@@ -28,7 +28,7 @@ public class PaymentPurposeValidator implements Validator {
             return ValidationResult.builder().success(false).transferErrorCode(INVALID_PURPOSE_DESC)
                     .build();
         }
-
+        log.info("Purpose code and description validation successful");
         return ValidationResult.builder().success(true).build();
     }
 
