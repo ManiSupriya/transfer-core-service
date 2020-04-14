@@ -76,52 +76,34 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         final Set<PurposeOfTransferDto> allPurposeCodes = maintenanceClient.getAllPurposeCodes(LOCAL).getData();
         validationContext.add("purposes", allPurposeCodes);
         responseHandler(paymentPurposeValidator.validate(request, metadata, validationContext));
-        log.info("Purpose code and description validation successful");
 
 
         responseHandler(accountBelongsToCifValidator.validate(request, metadata, validationContext));
-        log.info("Account belongs to cif validation successful");
+
         final AccountDetailsDTO fromAccountDetails = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
         validationContext.add("from-account", fromAccountDetails);
 
-        final BeneficiaryDto beneficiaryDto = beneficiaryService.getById((metadata.getPrimaryCif()),valueOf(request.getBeneficiaryId()));
+        final BeneficiaryDto beneficiaryDto = beneficiaryService.getById((metadata.getPrimaryCif()), valueOf(request.getBeneficiaryId()));
         validationContext.add("beneficiary-dto", beneficiaryDto);
         validationContext.add("to-account-currency", StringUtils.isBlank(beneficiaryDto.getBeneficiaryCurrency())
                 ? localCurrency : beneficiaryDto.getBeneficiaryCurrency());
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
-        log.info("Beneficiary validation successful");
 
-        validationContext.add("iban-length",LOCAL_IBAN_LENGTH);
+
+        validationContext.add("iban-length", LOCAL_IBAN_LENGTH);
         responseHandler(ibanValidator.validate(request, metadata, validationContext));
-        log.info("IBAN validation successful");
 
-        BigDecimal amtToBePaidInSrcCurrency = request.getAmount();
-        if (!fromAccountDetails.getCurrency().equalsIgnoreCase(beneficiaryDto.getBeneficiaryCurrency())) {
-            final CoreCurrencyConversionRequestDto currencyRequest = CoreCurrencyConversionRequestDto.builder()
-                    .accountNumber(fromAccountDetails.getNumber())
-                    .accountCurrency(fromAccountDetails.getCurrency())
-                    .transactionCurrency(beneficiaryDto.getBeneficiaryCurrency())
-                    .transactionAmount(request.getAmount()).build();
-            CurrencyConversionDto conversionResultInSourceAcctCurrency = maintenanceClient.convertBetweenCurrencies(currencyRequest).getData();
-            amtToBePaidInSrcCurrency = conversionResultInSourceAcctCurrency.getAccountCurrencyAmount();
-            validationContext.add("transfer-amount-in-source-currency",amtToBePaidInSrcCurrency);
-        }
+        //Balance Validation
+        final BigDecimal transferAmountInSrcCurrency = isCurrencySame(beneficiaryDto, fromAccountDetails)
+                ? request.getAmount()
+                : getAmountInSrcCurrency(request, beneficiaryDto, fromAccountDetails);
+        validationContext.add("transfer-amount-in-source-currency", transferAmountInSrcCurrency);
         responseHandler(balanceValidator.validate(request, metadata, validationContext));
-        log.info("Balance validation successful");
 
-        log.info("Limit Validation start.");
-        BigDecimal limitUsageAmount = amtToBePaidInSrcCurrency;
-        if (!localCurrency.equalsIgnoreCase(fromAccountDetails.getCurrency())) {
-            // Since we support request currency it can be  debitLeg or creditLeg
-            CoreCurrencyConversionRequestDto requestDto = generateCurrencyConversionRequest(fromAccountDetails.getCurrency(),
-                    fromAccountDetails.getNumber(), limitUsageAmount,
-                    request.getDealNumber(), localCurrency);
-            CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(requestDto);
-            limitUsageAmount = currencyConversionDto.getTransactionAmount();
-        }
 
+        //Limit Validation
+        final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), fromAccountDetails, transferAmountInSrcCurrency);
         final LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount);
-        log.info("Limit validation successful");
 
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountDetails, beneficiaryDto);
         log.info("Local Fund transfer initiated.......");
@@ -133,6 +115,41 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
                 .limitUsageAmount(limitUsageAmount)
                 .limitVersionUuid(validationResult.getLimitVersionUuid()).build();
 
+    }
+
+    private BigDecimal getLimitUsageAmount(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO, final BigDecimal transferAmountInSrcCurrency) {
+        return "AED" .equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
+                ? transferAmountInSrcCurrency
+                : convertAmountInLocalCurrency(dealNumber, sourceAccountDetailsDTO, transferAmountInSrcCurrency);
+    }
+
+    private BigDecimal convertAmountInLocalCurrency(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO, final BigDecimal transferAmountInSrcCurrency) {
+        CoreCurrencyConversionRequestDto currencyConversionRequestDto = CoreCurrencyConversionRequestDto.builder()
+                .accountNumber(sourceAccountDetailsDTO.getNumber())
+                .accountCurrency(sourceAccountDetailsDTO.getCurrency())
+                .accountCurrencyAmount(transferAmountInSrcCurrency)
+                .dealNumber(dealNumber)
+                .transactionCurrency("AED")
+                .build();
+
+        CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(currencyConversionRequestDto);
+        return currencyConversionDto.getTransactionAmount();
+    }
+
+    private boolean isCurrencySame(BeneficiaryDto beneficiaryDto, AccountDetailsDTO sourceAccountDetailsDTO) {
+        return sourceAccountDetailsDTO.getCurrency().equalsIgnoreCase(beneficiaryDto.getBeneficiaryCurrency());
+    }
+
+    private BigDecimal getAmountInSrcCurrency(FundTransferRequestDTO request, BeneficiaryDto beneficiaryDto, AccountDetailsDTO sourceAccountDetailsDTO) {
+        BigDecimal amtToBePaidInSrcCurrency;
+        final CoreCurrencyConversionRequestDto currencyRequest = CoreCurrencyConversionRequestDto.builder()
+                .accountNumber(sourceAccountDetailsDTO.getNumber())
+                .accountCurrency(sourceAccountDetailsDTO.getCurrency())
+                .transactionCurrency(beneficiaryDto.getBeneficiaryCurrency())
+                .transactionAmount(request.getAmount()).build();
+        CurrencyConversionDto conversionResultInSourceAcctCurrency = maintenanceClient.convertBetweenCurrencies(currencyRequest).getData();
+        amtToBePaidInSrcCurrency = conversionResultInSourceAcctCurrency.getAccountCurrencyAmount();
+        return amtToBePaidInSrcCurrency;
     }
 
     private FundTransferRequest prepareFundTransferRequestPayload(FundTransferMetadata metadata, FundTransferRequestDTO request,

@@ -35,12 +35,11 @@ public class BalanceValidatorTest {
                 .build();
 
         mockValidationContext.add("from-account", mockAccount);
-        mockValidationContext.add("to-account-currency", "AED");
 
         FundTransferRequestDTO mockFundTransferRequest = new FundTransferRequestDTO();
         mockFundTransferRequest.setAmount(new BigDecimal(10));
         mockFundTransferRequest.setServiceType("local");
-
+        mockValidationContext.add("transfer-amount-in-source-currency", new BigDecimal(10));
 
         ValidationResult result = balanceValidator.validate(mockFundTransferRequest, null, mockValidationContext);
 
@@ -59,13 +58,12 @@ public class BalanceValidatorTest {
                 .build();
 
         mockValidationContext.add("from-account", mockAccount);
-        mockValidationContext.add("to-account-currency", "AED");
 
         FundTransferRequestDTO mockFundTransferRequest = new FundTransferRequestDTO();
         mockFundTransferRequest.setAmount(new BigDecimal(10));
         mockFundTransferRequest.setServiceType("local");
 
-
+        mockValidationContext.add("transfer-amount-in-source-currency", new BigDecimal(10));
         ValidationResult result = balanceValidator.validate(mockFundTransferRequest, null, mockValidationContext);
 
         assertThat(result).isNotNull();
@@ -82,13 +80,12 @@ public class BalanceValidatorTest {
                 .build();
 
         mockValidationContext.add("from-account", mockAccount);
-        mockValidationContext.add("to-account-currency", "AED");
 
         FundTransferRequestDTO mockFundTransferRequest = new FundTransferRequestDTO();
         mockFundTransferRequest.setAmount(new BigDecimal(10));
         mockFundTransferRequest.setServiceType("local");
 
-
+        mockValidationContext.add("transfer-amount-in-source-currency", new BigDecimal(10));
         ValidationResult result = balanceValidator.validate(mockFundTransferRequest, null, mockValidationContext);
 
         assertThat(result).isNotNull();
@@ -107,7 +104,6 @@ public class BalanceValidatorTest {
                 .build();
 
         mockValidationContext.add("from-account", mockAccount);
-        mockValidationContext.add("to-account-currency", "AED");
         mockValidationContext.add("transfer-amount-in-source-currency", new BigDecimal(8.17));
         FundTransferRequestDTO mockFundTransferRequest = new FundTransferRequestDTO();
         mockFundTransferRequest.setAmount(new BigDecimal(20));
@@ -129,7 +125,6 @@ public class BalanceValidatorTest {
                 .build();
 
         mockValidationContext.add("from-account", mockAccount);
-        mockValidationContext.add("to-account-currency", "AED");
         mockValidationContext.add("transfer-amount-in-source-currency", new BigDecimal(108.90));
         FundTransferRequestDTO mockFundTransferRequest = new FundTransferRequestDTO();
         mockFundTransferRequest.setAmount(new BigDecimal(400));
@@ -151,7 +146,6 @@ public class BalanceValidatorTest {
                 .build();
 
         mockValidationContext.add("from-account", mockAccount);
-        mockValidationContext.add("to-account-currency", "AED");
         mockValidationContext.add("transfer-amount-in-source-currency", new BigDecimal(108.90));
         FundTransferRequestDTO mockFundTransferRequest = new FundTransferRequestDTO();
         mockFundTransferRequest.setAmount(new BigDecimal(400));
