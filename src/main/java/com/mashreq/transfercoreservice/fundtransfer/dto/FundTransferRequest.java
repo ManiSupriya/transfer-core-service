@@ -28,6 +28,6 @@ public class FundTransferRequest {
     private String beneficiaryAddressOne;
     private String beneficiaryAddressTwo;
     private String beneficiaryAddressThree;
-    private boolean isRoutingCodeCountry;
+
 
 }

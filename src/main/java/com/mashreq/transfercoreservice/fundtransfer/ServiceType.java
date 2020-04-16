@@ -19,7 +19,9 @@ public enum ServiceType implements ValidEnum {
     WITHIN_MASHREQ("within-mashreq"),
     LOCAL("local"),
     INTERNATIONAL("international"),
-    CHARITY_ACCOUNT("charity");
+    DAR_AL_BER("dar-al-ber"),
+    BAIT_AL_KHAIR("bait-al-khair"),
+    DUBAI_CARE("dubai-care");
 
     private String name;
 

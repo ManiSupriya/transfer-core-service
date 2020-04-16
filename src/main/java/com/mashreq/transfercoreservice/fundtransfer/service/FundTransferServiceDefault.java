@@ -3,17 +3,15 @@ package com.mashreq.transfercoreservice.fundtransfer.service;
 import com.mashreq.logcore.annotations.TrackExec;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageService;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.*;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.model.DigitalUser;
 import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
-import com.mashreq.transfercoreservice.settings.ApplicationSettingsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -43,9 +41,9 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final WithinMashreqStrategy withinMashreqStrategy;
     private final LocalFundTransferStrategy localFundTransferStrategy;
     private final InternationalFundTransferStrategy internationalFundTransferStrategy;
-    private final CharityStrategy charityStrategy;
+    private final CharityStrategyDefault charityStrategyDefault;
     private EnumMap<ServiceType, FundTransferStrategy> fundTransferStrategies;
-    private final ApplicationSettingsService applicationSettingsService;
+
 
 
     @PostConstruct
@@ -53,9 +51,12 @@ public class FundTransferServiceDefault implements FundTransferService {
         fundTransferStrategies = new EnumMap<>(ServiceType.class);
         fundTransferStrategies.put(OWN_ACCOUNT, ownAccountStrategy);
         fundTransferStrategies.put(WITHIN_MASHREQ, withinMashreqStrategy);
-        fundTransferStrategies.put(CHARITY_ACCOUNT, charityStrategy);
         fundTransferStrategies.put(LOCAL, localFundTransferStrategy);
         fundTransferStrategies.put(INTERNATIONAL, internationalFundTransferStrategy);
+        fundTransferStrategies.put(BAIT_AL_KHAIR, charityStrategyDefault);
+        fundTransferStrategies.put(DUBAI_CARE, charityStrategyDefault);
+        fundTransferStrategies.put(DAR_AL_BER, charityStrategyDefault);
+
     }
 
     @Override

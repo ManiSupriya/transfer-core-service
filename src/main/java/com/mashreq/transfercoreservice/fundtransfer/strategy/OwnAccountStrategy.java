@@ -64,8 +64,11 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 
         validateAccountContext.add("from-account", fromAccount);
         validateAccountContext.add("to-account", toAccount);
-
+        validateAccountContext.add("to-account-currency",toAccount.getCurrency());
         responseHandler(currencyValidator.validate(request, metadata, validateAccountContext));
+
+        //TODO
+        //responseHandler(balanceValidator.validate(request, metadata, validateAccountContext));
 
         // As per current implementation with FE they are sending toCurrency and its value for within and own
         log.info("Limit Validation start.");
@@ -86,8 +89,6 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         }
         LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount);
         log.info("Limit Validation successful");
-
-        responseHandler(balanceValidator.validate(request, metadata, validateAccountContext));
 
         final FundTransferResponse fundTransferResponse = coreTransferService.transferFundsBetweenAccounts(request);
 

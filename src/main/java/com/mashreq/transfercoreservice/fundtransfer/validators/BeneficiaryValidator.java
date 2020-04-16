@@ -32,7 +32,7 @@ public class BeneficiaryValidator implements Validator {
             return ValidationResult.builder().success(false).transferErrorCode(BENE_ACC_NOT_MATCH)
                     .build();
 
-        if (ACTIVE.getValue().equals(beneficiaryDto.getStatus()))
+        if (!ACTIVE.getValue().equals(beneficiaryDto.getStatus()))
             return ValidationResult.builder().success(false).transferErrorCode(BENE_NOT_ACTIVE)
                     .build();
 

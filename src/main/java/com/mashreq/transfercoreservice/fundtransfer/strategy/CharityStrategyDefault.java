@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 import static java.time.Duration.between;
 import static java.time.Instant.now;
@@ -31,7 +32,7 @@ import static java.time.Instant.now;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class CharityStrategy implements FundTransferStrategy {
+public class CharityStrategyDefault implements FundTransferStrategy {
 
     private final SameAccountValidator sameAccountValidator;
     private final FinTxnNoValidator finTxnNoValidator;
@@ -42,6 +43,7 @@ public class CharityStrategy implements FundTransferStrategy {
     private final CurrencyValidator currencyValidator;
     private final LimitValidator limitValidator;
     private final CoreTransferService coreTransferService;
+    private final BalanceValidator balanceValidator;
 
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO) {
@@ -60,11 +62,21 @@ public class CharityStrategy implements FundTransferStrategy {
         responseHandler(accountBelongsToCifValidator.validate(request, metadata, validateContext));
 
 
+        Optional<AccountDetailsDTO> fromAccountOpt = accountsFromCore.stream()
+                .filter(x -> request.getFromAccount().equals(x.getNumber()))
+                .findFirst();
+
+        //from account will always be present as it has been validated in the accountBelongsToCifValidator
+        validateContext.add("from-account", fromAccountOpt.get());
 
         CharityBeneficiaryDto charityBeneficiaryDto = beneficiaryClient.getCharity(request.getBeneficiaryId()).getData();
         validateContext.add("charity-beneficiary-dto", charityBeneficiaryDto);
+        validateContext.add("to-account-currency",charityBeneficiaryDto.getCurrencyCode());
         responseHandler(charityValidator.validate(request, metadata, validateContext));
         responseHandler(currencyValidator.validate(request, metadata, validateContext));
+
+        //TODO
+        //responseHandler(balanceValidator.validate(request, metadata,validateContext));
 
         // Assuming to account is always in AED
 

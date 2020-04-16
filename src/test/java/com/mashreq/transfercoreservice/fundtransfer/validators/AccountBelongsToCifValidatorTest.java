@@ -139,4 +139,41 @@ public class AccountBelongsToCifValidatorTest {
         assertThat(result).isNotNull();
         assertThat(result.isSuccess()).isTrue();
     }
+
+    @Test
+    public void shouldReturnFailure_whenToAccount_doesnot_belongToCif_inLocal() {
+
+        //given
+        AccountDetailsDTO fromAcc1 = AccountDetailsDTO.builder()
+                .number("010797697124")
+                .build();
+
+        AccountDetailsDTO fromAcc2 = AccountDetailsDTO.builder()
+                .number("019010050532")
+                .build();
+
+        AccountDetailsDTO fromAcc3 = AccountDetailsDTO.builder()
+                .number("019010073901")
+                .build();
+
+        List<AccountDetailsDTO> listOfMockAccounts = Arrays.asList(fromAcc1, fromAcc2, fromAcc3);
+
+        ValidationContext mockValidationContext = new ValidationContext();
+        mockValidationContext.add("account-details", listOfMockAccounts);
+        mockValidationContext.add("validate-to-account", true);
+
+        FundTransferRequestDTO mockFundTransferRequest = new FundTransferRequestDTO();
+        mockFundTransferRequest.setServiceType("local");
+        mockFundTransferRequest.setToAccount("019010050536");
+        mockFundTransferRequest.setFromAccount("019010073000");
+
+
+        //when
+        AccountBelongsToCifValidator accountBelongsToCifValidator = new AccountBelongsToCifValidator();
+        ValidationResult result = accountBelongsToCifValidator.validate(mockFundTransferRequest, null, mockValidationContext);
+
+        //then
+        assertThat(result).isNotNull();
+        assertThat(result.isSuccess()).isFalse();
+    }
 }
