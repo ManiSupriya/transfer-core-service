@@ -10,34 +10,39 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
+import static com.mashreq.transfercoreservice.client.ErrorUtils.getErrorDetails;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_NOT_FOUND;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class MobCommonService {
 
     private final MobCommonClient mobCommonClient;
+    public static final String TRUE = "true";
 
-    public LimitValidatorResultsDto validateAvailableLimit(String cifId, String beneficiaryTypeCode, BigDecimal amount){
+    public LimitValidatorResultsDto validateAvailableLimit(String cifId, String beneficiaryTypeCode, BigDecimal amount) {
 
-        log.info("[MobCommonService] Calling MobCommonService for limit validation for cif={} beneficiaryTypeCode = {} and amount ={}",
+        log.info("[MobCommonService] Calling MobCommonService for limit validation for cif={} beneficiaryTypeCode = {} " +
+                        "and amount ={}",
                 cifId, beneficiaryTypeCode, amount);
 
-        try{
+        long startTime = System.nanoTime();
+        Response<LimitValidatorResultsDto> limitValidatorResultsDtoResponse =
+                mobCommonClient.validateAvailableLimit(cifId, beneficiaryTypeCode, amount);
 
-            long startTime = System.nanoTime();
-            Response<LimitValidatorResultsDto> limitValidatorResultsDtoResponse =
-                    mobCommonClient.validateAvailableLimit(cifId, beneficiaryTypeCode, amount);
-            long endTime   = System.nanoTime();
-            long totalTime = endTime - startTime;
-            log.info("[MobCommonService] MobCommonService response success in nanoseconds {} ", totalTime);
-
-            return limitValidatorResultsDtoResponse.getData();
-
-        } catch (Exception e){
-            log.error("[MobCommonService] Exception in calling mob customer for limit validation ={} ", e.getMessage());
-            GenericExceptionHandler.handleError(TransferErrorCode.EXTERNAL_SERVICE_ERROR,
-                    TransferErrorCode.EXTERNAL_SERVICE_ERROR.getErrorMessage());
+        if (TRUE.equalsIgnoreCase(limitValidatorResultsDtoResponse.getHasError())) {
+            final String errorDetails = getErrorDetails(limitValidatorResultsDtoResponse);
+            log.error("[MobCommonService] Exception in calling mob customer for limit validation ={} ", errorDetails);
+            GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR,
+                    EXTERNAL_SERVICE_ERROR.getErrorMessage(), errorDetails);
         }
-        return LimitValidatorResultsDto.builder().build();
+
+        long endTime = System.nanoTime();
+        long totalTime = endTime - startTime;
+        log.info("[MobCommonService] MobCommonService response success in nanoseconds {} ", totalTime);
+
+        return limitValidatorResultsDtoResponse.getData();
     }
 }

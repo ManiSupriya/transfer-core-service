@@ -1,4 +1,4 @@
-package com.mashreq.transfercoreservice.fundtransfer;
+package com.mashreq.transfercoreservice.fundtransfer.dto;
 
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.annotations.ValidEnum;

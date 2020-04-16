@@ -4,8 +4,6 @@ import com.mashreq.transfercoreservice.annotations.Account;
 import com.mashreq.transfercoreservice.annotations.ConditionalRequired;
 import com.mashreq.transfercoreservice.annotations.TransactionAmount;
 import com.mashreq.transfercoreservice.annotations.ValueOfEnum;
-import com.mashreq.transfercoreservice.fundtransfer.ChargeBearer;
-import com.mashreq.transfercoreservice.fundtransfer.ServiceType;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;

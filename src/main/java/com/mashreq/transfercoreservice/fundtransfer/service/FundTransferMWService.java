@@ -1,4 +1,4 @@
-package com.mashreq.transfercoreservice.fundtransfer;
+package com.mashreq.transfercoreservice.fundtransfer.service;
 
 import com.mashreq.esbcore.bindings.account.mbcdm.FundTransferReqType;
 import com.mashreq.esbcore.bindings.account.mbcdm.FundTransferResType;
