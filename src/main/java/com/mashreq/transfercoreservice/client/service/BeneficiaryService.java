@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import static com.mashreq.transfercoreservice.client.ErrorUtils.getErrorDetails;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_NOT_FOUND;
 
 /**
@@ -22,17 +23,15 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_NOT_
 @RequiredArgsConstructor
 public class BeneficiaryService {
 
+    public static final String TRUE = "true";
     private final BeneficiaryClient beneficiaryClient;
 
     public BeneficiaryDto getById(final String cifId, final Long id) {
         Response<BeneficiaryDto> response = beneficiaryClient.getById(cifId, id);
 
-//        if (ErrorUtils.hasError(response)) {
-//            GenericExceptionHandler.handleError(
-//                    BENE_NOT_FOUND,
-//                    BENE_NOT_FOUND.getErrorMessage(),
-//                    ErrorUtils.getErrorDetails(response));
-//        }
+        if (TRUE.equalsIgnoreCase(response.getHasError())) {
+            GenericExceptionHandler.handleError(BENE_NOT_FOUND, BENE_NOT_FOUND.getErrorMessage(), getErrorDetails(response));
+        }
         return response.getData();
     }
 
