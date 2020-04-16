@@ -43,7 +43,7 @@ public class CharityStrategyDefault implements FundTransferStrategy {
     private final CurrencyValidator currencyValidator;
     private final LimitValidator limitValidator;
     private final CoreTransferService coreTransferService;
-    private final BalanceValidator balanceValidator;
+
 
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO) {

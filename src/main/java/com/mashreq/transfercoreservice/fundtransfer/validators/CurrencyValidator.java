@@ -9,7 +9,7 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import static com.mashreq.transfercoreservice.fundtransfer.ServiceType.*;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.*;
 
 /**
  * @author shahbazkh
