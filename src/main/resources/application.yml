@@ -39,10 +39,10 @@ esb-service:
   url: ${CDM_URL:http://172.24.70.29:7800/AllOperationsSOAP_HTTP_Service}
   app-id: ${SOAP_SERVICE_APPID:SITAPPS}
   origin-id: ${SOAP_SERVICE_ORIGINID:AE}
-  channel: ${SOAP_SERVICE_USERID:MOBANKUSER}
+  channel: ${SOAP_SERVICE_USERID:MOMMUSER}
   connect-timeout: ${SOAP_SERVICE_CONNECTIONTIMEOUT:15000}
   read-timeout: ${SOAP_SERVICE_READTIMEOUT:30000}
-  user-id: ${USER_ID:MOBANKUSER}
+  user-id: ${USER_ID:MOMMUSER}
   service-codes:
     fundTransfer: TFT
     ibanSearch: ${ACCUITYIBAN_SERVICE_CODE:QIBANVAL}
