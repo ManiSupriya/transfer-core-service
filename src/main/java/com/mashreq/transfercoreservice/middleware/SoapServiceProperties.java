@@ -21,5 +21,6 @@ public class SoapServiceProperties {
         private String fundTransfer;
         private String ibanSearch;
         private String routingCodeSearch;
+        private String ifscSearch;
     }
 }

@@ -34,6 +34,9 @@ public class RoutingCodeSearchMWService {
     private static final String SUCCESS_CODE_ENDS_WITH = "-000";
 
     public List<BankResultsDto> fetchBankDetailsWithRoutingCode(String channelTraceId, BankDetailRequestDto bankDetailRequest) {
+
+        log.info("Searching for Bank details with routing code ", bankDetailRequest);
+
         EAIServices response = (EAIServices) webServiceClient.exchange(
                 this.getRequestForRoutingCode(channelTraceId, bankDetailRequest));
 
