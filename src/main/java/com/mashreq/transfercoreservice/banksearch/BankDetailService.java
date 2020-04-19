@@ -18,13 +18,18 @@ public class BankDetailService {
 
     private final IbanSearchMWService ibanSearchMWService;
     private final RoutingCodeSearchMWService routingCodeSearchMWService;
+    private final IfscCodeSearchMWService ifscCodeSearchMWService;
 
-    public List<BankResultsDto> getBankDetails(String channelTraceId, BankDetailRequestDto bankDetailRequest) {
 
+    public List<BankResultsDto> getBankDetails(final String channelTraceId, final BankDetailRequestDto bankDetailRequest) {
         if ("iban".equals(bankDetailRequest.getType())) {
             return ibanSearchMWService.fetchBankDetailsWithIban(channelTraceId, bankDetailRequest.getValue());
         }
         return routingCodeSearchMWService.fetchBankDetailsWithRoutingCode(channelTraceId, bankDetailRequest);
+    }
+
+    public BankResultsDto getBankDeatilsByIfsc(final String channelTraceId, final String ifscCode) {
+        return ifscCodeSearchMWService.getBankDetailByIfscCode(channelTraceId, ifscCode);
     }
 
 }
