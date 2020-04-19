@@ -1,13 +1,12 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
-import com.mashreq.transfercoreservice.client.MaintenanceClient;
 import com.mashreq.transfercoreservice.client.dto.*;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
-import com.mashreq.transfercoreservice.fundtransfer.FundTransferMWService;
+import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
@@ -21,9 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 import static java.lang.Long.valueOf;
@@ -48,7 +45,6 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     private final BeneficiaryService beneficiaryService;
     private final LimitValidator limitValidator;
     private final FundTransferMWService fundTransferMWService;
-    private final MaintenanceClient maintenanceClient;
     private final PaymentPurposeValidator paymentPurposeValidator;
     private final BalanceValidator balanceValidator;
     private final MaintenanceService maintenanceService;
@@ -73,7 +69,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         validationContext.add("validate-from-account", Boolean.TRUE);
 
 
-        final Set<PurposeOfTransferDto> allPurposeCodes = maintenanceClient.getAllPurposeCodes(LOCAL).getData();
+        final Set<PurposeOfTransferDto> allPurposeCodes = maintenanceService.getAllPurposeCodes(LOCAL);
         validationContext.add("purposes", allPurposeCodes);
         responseHandler(paymentPurposeValidator.validate(request, metadata, validationContext));
 
@@ -147,7 +143,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
                 .accountCurrency(sourceAccountDetailsDTO.getCurrency())
                 .transactionCurrency(beneficiaryDto.getBeneficiaryCurrency())
                 .transactionAmount(request.getAmount()).build();
-        CurrencyConversionDto conversionResultInSourceAcctCurrency = maintenanceClient.convertBetweenCurrencies(currencyRequest).getData();
+        CurrencyConversionDto conversionResultInSourceAcctCurrency = maintenanceService.convertBetweenCurrencies(currencyRequest);
         amtToBePaidInSrcCurrency = conversionResultInSourceAcctCurrency.getAccountCurrencyAmount();
         return amtToBePaidInSrcCurrency;
     }
