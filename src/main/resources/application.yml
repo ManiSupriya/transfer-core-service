@@ -48,6 +48,7 @@ esb-service:
     ibanSearch: ${ACCUITYIBAN_SERVICE_CODE:QIBANVAL}
     routingCodeSearch: ${ACCUITYROUTING_SERVICE_CODE:QFAD}
     ifscSearch: ${IFSCSEARCH_SERVICE_CODE:QAXIFSC}
+    flexRuleEngine: ${FLEXRULEENGINE_SERVICE_CODE:QRMTGW}
 
 app:
   local:
