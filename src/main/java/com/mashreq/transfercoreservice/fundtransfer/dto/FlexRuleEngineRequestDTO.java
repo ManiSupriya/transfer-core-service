@@ -22,9 +22,9 @@ public class FlexRuleEngineRequestDTO {
     @NotEmpty
     private String transactionCurrency;
 
-    @TransactionAmount
+//    @TransactionAmount
     private BigDecimal transactionAmount;
 
-    @ValueOfEnum(isRequired = true, enumClass = FlexRuleEngineCountryType.class, message = "Noat a valid country choice")
+    //@ValueOfEnum(isRequired = true, enumClass = FlexRuleEngineCountryType.class, message = "Noat a valid country choice")
     private FlexRuleEngineCountryType countryType;
 }
