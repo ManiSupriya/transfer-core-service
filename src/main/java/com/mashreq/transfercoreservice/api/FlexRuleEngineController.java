@@ -1,8 +1,8 @@
 package com.mashreq.transfercoreservice.api;
 
-import com.mashreq.transfercoreservice.fundtransfer.dto.FlexRuleEngineDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FlexRuleEngineResponseDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FlexRuleEngineRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.service.FlexRuleEngineMWService;
 import com.mashreq.webcore.dto.response.Response;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -29,20 +29,25 @@ import java.math.BigDecimal;
 public class FlexRuleEngineController {
 
 
-    @ApiOperation(value = "Fetch Rules for flex enginet", response = FlexRuleEngineDTO.class)
+    private final FlexRuleEngineMWService flexRuleEngineMWService;
+
+    @ApiOperation(value = "Fetch Rules for flex enginet", response = FlexRuleEngineResponseDTO.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully processed"),
             @ApiResponse(code = 500, message = "Something went wrong")
     })
-    @PostMapping("/{countryCode}")
+    @PostMapping
     public Response transferFunds(@RequestAttribute("X-CHANNEL-TRACE-ID") String channelTraceId,
                                   @RequestAttribute("X-CHANNEL-HOST") String channelHost,
                                   @RequestAttribute("X-CHANNEL-NAME") String channelName,
                                   @RequestHeader("X-CIF-ID") final String cifId,
                                   @Valid @RequestBody FlexRuleEngineRequestDTO request) {
         log.info("{} Flex Rule engine transfer for request received ", request);
-        FlexRuleEngineDTO response = FlexRuleEngineDTO.builder().productCode("FNSI").charge(new BigDecimal(5)).build();
-        return Response.builder().data(response).build();
+
+        return Response.builder().data(FlexRuleEngineResponseDTO.builder()
+                .charge(new BigDecimal(5))
+                .productCode("FNSI")
+        ).build();
 
     }
 }
