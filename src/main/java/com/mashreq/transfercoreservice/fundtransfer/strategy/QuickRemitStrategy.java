@@ -34,11 +34,12 @@ public class QuickRemitStrategy implements QuickRemitFundTransfer {
 
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO, ValidationContext context) {
-        final BeneficiaryDto beneficiaryDto = beneficiaryService.getById((metadata.getPrimaryCif()), valueOf(request.getBeneficiaryId()));
-        log.info("Initiating Quick Remit transfer to {}", beneficiaryDto.getBeneficiaryCountryISO());
+        //final BeneficiaryDto beneficiaryDto = beneficiaryService.getById((metadata.getPrimaryCif()), valueOf(request.getBeneficiaryId()));
+        //log.info("Initiating Quick Remit transfer to {}", beneficiaryDto.getBeneficiaryCountryISO());
         final ValidationContext validateContext = new ValidationContext();
-        validateContext.add("beneficiary-dto", beneficiaryDto);
-        final QuickRemitFundTransfer quickRemitFundTransfer = fundTransferStrategies.get(getServiceByCountry(beneficiaryDto.getBeneficiaryCountryISO()));
+        //validateContext.add("beneficiary-dto", beneficiaryDto);
+        //final QuickRemitFundTransfer quickRemitFundTransfer = fundTransferStrategies.get(getServiceByCountry(beneficiaryDto.getBeneficiaryCountryISO()));
+        final QuickRemitFundTransfer quickRemitFundTransfer = fundTransferStrategies.get(getServiceByCountry("IN"));
         return quickRemitFundTransfer.execute(request, metadata, userDTO, validateContext);
     }
 

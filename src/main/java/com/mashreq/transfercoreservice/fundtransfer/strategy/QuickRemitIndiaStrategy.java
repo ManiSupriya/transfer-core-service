@@ -2,6 +2,8 @@ package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
 import com.mashreq.transfercoreservice.client.dto.*;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
+import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
+import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.CustomerService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
@@ -15,8 +17,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -24,6 +29,8 @@ import java.util.Set;
 public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
 
     private static final String ORIGINATING_COUNTRY_ISO = "AE";
+    private static final String INDIA_COUNTRY_ISO = "356";
+    private static final String COMMA = ",";
 
     private final AccountService accountService;
     private final MobCommonService mobCommonService;
@@ -43,6 +50,8 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
         log.info("Quick remit to INDIA initiated......");
         responseHandler(finTxnNoValidator.validate(request, metadata));
 
+        final CustomerDetailsDto customerDetails = customerService.getCustomerDetails(metadata.getPrimaryCif());
+
         final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metadata.getPrimaryCif());
         validationContext.add("account-details", accountsFromCore);
         validationContext.add("validate-from-account", Boolean.TRUE);
@@ -51,11 +60,11 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
         final BeneficiaryDto beneficiaryDto = validationContext.get("beneficiary-dto", BeneficiaryDto.class);
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
 
-       /* final Set<MoneyTransferPurposeDto> allPurposeCodes = mobCommonService.getPaymentPurposes(metadata
+        final Set<MoneyTransferPurposeDto> allPurposeCodes = mobCommonService.getPaymentPurposes(metadata
                 .getChannelTraceId(), request.getServiceType(), beneficiaryDto.getBeneficiaryCountryISO());
         validationContext.add("purposes", allPurposeCodes);
         responseHandler(paymentPurposeValidator.validate(request, metadata, validationContext));
-*/
+
         //Balance Validation
         final AccountDetailsDTO sourceAccountDetailsDTO = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
         validationContext.add("to-account-currency", beneficiaryDto.getBeneficiaryCurrency());
@@ -66,11 +75,10 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
         responseHandler(balanceValidator.validate(request, metadata, validationContext));
 
         //Limit Validation
-        /*final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), sourceAccountDetailsDTO,
+        final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), sourceAccountDetailsDTO,
                 currencyConversionDto.getAccountCurrencyAmount());
         final LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount);
-*/
-        final CustomerDetailsDto customerDetails = customerService.getCustomerDetails(metadata.getPrimaryCif());
+
 
         final QuickRemitFundTransferRequest fundTransferRequest = prepareQuickRemitFundTransferRequestPayload(metadata.getChannelTraceId(),
                 request, sourceAccountDetailsDTO, beneficiaryDto, currencyConversionDto.getAccountCurrencyAmount(),
@@ -79,10 +87,10 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
         final FundTransferResponse fundTransferResponse = quickRemitFundTransferMWService.transfer(fundTransferRequest);
 
 
-        /*return fundTransferResponse.toBuilder()
+        return fundTransferResponse.toBuilder()
                 .limitUsageAmount(limitUsageAmount)
-                .limitVersionUuid(validationResult.getLimitVersionUuid()).build();*/
-        return null;
+                .limitVersionUuid(validationResult.getLimitVersionUuid()).build();
+
     }
 
     private boolean isCurrencySame(BeneficiaryDto beneficiaryDto, AccountDetailsDTO sourceAccountDetailsDTO) {
@@ -90,7 +98,7 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
     }
 
     private CurrencyConversionDto getAmountInSrcCurrency(FundTransferRequestDTO request, BeneficiaryDto beneficiaryDto,
-                                              AccountDetailsDTO sourceAccountDetailsDTO) {
+                                                         AccountDetailsDTO sourceAccountDetailsDTO) {
 
         final CoreCurrencyConversionRequestDto currencyRequest = CoreCurrencyConversionRequestDto.builder()
                 .accountNumber(sourceAccountDetailsDTO.getNumber())
@@ -130,7 +138,7 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
                                                                                       CustomerDetailsDto customerDetails) {
 
 
-      return   QuickRemitFundTransferRequest.builder()
+        final QuickRemitFundTransferRequest quickRemitFundTransferRequest = QuickRemitFundTransferRequest.builder()
                 .amountDESTCurrency(request.getAmount())
                 .amountSRCCurrency(transferAmountInSrcCurrency)
                 .beneficiaryAccountNo(beneficiaryDto.getAccountNumber())
@@ -143,7 +151,7 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
                 .channelTraceId(channelTraceId)
                 .destCountry(beneficiaryDto.getBeneficiaryCountryISO())
                 .destCurrency(beneficiaryDto.getBeneficiaryCurrency())
-                .destISOCurrency("356")
+                .destISOCurrency(INDIA_COUNTRY_ISO)
                 .exchangeRate(exchangeRate)
                 .finTxnNo(request.getFinTxnNo())
                 .originatingCountry(ORIGINATING_COUNTRY_ISO)
@@ -152,10 +160,7 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
                 .senderBankAccount(accountDetails.getNumber())
                 .senderCountryISOCode(customerDetails.getResidenceCountry())
                 .senderBankBranch(customerDetails.getBranchName())
-                //.senderAddress()
-                .senderIDNumber(customerDetails.getNationalNumber())
-                /*.senderIDType()
-                .senderMobileNo()*/
+                .senderMobileNo(getMobileNumber(customerDetails))
                 .senderName(accountDetails.getCustomerName())
                 .srcCurrency(accountDetails.getCurrency())
                 //.srcISOCurrency("784") for AED
@@ -163,11 +168,47 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
                 .transactionCurrency(beneficiaryDto.getBeneficiaryCurrency())
                 .build();
 
+        return deriveSenderIdNumberAndAddress(quickRemitFundTransferRequest, customerDetails);
+
+    }
+
+
+    private String getMobileNumber(CustomerDetailsDto customerDetails) {
+        return StringUtils.defaultIfBlank(customerDetails.getMobile(), customerDetails.getPrimaryPhoneNumber());
+    }
+
+    private QuickRemitFundTransferRequest deriveSenderIdNumberAndAddress(QuickRemitFundTransferRequest remitFundTransferRequest, CustomerDetailsDto customerDetails) {
+        String address = deriveAddress(customerDetails.getAddress());
+
+        if (StringUtils.isNotBlank(customerDetails.getNationalNumber())) {
+            return remitFundTransferRequest.toBuilder().senderIDType("NATIONAL ID")
+                    .senderIDNumber(customerDetails.getNationalNumber()).senderAddress(address).build();
+        } else if (StringUtils.isNotBlank(customerDetails.getPassportNumber())) {
+            return remitFundTransferRequest.toBuilder().senderIDType("PASSPORT ID")
+                    .senderIDNumber(customerDetails.getPassportNumber()).senderAddress(address).build();
+        } else {
+            return remitFundTransferRequest.toBuilder().senderIDType("VISA ID")
+                    .senderIDNumber(customerDetails.getVisaNumber()).senderAddress(address).build();
+        }
+    }
+
+    private String deriveAddress(List<AddressTypeDto> address) {
+        List<String> types = Arrays.asList("P", "R");
+        final Optional<AddressTypeDto> first = address.stream().filter(a -> types.contains(a.getAddressType())).findFirst();
+        return first.map(this::generateSenderAddress).orElse("");
+    }
+
+    private String generateSenderAddress(AddressTypeDto addressTypeDto) {
+        return StringUtils.defaultIfBlank(addressTypeDto.getAddress1(), "") + COMMA +
+                StringUtils.defaultIfBlank(addressTypeDto.getAddress2(), "") + COMMA +
+                StringUtils.defaultIfBlank(addressTypeDto.getAddress3(), "") + COMMA +
+                StringUtils.defaultIfBlank(addressTypeDto.getAddress4(), "") + COMMA +
+                StringUtils.defaultIfBlank(addressTypeDto.getAddress5(), "") + COMMA;
     }
 
     private String generateBeneficiaryAddress(BeneficiaryDto beneficiaryDto) {
-        return StringUtils.isNotBlank(beneficiaryDto.getAddressLine1()) ? beneficiaryDto.getAddressLine1() :
-                StringUtils.isNotBlank(beneficiaryDto.getAddressLine2()) ? beneficiaryDto.getAddressLine2() :
-                        StringUtils.isNotBlank(beneficiaryDto.getAddressLine3()) ? beneficiaryDto.getAddressLine3() : "";
+        return StringUtils.defaultIfBlank(beneficiaryDto.getAddressLine1(), "") + COMMA +
+                StringUtils.defaultIfBlank(beneficiaryDto.getAddressLine2(), "") + COMMA +
+                StringUtils.defaultIfBlank(beneficiaryDto.getAddressLine3(), "");
     }
 }
