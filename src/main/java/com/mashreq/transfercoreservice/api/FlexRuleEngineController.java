@@ -31,7 +31,7 @@ public class FlexRuleEngineController {
 
     private final FlexRuleEngineMWService flexRuleEngineMWService;
 
-    @ApiOperation(value = "Fetch Rules for flex enginet", response = FlexRuleEngineResponseDTO.class)
+    @ApiOperation(value = "Fetch Rules for flex engine", response = FlexRuleEngineResponseDTO.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully processed"),
             @ApiResponse(code = 500, message = "Something went wrong")

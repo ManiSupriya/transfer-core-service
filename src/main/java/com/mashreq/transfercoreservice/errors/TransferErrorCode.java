@@ -57,6 +57,8 @@ public enum TransferErrorCode implements ErrorCode {
     EXTERNAL_SERVICE_ERROR("TN-5000", "Something went wrong with external service"),
     FUND_TRANSFER_FAILED("TN-5001", "Fund transfer failed"),
 
+    FLEX_RULE_ENGINE_FAILED("TN-5009", "Flex Rule Engine Failed"),
+
     //Middleware error codes
     CONNECTION_TIMEOUT_MW("TN-5002", "Middleware Connection Timeout"),
     EXTERNAL_SERVICE_ERROR_MW("TN-5003", "Something went wrong with middleware service");
