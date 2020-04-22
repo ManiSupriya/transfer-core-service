@@ -44,7 +44,8 @@ public class FlexRuleEngineController {
                                   @Valid @RequestBody FlexRuleEngineRequestDTO request) {
         log.info("{} Flex Rule engine transfer for request received ", request);
 
-        return Response.builder().data(FlexRuleEngineResponseDTO.builder()
+        return Response.builder().data(
+                FlexRuleEngineResponseDTO.builder()
                 .charge(new BigDecimal(5))
                 .productCode("FNSI")
         ).build();

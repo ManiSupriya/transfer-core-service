@@ -12,7 +12,9 @@ import java.math.BigDecimal;
 
 @Data
 @Builder
-public class FlexRuleEngineDTO {
+public class FlexRuleEngineResponseDTO {
     private String productCode;
     private BigDecimal charge;
+
+
 }
