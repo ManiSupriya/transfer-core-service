@@ -21,7 +21,8 @@ public enum ServiceType implements ValidEnum {
     INTERNATIONAL("international"),
     DAR_AL_BER("dar-al-ber"),
     BAIT_AL_KHAIR("bait-al-khair"),
-    DUBAI_CARE("dubai-care");
+    DUBAI_CARE("dubai-care"),
+    QUICK_REMIT("quick-remit");
 
     private String name;
 

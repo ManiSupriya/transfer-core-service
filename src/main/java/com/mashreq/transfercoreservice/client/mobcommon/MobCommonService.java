@@ -2,6 +2,7 @@ package com.mashreq.transfercoreservice.client.mobcommon;
 
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
+import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.webcore.dto.response.Response;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Set;
 
 import static com.mashreq.transfercoreservice.client.ErrorUtils.getErrorDetails;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
@@ -44,5 +46,23 @@ public class MobCommonService {
         log.info("[MobCommonService] MobCommonService response success in nanoseconds {} ", totalTime);
 
         return limitValidatorResultsDtoResponse.getData();
+    }
+
+    public Set<MoneyTransferPurposeDto> getPaymentPurposes(String channelTraceId, String transactionType, String countryIsoCode) {
+        log.info("[MobCommonService] Calling MobCommonService for getting POP for QR transfer to country={}  ",
+                countryIsoCode);
+        long startTime = System.nanoTime();
+        final Response<Set<MoneyTransferPurposeDto>> paymentPurpose = mobCommonClient.getPaymentPurpose(channelTraceId, transactionType, countryIsoCode);
+
+        if (TRUE.equalsIgnoreCase(paymentPurpose.getHasError())) {
+            final String errorDetails = getErrorDetails(paymentPurpose);
+            log.error("[MobCommonService] Exception in calling mob customer for POP ={} ", errorDetails);
+            GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR,
+                    EXTERNAL_SERVICE_ERROR.getErrorMessage(), errorDetails);
+        }
+        long endTime = System.nanoTime();
+        long totalTime = endTime - startTime;
+        log.info("[MobCommonService] MobCommonService response success in nanoseconds {} ", totalTime);
+        return paymentPurpose.getData();
     }
 }

@@ -1,0 +1,45 @@
+package com.mashreq.transfercoreservice.fundtransfer.strategy;
+
+import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
+import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
+import com.mashreq.transfercoreservice.fundtransfer.dto.*;
+
+import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
+import java.util.EnumMap;
+
+import static com.mashreq.transfercoreservice.fundtransfer.dto.QuickRemitType.getServiceByCountry;
+import static java.lang.Long.valueOf;
+
+
+@RequiredArgsConstructor
+@Slf4j
+@Service
+public class QuickRemitStrategy implements QuickRemitFundTransfer {
+
+    private final QuickRemitIndiaStrategy quickRemitIndiaStrategy;
+    private final BeneficiaryService beneficiaryService;
+    private EnumMap<QuickRemitType, QuickRemitFundTransfer> fundTransferStrategies;
+
+    @PostConstruct
+    public void init() {
+        fundTransferStrategies = new EnumMap<>(QuickRemitType.class);
+        fundTransferStrategies.put(QuickRemitType.INDIA, quickRemitIndiaStrategy);
+    }
+
+
+    @Override
+    public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO, ValidationContext context) {
+        final BeneficiaryDto beneficiaryDto = beneficiaryService.getById((metadata.getPrimaryCif()), valueOf(request.getBeneficiaryId()));
+        log.info("Initiating Quick Remit transfer to {}", beneficiaryDto.getBeneficiaryCountryISO());
+        final ValidationContext validateContext = new ValidationContext();
+        validateContext.add("beneficiary-dto", beneficiaryDto);
+        final QuickRemitFundTransfer quickRemitFundTransfer = fundTransferStrategies.get(getServiceByCountry(beneficiaryDto.getBeneficiaryCountryISO()));
+        return quickRemitFundTransfer.execute(request, metadata, userDTO, validateContext);
+    }
+
+}

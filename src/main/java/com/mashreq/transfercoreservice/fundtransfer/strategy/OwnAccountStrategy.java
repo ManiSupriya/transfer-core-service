@@ -100,9 +100,4 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 
     }
 
-    private AccountDetailsDTO getAccountDetailsBasedOnAccountNumber(List<AccountDetailsDTO> coreAccounts, String accountNumber) {
-        return coreAccounts.stream()
-                .filter(account -> account.getNumber().equals(accountNumber))
-                .findFirst().orElse(null);
-    }
 }

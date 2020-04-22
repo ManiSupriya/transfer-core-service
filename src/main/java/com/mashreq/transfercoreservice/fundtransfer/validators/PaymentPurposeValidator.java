@@ -1,6 +1,7 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
-import com.mashreq.transfercoreservice.client.dto.PurposeOfTransferDto;
+
+import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +18,7 @@ public class PaymentPurposeValidator implements Validator {
 
     @Override
     public ValidationResult validate(FundTransferRequestDTO request, FundTransferMetadata metadata, ValidationContext context) {
-        final Set<PurposeOfTransferDto> purposes = context.get("purposes", Set.class);
+        final Set<MoneyTransferPurposeDto> purposes = context.get("purposes", Set.class);
 
         if(!lookForPurposeCode(purposes, request.getPurposeCode())) {
             return ValidationResult.builder().success(false).transferErrorCode(INVALID_PURPOSE_CODE)
@@ -32,11 +33,11 @@ public class PaymentPurposeValidator implements Validator {
         return ValidationResult.builder().success(true).build();
     }
 
-    private boolean lookForPurposeCode(Set<PurposeOfTransferDto> purposes, String code) {
-        return purposes.stream().anyMatch(pop -> pop.getPopCode().equals(code));
+    private boolean lookForPurposeCode(Set<MoneyTransferPurposeDto> purposes, String code) {
+        return purposes.stream().anyMatch(pop -> pop.getPurposeCode().equals(code));
     }
 
-    private boolean lookForPurposeDesc(Set<PurposeOfTransferDto> purposes, String desc) {
-        return purposes.stream().anyMatch(pop -> pop.getPopDesc().equals(desc));
+    private boolean lookForPurposeDesc(Set<MoneyTransferPurposeDto> purposes, String desc) {
+        return purposes.stream().anyMatch(pop -> pop.getPurposeDesc().equals(desc));
     }
 }
