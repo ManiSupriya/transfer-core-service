@@ -13,7 +13,6 @@ import com.mashreq.transfercoreservice.middleware.WebServiceClient;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 
@@ -25,8 +24,6 @@ public class QuickRemitFundTransferMWService {
     private final WebServiceClient webServiceClient;
     private final HeaderFactory headerFactory;
     private final SoapServiceProperties soapServiceProperties;
-    private static final String SUCCESS = "S";
-    private static final String SUCCESS_CODE_ENDS_WITH = "-000";
 
     public FundTransferResponse transfer(QuickRemitFundTransferRequest request) {
         log.info("Quick remit fund transfer initiated from account [ {} ]", request.getSenderBankAccount());
@@ -38,17 +35,18 @@ public class QuickRemitFundTransferMWService {
 
         MwResponseStatus mwResponseStatus = QuickRemitResponseHandler.responseHandler(response);
 
-        final CoreFundTransferResponseDto coreFundTransferResponseDto = constructQRFTResponseDTO(transactionRefNo, exceptionDetails, mwResponseStatus);
+        final CoreFundTransferResponseDto coreFundTransferResponseDto = constructQRFTResponseDTO(transactionRefNo, request.getFinTxnNo(), exceptionDetails, mwResponseStatus);
         return FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
     }
 
-    private CoreFundTransferResponseDto constructQRFTResponseDTO(String transfer, ErrorType exceptionDetails, MwResponseStatus s) {
+    private CoreFundTransferResponseDto constructQRFTResponseDTO(String transfer, String txnRefNum, ErrorType exceptionDetails, MwResponseStatus s) {
         return CoreFundTransferResponseDto.builder()
                 .externalErrorMessage(exceptionDetails.getData())
                 .mwReferenceNo(transfer)
                 .mwResponseDescription(exceptionDetails.getErrorDescription())
                 .mwResponseStatus(s)
                 .mwResponseCode(exceptionDetails.getErrorCode())
+                .transactionRefNo(txnRefNum)
                 .build();
     }
 

@@ -17,8 +17,8 @@ import java.util.List;
 public class QuickRemitResponseHandler {
 
     private static final String SUCCESS = "S";
-    private static final String SUCCESS_CODE_ENDS_WITH = "-000";
-    private static final List<String> PROCESSING_STATUS = Arrays.asList("BENEBANKPROCESSING", "BENEBANKREJECTED");
+    private static final String SUCCESS_STATUS = "BENEBANKSUCCESS";
+    private static final String PROCESSING_STATUS = "BENEBANKPROCESSING";
 
     public  static MwResponseStatus responseHandler(EAIServices response) {
         log.info("Validate response {}", response);
@@ -39,7 +39,7 @@ public class QuickRemitResponseHandler {
 
     private static boolean isProcessing(EAIServices response) {
         final String finalTransactionStatus = response.getBody().getRemittancePaymentRes().getFinalTransactionStatus();
-        if (SUCCESS.equals(response.getHeader().getStatus()) && PROCESSING_STATUS.contains(finalTransactionStatus)) {
+        if (SUCCESS.equals(response.getHeader().getStatus()) && PROCESSING_STATUS.equals(finalTransactionStatus)) {
             log.info("Quick Remit Under Process {} , Description: {}",
                     response.getBody().getExceptionDetails().getErrorCode(),
                     response.getBody().getExceptionDetails().getData());
@@ -49,8 +49,8 @@ public class QuickRemitResponseHandler {
     }
 
     private static boolean isSuccessFull(EAIServices response) {
-        if ((StringUtils.endsWith(response.getBody().getExceptionDetails().getErrorCode(), SUCCESS_CODE_ENDS_WITH)
-                && SUCCESS.equals(response.getHeader().getStatus()))) {
+        final String finalTransactionStatus = response.getBody().getRemittancePaymentRes().getFinalTransactionStatus();
+        if (SUCCESS_STATUS.equals(finalTransactionStatus) && SUCCESS.equals(response.getHeader().getStatus())) {
             log.info("Quick Remit Successful {} , Description: {}",
                     response.getBody().getExceptionDetails().getErrorCode(),
                     response.getBody().getExceptionDetails().getData());
