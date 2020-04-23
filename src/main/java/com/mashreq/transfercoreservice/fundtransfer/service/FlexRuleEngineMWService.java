@@ -36,7 +36,7 @@ public class FlexRuleEngineMWService {
     private static final String SUCCESS = "S";
     private static final String SUCCESS_CODE_ENDS_WITH = "-000";
 
-    public FlexRuleEngineResponseDTO getBankDetailByIfscCode(final String channelTraceId, final FlexRuleEngineRequestDTO request) {
+    public FlexRuleEngineResponseDTO getRules(final String channelTraceId, final FlexRuleEngineRequestDTO request) {
         log.info("Flex Rule engine call initiated [ {} ]", request);
 
         EAIServices response = (EAIServices) webServiceClient.exchange(generateFlexRuleEngineRequest(channelTraceId, request));
@@ -44,7 +44,8 @@ public class FlexRuleEngineMWService {
 
         FlexRuleEngineResType responseDTO = response.getBody().getFlexRuleEngineRes();
         return FlexRuleEngineResponseDTO.builder()
-                .charge(new BigDecimal(responseDTO.getGatewayDetails().get(0).getChargeAmount()))
+                .chargeAmount(new BigDecimal(responseDTO.getGatewayDetails().get(0).getChargeAmount()))
+                .chargeCurrency(responseDTO.getGatewayDetails().get(0).getChargeCurrency())
                 .productCode(responseDTO.getProductCode())
                 .build();
     }
@@ -72,13 +73,7 @@ public class FlexRuleEngineMWService {
         flexRuleEngineReqType.setTransactionStatus("STP");
         flexRuleEngineReqType.setValueDate("2020-04-21");
         flexRuleEngineReqType.setTransferType("AC");
-
         request.getBody().setFlexRuleEngineReq(flexRuleEngineReqType);
-
-//        AxisRemittanceIFSCDetailsReqType ifscSearchRequest = new AxisRemittanceIFSCDetailsReqType();
-//        ifscSearchRequest.setCountry("IN");
-//        ifscSearchRequest.setIFSCCode(ifscCode);
-//        request.getBody().setAxisRemittanceIFSCDetailsReq(ifscSearchRequest);
         return request;
     }
 
