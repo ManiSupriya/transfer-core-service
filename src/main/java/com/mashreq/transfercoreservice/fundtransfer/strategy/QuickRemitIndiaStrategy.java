@@ -10,6 +10,7 @@ import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.QuickRemitFundTransferMWService;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.CustomerDetailsUtils;
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.mashreq.transfercoreservice.fundtransfer.strategy.utils.CustomerDetailsUtils.generateBeneficiaryAddress;
+
 
 @RequiredArgsConstructor
 @Slf4j
@@ -30,8 +33,6 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
 
     private static final String ORIGINATING_COUNTRY_ISO = "AE";
     private static final String INDIA_COUNTRY_ISO = "356";
-    private static final String COMMA = ",";
-    private static final List<String> ADDRESS_TYPES = Arrays.asList("P", "R", "O");
 
     private final AccountService accountService;
     private final MobCommonService mobCommonService;
@@ -158,7 +159,7 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
                 .senderBankAccount(accountDetails.getNumber())
                 .senderCountryISOCode(customerDetails.getResidenceCountry())
                 .senderBankBranch(customerDetails.getBranchName())
-                .senderMobileNo(getMobileNumber(customerDetails))
+                .senderMobileNo(CustomerDetailsUtils.getMobileNumber(customerDetails))
                 .senderName(accountDetails.getCustomerName())
                 .srcCurrency(accountDetails.getCurrency())
                 //.srcISOCurrency("784") for AED
@@ -166,46 +167,15 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
                 .transactionCurrency(beneficiaryDto.getBeneficiaryCurrency())
                 .build();
 
-        return deriveSenderIdNumberAndAddress(quickRemitFundTransferRequest, customerDetails);
+        return CustomerDetailsUtils.deriveSenderIdNumberAndAddress(quickRemitFundTransferRequest, customerDetails);
 
     }
 
 
-    private String getMobileNumber(CustomerDetailsDto customerDetails) {
-        return StringUtils.defaultIfBlank(customerDetails.getMobile(), customerDetails.getPrimaryPhoneNumber());
-    }
 
-    private QuickRemitFundTransferRequest deriveSenderIdNumberAndAddress(QuickRemitFundTransferRequest remitFundTransferRequest, CustomerDetailsDto customerDetails) {
-        String address = deriveAddress(customerDetails.getAddress());
 
-        if (StringUtils.isNotBlank(customerDetails.getNationalNumber())) {
-            return remitFundTransferRequest.toBuilder().senderIDType("NATIONAL ID")
-                    .senderIDNumber(customerDetails.getNationalNumber()).senderAddress(address).build();
-        } else if (StringUtils.isNotBlank(customerDetails.getPassportNumber())) {
-            return remitFundTransferRequest.toBuilder().senderIDType("PASSPORT ID")
-                    .senderIDNumber(customerDetails.getPassportNumber()).senderAddress(address).build();
-        } else {
-            return remitFundTransferRequest.toBuilder().senderIDType("VISA ID")
-                    .senderIDNumber(customerDetails.getVisaNumber()).senderAddress(address).build();
-        }
-    }
 
-    private String deriveAddress(List<AddressTypeDto> address) {
-        final Optional<AddressTypeDto> first = address.stream().filter(a -> ADDRESS_TYPES.contains(a.getAddressType())).findFirst();
-        return first.map(this::generateSenderAddress).orElse("");
-    }
 
-    private String generateSenderAddress(AddressTypeDto addressTypeDto) {
-        return StringUtils.defaultIfBlank(addressTypeDto.getAddress1(), "") + COMMA +
-                StringUtils.defaultIfBlank(addressTypeDto.getAddress2(), "") + COMMA +
-                StringUtils.defaultIfBlank(addressTypeDto.getAddress3(), "") + COMMA +
-                StringUtils.defaultIfBlank(addressTypeDto.getAddress4(), "") + COMMA +
-                StringUtils.defaultIfBlank(addressTypeDto.getAddress5(), "") + COMMA;
-    }
 
-    private String generateBeneficiaryAddress(BeneficiaryDto beneficiaryDto) {
-        return StringUtils.defaultIfBlank(beneficiaryDto.getAddressLine1(), "") + COMMA +
-                StringUtils.defaultIfBlank(beneficiaryDto.getAddressLine2(), "") + COMMA +
-                StringUtils.defaultIfBlank(beneficiaryDto.getAddressLine3(), "");
-    }
+
 }

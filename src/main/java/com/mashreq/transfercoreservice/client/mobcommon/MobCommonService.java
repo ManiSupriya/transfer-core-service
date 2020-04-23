@@ -44,7 +44,7 @@ public class MobCommonService {
             GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR,
                     EXTERNAL_SERVICE_ERROR.getErrorMessage(), errorDetails);
         }
-        log.info("Limit validation response success in  {} ms ", Duration.between(startTime, now()).toMillis());
+        log.info("[MobCommonService] Limit validation response success in  {} ms ", Duration.between(startTime, now()).toMillis());
         return limitValidatorResultsDtoResponse.getData();
     }
 
@@ -60,12 +60,12 @@ public class MobCommonService {
             GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR,
                     EXTERNAL_SERVICE_ERROR.getErrorMessage(), errorDetails);
         }
-        log.info(" Payment purpose response success in  {} ms ", Duration.between(startTime, now()).toMillis());
+        log.info("[MobCommonService] Payment purpose response success in  {} ms ", Duration.between(startTime, now()).toMillis());
         return paymentPurpose.getData();
     }
 
     public CurrencyConversionDto getConvertBetweenCurrencies(CoreCurrencyConversionRequestDto currencyRequest) {
-        log.info("Calling currency conversion service with data {} ", currencyRequest);
+        log.info("[MobCommonService] Calling currency conversion service with data {} ", currencyRequest);
         Instant startTime = now();
         Response<CurrencyConversionDto> conversionResponse = mobCommonClient.convertBetweenCurrencies(currencyRequest);
         if (TRUE.equalsIgnoreCase(conversionResponse.getHasError())) {
@@ -74,7 +74,7 @@ public class MobCommonService {
             GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR,
                     EXTERNAL_SERVICE_ERROR.getErrorMessage(), errorDetails);
         }
-        log.info("Currency Conversion success in  {} ms ", Duration.between(startTime, now()).toMillis());
+        log.info("[MobCommonService] Currency Conversion success in  {} ms ", Duration.between(startTime, now()).toMillis());
         return conversionResponse.getData();
     }
 }
