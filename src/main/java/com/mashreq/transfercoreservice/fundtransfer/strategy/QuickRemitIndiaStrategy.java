@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
+
 
 @RequiredArgsConstructor
 @Slf4j
@@ -31,6 +31,7 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
     private static final String ORIGINATING_COUNTRY_ISO = "AE";
     private static final String INDIA_COUNTRY_ISO = "356";
     private static final String COMMA = ",";
+    private static final List<String> ADDRESS_TYPES= Arrays.asList("P", "R", "O");
 
     private final AccountService accountService;
     private final MobCommonService mobCommonService;
@@ -47,7 +48,7 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
 
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO, ValidationContext validationContext) {
-        log.info("Quick remit to INDIA initiated......");
+        log.info("Quick remit to INDIA starts");
         responseHandler(finTxnNoValidator.validate(request, metadata));
 
         final CustomerDetailsDto customerDetails = customerService.getCustomerDetails(metadata.getPrimaryCif());
@@ -193,8 +194,7 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
     }
 
     private String deriveAddress(List<AddressTypeDto> address) {
-        List<String> types = Arrays.asList("P", "R");
-        final Optional<AddressTypeDto> first = address.stream().filter(a -> types.contains(a.getAddressType())).findFirst();
+        final Optional<AddressTypeDto> first = address.stream().filter(a -> ADDRESS_TYPES.contains(a.getAddressType())).findFirst();
         return first.map(this::generateSenderAddress).orElse("");
     }
 
