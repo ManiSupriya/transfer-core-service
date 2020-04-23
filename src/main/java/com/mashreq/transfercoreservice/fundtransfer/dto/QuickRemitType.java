@@ -12,7 +12,7 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_C
 public enum  QuickRemitType {
 
     INDIA("IN"),
-    PAKISTAN("PKK"),
+    PAKISTAN("PK"),
     INSTAREM("INSTAREM");
 
     private String name;
