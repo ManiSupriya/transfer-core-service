@@ -46,7 +46,7 @@ public class FlexRuleEngineMWService {
         return FlexRuleEngineResponseDTO.builder()
                 .chargeAmount(new BigDecimal(responseDTO.getGatewayDetails().get(0).getChargeAmount()))
                 .chargeCurrency(responseDTO.getGatewayDetails().get(0).getChargeCurrency())
-                .productCode(responseDTO.getProductCode())
+                .productCode(responseDTO.getGatewayDetails().get(0).getProductCode())
                 .build();
     }
 
