@@ -1,6 +1,8 @@
 package com.mashreq.transfercoreservice.client.mobcommon;
 
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
+import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
+import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
@@ -10,11 +12,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Set;
 
 import static com.mashreq.transfercoreservice.client.ErrorUtils.getErrorDetails;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_NOT_FOUND;
+import static java.time.Instant.now;
 
 @Slf4j
 @Service
@@ -25,12 +30,11 @@ public class MobCommonService {
     public static final String TRUE = "true";
 
     public LimitValidatorResultsDto validateAvailableLimit(String cifId, String beneficiaryTypeCode, BigDecimal amount) {
-
+        Instant startTime = Instant.now();
         log.info("[MobCommonService] Calling MobCommonService for limit validation for cif={} beneficiaryTypeCode = {} " +
                         "and amount ={}",
                 cifId, beneficiaryTypeCode, amount);
 
-        long startTime = System.nanoTime();
         Response<LimitValidatorResultsDto> limitValidatorResultsDtoResponse =
                 mobCommonClient.validateAvailableLimit(cifId, beneficiaryTypeCode, amount);
 
@@ -40,18 +44,14 @@ public class MobCommonService {
             GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR,
                     EXTERNAL_SERVICE_ERROR.getErrorMessage(), errorDetails);
         }
-
-        long endTime = System.nanoTime();
-        long totalTime = endTime - startTime;
-        log.info("[MobCommonService] MobCommonService response success in nanoseconds {} ", totalTime);
-
+        log.info("Limit validation response success in  {} ms ", Duration.between(startTime, now()).toMillis());
         return limitValidatorResultsDtoResponse.getData();
     }
 
     public Set<MoneyTransferPurposeDto> getPaymentPurposes(String channelTraceId, String transactionType, String countryIsoCode) {
         log.info("[MobCommonService] Calling MobCommonService for getting POP for QR transfer to country={}  ",
                 countryIsoCode);
-        long startTime = System.nanoTime();
+        Instant startTime = now();
         final Response<Set<MoneyTransferPurposeDto>> paymentPurpose = mobCommonClient.getPaymentPurpose(channelTraceId, transactionType, countryIsoCode);
 
         if (TRUE.equalsIgnoreCase(paymentPurpose.getHasError())) {
@@ -60,9 +60,21 @@ public class MobCommonService {
             GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR,
                     EXTERNAL_SERVICE_ERROR.getErrorMessage(), errorDetails);
         }
-        long endTime = System.nanoTime();
-        long totalTime = endTime - startTime;
-        log.info("[MobCommonService] MobCommonService response success in nanoseconds {} ", totalTime);
+        log.info(" Payment purpose response success in  {} ms ", Duration.between(startTime, now()).toMillis());
         return paymentPurpose.getData();
+    }
+
+    public CurrencyConversionDto getConvertBetweenCurrencies(CoreCurrencyConversionRequestDto currencyRequest) {
+        log.info("Calling currency conversion service with data {} ", currencyRequest);
+        Instant startTime = now();
+        Response<CurrencyConversionDto> conversionResponse = mobCommonClient.convertBetweenCurrencies(currencyRequest);
+        if (TRUE.equalsIgnoreCase(conversionResponse.getHasError())) {
+            final String errorDetails = getErrorDetails(conversionResponse);
+            log.error("[MobCommonService] Exception in calling mob customer for POP ={} ", errorDetails);
+            GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR,
+                    EXTERNAL_SERVICE_ERROR.getErrorMessage(), errorDetails);
+        }
+        log.info("Currency Conversion success in  {} ms ", Duration.between(startTime, now()).toMillis());
+        return conversionResponse.getData();
     }
 }

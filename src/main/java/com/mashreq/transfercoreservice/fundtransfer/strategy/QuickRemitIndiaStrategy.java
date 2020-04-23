@@ -31,11 +31,10 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
     private static final String ORIGINATING_COUNTRY_ISO = "AE";
     private static final String INDIA_COUNTRY_ISO = "356";
     private static final String COMMA = ",";
-    private static final List<String> ADDRESS_TYPES= Arrays.asList("P", "R", "O");
+    private static final List<String> ADDRESS_TYPES = Arrays.asList("P", "R", "O");
 
     private final AccountService accountService;
     private final MobCommonService mobCommonService;
-    private final MaintenanceService maintenanceService;
     private final CustomerService customerService;
 
     private final FinTxnNoValidator finTxnNoValidator;
@@ -84,7 +83,7 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
         final QuickRemitFundTransferRequest fundTransferRequest = prepareQuickRemitFundTransferRequestPayload(metadata.getChannelTraceId(),
                 request, sourceAccountDetailsDTO, beneficiaryDto, currencyConversionDto.getAccountCurrencyAmount(),
                 currencyConversionDto.getExchangeRate(), customerDetails);
-        log.info("International Fund transfer initiated.......");
+        log.info("Quick Remit India middle-ware started");
         final FundTransferResponse fundTransferResponse = quickRemitFundTransferMWService.transfer(fundTransferRequest);
 
 
@@ -94,9 +93,6 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
 
     }
 
-    private boolean isCurrencySame(BeneficiaryDto beneficiaryDto, AccountDetailsDTO sourceAccountDetailsDTO) {
-        return sourceAccountDetailsDTO.getCurrency().equalsIgnoreCase(beneficiaryDto.getBeneficiaryCurrency());
-    }
 
     private CurrencyConversionDto getAmountInSrcCurrency(FundTransferRequestDTO request, BeneficiaryDto beneficiaryDto,
                                                          AccountDetailsDTO sourceAccountDetailsDTO) {
@@ -105,8 +101,10 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
                 .accountNumber(sourceAccountDetailsDTO.getNumber())
                 .accountCurrency(sourceAccountDetailsDTO.getCurrency())
                 .transactionCurrency(beneficiaryDto.getBeneficiaryCurrency())
-                .transactionAmount(request.getAmount()).build();
-        return maintenanceService.convertBetweenCurrencies(currencyRequest);
+                .transactionAmount(request.getAmount())
+                .productCode(request.getProductCode())
+                .build();
+        return mobCommonService.getConvertBetweenCurrencies(currencyRequest);
     }
 
     private BigDecimal getLimitUsageAmount(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO,
@@ -125,8 +123,7 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
                 .dealNumber(dealNumber)
                 .transactionCurrency("AED")
                 .build();
-
-        CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(currencyConversionRequestDto);
+        CurrencyConversionDto currencyConversionDto = mobCommonService.getConvertBetweenCurrencies(currencyConversionRequestDto);
         return currencyConversionDto.getTransactionAmount();
     }
 
