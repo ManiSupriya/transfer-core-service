@@ -77,7 +77,6 @@ public class FundTransferServiceDefault implements FundTransferService {
 
 
         if (response.getResponseDto().getMwResponseStatus().equals(MwResponseStatus.S)) {
-
             DigitalUserLimitUsageDTO digitalUserLimitUsageDTO = generateUserLimitUsage(
                     request.getServiceType(), response.getLimitUsageAmount(), userDTO, metadata, response.getLimitVersionUuid());
             log.info("Inserting into limits table {} ", digitalUserLimitUsageDTO);

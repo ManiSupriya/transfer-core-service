@@ -6,6 +6,7 @@ import com.mashreq.esbcore.bindings.header.mbcdm.ErrorType;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.fundtransfer.dto.QuickRemitFundTransferRequest;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.QuickRemitResponseHandler;
 import com.mashreq.transfercoreservice.middleware.HeaderFactory;
 import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
 import com.mashreq.transfercoreservice.middleware.WebServiceClient;
@@ -34,14 +35,10 @@ public class QuickRemitFundTransferMWService {
 
         final String transactionRefNo = response.getBody().getRemittancePaymentRes().getCoreReferenceNo();
         final ErrorType exceptionDetails = response.getBody().getExceptionDetails();
-        if (isSuccessfull(response)) {
-            log.info("Quick remit fund transferred successfully to account [ {} ]", request.getBeneficiaryAccountNo());
-            final CoreFundTransferResponseDto coreFundTransferResponseDto = constructQRFTResponseDTO(transactionRefNo, exceptionDetails, MwResponseStatus.S);
-            return FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
-        }
 
-        log.info("Quick remit fund transfer failed to account [ {} ]", request.getBeneficiaryAccountNo());
-        final CoreFundTransferResponseDto coreFundTransferResponseDto = constructQRFTResponseDTO(transactionRefNo, exceptionDetails, MwResponseStatus.F);
+        MwResponseStatus mwResponseStatus = QuickRemitResponseHandler.responseHandler(response);
+
+        final CoreFundTransferResponseDto coreFundTransferResponseDto = constructQRFTResponseDTO(transactionRefNo, exceptionDetails, mwResponseStatus);
         return FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
     }
 
@@ -53,18 +50,6 @@ public class QuickRemitFundTransferMWService {
                 .mwResponseStatus(s)
                 .mwResponseCode(exceptionDetails.getErrorCode())
                 .build();
-    }
-
-    private boolean isSuccessfull(EAIServices response) {
-        log.info("Validate response {}", response);
-        if (!(StringUtils.endsWith(response.getBody().getExceptionDetails().getErrorCode(), SUCCESS_CODE_ENDS_WITH)
-                && SUCCESS.equals(response.getHeader().getStatus()))) {
-            log.error("Exception during quick remit fund transfer. Code: {} , Description: {}", response.getBody()
-                    .getExceptionDetails().getErrorCode(), response.getBody().getExceptionDetails().getData());
-
-            return false;
-        }
-        return true;
     }
 
     public EAIServices generateEAIServiceRequest(QuickRemitFundTransferRequest request) {
