@@ -22,5 +22,6 @@ public class SoapServiceProperties {
         private String ibanSearch;
         private String routingCodeSearch;
         private String ifscSearch;
+        private String flexRuleEngine;
     }
 }
