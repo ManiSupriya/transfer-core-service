@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.math.BigDecimal;
 
 /**
  * @author shahbazkh
@@ -29,9 +28,10 @@ import java.math.BigDecimal;
 public class FlexRuleEngineController {
 
 
+    //TODO : Replace this with 3 strategies service
     private final FlexRuleEngineMWService flexRuleEngineMWService;
 
-    @ApiOperation(value = "Fetch Rules for flex enginet", response = FlexRuleEngineResponseDTO.class)
+    @ApiOperation(value = "Fetch Rules for flex engine", response = FlexRuleEngineResponseDTO.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully processed"),
             @ApiResponse(code = 500, message = "Something went wrong")
@@ -43,12 +43,7 @@ public class FlexRuleEngineController {
                                   @RequestHeader("X-CIF-ID") final String cifId,
                                   @Valid @RequestBody FlexRuleEngineRequestDTO request) {
         log.info("{} Flex Rule engine transfer for request received ", request);
-
-        return Response.builder().data(
-                FlexRuleEngineResponseDTO.builder()
-                .charge(new BigDecimal(5))
-                .productCode("FNSI")
-        ).build();
+        return Response.builder().data(flexRuleEngineMWService.getRules(channelTraceId, request)).build();
 
     }
 }

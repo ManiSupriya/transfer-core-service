@@ -14,7 +14,8 @@ import java.math.BigDecimal;
 @Builder
 public class FlexRuleEngineResponseDTO {
     private String productCode;
-    private BigDecimal charge;
+    private BigDecimal chargeAmount;
+    private String chargeCurrency;
 
 
 }
