@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_COUNTRY_CODE;
+import static org.apache.commons.lang3.StringUtils.upperCase;
 
 /**
  * @author shahbazkh
@@ -70,12 +71,11 @@ public class RoutingCodeSearchMWService {
         switch (bankDetailRequest.getType()) {
             case "swift":
                 reqBody.setRoutingType(bankDetailRequest.getType());
-                reqBody.setRoutingCode(
-                        bankDetailRequest.getValue().length() == 8 ? bankDetailRequest.getValue() : bankDetailRequest.getValue());
+                reqBody.setRoutingCode(upperCase(bankDetailRequest.getValue()));
                 break;
             case "routing-code":
                 reqBody.setRoutingType(getRoutingCodeType(bankDetailRequest));
-                reqBody.setRoutingCode(bankDetailRequest.getValue());
+                reqBody.setRoutingCode(StringUtils.upperCase(bankDetailRequest.getValue()));
                 break;
             default:
                 break;

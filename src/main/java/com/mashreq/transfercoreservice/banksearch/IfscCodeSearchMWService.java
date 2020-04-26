@@ -58,7 +58,7 @@ public class IfscCodeSearchMWService {
 
         AxisRemittanceIFSCDetailsReqType ifscSearchRequest = new AxisRemittanceIFSCDetailsReqType();
         ifscSearchRequest.setCountry("IN");
-        ifscSearchRequest.setIFSCCode(ifscCode);
+        ifscSearchRequest.setIFSCCode(StringUtils.upperCase(ifscCode));
         request.getBody().setAxisRemittanceIFSCDetailsReq(ifscSearchRequest);
         return request;
     }
