@@ -177,7 +177,7 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
                 .destCurrency(beneficiaryDto.getBeneficiaryCurrency())
                 .destISOCurrency(INDIA_COUNTRY_ISO)
                 .exchangeRate(exchangeRate)
-                .finTxnNo(request.getFinTxnNo())
+                .finTxnNo(channelTraceId)
                 .originatingCountry(ORIGINATING_COUNTRY_ISO)
                 .reasonCode(request.getPurposeCode())
                 .reasonText(request.getPurposeDesc())
