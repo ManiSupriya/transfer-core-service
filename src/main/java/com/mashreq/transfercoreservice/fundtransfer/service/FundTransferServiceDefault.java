@@ -22,8 +22,7 @@ import java.time.Instant;
 import java.util.EnumMap;
 import java.util.Optional;
 
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.FUND_TRANSFER_FAILED;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.*;
 import static java.time.Duration.between;
 import static java.time.Instant.now;
@@ -90,12 +89,18 @@ public class FundTransferServiceDefault implements FundTransferService {
         paymentHistoryService.insert(paymentHistoryDTO);
 
         log.info("Total time taken for {} Fund Transfer {} milli seconds ", request.getServiceType(), between(start, now()).toMillis());
-
         if (MwResponseStatus.F.equals(response.getResponseDto().getMwResponseStatus())) {
             GenericExceptionHandler.handleError(FUND_TRANSFER_FAILED,
                     getFailureMessage(FUND_TRANSFER_FAILED, request, response),
                     response.getResponseDto().getMwResponseCode());
         }
+
+        if (MwResponseStatus.P.equals(response.getResponseDto().getMwResponseStatus())) {
+            GenericExceptionHandler.handleError(FUND_TRANSFER_PROCESSING,
+                    getFailureMessage(FUND_TRANSFER_PROCESSING, request, response),
+                    response.getResponseDto().getMwResponseCode());
+        }
+
         return FundTransferResponseDTO.builder()
                 .accountTo(paymentHistoryDTO.getAccountTo())
                 .status(paymentHistoryDTO.getStatus())
