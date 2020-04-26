@@ -30,7 +30,7 @@ public interface MobCommonClient {
                                                              @RequestParam(value = "country") String countryIsoCode);
 
 
-    @PostMapping("/conversion")
+    @PostMapping("/v1/currency/conversion")
     Response<CurrencyConversionDto> convertBetweenCurrencies(@RequestBody CoreCurrencyConversionRequestDto conversionRateRequestDto);
 
 
