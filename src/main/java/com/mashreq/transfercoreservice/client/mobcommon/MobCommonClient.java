@@ -36,8 +36,7 @@ public interface MobCommonClient {
 
 
     @GetMapping("/v1/customer")
-    Response<CustomerDetailsDto> getCustomerDetails(@RequestHeader("X-CIF-ID") String cifId,
-                                                    @RequestAttribute("X-CHANNEL-TRACE-ID") String channelTraceId);
+    Response<CustomerDetailsDto> getCustomerDetails(@RequestHeader("X-CIF-ID") String cifId);
 
 
 }
