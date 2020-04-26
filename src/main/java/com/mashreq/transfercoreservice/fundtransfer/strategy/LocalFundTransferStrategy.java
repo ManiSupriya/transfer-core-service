@@ -71,7 +71,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         validationContext.add("validate-from-account", Boolean.TRUE);
 
 
-        final Set<MoneyTransferPurposeDto> allPurposeCodes = mobCommonService.getPaymentPurposes(metadata.getChannelTraceId(), request.getServiceType(), "");
+        final Set<MoneyTransferPurposeDto> allPurposeCodes = mobCommonService.getPaymentPurposes( request.getServiceType(), "");
         validationContext.add("purposes", allPurposeCodes);
         responseHandler(paymentPurposeValidator.validate(request, metadata, validationContext));
 

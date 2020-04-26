@@ -26,8 +26,7 @@ public interface MobCommonClient {
 
 
     @GetMapping("/v1/payment-purposes/{transactionType}")
-    Response<Set<MoneyTransferPurposeDto>> getPaymentPurpose(@RequestAttribute("X-CHANNEL-TRACE-ID") String channelTraceId,
-                                                             @NotNull @PathVariable String transactionType,
+    Response<Set<MoneyTransferPurposeDto>> getPaymentPurpose(@NotNull @PathVariable String transactionType,
                                                              @RequestParam(value = "country") String countryIsoCode);
 
 

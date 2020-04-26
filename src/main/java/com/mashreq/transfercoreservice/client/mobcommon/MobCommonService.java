@@ -51,11 +51,11 @@ public class MobCommonService {
         return limitValidatorResultsDtoResponse.getData();
     }
 
-    public Set<MoneyTransferPurposeDto> getPaymentPurposes(String channelTraceId, String transactionType, String countryIsoCode) {
+    public Set<MoneyTransferPurposeDto> getPaymentPurposes( String transactionType, String countryIsoCode) {
         log.info("[MobCommonService] Calling MobCommonService for getting POP for QR transfer to country={}  ",
                 countryIsoCode);
         Instant startTime = now();
-        final Response<Set<MoneyTransferPurposeDto>> paymentPurpose = mobCommonClient.getPaymentPurpose(channelTraceId, transactionType, countryIsoCode);
+        final Response<Set<MoneyTransferPurposeDto>> paymentPurpose = mobCommonClient.getPaymentPurpose( transactionType, countryIsoCode);
 
         if (TRUE.equalsIgnoreCase(paymentPurpose.getHasError())) {
             final String errorDetails = getErrorDetails(paymentPurpose);
@@ -81,15 +81,15 @@ public class MobCommonService {
         return conversionResponse.getData();
     }
 
-    public CustomerDetailsDto getCustomerDetails(final String cif, final String channelTraceId) {
+    public CustomerDetailsDto getCustomerDetails(final String cif) {
         log.info("[MobCommonService] calling customer service client for getting customer details");
 
-        Response<com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto> response = mobCommonClient.getCustomerDetails(cif, channelTraceId);
+        Response<com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto> response = mobCommonClient.getCustomerDetails(cif);
         if (TRUE.equalsIgnoreCase(response.getHasError()) || StringUtils.isNotBlank(response.getErrorCode())) {
             log.error("Error while calling mob common for customer detail {} {} ", response.getErrorCode(), response.getErrorMessage());
             GenericExceptionHandler.handleError(TransferErrorCode.EXTERNAL_SERVICE_ERROR, TransferErrorCode.EXTERNAL_SERVICE_ERROR.getErrorMessage(), ErrorUtils.getErrorDetails(response));
         }
-        return mobCommonClient.getCustomerDetails(cif, channelTraceId).getData();
+        return mobCommonClient.getCustomerDetails(cif).getData();
 
     }
 }

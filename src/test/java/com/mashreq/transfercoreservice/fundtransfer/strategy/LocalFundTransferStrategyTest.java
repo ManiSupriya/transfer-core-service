@@ -127,7 +127,7 @@ public class LocalFundTransferStrategyTest {
         when(finTxnNoValidator.validate(requestDTO, metadata)).thenReturn(validationResult);
         when(paymentPurposeValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(validationResult);
         when(accountService.getAccountsFromCore(eq(metadata.getPrimaryCif()))).thenReturn(accountsFromCore);
-        when(mobCommonService.getPaymentPurposes(eq(channelTraceId), eq("local"), eq(""))).thenReturn(popList);
+        when(mobCommonService.getPaymentPurposes( eq("local"), eq(""))).thenReturn(popList);
 
         when(accountBelongsToCifValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
 
@@ -243,7 +243,7 @@ public class LocalFundTransferStrategyTest {
         when(finTxnNoValidator.validate(requestDTO, metadata)).thenReturn(validationResult);
         when(paymentPurposeValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(validationResult);
         when(accountService.getAccountsFromCore(eq(metadata.getPrimaryCif()))).thenReturn(accountsFromCore);
-        when(mobCommonService.getPaymentPurposes(eq(channelTraceId), eq("local"), eq(""))).thenReturn(popList);
+        when(mobCommonService.getPaymentPurposes( eq("local"), eq(""))).thenReturn(popList);
 
         when(accountBelongsToCifValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
 

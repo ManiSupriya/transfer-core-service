@@ -48,7 +48,7 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
         log.info("Quick remit to INDIA starts");
         responseHandler(finTxnNoValidator.validate(request, metadata));
 
-        final CustomerDetailsDto customerDetails = mobCommonService.getCustomerDetails(metadata.getPrimaryCif(), metadata.getChannelTraceId());
+        final CustomerDetailsDto customerDetails = mobCommonService.getCustomerDetails(metadata.getPrimaryCif());
 
         final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metadata.getPrimaryCif());
         validationContext.add("account-details", accountsFromCore);
@@ -58,8 +58,7 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
         final BeneficiaryDto beneficiaryDto = validationContext.get("beneficiary-dto", BeneficiaryDto.class);
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
 
-        final Set<MoneyTransferPurposeDto> allPurposeCodes = mobCommonService.getPaymentPurposes(metadata
-                .getChannelTraceId(), request.getServiceType(), beneficiaryDto.getBeneficiaryCountryISO());
+        final Set<MoneyTransferPurposeDto> allPurposeCodes = mobCommonService.getPaymentPurposes(request.getServiceType(), beneficiaryDto.getBeneficiaryCountryISO());
         validationContext.add("purposes", allPurposeCodes);
         responseHandler(paymentPurposeValidator.validate(request, metadata, validationContext));
 
