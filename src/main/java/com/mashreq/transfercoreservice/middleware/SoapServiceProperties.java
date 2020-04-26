@@ -23,5 +23,7 @@ public class SoapServiceProperties {
         private String routingCodeSearch;
         private String ifscSearch;
         private String flexRuleEngine;
+        private String quickRemitIndia;
+        private String quickRemitPakistan;
     }
 }

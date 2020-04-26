@@ -1,6 +1,8 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
 import com.mashreq.transfercoreservice.client.dto.*;
+import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
+import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
@@ -34,7 +36,6 @@ import static java.time.Instant.now;
 @Service
 public class LocalFundTransferStrategy implements FundTransferStrategy {
 
-    private static final String LOCAL = "LOCAL";
     private static final int LOCAL_IBAN_LENGTH = 23;
     private static final String LOCAL_PRODUCT_ID = "DBLC";
     private final IBANValidator ibanValidator;
@@ -48,6 +49,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     private final PaymentPurposeValidator paymentPurposeValidator;
     private final BalanceValidator balanceValidator;
     private final MaintenanceService maintenanceService;
+    private final MobCommonService mobCommonService;
 
     @Value("${app.local.currency}")
     private String localCurrency;
@@ -69,7 +71,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         validationContext.add("validate-from-account", Boolean.TRUE);
 
 
-        final Set<PurposeOfTransferDto> allPurposeCodes = maintenanceService.getAllPurposeCodes(LOCAL);
+        final Set<MoneyTransferPurposeDto> allPurposeCodes = mobCommonService.getPaymentPurposes( request.getServiceType(), "");
         validationContext.add("purposes", allPurposeCodes);
         responseHandler(paymentPurposeValidator.validate(request, metadata, validationContext));
 
@@ -114,7 +116,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     }
 
     private BigDecimal getLimitUsageAmount(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO, final BigDecimal transferAmountInSrcCurrency) {
-        return "AED" .equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
+        return "AED".equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
                 ? transferAmountInSrcCurrency
                 : convertAmountInLocalCurrency(dealNumber, sourceAccountDetailsDTO, transferAmountInSrcCurrency);
     }
@@ -172,12 +174,6 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
     }
 
-
-    private AccountDetailsDTO getAccountDetailsBasedOnAccountNumber(List<AccountDetailsDTO> coreAccounts, String accountNumber) {
-        return coreAccounts.stream()
-                .filter(account -> account.getNumber().equals(accountNumber))
-                .findFirst().orElse(null);
-    }
 
 
 }

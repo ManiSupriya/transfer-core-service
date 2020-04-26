@@ -56,6 +56,7 @@ public enum TransferErrorCode implements ErrorCode {
 
     EXTERNAL_SERVICE_ERROR("TN-5000", "Something went wrong with external service"),
     FUND_TRANSFER_FAILED("TN-5001", "Fund transfer failed"),
+    FUND_TRANSFER_PROCESSING("TN-5004", "Fund transfer is in processing"),
 
     FLEX_RULE_ENGINE_FAILED("TN-5009", "Flex Rule Engine Failed"),
 

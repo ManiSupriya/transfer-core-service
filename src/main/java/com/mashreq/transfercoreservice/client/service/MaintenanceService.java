@@ -5,14 +5,13 @@ import com.mashreq.transfercoreservice.client.MaintenanceClient;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
 import com.mashreq.transfercoreservice.client.dto.CountryMasterDto;
 import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
-import com.mashreq.transfercoreservice.client.dto.PurposeOfTransferDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
+
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -50,11 +49,6 @@ public class MaintenanceService {
                     TransferErrorCode.CURRENCY_CONVERSION_FAIL.getErrorMessage());
             return null;
         }
-    }
-
-    public Set<PurposeOfTransferDto> getAllPurposeCodes(final String transactionType) {
-        log.info("[MaintenanceService] calling maintenance service client for getting purpose codes");
-        return maintenanceClient.getAllPurposeCodes(transactionType).getData();
     }
 
     public CurrencyConversionDto convertBetweenCurrencies(final CoreCurrencyConversionRequestDto currencyRequest) {

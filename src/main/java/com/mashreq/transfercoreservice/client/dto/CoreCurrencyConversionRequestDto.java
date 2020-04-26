@@ -30,4 +30,6 @@ public class CoreCurrencyConversionRequestDto {
     private String transactionCurrency;
 
     private String dealNumber;
+
+    private String productCode;
 }

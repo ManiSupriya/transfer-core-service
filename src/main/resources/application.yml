@@ -49,6 +49,8 @@ esb-service:
     routingCodeSearch: ${ACCUITYROUTING_SERVICE_CODE:QFAD}
     ifscSearch: ${IFSCSEARCH_SERVICE_CODE:QAXIFSC}
     flexRuleEngine: ${FLEXRULEENGINE_SERVICE_CODE:QRMTGW}
+    quickRemitIndia: ${QUICK_REMIT_INDIA:TRTPTIN}
+    quickRemitPakistan: ${QUICK_REMIT_INDIA:TRTPTPK}
 
 app:
   local:

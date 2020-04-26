@@ -1,6 +1,8 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
 import com.mashreq.transfercoreservice.client.dto.*;
+import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
+import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 
 
@@ -30,7 +32,6 @@ import static java.lang.Long.valueOf;
 @Service
 public class InternationalFundTransferStrategy implements FundTransferStrategy {
 
-    private static final String INTERNATIONAL = "INTERNATIONAL";
     private static final String INTERNATIONAL_PRODUCT_ID = "DBFC";
     private static final String ROUTING_CODE_PREFIX = "//";
     private final FinTxnNoValidator finTxnNoValidator;
@@ -41,6 +42,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     private final BalanceValidator balanceValidator;
     private final FundTransferMWService fundTransferMWService;
     private final MaintenanceService maintenanceService;
+    private final MobCommonService mobCommonService;
 
     private final BeneficiaryService beneficiaryService;
     private final LimitValidator limitValidator;
@@ -68,7 +70,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         validationContext.add("validate-from-account", Boolean.TRUE);
         responseHandler(accountBelongsToCifValidator.validate(request, metadata, validationContext));
 
-        final Set<PurposeOfTransferDto> allPurposeCodes = maintenanceService.getAllPurposeCodes(INTERNATIONAL);
+        final Set<MoneyTransferPurposeDto> allPurposeCodes = mobCommonService.getPaymentPurposes(request.getServiceType(), "");
         validationContext.add("purposes", allPurposeCodes);
         responseHandler(paymentPurposeValidator.validate(request, metadata, validationContext));
 
@@ -190,11 +192,5 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .build();
     }
 
-
-    private AccountDetailsDTO getAccountDetailsBasedOnAccountNumber(List<AccountDetailsDTO> coreAccounts, String accountNumber) {
-        return coreAccounts.stream()
-                .filter(account -> account.getNumber().equals(accountNumber))
-                .findFirst().orElse(null);
-    }
 
 }
