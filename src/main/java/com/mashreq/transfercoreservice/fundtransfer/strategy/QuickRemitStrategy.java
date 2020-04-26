@@ -22,6 +22,7 @@ import static java.lang.Long.valueOf;
 public class QuickRemitStrategy implements QuickRemitFundTransfer {
 
     private final QuickRemitIndiaStrategy quickRemitIndiaStrategy;
+    private final QuickRemitPakistanStrategy quickRemitPakistanStrategy;
     private final BeneficiaryService beneficiaryService;
     private EnumMap<QuickRemitType, QuickRemitFundTransfer> fundTransferStrategies;
 
@@ -29,6 +30,7 @@ public class QuickRemitStrategy implements QuickRemitFundTransfer {
     public void init() {
         fundTransferStrategies = new EnumMap<>(QuickRemitType.class);
         fundTransferStrategies.put(QuickRemitType.INDIA, quickRemitIndiaStrategy);
+        fundTransferStrategies.put(QuickRemitType.PAKISTAN, quickRemitPakistanStrategy);
     }
 
 
