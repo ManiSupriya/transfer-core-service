@@ -37,7 +37,10 @@ public class QuickRemitPakistanStrategy implements QuickRemitFundTransfer {
                 .mwResponseStatus(MwResponseStatus.S)
                 .mwResponseCode("EAI-FCI-BRK-000")
                 .transactionRefNo(request.getFinTxnNo())
-                .build()).build();
+                .build())
+                .limitVersionUuid("limitVersionUuid")
+                .limitUsageAmount(BigDecimal.TEN)
+                .build();
 
     }
 
