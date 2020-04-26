@@ -40,7 +40,7 @@ public class CustomerDetailsUtils {
      */
     public static String getMobileNumber(CustomerDetailsDto customerDetails) {
         return customerDetails.getPhones().stream()
-                .filter(phone -> PHONE_NUMBER_TYPES.equals(phone.getPhoneNumberType()) && StringUtils.isNotBlank(phone.getMobNumber()))
+                .filter(phone -> PHONE_NUMBER_TYPES.contains(phone.getPhoneNumberType()) && StringUtils.isNotBlank(phone.getMobNumber()))
                 .findFirst()
                 .map(phone -> phone.getMobNumber()).orElse("");
     }

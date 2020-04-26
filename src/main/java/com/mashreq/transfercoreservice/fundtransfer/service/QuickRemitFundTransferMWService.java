@@ -1,6 +1,7 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
 import com.mashreq.esbcore.bindings.customer.mbcdm.RemittancePaymentReqType;
+
 import com.mashreq.esbcore.bindings.customerservices.mbcdm.remittancepayment.EAIServices;
 import com.mashreq.esbcore.bindings.header.mbcdm.ErrorType;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
@@ -53,7 +54,7 @@ public class QuickRemitFundTransferMWService {
     public EAIServices generateEAIServiceRequest(QuickRemitFundTransferRequest request) {
 
         EAIServices services = new EAIServices();
-        services.setHeader(headerFactory.getHeader(soapServiceProperties.getServiceCodes().getFundTransfer(), request.getChannelTraceId()));
+        services.setHeader(headerFactory.getHeader(soapServiceProperties.getServiceCodes().getQuickRemitIndia(), request.getChannelTraceId()));
         services.setBody(new EAIServices.Body());
 
         //Setting individual components

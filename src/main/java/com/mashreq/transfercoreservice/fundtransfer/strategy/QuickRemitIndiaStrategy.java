@@ -7,6 +7,7 @@ import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResult
 import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 
+import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.QuickRemitFundTransferMWService;
@@ -14,6 +15,7 @@ import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.CustomerDetai
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -42,6 +44,7 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
     private final BalanceValidator balanceValidator;
     private final LimitValidator limitValidator;
     private final QuickRemitFundTransferMWService quickRemitFundTransferMWService;
+    private final MaintenanceService maintenanceService;
 
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO, ValidationContext validationContext) {
@@ -91,7 +94,7 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
     }
 
 
-    private CurrencyConversionDto getAmountInSrcCurrency(FundTransferRequestDTO request, BeneficiaryDto beneficiaryDto,
+    /*private CurrencyConversionDto getAmountInSrcCurrency(FundTransferRequestDTO request, BeneficiaryDto beneficiaryDto,
                                                          AccountDetailsDTO sourceAccountDetailsDTO) {
 
         final CoreCurrencyConversionRequestDto currencyRequest = CoreCurrencyConversionRequestDto.builder()
@@ -102,6 +105,19 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
                 .productCode(request.getProductCode())
                 .build();
         return mobCommonService.getConvertBetweenCurrencies(currencyRequest);
+    }*/
+
+    private CurrencyConversionDto getAmountInSrcCurrency(FundTransferRequestDTO request, BeneficiaryDto beneficiaryDto,
+                                                         AccountDetailsDTO sourceAccountDetailsDTO) {
+
+        final CoreCurrencyConversionRequestDto currencyRequest = CoreCurrencyConversionRequestDto.builder()
+                .accountNumber(sourceAccountDetailsDTO.getNumber())
+                .accountCurrency(sourceAccountDetailsDTO.getCurrency())
+                .transactionCurrency(beneficiaryDto.getBeneficiaryCurrency())
+                .productCode(request.getProductCode())
+                .transactionAmount(request.getAmount()).build();
+
+        return maintenanceService.convertBetweenCurrencies(currencyRequest);
     }
 
     private BigDecimal getLimitUsageAmount(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO,
@@ -120,9 +136,22 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
                 .dealNumber(dealNumber)
                 .transactionCurrency("AED")
                 .build();
-        CurrencyConversionDto currencyConversionDto = mobCommonService.getConvertBetweenCurrencies(currencyConversionRequestDto);
+
+        CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(currencyConversionRequestDto);
         return currencyConversionDto.getTransactionAmount();
     }
+    /*private BigDecimal convertAmountInLocalCurrency(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO,
+                                                    final BigDecimal transferAmountInSrcCurrency) {
+        CoreCurrencyConversionRequestDto currencyConversionRequestDto = CoreCurrencyConversionRequestDto.builder()
+                .accountNumber(sourceAccountDetailsDTO.getNumber())
+                .accountCurrency(sourceAccountDetailsDTO.getCurrency())
+                .accountCurrencyAmount(transferAmountInSrcCurrency)
+                .dealNumber(dealNumber)
+                .transactionCurrency("AED")
+                .build();
+        CurrencyConversionDto currencyConversionDto = mobCommonService.getConvertBetweenCurrencies(currencyConversionRequestDto);
+        return currencyConversionDto.getTransactionAmount();
+    }*/
 
     private QuickRemitFundTransferRequest prepareQuickRemitFundTransferRequestPayload(String channelTraceId,
                                                                                       FundTransferRequestDTO request,
@@ -142,7 +171,7 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
                 .beneficiaryBankName(beneficiaryDto.getBankName())
                 .beneficiaryCountry(beneficiaryDto.getBankCountry())
                 .beneficiaryFullName(beneficiaryDto.getFullName())
-                .beneficiaryName(beneficiaryDto.getFinalName())
+                .beneficiaryName(StringUtils.defaultIfBlank(beneficiaryDto.getFinalName(), beneficiaryDto.getFullName()))
                 .channelTraceId(channelTraceId)
                 .destCountry(beneficiaryDto.getBeneficiaryCountryISO())
                 .destCurrency(beneficiaryDto.getBeneficiaryCurrency())

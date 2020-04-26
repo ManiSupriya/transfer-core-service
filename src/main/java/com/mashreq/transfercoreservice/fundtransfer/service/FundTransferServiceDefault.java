@@ -95,11 +95,6 @@ public class FundTransferServiceDefault implements FundTransferService {
                     response.getResponseDto().getMwResponseCode());
         }
 
-        if (MwResponseStatus.P.equals(response.getResponseDto().getMwResponseStatus())) {
-            GenericExceptionHandler.handleError(FUND_TRANSFER_PROCESSING,
-                    getFailureMessage(FUND_TRANSFER_PROCESSING, request, response),
-                    response.getResponseDto().getMwResponseCode());
-        }
 
         return FundTransferResponseDTO.builder()
                 .accountTo(paymentHistoryDTO.getAccountTo())
