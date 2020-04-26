@@ -1,14 +1,17 @@
 package com.mashreq.transfercoreservice.client.mobcommon;
 
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
+import com.mashreq.transfercoreservice.client.ErrorUtils;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
 import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
+import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.webcore.dto.response.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -76,5 +79,17 @@ public class MobCommonService {
         }
         log.info("[MobCommonService] Currency Conversion success in  {} ms ", Duration.between(startTime, now()).toMillis());
         return conversionResponse.getData();
+    }
+
+    public CustomerDetailsDto getCustomerDetails(final String cif, final String channelTraceId) {
+        log.info("[MobCommonService] calling customer service client for getting customer details");
+
+        Response<com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto> response = mobCommonClient.getCustomerDetails(cif, channelTraceId);
+        if (TRUE.equalsIgnoreCase(response.getHasError()) || StringUtils.isNotBlank(response.getErrorCode())) {
+            log.error("Error while calling mob common for customer detail {} {} ", response.getErrorCode(), response.getErrorMessage());
+            GenericExceptionHandler.handleError(TransferErrorCode.EXTERNAL_SERVICE_ERROR, TransferErrorCode.EXTERNAL_SERVICE_ERROR.getErrorMessage(), ErrorUtils.getErrorDetails(response));
+        }
+        return mobCommonClient.getCustomerDetails(cif, channelTraceId).getData();
+
     }
 }

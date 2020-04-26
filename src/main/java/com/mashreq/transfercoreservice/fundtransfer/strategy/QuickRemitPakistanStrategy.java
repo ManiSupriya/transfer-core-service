@@ -1,14 +1,10 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
 import com.mashreq.transfercoreservice.client.dto.*;
-import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
-import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
-import com.mashreq.transfercoreservice.client.service.AccountService;
-import com.mashreq.transfercoreservice.client.service.CustomerService;
+
+
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
-import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
-import com.mashreq.transfercoreservice.fundtransfer.service.QuickRemitFundTransferMWService;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.CustomerDetailsUtils;
+
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import lombok.RequiredArgsConstructor;

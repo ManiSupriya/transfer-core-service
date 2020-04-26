@@ -1,8 +1,9 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy.utils;
 
-import com.mashreq.transfercoreservice.client.dto.AddressTypeDto;
+
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
-import com.mashreq.transfercoreservice.client.dto.CustomerDetailsDto;
+import com.mashreq.transfercoreservice.client.mobcommon.dto.AddressTypeDto;
+import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.QuickRemitFundTransferRequest;
 import org.apache.commons.lang3.StringUtils;
 
@@ -18,6 +19,7 @@ public class CustomerDetailsUtils {
 
     private static final String COMMA = ",";
     private static final List<String> ADDRESS_TYPES = Arrays.asList("P", "R", "O");
+    private static final List<String> PHONE_NUMBER_TYPES = Arrays.asList("P", "O");
 
     /**
      *
@@ -37,7 +39,10 @@ public class CustomerDetailsUtils {
      * @return
      */
     public static String getMobileNumber(CustomerDetailsDto customerDetails) {
-        return StringUtils.defaultIfBlank(customerDetails.getMobile(), customerDetails.getPrimaryPhoneNumber());
+        return customerDetails.getPhones().stream()
+                .filter(phone -> PHONE_NUMBER_TYPES.equals(phone.getPhoneNumberType()) && StringUtils.isNotBlank(phone.getMobNumber()))
+                .findFirst()
+                .map(phone -> phone.getMobNumber()).orElse("");
     }
 
     /**
@@ -48,17 +53,9 @@ public class CustomerDetailsUtils {
      */
     public static QuickRemitFundTransferRequest deriveSenderIdNumberAndAddress(QuickRemitFundTransferRequest remitFundTransferRequest, CustomerDetailsDto customerDetails) {
         String address = deriveAddress(customerDetails.getAddress());
+            return remitFundTransferRequest.toBuilder().senderIDType(customerDetails.getUniqueIDName())
+                    .senderIDNumber(customerDetails.getUniqueIDValue()).senderAddress(address).build();
 
-        if (StringUtils.isNotBlank(customerDetails.getNationalNumber())) {
-            return remitFundTransferRequest.toBuilder().senderIDType("NATIONAL ID")
-                    .senderIDNumber(customerDetails.getNationalNumber()).senderAddress(address).build();
-        } else if (StringUtils.isNotBlank(customerDetails.getPassportNumber())) {
-            return remitFundTransferRequest.toBuilder().senderIDType("PASSPORT ID")
-                    .senderIDNumber(customerDetails.getPassportNumber()).senderAddress(address).build();
-        } else {
-            return remitFundTransferRequest.toBuilder().senderIDType("VISA ID")
-                    .senderIDNumber(customerDetails.getVisaNumber()).senderAddress(address).build();
-        }
     }
 
     private static String generateSenderAddress(AddressTypeDto addressTypeDto) {

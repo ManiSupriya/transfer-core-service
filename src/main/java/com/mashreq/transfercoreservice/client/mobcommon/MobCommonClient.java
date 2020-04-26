@@ -2,6 +2,7 @@ package com.mashreq.transfercoreservice.client.mobcommon;
 
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
 import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
+import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
 import com.mashreq.transfercoreservice.config.feign.FeignConfig;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
@@ -32,6 +33,11 @@ public interface MobCommonClient {
 
     @PostMapping("/conversion")
     Response<CurrencyConversionDto> convertBetweenCurrencies(@RequestBody CoreCurrencyConversionRequestDto conversionRateRequestDto);
+
+
+    @GetMapping("/v1/customer")
+    Response<CustomerDetailsDto> getCustomerDetails(@RequestHeader("X-CIF-ID") String cifId,
+                                                    @RequestAttribute("X-CHANNEL-TRACE-ID") String channelTraceId);
 
 
 }

@@ -2,11 +2,11 @@ package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
 import com.mashreq.transfercoreservice.client.dto.*;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
+import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
-import com.mashreq.transfercoreservice.client.service.CustomerService;
-import com.mashreq.transfercoreservice.client.service.MaintenanceService;
+
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.QuickRemitFundTransferMWService;
@@ -14,13 +14,10 @@ import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.CustomerDetai
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import static com.mashreq.transfercoreservice.fundtransfer.strategy.utils.CustomerDetailsUtils.generateBeneficiaryAddress;
@@ -36,7 +33,7 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
 
     private final AccountService accountService;
     private final MobCommonService mobCommonService;
-    private final CustomerService customerService;
+
 
     private final FinTxnNoValidator finTxnNoValidator;
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
@@ -51,7 +48,7 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
         log.info("Quick remit to INDIA starts");
         responseHandler(finTxnNoValidator.validate(request, metadata));
 
-        final CustomerDetailsDto customerDetails = customerService.getCustomerDetails(metadata.getPrimaryCif());
+        final CustomerDetailsDto customerDetails = mobCommonService.getCustomerDetails(metadata.getPrimaryCif(), metadata.getChannelTraceId());
 
         final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metadata.getPrimaryCif());
         validationContext.add("account-details", accountsFromCore);
@@ -157,8 +154,8 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
                 .reasonCode(request.getPurposeCode())
                 .reasonText(request.getPurposeDesc())
                 .senderBankAccount(accountDetails.getNumber())
-                .senderCountryISOCode(customerDetails.getResidenceCountry())
-                .senderBankBranch(customerDetails.getBranchName())
+                .senderCountryISOCode(customerDetails.getNationality())
+                .senderBankBranch(customerDetails.getCifBranch())
                 .senderMobileNo(CustomerDetailsUtils.getMobileNumber(customerDetails))
                 .senderName(accountDetails.getCustomerName())
                 .srcCurrency(accountDetails.getCurrency())
