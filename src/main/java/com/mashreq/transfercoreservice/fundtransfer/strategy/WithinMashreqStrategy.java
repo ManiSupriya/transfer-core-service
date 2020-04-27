@@ -8,10 +8,8 @@ import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.CoreTransferService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.*;
+import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
@@ -49,6 +47,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     private final CoreTransferService coreTransferService;
     private final MaintenanceService maintenanceService;
     private final BalanceValidator balanceValidator;
+    private final FundTransferMWService fundTransferMWService;
 
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO) {
@@ -106,11 +105,33 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         log.info("Total time taken for {} strategy {} milli seconds ", request.getServiceType(), between(start, now()).toMillis());
 
 
+//        final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountOpt.get(), beneficiaryDto);
+//        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest);
+//
+
         final FundTransferResponse fundTransferResponse = coreTransferService.transferFundsBetweenAccounts(request);
 
         return fundTransferResponse.toBuilder()
                 .limitUsageAmount(limitUsageAmount)
                 .limitVersionUuid(validationResult.getLimitVersionUuid()).build();
+
+    }
+
+    private FundTransferRequest prepareFundTransferRequestPayload(FundTransferMetadata metadata, FundTransferRequestDTO request,
+                                                                  AccountDetailsDTO sourceAccount, BeneficiaryDto beneficiaryDto) {
+        return FundTransferRequest.builder()
+                .productId("OWN_ACCOUNT_PRODUCT_ID")
+                .amount(request.getAmount())
+                .channel(metadata.getChannel())
+                .channelTraceId(metadata.getChannelTraceId())
+                .fromAccount(request.getFromAccount())
+                .toAccount(beneficiaryDto.getAccountNumber())
+                .finTxnNo(request.getFinTxnNo())
+                .sourceCurrency(sourceAccount.getCurrency())
+                .sourceBranchCode(sourceAccount.getBranchCode())
+                .beneficiaryFullName(beneficiaryDto.getFullName())
+                .destinationCurrency(beneficiaryDto.getBeneficiaryCurrency())
+                .build();
 
     }
 }

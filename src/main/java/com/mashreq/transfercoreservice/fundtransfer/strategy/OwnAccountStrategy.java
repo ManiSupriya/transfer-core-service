@@ -1,15 +1,14 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
+import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
 import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.CoreTransferService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.*;
+import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
@@ -41,6 +40,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     private final CoreTransferService coreTransferService;
     private final MaintenanceService maintenanceService;
     private final BalanceValidator balanceValidator;
+    private final FundTransferMWService fundTransferMWService;
 
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO) {
@@ -90,6 +90,11 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount);
         log.info("Limit Validation successful");
 
+//        final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccount, toAccount);
+//        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest);
+
+
+
         final FundTransferResponse fundTransferResponse = coreTransferService.transferFundsBetweenAccounts(request);
 
         log.info("Total time taken for {} strategy {} milli seconds ", request.getServiceType(), between(start, now()).toMillis());
@@ -97,6 +102,24 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         return fundTransferResponse.toBuilder()
                 .limitUsageAmount(limitUsageAmount)
                 .limitVersionUuid(validationResult.getLimitVersionUuid()).build();
+
+    }
+
+    private FundTransferRequest prepareFundTransferRequestPayload(FundTransferMetadata metadata, FundTransferRequestDTO request,
+                                                                  AccountDetailsDTO sourceAccount, AccountDetailsDTO destinationAccount) {
+        return FundTransferRequest.builder()
+                .productId("OWN_ACCOUNT_PRODUCT_ID")
+                .amount(request.getAmount())
+                .channel(metadata.getChannel())
+                .channelTraceId(metadata.getChannelTraceId())
+                .fromAccount(request.getFromAccount())
+                .toAccount(destinationAccount.getNumber())
+                .finTxnNo(request.getFinTxnNo())
+                .sourceCurrency(sourceAccount.getCurrency())
+                .sourceBranchCode(sourceAccount.getBranchCode())
+                .beneficiaryFullName(destinationAccount.getCustomerName())
+                .destinationCurrency(destinationAccount.getCurrency())
+                .build();
 
     }
 

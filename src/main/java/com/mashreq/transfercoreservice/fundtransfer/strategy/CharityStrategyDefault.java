@@ -2,13 +2,12 @@ package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
 import com.mashreq.transfercoreservice.client.BeneficiaryClient;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
+import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CharityBeneficiaryDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.CoreTransferService;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.*;
+import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
@@ -43,6 +42,7 @@ public class CharityStrategyDefault implements FundTransferStrategy {
     private final CurrencyValidator currencyValidator;
     private final LimitValidator limitValidator;
     private final CoreTransferService coreTransferService;
+    private final FundTransferMWService fundTransferMWService;
 
 
     @Override
@@ -71,7 +71,7 @@ public class CharityStrategyDefault implements FundTransferStrategy {
 
         CharityBeneficiaryDto charityBeneficiaryDto = beneficiaryClient.getCharity(request.getBeneficiaryId()).getData();
         validateContext.add("charity-beneficiary-dto", charityBeneficiaryDto);
-        validateContext.add("to-account-currency",charityBeneficiaryDto.getCurrencyCode());
+        validateContext.add("to-account-currency", charityBeneficiaryDto.getCurrencyCode());
         responseHandler(charityValidator.validate(request, metadata, validateContext));
         responseHandler(currencyValidator.validate(request, metadata, validateContext));
 
@@ -84,6 +84,11 @@ public class CharityStrategyDefault implements FundTransferStrategy {
         BigDecimal limitUsageAmount = request.getAmount();
         LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount);
         log.info("Limit Validation successful");
+
+//        final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountOpt.get(), charityBeneficiaryDto);
+//        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest);
+
+
         final FundTransferResponse fundTransferResponse = coreTransferService.transferFundsBetweenAccounts(request);
 
 
@@ -92,6 +97,24 @@ public class CharityStrategyDefault implements FundTransferStrategy {
         return fundTransferResponse.toBuilder()
                 .limitUsageAmount(limitUsageAmount)
                 .limitVersionUuid(validationResult.getLimitVersionUuid()).build();
+
+    }
+
+    private FundTransferRequest prepareFundTransferRequestPayload(FundTransferMetadata metadata, FundTransferRequestDTO request,
+                                                                  AccountDetailsDTO sourceAccount, CharityBeneficiaryDto charityBeneficiaryDto) {
+        return FundTransferRequest.builder()
+                .productId("OWN_ACCOUNT_PRODUCT_ID")
+                .amount(request.getAmount())
+                .channel(metadata.getChannel())
+                .channelTraceId(metadata.getChannelTraceId())
+                .fromAccount(request.getFromAccount())
+                .toAccount(charityBeneficiaryDto.getAccountNumber())
+                .finTxnNo(request.getFinTxnNo())
+                .sourceCurrency(sourceAccount.getCurrency())
+                .sourceBranchCode(sourceAccount.getBranchCode())
+                .beneficiaryFullName(charityBeneficiaryDto.getName())
+                .destinationCurrency(charityBeneficiaryDto.getCurrencyCode())
+                .build();
 
     }
 }
