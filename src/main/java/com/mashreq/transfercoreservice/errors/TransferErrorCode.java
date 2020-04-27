@@ -31,7 +31,8 @@ public enum TransferErrorCode implements ErrorCode {
     BENE_NOT_FOUND("TN-4001", "Beneficiary Not Found"),
     BENE_ACC_NOT_MATCH("TN-4002", "Beneficiary Account Number does not match"),
     BENE_CUR_NOT_MATCH("TN-4003", "Beneficiary Currency does not match"),
-    BENE_NOT_ACTIVE("TN-4004", "Beneficiary is not active"),
+    BENE_NOT_ACTIVE("TN-4004", "Beneficiary status is not active"),
+    BENE_NOT_ACTIVE_OR_COOLING("TN-4004", "Beneficiary status is not active/cooling"),
 
     CURRENCY_CONVERSION_FAIL("TN-4100", "Currency conversion failed."),
     INVALID_PURPOSE_CODE("TN-4101", "Invalid purpose code"),
