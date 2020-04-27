@@ -45,7 +45,6 @@ public class FundTransferServiceDefault implements FundTransferService {
     private EnumMap<ServiceType, FundTransferStrategy> fundTransferStrategies;
 
 
-
     @PostConstruct
     public void init() {
         fundTransferStrategies = new EnumMap<>(ServiceType.class);
@@ -56,7 +55,7 @@ public class FundTransferServiceDefault implements FundTransferService {
         fundTransferStrategies.put(BAIT_AL_KHAIR, charityStrategyDefault);
         fundTransferStrategies.put(DUBAI_CARE, charityStrategyDefault);
         fundTransferStrategies.put(DAR_AL_BER, charityStrategyDefault);
-        fundTransferStrategies.put(QUICK_REMIT,quickRemitStrategy);
+        fundTransferStrategies.put(QUICK_REMIT, quickRemitStrategy);
 
     }
 
@@ -75,7 +74,8 @@ public class FundTransferServiceDefault implements FundTransferService {
         FundTransferResponse response = strategy.execute(request, metadata, userDTO);
 
 
-        if (response.getResponseDto().getMwResponseStatus().equals(MwResponseStatus.S)) {
+        if (response.getResponseDto().getMwResponseStatus().equals(MwResponseStatus.S) ||
+                response.getResponseDto().getMwResponseStatus().equals(MwResponseStatus.P)) {
             DigitalUserLimitUsageDTO digitalUserLimitUsageDTO = generateUserLimitUsage(
                     request.getServiceType(), response.getLimitUsageAmount(), userDTO, metadata, response.getLimitVersionUuid());
             log.info("Inserting into limits table {} ", digitalUserLimitUsageDTO);
