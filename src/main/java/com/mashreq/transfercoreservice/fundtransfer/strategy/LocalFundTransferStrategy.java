@@ -143,7 +143,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         final CoreCurrencyConversionRequestDto currencyRequest = CoreCurrencyConversionRequestDto.builder()
                 .accountNumber(sourceAccountDetailsDTO.getNumber())
                 .accountCurrency(sourceAccountDetailsDTO.getCurrency())
-                .transactionCurrency(beneficiaryDto.getBeneficiaryCurrency())
+                .transactionCurrency("AED")
                 .transactionAmount(request.getAmount()).build();
         CurrencyConversionDto conversionResultInSourceAcctCurrency = maintenanceService.convertBetweenCurrencies(currencyRequest);
         amtToBePaidInSrcCurrency = conversionResultInSourceAcctCurrency.getAccountCurrencyAmount();
