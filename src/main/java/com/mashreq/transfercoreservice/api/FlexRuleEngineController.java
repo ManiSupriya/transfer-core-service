@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.api;
 
+import com.mashreq.transfercoreservice.fundtransfer.dto.FlexRuleEngineCountryType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FlexRuleEngineResponseDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FlexRuleEngineRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.service.FlexRuleEngineMWService;
@@ -13,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.math.BigDecimal;
 
 /**
  * @author shahbazkh
@@ -43,6 +45,17 @@ public class FlexRuleEngineController {
                                   @RequestHeader("X-CIF-ID") final String cifId,
                                   @Valid @RequestBody FlexRuleEngineRequestDTO request) {
         log.info("{} Flex Rule engine transfer for request received ", request);
+
+
+        if (FlexRuleEngineCountryType.PK == request.getCountryType()) {
+            return Response.builder().data(FlexRuleEngineResponseDTO.builder()
+                    .chargeAmount(BigDecimal.ONE)
+                    .chargeCurrency("PKR")
+                    .productCode("DFCR")
+                    .build())
+                    .build();
+        }
+
         return Response.builder().data(flexRuleEngineMWService.getRules(channelTraceId, request)).build();
 
     }
