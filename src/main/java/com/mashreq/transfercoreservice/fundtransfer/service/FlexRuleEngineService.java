@@ -19,6 +19,7 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
+import static java.lang.String.valueOf;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -85,7 +86,7 @@ public class FlexRuleEngineService {
         return FlexRuleEngineMWRequest.builder()
                 .transactionCurrency(request.getTransactionCurrency())
                 .accountCurrency(request.getAccountCurrency())
-                .accountCurrencyAmount(request.getAccountCurrencyAmount())
+                .accountCurrencyAmount(String.valueOf(request.getAccountCurrencyAmount()))
                 .customerAccountNo(request.getCustomerAccountNo())
                 .accountWithInstitution(getSwiftCode(beneficiary))
                 .transactionStatus(DEFAULT_TRANSACTION_STATUS)
@@ -98,7 +99,7 @@ public class FlexRuleEngineService {
     private FlexRuleEngineMWRequest getFlexRequestWithCreditLeg(FlexRuleEngineMetadata metadata, FlexRuleEngineRequestDTO request, String valueDate, BeneficiaryDto beneficiary) {
         return FlexRuleEngineMWRequest.builder()
                 .transactionCurrency(request.getTransactionCurrency())
-                .transactionAmount(request.getTransactionAmount())
+                .transactionAmount(valueOf(request.getTransactionAmount()))
                 .accountCurrency(request.getAccountCurrency())
                 .customerAccountNo(request.getCustomerAccountNo())
                 .accountWithInstitution(getSwiftCode(beneficiary))

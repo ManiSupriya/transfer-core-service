@@ -66,6 +66,11 @@ public enum TransferErrorCode implements ErrorCode {
     FLEX_RULE_EITHER_DEBIT_OR_CREDIT_AMT_REQUIRED("TN-6001", "Either Debit or Credit Amount Required"),
 
 
+    BENE_EXTERNAL_SERVICE_ERROR("TN-5010", "Something went wrong with beneficiary external service"),
+    ACC_EXTERNAL_SERVICE_ERROR("TN-5011", "Something went wrong with account external service"),
+    MOB_COM_EXTERNAL_SERVICE_ERROR("TN-5012", "Something went wrong with mob-common external service"),
+    MAINTENANCE_COM_EXTERNAL_SERVICE_ERROR("TN-5013", "Something went wrong with maintenance external service"),
+
     //Middleware error codes
     CONNECTION_TIMEOUT_MW("TN-5002", "Middleware Connection Timeout"),
     EXTERNAL_SERVICE_ERROR_MW("TN-5003", "Something went wrong with middleware service");

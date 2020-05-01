@@ -20,8 +20,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.mashreq.transfercoreservice.client.ErrorUtils.getErrorDetails;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_NOT_FOUND;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_ACC_NOT_MATCH;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -59,7 +58,7 @@ public class AccountService {
 
         if (isNotBlank(response.getErrorCode()) || TRUE.equalsIgnoreCase(response.getHasError())) {
             log.warn("Not able to fetch accounts");
-            GenericExceptionHandler.handleError(ACCOUNT_NOT_FOUND, ACCOUNT_NOT_FOUND.getErrorMessage(), getErrorDetails(response));
+            GenericExceptionHandler.handleError(ACC_EXTERNAL_SERVICE_ERROR, ACC_EXTERNAL_SERVICE_ERROR.getErrorMessage(), getErrorDetails(response));
         }
         log.info("Accounts fetched for account number {}  ", accountNumber);
 

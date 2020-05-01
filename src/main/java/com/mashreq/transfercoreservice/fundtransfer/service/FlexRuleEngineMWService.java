@@ -20,6 +20,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.FLEX_RULE_ENGINE_FAILED;
+import static java.lang.String.valueOf;
+
 /**
  * @author shahbazkh
  * @date 4/19/20
@@ -57,7 +60,7 @@ public class FlexRuleEngineMWService {
         if (!(StringUtils.endsWith(response.getBody().getExceptionDetails().getErrorCode(), SUCCESS_CODE_ENDS_WITH)
                 && SUCCESS.equals(response.getHeader().getStatus()))) {
 
-            GenericExceptionHandler.handleError(TransferErrorCode.FLEX_RULE_ENGINE_FAILED,
+            GenericExceptionHandler.handleError(FLEX_RULE_ENGINE_FAILED,
                     response.getBody().getExceptionDetails().getErrorDescription(), response.getBody().getExceptionDetails().getErrorCode());
         }
     }
@@ -74,8 +77,8 @@ public class FlexRuleEngineMWService {
         flexRuleEngineReqType.setTransactionCurrency(flexRequest.getTransactionCurrency());
         flexRuleEngineReqType.setAccountCurrency(flexRequest.getAccountCurrency());
 
-        flexRuleEngineReqType.setAccountCurrencyAmount(String.valueOf(flexRequest.getAccountCurrencyAmount()));
-        flexRuleEngineReqType.setTransactionAmount(String.valueOf(flexRequest.getTransactionAmount()));
+        flexRuleEngineReqType.setAccountCurrencyAmount(valueOf(flexRequest.getAccountCurrencyAmount()));
+        flexRuleEngineReqType.setTransactionAmount(valueOf(flexRequest.getTransactionAmount()));
 
 
         flexRuleEngineReqType.setAccountWithInstitution(flexRequest.getAccountWithInstitution());

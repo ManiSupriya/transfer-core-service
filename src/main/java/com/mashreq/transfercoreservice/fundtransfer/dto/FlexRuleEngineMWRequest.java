@@ -26,7 +26,7 @@ public class FlexRuleEngineMWRequest {
     /**
      * Credit Amount
      */
-    private BigDecimal transactionAmount;
+    private String transactionAmount;
 
     /**
      * Debit Currency
@@ -36,7 +36,7 @@ public class FlexRuleEngineMWRequest {
     /**
      * Debit Amount
      */
-    private BigDecimal accountCurrencyAmount;
+    private String accountCurrencyAmount;
 
     /**
      * Defaults to AC
