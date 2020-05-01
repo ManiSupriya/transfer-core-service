@@ -49,8 +49,6 @@ public class FlexRuleEngineMWService {
 
         FlexRuleEngineResType responseDTO = response.getBody().getFlexRuleEngineRes();
         return FlexRuleEngineResponseDTO.builder()
-                .chargeAmount(new BigDecimal(responseDTO.getGatewayDetails().get(0).getChargeAmount()))
-                .chargeCurrency(responseDTO.getGatewayDetails().get(0).getChargeCurrency())
                 .productCode(responseDTO.getGatewayDetails().get(0).getProductCode())
                 .build();
     }
@@ -77,8 +75,9 @@ public class FlexRuleEngineMWService {
         flexRuleEngineReqType.setTransactionCurrency(flexRequest.getTransactionCurrency());
         flexRuleEngineReqType.setAccountCurrency(flexRequest.getAccountCurrency());
 
-        flexRuleEngineReqType.setAccountCurrencyAmount(valueOf(flexRequest.getAccountCurrencyAmount()));
-        flexRuleEngineReqType.setTransactionAmount(valueOf(flexRequest.getTransactionAmount()));
+        flexRuleEngineReqType.setAccountCurrencyAmount(flexRequest.getAccountCurrencyAmount());
+
+        flexRuleEngineReqType.setTransactionAmount(flexRequest.getTransactionAmount());
 
 
         flexRuleEngineReqType.setAccountWithInstitution(flexRequest.getAccountWithInstitution());
