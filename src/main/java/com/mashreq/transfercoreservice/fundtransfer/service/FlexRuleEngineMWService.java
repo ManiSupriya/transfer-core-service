@@ -6,6 +6,8 @@ import com.mashreq.esbcore.bindings.customer.mbcdm.FlexRuleEngineResType;
 import com.mashreq.esbcore.bindings.customerservices.mbcdm.flexruleengine.EAIServices;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FlexRuleEngineCountryType;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FlexRuleEngineMWRequest;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FlexRuleEngineResponseDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FlexRuleEngineRequestDTO;
 import com.mashreq.transfercoreservice.middleware.HeaderFactory;
@@ -36,10 +38,10 @@ public class FlexRuleEngineMWService {
     private static final String SUCCESS = "S";
     private static final String SUCCESS_CODE_ENDS_WITH = "-000";
 
-    public FlexRuleEngineResponseDTO getRules(final String channelTraceId, final FlexRuleEngineRequestDTO request) {
+    public FlexRuleEngineResponseDTO getRules(final FlexRuleEngineMWRequest request) {
         log.info("Flex Rule engine call initiated [ {} ]", request);
 
-        EAIServices response = (EAIServices) webServiceClient.exchange(generateFlexRuleEngineRequest(channelTraceId, request));
+        EAIServices response = (EAIServices) webServiceClient.exchange(generateFlexRuleEngineRequest(request));
         validateOMWResponse(response);
 
         FlexRuleEngineResType responseDTO = response.getBody().getFlexRuleEngineRes();
@@ -60,19 +62,27 @@ public class FlexRuleEngineMWService {
         }
     }
 
-    private EAIServices generateFlexRuleEngineRequest(String channelTraceId, FlexRuleEngineRequestDTO flexRequest) {
+    private EAIServices generateFlexRuleEngineRequest(FlexRuleEngineMWRequest flexRequest) {
         EAIServices request = new EAIServices();
         request.setBody(new EAIServices.Body());
-        request.setHeader(headerFactory.getHeader(soapServiceProperties.getServiceCodes().getFlexRuleEngine(), channelTraceId));
+        request.setHeader(headerFactory.getHeader(soapServiceProperties.getServiceCodes().getFlexRuleEngine(), flexRequest.getChannelTraceId()));
 
         FlexRuleEngineReqType flexRuleEngineReqType = new FlexRuleEngineReqType();
         flexRuleEngineReqType.setCustAccountNo(flexRequest.getCustomerAccountNo());
-        flexRuleEngineReqType.setTransactionAmount(flexRequest.getTransactionAmount().toString());
+
+
         flexRuleEngineReqType.setTransactionCurrency(flexRequest.getTransactionCurrency());
-        flexRuleEngineReqType.setAccountWithInstitution("XXXXIN");
-        flexRuleEngineReqType.setTransactionStatus("STP");
-        flexRuleEngineReqType.setValueDate("2020-04-21");
-        flexRuleEngineReqType.setTransferType("AC");
+        flexRuleEngineReqType.setAccountCurrency(flexRequest.getAccountCurrency());
+
+        flexRuleEngineReqType.setAccountCurrencyAmount(flexRequest.getAccountCurrencyAmount().toString());
+        flexRuleEngineReqType.setTransactionAmount(flexRequest.getTransactionAmount().toString());
+
+
+        flexRuleEngineReqType.setAccountWithInstitution(flexRequest.getAccountWithInstitution());
+        flexRuleEngineReqType.setTransactionStatus(flexRequest.getTransactionStatus());
+        flexRuleEngineReqType.setValueDate(flexRequest.getValueDate());
+        flexRuleEngineReqType.setTransferType(flexRequest.getTransferType());
+
         request.getBody().setFlexRuleEngineReq(flexRuleEngineReqType);
         return request;
     }

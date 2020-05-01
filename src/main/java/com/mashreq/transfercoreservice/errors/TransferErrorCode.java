@@ -42,6 +42,8 @@ public enum TransferErrorCode implements ErrorCode {
     ACCOUNT_NOT_BELONG_TO_CIF("TN-4200", "Account does not belong to CIF"),
     ACCOUNT_CURRENCY_MISMATCH("TN-4201", "Account currency does not match with given currency"),
     CURRENCY_IS_INVALID("TN-4202", "Currency does not match"),
+    ACCOUNT_NOT_FOUND("TN-4003", "Account not found"),
+    CONNECTED_ACCOUNT_EMPTY("TN-4004", "Connected Account is empty"),
 
     IBAN_NOT_FOUND("TN-5100", "IBAN not found"),
     ROUTING_CODE_NOT_FOUND("TN-5102", "Routing Code not found"),
@@ -55,11 +57,14 @@ public enum TransferErrorCode implements ErrorCode {
     IFSC_CODE_NOT_FOUND("TN-5110", "IFSC Code not found"),
     INVALID_FLEX_RULE_COUNTRY("TN-5111", "Invalid Country for rule engine"),
 
+
     EXTERNAL_SERVICE_ERROR("TN-5000", "Something went wrong with external service"),
     FUND_TRANSFER_FAILED("TN-5001", "Fund transfer failed"),
     FUND_TRANSFER_PROCESSING("TN-5004", "Fund transfer is in processing"),
 
-    FLEX_RULE_ENGINE_FAILED("TN-5009", "Flex Rule Engine Failed"),
+    FLEX_RULE_ENGINE_FAILED("TN-6000", "Flex Rule Engine Failed"),
+    FLEX_RULE_EITHER_DEBIT_OR_CREDIT_AMT_REQUIRED("TN-6001", "Either Debit or Credit Amount Required"),
+
 
     //Middleware error codes
     CONNECTION_TIMEOUT_MW("TN-5002", "Middleware Connection Timeout"),

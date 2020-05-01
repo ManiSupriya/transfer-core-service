@@ -1,12 +1,11 @@
 package com.mashreq.transfercoreservice.client;
 
 import com.mashreq.transfercoreservice.client.dto.CifProductsDto;
+import com.mashreq.transfercoreservice.client.dto.CoreAccountDetailsDTO;
 import com.mashreq.transfercoreservice.config.feign.FeignConfig;
 import com.mashreq.webcore.dto.response.Response;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -19,4 +18,8 @@ public interface AccountClient {
 
     @GetMapping(value = "/api/accounts/cif/{cifId}")
     Response<CifProductsDto> searchAccounts(@PathVariable("cifId") String cifId, @RequestParam(required = false) List<String> linkedCifs);
+
+
+    @RequestMapping(method = RequestMethod.GET, value = "/api/accounts/{accountNumber}")
+    Response<CoreAccountDetailsDTO> getAccountDetails(@PathVariable("accountNumber") String accountNumber);
 }

@@ -1,29 +1,26 @@
 package com.mashreq.transfercoreservice.fundtransfer.dto;
 
+import lombok.Builder;
 import lombok.Data;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 /**
  * @author shahbazkh
- * @date 4/21/20
+ * @date 4/29/20
  */
 
 @Data
-public class FlexRuleEngineRequestDTO {
-
+@Builder
+public class FlexRuleEngineMWRequest {
     /**
      * Source Account Number
      */
-    @NotEmpty
     private String customerAccountNo;
 
     /**
      * Credit Currency
      */
-    @NotEmpty
     private String transactionCurrency;
 
     /**
@@ -34,7 +31,6 @@ public class FlexRuleEngineRequestDTO {
     /**
      * Debit Currency
      */
-    @NotEmpty
     private String accountCurrency;
 
     /**
@@ -43,10 +39,27 @@ public class FlexRuleEngineRequestDTO {
     private BigDecimal accountCurrencyAmount;
 
     /**
-     * Country Type
+     * Defaults to AC
      */
-    @NotNull
-    private Long beneficiaryId;
+    private String transferType;
 
+    /**
+     * Defaults to STP
+     */
+    private String transactionStatus;
 
+    /**
+     * Swift Code or XXXXIN for India
+     */
+    private String accountWithInstitution;
+
+    /**
+     *
+     */
+    private String valueDate;
+
+    /**
+     *
+     */
+    private String channelTraceId;
 }

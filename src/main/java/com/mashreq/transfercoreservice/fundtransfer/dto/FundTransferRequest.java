@@ -29,5 +29,4 @@ public class FundTransferRequest {
     private String beneficiaryAddressTwo;
     private String beneficiaryAddressThree;
 
-
 }

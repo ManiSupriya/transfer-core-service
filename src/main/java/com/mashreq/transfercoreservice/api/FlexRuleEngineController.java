@@ -1,9 +1,11 @@
 package com.mashreq.transfercoreservice.api;
 
 import com.mashreq.transfercoreservice.fundtransfer.dto.FlexRuleEngineCountryType;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FlexRuleEngineMetadata;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FlexRuleEngineResponseDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FlexRuleEngineRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.service.FlexRuleEngineMWService;
+import com.mashreq.transfercoreservice.fundtransfer.service.FlexRuleEngineService;
 import com.mashreq.webcore.dto.response.Response;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -28,10 +30,7 @@ import java.math.BigDecimal;
 @Api(value = "Fund Transfer")
 @RequiredArgsConstructor
 public class FlexRuleEngineController {
-
-
-    //TODO : Replace this with 3 strategies service
-    private final FlexRuleEngineMWService flexRuleEngineMWService;
+    private final FlexRuleEngineService flexRuleEngineService;
 
     @ApiOperation(value = "Fetch Rules for flex engine", response = FlexRuleEngineResponseDTO.class)
     @ApiResponses(value = {
@@ -46,17 +45,12 @@ public class FlexRuleEngineController {
                                   @Valid @RequestBody FlexRuleEngineRequestDTO request) {
         log.info("{} Flex Rule engine transfer for request received ", request);
 
+        FlexRuleEngineMetadata metadata = FlexRuleEngineMetadata.builder()
+                .channelTraceId(channelTraceId)
+                .cifId(cifId)
+                .build();
 
-        if (FlexRuleEngineCountryType.PK == request.getCountryType()) {
-            return Response.builder().data(FlexRuleEngineResponseDTO.builder()
-                    .chargeAmount(BigDecimal.ONE)
-                    .chargeCurrency("PKR")
-                    .productCode("DFCR")
-                    .build())
-                    .build();
-        }
-
-        return Response.builder().data(flexRuleEngineMWService.getRules(channelTraceId, request)).build();
+        return Response.builder().data(flexRuleEngineService.getRules(metadata, request)).build();
 
     }
 }
