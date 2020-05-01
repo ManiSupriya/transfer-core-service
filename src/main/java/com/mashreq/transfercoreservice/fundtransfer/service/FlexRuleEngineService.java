@@ -53,8 +53,6 @@ public class FlexRuleEngineService {
 
         final BeneficiaryDto beneficiary = beneficiaryService.getById(metadata.getCifId(), Long.valueOf(request.getBeneficiaryId()));
 
-        assertIncomingAccNumberMatchesBeneAccNumber(request, beneficiary);
-
         final SearchAccountDto searchAccountDto = searchAccountFut.join();
 
         assertReqCurrencyMatchesBeneCurrency(request, searchAccountDto);
@@ -76,11 +74,6 @@ public class FlexRuleEngineService {
         }
     }
 
-    private void assertIncomingAccNumberMatchesBeneAccNumber(FlexRuleEngineRequestDTO request, BeneficiaryDto beneficiary) {
-        if (request.getCustomerAccountNo().equals(beneficiary.getAccountNumber())) {
-            GenericExceptionHandler.handleError(BENE_ACC_NOT_MATCH, BENE_ACC_NOT_MATCH.getErrorMessage());
-        }
-    }
 
     private void assertEitherDebitOrCreditAmountPresent(FlexRuleEngineRequestDTO request) {
         if (isNull(request.getTransactionAmount()) && isNull(request.getAccountCurrencyAmount())) {
