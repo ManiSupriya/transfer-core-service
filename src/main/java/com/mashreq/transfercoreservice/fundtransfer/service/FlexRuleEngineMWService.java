@@ -74,8 +74,8 @@ public class FlexRuleEngineMWService {
         flexRuleEngineReqType.setTransactionCurrency(flexRequest.getTransactionCurrency());
         flexRuleEngineReqType.setAccountCurrency(flexRequest.getAccountCurrency());
 
-        flexRuleEngineReqType.setAccountCurrencyAmount(flexRequest.getAccountCurrencyAmount().toString());
-        flexRuleEngineReqType.setTransactionAmount(flexRequest.getTransactionAmount().toString());
+        flexRuleEngineReqType.setAccountCurrencyAmount(String.valueOf(flexRequest.getAccountCurrencyAmount()));
+        flexRuleEngineReqType.setTransactionAmount(String.valueOf(flexRequest.getTransactionAmount()));
 
 
         flexRuleEngineReqType.setAccountWithInstitution(flexRequest.getAccountWithInstitution());

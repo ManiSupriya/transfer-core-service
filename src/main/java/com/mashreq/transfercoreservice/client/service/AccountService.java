@@ -61,7 +61,7 @@ public class AccountService {
             log.warn("Not able to fetch accounts");
             GenericExceptionHandler.handleError(ACCOUNT_NOT_FOUND, ACCOUNT_NOT_FOUND.getErrorMessage(), getErrorDetails(response));
         }
-        log.info("{} Accounts fetched for account number {}  ", accountNumber);
+        log.info("Accounts fetched for account number {}  ", accountNumber);
 
         Optional<SearchAccountDto> searchAccountOpt = response.getData().getConnectedAccounts().stream().findFirst();
 

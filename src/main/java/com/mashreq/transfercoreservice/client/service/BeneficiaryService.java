@@ -29,12 +29,14 @@ public class BeneficiaryService {
     private final BeneficiaryClient beneficiaryClient;
 
     public BeneficiaryDto getById(final String cifId, final Long id) {
+        log.info("Fetching Beneficiary for id = {}", id);
         Response<BeneficiaryDto> response = beneficiaryClient.getById(cifId, id);
 
         if (TRUE.equalsIgnoreCase(response.getHasError())) {
             GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR, EXTERNAL_SERVICE_ERROR.getErrorMessage(),
                     getErrorDetails(response));
         }
+        log.info("Beneficiary fetched successfully for id = {}", id);
         return response.getData();
     }
 
