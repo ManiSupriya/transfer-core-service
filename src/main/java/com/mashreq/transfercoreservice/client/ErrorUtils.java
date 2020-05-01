@@ -13,8 +13,14 @@ public class ErrorUtils {
 
     public static String getErrorDetails(Response response) {
         if (StringUtils.isNotBlank(response.getErrorDetails())) {
-            return response.getErrorCode() + "," + response.getErrorDetails();
+            return getErrorId(response) + "," + response.getErrorDetails();
         }
-        return response.getErrorCode();
+        return getErrorId(response);
+    }
+
+    private static String getErrorId(Response response) {
+        return StringUtils.isNotBlank(response.getErrorId())
+                ? response.getErrorId()
+                : response.getErrorCode();
     }
 }
