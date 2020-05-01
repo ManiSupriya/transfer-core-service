@@ -36,7 +36,7 @@ public class FlexRuleEngineService {
     public static final String INDIA_DEFAULT_SWIFT_CODE = "XXXXIN";
     public static final String DEFAULT_TRANSFER_TYPE = "AC";
     public static final String DEFAULT_TRANSACTION_STATUS = "STP";
-    public static final String DATE_FORMAT = "YYYY-MM-DD";
+    public static final String DATE_FORMAT = "YYYY-MM-dd";
     private final BeneficiaryService beneficiaryService;
     private final AccountService accountService;
 
@@ -47,7 +47,7 @@ public class FlexRuleEngineService {
         assertEitherDebitOrCreditAmountPresent(request);
 
         final String valueDate = DateTimeFormatter.ofPattern(DATE_FORMAT).format(LocalDateTime.now());
-        
+
         final CompletableFuture<SearchAccountDto> searchAccountFut = CompletableFuture.supplyAsync(() ->
                 accountService.getAccountDetailsFromCore(request.getCustomerAccountNo()));
 
