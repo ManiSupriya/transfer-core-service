@@ -77,7 +77,7 @@ public class FlexRuleEngineController {
                 .accountCurrency(request.getAccountCurrency())
                 .build();
 
-        return Response.builder().data(flexRuleEngineService.getRules(metadata, ruleEngineRequest)).build();
+        return Response.builder().data(flexRuleEngineService.getCharges(metadata, ruleEngineRequest)).build();
 
     }
 }
