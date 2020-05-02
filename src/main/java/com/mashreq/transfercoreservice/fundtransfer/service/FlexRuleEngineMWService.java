@@ -6,10 +6,7 @@ import com.mashreq.esbcore.bindings.customer.mbcdm.FlexRuleEngineResType;
 import com.mashreq.esbcore.bindings.customerservices.mbcdm.flexruleengine.EAIServices;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FlexRuleEngineCountryType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FlexRuleEngineMWRequest;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FlexRuleEngineResponseDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FlexRuleEngineRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.middleware.HeaderFactory;
 import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
 import com.mashreq.transfercoreservice.middleware.WebServiceClient;
@@ -41,15 +38,17 @@ public class FlexRuleEngineMWService {
     private static final String SUCCESS = "S";
     private static final String SUCCESS_CODE_ENDS_WITH = "-000";
 
-    public FlexRuleEngineResponseDTO getRules(final FlexRuleEngineMWRequest request) {
+    public FlexRuleEngineMWResponse getRules(final FlexRuleEngineMWRequest request) {
         log.info("Flex Rule engine call initiated [ {} ]", request);
 
         EAIServices response = (EAIServices) webServiceClient.exchange(generateFlexRuleEngineRequest(request));
         validateOMWResponse(response);
 
         FlexRuleEngineResType responseDTO = response.getBody().getFlexRuleEngineRes();
-        return FlexRuleEngineResponseDTO.builder()
+        return FlexRuleEngineMWResponse.builder()
                 .productCode(responseDTO.getGatewayDetails().get(0).getProductCode())
+                .chargeAmount(responseDTO.getGatewayDetails().get(0).getChargeAmount())
+                .chargeCurrency(responseDTO.getGatewayDetails().get(0).getChargeCurrency())
                 .build();
     }
 

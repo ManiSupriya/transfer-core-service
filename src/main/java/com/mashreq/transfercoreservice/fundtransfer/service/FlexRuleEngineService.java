@@ -5,10 +5,7 @@ import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.SearchAccountDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FlexRuleEngineMWRequest;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FlexRuleEngineMetadata;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FlexRuleEngineRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FlexRuleEngineResponseDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -43,6 +40,29 @@ public class FlexRuleEngineService {
 
     private final FlexRuleEngineMWService flexRuleEngineMWService;
 
+    public ChargeResponseDTO getCharges(final FlexRuleEngineMetadata metadata, final FlexRuleEngineRequestDTO request) {
+
+        final String valueDate = DateTimeFormatter.ofPattern(DATE_FORMAT).format(LocalDateTime.now());
+
+        final CompletableFuture<SearchAccountDto> searchAccountFut = CompletableFuture.supplyAsync(() ->
+                accountService.getAccountDetailsFromCore(request.getCustomerAccountNo()));
+
+        final BeneficiaryDto beneficiary = beneficiaryService.getById(metadata.getCifId(), Long.valueOf(request.getBeneficiaryId()));
+
+        final SearchAccountDto searchAccountDto = searchAccountFut.join();
+
+        assertReqCurrencyMatchesBeneCurrency(request, searchAccountDto);
+
+        log.info("Calling Flex Rule MW for CHARGES with Debit Leg {} {} ", request.getTransactionCurrency(), request.getTransactionAmount());
+
+        final FlexRuleEngineMWResponse response = flexRuleEngineMWService.getRules(getFlexRequestWithCreditLeg(metadata, request, valueDate, beneficiary));
+
+        return ChargeResponseDTO.builder()
+                .currency(response.getChargeCurrency())
+                .chargeAmount(response.getChargeAmount())
+                .build();
+    }
+
     public FlexRuleEngineResponseDTO getRules(final FlexRuleEngineMetadata metadata, final FlexRuleEngineRequestDTO request) {
 
         assertEitherDebitOrCreditAmountPresent(request);
@@ -61,11 +81,21 @@ public class FlexRuleEngineService {
 
         if (nonNull(request.getTransactionAmount())) {
             log.info("Calling Flex Rule MW with Debit Leg {} {} ", request.getTransactionCurrency(), request.getTransactionAmount());
-            return flexRuleEngineMWService.getRules(getFlexRequestWithCreditLeg(metadata, request, valueDate, beneficiary));
+
+            final FlexRuleEngineMWResponse response = flexRuleEngineMWService.getRules(getFlexRequestWithCreditLeg(metadata, request, valueDate, beneficiary));
+
+            return FlexRuleEngineResponseDTO.builder()
+                    .productCode(response.getProductCode())
+                    .build();
 
         } else {
             log.info("Calling Flex Rule MW with Credit Leg {} {} ", request.getAccountCurrencyAmount(), request.getAccountCurrency());
-            return flexRuleEngineMWService.getRules(getFlexRequestWithDebitLeg(metadata, request, valueDate, beneficiary));
+
+            final FlexRuleEngineMWResponse response = flexRuleEngineMWService.getRules(getFlexRequestWithDebitLeg(metadata, request, valueDate, beneficiary));
+
+            return FlexRuleEngineResponseDTO.builder()
+                    .productCode(response.getProductCode())
+                    .build();
         }
     }
 

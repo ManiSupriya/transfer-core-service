@@ -2,16 +2,17 @@ package com.mashreq.transfercoreservice.fundtransfer.dto;
 
 import lombok.Builder;
 import lombok.Data;
-
-import java.math.BigDecimal;
+import org.springframework.context.annotation.Bean;
 
 /**
  * @author shahbazkh
- * @date 4/21/20
+ * @date 5/2/20
  */
-
 @Data
 @Builder
-public class FlexRuleEngineResponseDTO {
+public class FlexRuleEngineMWResponse {
+
     private String productCode;
+    private String chargeCurrency;
+    private String chargeAmount;
 }
