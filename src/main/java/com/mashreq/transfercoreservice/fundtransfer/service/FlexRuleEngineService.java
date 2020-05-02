@@ -144,7 +144,7 @@ public class FlexRuleEngineService {
      * Default value is used only in case of India
      */
     private String getSwiftCode(BeneficiaryDto beneficiary) {
-        return INDIA_COUNTRY_CODE.equals(beneficiary.getBeneficiaryCountryISO())
+        return INDIA_COUNTRY_CODE.equals(beneficiary.getBankCountry())
                 ? INDIA_DEFAULT_SWIFT_CODE
                 : beneficiary.getSwiftCode();
     }
