@@ -27,6 +27,7 @@ import java.math.BigDecimal;
 @Api(value = "Fund Transfer")
 @RequiredArgsConstructor
 public class FlexRuleEngineController {
+
     private final FlexRuleEngineService flexRuleEngineService;
 
     @ApiOperation(value = "Fetch Rules for flex engine", response = FlexRuleEngineResponseDTO.class)
@@ -51,7 +52,7 @@ public class FlexRuleEngineController {
 
     }
 
-    @ApiOperation(value = "Fetch Rules for flex engine", response = FlexRuleEngineResponseDTO.class)
+    @ApiOperation(value = "Fetch Rules for flex engine", response = ChargeResponseDTO.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully processed"),
             @ApiResponse(code = 500, message = "Something went wrong")
