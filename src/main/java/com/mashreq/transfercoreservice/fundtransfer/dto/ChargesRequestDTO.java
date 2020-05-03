@@ -31,7 +31,6 @@ public class ChargesRequestDTO {
     /**
      * Credit Amount
      */
-    @NotEmpty
     private BigDecimal transactionAmount;
 
     /**
