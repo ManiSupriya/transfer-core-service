@@ -114,6 +114,9 @@ public class FlexRuleEngineService {
 
             return FlexRuleEngineResponseDTO.builder()
                     .productCode(response.getProductCode())
+                    .exchangeRate(response.getExchangeRate())
+                    .accountCurrencyAmount(response.getAccountCurrencyAmount())
+                    .transactionAmount(response.getTransactionAmount())
                     .build();
         }
 
@@ -134,7 +137,7 @@ public class FlexRuleEngineService {
 
 
     private void assertEitherDebitOrCreditAmountPresent(FlexRuleEngineRequestDTO request) {
-        if(Objects.nonNull(request.getTransactionAmount()) && Objects.nonNull(request.getAccountCurrencyAmount())){
+        if (Objects.nonNull(request.getTransactionAmount()) && Objects.nonNull(request.getAccountCurrencyAmount())) {
             GenericExceptionHandler.handleError(FLEX_RULE_ONLY_1_AMOUNT_ALLLOWED, FLEX_RULE_ONLY_1_AMOUNT_ALLLOWED.getErrorMessage());
         }
 

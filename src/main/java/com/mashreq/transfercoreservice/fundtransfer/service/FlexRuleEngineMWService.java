@@ -45,11 +45,14 @@ public class FlexRuleEngineMWService {
         validateOMWResponse(response);
 
         FlexRuleEngineResType responseDTO = response.getBody().getFlexRuleEngineRes();
-        
+
         return FlexRuleEngineMWResponse.builder()
                 .productCode(responseDTO.getGatewayDetails().get(0).getProductCode())
                 .chargeAmount(responseDTO.getGatewayDetails().get(0).getChargeAmount())
                 .chargeCurrency(responseDTO.getGatewayDetails().get(0).getChargeCurrency())
+                .accountCurrencyAmount(new BigDecimal(responseDTO.getGatewayDetails().get(0).getAccountCurrencyAmount()))
+                .transactionAmount(new BigDecimal(responseDTO.getGatewayDetails().get(0).getTransactionAmount()))
+                .exchangeRate(new BigDecimal(responseDTO.getGatewayDetails().get(0).getExchangeRate()))
                 .build();
     }
 

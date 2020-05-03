@@ -13,7 +13,25 @@ import java.math.BigDecimal;
 @Data
 @Builder
 public class FlexRuleEngineResponseDTO {
+    
+    /**
+     * Used for India and Pakistan
+     */
     private String productCode;
+
+    /**
+     * Used only for INSTAREM
+     */
+    private BigDecimal transactionAmount;
+
+    /**
+     * Used only for INSTAREM
+     */
+    private BigDecimal accountCurrencyAmount;
+
+    /**
+     * Used only for INSTAREM
+     */
     private BigDecimal exchangeRate;
 
 }
