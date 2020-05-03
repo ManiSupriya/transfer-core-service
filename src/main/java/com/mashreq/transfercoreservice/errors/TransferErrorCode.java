@@ -31,7 +31,8 @@ public enum TransferErrorCode implements ErrorCode {
     BENE_NOT_FOUND("TN-4001", "Beneficiary Not Found"),
     BENE_ACC_NOT_MATCH("TN-4002", "Beneficiary Account Number does not match"),
     BENE_CUR_NOT_MATCH("TN-4003", "Beneficiary Currency does not match"),
-    BENE_NOT_ACTIVE("TN-4004", "Beneficiary is not active"),
+    BENE_NOT_ACTIVE("TN-4004", "Beneficiary status is not active"),
+    BENE_NOT_ACTIVE_OR_COOLING("TN-4004", "Beneficiary status is not active/cooling"),
 
     CURRENCY_CONVERSION_FAIL("TN-4100", "Currency conversion failed."),
     INVALID_PURPOSE_CODE("TN-4101", "Invalid purpose code"),
@@ -41,6 +42,8 @@ public enum TransferErrorCode implements ErrorCode {
     ACCOUNT_NOT_BELONG_TO_CIF("TN-4200", "Account does not belong to CIF"),
     ACCOUNT_CURRENCY_MISMATCH("TN-4201", "Account currency does not match with given currency"),
     CURRENCY_IS_INVALID("TN-4202", "Currency does not match"),
+    ACCOUNT_NOT_FOUND("TN-4003", "Account not found"),
+    CONNECTED_ACCOUNT_EMPTY("TN-4004", "Connected Account is empty"),
 
     IBAN_NOT_FOUND("TN-5100", "IBAN not found"),
     ROUTING_CODE_NOT_FOUND("TN-5102", "Routing Code not found"),
@@ -51,9 +54,22 @@ public enum TransferErrorCode implements ErrorCode {
     ROUTING_CODE_EMPTY("TN-5107", "Beneficiary routing code cannot be empty"),
     ROUTING_CODE_LENGTH_INVALID("TN-5108", "Beneficiary routing code length is invalid"),
     SWIFT_CODE_EMPTY("TN-5109", "Beneficiary SWIFT code cannot be empty"),
+    IFSC_CODE_NOT_FOUND("TN-5110", "IFSC Code not found"),
+    INVALID_FLEX_RULE_COUNTRY("TN-5111", "Invalid Country for rule engine"),
+
 
     EXTERNAL_SERVICE_ERROR("TN-5000", "Something went wrong with external service"),
     FUND_TRANSFER_FAILED("TN-5001", "Fund transfer failed"),
+    FUND_TRANSFER_PROCESSING("TN-5004", "Fund transfer is in processing"),
+
+    FLEX_RULE_ENGINE_FAILED("TN-6000", "Flex Rule Engine Failed"),
+    FLEX_RULE_EITHER_DEBIT_OR_CREDIT_AMT_REQUIRED("TN-6001", "Either Debit or Credit Amount Required"),
+
+
+    BENE_EXTERNAL_SERVICE_ERROR("TN-5010", "Something went wrong with beneficiary external service"),
+    ACC_EXTERNAL_SERVICE_ERROR("TN-5011", "Something went wrong with account external service"),
+    MOB_COM_EXTERNAL_SERVICE_ERROR("TN-5012", "Something went wrong with mob-common external service"),
+    MAINTENANCE_COM_EXTERNAL_SERVICE_ERROR("TN-5013", "Something went wrong with maintenance external service"),
 
     //Middleware error codes
     CONNECTION_TIMEOUT_MW("TN-5002", "Middleware Connection Timeout"),

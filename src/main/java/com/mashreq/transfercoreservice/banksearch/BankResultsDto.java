@@ -3,6 +3,9 @@ package com.mashreq.transfercoreservice.banksearch;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.mashreq.esbcore.bindings.account.mbcdm.IBANDetailsResType;
 import com.mashreq.esbcore.bindings.customer.mbcdm.AccuityDetailsTypes;
+import com.mashreq.esbcore.bindings.customer.mbcdm.AxisRemittanceBankListReqType;
+import com.mashreq.esbcore.bindings.customer.mbcdm.AxisRemittanceBankListResType;
+import com.mashreq.esbcore.bindings.customer.mbcdm.AxisRemittanceIFSCDetailsResType;
 import lombok.Data;
 
 /**
@@ -38,7 +41,7 @@ public class BankResultsDto {
     private String street;
     private String swiftOver;
 
-    public BankResultsDto(AccuityDetailsTypes type){
+    public BankResultsDto(AccuityDetailsTypes type) {
         setBankName(type.getBankName());
         setBankCountry(type.getBankCountry());
         setBankState(type.getBankState());
@@ -69,5 +72,15 @@ public class BankResultsDto {
         setStreet(ibanDetailsRes.getStreet());
         setSwiftCode(ibanDetailsRes.getSwiftBic());
         setSwiftOver(ibanDetailsRes.getSwiftOver());
+    }
+
+
+    public BankResultsDto(AxisRemittanceIFSCDetailsResType s) {
+        setCountryCode(s.getIFSCDetails().getCountry());
+        setBankName(s.getIFSCDetails().getBankName());
+        setBankState(s.getIFSCDetails().getState());
+        setBankCity(s.getIFSCDetails().getCity());
+        setBranchName(s.getIFSCDetails().getBranchName());
+
     }
 }

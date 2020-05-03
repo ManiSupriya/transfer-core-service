@@ -21,5 +21,9 @@ public class SoapServiceProperties {
         private String fundTransfer;
         private String ibanSearch;
         private String routingCodeSearch;
+        private String ifscSearch;
+        private String flexRuleEngine;
+        private String quickRemitIndia;
+        private String quickRemitPakistan;
     }
 }

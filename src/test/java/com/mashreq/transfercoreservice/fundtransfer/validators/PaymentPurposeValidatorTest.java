@@ -1,6 +1,7 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
-import com.mashreq.transfercoreservice.client.dto.PurposeOfTransferDto;
+
+import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,9 +26,9 @@ public class PaymentPurposeValidatorTest {
     @Test
     public void test_when_pop_code_and_desc_is_valid() {
         //Given
-        final Set<PurposeOfTransferDto> purposes = new HashSet<>(Arrays.asList(
-                PurposeOfTransferDto.builder().popDesc("Family Support").popCode("FAM").build(),
-                PurposeOfTransferDto.builder().popCode("SAL").popDesc("Salary").build()
+        final Set<MoneyTransferPurposeDto> purposes = new HashSet<>(Arrays.asList(
+                MoneyTransferPurposeDto.builder().purposeDesc("Family Support").purposeCode("FAM").build(),
+                MoneyTransferPurposeDto.builder().purposeCode("SAL").purposeDesc("Salary").build()
         ));
         ValidationContext mockValidationContext = new ValidationContext();
         mockValidationContext.add("purposes", purposes);
@@ -46,9 +47,9 @@ public class PaymentPurposeValidatorTest {
     @Test
     public void test_when_pop_code_is_invalid() {
         //Given
-        final Set<PurposeOfTransferDto> purposes = new HashSet<>(Arrays.asList(
-                PurposeOfTransferDto.builder().popDesc("Family Support").popCode("FAM").build(),
-                PurposeOfTransferDto.builder().popCode("SAL").popDesc("Salary").build()
+        final Set<MoneyTransferPurposeDto> purposes = new HashSet<>(Arrays.asList(
+                MoneyTransferPurposeDto.builder().purposeDesc("Family Support").purposeCode("FAM").build(),
+                MoneyTransferPurposeDto.builder().purposeCode("SAL").purposeDesc("Salary").build()
         ));
         ValidationContext mockValidationContext = new ValidationContext();
         mockValidationContext.add("purposes", purposes);
@@ -68,9 +69,9 @@ public class PaymentPurposeValidatorTest {
     @Test
     public void test_when_pop_desc_is_invalid() {
         //Given
-        final Set<PurposeOfTransferDto> purposes = new HashSet<>(Arrays.asList(
-                PurposeOfTransferDto.builder().popDesc("Family Support").popCode("FAM").build(),
-                PurposeOfTransferDto.builder().popCode("SAL").popDesc("Salary").build()
+        final Set<MoneyTransferPurposeDto> purposes = new HashSet<>(Arrays.asList(
+                MoneyTransferPurposeDto.builder().purposeDesc("Family Support").purposeCode("FAM").build(),
+                MoneyTransferPurposeDto.builder().purposeCode("SAL").purposeDesc("Salary").build()
         ));
         ValidationContext mockValidationContext = new ValidationContext();
         mockValidationContext.add("purposes", purposes);

@@ -22,7 +22,7 @@ public class HeaderFactory {
         HeaderType header = new HeaderType();
         header.setSrcAppId(soapServiceProperties.getAppId());
         header.setOrgId(soapServiceProperties.getOriginId());
-        header.setUserId(soapServiceProperties.getUserId());
+        header.setUserId("MOBANKUSER");
         header.setSrcMsgId(channelTraceId);
         header.setSrcAppTimestamp(getCurrentTimeStamp());
         header.setSrvCode(service);

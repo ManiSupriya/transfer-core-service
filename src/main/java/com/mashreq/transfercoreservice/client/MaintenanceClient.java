@@ -27,9 +27,6 @@ public interface MaintenanceClient {
     @GetMapping("/api/currencies/exchange-rates/conversion")
     Response<CurrencyConversionDto> convertBetweenCurrencies(@SpringQueryMap CoreCurrencyConversionRequestDto dto);
 
-    @GetMapping("/api/transfer/purposes")
-    Response<Set<PurposeOfTransferDto>> getAllPurposeCodes(@RequestParam(value="transactionType") final String transactionType);
-
     @GetMapping("/v2/api/countries")
     Response<List<CountryMasterDto>> getAllCountries(@RequestParam final String channel, @RequestParam final String region,
                                                      @RequestParam final Boolean active);

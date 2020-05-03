@@ -1,17 +1,18 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
-import com.mashreq.transfercoreservice.client.MaintenanceClient;
 import com.mashreq.transfercoreservice.client.dto.*;
+import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
+import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
-import com.mashreq.transfercoreservice.fundtransfer.FundTransferMWService;
-import com.mashreq.transfercoreservice.fundtransfer.ServiceType;
+import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
+import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
-import com.mashreq.webcore.dto.response.Response;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,9 +56,6 @@ public class LocalFundTransferStrategyTest {
     private  FundTransferMWService fundTransferMWService;
 
     @Mock
-    private  MaintenanceClient maintenanceClient;
-
-    @Mock
     private  PaymentPurposeValidator paymentPurposeValidator;
 
     @Mock
@@ -65,6 +63,9 @@ public class LocalFundTransferStrategyTest {
 
     @Mock
     private  MaintenanceService maintenanceService;
+
+    @Mock
+    private MobCommonService mobCommonService;
 
     @Captor
     private ArgumentCaptor<FundTransferRequest> fundTransferRequest;
@@ -115,8 +116,8 @@ public class LocalFundTransferStrategyTest {
         beneficiaryDto.setFullName(fullName);
         final List<AccountDetailsDTO> accountsFromCore = Arrays.asList(AccountDetailsDTO.builder()
                 .number(fromAcct).currency(srcCurrency).branchCode(branchCode).build());
-        final Set<PurposeOfTransferDto> popList = new HashSet(Arrays.asList(PurposeOfTransferDto.builder().build()));
-        final Response maintenanceResponse = Response.<Set<PurposeOfTransferDto>>builder().data(popList).build();
+        final Set<MoneyTransferPurposeDto> popList = new HashSet(Arrays.asList(MoneyTransferPurposeDto.builder().build()));
+
         //when
 
         ReflectionTestUtils.setField(localFundTransferStrategy,"localCurrency", srcCurrency);
@@ -126,7 +127,7 @@ public class LocalFundTransferStrategyTest {
         when(finTxnNoValidator.validate(requestDTO, metadata)).thenReturn(validationResult);
         when(paymentPurposeValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(validationResult);
         when(accountService.getAccountsFromCore(eq(metadata.getPrimaryCif()))).thenReturn(accountsFromCore);
-        when(maintenanceClient.getAllPurposeCodes(eq("LOCAL"))).thenReturn(maintenanceResponse);
+        when(mobCommonService.getPaymentPurposes( eq("local"), eq(""))).thenReturn(popList);
 
         when(accountBelongsToCifValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
 
@@ -213,8 +214,8 @@ public class LocalFundTransferStrategyTest {
         beneficiaryDto.setFullName(fullName);
         final List<AccountDetailsDTO> accountsFromCore = Arrays.asList(AccountDetailsDTO.builder()
                 .number(fromAcct).currency(srcCurrency).branchCode(branchCode).build());
-        final Set<PurposeOfTransferDto> popList = new HashSet(Arrays.asList(PurposeOfTransferDto.builder().build()));
-        final Response maintenanceResponse = Response.<Set<PurposeOfTransferDto>>builder().data(popList).build();
+        final Set<MoneyTransferPurposeDto> popList = new HashSet(Arrays.asList(MoneyTransferPurposeDto.builder().build()));
+
 
         CoreCurrencyConversionRequestDto currencyRequest = CoreCurrencyConversionRequestDto.builder()
                 .accountNumber(fromAcct)
@@ -242,14 +243,14 @@ public class LocalFundTransferStrategyTest {
         when(finTxnNoValidator.validate(requestDTO, metadata)).thenReturn(validationResult);
         when(paymentPurposeValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(validationResult);
         when(accountService.getAccountsFromCore(eq(metadata.getPrimaryCif()))).thenReturn(accountsFromCore);
-        when(maintenanceClient.getAllPurposeCodes(eq("LOCAL"))).thenReturn(maintenanceResponse);
+        when(mobCommonService.getPaymentPurposes( eq("local"), eq(""))).thenReturn(popList);
 
         when(accountBelongsToCifValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
 
         when(beneficiaryService.getById(eq(metadata.getPrimaryCif()), eq(Long.valueOf(beneId)))).thenReturn(beneficiaryDto);
 
-        when(maintenanceClient.convertBetweenCurrencies(eq(currencyRequest)))
-                .thenReturn(Response.<CurrencyConversionDto>builder().data(currencyConversionDto).build());
+        when(maintenanceService.convertBetweenCurrencies(eq(currencyRequest)))
+                .thenReturn(currencyConversionDto);
 
         when(beneficiaryValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
         when(ibanValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());

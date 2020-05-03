@@ -1,13 +1,14 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
-import com.mashreq.transfercoreservice.client.BeneficiaryClient;
-import com.mashreq.transfercoreservice.client.MaintenanceClient;
 import com.mashreq.transfercoreservice.client.dto.*;
+import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
+import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 
 
+import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
-import com.mashreq.transfercoreservice.fundtransfer.FundTransferMWService;
+import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
@@ -31,20 +32,19 @@ import static java.lang.Long.valueOf;
 @Service
 public class InternationalFundTransferStrategy implements FundTransferStrategy {
 
-    private static final String INTERNATIONAL = "INTERNATIONAL";
     private static final String INTERNATIONAL_PRODUCT_ID = "DBFC";
     private static final String ROUTING_CODE_PREFIX = "//";
     private final FinTxnNoValidator finTxnNoValidator;
     private final AccountService accountService;
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
-    private final MaintenanceClient maintenanceClient;
     private final PaymentPurposeValidator paymentPurposeValidator;
     private final BeneficiaryValidator beneficiaryValidator;
     private final BalanceValidator balanceValidator;
     private final FundTransferMWService fundTransferMWService;
     private final MaintenanceService maintenanceService;
+    private final MobCommonService mobCommonService;
 
-    private final BeneficiaryClient beneficiaryClient;
+    private final BeneficiaryService beneficiaryService;
     private final LimitValidator limitValidator;
 
     private final HashMap<String, String> countryToCurrencyMap = new HashMap<>();
@@ -70,13 +70,12 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         validationContext.add("validate-from-account", Boolean.TRUE);
         responseHandler(accountBelongsToCifValidator.validate(request, metadata, validationContext));
 
-        final Set<PurposeOfTransferDto> allPurposeCodes = maintenanceClient.getAllPurposeCodes(INTERNATIONAL).getData();
+        final Set<MoneyTransferPurposeDto> allPurposeCodes = mobCommonService.getPaymentPurposes(request.getServiceType(), "");
         validationContext.add("purposes", allPurposeCodes);
         responseHandler(paymentPurposeValidator.validate(request, metadata, validationContext));
 
 
-        final BeneficiaryDto beneficiaryDto = beneficiaryClient.getById(metadata.getPrimaryCif(), valueOf(request.getBeneficiaryId()))
-                .getData();
+        final BeneficiaryDto beneficiaryDto = beneficiaryService.getById(metadata.getPrimaryCif(), valueOf(request.getBeneficiaryId()));
         validationContext.add("beneficiary-dto", beneficiaryDto);
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
 
@@ -112,7 +111,8 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         return sourceAccountDetailsDTO.getCurrency().equalsIgnoreCase(beneficiaryDto.getBeneficiaryCurrency());
     }
 
-    private BigDecimal convertAmountInLocalCurrency(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO, final BigDecimal transferAmountInSrcCurrency) {
+    private BigDecimal convertAmountInLocalCurrency(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO,
+                                                    final BigDecimal transferAmountInSrcCurrency) {
         CoreCurrencyConversionRequestDto currencyConversionRequestDto = CoreCurrencyConversionRequestDto.builder()
                 .accountNumber(sourceAccountDetailsDTO.getNumber())
                 .accountCurrency(sourceAccountDetailsDTO.getCurrency())
@@ -125,20 +125,22 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         return currencyConversionDto.getTransactionAmount();
     }
 
-    private BigDecimal getLimitUsageAmount(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO, final BigDecimal transferAmountInSrcCurrency) {
+    private BigDecimal getLimitUsageAmount(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO,
+                                           final BigDecimal transferAmountInSrcCurrency) {
         return "AED".equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
                 ? transferAmountInSrcCurrency
                 : convertAmountInLocalCurrency(dealNumber, sourceAccountDetailsDTO, transferAmountInSrcCurrency);
     }
 
-    private BigDecimal getAmountInSrcCurrency(FundTransferRequestDTO request, BeneficiaryDto beneficiaryDto, AccountDetailsDTO sourceAccountDetailsDTO) {
+    private BigDecimal getAmountInSrcCurrency(FundTransferRequestDTO request, BeneficiaryDto beneficiaryDto,
+                                              AccountDetailsDTO sourceAccountDetailsDTO) {
         BigDecimal amtToBePaidInSrcCurrency;
         final CoreCurrencyConversionRequestDto currencyRequest = CoreCurrencyConversionRequestDto.builder()
                 .accountNumber(sourceAccountDetailsDTO.getNumber())
                 .accountCurrency(sourceAccountDetailsDTO.getCurrency())
                 .transactionCurrency(beneficiaryDto.getBeneficiaryCurrency())
                 .transactionAmount(request.getAmount()).build();
-        CurrencyConversionDto conversionResultInSourceAcctCurrency = maintenanceClient.convertBetweenCurrencies(currencyRequest).getData();
+        CurrencyConversionDto conversionResultInSourceAcctCurrency = maintenanceService.convertBetweenCurrencies(currencyRequest);
         amtToBePaidInSrcCurrency = conversionResultInSourceAcctCurrency.getAccountCurrencyAmount();
         return amtToBePaidInSrcCurrency;
     }
@@ -169,7 +171,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     }
 
     private FundTransferRequest enrichFundTransferRequestByCountryCode(FundTransferRequest request, BeneficiaryDto beneficiaryDto) {
-        List<CountryMasterDto> countryList = maintenanceClient.getAllCountries("MOB", "AE", Boolean.TRUE).getData();
+        List<CountryMasterDto> countryList = maintenanceService.getAllCountries("MOB", "AE", Boolean.TRUE);
         final Optional<CountryMasterDto> countryDto = countryList.stream()
                 .filter(country -> country.getCode().equals(beneficiaryDto.getBeneficiaryCountryISO()))
                 .findAny();
@@ -190,11 +192,5 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .build();
     }
 
-
-    private AccountDetailsDTO getAccountDetailsBasedOnAccountNumber(List<AccountDetailsDTO> coreAccounts, String accountNumber) {
-        return coreAccounts.stream()
-                .filter(account -> account.getNumber().equals(accountNumber))
-                .findFirst().orElse(null);
-    }
 
 }

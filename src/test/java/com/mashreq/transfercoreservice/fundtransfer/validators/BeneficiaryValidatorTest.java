@@ -76,7 +76,7 @@ public class BeneficiaryValidatorTest {
         //given
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
         beneficiaryDto.setAccountNumber("019010073766");
-        beneficiaryDto.setStatus(BeneficiaryStatus.ACTIVE.getValue());
+        beneficiaryDto.setStatus(BeneficiaryStatus.ACTIVE.name());
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setToAccount("019010073766");
         ValidationContext mockValidationContext = new ValidationContext();
@@ -87,5 +87,80 @@ public class BeneficiaryValidatorTest {
 
         //then
         Assert.assertEquals(true, result.isSuccess());
+    }
+
+    @Test
+    public void test_when_beneficiary_is_in_draft_for_fund_transfer() {
+        //given
+        BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
+        beneficiaryDto.setAccountNumber("019010073766");
+        beneficiaryDto.setStatus(BeneficiaryStatus.DRAFT.name());
+        FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
+        requestDTO.setToAccount("019010073766");
+        ValidationContext mockValidationContext = new ValidationContext();
+        mockValidationContext.add("beneficiary-dto", beneficiaryDto);
+
+        //when
+        final ValidationResult result = beneficiaryValidator.validate(requestDTO, null, mockValidationContext);
+
+        //then
+        Assert.assertEquals(false, result.isSuccess());
+    }
+
+    @Test
+    public void test_when_beneficiary_is_active_for_quick_remit() {
+        //given
+        BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
+        beneficiaryDto.setAccountNumber("019010073766");
+        beneficiaryDto.setStatus(BeneficiaryStatus.ACTIVE.name());
+        FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
+        requestDTO.setToAccount("019010073766");
+        requestDTO.setServiceType("quick-remit");
+        ValidationContext mockValidationContext = new ValidationContext();
+        mockValidationContext.add("beneficiary-dto", beneficiaryDto);
+
+        //when
+        final ValidationResult result = beneficiaryValidator.validate(requestDTO, null, mockValidationContext);
+
+        //then
+        Assert.assertEquals(true, result.isSuccess());
+    }
+
+    @Test
+    public void test_when_beneficiary_is_cooling_for_quick_remit() {
+        //given
+        BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
+        beneficiaryDto.setAccountNumber("019010073766");
+        beneficiaryDto.setStatus(BeneficiaryStatus.IN_COOLING_PERIOD.name());
+        FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
+        requestDTO.setToAccount("019010073766");
+        requestDTO.setServiceType("quick-remit");
+        ValidationContext mockValidationContext = new ValidationContext();
+        mockValidationContext.add("beneficiary-dto", beneficiaryDto);
+
+        //when
+        final ValidationResult result = beneficiaryValidator.validate(requestDTO, null, mockValidationContext);
+
+        //then
+        Assert.assertEquals(true, result.isSuccess());
+    }
+
+    @Test
+    public void test_when_beneficiary_is_draft_for_quick_remit() {
+        //given
+        BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
+        beneficiaryDto.setAccountNumber("019010073766");
+        beneficiaryDto.setStatus(BeneficiaryStatus.DRAFT.name());
+        FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
+        requestDTO.setToAccount("019010073766");
+        requestDTO.setServiceType("quick-remit");
+        ValidationContext mockValidationContext = new ValidationContext();
+        mockValidationContext.add("beneficiary-dto", beneficiaryDto);
+
+        //when
+        final ValidationResult result = beneficiaryValidator.validate(requestDTO, null, mockValidationContext);
+
+        //then
+        Assert.assertEquals(false, result.isSuccess());
     }
 }

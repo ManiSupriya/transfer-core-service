@@ -1,12 +1,17 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
+import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static com.mashreq.transfercoreservice.client.dto.BeneficiaryStatus.ACTIVE;
+import static com.mashreq.transfercoreservice.client.dto.BeneficiaryStatus.IN_COOLING_PERIOD;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
 
 /**
@@ -16,6 +21,8 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
 @Slf4j
 @Component
 public class BeneficiaryValidator implements Validator {
+
+    private static final String QUICK_REMIT = "quick-remit";
 
 
     @Override
@@ -32,11 +39,24 @@ public class BeneficiaryValidator implements Validator {
             return ValidationResult.builder().success(false).transferErrorCode(BENE_ACC_NOT_MATCH)
                     .build();
 
-        if (!ACTIVE.getValue().equals(beneficiaryDto.getStatus()))
-            return ValidationResult.builder().success(false).transferErrorCode(BENE_NOT_ACTIVE)
-                    .build();
+        if (QUICK_REMIT.equals(request.getServiceType())) {
+            return validateBeneficiaryStatus(Arrays.asList(ACTIVE.name(), IN_COOLING_PERIOD.name()),
+                    beneficiaryDto.getStatus(), BENE_NOT_ACTIVE_OR_COOLING);
+        }
 
         log.info("Beneficiary validation successful for service type [ {} ] ", request.getServiceType());
-        return ValidationResult.builder().success(true).build();
+        return validateBeneficiaryStatus(Arrays.asList(ACTIVE.name()), beneficiaryDto.getStatus(), BENE_NOT_ACTIVE);
     }
+
+    private ValidationResult validateBeneficiaryStatus(List<String> validStatus, String beneStatus, TransferErrorCode errorCode) {
+
+        if (validStatus.contains(beneStatus)) {
+            return ValidationResult.builder().success(true).build();
+        } else {
+            return ValidationResult.builder().success(false).transferErrorCode(errorCode)
+                    .build();
+        }
+    }
+
+
 }
