@@ -64,6 +64,7 @@ public enum TransferErrorCode implements ErrorCode {
 
     FLEX_RULE_ENGINE_FAILED("TN-6000", "Flex Rule Engine Failed"),
     FLEX_RULE_EITHER_DEBIT_OR_CREDIT_AMT_REQUIRED("TN-6001", "Either Debit or Credit Amount Required"),
+    FLEX_RULE_ONLY_1_AMOUNT_ALLLOWED("TN-6002", "Only one Debit or Credit Amount allowed"),
 
 
     BENE_EXTERNAL_SERVICE_ERROR("TN-5010", "Something went wrong with beneficiary external service"),

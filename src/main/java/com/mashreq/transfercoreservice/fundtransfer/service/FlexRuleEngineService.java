@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
@@ -73,7 +74,7 @@ public class FlexRuleEngineService {
     }
 
     /**
-     * Fetch Rules for India and Pakistan
+     * Fetch Rules Remitance
      *
      * @param metadata
      * @param request
@@ -120,19 +121,23 @@ public class FlexRuleEngineService {
     }
 
     private void assertAccountCurrencyMatch(FlexRuleEngineRequestDTO request, SearchAccountDto searchAccountDto) {
-        if (request.getAccountCurrency().equals(searchAccountDto.getCurrency())) {
+        if (!request.getAccountCurrency().equals(searchAccountDto.getCurrency())) {
             GenericExceptionHandler.handleError(ACCOUNT_CURRENCY_MISMATCH, ACCOUNT_CURRENCY_MISMATCH.getErrorMessage());
         }
     }
 
     private void assertBeneficiaryCurrencyMatch(FlexRuleEngineRequestDTO request, BeneficiaryDto beneficiaryDto) {
-        if (request.getTransactionCurrency().equals(beneficiaryDto.getBeneficiaryCurrency())) {
+        if (!request.getTransactionCurrency().equals(beneficiaryDto.getBeneficiaryCurrency())) {
             GenericExceptionHandler.handleError(BENE_CUR_NOT_MATCH, BENE_CUR_NOT_MATCH.getErrorMessage());
         }
     }
 
 
     private void assertEitherDebitOrCreditAmountPresent(FlexRuleEngineRequestDTO request) {
+        if(Objects.nonNull(request.getTransactionAmount()) && Objects.nonNull(request.getAccountCurrencyAmount())){
+            GenericExceptionHandler.handleError(FLEX_RULE_ONLY_1_AMOUNT_ALLLOWED, FLEX_RULE_ONLY_1_AMOUNT_ALLLOWED.getErrorMessage());
+        }
+
         if (isNull(request.getTransactionAmount()) && isNull(request.getAccountCurrencyAmount())) {
             GenericExceptionHandler.handleError(FLEX_RULE_EITHER_DEBIT_OR_CREDIT_AMT_REQUIRED, FLEX_RULE_EITHER_DEBIT_OR_CREDIT_AMT_REQUIRED.getErrorMessage());
         }
