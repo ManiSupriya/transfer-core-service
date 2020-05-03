@@ -2,7 +2,10 @@ package com.mashreq.transfercoreservice.fundtransfer.service;
 
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
+import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
+import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.client.dto.SearchAccountDto;
+import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
@@ -10,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
@@ -42,6 +46,7 @@ public class FlexRuleEngineService {
     private final AccountService accountService;
 
     private final FlexRuleEngineMWService flexRuleEngineMWService;
+    private final MobCommonService mobCommonService;
 
     /**
      * Fetch Charges
@@ -67,10 +72,54 @@ public class FlexRuleEngineService {
 
         final FlexRuleEngineMWResponse response = flexRuleEngineMWService.getRules(getFlexRequestWithCreditLeg(metadata, request, valueDate, beneficiary));
 
+        log.info("Debit Amount  = {} {} ", request.getAccountCurrency(), request.getAccountCurrencyAmount());
+
+        if (!request.getAccountCurrency().equals(response.getChargeCurrency())) {
+            return getChargeWithConvertedCurrency(request, response);
+        }
+
+        return getCharge(request, response);
+
+    }
+
+    private ChargeResponseDTO getCharge(FlexRuleEngineRequestDTO request, FlexRuleEngineMWResponse response) {
+        final BigDecimal chargeAmount = new BigDecimal(response.getChargeAmount());
+        log.info("Charge in Debit Currency = {} {} ", request.getAccountCurrency(), chargeAmount);
+
+        final BigDecimal totalDebitAmount = request.getAccountCurrencyAmount().add(chargeAmount);
+        log.info("Total Debit Amount = {} {} ", request.getAccountCurrency(), totalDebitAmount);
+
         return ChargeResponseDTO.builder()
-                .currency(response.getChargeCurrency())
-                .chargeAmount(response.getChargeAmount())
+                .chargeCurrency(request.getAccountCurrency())
+                .chargeAmount(chargeAmount)
+                .totalDebitAmount(totalDebitAmount)
                 .build();
+    }
+
+    private ChargeResponseDTO getChargeWithConvertedCurrency(FlexRuleEngineRequestDTO request, FlexRuleEngineMWResponse response) {
+        CurrencyConversionDto convertedCurrency = getConvertedChargeAmount(request, response);
+        log.info("Charge in Debit Currency = {} {} ", request.getAccountCurrency(), convertedCurrency.getAccountCurrencyAmount());
+        final BigDecimal totalDebitAmount = request.getAccountCurrencyAmount().add(convertedCurrency.getAccountCurrencyAmount());
+        log.info("Total Debit Amount = {} {} ", request.getAccountCurrency(), totalDebitAmount);
+
+        return ChargeResponseDTO.builder()
+                .chargeCurrency(request.getAccountCurrency())
+                .chargeAmount(convertedCurrency.getAccountCurrencyAmount())
+                .totalDebitAmount(request.getAccountCurrencyAmount().add(convertedCurrency.getAccountCurrencyAmount()))
+                .build();
+    }
+
+    private CurrencyConversionDto getConvertedChargeAmount(FlexRuleEngineRequestDTO request, FlexRuleEngineMWResponse response) {
+        log.info("Debit Account Currency = {} and Charge Currency = {} calling currency conversion with Product code = {} ",
+                request.getAccountCurrency(), response.getChargeCurrency(), response.getProductCode());
+
+        return mobCommonService.getConvertBetweenCurrencies(CoreCurrencyConversionRequestDto.builder()
+                .accountCurrency(request.getAccountCurrency())
+                .transactionCurrency(response.getChargeCurrency())
+                .transactionAmount(response.getTransactionAmount())
+                .productCode(response.getProductCode())
+                .build()
+        );
     }
 
     /**

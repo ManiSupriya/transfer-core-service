@@ -35,7 +35,7 @@ public class FlexRuleEngineController {
             @ApiResponse(code = 200, message = "Successfully processed"),
             @ApiResponse(code = 500, message = "Something went wrong")
     })
-    @PostMapping("/product-code")
+    @PostMapping
     public Response fetchRule(@RequestAttribute("X-CHANNEL-TRACE-ID") String channelTraceId,
                               @RequestAttribute("X-CHANNEL-HOST") String channelHost,
                               @RequestAttribute("X-CHANNEL-NAME") String channelName,

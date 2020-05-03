@@ -3,6 +3,8 @@ package com.mashreq.transfercoreservice.fundtransfer.dto;
 import lombok.Builder;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 /**
  * @author shahbazkh
  * @date 5/2/20
@@ -11,7 +13,9 @@ import lombok.Data;
 @Builder
 public class ChargeResponseDTO {
 
-    private String currency;
-    private String chargeAmount;
+    private String chargeCurrency;
+    private BigDecimal chargeAmount;
+    private BigDecimal debitAmount;
+    private BigDecimal totalDebitAmount;
 
 }

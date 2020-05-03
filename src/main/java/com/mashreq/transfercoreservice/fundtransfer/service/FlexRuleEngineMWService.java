@@ -57,7 +57,7 @@ public class FlexRuleEngineMWService {
                 .exchangeRate(new BigDecimal(responseDTO.getGatewayDetails().get(0).getExchangeRate()))
                 .build();
     }
-    
+
 
     private EAIServices generateFlexRuleEngineRequest(FlexRuleEngineMWRequest flexRequest) {
         EAIServices request = new EAIServices();
