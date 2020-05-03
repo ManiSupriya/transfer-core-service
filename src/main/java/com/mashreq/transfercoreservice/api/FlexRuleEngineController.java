@@ -62,7 +62,7 @@ public class FlexRuleEngineController {
                                  @RequestAttribute("X-CHANNEL-NAME") String channelName,
                                  @RequestHeader("X-CIF-ID") final String cifId,
                                  @Valid @RequestBody ChargesRequestDTO request) {
-        log.info("{} Flex Rule engine transfer for request received ", request);
+        log.info("{} Flex Rule Charge request received ", request);
 
         FlexRuleEngineMetadata metadata = FlexRuleEngineMetadata.builder()
                 .channelTraceId(channelTraceId)
