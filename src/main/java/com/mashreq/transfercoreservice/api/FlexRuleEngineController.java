@@ -73,7 +73,7 @@ public class FlexRuleEngineController {
         FlexRuleEngineRequestDTO ruleEngineRequest = FlexRuleEngineRequestDTO.builder()
                 .beneficiaryId(request.getBeneficiaryId())
                 .customerAccountNo(request.getCustomerAccountNo())
-                .transactionAmount(request.getTransactionAmount())
+               .accountCurrencyAmount(request.getAccountCurrencyAmount())
                 .transactionCurrency(request.getTransactionCurrency())
                 .accountCurrency(request.getAccountCurrency())
                 .build();

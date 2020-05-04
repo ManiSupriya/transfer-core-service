@@ -29,9 +29,9 @@ public class ChargesRequestDTO {
     private String transactionCurrency;
 
     /**
-     * Credit Amount
+     * Debit Amount
      */
-    private BigDecimal transactionAmount;
+    private BigDecimal accountCurrencyAmount;
 
     /**
      * Bene ID
