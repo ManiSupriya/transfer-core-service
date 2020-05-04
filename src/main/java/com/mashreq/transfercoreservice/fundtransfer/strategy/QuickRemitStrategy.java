@@ -7,6 +7,7 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -26,6 +27,12 @@ public class QuickRemitStrategy implements QuickRemitFundTransfer {
     private final BeneficiaryService beneficiaryService;
     private EnumMap<QuickRemitType, QuickRemitFundTransfer> fundTransferStrategies;
 
+    @Value("${app.uae.currency.iso:784}")
+    private String srcCurrencyIso;
+
+    @Value("${app.uae.country.iso:AE}")
+    private String srcCountryIso;
+
     @PostConstruct
     public void init() {
         fundTransferStrategies = new EnumMap<>(QuickRemitType.class);
@@ -39,9 +46,11 @@ public class QuickRemitStrategy implements QuickRemitFundTransfer {
         log.info("Quick remit flow initiated");
         final BeneficiaryDto beneficiaryDto = beneficiaryService.getById((metadata.getPrimaryCif()), valueOf(request.getBeneficiaryId()));
         final String countryCodeISo = beneficiaryDto.getBeneficiaryCountryISO();
-        log.info("Initiating Quick Remit transfer to {}",countryCodeISo );
+        log.info("Initiating Quick Remit transfer to {}", countryCodeISo);
         final ValidationContext validateContext = new ValidationContext();
         validateContext.add("beneficiary-dto", beneficiaryDto);
+        validateContext.add("src-currency-iso", srcCurrencyIso);
+        validateContext.add("src-country-iso", srcCountryIso);
         final QuickRemitFundTransfer quickRemitFundTransfer = fundTransferStrategies.get(getServiceByCountry(countryCodeISo));
         return quickRemitFundTransfer.execute(request, metadata, userDTO, validateContext);
     }

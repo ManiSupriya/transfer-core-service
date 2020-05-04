@@ -17,7 +17,7 @@ import java.util.List;
 public class QuickRemitResponseHandler {
 
     private static final String SUCCESS = "S";
-    private static final String SUCCESS_STATUS = "BENEBANKSUCCESS";
+    private static final String SUCCESS_CODE = "EAI-RGW-BRK-000";
     private static final String PROCESSING_STATUS = "BENEBANKPROCESSING";
 
     public  static MwResponseStatus responseHandler(EAIServices response) {
@@ -49,11 +49,10 @@ public class QuickRemitResponseHandler {
     }
 
     private static boolean isSuccessFull(EAIServices response) {
-        final String finalTransactionStatus = response.getBody().getRemittancePaymentRes().getFinalTransactionStatus();
-        if (SUCCESS_STATUS.equals(finalTransactionStatus) && SUCCESS.equals(response.getHeader().getStatus())) {
+        final String responseCode = response.getBody().getExceptionDetails().getErrorCode();
+        if ((SUCCESS_CODE.equals(responseCode) && SUCCESS.equals(response.getHeader().getStatus()))) {
             log.info("Quick Remit Successful {} , Description: {}",
-                    response.getBody().getExceptionDetails().getErrorCode(),
-                    response.getBody().getExceptionDetails().getData());
+                    responseCode, response.getBody().getExceptionDetails().getData());
             return true;
         }
         return false;
