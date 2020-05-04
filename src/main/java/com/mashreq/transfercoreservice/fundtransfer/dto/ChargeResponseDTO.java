@@ -17,6 +17,10 @@ public class ChargeResponseDTO {
 
     private String chargeCurrency;
     private BigDecimal chargeAmount;
+
+    private String flexChargeCurrency;
+    private BigDecimal flexChargeAmount;
+
     private BigDecimal debitAmount;
     private BigDecimal totalDebitAmount;
 

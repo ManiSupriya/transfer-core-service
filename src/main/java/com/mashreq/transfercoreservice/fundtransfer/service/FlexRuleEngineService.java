@@ -90,7 +90,9 @@ public class FlexRuleEngineService {
         log.info("Total Debit Amount = {} {} ", request.getAccountCurrency(), totalDebitAmount);
 
         return ChargeResponseDTO.builder()
-                .chargeCurrency(request.getAccountCurrency())
+                .flexChargeAmount(chargeAmount)
+                .flexChargeCurrency(response.getChargeCurrency())
+                .chargeCurrency(response.getChargeCurrency())
                 .chargeAmount(chargeAmount)
                 .totalDebitAmount(totalDebitAmount)
                 .build();
@@ -103,6 +105,8 @@ public class FlexRuleEngineService {
         log.info("Total Debit Amount = {} {} ", request.getAccountCurrency(), totalDebitAmount);
 
         return ChargeResponseDTO.builder()
+                .flexChargeCurrency(response.getChargeCurrency())
+                .flexChargeAmount(new BigDecimal(response.getChargeAmount()))
                 .chargeCurrency(request.getAccountCurrency())
                 .chargeAmount(convertedCurrency.getAccountCurrencyAmount())
                 .totalDebitAmount(request.getAccountCurrencyAmount().add(convertedCurrency.getAccountCurrencyAmount()))
@@ -114,6 +118,7 @@ public class FlexRuleEngineService {
                 request.getAccountCurrency(), response.getChargeCurrency(), response.getProductCode());
 
         return mobCommonService.getConvertBetweenCurrencies(CoreCurrencyConversionRequestDto.builder()
+                .accountNumber(request.getCustomerAccountNo())
                 .accountCurrency(request.getAccountCurrency())
                 .transactionCurrency(response.getChargeCurrency())
                 .transactionAmount(response.getTransactionAmount())
