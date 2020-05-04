@@ -122,7 +122,7 @@ public class FlexRuleEngineService {
                 .accountNumber(request.getCustomerAccountNo())
                 .accountCurrency(request.getAccountCurrency())
                 .transactionCurrency(response.getChargeCurrency())
-                .transactionAmount(response.getTransactionAmount())
+                .transactionAmount(new BigDecimal(response.getChargeAmount()))
                 .productCode(response.getProductCode())
                 .build()
         );
