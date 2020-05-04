@@ -110,6 +110,7 @@ public class FlexRuleEngineService {
                 .flexChargeAmount(new BigDecimal(response.getChargeAmount()))
                 .chargeCurrency(request.getAccountCurrency())
                 .chargeAmount(convertedCurrency.getAccountCurrencyAmount())
+                .debitAmount(request.getAccountCurrencyAmount())
                 .totalDebitAmount(request.getAccountCurrencyAmount().add(convertedCurrency.getAccountCurrencyAmount()))
                 .build();
     }
