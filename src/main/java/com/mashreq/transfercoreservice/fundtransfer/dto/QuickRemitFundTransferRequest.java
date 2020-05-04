@@ -39,6 +39,12 @@ public class QuickRemitFundTransferRequest {
     private String senderCountryISOCode;//M
     private String senderIDType;//O
     private String senderIDNumber;//M
-
+    private String serviceCode;
+    private String beneficiaryIdType;
+    private String beneficiaryIdNo;
+    private String distributionType;
+    private String transferType;
+    private String beneficiaryMobileNo;
+    private String beneficiaryBankCode;//MPK
 
 }

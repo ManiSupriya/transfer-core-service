@@ -24,7 +24,6 @@ public class QuickRemitFundTransferMWService {
 
     private final WebServiceClient webServiceClient;
     private final HeaderFactory headerFactory;
-    private final SoapServiceProperties soapServiceProperties;
 
     public FundTransferResponse transfer(QuickRemitFundTransferRequest request) {
         log.info("Quick remit fund transfer initiated from account [ {} ]", request.getSenderBankAccount());
@@ -54,10 +53,10 @@ public class QuickRemitFundTransferMWService {
     public EAIServices generateEAIServiceRequest(QuickRemitFundTransferRequest request) {
 
         EAIServices services = new EAIServices();
-        services.setHeader(headerFactory.getHeader(soapServiceProperties.getServiceCodes().getQuickRemitIndia(), request.getChannelTraceId()));
+        services.setHeader(headerFactory.getHeader(request.getServiceCode(), request.getChannelTraceId()));
         services.setBody(new EAIServices.Body());
 
-        //Setting individual components
+        //Setting individual components for IN and PK
         RemittancePaymentReqType fundTransferReqType = new RemittancePaymentReqType();
         fundTransferReqType.setPaymentID(request.getFinTxnNo());
         fundTransferReqType.setOriginatingCountry(request.getOriginatingCountry());
@@ -88,6 +87,14 @@ public class QuickRemitFundTransferMWService {
         fundTransferReqType.setSenderCountryISOCode(request.getSenderCountryISOCode());
         fundTransferReqType.setSenderIDType(request.getSenderIDType());
         fundTransferReqType.setSenderIDNumber(request.getSenderIDNumber());
+        fundTransferReqType.setBMobileNo(request.getBeneficiaryMobileNo());
+
+        //For PK
+        fundTransferReqType.setBBankCode(request.getBeneficiaryBankCode());
+        fundTransferReqType.setBeneIDType(request.getBeneficiaryIdType());
+        fundTransferReqType.setBeneIDNo(request.getBeneficiaryIdNo());
+        fundTransferReqType.setDistributionType(request.getDistributionType());
+        fundTransferReqType.setTransferType(request.getTransferType());
 
         services.getBody().setRemittancePaymentReq(fundTransferReqType);
         log.info("EAI Service request for quick remit fund transfer prepared {}", services);
