@@ -1,6 +1,7 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
+import com.mashreq.transfercoreservice.client.MaintenanceClient;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
 import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
@@ -8,6 +9,7 @@ import com.mashreq.transfercoreservice.client.dto.SearchAccountDto;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
+import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +48,7 @@ public class FlexRuleEngineService {
     private final AccountService accountService;
 
     private final FlexRuleEngineMWService flexRuleEngineMWService;
-    private final MobCommonService mobCommonService;
+    private final MaintenanceService maintenanceService;
 
     /**
      * Fetch Charges
@@ -119,14 +121,13 @@ public class FlexRuleEngineService {
         log.info("Debit Account Currency = {} and Charge Currency = {} calling currency conversion with Product code = {} ",
                 request.getAccountCurrency(), response.getChargeCurrency(), response.getProductCode());
 
-        return mobCommonService.getConvertBetweenCurrencies(CoreCurrencyConversionRequestDto.builder()
+        return maintenanceService.convertBetweenCurrencies(CoreCurrencyConversionRequestDto.builder()
                 .accountNumber(request.getCustomerAccountNo())
                 .accountCurrency(request.getAccountCurrency())
                 .transactionCurrency(response.getChargeCurrency())
                 .transactionAmount(new BigDecimal(response.getChargeAmount()))
                 .productCode(response.getProductCode())
-                .build()
-        );
+                .build());
     }
 
     /**
