@@ -70,7 +70,7 @@ public class FlexRuleEngineService {
 
         log.info("Calling Flex Rule MW for CHARGES with Debit Leg {} {} ", request.getTransactionCurrency(), request.getTransactionAmount());
 
-        final FlexRuleEngineMWResponse response = flexRuleEngineMWService.getRules(getFlexRequestWithCreditLeg(metadata, request, valueDate, beneficiary));
+        final FlexRuleEngineMWResponse response = flexRuleEngineMWService.getRules(getFlexRequestWithDebitLeg(metadata, request, valueDate, beneficiary));
 
         log.info("Debit Amount  = {} {} ", request.getAccountCurrency(), request.getAccountCurrencyAmount());
 
