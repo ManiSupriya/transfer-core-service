@@ -13,6 +13,7 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,7 @@ import static java.time.Instant.now;
  * @author shahbazkh
  * @date 3/12/20
  */
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Slf4j
 @Service
 public class OwnAccountStrategy implements FundTransferStrategy {
@@ -41,9 +42,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     private final CurrencyValidator currencyValidator;
     private final LimitValidator limitValidator;
     private AccountService accountService;
-    private final CoreTransferService coreTransferService;
     private final MaintenanceService maintenanceService;
-    private final BalanceValidator balanceValidator;
     private final FundTransferMWService fundTransferMWService;
 
     @Value("${app.uae.transaction.code:096}")

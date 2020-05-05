@@ -32,7 +32,7 @@ import static java.time.Instant.now;
 /**
  *
  */
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Slf4j
 @Service
 public class LocalFundTransferStrategy implements FundTransferStrategy {
