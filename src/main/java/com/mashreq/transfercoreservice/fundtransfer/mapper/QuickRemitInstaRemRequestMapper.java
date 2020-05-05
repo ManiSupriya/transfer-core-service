@@ -5,32 +5,43 @@ import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.CustomerDetailsUtils;
+import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+
+import static com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferContext.Constants.*;
 
 /**
  * @author shahbazkh
  * @date 5/4/20
  */
 
-@Service
+@Slf4j
+@Component
+@RequiredArgsConstructor
 public class QuickRemitInstaRemRequestMapper {
+
+    private final SoapServiceProperties soapServiceProperties;
 
     public QuickRemitFundTransferRequest map(FundTransferMetadata metadata,
                                              FundTransferRequestDTO request,
                                              FundTransferContext fundTransferContext) {
 
 
-        BeneficiaryDto beneficiaryDto = fundTransferContext.get("beneficiary-dto", BeneficiaryDto.class);
-        AccountDetailsDTO accountDetails = fundTransferContext.get("account-details-dto", AccountDetailsDTO.class);
-        CustomerDetailsDto customerDetails = fundTransferContext.get("customer-detail-dto", CustomerDetailsDto.class);
-        BigDecimal transferAmountInSrcCurrency = fundTransferContext.get("transfer-amount-in-src-currency", BigDecimal.class);
-        BigDecimal exchangeRate = fundTransferContext.get("exchange-rate", BigDecimal.class);
+        BeneficiaryDto beneficiaryDto = fundTransferContext.get(BENEFICIARY_FUND_CONTEXT_KEY, BeneficiaryDto.class);
+        AccountDetailsDTO accountDetails = fundTransferContext.get(ACCOUNT_DETAILS_FUND_CONTEXT_KEY, AccountDetailsDTO.class);
+        CustomerDetailsDto customerDetails = fundTransferContext.get(CUSTOMER_DETAIL_FUND_CONTEXT_KEY, CustomerDetailsDto.class);
+        BigDecimal transferAmountInSrcCurrency = fundTransferContext.get(TRANSFER_AMOUNT_IN_SRC_CURRENCY_FUND_CONTEXT_KEY, BigDecimal.class);
+        BigDecimal exchangeRate = fundTransferContext.get(EXCHANGE_RATE_FUND_CONTEXT_KEY, BigDecimal.class);
 
 
         final QuickRemitFundTransferRequest quickRemitFundTransferRequest = QuickRemitFundTransferRequest.builder()
+                .serviceCode(soapServiceProperties.getServiceCodes().getRoutingCodeSearch())
                 .finTxnNo(request.getFinTxnNo())
                 .channelTraceId(metadata.getChannelTraceId())
                 .productCode(request.getProductCode())

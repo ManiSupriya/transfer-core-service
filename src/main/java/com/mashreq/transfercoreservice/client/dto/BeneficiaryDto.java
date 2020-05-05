@@ -1,6 +1,5 @@
 package com.mashreq.transfercoreservice.client.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mashreq.transfercoreservice.annotations.ValueOfEnum;
 import lombok.Data;
 

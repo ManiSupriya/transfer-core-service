@@ -4,21 +4,16 @@ package com.mashreq.transfercoreservice.fundtransfer.service;
 import com.mashreq.esbcore.bindings.customer.mbcdm.FlexRuleEngineReqType;
 import com.mashreq.esbcore.bindings.customer.mbcdm.FlexRuleEngineResType;
 import com.mashreq.esbcore.bindings.customerservices.mbcdm.flexruleengine.EAIServices;
-import com.mashreq.ms.exceptions.GenericExceptionHandler;
-import com.mashreq.transfercoreservice.errors.TransferErrorCode;
-import com.mashreq.transfercoreservice.fundtransfer.dto.*;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FlexRuleEngineMWRequest;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FlexRuleEngineMWResponse;
 import com.mashreq.transfercoreservice.middleware.HeaderFactory;
 import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
 import com.mashreq.transfercoreservice.middleware.WebServiceClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.FLEX_RULE_ENGINE_FAILED;
-import static java.lang.String.valueOf;
 
 /**
  * @author shahbazkh

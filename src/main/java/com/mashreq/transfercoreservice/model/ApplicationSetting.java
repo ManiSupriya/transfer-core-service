@@ -1,6 +1,5 @@
 package com.mashreq.transfercoreservice.model;
 
-import com.mashreq.transfercoreservice.model.AbstractAuditingEntity;
 import lombok.Data;
 
 import javax.persistence.*;

@@ -1,6 +1,5 @@
 package com.mashreq.transfercoreservice.client;
 
-import com.mashreq.transfercoreservice.config.feign.FeignResponse;
 import com.mashreq.webcore.dto.response.Response;
 import org.apache.commons.lang3.StringUtils;
 

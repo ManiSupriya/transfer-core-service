@@ -1,8 +1,9 @@
 package com.mashreq.transfercoreservice.client.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-import javax.persistence.*;
 import java.util.StringJoiner;
 
 

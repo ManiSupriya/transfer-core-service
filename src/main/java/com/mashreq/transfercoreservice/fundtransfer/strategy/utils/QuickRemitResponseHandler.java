@@ -3,10 +3,6 @@ package com.mashreq.transfercoreservice.fundtransfer.strategy.utils;
 import com.mashreq.esbcore.bindings.customerservices.mbcdm.remittancepayment.EAIServices;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author shahbazkh

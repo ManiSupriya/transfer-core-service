@@ -20,8 +20,7 @@ import java.time.Instant;
 import java.util.Set;
 
 import static com.mashreq.transfercoreservice.client.ErrorUtils.getErrorDetails;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_NOT_FOUND;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.EXTERNAL_SERVICE_ERROR;
 import static java.time.Instant.now;
 
 @Slf4j

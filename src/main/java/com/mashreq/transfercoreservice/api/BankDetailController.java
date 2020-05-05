@@ -1,10 +1,7 @@
 package com.mashreq.transfercoreservice.api;
 
-import com.mashreq.esbcore.bindings.customer.mbcdm.AxisRemittanceIFSCDetailsResType;
-import com.mashreq.esbcore.bindings.customer.mbcdm.IFSCDetails;
 import com.mashreq.transfercoreservice.banksearch.BankDetailRequestDto;
 import com.mashreq.transfercoreservice.banksearch.BankDetailService;
-import com.mashreq.transfercoreservice.banksearch.BankResultsDto;
 import com.mashreq.webcore.dto.response.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

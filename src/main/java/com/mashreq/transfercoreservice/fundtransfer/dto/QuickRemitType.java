@@ -1,12 +1,8 @@
 package com.mashreq.transfercoreservice.fundtransfer.dto;
 
-import com.mashreq.ms.exceptions.GenericExceptionHandler;
-
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_COUNTRY_CODE;
 
 
 public enum QuickRemitType {

@@ -1,7 +1,7 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
 import com.mashreq.esbcore.bindings.customer.mbcdm.RemittancePaymentReqType;
-import com.mashreq.esbcore.bindings.customer.mbcdm.RoutingCodeType;
+import com.mashreq.esbcore.bindings.customer.mbcdm.RemittancePaymentReqType.RoutingCode;
 import com.mashreq.esbcore.bindings.customerservices.mbcdm.remittancepayment.EAIServices;
 import com.mashreq.esbcore.bindings.header.mbcdm.ErrorType;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
@@ -14,6 +14,8 @@ import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -108,19 +110,21 @@ public class QuickRemitFundTransferMWService {
         remittancePaymentReq.setSenderBeneficiaryRelationShip(request.getSenderBeneficiaryRelationship());
         remittancePaymentReq.setSenderSourceOfIncome(request.getSenderSourceOfIncome());
         remittancePaymentReq.setProductCode(request.getProductCode());
-
-        request.getRoutingCode().stream().forEach(x -> {
-            RoutingCodeType routingCodeType = new RoutingCodeType();
-            routingCodeType.setType(x.getType());
-            routingCodeType.setValue(x.getValue());
-            remittancePaymentReq.getRoutingCode().add(routingCodeType);
-        });
-
-
+        remittancePaymentReq.setRoutingCode(
+                request.getRoutingCode().stream().map(routingCode -> mapRoutingCode(routingCode)).collect(Collectors.toList())
+        );
+ 
         services.getBody().setRemittancePaymentReq(remittancePaymentReq);
 
         log.info("EAI Service request for quick remit fund transfer prepared {}", services);
         return services;
+    }
+
+    private RoutingCode mapRoutingCode(com.mashreq.transfercoreservice.fundtransfer.dto.RoutingCode x) {
+        RoutingCode routingCode = new RoutingCode();
+        routingCode.setType(x.getType());
+        routingCode.setValue(x.getValue());
+        return routingCode;
     }
 
 

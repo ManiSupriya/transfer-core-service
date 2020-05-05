@@ -1,9 +1,7 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
-import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
-
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +12,6 @@ import javax.annotation.PostConstruct;
 import java.util.EnumMap;
 
 import static com.mashreq.transfercoreservice.fundtransfer.dto.QuickRemitType.getServiceByCountry;
-import static java.lang.Long.valueOf;
 
 
 @RequiredArgsConstructor

@@ -2,7 +2,6 @@ package com.mashreq.transfercoreservice.client.service;
 
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.AccountClient;
-import com.mashreq.transfercoreservice.client.ErrorUtils;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.CifProductsDto;
 import com.mashreq.transfercoreservice.client.dto.CoreAccountDetailsDTO;
@@ -20,7 +19,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.mashreq.transfercoreservice.client.ErrorUtils.getErrorDetails;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_NOT_FOUND;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACC_EXTERNAL_SERVICE_ERROR;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
