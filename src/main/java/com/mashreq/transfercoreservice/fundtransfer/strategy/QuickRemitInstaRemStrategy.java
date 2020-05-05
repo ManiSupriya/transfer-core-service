@@ -75,7 +75,7 @@ public class QuickRemitInstaRemStrategy implements QuickRemitFundTransfer {
         fundTransferContext.add(Constants.EXCHANGE_RATE_FUND_CONTEXT_KEY, exchangeRate);
         fundTransferContext.add(Constants.TRANSFER_AMOUNT_IN_SRC_CURRENCY_FUND_CONTEXT_KEY, transferAmountInSrcCurrency);
 
-        final QuickRemitFundTransferRequest quickRemitFundTransferRequest = mapper.map(metadata, request, fundTransferContext);
+        final QuickRemitFundTransferRequest quickRemitFundTransferRequest = mapper.mapTo(metadata, request, fundTransferContext);
 
         quickRemitFundTransferMWService.transfer(quickRemitFundTransferRequest);
 
