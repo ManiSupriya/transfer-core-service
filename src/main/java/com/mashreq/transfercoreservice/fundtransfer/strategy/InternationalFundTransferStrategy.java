@@ -50,8 +50,8 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
 
     private final HashMap<String, String> countryToCurrencyMap = new HashMap<>();
 
-    @Value("${app.local.transaction.code:015}")
-    private String transactionCode;
+//    @Value("${app.local.transaction.code:015}")
+//    private String transactionCode;
 
     //Todo: Replace with native currency fetched from API call
     @PostConstruct
@@ -169,7 +169,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .beneficiaryAddressOne(beneficiaryDto.getAddressLine1())
                 .beneficiaryAddressTwo(beneficiaryDto.getAddressLine2())
                 .beneficiaryAddressThree(beneficiaryDto.getAddressLine3())
-                .transactionCode(transactionCode)
+                .transactionCode("15")
                 .build();
 
         return enrichFundTransferRequestByCountryCode(fundTransferRequest, beneficiaryDto);

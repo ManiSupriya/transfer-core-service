@@ -3,11 +3,9 @@ package com.mashreq.transfercoreservice.fundtransfer.mapper;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.QuickRemitFundTransferRequest;
-import com.mashreq.transfercoreservice.fundtransfer.dto.RoutingCode;
+import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.CustomerDetailsUtils;
-import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -16,23 +14,25 @@ import java.util.Arrays;
  * @author shahbazkh
  * @date 5/4/20
  */
+
+@Service
 public class QuickRemitInstaRemRequestMapper {
 
-    public QuickRemitFundTransferRequest map(String channelTraceId,
+    public QuickRemitFundTransferRequest map(FundTransferMetadata metadata,
                                              FundTransferRequestDTO request,
-                                             AccountDetailsDTO accountDetails,
-                                             BeneficiaryDto beneficiaryDto,
-                                             BigDecimal transferAmountInSrcCurrency,
-                                             BigDecimal exchangeRate,
-                                             ValidationContext validationContext,
-                                             CustomerDetailsDto customerDetails) {
+                                             FundTransferContext fundTransferContext) {
 
-        final String srcIsoCurrency = validationContext.get("src-currency-iso", String.class);
-        final String srcIsoCountry = validationContext.get("src-country-iso", String.class);
+
+        BeneficiaryDto beneficiaryDto = fundTransferContext.get("beneficiary-dto", BeneficiaryDto.class);
+        AccountDetailsDTO accountDetails = fundTransferContext.get("account-details-dto", AccountDetailsDTO.class);
+        CustomerDetailsDto customerDetails = fundTransferContext.get("customer-detail-dto", CustomerDetailsDto.class);
+        BigDecimal transferAmountInSrcCurrency = fundTransferContext.get("transfer-amount-in-src-currency", BigDecimal.class);
+        BigDecimal exchangeRate = fundTransferContext.get("exchange-rate", BigDecimal.class);
+
 
         final QuickRemitFundTransferRequest quickRemitFundTransferRequest = QuickRemitFundTransferRequest.builder()
                 .finTxnNo(request.getFinTxnNo())
-                .channelTraceId(channelTraceId)
+                .channelTraceId(metadata.getChannelTraceId())
                 .productCode(request.getProductCode())
                 .beneficiaryMobileNo(null)
                 .beneficiaryName(beneficiaryDto.getFullName())
@@ -69,7 +69,7 @@ public class QuickRemitInstaRemRequestMapper {
                 .senderCity("DUBAI")
                 .senderState("DUBAI")
                 .senderPostalCode("UAE")
-                .senderBeneficiaryRelationship("SIBLING")
+                .senderBeneficiaryRelationship(beneficiaryDto.getBeneficiaryRelationship())
                 //TODO When will these values be used and where to pick it from
                 .senderDOB(null)
                 .beneficiaryIDNo(null)

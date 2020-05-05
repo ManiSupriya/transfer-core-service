@@ -76,6 +76,7 @@ public class BeneficiaryDto {
     private String state;
     private String pingCode;
     private String bankAccountType;
+    private String beneficiaryRelationship;
 
 
 }

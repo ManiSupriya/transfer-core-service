@@ -32,9 +32,9 @@ import static java.time.Instant.now;
 /**
  *
  */
-@AllArgsConstructor
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class LocalFundTransferStrategy implements FundTransferStrategy {
 
     private static final int LOCAL_IBAN_LENGTH = 23;
@@ -58,8 +58,8 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     @Value("${app.uae.address}")
     private String address;
 
-    @Value("${app.local.transaction.code:015}")
-    private String transactionCode;
+//    @Value("${app.local.transaction.code:015}")
+//    private String transactionCode;
 
    /* @Value("${app.local.currency}")
     private String localCurrency;*/
@@ -75,7 +75,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         validationContext.add("validate-from-account", Boolean.TRUE);
 
 
-        final Set<MoneyTransferPurposeDto> allPurposeCodes = mobCommonService.getPaymentPurposes( request.getServiceType(), "");
+        final Set<MoneyTransferPurposeDto> allPurposeCodes = mobCommonService.getPaymentPurposes(request.getServiceType(), "");
         validationContext.add("purposes", allPurposeCodes);
         responseHandler(paymentPurposeValidator.validate(request, metadata, validationContext));
 
@@ -174,11 +174,10 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
                 .awInstName(beneficiaryDto.getBankName())
                 .awInstBICCode(beneficiaryDto.getSwiftCode())
                 .beneficiaryAddressTwo(address)
-                .transactionCode(transactionCode)
+                .transactionCode("15")
                 .build();
 
     }
-
 
 
 }

@@ -32,7 +32,7 @@ import static java.time.Instant.now;
 
 @Slf4j
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class CharityStrategyDefault implements FundTransferStrategy {
 
     private static final String INTERNAL_ACCOUNT_FLAG = "N";
@@ -48,8 +48,8 @@ public class CharityStrategyDefault implements FundTransferStrategy {
     private final CoreTransferService coreTransferService;
     private final FundTransferMWService fundTransferMWService;
 
-    @Value("${app.uae.transaction.code:096}")
-    private String transactionCode;
+//    @Value("${app.uae.transaction.code:096}")
+//    private String transactionCode;
 
 
     @Override
@@ -120,7 +120,7 @@ public class CharityStrategyDefault implements FundTransferStrategy {
                 .sourceBranchCode(sourceAccount.getBranchCode())
                 .beneficiaryFullName(charityBeneficiaryDto.getName())
                 .destinationCurrency(charityBeneficiaryDto.getCurrencyCode())
-                .transactionCode(transactionCode)
+                .transactionCode("96")
                 .internalAccFlag(INTERNAL_ACCOUNT_FLAG)
                 .build();
 

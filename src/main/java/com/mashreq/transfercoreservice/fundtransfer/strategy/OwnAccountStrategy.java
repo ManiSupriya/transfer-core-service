@@ -13,6 +13,7 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -28,9 +29,9 @@ import static java.time.Instant.now;
  * @author shahbazkh
  * @date 3/12/20
  */
-@AllArgsConstructor
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class OwnAccountStrategy implements FundTransferStrategy {
 
     private static final String INTERNAL_ACCOUNT_FLAG = "N";
@@ -46,8 +47,8 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     private final BalanceValidator balanceValidator;
     private final FundTransferMWService fundTransferMWService;
 
-    @Value("${app.uae.transaction.code:096}")
-    private String transactionCode;
+//    @Value("${app.uae.transaction.code:096}")
+//    private final String transactionCode;
 
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO) {
@@ -123,7 +124,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
                 .sourceBranchCode(sourceAccount.getBranchCode())
                 .beneficiaryFullName(destinationAccount.getCustomerName())
                 .destinationCurrency(destinationAccount.getCurrency())
-                .transactionCode(transactionCode)
+                .transactionCode("96")
                 .internalAccFlag(INTERNAL_ACCOUNT_FLAG)
                 .build();
 
