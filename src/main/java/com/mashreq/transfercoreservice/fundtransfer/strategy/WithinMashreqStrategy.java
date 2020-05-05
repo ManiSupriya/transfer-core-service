@@ -15,6 +15,7 @@ import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -36,6 +37,8 @@ import static java.time.Instant.now;
 @RequiredArgsConstructor
 public class WithinMashreqStrategy implements FundTransferStrategy {
 
+    private static final String INTERNAL_ACCOUNT_FLAG = "N";
+
     private final SameAccountValidator sameAccountValidator;
     private final FinTxnNoValidator finTxnNoValidator;
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
@@ -48,6 +51,9 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     private final MaintenanceService maintenanceService;
     private final BalanceValidator balanceValidator;
     private final FundTransferMWService fundTransferMWService;
+
+    @Value("${app.uae.transaction.code:096}")
+    private String transactionCode;
 
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO) {
@@ -105,11 +111,11 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         log.info("Total time taken for {} strategy {} milli seconds ", request.getServiceType(), between(start, now()).toMillis());
 
 
-//        final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountOpt.get(), beneficiaryDto);
-//        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest);
-//
+        final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountOpt.get(), beneficiaryDto);
+        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest);
 
-        final FundTransferResponse fundTransferResponse = coreTransferService.transferFundsBetweenAccounts(request);
+
+        //final FundTransferResponse fundTransferResponse = coreTransferService.transferFundsBetweenAccounts(request);
 
         return fundTransferResponse.toBuilder()
                 .limitUsageAmount(limitUsageAmount)
@@ -120,7 +126,6 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     private FundTransferRequest prepareFundTransferRequestPayload(FundTransferMetadata metadata, FundTransferRequestDTO request,
                                                                   AccountDetailsDTO sourceAccount, BeneficiaryDto beneficiaryDto) {
         return FundTransferRequest.builder()
-                .productId("OWN_ACCOUNT_PRODUCT_ID")
                 .amount(request.getAmount())
                 .channel(metadata.getChannel())
                 .channelTraceId(metadata.getChannelTraceId())
@@ -131,6 +136,8 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
                 .sourceBranchCode(sourceAccount.getBranchCode())
                 .beneficiaryFullName(beneficiaryDto.getFullName())
                 .destinationCurrency(beneficiaryDto.getBeneficiaryCurrency())
+                .transactionCode(transactionCode)
+                .internalAccFlag(INTERNAL_ACCOUNT_FLAG)
                 .build();
 
     }

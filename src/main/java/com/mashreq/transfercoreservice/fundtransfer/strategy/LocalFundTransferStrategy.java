@@ -15,6 +15,7 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -31,7 +32,7 @@ import static java.time.Instant.now;
 /**
  *
  */
-@RequiredArgsConstructor
+@AllArgsConstructor
 @Slf4j
 @Service
 public class LocalFundTransferStrategy implements FundTransferStrategy {
@@ -56,6 +57,9 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
     @Value("${app.uae.address}")
     private String address;
+
+    @Value("${app.local.transaction.code:015}")
+    private String transactionCode;
 
    /* @Value("${app.local.currency}")
     private String localCurrency;*/
@@ -170,6 +174,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
                 .awInstName(beneficiaryDto.getBankName())
                 .awInstBICCode(beneficiaryDto.getSwiftCode())
                 .beneficiaryAddressTwo(address)
+                .transactionCode(transactionCode)
                 .build();
 
     }

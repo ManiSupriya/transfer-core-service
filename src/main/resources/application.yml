@@ -58,6 +58,7 @@ app:
     transaction.code: '015'
     transfer.product.id: 'DBLC'
   uae:
+    transaction.code: '096'
     country.iso: 'AE'
     currency.iso: '784'
     address: 'UNITED ARAB EMIRATES'

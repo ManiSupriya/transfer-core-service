@@ -11,8 +11,10 @@ import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWServic
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -30,8 +32,10 @@ import static java.time.Instant.now;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class CharityStrategyDefault implements FundTransferStrategy {
+
+    private static final String INTERNAL_ACCOUNT_FLAG = "N";
 
     private final SameAccountValidator sameAccountValidator;
     private final FinTxnNoValidator finTxnNoValidator;
@@ -43,6 +47,9 @@ public class CharityStrategyDefault implements FundTransferStrategy {
     private final LimitValidator limitValidator;
     private final CoreTransferService coreTransferService;
     private final FundTransferMWService fundTransferMWService;
+
+    @Value("${app.uae.transaction.code:096}")
+    private String transactionCode;
 
 
     @Override
@@ -85,11 +92,11 @@ public class CharityStrategyDefault implements FundTransferStrategy {
         LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount);
         log.info("Limit Validation successful");
 
-//        final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountOpt.get(), charityBeneficiaryDto);
-//        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest);
+        final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountOpt.get(), charityBeneficiaryDto);
+        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest);
 
 
-        final FundTransferResponse fundTransferResponse = coreTransferService.transferFundsBetweenAccounts(request);
+        //final FundTransferResponse fundTransferResponse = coreTransferService.transferFundsBetweenAccounts(request);
 
 
         log.info("Total time taken for {} strategy {} milli seconds ", request.getServiceType(), between(start, now()).toMillis());
@@ -103,7 +110,6 @@ public class CharityStrategyDefault implements FundTransferStrategy {
     private FundTransferRequest prepareFundTransferRequestPayload(FundTransferMetadata metadata, FundTransferRequestDTO request,
                                                                   AccountDetailsDTO sourceAccount, CharityBeneficiaryDto charityBeneficiaryDto) {
         return FundTransferRequest.builder()
-                .productId("OWN_ACCOUNT_PRODUCT_ID")
                 .amount(request.getAmount())
                 .channel(metadata.getChannel())
                 .channelTraceId(metadata.getChannelTraceId())
@@ -114,6 +120,8 @@ public class CharityStrategyDefault implements FundTransferStrategy {
                 .sourceBranchCode(sourceAccount.getBranchCode())
                 .beneficiaryFullName(charityBeneficiaryDto.getName())
                 .destinationCurrency(charityBeneficiaryDto.getCurrencyCode())
+                .transactionCode(transactionCode)
+                .internalAccFlag(INTERNAL_ACCOUNT_FLAG)
                 .build();
 
     }
