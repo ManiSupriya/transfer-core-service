@@ -69,6 +69,15 @@ public class BeneficiaryDto {
     private String documentNumber;
     private String documentType;
 
+
+    //Insta rem
+
+    private String city;
+    private String state;
+    private String pingCode;
+    private String bankAccountType;
+
+
 }
 
 
