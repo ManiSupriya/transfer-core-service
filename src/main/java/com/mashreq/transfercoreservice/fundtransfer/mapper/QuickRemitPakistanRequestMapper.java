@@ -23,8 +23,8 @@ import static com.mashreq.transfercoreservice.fundtransfer.strategy.utils.Custom
 public class QuickRemitPakistanRequestMapper {
 
     private static final String PAKISTAN_COUNTRY_ISO = "586";
-    private static final String DISTRIBUTION_TYPE = "Other Credit";
-    private static final String TRANSFER_TYPE = "IBFT";
+    private static final String DISTRIBUTION_TYPE = "Direct Credit";
+    private static final String TRANSFER_TYPE = "FT";
 
     private final SoapServiceProperties soapServiceProperties;
 
