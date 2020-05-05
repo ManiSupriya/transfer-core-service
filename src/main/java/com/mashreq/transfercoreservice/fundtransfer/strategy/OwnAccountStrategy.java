@@ -38,7 +38,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     private final FinTxnNoValidator finTxnNoValidator;
     private final CurrencyValidator currencyValidator;
     private final LimitValidator limitValidator;
-    private AccountService accountService;
+    private final AccountService accountService;
     private final MaintenanceService maintenanceService;
     private final FundTransferMWService fundTransferMWService;
 

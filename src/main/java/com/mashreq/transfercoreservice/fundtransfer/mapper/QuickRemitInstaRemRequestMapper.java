@@ -9,7 +9,6 @@ import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -24,13 +23,15 @@ import static com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferConte
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class QuickRemitInstaRemRequestMapper {
+public class QuickRemitInstaRemRequestMapper implements QuickRemitMapper {
 
     private final SoapServiceProperties soapServiceProperties;
 
-    public QuickRemitFundTransferRequest map(FundTransferMetadata metadata,
-                                             FundTransferRequestDTO request,
-                                             FundTransferContext fundTransferContext) {
+
+    @Override
+    public QuickRemitFundTransferRequest mapTo(FundTransferMetadata metadata,
+                                               FundTransferRequestDTO request,
+                                               FundTransferContext fundTransferContext) {
 
 
         BeneficiaryDto beneficiaryDto = fundTransferContext.get(BENEFICIARY_FUND_CONTEXT_KEY, BeneficiaryDto.class);
