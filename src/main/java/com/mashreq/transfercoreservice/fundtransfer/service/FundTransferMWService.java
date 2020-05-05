@@ -36,11 +36,6 @@ public class FundTransferMWService {
     private static final String PAYMENT_DETAIL_PREFIX = "/REF/ ";
 
 
-    @Value("${app.local.transaction.code}")
-    private String transactionCode;
-
-
-
     public FundTransferResponse transfer(FundTransferRequest request) {
         log.info("Fund transfer initiated from account [ {} ]", request.getFromAccount());
 
@@ -111,9 +106,10 @@ public class FundTransferMWService {
         debitLeg.setTransferBranch(request.getSourceBranchCode());
         debitLeg.setCurrency(request.getSourceCurrency());
         debitLeg.setNarration1(generateNarration(request.getChannel()));
+        debitLeg.setInternalAccFlag(request.getInternalAccFlag());
 
         creditLeg.setAccountNo(request.getToAccount());
-        creditLeg.setTransactionCode(transactionCode);
+        creditLeg.setTransactionCode(request.getTransactionCode());
         creditLeg.setCurrency(request.getDestinationCurrency());
         creditLeg.setAmount(request.getAmount());
         creditLeg.setChargeBearer(request.getChargeBearer());

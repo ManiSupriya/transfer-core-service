@@ -122,6 +122,7 @@ public class LocalFundTransferStrategyTest {
 
         ReflectionTestUtils.setField(localFundTransferStrategy,"localCurrency", srcCurrency);
         ReflectionTestUtils.setField(localFundTransferStrategy,"address", address);
+        ReflectionTestUtils.setField(localFundTransferStrategy,"transactionCode", "015");
 
         final ValidationResult validationResult = ValidationResult.builder().success(true).build();
         when(finTxnNoValidator.validate(requestDTO, metadata)).thenReturn(validationResult);
@@ -238,6 +239,7 @@ public class LocalFundTransferStrategyTest {
 
         ReflectionTestUtils.setField(localFundTransferStrategy,"localCurrency", destCurrency);
         ReflectionTestUtils.setField(localFundTransferStrategy,"address", address);
+        ReflectionTestUtils.setField(localFundTransferStrategy,"transactionCode", "015");
 
         final ValidationResult validationResult = ValidationResult.builder().success(true).build();
         when(finTxnNoValidator.validate(requestDTO, metadata)).thenReturn(validationResult);

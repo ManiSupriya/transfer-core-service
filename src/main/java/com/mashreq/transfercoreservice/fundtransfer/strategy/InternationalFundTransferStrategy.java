@@ -16,6 +16,7 @@ import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResult
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -48,6 +49,9 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     private final LimitValidator limitValidator;
 
     private final HashMap<String, String> countryToCurrencyMap = new HashMap<>();
+
+    @Value("${app.local.transaction.code:015}")
+    private String transactionCode;
 
     //Todo: Replace with native currency fetched from API call
     @PostConstruct
@@ -165,6 +169,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .beneficiaryAddressOne(beneficiaryDto.getAddressLine1())
                 .beneficiaryAddressTwo(beneficiaryDto.getAddressLine2())
                 .beneficiaryAddressThree(beneficiaryDto.getAddressLine3())
+                .transactionCode(transactionCode)
                 .build();
 
         return enrichFundTransferRequestByCountryCode(fundTransferRequest, beneficiaryDto);
