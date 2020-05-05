@@ -32,6 +32,7 @@ import static java.time.Instant.now;
 /**
  *
  */
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -39,6 +40,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
     private static final int LOCAL_IBAN_LENGTH = 23;
     private static final String LOCAL_PRODUCT_ID = "DBLC";
+    public static final String LOCAL_TRANSACTION_CODE = "15";
     private final IBANValidator ibanValidator;
     private final FinTxnNoValidator finTxnNoValidator;
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
@@ -57,12 +59,6 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
     @Value("${app.uae.address}")
     private String address;
-
-//    @Value("${app.local.transaction.code:015}")
-//    private String transactionCode;
-
-   /* @Value("${app.local.currency}")
-    private String localCurrency;*/
 
 
     @Override
@@ -174,7 +170,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
                 .awInstName(beneficiaryDto.getBankName())
                 .awInstBICCode(beneficiaryDto.getSwiftCode())
                 .beneficiaryAddressTwo(address)
-                .transactionCode("15")
+                .transactionCode(LOCAL_TRANSACTION_CODE)
                 .build();
 
     }

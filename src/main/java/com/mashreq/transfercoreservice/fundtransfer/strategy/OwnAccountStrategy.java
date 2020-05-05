@@ -35,6 +35,7 @@ import static java.time.Instant.now;
 public class OwnAccountStrategy implements FundTransferStrategy {
 
     private static final String INTERNAL_ACCOUNT_FLAG = "N";
+    public static final String OWN_ACCOUNT_TRANSACTION_CODE = "096";
 
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
     private final SameAccountValidator sameAccountValidator;
@@ -42,13 +43,8 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     private final CurrencyValidator currencyValidator;
     private final LimitValidator limitValidator;
     private AccountService accountService;
-    private final CoreTransferService coreTransferService;
     private final MaintenanceService maintenanceService;
-    private final BalanceValidator balanceValidator;
     private final FundTransferMWService fundTransferMWService;
-
-//    @Value("${app.uae.transaction.code:096}")
-//    private final String transactionCode;
 
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO) {
@@ -124,7 +120,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
                 .sourceBranchCode(sourceAccount.getBranchCode())
                 .beneficiaryFullName(destinationAccount.getCustomerName())
                 .destinationCurrency(destinationAccount.getCurrency())
-                .transactionCode("96")
+                .transactionCode(OWN_ACCOUNT_TRANSACTION_CODE)
                 .internalAccFlag(INTERNAL_ACCOUNT_FLAG)
                 .build();
 

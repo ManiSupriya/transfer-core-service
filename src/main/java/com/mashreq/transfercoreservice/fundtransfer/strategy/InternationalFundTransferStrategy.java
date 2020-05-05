@@ -14,6 +14,7 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,7 +29,7 @@ import static java.lang.Long.valueOf;
 /**
  *
  */
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Slf4j
 @Service
 public class InternationalFundTransferStrategy implements FundTransferStrategy {

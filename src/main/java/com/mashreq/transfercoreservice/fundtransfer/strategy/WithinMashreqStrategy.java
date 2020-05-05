@@ -13,6 +13,7 @@ import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWServic
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,6 +39,7 @@ import static java.time.Instant.now;
 public class WithinMashreqStrategy implements FundTransferStrategy {
 
     private static final String INTERNAL_ACCOUNT_FLAG = "N";
+    public static final String WITHIN_MASHREQ_TRANSACTION_CODE = "096";
 
     private final SameAccountValidator sameAccountValidator;
     private final FinTxnNoValidator finTxnNoValidator;
@@ -47,9 +49,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     private final AccountService accountService;
     private final BeneficiaryService beneficiaryService;
     private final LimitValidator limitValidator;
-    private final CoreTransferService coreTransferService;
     private final MaintenanceService maintenanceService;
-    private final BalanceValidator balanceValidator;
     private final FundTransferMWService fundTransferMWService;
 
     @Value("${app.uae.transaction.code:096}")
@@ -136,7 +136,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
                 .sourceBranchCode(sourceAccount.getBranchCode())
                 .beneficiaryFullName(beneficiaryDto.getFullName())
                 .destinationCurrency(beneficiaryDto.getBeneficiaryCurrency())
-                .transactionCode(transactionCode)
+                .transactionCode(WITHIN_MASHREQ_TRANSACTION_CODE)
                 .internalAccFlag(INTERNAL_ACCOUNT_FLAG)
                 .build();
 

@@ -45,7 +45,6 @@ public class CharityStrategyDefault implements FundTransferStrategy {
     private final CharityValidator charityValidator;
     private final CurrencyValidator currencyValidator;
     private final LimitValidator limitValidator;
-    private final CoreTransferService coreTransferService;
     private final FundTransferMWService fundTransferMWService;
 
 //    @Value("${app.uae.transaction.code:096}")
@@ -120,7 +119,7 @@ public class CharityStrategyDefault implements FundTransferStrategy {
                 .sourceBranchCode(sourceAccount.getBranchCode())
                 .beneficiaryFullName(charityBeneficiaryDto.getName())
                 .destinationCurrency(charityBeneficiaryDto.getCurrencyCode())
-                .transactionCode("96")
+                .transactionCode("096")
                 .internalAccFlag(INTERNAL_ACCOUNT_FLAG)
                 .build();
 
