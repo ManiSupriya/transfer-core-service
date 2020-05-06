@@ -24,6 +24,7 @@ public class QuickRemitStrategy implements QuickRemitFundTransfer {
 
     private final QuickRemitIndiaStrategy quickRemitIndiaStrategy;
     private final QuickRemitPakistanStrategy quickRemitPakistanStrategy;
+    private final QuickRemitInstaRemStrategy quickRemitInstaRemStrategy;
     private final BeneficiaryService beneficiaryService;
     private EnumMap<QuickRemitType, QuickRemitFundTransfer> fundTransferStrategies;
 
@@ -38,6 +39,7 @@ public class QuickRemitStrategy implements QuickRemitFundTransfer {
         fundTransferStrategies = new EnumMap<>(QuickRemitType.class);
         fundTransferStrategies.put(QuickRemitType.INDIA, quickRemitIndiaStrategy);
         fundTransferStrategies.put(QuickRemitType.PAKISTAN, quickRemitPakistanStrategy);
+        fundTransferStrategies.put(QuickRemitType.INSTAREM,quickRemitInstaRemStrategy);
     }
 
 
