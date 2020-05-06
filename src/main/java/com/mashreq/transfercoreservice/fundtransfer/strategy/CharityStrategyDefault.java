@@ -42,9 +42,8 @@ public class CharityStrategyDefault implements FundTransferStrategy {
     private final CurrencyValidator currencyValidator;
     private final LimitValidator limitValidator;
     private final FundTransferMWService fundTransferMWService;
+    private final BalanceValidator balanceValidator;
 
-//    @Value("${app.uae.transaction.code:096}")
-//    private String transactionCode;
 
 
     @Override
@@ -78,6 +77,13 @@ public class CharityStrategyDefault implements FundTransferStrategy {
         responseHandler(currencyValidator.validate(request, metadata, validateContext));
 
         //TODO
+
+        //Balance Validation
+        validateContext.add("transfer-amount-in-source-currency", request.getAmount());
+        responseHandler(balanceValidator.validate(request, metadata, validateContext));
+
+
+
         //responseHandler(balanceValidator.validate(request, metadata,validateContext));
 
         // Assuming to account is always in AED
