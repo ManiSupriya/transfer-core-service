@@ -13,8 +13,10 @@ import com.mashreq.transfercoreservice.middleware.WebServiceClient;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 
@@ -110,14 +112,18 @@ public class QuickRemitFundTransferMWService {
         remittancePaymentReq.setSenderBeneficiaryRelationShip(request.getSenderBeneficiaryRelationship());
         remittancePaymentReq.setSenderSourceOfIncome(request.getSenderSourceOfIncome());
         remittancePaymentReq.setProductCode(request.getProductCode());
-        remittancePaymentReq.setRoutingCode(
-                request.getRoutingCode().stream().map(routingCode -> mapRoutingCode(routingCode)).collect(Collectors.toList())
-        );
- 
+        remittancePaymentReq.setRoutingCode(getRoutingCode(request));
+
         services.getBody().setRemittancePaymentReq(remittancePaymentReq);
 
         log.info("EAI Service request for quick remit fund transfer prepared {}", services);
         return services;
+    }
+
+    private List<RoutingCode> getRoutingCode(QuickRemitFundTransferRequest request) {
+        return CollectionUtils.isNotEmpty(request.getRoutingCode())
+                ? request.getRoutingCode().stream().map(routingCode -> mapRoutingCode(routingCode)).collect(Collectors.toList())
+                : null;
     }
 
     private RoutingCode mapRoutingCode(com.mashreq.transfercoreservice.fundtransfer.dto.RoutingCode x) {
