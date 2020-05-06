@@ -35,6 +35,8 @@ import static java.lang.Long.valueOf;
 @RequiredArgsConstructor
 public class LocalFundTransferStrategy implements FundTransferStrategy {
 
+    private static final String INDIVIDUAL_ACCOUNT = "I";
+
     private static final int LOCAL_IBAN_LENGTH = 23;
     private static final String LOCAL_PRODUCT_ID = "DBLC";
     public static final String LOCAL_TRANSACTION_CODE = "15";
@@ -68,7 +70,8 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         validationContext.add("validate-from-account", Boolean.TRUE);
 
 
-        final Set<MoneyTransferPurposeDto> allPurposeCodes = mobCommonService.getPaymentPurposes(request.getServiceType(), "");
+        final Set<MoneyTransferPurposeDto> allPurposeCodes = mobCommonService.getPaymentPurposes(request.getServiceType(),
+                "", INDIVIDUAL_ACCOUNT);
         validationContext.add("purposes", allPurposeCodes);
         responseHandler(paymentPurposeValidator.validate(request, metadata, validationContext));
 

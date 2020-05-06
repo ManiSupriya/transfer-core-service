@@ -29,6 +29,8 @@ import java.util.Set;
 @Service
 public class QuickRemitPakistanStrategy implements QuickRemitFundTransfer {
 
+    private static final String INDIVIDUAL_ACCOUNT = "I";
+
     private final AccountService accountService;
     private final MobCommonService mobCommonService;
     private final MaintenanceService maintenanceService;
@@ -58,7 +60,8 @@ public class QuickRemitPakistanStrategy implements QuickRemitFundTransfer {
         final BeneficiaryDto beneficiaryDto = validationContext.get("beneficiary-dto", BeneficiaryDto.class);
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
 
-        final Set<MoneyTransferPurposeDto> allPurposeCodes = mobCommonService.getPaymentPurposes(request.getServiceType(), beneficiaryDto.getBeneficiaryCountryISO());
+        final Set<MoneyTransferPurposeDto> allPurposeCodes = mobCommonService.getPaymentPurposes(request.getServiceType(),
+                beneficiaryDto.getBeneficiaryCountryISO(), INDIVIDUAL_ACCOUNT);
         validationContext.add("purposes", allPurposeCodes);
         responseHandler(paymentPurposeValidator.validate(request, metadata, validationContext));
 
