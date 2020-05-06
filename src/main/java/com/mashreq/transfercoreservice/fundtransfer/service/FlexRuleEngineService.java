@@ -161,17 +161,23 @@ public class FlexRuleEngineService {
         if (INDIA_CODE.equals(beneficiary.getBeneficiaryCountryISO())
                 || PAKISTAN_CODE.equalsIgnoreCase(beneficiary.getBeneficiaryCountryISO())) {
 
-            return FlexRuleEngineResponseDTO.builder()
+            final FlexRuleEngineResponseDTO flexRuleEngineResponse = FlexRuleEngineResponseDTO.builder()
                     .productCode(response.getProductCode())
                     .build();
+            log.info("Flex Rule Engine Response  {} ", flexRuleEngineResponse);
+
+            return flexRuleEngineResponse;
         } else {
 
-            return FlexRuleEngineResponseDTO.builder()
+            final FlexRuleEngineResponseDTO flexRuleEngineResponse = FlexRuleEngineResponseDTO.builder()
                     .productCode(response.getProductCode())
                     .exchangeRate(response.getExchangeRate())
                     .accountCurrencyAmount(response.getAccountCurrencyAmount())
                     .transactionAmount(response.getTransactionAmount())
                     .build();
+            log.info("Flex Rule Engine Response (INSTAREM)  {} ", flexRuleEngineResponse);
+
+            return flexRuleEngineResponse;
         }
 
 
