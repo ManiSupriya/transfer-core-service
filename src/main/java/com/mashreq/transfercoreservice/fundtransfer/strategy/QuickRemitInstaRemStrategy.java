@@ -38,6 +38,7 @@ import static java.lang.Long.valueOf;
 @RequiredArgsConstructor
 public class QuickRemitInstaRemStrategy implements QuickRemitFundTransfer {
 
+    public static final String INDIVIDUAL_TYPE = "I";
     private final QuickRemitInstaRemRequestMapper mapper;
     private final QuickRemitFundTransferMWService quickRemitFundTransferMWService;
     private final FinTxnNoValidator finTxnNoValidator;
@@ -71,7 +72,7 @@ public class QuickRemitInstaRemStrategy implements QuickRemitFundTransfer {
         final BeneficiaryDto beneficiary = validationContext.get("beneficiary-dto", BeneficiaryDto.class);
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
 
-        final Set<MoneyTransferPurposeDto> allPurposeCodes = mobCommonService.getPaymentPurposes(request.getServiceType(), beneficiary.getBeneficiaryCountryISO());
+        final Set<MoneyTransferPurposeDto> allPurposeCodes = mobCommonService.getPaymentPurposes(request.getServiceType(), beneficiary.getBeneficiaryCountryISO(), INDIVIDUAL_TYPE);
         validationContext.add("purposes", allPurposeCodes);
         responseHandler(paymentPurposeValidator.validate(request, metadata, validationContext));
 
