@@ -72,7 +72,7 @@ public class QuickRemitInstaRemStrategy implements QuickRemitFundTransfer {
         final BeneficiaryDto beneficiary = validationContext.get("beneficiary-dto", BeneficiaryDto.class);
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
 
-        final Set<MoneyTransferPurposeDto> allPurposeCodes = mobCommonService.getPaymentPurposes(request.getServiceType(), beneficiary.getBeneficiaryCountryISO(), INDIVIDUAL_TYPE);
+        final Set<MoneyTransferPurposeDto> allPurposeCodes = mobCommonService.getPaymentPurposes(request.getServiceType(), "INSTAREM", INDIVIDUAL_TYPE);
         validationContext.add("purposes", allPurposeCodes);
         responseHandler(paymentPurposeValidator.validate(request, metadata, validationContext));
 
@@ -86,6 +86,7 @@ public class QuickRemitInstaRemStrategy implements QuickRemitFundTransfer {
                         .cifId(metadata.getPrimaryCif())
                         .build(),
                 FlexRuleEngineRequestDTO.builder()
+                        .customerAccountNo(sourceAccountDetails.getNumber())
                         .accountCurrency(sourceAccountDetails.getCurrency())
                         .transactionCurrency(beneficiary.getBeneficiaryCurrency())
                         .transactionAmount(request.getAmount())
