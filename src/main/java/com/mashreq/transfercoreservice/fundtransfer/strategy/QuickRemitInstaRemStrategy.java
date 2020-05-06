@@ -35,6 +35,8 @@ public class QuickRemitInstaRemStrategy implements QuickRemitFundTransfer {
 
         log.info("Quick Remit InstaRem initiated ");
 
+
+
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
         beneficiaryDto.setFinalName("");
         beneficiaryDto.setAddressLine1("");
