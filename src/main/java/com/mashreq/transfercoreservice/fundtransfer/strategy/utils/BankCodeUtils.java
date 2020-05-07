@@ -22,7 +22,7 @@ public class BankCodeUtils {
         }
 
         if (StringUtils.isNotBlank(beneficiaryDto.getSwiftCode())) {
-            return new RoutingCode("SWIFT", beneficiaryDto.getRoutingCode());
+            return new RoutingCode("SWIFT", beneficiaryDto.getSwiftCode());
         }
 
         GenericExceptionHandler.handleError(QUICK_REM_ROUTING_CODE_NOT_AVAILABLE, QUICK_REM_ROUTING_CODE_NOT_AVAILABLE.getErrorMessage());
