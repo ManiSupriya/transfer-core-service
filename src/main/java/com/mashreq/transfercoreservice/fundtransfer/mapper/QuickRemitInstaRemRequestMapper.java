@@ -9,6 +9,7 @@ import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.CustomerDetai
 import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -56,7 +57,7 @@ public class QuickRemitInstaRemRequestMapper implements QuickRemitMapper {
                 .beneficiaryCity("HARDCODED")
                 .beneficiaryState(beneficiaryDto.getState())
                 .beneficiaryPinCode(beneficiaryDto.getPingCode())
-                .beneficiaryAccountType(beneficiaryDto.getBeneficiaryAccountType())
+                .beneficiaryAccountType(StringUtils.capitalize(beneficiaryDto.getBeneficiaryAccountType()))
                 .beneficiaryBankAccountType(beneficiaryDto.getBankAccountType())
                 .amountSRCCurrency(transferAmountInSrcCurrency)
                 .amountDESTCurrency(request.getAmount())
