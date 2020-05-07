@@ -17,7 +17,7 @@ public class BankCodeUtils {
 
     public static RoutingCode extractBankCode(BeneficiaryDto beneficiaryDto) {
         if (StringUtils.isNotBlank(beneficiaryDto.getRoutingCode())) {
-            RoutingCodeType routingCodeType = RoutingCodeType.valueOf(beneficiaryDto.getBeneficiaryCountryISO());
+            RoutingCodeType routingCodeType = RoutingCodeType.valueOf(beneficiaryDto.getBankCountry());
             return new RoutingCode(routingCodeType.getName(), beneficiaryDto.getRoutingCode());
         }
 

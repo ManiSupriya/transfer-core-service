@@ -113,6 +113,7 @@ public class QuickRemitFundTransferMWService {
         remittancePaymentReq.setSenderSourceOfIncome(request.getSenderSourceOfIncome());
         remittancePaymentReq.setProductCode(request.getProductCode());
         remittancePaymentReq.setRoutingCode(getRoutingCode(request));
+        remittancePaymentReq.setPaymentNarration(request.getPaymentNarration());
 
         services.getBody().setRemittancePaymentReq(remittancePaymentReq);
 
