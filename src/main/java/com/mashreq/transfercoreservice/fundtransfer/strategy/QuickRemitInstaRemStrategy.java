@@ -109,6 +109,7 @@ public class QuickRemitInstaRemStrategy implements QuickRemitFundTransfer {
         fundTransferContext.add(Constants.CUSTOMER_DETAIL_FUND_CONTEXT_KEY, customerDetails);
         fundTransferContext.add(Constants.EXCHANGE_RATE_FUND_CONTEXT_KEY, flexRuleEngineResponse.getExchangeRate());
         fundTransferContext.add(Constants.TRANSFER_AMOUNT_IN_SRC_CURRENCY_FUND_CONTEXT_KEY, flexRuleEngineResponse.getAccountCurrencyAmount());
+        fundTransferContext.add(Constants.FLEX_PRODUCT_CODE_CONTEXT_KEY,flexRuleEngineResponse.getProductCode());
 
 
         final QuickRemitFundTransferRequest quickRemitFundTransferRequest = mapper.mapTo(metadata, request, fundTransferContext);

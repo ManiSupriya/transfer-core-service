@@ -55,6 +55,7 @@ public class QuickRemitInstaRemRequestMapper implements QuickRemitMapper {
                 .beneficiaryCity(beneficiaryDto.getCity())
                 .beneficiaryState(beneficiaryDto.getState())
                 .beneficiaryPinCode(beneficiaryDto.getPingCode())
+                .beneficiaryAccountType(beneficiaryDto.getBeneficiaryAccountType())
                 .beneficiaryBankAccountType(beneficiaryDto.getBankAccountType())
                 .amountSRCCurrency(transferAmountInSrcCurrency)
                 .amountDESTCurrency(request.getAmount())
