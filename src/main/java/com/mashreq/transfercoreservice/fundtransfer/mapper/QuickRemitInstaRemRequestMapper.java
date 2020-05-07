@@ -73,7 +73,7 @@ public class QuickRemitInstaRemRequestMapper implements QuickRemitMapper {
                 .senderAddress(CustomerDetailsUtils.deriveAddress(customerDetails.getAddress()))
 
                 //TODO Pick from Digital User Digital User
-                .senderCountryISOCode(customerDetails.getNationality())
+                .senderCountryISOCode("AE")
 
                 .senderIDType(customerDetails.getUniqueIDName())
                 .senderIDNumber(customerDetails.getUniqueIDValue())
@@ -88,7 +88,7 @@ public class QuickRemitInstaRemRequestMapper implements QuickRemitMapper {
                 //TODO Check if destination country mapping is correct
                 .destCountry(beneficiaryDto.getBankCountry())
                 //TODO This mappings needs to be completed by generating with new XSD
-                .routingCode(Arrays.asList(new RoutingCode("SWIFT", "EVBLNPKAXXX")))
+                .routingCode(Arrays.asList(new RoutingCode("SWIFT", beneficiaryDto.getSwiftCode())))
                 .build();
 
         return quickRemitFundTransferRequest;
