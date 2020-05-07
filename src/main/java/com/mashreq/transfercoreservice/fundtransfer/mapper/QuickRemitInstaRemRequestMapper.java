@@ -35,18 +35,19 @@ public class QuickRemitInstaRemRequestMapper implements QuickRemitMapper {
                                                FundTransferContext fundTransferContext) {
 
 
-        BeneficiaryDto beneficiaryDto = fundTransferContext.get(BENEFICIARY_FUND_CONTEXT_KEY, BeneficiaryDto.class);
-        AccountDetailsDTO accountDetails = fundTransferContext.get(ACCOUNT_DETAILS_FUND_CONTEXT_KEY, AccountDetailsDTO.class);
-        CustomerDetailsDto customerDetails = fundTransferContext.get(CUSTOMER_DETAIL_FUND_CONTEXT_KEY, CustomerDetailsDto.class);
-        BigDecimal transferAmountInSrcCurrency = fundTransferContext.get(TRANSFER_AMOUNT_IN_SRC_CURRENCY_FUND_CONTEXT_KEY, BigDecimal.class);
-        BigDecimal exchangeRate = fundTransferContext.get(EXCHANGE_RATE_FUND_CONTEXT_KEY, BigDecimal.class);
+        final BeneficiaryDto beneficiaryDto = fundTransferContext.get(BENEFICIARY_FUND_CONTEXT_KEY, BeneficiaryDto.class);
+        final AccountDetailsDTO accountDetails = fundTransferContext.get(ACCOUNT_DETAILS_FUND_CONTEXT_KEY, AccountDetailsDTO.class);
+        final CustomerDetailsDto customerDetails = fundTransferContext.get(CUSTOMER_DETAIL_FUND_CONTEXT_KEY, CustomerDetailsDto.class);
+        final BigDecimal transferAmountInSrcCurrency = fundTransferContext.get(TRANSFER_AMOUNT_IN_SRC_CURRENCY_FUND_CONTEXT_KEY, BigDecimal.class);
+        final BigDecimal exchangeRate = fundTransferContext.get(EXCHANGE_RATE_FUND_CONTEXT_KEY, BigDecimal.class);
+        final String productCode = fundTransferContext.get(FLEX_PRODUCT_CODE_CONTEXT_KEY, String.class);
 
 
         final QuickRemitFundTransferRequest quickRemitFundTransferRequest = QuickRemitFundTransferRequest.builder()
                 .serviceCode(soapServiceProperties.getServiceCodes().getQuickRemitInstaRem())
                 .finTxnNo(request.getFinTxnNo())
                 .channelTraceId(metadata.getChannelTraceId())
-                .productCode(request.getProductCode())
+                .productCode(productCode)
                 .beneficiaryMobileNo(null)
                 .beneficiaryName(beneficiaryDto.getFullName())
                 .beneficiaryAddress(beneficiaryDto.getAddressLine1() + "," + beneficiaryDto.getAddressLine2() + "," + beneficiaryDto.getAddressLine3())
