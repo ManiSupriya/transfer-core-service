@@ -7,6 +7,9 @@ import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.RoutingCode;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.QUICK_REM_ROUTING_CODE_NOT_AVAILABLE;
 
 /**
@@ -23,6 +26,23 @@ public class BankCodeUtils {
 
         if (StringUtils.isNotBlank(beneficiaryDto.getSwiftCode())) {
             return new RoutingCode("SWIFT", beneficiaryDto.getSwiftCode());
+        }
+
+        GenericExceptionHandler.handleError(QUICK_REM_ROUTING_CODE_NOT_AVAILABLE, QUICK_REM_ROUTING_CODE_NOT_AVAILABLE.getErrorMessage());
+        return null;
+    }
+
+    public static List<RoutingCode> extractBankCodes(BeneficiaryDto beneficiaryDto) {
+        if (StringUtils.isNotBlank(beneficiaryDto.getRoutingCode())) {
+            RoutingCodeType routingCodeType = RoutingCodeType.valueOf(beneficiaryDto.getBankCountry());
+            RoutingCode routingCode = new RoutingCode(routingCodeType.getName() + " CODE", beneficiaryDto.getRoutingCode());
+            RoutingCode swiftCode = new RoutingCode("SWIFT", beneficiaryDto.getSwiftCode());
+            return Arrays.asList(routingCode, swiftCode);
+
+        }
+
+        if (StringUtils.isNotBlank(beneficiaryDto.getSwiftCode())) {
+            return Arrays.asList(new RoutingCode("SWIFT", beneficiaryDto.getSwiftCode()));
         }
 
         GenericExceptionHandler.handleError(QUICK_REM_ROUTING_CODE_NOT_AVAILABLE, QUICK_REM_ROUTING_CODE_NOT_AVAILABLE.getErrorMessage());

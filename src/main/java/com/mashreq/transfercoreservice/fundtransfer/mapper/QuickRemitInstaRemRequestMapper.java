@@ -88,8 +88,11 @@ public class QuickRemitInstaRemRequestMapper implements QuickRemitMapper {
                 .beneficiaryIDNo(null)
                 //TODO Check if destination country mapping is correct
                 .destCountry(beneficiaryDto.getBankCountry())
-                .routingCode(Arrays.asList(BankCodeUtils.extractBankCode(beneficiaryDto)))
+                .routingCode(BankCodeUtils.extractBankCodes(beneficiaryDto))
                 .build();
+
+
+        log.info("QuickRemitFundTransferRequest Object {} ", quickRemitFundTransferRequest);
 
         return quickRemitFundTransferRequest;
     }
