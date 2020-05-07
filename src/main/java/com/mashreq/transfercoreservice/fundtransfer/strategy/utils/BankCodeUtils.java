@@ -34,7 +34,7 @@ public class BankCodeUtils {
 
     public static List<RoutingCode> extractBankCodes(BeneficiaryDto beneficiaryDto) {
         if (StringUtils.isNotBlank(beneficiaryDto.getRoutingCode())) {
-            RoutingCodeType routingCodeType = RoutingCodeType.valueOf(beneficiaryDto.getBankCountry());
+            RoutingCodeType routingCodeType = RoutingCodeType.valueOf(beneficiaryDto.getBeneficiaryCountryISO());
             RoutingCode routingCode = new RoutingCode(routingCodeType.getName() + " CODE", beneficiaryDto.getRoutingCode());
             RoutingCode swiftCode = new RoutingCode("SWIFT", beneficiaryDto.getSwiftCode());
             return Arrays.asList(routingCode, swiftCode);
