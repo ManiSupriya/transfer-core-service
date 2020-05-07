@@ -118,7 +118,6 @@ public class QuickRemitFundTransferMWService {
         remittancePaymentReq.setBPinCode(request.getBeneficiaryPinCode());
         remittancePaymentReq.setBState(request.getBeneficiaryState());
         remittancePaymentReq.setSenderDOB(request.getSenderDOB());
-        remittancePaymentReq.setBPinCode(request.getBeneficiaryPinCode());
 
 
         //TRANSIT NUMBER for canada

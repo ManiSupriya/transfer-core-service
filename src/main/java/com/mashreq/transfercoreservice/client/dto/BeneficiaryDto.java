@@ -73,7 +73,7 @@ public class BeneficiaryDto {
 
     private String beneficiaryCity;
     private String beneficiaryState;
-    private String beneficiaryPinCode;
+    private String beneficiaryPostalCode;
     private String bankAccountType;
     private String beneficiaryRelationship;
 
