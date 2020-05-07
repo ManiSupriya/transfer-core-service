@@ -71,9 +71,9 @@ public class BeneficiaryDto {
 
     //Insta rem
 
-    private String city;
-    private String state;
-    private String pingCode;
+    private String beneficiaryCity;
+    private String beneficiaryState;
+    private String beneficiaryPinCode;
     private String bankAccountType;
     private String beneficiaryRelationship;
 

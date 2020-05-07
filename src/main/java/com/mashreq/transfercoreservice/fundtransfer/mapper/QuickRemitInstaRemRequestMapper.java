@@ -55,9 +55,10 @@ public class QuickRemitInstaRemRequestMapper implements QuickRemitMapper {
                 .beneficiaryAddress(beneficiaryDto.getAddressLine1() + "," + beneficiaryDto.getAddressLine2() + "," + beneficiaryDto.getAddressLine3())
                 .beneficiaryAccountNo(beneficiaryDto.getAccountNumber())
                 .beneficiaryBankName(beneficiaryDto.getBankName())
-                .beneficiaryCity("HARDCODED")
-                .beneficiaryState(beneficiaryDto.getState())
-                .beneficiaryPinCode(beneficiaryDto.getPingCode())
+                // Add city
+                .beneficiaryCity(beneficiaryDto.getBeneficiaryCity())
+                .beneficiaryState(beneficiaryDto.getBeneficiaryState())
+                .beneficiaryPinCode(beneficiaryDto.getBeneficiaryPinCode())
                 .beneficiaryAccountType(WordUtils.capitalizeFully(beneficiaryDto.getBeneficiaryAccountType()))
                 .beneficiaryBankAccountType(beneficiaryDto.getBankAccountType())
                 .amountSRCCurrency(transferAmountInSrcCurrency)
@@ -70,7 +71,7 @@ public class QuickRemitInstaRemRequestMapper implements QuickRemitMapper {
                 .reasonCode(request.getPurposeCode())
                 .reasonText(request.getPurposeDesc())
                 .senderName(accountDetails.getCustomerName())
-                //TODO Hard code as individual
+                //TODO Hard code as Individual Pick from Property
                 .senderAccountType("Individual")
                 .senderMobileNo(CustomerDetailsUtils.getMobileNumber(customerDetails))
                 .senderBankBranch(customerDetails.getCifBranch())

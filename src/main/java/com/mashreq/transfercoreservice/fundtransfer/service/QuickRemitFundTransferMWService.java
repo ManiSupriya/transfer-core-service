@@ -114,6 +114,9 @@ public class QuickRemitFundTransferMWService {
         remittancePaymentReq.setProductCode(request.getProductCode());
         remittancePaymentReq.setRoutingCode(getRoutingCode(request));
         remittancePaymentReq.setPaymentNarration(request.getPaymentNarration());
+        remittancePaymentReq.setBCity(request.getBeneficiaryCity());
+        remittancePaymentReq.setBPinCode(request.getBeneficiaryPinCode());
+        remittancePaymentReq.setBState(request.getBeneficiaryState());
 
         services.getBody().setRemittancePaymentReq(remittancePaymentReq);
 
