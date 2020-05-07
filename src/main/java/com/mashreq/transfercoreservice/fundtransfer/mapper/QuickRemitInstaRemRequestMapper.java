@@ -53,7 +53,7 @@ public class QuickRemitInstaRemRequestMapper implements QuickRemitMapper {
                 .beneficiaryAddress(beneficiaryDto.getAddressLine1() + "," + beneficiaryDto.getAddressLine2() + "," + beneficiaryDto.getAddressLine3())
                 .beneficiaryAccountNo(beneficiaryDto.getAccountNumber())
                 .beneficiaryBankName(beneficiaryDto.getBankName())
-                .beneficiaryCity(beneficiaryDto.getCity())
+                .beneficiaryCity("HARDCODED")
                 .beneficiaryState(beneficiaryDto.getState())
                 .beneficiaryPinCode(beneficiaryDto.getPingCode())
                 .beneficiaryAccountType(beneficiaryDto.getBeneficiaryAccountType())
@@ -69,7 +69,7 @@ public class QuickRemitInstaRemRequestMapper implements QuickRemitMapper {
                 .reasonText(request.getPurposeDesc())
                 .senderName(accountDetails.getCustomerName())
                 //TODO Hard code as individual
-                .senderAccountType("INDIVIDUAL")
+                .senderAccountType("Individual")
                 .senderMobileNo(CustomerDetailsUtils.getMobileNumber(customerDetails))
                 .senderBankBranch(customerDetails.getCifBranch())
                 .senderBankAccount(accountDetails.getNumber())
@@ -86,7 +86,7 @@ public class QuickRemitInstaRemRequestMapper implements QuickRemitMapper {
                 .senderPostalCode("UAE")
                 .senderBeneficiaryRelationship(beneficiaryDto.getBeneficiaryRelationship())
                 //TODO When will these values be used and where to pick it from
-                .senderDOB(null)
+                .senderDOB("1980-01-01")
                 .beneficiaryIDNo(null)
                 //TODO Check if destination country mapping is correct
                 .destCountry(beneficiaryDto.getBeneficiaryCountryISO())
