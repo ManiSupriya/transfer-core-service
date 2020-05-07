@@ -4,6 +4,7 @@ import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.BankCodeUtils;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.CustomerDetailsUtils;
 import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +43,7 @@ public class QuickRemitInstaRemRequestMapper implements QuickRemitMapper {
 
 
         final QuickRemitFundTransferRequest quickRemitFundTransferRequest = QuickRemitFundTransferRequest.builder()
-                .serviceCode(soapServiceProperties.getServiceCodes().getRoutingCodeSearch())
+                .serviceCode(soapServiceProperties.getServiceCodes().getQuickRemitInstaRem())
                 .finTxnNo(request.getFinTxnNo())
                 .channelTraceId(metadata.getChannelTraceId())
                 .productCode(request.getProductCode())
@@ -87,8 +88,7 @@ public class QuickRemitInstaRemRequestMapper implements QuickRemitMapper {
                 .beneficiaryIDNo(null)
                 //TODO Check if destination country mapping is correct
                 .destCountry(beneficiaryDto.getBankCountry())
-                //TODO This mappings needs to be completed by generating with new XSD
-                .routingCode(Arrays.asList(new RoutingCode("SWIFT", beneficiaryDto.getSwiftCode())))
+                .routingCode(Arrays.asList(BankCodeUtils.extractBankCode(beneficiaryDto)))
                 .build();
 
         return quickRemitFundTransferRequest;

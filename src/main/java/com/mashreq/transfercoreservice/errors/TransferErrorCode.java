@@ -72,6 +72,9 @@ public enum TransferErrorCode implements ErrorCode {
     FLEX_RULE_BIC_CODE_NOT_SUPPORTED("TN-6007", "Bic code not supported"),
 
 
+    QUICK_REM_ROUTING_CODE_NOT_AVAILABLE("TN-7000", "Routing not available for the Beneficiary"),
+
+
     BENE_EXTERNAL_SERVICE_ERROR("TN-5010", "Something went wrong with beneficiary external service"),
     ACC_EXTERNAL_SERVICE_ERROR("TN-5011", "Something went wrong with account external service"),
     MOB_COM_EXTERNAL_SERVICE_ERROR("TN-5012", "Something went wrong with mob-common external service"),
