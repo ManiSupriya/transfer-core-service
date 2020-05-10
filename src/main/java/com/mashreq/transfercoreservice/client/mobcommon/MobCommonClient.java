@@ -25,7 +25,7 @@ public interface MobCommonClient {
 
     @GetMapping("/v1/payment-purposes/{transactionType}")
     Response<Set<MoneyTransferPurposeDto>> getPaymentPurpose(@NotNull @PathVariable String transactionType,
-                                                             @RequestParam(value = "country") String countryIsoCode,
+                                                             @RequestParam(value = "qrType") String qrType,
                                                              @RequestParam(value = "customerType") String customerType);
 
 

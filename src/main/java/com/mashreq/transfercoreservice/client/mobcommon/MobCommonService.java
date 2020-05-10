@@ -50,11 +50,11 @@ public class MobCommonService {
         return limitValidatorResultsDtoResponse.getData();
     }
 
-    public Set<MoneyTransferPurposeDto> getPaymentPurposes( String transactionType, String countryIsoCode, String accountType) {
+    public Set<MoneyTransferPurposeDto> getPaymentPurposes( String transactionType, String qrType, String accountType) {
         log.info("[MobCommonService] Calling MobCommonService for getting POP for QR transfer to country={}  ",
-                countryIsoCode);
+                qrType);
         Instant startTime = now();
-        final Response<Set<MoneyTransferPurposeDto>> paymentPurpose = mobCommonClient.getPaymentPurpose( transactionType, countryIsoCode, accountType);
+        final Response<Set<MoneyTransferPurposeDto>> paymentPurpose = mobCommonClient.getPaymentPurpose( transactionType, qrType, accountType);
 
         if (TRUE.equalsIgnoreCase(paymentPurpose.getHasError())) {
             final String errorDetails = getErrorDetails(paymentPurpose);
