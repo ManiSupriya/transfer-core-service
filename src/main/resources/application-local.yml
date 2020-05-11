@@ -46,11 +46,12 @@ app:
   bank:
     code: '033'
   services:
-    maintenance: ${MAINTENANCE_SERVICE_URL:http://maintenance-service:8080}
-    customers: ${CUSTOMER_SERVICE_URL:http://customers-service:8080}
-    accounts: ${ACCOUNT_SERVICE_URL:http://accounts-service:8080}
+    maintenance: ${MAINTENANCE_SERVICE_URL:http://localhost:8085}
+    customers: ${CUSTOMER_SERVICE_URL:http://localhost:8083}
+    accounts: ${ACCOUNT_SERVICE_URL:http://localhost:8082}
     cards: ${CARD_SERVICE_URL:http://cards-service:8080}
     notification: ${NOTIFICATION_SERVICE:http://notification-service:8080}
-    mobcustomer: ${MOB_CUSTOMER_SERVICE:http://mob-customer-service:8080}
-    beneficiary: ${BENEFICIARY_CORE_SERVICE:http://beneficiary-core-service:8080}
+    mobcustomer: ${MOB_CUSTOMER_SERVICE:http://localhost:8088}
+    beneficiary: ${BENEFICIARY_CORE_SERVICE:http://localhost:8081}
+    mobcommon: ${MOB_COMMON_SERVICE:http://localhost:8084}
 

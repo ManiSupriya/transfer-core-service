@@ -18,8 +18,10 @@ public class QuickRemitResponseHandler {
     private static final String FINAL_TXN_STATUS_PROCESSING = "BENEBANKPROCESSING";
     private static final String FINAL_TXN_STATUS_SUCCESS = "BENEBANKSUCCESS";
     private static final String QR_PAK_SERVICE_CODE = "TRTPTPK";
+    public static final String QR_INDIA_SERVICE_CODE = "TRTPTIN";
+    public static final String QR_INSTAREM_SERVICE_CODE = "TINSRPMT";
 
-    public  static MwResponseStatus responseHandler(EAIServices response) {
+    public static MwResponseStatus responseHandler(EAIServices response) {
         log.info("Validate response {}", response);
         if (isSuccessFull(response)) {
             return MwResponseStatus.S;
@@ -40,17 +42,27 @@ public class QuickRemitResponseHandler {
         final String srvCode = response.getHeader().getSrvCode();
         final String responseStatus = response.getBody().getRemittancePaymentRes().getStatus();
         final String finalTransactionStatus = response.getBody().getRemittancePaymentRes().getFinalTransactionStatus();
-        if (!QR_PAK_SERVICE_CODE.equals(srvCode)) {
-            if (SUCCESS.equals(response.getHeader().getStatus()) && FINAL_TXN_STATUS_PROCESSING.equals(finalTransactionStatus)) {
-                log.info("Quick Remit Under Process {} , Description: {}",
+
+        if (QR_INDIA_SERVICE_CODE.equals(srvCode)) {
+            final String finalTransactionStatusIndia = response.getBody().getRemittancePaymentRes().getFinalTransactionStatusIndia();
+            if (SUCCESS.equals(response.getHeader().getStatus()) && FINAL_TXN_STATUS_PROCESSING.equals(finalTransactionStatusIndia)) {
+                log.info("Quick Remit India Under Process {} , Description: {}",
                         response.getBody().getExceptionDetails().getErrorCode(),
                         response.getBody().getExceptionDetails().getData());
                 return true;
             }
         }
-        else {
+        if (QR_PAK_SERVICE_CODE.equals(srvCode)) {
             if (SUCCESS.equals(response.getHeader().getStatus()) && RESPONSE_STATUS_PENDING_PROCESSING.equals(responseStatus)) {
-                log.info("Quick Remit Under Process {} , Description: {}",
+                log.info("Quick Remit Pakistan Under Process {} , Description: {}",
+                        response.getBody().getExceptionDetails().getErrorCode(),
+                        response.getBody().getExceptionDetails().getData());
+                return true;
+            }
+        }
+        if (QR_INSTAREM_SERVICE_CODE.equals(srvCode)) {
+            if (SUCCESS.equals(response.getHeader().getStatus()) && FINAL_TXN_STATUS_PROCESSING.equals(finalTransactionStatus)) {
+                log.info("Quick Remit Instarem Under Process {} , Description: {}",
                         response.getBody().getExceptionDetails().getErrorCode(),
                         response.getBody().getExceptionDetails().getData());
                 return true;
@@ -64,20 +76,30 @@ public class QuickRemitResponseHandler {
         final String responseStatus = response.getBody().getRemittancePaymentRes().getStatus();
         final String finalTransactionStatus = response.getBody().getRemittancePaymentRes().getFinalTransactionStatus();
         final String responseCode = response.getBody().getExceptionDetails().getErrorCode();
-        if (!QR_PAK_SERVICE_CODE.equals(srvCode)) {
-            if ((SUCCESS_CODE.equals(responseCode) && SUCCESS.equals(response.getHeader().getStatus()) && FINAL_TXN_STATUS_SUCCESS.equals(finalTransactionStatus))) {
-                log.info("Quick Remit Successful {} , Description: {}",
+        if (QR_INDIA_SERVICE_CODE.equals(srvCode)) {
+            final String finalTransactionStatusIndia = response.getBody().getRemittancePaymentRes().getFinalTransactionStatusIndia();
+            if ((SUCCESS_CODE.equals(responseCode) && SUCCESS.equals(response.getHeader().getStatus()) && FINAL_TXN_STATUS_SUCCESS.equals(finalTransactionStatusIndia))) {
+                log.info("Quick Remit India Successful {} , Description: {}",
                         responseCode, response.getBody().getExceptionDetails().getData());
                 return true;
             }
         }
-        else {
+        if (QR_PAK_SERVICE_CODE.equals(srvCode)) {
             if ((SUCCESS_CODE.equals(responseCode) && SUCCESS.equals(response.getHeader().getStatus()) && !RESPONSE_STATUS_PENDING_PROCESSING.equals(responseStatus))) {
-                log.info("Quick Remit Successful {} , Description: {}",
+                log.info("Quick Remit Pakistan Successful {} , Description: {}",
                         responseCode, response.getBody().getExceptionDetails().getData());
                 return true;
             }
         }
+        if (QR_INSTAREM_SERVICE_CODE.equals(srvCode)) {
+            if ((SUCCESS_CODE.equals(responseCode) && SUCCESS.equals(response.getHeader().getStatus()) && FINAL_TXN_STATUS_SUCCESS.equals(finalTransactionStatus))) {
+                log.info("Quick Remit InstaRem Successful {} , Description: {}",
+                        responseCode, response.getBody().getExceptionDetails().getData());
+                return true;
+            }
+        }
+        log.info("Quick Remit Falied {} , Description: {}",
+                responseCode, response.getBody().getExceptionDetails().getData());
         return false;
     }
 }
