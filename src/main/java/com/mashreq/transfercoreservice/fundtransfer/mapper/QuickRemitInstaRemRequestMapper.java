@@ -70,7 +70,7 @@ public class QuickRemitInstaRemRequestMapper implements QuickRemitMapper {
                 .paymentNarration(request.getPurposeDesc())
                 .reasonCode(request.getPurposeCode())
                 .reasonText(request.getPurposeDesc())
-                .senderName(accountDetails.getCustomerName())
+                .senderName(getCustomerName(accountDetails))
                 //TODO Hard code as Individual Pick from Property
                 .senderAccountType("Individual")
                 .senderMobileNo(CustomerDetailsUtils.getMobileNumber(customerDetails))
@@ -100,6 +100,10 @@ public class QuickRemitInstaRemRequestMapper implements QuickRemitMapper {
         log.info("QuickRemitFundTransferRequest Object {} ", quickRemitFundTransferRequest);
 
         return quickRemitFundTransferRequest;
+    }
+
+    private String getCustomerName(AccountDetailsDTO accountDetails) {
+        return StringUtils.replace(accountDetails.getCustomerName(), "_", " ");
     }
 
 
