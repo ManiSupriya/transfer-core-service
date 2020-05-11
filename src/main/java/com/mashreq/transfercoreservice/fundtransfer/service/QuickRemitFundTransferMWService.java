@@ -1,7 +1,7 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
 import com.mashreq.esbcore.bindings.customer.mbcdm.RemittancePaymentReqType;
-
+import com.mashreq.esbcore.bindings.customer.mbcdm.RemittancePaymentReqType.RoutingCode;
 import com.mashreq.esbcore.bindings.customerservices.mbcdm.remittancepayment.EAIServices;
 import com.mashreq.esbcore.bindings.header.mbcdm.ErrorType;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
@@ -9,12 +9,15 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.fundtransfer.dto.QuickRemitFundTransferRequest;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.QuickRemitResponseHandler;
 import com.mashreq.transfercoreservice.middleware.HeaderFactory;
-import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
 import com.mashreq.transfercoreservice.middleware.WebServiceClient;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -24,7 +27,6 @@ public class QuickRemitFundTransferMWService {
 
     private final WebServiceClient webServiceClient;
     private final HeaderFactory headerFactory;
-    private final SoapServiceProperties soapServiceProperties;
 
     public FundTransferResponse transfer(QuickRemitFundTransferRequest request) {
         log.info("Quick remit fund transfer initiated from account [ {} ]", request.getSenderBankAccount());
@@ -54,44 +56,90 @@ public class QuickRemitFundTransferMWService {
     public EAIServices generateEAIServiceRequest(QuickRemitFundTransferRequest request) {
 
         EAIServices services = new EAIServices();
-        services.setHeader(headerFactory.getHeader(soapServiceProperties.getServiceCodes().getQuickRemitIndia(), request.getChannelTraceId()));
+        services.setHeader(headerFactory.getHeader(request.getServiceCode(), request.getChannelTraceId()));
         services.setBody(new EAIServices.Body());
 
-        //Setting individual components
-        RemittancePaymentReqType fundTransferReqType = new RemittancePaymentReqType();
-        fundTransferReqType.setPaymentID(request.getFinTxnNo());
-        fundTransferReqType.setOriginatingCountry(request.getOriginatingCountry());
-        fundTransferReqType.setDestCountry(request.getDestCountry());
-        fundTransferReqType.setBName(request.getBeneficiaryName());
-        fundTransferReqType.setBFullName(request.getBeneficiaryFullName());
-        fundTransferReqType.setBAddress(request.getBeneficiaryAddress());
-        fundTransferReqType.setBCountry(request.getBeneficiaryCountry());
-        fundTransferReqType.setBAccountNo(request.getBeneficiaryAccountNo());
-        fundTransferReqType.setBBankName(request.getBeneficiaryBankName());
-        fundTransferReqType.setBBankIFSC(request.getBeneficiaryBankIFSC());
-        fundTransferReqType.setAmountSRCCurrency(request.getAmountSRCCurrency());
-        fundTransferReqType.setAmountDESTCurrency(request.getAmountDESTCurrency());
-        fundTransferReqType.setSRCCurrency(request.getSrcCurrency());
-        fundTransferReqType.setDESTCurrency(request.getDestCurrency());
-        fundTransferReqType.setSRCISOCurrency(request.getSrcISOCurrency());
-        fundTransferReqType.setDESTISOCurrency(request.getDestISOCurrency());
-        fundTransferReqType.setTransactionAmount(request.getTransactionAmount());
-        fundTransferReqType.setTransactionCurrency(request.getTransactionCurrency());
-        fundTransferReqType.setExchangeRate(request.getExchangeRate());
-        fundTransferReqType.setReasonCode(request.getReasonCode());
-        fundTransferReqType.setReasonText(request.getReasonText());
-        fundTransferReqType.setSenderName(request.getSenderName());
-        fundTransferReqType.setSenderMobileNo(request.getSenderMobileNo());
-        fundTransferReqType.setSenderBankBranch(request.getSenderBankBranch());
-        fundTransferReqType.setSenderBankAccount(request.getSenderBankAccount());
-        fundTransferReqType.setSenderAddress(request.getSenderAddress());
-        fundTransferReqType.setSenderCountryISOCode(request.getSenderCountryISOCode());
-        fundTransferReqType.setSenderIDType(request.getSenderIDType());
-        fundTransferReqType.setSenderIDNumber(request.getSenderIDNumber());
+        //Setting individual components for IN and PK
+        RemittancePaymentReqType remittancePaymentReq = new RemittancePaymentReqType();
+        remittancePaymentReq.setPaymentID(request.getFinTxnNo());
+        remittancePaymentReq.setOriginatingCountry(request.getOriginatingCountry());
+        remittancePaymentReq.setDestCountry(request.getDestCountry());
+        remittancePaymentReq.setBName(request.getBeneficiaryName());
+        remittancePaymentReq.setBFullName(request.getBeneficiaryFullName());
+        remittancePaymentReq.setBAddress(request.getBeneficiaryAddress());
+        remittancePaymentReq.setBCountry(request.getBeneficiaryCountry());
+        remittancePaymentReq.setBAccountNo(request.getBeneficiaryAccountNo());
+        remittancePaymentReq.setBBankName(request.getBeneficiaryBankName());
+        remittancePaymentReq.setBBankIFSC(request.getBeneficiaryBankIFSC());
+        remittancePaymentReq.setAmountSRCCurrency(request.getAmountSRCCurrency());
+        remittancePaymentReq.setAmountDESTCurrency(request.getAmountDESTCurrency());
+        remittancePaymentReq.setSRCCurrency(request.getSrcCurrency());
+        remittancePaymentReq.setDESTCurrency(request.getDestCurrency());
+        remittancePaymentReq.setSRCISOCurrency(request.getSrcISOCurrency());
+        remittancePaymentReq.setDESTISOCurrency(request.getDestISOCurrency());
+        remittancePaymentReq.setTransactionAmount(request.getTransactionAmount());
+        remittancePaymentReq.setTransactionCurrency(request.getTransactionCurrency());
+        remittancePaymentReq.setExchangeRate(request.getExchangeRate());
+        remittancePaymentReq.setReasonCode(request.getReasonCode());
+        remittancePaymentReq.setReasonText(request.getReasonText());
+        remittancePaymentReq.setSenderName(request.getSenderName());
+        remittancePaymentReq.setSenderMobileNo(request.getSenderMobileNo());
+        remittancePaymentReq.setSenderBankBranch(request.getSenderBankBranch());
+        remittancePaymentReq.setSenderBankAccount(request.getSenderBankAccount());
+        remittancePaymentReq.setSenderAddress(request.getSenderAddress());
+        remittancePaymentReq.setSenderCountryISOCode(request.getSenderCountryISOCode());
+        remittancePaymentReq.setSenderIDType(request.getSenderIDType());
+        remittancePaymentReq.setSenderIDNumber(request.getSenderIDNumber());
+        remittancePaymentReq.setBMobileNo(request.getBeneficiaryMobileNo());
 
-        services.getBody().setRemittancePaymentReq(fundTransferReqType);
+        //For PK
+        remittancePaymentReq.setBBankCode(request.getBeneficiaryBankCode());
+        remittancePaymentReq.setBeneIDType(request.getBeneficiaryIdType());
+        remittancePaymentReq.setBeneIDNo(request.getBeneficiaryIdNo());
+        remittancePaymentReq.setDistributionType(request.getDistributionType());
+        remittancePaymentReq.setTransferType(request.getTransferType());
+
+
+        //Insta Rem
+        remittancePaymentReq.setBAccountType(request.getBeneficiaryAccountType());
+        remittancePaymentReq.setBBankAccountType(request.getBeneficiaryBankAccountType());
+        remittancePaymentReq.setBEmail(request.getBeneficiaryEmail());
+        //remittancePaymentReq.setSenderInitialAllowed();
+        remittancePaymentReq.setSenderAccountType(request.getSenderAccountType());
+        remittancePaymentReq.setSenderState(request.getSenderState());
+        remittancePaymentReq.setSenderCity(request.getSenderCity());
+        remittancePaymentReq.setSenderPostalCode(request.getSenderPostalCode());
+        remittancePaymentReq.setSenderBeneficiaryRelationShip(request.getSenderBeneficiaryRelationship());
+        remittancePaymentReq.setSenderSourceOfIncome(request.getSenderSourceOfIncome());
+        remittancePaymentReq.setProductCode(request.getProductCode());
+        remittancePaymentReq.setRoutingCode(getRoutingCode(request));
+        remittancePaymentReq.setPaymentNarration(request.getPaymentNarration());
+        remittancePaymentReq.setBCity(request.getBeneficiaryCity());
+        remittancePaymentReq.setBPinCode(request.getBeneficiaryPinCode());
+        remittancePaymentReq.setBState(request.getBeneficiaryState());
+        remittancePaymentReq.setSenderDOB(request.getSenderDOB());
+
+
+        //TRANSIT NUMBER for canada
+
+
+        services.getBody().setRemittancePaymentReq(remittancePaymentReq);
+
         log.info("EAI Service request for quick remit fund transfer prepared {}", services);
         return services;
+    }
+
+    private List<RoutingCode> getRoutingCode(QuickRemitFundTransferRequest request) {
+        return CollectionUtils.isNotEmpty(request.getRoutingCode())
+                ? request.getRoutingCode().stream().map(routingCode -> mapRoutingCode(routingCode)).collect(Collectors.toList())
+                : null;
+    }
+
+    private RoutingCode mapRoutingCode(com.mashreq.transfercoreservice.fundtransfer.dto.RoutingCode x) {
+        RoutingCode routingCode = new RoutingCode();
+        routingCode.setType(x.getType());
+        routingCode.setValue(x.getValue());
+        return routingCode;
     }
 
 

@@ -5,14 +5,16 @@ import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
 import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
-import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
-import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
-import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
+import com.mashreq.transfercoreservice.client.mobcommon.dto.*;
 import com.mashreq.transfercoreservice.client.service.AccountService;
+import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferContext.Constants;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
-import com.mashreq.transfercoreservice.fundtransfer.mapper.QuickRemitPakistanRequestMapper;
+import com.mashreq.transfercoreservice.fundtransfer.mapper.QuickRemitInstaRemRequestMapper;
+import com.mashreq.transfercoreservice.fundtransfer.service.FlexRuleEngineService;
+import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
 import com.mashreq.transfercoreservice.fundtransfer.service.QuickRemitFundTransferMWService;
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import lombok.RequiredArgsConstructor;
@@ -20,36 +22,46 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import static java.lang.Long.valueOf;
 
-@RequiredArgsConstructor
+/**
+ * @author shahbazkh
+ * @date 5/5/20
+ */
+
 @Slf4j
 @Service
-public class QuickRemitPakistanStrategy implements QuickRemitFundTransfer {
+@RequiredArgsConstructor
+public class QuickRemitInstaRemStrategy implements QuickRemitFundTransfer {
 
-    private static final String INDIVIDUAL_ACCOUNT = "I";
-
-    private final AccountService accountService;
-    private final MobCommonService mobCommonService;
-    private final MaintenanceService maintenanceService;
+    public static final String INDIVIDUAL_TYPE = "I";
+    private final QuickRemitInstaRemRequestMapper mapper;
     private final QuickRemitFundTransferMWService quickRemitFundTransferMWService;
-
     private final FinTxnNoValidator finTxnNoValidator;
+    private final AccountService accountService;
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
     private final PaymentPurposeValidator paymentPurposeValidator;
     private final BeneficiaryValidator beneficiaryValidator;
     private final BalanceValidator balanceValidator;
-    private final LimitValidator limitValidator;
+    private final FundTransferMWService fundTransferMWService;
+    private final MaintenanceService maintenanceService;
+    private final MobCommonService mobCommonService;
 
-    private final QuickRemitPakistanRequestMapper quickRemitPakistanRequestMapper;
+    private final BeneficiaryService beneficiaryService;
+    private final LimitValidator limitValidator;
+    private final FlexRuleEngineService flexRuleEngineService;
+
 
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO, ValidationContext validationContext) {
-        log.info("Quick remit to PAKISTAN starts");
-        responseHandler(finTxnNoValidator.validate(request, metadata));
 
+        log.info("Quick Remit InstaRem initiated");
+
+        responseHandler(finTxnNoValidator.validate(request, metadata));
         final CustomerDetailsDto customerDetails = mobCommonService.getCustomerDetails(metadata.getPrimaryCif());
 
         final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metadata.getPrimaryCif());
@@ -57,54 +69,57 @@ public class QuickRemitPakistanStrategy implements QuickRemitFundTransfer {
         validationContext.add("validate-from-account", Boolean.TRUE);
         responseHandler(accountBelongsToCifValidator.validate(request, metadata, validationContext));
 
-        final BeneficiaryDto beneficiaryDto = validationContext.get("beneficiary-dto", BeneficiaryDto.class);
+        final BeneficiaryDto beneficiary = validationContext.get("beneficiary-dto", BeneficiaryDto.class);
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
 
-        final Set<MoneyTransferPurposeDto> allPurposeCodes = mobCommonService.getPaymentPurposes(request.getServiceType(),
-                beneficiaryDto.getBeneficiaryCountryISO(), INDIVIDUAL_ACCOUNT);
+        final Set<MoneyTransferPurposeDto> allPurposeCodes = mobCommonService.getPaymentPurposes(request.getServiceType(), "INSTAREM", INDIVIDUAL_TYPE);
         validationContext.add("purposes", allPurposeCodes);
         responseHandler(paymentPurposeValidator.validate(request, metadata, validationContext));
 
         //Balance Validation
-        final AccountDetailsDTO sourceAccountDetailsDTO = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
-        validationContext.add("to-account-currency", beneficiaryDto.getBeneficiaryCurrency());
-        validationContext.add("from-account", sourceAccountDetailsDTO);
+        final AccountDetailsDTO sourceAccountDetails = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
+        validationContext.add("to-account-currency", beneficiary.getBeneficiaryCurrency());
+        validationContext.add("from-account", sourceAccountDetails);
 
-        final CurrencyConversionDto currencyConversionDto = getAmountInSrcCurrency(request, beneficiaryDto, sourceAccountDetailsDTO);
-        validationContext.add("transfer-amount-in-source-currency", currencyConversionDto.getAccountCurrencyAmount());
+        FlexRuleEngineResponseDTO flexRuleEngineResponse = flexRuleEngineService.getRules(FlexRuleEngineMetadata.builder()
+                        .channelTraceId(metadata.getChannelTraceId())
+                        .cifId(metadata.getPrimaryCif())
+                        .build(),
+                FlexRuleEngineRequestDTO.builder()
+                        .customerAccountNo(sourceAccountDetails.getNumber())
+                        .accountCurrency(sourceAccountDetails.getCurrency())
+                        .transactionCurrency(beneficiary.getBeneficiaryCurrency())
+                        .transactionAmount(request.getAmount())
+                        .beneficiaryId(beneficiary.getId())
+                        .build()
+        );
+
+        validationContext.add("transfer-amount-in-source-currency", flexRuleEngineResponse.getAccountCurrencyAmount());
         responseHandler(balanceValidator.validate(request, metadata, validationContext));
 
         //Limit Validation
-        final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), sourceAccountDetailsDTO,
-                currencyConversionDto.getAccountCurrencyAmount());
+        final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), sourceAccountDetails,
+                flexRuleEngineResponse.getAccountCurrencyAmount());
+
         final LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount);
 
+        final FundTransferContext fundTransferContext = new FundTransferContext();
+        fundTransferContext.add(Constants.BENEFICIARY_FUND_CONTEXT_KEY, beneficiary);
+        fundTransferContext.add(Constants.ACCOUNT_DETAILS_FUND_CONTEXT_KEY, sourceAccountDetails);
+        fundTransferContext.add(Constants.CUSTOMER_DETAIL_FUND_CONTEXT_KEY, customerDetails);
+        fundTransferContext.add(Constants.EXCHANGE_RATE_FUND_CONTEXT_KEY, flexRuleEngineResponse.getExchangeRate());
+        fundTransferContext.add(Constants.TRANSFER_AMOUNT_IN_SRC_CURRENCY_FUND_CONTEXT_KEY, flexRuleEngineResponse.getAccountCurrencyAmount());
+        fundTransferContext.add(Constants.FLEX_PRODUCT_CODE_CONTEXT_KEY,flexRuleEngineResponse.getProductCode());
 
-        final QuickRemitFundTransferRequest fundTransferRequest = quickRemitPakistanRequestMapper.map(metadata.getChannelTraceId(),
-                request, sourceAccountDetailsDTO, beneficiaryDto, currencyConversionDto.getAccountCurrencyAmount(),
-                currencyConversionDto.getExchangeRate(), validationContext, customerDetails);
-        log.info("Quick Remit India middle-ware started");
-        final FundTransferResponse fundTransferResponse = quickRemitFundTransferMWService.transfer(fundTransferRequest);
 
+        final QuickRemitFundTransferRequest quickRemitFundTransferRequest = mapper.mapTo(metadata, request, fundTransferContext);
+
+        log.info("Quick Remit India Middleware InstaRem started");
+        final FundTransferResponse fundTransferResponse = quickRemitFundTransferMWService.transfer(quickRemitFundTransferRequest);
 
         return fundTransferResponse.toBuilder()
                 .limitUsageAmount(limitUsageAmount)
                 .limitVersionUuid(validationResult.getLimitVersionUuid()).build();
-
-
-    }
-
-    private CurrencyConversionDto getAmountInSrcCurrency(FundTransferRequestDTO request, BeneficiaryDto beneficiaryDto,
-                                                         AccountDetailsDTO sourceAccountDetailsDTO) {
-
-        final CoreCurrencyConversionRequestDto currencyRequest = CoreCurrencyConversionRequestDto.builder()
-                .accountNumber(sourceAccountDetailsDTO.getNumber())
-                .accountCurrency(sourceAccountDetailsDTO.getCurrency())
-                .transactionCurrency(beneficiaryDto.getBeneficiaryCurrency())
-                .productCode(request.getProductCode())
-                .transactionAmount(request.getAmount()).build();
-
-        return maintenanceService.convertBetweenCurrencies(currencyRequest);
     }
 
     private BigDecimal getLimitUsageAmount(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO,
@@ -127,8 +142,6 @@ public class QuickRemitPakistanStrategy implements QuickRemitFundTransfer {
         CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(currencyConversionRequestDto);
         return currencyConversionDto.getTransactionAmount();
     }
-
-
 
 
 }

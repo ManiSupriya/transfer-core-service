@@ -3,8 +3,6 @@ package com.mashreq.transfercoreservice.fundtransfer.dto;
 import lombok.Builder;
 import lombok.Data;
 
-import java.math.BigDecimal;
-
 /**
  * @author shahbazkh
  * @date 4/29/20

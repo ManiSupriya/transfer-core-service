@@ -20,8 +20,7 @@ import java.time.Instant;
 import java.util.Set;
 
 import static com.mashreq.transfercoreservice.client.ErrorUtils.getErrorDetails;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_NOT_FOUND;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.EXTERNAL_SERVICE_ERROR;
 import static java.time.Instant.now;
 
 @Slf4j
@@ -51,11 +50,11 @@ public class MobCommonService {
         return limitValidatorResultsDtoResponse.getData();
     }
 
-    public Set<MoneyTransferPurposeDto> getPaymentPurposes( String transactionType, String countryIsoCode) {
+    public Set<MoneyTransferPurposeDto> getPaymentPurposes( String transactionType, String qrType, String accountType) {
         log.info("[MobCommonService] Calling MobCommonService for getting POP for QR transfer to country={}  ",
-                countryIsoCode);
+                qrType);
         Instant startTime = now();
-        final Response<Set<MoneyTransferPurposeDto>> paymentPurpose = mobCommonClient.getPaymentPurpose( transactionType, countryIsoCode);
+        final Response<Set<MoneyTransferPurposeDto>> paymentPurpose = mobCommonClient.getPaymentPurpose( transactionType, qrType, accountType);
 
         if (TRUE.equalsIgnoreCase(paymentPurpose.getHasError())) {
             final String errorDetails = getErrorDetails(paymentPurpose);

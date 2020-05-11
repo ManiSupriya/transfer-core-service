@@ -25,5 +25,6 @@ public class SoapServiceProperties {
         private String flexRuleEngine;
         private String quickRemitIndia;
         private String quickRemitPakistan;
+        private String quickRemitInstaRem;
     }
 }

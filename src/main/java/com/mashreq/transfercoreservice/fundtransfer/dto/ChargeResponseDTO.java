@@ -1,7 +1,10 @@
 package com.mashreq.transfercoreservice.fundtransfer.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Data;
+
+import java.math.BigDecimal;
 
 /**
  * @author shahbazkh
@@ -9,9 +12,16 @@ import lombok.Data;
  */
 @Data
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ChargeResponseDTO {
 
-    private String currency;
-    private String chargeAmount;
+    private String chargeCurrency;
+    private BigDecimal chargeAmount;
+
+    private String flexChargeCurrency;
+    private BigDecimal flexChargeAmount;
+
+    private BigDecimal debitAmount;
+    private BigDecimal totalDebitAmount;
 
 }

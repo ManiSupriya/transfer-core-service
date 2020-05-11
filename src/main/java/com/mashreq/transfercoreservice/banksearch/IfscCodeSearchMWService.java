@@ -1,6 +1,7 @@
 package com.mashreq.transfercoreservice.banksearch;
 
 import com.mashreq.esbcore.bindings.customer.mbcdm.AxisRemittanceIFSCDetailsReqType;
+import com.mashreq.esbcore.bindings.customerservices.mbcdm.axisremittanceifscdetails.EAIServices;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.middleware.HeaderFactory;
@@ -10,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import com.mashreq.esbcore.bindings.customerservices.mbcdm.axisremittanceifscdetails.EAIServices;
 
 /**
  * @author shahbazkh

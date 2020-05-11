@@ -3,8 +3,6 @@ package com.mashreq.transfercoreservice.banksearch;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.mashreq.esbcore.bindings.account.mbcdm.IBANDetailsResType;
 import com.mashreq.esbcore.bindings.customer.mbcdm.AccuityDetailsTypes;
-import com.mashreq.esbcore.bindings.customer.mbcdm.AxisRemittanceBankListReqType;
-import com.mashreq.esbcore.bindings.customer.mbcdm.AxisRemittanceBankListResType;
 import com.mashreq.esbcore.bindings.customer.mbcdm.AxisRemittanceIFSCDetailsResType;
 import lombok.Data;
 

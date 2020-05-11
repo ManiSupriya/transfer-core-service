@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @Builder(toBuilder = true)
@@ -39,6 +40,39 @@ public class QuickRemitFundTransferRequest {
     private String senderCountryISOCode;//M
     private String senderIDType;//O
     private String senderIDNumber;//M
+    private String serviceCode;
+    private String beneficiaryIdType;
+    private String beneficiaryIdNo;
+    private String distributionType;
+    private String transferType;
+    private String beneficiaryMobileNo;
+    private String beneficiaryBankCode;//MPK
 
+
+    //instarem
+    private String beneficiaryCity;
+    private String beneficiaryState;
+    private String beneficiaryPinCode;
+    private String productCode;
+    private String beneficiaryAccountType;
+    private String beneficiaryBankAccountType;
+
+
+    private String paymentNarration;
+    private String senderAccountType;
+
+    private String senderCity;
+    private String senderState;
+    private String senderPostalCode;
+    private String senderBeneficiaryRelationship;
+
+    private String senderDOB;
+    private String beneficiaryIDNo;
+    private String beneficiaryEmail;
+
+    private String senderInitialAllowed;
+    private String senderSourceOfIncome;
+
+    private List<RoutingCode> routingCode;
 
 }

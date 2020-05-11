@@ -12,6 +12,7 @@ import java.time.Instant;
  */
 @Data
 public class BeneficiaryDto {
+
     private Long id;
     private String accountNumber;
     private String nickname;
@@ -58,6 +59,24 @@ public class BeneficiaryDto {
     private String addressLine1;
     private String addressLine2;
     private String addressLine3;
+
+    //QRI
+    private String mobileNumber;
+
+    //QRPK
+    private String bankCode;
+    private String documentNumber;
+    private String documentType;
+
+
+    //Insta rem
+
+    private String beneficiaryCity;
+    private String beneficiaryState;
+    private String beneficiaryPostalCode;
+    private String bankAccountType;
+    private String beneficiaryRelationship;
+
 
 }
 

@@ -68,7 +68,7 @@ public class CustomerDetailsUtils {
 
 
 
-    private static String deriveAddress(List<AddressTypeDto> address) {
+    public static String deriveAddress(List<AddressTypeDto> address) {
         final Optional<AddressTypeDto> first = address.stream().filter(a -> ADDRESS_TYPES.contains(a.getAddressType())).findFirst();
         return first.map(add -> generateSenderAddress(add)).orElse("");
     }

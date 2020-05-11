@@ -3,10 +3,6 @@ package com.mashreq.transfercoreservice.fundtransfer.strategy.utils;
 import com.mashreq.esbcore.bindings.customerservices.mbcdm.remittancepayment.EAIServices;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author shahbazkh
@@ -17,8 +13,11 @@ import java.util.List;
 public class QuickRemitResponseHandler {
 
     private static final String SUCCESS = "S";
-    private static final String SUCCESS_STATUS = "BENEBANKSUCCESS";
-    private static final String PROCESSING_STATUS = "BENEBANKPROCESSING";
+    private static final String RESPONSE_STATUS_PENDING_PROCESSING = "Pending Processing";
+    private static final String SUCCESS_CODE = "EAI-RGW-BRK-000";
+    private static final String FINAL_TXN_STATUS_PROCESSING = "BENEBANKPROCESSING";
+    private static final String FINAL_TXN_STATUS_SUCCESS = "BENEBANKSUCCESS";
+    private static final String QR_PAK_SERVICE_CODE = "TRTPTPK";
 
     public  static MwResponseStatus responseHandler(EAIServices response) {
         log.info("Validate response {}", response);
@@ -38,23 +37,46 @@ public class QuickRemitResponseHandler {
     }
 
     private static boolean isProcessing(EAIServices response) {
+        final String srvCode = response.getHeader().getSrvCode();
+        final String responseStatus = response.getBody().getRemittancePaymentRes().getStatus();
         final String finalTransactionStatus = response.getBody().getRemittancePaymentRes().getFinalTransactionStatus();
-        if (SUCCESS.equals(response.getHeader().getStatus()) && PROCESSING_STATUS.equals(finalTransactionStatus)) {
-            log.info("Quick Remit Under Process {} , Description: {}",
-                    response.getBody().getExceptionDetails().getErrorCode(),
-                    response.getBody().getExceptionDetails().getData());
-            return true;
+        if (!QR_PAK_SERVICE_CODE.equals(srvCode)) {
+            if (SUCCESS.equals(response.getHeader().getStatus()) && FINAL_TXN_STATUS_PROCESSING.equals(finalTransactionStatus)) {
+                log.info("Quick Remit Under Process {} , Description: {}",
+                        response.getBody().getExceptionDetails().getErrorCode(),
+                        response.getBody().getExceptionDetails().getData());
+                return true;
+            }
+        }
+        else {
+            if (SUCCESS.equals(response.getHeader().getStatus()) && RESPONSE_STATUS_PENDING_PROCESSING.equals(responseStatus)) {
+                log.info("Quick Remit Under Process {} , Description: {}",
+                        response.getBody().getExceptionDetails().getErrorCode(),
+                        response.getBody().getExceptionDetails().getData());
+                return true;
+            }
         }
         return false;
     }
 
     private static boolean isSuccessFull(EAIServices response) {
+        final String srvCode = response.getHeader().getSrvCode();
+        final String responseStatus = response.getBody().getRemittancePaymentRes().getStatus();
         final String finalTransactionStatus = response.getBody().getRemittancePaymentRes().getFinalTransactionStatus();
-        if (SUCCESS_STATUS.equals(finalTransactionStatus) && SUCCESS.equals(response.getHeader().getStatus())) {
-            log.info("Quick Remit Successful {} , Description: {}",
-                    response.getBody().getExceptionDetails().getErrorCode(),
-                    response.getBody().getExceptionDetails().getData());
-            return true;
+        final String responseCode = response.getBody().getExceptionDetails().getErrorCode();
+        if (!QR_PAK_SERVICE_CODE.equals(srvCode)) {
+            if ((SUCCESS_CODE.equals(responseCode) && SUCCESS.equals(response.getHeader().getStatus()) && FINAL_TXN_STATUS_SUCCESS.equals(finalTransactionStatus))) {
+                log.info("Quick Remit Successful {} , Description: {}",
+                        responseCode, response.getBody().getExceptionDetails().getData());
+                return true;
+            }
+        }
+        else {
+            if ((SUCCESS_CODE.equals(responseCode) && SUCCESS.equals(response.getHeader().getStatus()) && !RESPONSE_STATUS_PENDING_PROCESSING.equals(responseStatus))) {
+                log.info("Quick Remit Successful {} , Description: {}",
+                        responseCode, response.getBody().getExceptionDetails().getData());
+                return true;
+            }
         }
         return false;
     }

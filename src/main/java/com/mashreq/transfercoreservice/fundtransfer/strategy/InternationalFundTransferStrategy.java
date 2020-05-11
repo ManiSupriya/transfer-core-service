@@ -2,37 +2,39 @@ package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
 import com.mashreq.transfercoreservice.client.dto.*;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
+import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
-
-
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
-import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
-import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
-import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
-import lombok.AllArgsConstructor;
+import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
+import com.mashreq.transfercoreservice.fundtransfer.validators.*;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static java.lang.Long.valueOf;
 
 /**
  *
  */
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Slf4j
 @Service
 public class InternationalFundTransferStrategy implements FundTransferStrategy {
 
     private static final String INTERNATIONAL_PRODUCT_ID = "DBFC";
+    private static final String INDIVIDUAL_ACCOUNT = "I";
     private static final String ROUTING_CODE_PREFIX = "//";
     private final FinTxnNoValidator finTxnNoValidator;
     private final AccountService accountService;
@@ -48,6 +50,9 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     private final LimitValidator limitValidator;
 
     private final HashMap<String, String> countryToCurrencyMap = new HashMap<>();
+
+//    @Value("${app.local.transaction.code:015}")
+//    private String transactionCode;
 
     //Todo: Replace with native currency fetched from API call
     @PostConstruct
@@ -70,7 +75,8 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         validationContext.add("validate-from-account", Boolean.TRUE);
         responseHandler(accountBelongsToCifValidator.validate(request, metadata, validationContext));
 
-        final Set<MoneyTransferPurposeDto> allPurposeCodes = mobCommonService.getPaymentPurposes(request.getServiceType(), "");
+        final Set<MoneyTransferPurposeDto> allPurposeCodes = mobCommonService.getPaymentPurposes(request.getServiceType(),
+                "", INDIVIDUAL_ACCOUNT);
         validationContext.add("purposes", allPurposeCodes);
         responseHandler(paymentPurposeValidator.validate(request, metadata, validationContext));
 
@@ -165,6 +171,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .beneficiaryAddressOne(beneficiaryDto.getAddressLine1())
                 .beneficiaryAddressTwo(beneficiaryDto.getAddressLine2())
                 .beneficiaryAddressThree(beneficiaryDto.getAddressLine3())
+                .transactionCode("15")
                 .build();
 
         return enrichFundTransferRequestByCountryCode(fundTransferRequest, beneficiaryDto);

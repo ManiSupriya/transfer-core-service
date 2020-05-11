@@ -2,21 +2,25 @@ package com.mashreq.transfercoreservice.fundtransfer.service;
 
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
+import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
+import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.client.dto.SearchAccountDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
+import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
 import static java.lang.String.valueOf;
+import static java.time.LocalDateTime.now;
+import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -35,14 +39,24 @@ public class FlexRuleEngineService {
     public static final String DEFAULT_TRANSFER_TYPE = "AC";
     public static final String DEFAULT_TRANSACTION_STATUS = "STP";
     public static final String DATE_FORMAT = "YYYY-MM-dd";
+    public static final String INDIA_CODE = "IN";
+    public static final String PAKISTAN_CODE = "PK";
     private final BeneficiaryService beneficiaryService;
     private final AccountService accountService;
 
     private final FlexRuleEngineMWService flexRuleEngineMWService;
+    private final MaintenanceService maintenanceService;
 
+    /**
+     * Fetch Charges
+     *
+     * @param metadata
+     * @param request
+     * @return
+     */
     public ChargeResponseDTO getCharges(final FlexRuleEngineMetadata metadata, final FlexRuleEngineRequestDTO request) {
 
-        final String valueDate = DateTimeFormatter.ofPattern(DATE_FORMAT).format(LocalDateTime.now());
+        final String valueDate = ofPattern(DATE_FORMAT).format(now());
 
         final CompletableFuture<SearchAccountDto> searchAccountFut = CompletableFuture.supplyAsync(() ->
                 accountService.getAccountDetailsFromCore(request.getCustomerAccountNo()));
@@ -51,62 +65,142 @@ public class FlexRuleEngineService {
 
         final SearchAccountDto searchAccountDto = searchAccountFut.join();
 
-        assertReqCurrencyMatchesBeneCurrency(request, searchAccountDto);
+        assertAccountCurrencyMatch(request, searchAccountDto);
 
-        log.info("Calling Flex Rule MW for CHARGES with Debit Leg {} {} ", request.getTransactionCurrency(), request.getTransactionAmount());
+        log.info("Calling Flex Rule MW for CHARGES with Debit Leg {} {} ", request.getAccountCurrency(), request.getAccountCurrencyAmount());
 
-        final FlexRuleEngineMWResponse response = flexRuleEngineMWService.getRules(getFlexRequestWithCreditLeg(metadata, request, valueDate, beneficiary));
+        final FlexRuleEngineMWResponse response = flexRuleEngineMWService.getRules(
+                getFlexRequestWithDebitLeg(metadata, request, valueDate, beneficiary));
+
+        log.info("Debit Amount  = {} {} ", request.getAccountCurrency(), request.getAccountCurrencyAmount());
+
+        if (!request.getAccountCurrency().equals(response.getChargeCurrency())) {
+            return getChargeWithConvertedCurrency(request, response);
+        }
+
+        return getCharge(request, response);
+
+    }
+
+    private ChargeResponseDTO getCharge(FlexRuleEngineRequestDTO request, FlexRuleEngineMWResponse response) {
+        final BigDecimal chargeAmount = new BigDecimal(response.getChargeAmount());
+        log.info("Charge in Debit Currency = {} {} ", request.getAccountCurrency(), chargeAmount);
+
+        final BigDecimal totalDebitAmount = request.getAccountCurrencyAmount().add(chargeAmount);
+        log.info("Total Debit Amount = {} {} ", request.getAccountCurrency(), totalDebitAmount);
 
         return ChargeResponseDTO.builder()
-                .currency(response.getChargeCurrency())
-                .chargeAmount(response.getChargeAmount())
+                .flexChargeAmount(chargeAmount)
+                .flexChargeCurrency(response.getChargeCurrency())
+                .chargeCurrency(response.getChargeCurrency())
+                .chargeAmount(chargeAmount)
+                .totalDebitAmount(totalDebitAmount)
                 .build();
     }
 
+    private ChargeResponseDTO getChargeWithConvertedCurrency(FlexRuleEngineRequestDTO request, FlexRuleEngineMWResponse response) {
+        CurrencyConversionDto convertedCurrency = getConvertedChargeAmount(request, response);
+        log.info("Charge in Debit Currency = {} {} ", request.getAccountCurrency(), convertedCurrency.getAccountCurrencyAmount());
+        final BigDecimal totalDebitAmount = request.getAccountCurrencyAmount().add(convertedCurrency.getAccountCurrencyAmount());
+        log.info("Total Debit Amount = {} {} ", request.getAccountCurrency(), totalDebitAmount);
+
+        return ChargeResponseDTO.builder()
+                .flexChargeCurrency(response.getChargeCurrency())
+                .flexChargeAmount(new BigDecimal(response.getChargeAmount()))
+                .chargeCurrency(request.getAccountCurrency())
+                .chargeAmount(convertedCurrency.getAccountCurrencyAmount())
+                .debitAmount(request.getAccountCurrencyAmount())
+                .totalDebitAmount(request.getAccountCurrencyAmount().add(convertedCurrency.getAccountCurrencyAmount()))
+                .build();
+    }
+
+    private CurrencyConversionDto getConvertedChargeAmount(FlexRuleEngineRequestDTO request, FlexRuleEngineMWResponse response) {
+        log.info("Debit Account Currency = {} and Charge Currency = {} calling currency conversion with Product code = {} ",
+                request.getAccountCurrency(), response.getChargeCurrency(), response.getProductCode());
+
+        return maintenanceService.convertBetweenCurrencies(CoreCurrencyConversionRequestDto.builder()
+                .accountNumber(request.getCustomerAccountNo())
+                .accountCurrency(request.getAccountCurrency())
+                .transactionCurrency(response.getChargeCurrency())
+                .transactionAmount(new BigDecimal(response.getChargeAmount()))
+                .productCode(response.getProductCode())
+                .build());
+    }
+
+    /**
+     * Fetch Rules Remitance
+     *
+     * @param metadata
+     * @param request
+     * @return
+     */
     public FlexRuleEngineResponseDTO getRules(final FlexRuleEngineMetadata metadata, final FlexRuleEngineRequestDTO request) {
 
         assertEitherDebitOrCreditAmountPresent(request);
-
-        final String valueDate = DateTimeFormatter.ofPattern(DATE_FORMAT).format(LocalDateTime.now());
-
         final CompletableFuture<SearchAccountDto> searchAccountFut = CompletableFuture.supplyAsync(() ->
                 accountService.getAccountDetailsFromCore(request.getCustomerAccountNo()));
 
-        final BeneficiaryDto beneficiary = beneficiaryService.getById(metadata.getCifId(), Long.valueOf(request.getBeneficiaryId()));
+        final CompletableFuture<BeneficiaryDto> beneficiaryDtoFut = CompletableFuture.supplyAsync(() ->
+                beneficiaryService.getById(metadata.getCifId(), Long.valueOf(request.getBeneficiaryId())));
 
         final SearchAccountDto searchAccountDto = searchAccountFut.join();
 
-        assertReqCurrencyMatchesBeneCurrency(request, searchAccountDto);
+        assertAccountCurrencyMatch(request, searchAccountDto);
+
+        final BeneficiaryDto beneficiary = beneficiaryDtoFut.join();
+
+        assertBeneficiaryCurrencyMatch(request, beneficiary);
+
+        final FlexRuleEngineMWRequest flexRequestMW = nonNull(request.getTransactionAmount())
+                ? getFlexRequestWithCreditLeg(metadata, request, ofPattern(DATE_FORMAT).format(now()), beneficiary)
+                : getFlexRequestWithDebitLeg(metadata, request, ofPattern(DATE_FORMAT).format(now()), beneficiary);
+
+        final FlexRuleEngineMWResponse response = flexRuleEngineMWService.getRules(flexRequestMW);
 
 
-        if (nonNull(request.getTransactionAmount())) {
-            log.info("Calling Flex Rule MW with Debit Leg {} {} ", request.getTransactionCurrency(), request.getTransactionAmount());
+        if (INDIA_CODE.equals(beneficiary.getBeneficiaryCountryISO())
+                || PAKISTAN_CODE.equalsIgnoreCase(beneficiary.getBeneficiaryCountryISO())) {
 
-            final FlexRuleEngineMWResponse response = flexRuleEngineMWService.getRules(getFlexRequestWithCreditLeg(metadata, request, valueDate, beneficiary));
-
-            return FlexRuleEngineResponseDTO.builder()
+            final FlexRuleEngineResponseDTO flexRuleEngineResponse = FlexRuleEngineResponseDTO.builder()
                     .productCode(response.getProductCode())
                     .build();
+            log.info("Flex Rule Engine Response  {} ", flexRuleEngineResponse);
 
+            return flexRuleEngineResponse;
         } else {
-            log.info("Calling Flex Rule MW with Credit Leg {} {} ", request.getAccountCurrencyAmount(), request.getAccountCurrency());
 
-            final FlexRuleEngineMWResponse response = flexRuleEngineMWService.getRules(getFlexRequestWithDebitLeg(metadata, request, valueDate, beneficiary));
-
-            return FlexRuleEngineResponseDTO.builder()
+            final FlexRuleEngineResponseDTO flexRuleEngineResponse = FlexRuleEngineResponseDTO.builder()
                     .productCode(response.getProductCode())
+                    .exchangeRate(response.getExchangeRate())
+                    .accountCurrencyAmount(response.getAccountCurrencyAmount())
+                    .transactionAmount(response.getTransactionAmount())
                     .build();
+            log.info("Flex Rule Engine Response (INSTAREM)  {} ", flexRuleEngineResponse);
+
+            return flexRuleEngineResponse;
+        }
+
+
+    }
+
+    private void assertAccountCurrencyMatch(FlexRuleEngineRequestDTO request, SearchAccountDto searchAccountDto) {
+        if (!request.getAccountCurrency().equals(searchAccountDto.getCurrency())) {
+            GenericExceptionHandler.handleError(ACCOUNT_CURRENCY_MISMATCH, ACCOUNT_CURRENCY_MISMATCH.getErrorMessage());
         }
     }
 
-    private void assertReqCurrencyMatchesBeneCurrency(FlexRuleEngineRequestDTO request, SearchAccountDto searchAccountDto) {
-        if (request.getAccountCurrency().equals(searchAccountDto.getCurrency())) {
+    private void assertBeneficiaryCurrencyMatch(FlexRuleEngineRequestDTO request, BeneficiaryDto beneficiaryDto) {
+        if (!request.getTransactionCurrency().equals(beneficiaryDto.getBeneficiaryCurrency())) {
             GenericExceptionHandler.handleError(BENE_CUR_NOT_MATCH, BENE_CUR_NOT_MATCH.getErrorMessage());
         }
     }
 
 
     private void assertEitherDebitOrCreditAmountPresent(FlexRuleEngineRequestDTO request) {
+        if (Objects.nonNull(request.getTransactionAmount()) && Objects.nonNull(request.getAccountCurrencyAmount())) {
+            GenericExceptionHandler.handleError(FLEX_RULE_ONLY_1_AMOUNT_ALLLOWED, FLEX_RULE_ONLY_1_AMOUNT_ALLLOWED.getErrorMessage());
+        }
+
         if (isNull(request.getTransactionAmount()) && isNull(request.getAccountCurrencyAmount())) {
             GenericExceptionHandler.handleError(FLEX_RULE_EITHER_DEBIT_OR_CREDIT_AMT_REQUIRED, FLEX_RULE_EITHER_DEBIT_OR_CREDIT_AMT_REQUIRED.getErrorMessage());
         }

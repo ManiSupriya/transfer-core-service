@@ -14,7 +14,6 @@ import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -34,11 +33,6 @@ public class FundTransferMWService {
     private static final String NARRATION_PREFIX = "Fund Transfer-";
     private static final String NARRATION_SUFFIX = " Banking";
     private static final String PAYMENT_DETAIL_PREFIX = "/REF/ ";
-
-
-    @Value("${app.local.transaction.code}")
-    private String transactionCode;
-
 
 
     public FundTransferResponse transfer(FundTransferRequest request) {
@@ -111,9 +105,10 @@ public class FundTransferMWService {
         debitLeg.setTransferBranch(request.getSourceBranchCode());
         debitLeg.setCurrency(request.getSourceCurrency());
         debitLeg.setNarration1(generateNarration(request.getChannel()));
+        debitLeg.setInternalAccFlag(request.getInternalAccFlag());
 
         creditLeg.setAccountNo(request.getToAccount());
-        creditLeg.setTransactionCode(transactionCode);
+        creditLeg.setTransactionCode(request.getTransactionCode());
         creditLeg.setCurrency(request.getDestinationCurrency());
         creditLeg.setAmount(request.getAmount());
         creditLeg.setChargeBearer(request.getChargeBearer());

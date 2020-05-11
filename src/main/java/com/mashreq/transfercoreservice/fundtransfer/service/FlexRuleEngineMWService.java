@@ -4,21 +4,16 @@ package com.mashreq.transfercoreservice.fundtransfer.service;
 import com.mashreq.esbcore.bindings.customer.mbcdm.FlexRuleEngineReqType;
 import com.mashreq.esbcore.bindings.customer.mbcdm.FlexRuleEngineResType;
 import com.mashreq.esbcore.bindings.customerservices.mbcdm.flexruleengine.EAIServices;
-import com.mashreq.ms.exceptions.GenericExceptionHandler;
-import com.mashreq.transfercoreservice.errors.TransferErrorCode;
-import com.mashreq.transfercoreservice.fundtransfer.dto.*;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FlexRuleEngineMWRequest;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FlexRuleEngineMWResponse;
 import com.mashreq.transfercoreservice.middleware.HeaderFactory;
 import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
 import com.mashreq.transfercoreservice.middleware.WebServiceClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.FLEX_RULE_ENGINE_FAILED;
-import static java.lang.String.valueOf;
 
 /**
  * @author shahbazkh
@@ -35,6 +30,7 @@ public class FlexRuleEngineMWService {
     private final WebServiceClient webServiceClient;
     private final HeaderFactory headerFactory;
     private final SoapServiceProperties soapServiceProperties;
+    private final FlexRuleEngineResponseHandler responseHandler;
     private static final String SUCCESS = "S";
     private static final String SUCCESS_CODE_ENDS_WITH = "-000";
 
@@ -42,25 +38,21 @@ public class FlexRuleEngineMWService {
         log.info("Flex Rule engine call initiated [ {} ]", request);
 
         EAIServices response = (EAIServices) webServiceClient.exchange(generateFlexRuleEngineRequest(request));
-        validateOMWResponse(response);
+
+        responseHandler.validateResponse(response);
 
         FlexRuleEngineResType responseDTO = response.getBody().getFlexRuleEngineRes();
+
         return FlexRuleEngineMWResponse.builder()
                 .productCode(responseDTO.getGatewayDetails().get(0).getProductCode())
                 .chargeAmount(responseDTO.getGatewayDetails().get(0).getChargeAmount())
                 .chargeCurrency(responseDTO.getGatewayDetails().get(0).getChargeCurrency())
+                .accountCurrencyAmount(new BigDecimal(responseDTO.getGatewayDetails().get(0).getAccountCurrencyAmount()))
+                .transactionAmount(new BigDecimal(responseDTO.getGatewayDetails().get(0).getTransactionAmount()))
+                .exchangeRate(new BigDecimal(responseDTO.getGatewayDetails().get(0).getExchangeRate()))
                 .build();
     }
 
-    private void validateOMWResponse(EAIServices response) {
-        log.debug("Validate response {}", response);
-        if (!(StringUtils.endsWith(response.getBody().getExceptionDetails().getErrorCode(), SUCCESS_CODE_ENDS_WITH)
-                && SUCCESS.equals(response.getHeader().getStatus()))) {
-
-            GenericExceptionHandler.handleError(FLEX_RULE_ENGINE_FAILED,
-                    response.getBody().getExceptionDetails().getErrorDescription(), response.getBody().getExceptionDetails().getErrorCode());
-        }
-    }
 
     private EAIServices generateFlexRuleEngineRequest(FlexRuleEngineMWRequest flexRequest) {
         EAIServices request = new EAIServices();

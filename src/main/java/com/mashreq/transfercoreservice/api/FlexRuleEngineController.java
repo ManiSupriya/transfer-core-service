@@ -1,7 +1,6 @@
 package com.mashreq.transfercoreservice.api;
 
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
-import com.mashreq.transfercoreservice.fundtransfer.service.FlexRuleEngineMWService;
 import com.mashreq.transfercoreservice.fundtransfer.service.FlexRuleEngineService;
 import com.mashreq.webcore.dto.response.Response;
 import io.swagger.annotations.Api;
@@ -13,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.math.BigDecimal;
 
 /**
  * @author shahbazkh
@@ -27,6 +25,7 @@ import java.math.BigDecimal;
 @Api(value = "Fund Transfer")
 @RequiredArgsConstructor
 public class FlexRuleEngineController {
+
     private final FlexRuleEngineService flexRuleEngineService;
 
     @ApiOperation(value = "Fetch Rules for flex engine", response = FlexRuleEngineResponseDTO.class)
@@ -34,7 +33,7 @@ public class FlexRuleEngineController {
             @ApiResponse(code = 200, message = "Successfully processed"),
             @ApiResponse(code = 500, message = "Something went wrong")
     })
-    @PostMapping("/product-code")
+    @PostMapping
     public Response fetchRule(@RequestAttribute("X-CHANNEL-TRACE-ID") String channelTraceId,
                               @RequestAttribute("X-CHANNEL-HOST") String channelHost,
                               @RequestAttribute("X-CHANNEL-NAME") String channelName,
@@ -51,7 +50,7 @@ public class FlexRuleEngineController {
 
     }
 
-    @ApiOperation(value = "Fetch Rules for flex engine", response = FlexRuleEngineResponseDTO.class)
+    @ApiOperation(value = "Fetch Rules for flex engine", response = ChargeResponseDTO.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully processed"),
             @ApiResponse(code = 500, message = "Something went wrong")
@@ -72,7 +71,7 @@ public class FlexRuleEngineController {
         FlexRuleEngineRequestDTO ruleEngineRequest = FlexRuleEngineRequestDTO.builder()
                 .beneficiaryId(request.getBeneficiaryId())
                 .customerAccountNo(request.getCustomerAccountNo())
-                .transactionAmount(request.getTransactionAmount())
+                .accountCurrencyAmount(request.getAccountCurrencyAmount())
                 .transactionCurrency(request.getTransactionCurrency())
                 .accountCurrency(request.getAccountCurrency())
                 .build();

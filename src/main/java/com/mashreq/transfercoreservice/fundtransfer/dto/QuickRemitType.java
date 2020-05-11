@@ -1,15 +1,11 @@
 package com.mashreq.transfercoreservice.fundtransfer.dto;
 
-import com.mashreq.ms.exceptions.GenericExceptionHandler;
-
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_COUNTRY_CODE;
 
-
-public enum  QuickRemitType {
+public enum QuickRemitType {
 
     INDIA("IN"),
     PAKISTAN("PK"),
@@ -21,10 +17,9 @@ public enum  QuickRemitType {
             .collect(Collectors.toMap(QuickRemitType::getName, serviceType -> serviceType));
 
     public static QuickRemitType getServiceByCountry(String name) {
-        if (!quickRemitTypeLookup.containsKey(name))
-            GenericExceptionHandler.handleError(INVALID_COUNTRY_CODE, INVALID_COUNTRY_CODE.getErrorMessage());
-
-        return quickRemitTypeLookup.get(name);
+        if (INDIA.getName().equals(name) || PAKISTAN.getName().equals(name))
+            return quickRemitTypeLookup.get(name);
+        return INSTAREM;
     }
 
     QuickRemitType(String name) {

@@ -51,6 +51,8 @@ esb-service:
     flexRuleEngine: ${FLEXRULEENGINE_SERVICE_CODE:QRMTGW}
     quickRemitIndia: ${QUICK_REMIT_INDIA:TRTPTIN}
     quickRemitPakistan: ${QUICK_REMIT_INDIA:TRTPTPK}
+    quickRemitInstaRem: ${QUICK_REMIT_INDIA:TINSRPMT}
+
 
 app:
   local:
@@ -58,6 +60,9 @@ app:
     transaction.code: '015'
     transfer.product.id: 'DBLC'
   uae:
+    transaction.code: '096'
+    country.iso: 'AE'
+    currency.iso: '784'
     address: 'UNITED ARAB EMIRATES'
     iban:
       length: 23
