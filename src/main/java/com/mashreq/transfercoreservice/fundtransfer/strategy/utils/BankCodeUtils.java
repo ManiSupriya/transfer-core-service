@@ -36,15 +36,15 @@ public class BankCodeUtils {
         if (StringUtils.isNotBlank(beneficiaryDto.getRoutingCode())) {
 
             //TODO Generalize this
-            if("CA".equals(beneficiaryDto.getBeneficiaryCountryISO())){
+            if ("CA".equals(beneficiaryDto.getBeneficiaryCountryISO())) {
 
                 RoutingCodeType routingCodeType = RoutingCodeType.valueOf(beneficiaryDto.getBeneficiaryCountryISO());
-                RoutingCode routingCode = new RoutingCode( "TRANSIT NUMBER", beneficiaryDto.getRoutingCode());
+                RoutingCode routingCode = new RoutingCode("TRANSIT NUMBER", StringUtils.substring(beneficiaryDto.getRoutingCode(), 0, 4));
                 RoutingCode swiftCode = new RoutingCode("SWIFT", beneficiaryDto.getSwiftCode());
                 return Arrays.asList(routingCode, swiftCode);
 
 
-            }else{
+            } else {
 
                 RoutingCodeType routingCodeType = RoutingCodeType.valueOf(beneficiaryDto.getBeneficiaryCountryISO());
                 RoutingCode routingCode = new RoutingCode(routingCodeType.getName() + " CODE", beneficiaryDto.getRoutingCode());
