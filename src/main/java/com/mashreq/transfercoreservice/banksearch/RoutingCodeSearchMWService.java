@@ -70,11 +70,11 @@ public class RoutingCodeSearchMWService {
         reqBody.setCountryCode(bankDetailRequest.getCountryCode());
         switch (bankDetailRequest.getType()) {
             case "swift":
-                reqBody.setRoutingType(bankDetailRequest.getType());
+                reqBody.setRoutingType(StringUtils.upperCase(bankDetailRequest.getType()));
                 reqBody.setRoutingCode(upperCase(bankDetailRequest.getValue()));
                 break;
             case "routing-code":
-                reqBody.setRoutingType(getRoutingCodeType(bankDetailRequest));
+                reqBody.setRoutingType(StringUtils.upperCase(getRoutingCodeType(bankDetailRequest)));
                 reqBody.setRoutingCode(StringUtils.upperCase(bankDetailRequest.getValue()));
                 break;
             default:
