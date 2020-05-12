@@ -17,7 +17,7 @@ import java.util.Optional;
  */
 public class CustomerDetailsUtils {
 
-    private static final String COMMA = ",";
+    private static final String DELIMTER = " ";
     private static final List<String> ADDRESS_TYPES = Arrays.asList("P", "R", "O");
     private static final List<String> PHONE_NUMBER_TYPES = Arrays.asList("P", "O");
 
@@ -27,8 +27,8 @@ public class CustomerDetailsUtils {
      * @return
      */
     public static String generateBeneficiaryAddress(BeneficiaryDto beneficiaryDto) {
-        return StringUtils.defaultIfBlank(beneficiaryDto.getAddressLine1(), "") + COMMA +
-                StringUtils.defaultIfBlank(beneficiaryDto.getAddressLine2(), "") + COMMA +
+        return StringUtils.defaultIfBlank(beneficiaryDto.getAddressLine1(), "") + DELIMTER +
+                StringUtils.defaultIfBlank(beneficiaryDto.getAddressLine2(), "") + DELIMTER +
                 StringUtils.defaultIfBlank(beneficiaryDto.getAddressLine3(), "");
     }
 
@@ -59,11 +59,11 @@ public class CustomerDetailsUtils {
     }
 
     private static String generateSenderAddress(AddressTypeDto addressTypeDto) {
-        return StringUtils.defaultIfBlank(addressTypeDto.getAddress1(), "") + COMMA +
-                StringUtils.defaultIfBlank(addressTypeDto.getAddress2(), "") + COMMA +
-                StringUtils.defaultIfBlank(addressTypeDto.getAddress3(), "") + COMMA +
-                StringUtils.defaultIfBlank(addressTypeDto.getAddress4(), "") + COMMA +
-                StringUtils.defaultIfBlank(addressTypeDto.getAddress5(), "") + COMMA;
+        return StringUtils.defaultIfBlank(addressTypeDto.getAddress1(), "") + DELIMTER +
+                StringUtils.defaultIfBlank(addressTypeDto.getAddress2(), "") + DELIMTER +
+                StringUtils.defaultIfBlank(addressTypeDto.getAddress3(), "") + DELIMTER +
+                StringUtils.defaultIfBlank(addressTypeDto.getAddress4(), "") + DELIMTER +
+                StringUtils.defaultIfBlank(addressTypeDto.getAddress5(), "") + DELIMTER;
     }
 
 
