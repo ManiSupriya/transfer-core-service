@@ -80,9 +80,9 @@ public class RoutingCodeSearchMWService {
             default:
                 break;
         }
-        reqBody.setBankName(null);
-        reqBody.setBankCity(null);
-        reqBody.setBankBranch(null);
+        reqBody.setBankName("");
+        reqBody.setBankCity("");
+        reqBody.setBankBranch("");
         request.getBody().setFetchAccuityDataReq(reqBody);
         return request;
     }
