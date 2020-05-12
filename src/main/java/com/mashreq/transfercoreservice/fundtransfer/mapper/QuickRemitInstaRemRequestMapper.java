@@ -14,7 +14,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 
 import static com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferContext.Constants.*;
 
@@ -87,7 +86,7 @@ public class QuickRemitInstaRemRequestMapper implements QuickRemitMapper {
                 .senderCity("DUBAI")
                 .senderState("DUBAI")
                 .senderPostalCode("UAE")
-                .senderBeneficiaryRelationship(beneficiaryDto.getBeneficiaryRelationship())
+                .senderBeneficiaryRelationship(beneficiaryDto.getRelationship())
                 //TODO When will these values be used and where to pick it from
                 .senderDOB("1980-01-01")
                 .beneficiaryIDNo(null)

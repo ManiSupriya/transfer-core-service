@@ -75,7 +75,7 @@ public class BeneficiaryDto {
     private String beneficiaryState;
     private String beneficiaryPostalCode;
     private String bankAccountType;
-    private String beneficiaryRelationship;
+    private String relationship;
 
 
 }
