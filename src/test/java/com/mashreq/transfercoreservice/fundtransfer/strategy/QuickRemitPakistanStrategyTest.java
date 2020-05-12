@@ -28,7 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.mashreq.transfercoreservice.fundtransfer.strategy.utils.CustomerDetailsUtils.generateBeneficiaryAddress;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -210,12 +210,11 @@ public class QuickRemitPakistanStrategyTest {
                 .thenReturn(currencyConversionDto);
         when(limitValidator.validate(eq(userDTO), eq("quick-remit"), eq(limitUsageAmount)))
                 .thenReturn(LimitValidatorResultsDto.builder().limitVersionUuid(limitVersionUuid).build());
-
-
-        when(quickRemitPakistanRequestMapper.map(eq(channelTraceId),eq(requestDTO), eq(sourceAccountDetailsDTO), eq(beneficiaryDto), eq(currencyConversionDto.getAccountCurrencyAmount()),
+        when(quickRemitPakistanRequestMapper.map(eq(channelTraceId),eq(requestDTO), eq(sourceAccountDetailsDTO),
+                eq(beneficiaryDto), eq(currencyConversionDto.getAccountCurrencyAmount()),
                 eq(currencyConversionDto.getExchangeRate()), eq(validationContext), eq(customerDetails))).thenReturn(quickRemitFundTransferRequest);
-
         when(quickRemitFundTransferMWService.transfer(quickRemitFundTransferRequest)).thenReturn(response);
+
 
         quickRemitPakistanStrategy.execute(requestDTO, metadata, userDTO);
 
