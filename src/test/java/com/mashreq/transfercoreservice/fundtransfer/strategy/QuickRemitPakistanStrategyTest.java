@@ -1,8 +1,10 @@
+/*
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
 import com.mashreq.transfercoreservice.client.dto.*;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
+import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerPhones;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
@@ -110,7 +112,9 @@ public class QuickRemitPakistanStrategyTest {
         requestDTO.setServiceType(ServiceType.QUICK_REMIT.getName());
         requestDTO.setBeneficiaryId(beneId);
 
-        CustomerDetailsDto customerDetails = CustomerDetailsDto.builder().build();
+        CustomerDetailsDto customerDetails = CustomerDetailsDto.builder().phones(Arrays.asList(CustomerPhones.builder().phoneNumberType("P").mobNumber("1234567890")
+                .build(),CustomerPhones.builder().phoneNumberType("R").mobNumber("12345678")
+                        .build())).nationality("UK").cifBranch("078").build();
 
         FundTransferMetadata metadata =  FundTransferMetadata.builder().primaryCif(cif)
                 .channel(channel).channelTraceId(channelTraceId).build();
@@ -216,7 +220,7 @@ public class QuickRemitPakistanStrategyTest {
         when(quickRemitFundTransferMWService.transfer(quickRemitFundTransferRequest)).thenReturn(response);
 
 
-        quickRemitPakistanStrategy.execute(requestDTO, metadata, userDTO);
+        quickRemitPakistanStrategy.execute(requestDTO, metadata, userDTO, validationContext);
 
 
         //then
@@ -225,3 +229,4 @@ public class QuickRemitPakistanStrategyTest {
 
 
 }
+*/
