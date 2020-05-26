@@ -4,6 +4,7 @@ import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.BankCodeExtractor;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.BankCodeUtils;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.CustomerDetailsUtils;
 import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
@@ -28,6 +29,7 @@ import static com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferConte
 public class QuickRemitInstaRemRequestMapper implements QuickRemitMapper {
 
     private final SoapServiceProperties soapServiceProperties;
+    private final BankCodeExtractor bankCodeExtractor;
 
 
     @Override
@@ -92,7 +94,7 @@ public class QuickRemitInstaRemRequestMapper implements QuickRemitMapper {
                 .beneficiaryIDNo(null)
                 //TODO Check if destination country mapping is correct
                 .destCountry(beneficiaryDto.getBeneficiaryCountryISO())
-                .routingCode(BankCodeUtils.extractBankCodes(beneficiaryDto))
+                .routingCode(bankCodeExtractor.getRoutingCodes(beneficiaryDto))
                 .build();
 
 

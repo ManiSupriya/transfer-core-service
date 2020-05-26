@@ -47,11 +47,8 @@ public class QuickRemitInstaRemStrategy implements QuickRemitFundTransfer {
     private final PaymentPurposeValidator paymentPurposeValidator;
     private final BeneficiaryValidator beneficiaryValidator;
     private final BalanceValidator balanceValidator;
-    private final FundTransferMWService fundTransferMWService;
     private final MaintenanceService maintenanceService;
     private final MobCommonService mobCommonService;
-
-    private final BeneficiaryService beneficiaryService;
     private final LimitValidator limitValidator;
     private final FlexRuleEngineService flexRuleEngineService;
 
@@ -109,12 +106,12 @@ public class QuickRemitInstaRemStrategy implements QuickRemitFundTransfer {
         fundTransferContext.add(Constants.CUSTOMER_DETAIL_FUND_CONTEXT_KEY, customerDetails);
         fundTransferContext.add(Constants.EXCHANGE_RATE_FUND_CONTEXT_KEY, flexRuleEngineResponse.getExchangeRate());
         fundTransferContext.add(Constants.TRANSFER_AMOUNT_IN_SRC_CURRENCY_FUND_CONTEXT_KEY, flexRuleEngineResponse.getAccountCurrencyAmount());
-        fundTransferContext.add(Constants.FLEX_PRODUCT_CODE_CONTEXT_KEY,flexRuleEngineResponse.getProductCode());
+        fundTransferContext.add(Constants.FLEX_PRODUCT_CODE_CONTEXT_KEY, flexRuleEngineResponse.getProductCode());
 
 
         final QuickRemitFundTransferRequest quickRemitFundTransferRequest = mapper.mapTo(metadata, request, fundTransferContext);
 
-        log.info("Quick Remit India Middleware InstaRem started");
+        log.info("Quick Remit InstaRem Middleware started");
         final FundTransferResponse fundTransferResponse = quickRemitFundTransferMWService.transfer(quickRemitFundTransferRequest);
 
         return fundTransferResponse.toBuilder()

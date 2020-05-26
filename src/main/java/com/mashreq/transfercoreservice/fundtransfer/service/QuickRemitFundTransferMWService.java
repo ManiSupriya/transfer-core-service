@@ -119,10 +119,6 @@ public class QuickRemitFundTransferMWService {
         remittancePaymentReq.setBState(request.getBeneficiaryState());
         remittancePaymentReq.setSenderDOB(request.getSenderDOB());
 
-
-        //TRANSIT NUMBER for canada
-
-
         services.getBody().setRemittancePaymentReq(remittancePaymentReq);
 
         log.info("EAI Service request for quick remit fund transfer prepared {}", services);

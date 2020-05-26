@@ -73,7 +73,8 @@ public enum TransferErrorCode implements ErrorCode {
 
 
     QUICK_REM_ROUTING_CODE_NOT_AVAILABLE("TN-7000", "Routing not available for the Beneficiary"),
-
+    QUICK_REM_SWIFT_CODE_NOT_FOUND("TN-7001", "Swift Code not found for beneficiary"),
+    QUICK_REM_COUNTRY_CODE_NOT_FOUND("TN-7002", "Country Code not found for beneficiary"),
 
     BENE_EXTERNAL_SERVICE_ERROR("TN-5010", "Something went wrong with beneficiary external service"),
     ACC_EXTERNAL_SERVICE_ERROR("TN-5011", "Something went wrong with account external service"),
