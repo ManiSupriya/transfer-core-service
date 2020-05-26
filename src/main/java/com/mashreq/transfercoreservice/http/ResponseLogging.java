@@ -16,7 +16,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
  * @date 5/20/20
  */
 
-@ControllerAdvice
+//@ControllerAdvice
 public class ResponseLogging implements ResponseBodyAdvice<Object> {
 
     @Autowired

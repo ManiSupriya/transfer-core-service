@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
  * @date 3/9/20
  */
 @Getter
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum TransferErrorCode implements ErrorCode {
 
     INVALID_PAYMENT_OPTIONS("TN-1000", "Invalid Payment Option Mode"),

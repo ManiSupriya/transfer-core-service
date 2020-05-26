@@ -45,14 +45,10 @@ public class LogRequestFilter extends OncePerRequestFilter implements Ordered {
 
 
         ContentCachingRequestWrapper wrappedRequest = new ContentCachingRequestWrapper(request);
-
-
+        filterChain.doFilter(wrappedRequest, response);
         Map<String, Object> trace = getTrace(wrappedRequest);
         getBody(wrappedRequest, trace);
         logTrace(wrappedRequest, trace);
-        filterChain.doFilter(wrappedRequest, response);
-
-
     }
 
     private void getBody(ContentCachingRequestWrapper request, Map<String, Object> trace) {

@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-@Component
+//@Component
 public class LogHttpCalls {
 
     public void logRequest(HttpServletRequest httpServletRequest, Object body) {

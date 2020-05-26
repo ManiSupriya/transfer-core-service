@@ -15,7 +15,7 @@ import java.lang.reflect.Type;
  * @date 5/20/20
  */
 
-@ControllerAdvice
+//@ControllerAdvice
 public class RequestLogging extends RequestBodyAdviceAdapter {
 
 
