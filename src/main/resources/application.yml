@@ -83,7 +83,7 @@ instarem:
     bankCodeType:
       CA:
         code: TRANSIT NUMBER
-        substr-index-before-assigning-to-routing-code: 5
+        substr-index-before-assigning-to-routing-code: 4
       IN:
         code: IFSC CODE
       GB:
