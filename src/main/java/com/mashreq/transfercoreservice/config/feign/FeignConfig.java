@@ -3,6 +3,7 @@ package com.mashreq.transfercoreservice.config.feign;
 import feign.codec.ErrorDecoder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * @author shahbazkh
@@ -22,10 +23,11 @@ public class FeignConfig {
         return new FeignCustomErrorDecoder();
     }
 
-//    @Bean
-//    public Decoder decoder() {
-//        return new FeignDecoder();
-//    }
+    @Bean
+    public RestTemplate restTemplate(){
+        return new RestTemplate();
+    }
+
 
 
 }
