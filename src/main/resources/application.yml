@@ -92,3 +92,11 @@ instarem:
         code: BRANCH CODE
       AU:
         code: BSB CODE
+
+mob:
+  http:
+    detailed:
+      logs:
+        enabled: ${HTTP_DETAILS_LOGS:true}
+        request: ${HTTP_DETAILS_LOG_REQUEST:true}
+        response: ${HTTP_DETAILS_LOG_RESPONSE:true}

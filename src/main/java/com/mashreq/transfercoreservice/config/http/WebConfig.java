@@ -1,4 +1,4 @@
-package com.mashreq.transfercoreservice.http;
+package com.mashreq.transfercoreservice.config.http;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

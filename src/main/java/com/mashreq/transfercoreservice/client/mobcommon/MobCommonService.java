@@ -9,6 +9,7 @@ import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResult
 import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.webcore.dto.response.Response;
+import com.mashreq.webcore.dto.response.ResponseStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -17,11 +18,13 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.Set;
 
 import static com.mashreq.transfercoreservice.client.ErrorUtils.getErrorDetails;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.EXTERNAL_SERVICE_ERROR;
 import static java.time.Instant.now;
+import static java.util.Objects.isNull;
 
 @Slf4j
 @Service
@@ -37,17 +40,17 @@ public class MobCommonService {
                         "and amount ={}",
                 cifId, beneficiaryTypeCode, amount);
 
-        Response<LimitValidatorResultsDto> limitValidatorResultsDtoResponse =
+        Response<LimitValidatorResultsDto> response =
                 mobCommonClient.validateAvailableLimit(cifId, beneficiaryTypeCode, amount);
 
-        if (TRUE.equalsIgnoreCase(limitValidatorResultsDtoResponse.getHasError())) {
-            final String errorDetails = getErrorDetails(limitValidatorResultsDtoResponse);
+        if (ResponseStatus.ERROR == response.getStatus() || isNull(response.getData())) {
+            final String errorDetails = getErrorDetails(response);
             log.error("[MobCommonService] Exception in calling mob customer for limit validation ={} ", errorDetails);
             GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR,
-                    EXTERNAL_SERVICE_ERROR.getErrorMessage(), errorDetails);
+                    EXTERNAL_SERVICE_ERROR.getErrorMessage(), getErrorDetails(response));
         }
         log.info("[MobCommonService] Limit validation response success in  {} ms ", Duration.between(startTime, now()).toMillis());
-        return limitValidatorResultsDtoResponse.getData();
+        return response.getData();
     }
 
     public Set<MoneyTransferPurposeDto> getPaymentPurposes( String transactionType, String qrType, String accountType) {
@@ -56,11 +59,11 @@ public class MobCommonService {
         Instant startTime = now();
         final Response<Set<MoneyTransferPurposeDto>> paymentPurpose = mobCommonClient.getPaymentPurpose( transactionType, qrType, accountType);
 
-        if (TRUE.equalsIgnoreCase(paymentPurpose.getHasError())) {
+        if (ResponseStatus.ERROR == paymentPurpose.getStatus() || isNull(paymentPurpose.getData())) {
             final String errorDetails = getErrorDetails(paymentPurpose);
             log.error("[MobCommonService] Exception in calling mob customer for POP ={} ", errorDetails);
             GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR,
-                    EXTERNAL_SERVICE_ERROR.getErrorMessage(), errorDetails);
+                    EXTERNAL_SERVICE_ERROR.getErrorMessage(), getErrorDetails(paymentPurpose));
         }
         log.info("[MobCommonService] Payment purpose response success in  {} ms ", Duration.between(startTime, now()).toMillis());
         return paymentPurpose.getData();
@@ -70,11 +73,11 @@ public class MobCommonService {
         log.info("[MobCommonService] Calling currency conversion service with data {} ", currencyRequest);
         Instant startTime = now();
         Response<CurrencyConversionDto> conversionResponse = mobCommonClient.convertBetweenCurrencies(currencyRequest);
-        if (TRUE.equalsIgnoreCase(conversionResponse.getHasError())) {
+        if (ResponseStatus.ERROR == conversionResponse.getStatus() || isNull(conversionResponse.getData())) {
             final String errorDetails = getErrorDetails(conversionResponse);
             log.error("[MobCommonService] Exception in calling mob customer for POP ={} ", errorDetails);
             GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR,
-                    EXTERNAL_SERVICE_ERROR.getErrorMessage(), errorDetails);
+                    EXTERNAL_SERVICE_ERROR.getErrorMessage(), getErrorDetails(conversionResponse));
         }
         log.info("[MobCommonService] Currency Conversion success in  {} ms ", Duration.between(startTime, now()).toMillis());
         return conversionResponse.getData();
@@ -84,9 +87,9 @@ public class MobCommonService {
         log.info("[MobCommonService] calling customer service client for getting customer details");
 
         Response<com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto> response = mobCommonClient.getCustomerDetails(cif);
-        if (TRUE.equalsIgnoreCase(response.getHasError()) || StringUtils.isNotBlank(response.getErrorCode())) {
-            log.error("Error while calling mob common for customer detail {} {} ", response.getErrorCode(), response.getErrorMessage());
-            GenericExceptionHandler.handleError(TransferErrorCode.EXTERNAL_SERVICE_ERROR, TransferErrorCode.EXTERNAL_SERVICE_ERROR.getErrorMessage(), ErrorUtils.getErrorDetails(response));
+        if (ResponseStatus.ERROR == response.getStatus() || isNull(response.getData())) {
+            log.error("Error while calling mob common for customer detail {} {} ", response.getErrorCode(), response.getMessage());
+            GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR, EXTERNAL_SERVICE_ERROR.getErrorMessage(), getErrorDetails(response));
         }
         return mobCommonClient.getCustomerDetails(cif).getData();
 
