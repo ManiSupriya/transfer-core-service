@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.config.http;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -21,13 +22,18 @@ public class ChannelTracerGenerator {
     private static final String traceTemplate = "{CHANNEL}{REGION}{CIF}{DATE-TIME-FORMAT}";
 
     public String channelTraceId(final String channelName, final String cifId, final String country) {
+        final String channelCode = getChannelCode(channelName);
+        return StringUtils.equalsIgnoreCase("U", channelCode)
+                ? "internal-api-call"
+                : getChannelTraceId(channelName, cifId, country);
+    }
 
-        //TODO Month Map to be confirmed with Bala
-        String monthValue = monthMap.get(LocalDateTime.now().getMonthValue());
-        String dateTime = DateTimeFormatter.ofPattern("ddHHmms").format(LocalDateTime.now());
+    public String getChannelTraceId(String channelName, String cifId, String country) {
+        final String monthValue = monthMap.get(LocalDateTime.now().getMonthValue());
+        final String dateTime = DateTimeFormatter.ofPattern("ddHHmms").format(LocalDateTime.now());
         return traceTemplate
-                .replace("{CHANNEL}", "")
-                .replace("{REGION}", "")
+                .replace("{CHANNEL}", getChannelCode(channelName))
+                .replace("{REGION}", country)
                 .replace("{CIF}", cifId.substring(2))
                 .replace("{DATE-TIME-FORMAT}", monthValue + dateTime);
     }
@@ -48,7 +54,7 @@ public class ChannelTracerGenerator {
         put(12, "L");
     }};
 
-    private String getChannel(String channelName) {
+    private String getChannelCode(String channelName) {
         if (CHANNEL_HEADER_MOBILE.equalsIgnoreCase(channelName)) {
             return "M";
         } else if (CHANNEL_HEADER_WEB.equalsIgnoreCase(channelName)) {
@@ -59,3 +65,4 @@ public class ChannelTracerGenerator {
     }
 
 }
+
