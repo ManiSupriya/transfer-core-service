@@ -4,6 +4,7 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferService;
 import com.mashreq.webcore.dto.response.Response;
+import com.mashreq.webcore.dto.response.ResponseStatus;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -44,6 +45,8 @@ public class FundTransferController {
                 .build();
 
         log.info("Fund transfer meta data created {} ", metadata);
-        return Response.builder().data(fundTransferService.transferFund(metadata, request)).build();
+        return Response.builder()
+                .status(ResponseStatus.SUCCESS)
+                .data(fundTransferService.transferFund(metadata, request)).build();
     }
 }

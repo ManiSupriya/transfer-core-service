@@ -3,6 +3,7 @@ package com.mashreq.transfercoreservice.api;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.service.FlexRuleEngineService;
 import com.mashreq.webcore.dto.response.Response;
+import com.mashreq.webcore.dto.response.ResponseStatus;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -46,7 +47,9 @@ public class FlexRuleEngineController {
                 .cifId(cifId)
                 .build();
 
-        return Response.builder().data(flexRuleEngineService.getRules(metadata, request)).build();
+        return Response.builder()
+                .status(ResponseStatus.SUCCESS)
+                .data(flexRuleEngineService.getRules(metadata, request)).build();
 
     }
 
@@ -76,7 +79,9 @@ public class FlexRuleEngineController {
                 .accountCurrency(request.getAccountCurrency())
                 .build();
 
-        return Response.builder().data(flexRuleEngineService.getCharges(metadata, ruleEngineRequest)).build();
+        return Response.builder()
+                .status(ResponseStatus.SUCCESS)
+                .data(flexRuleEngineService.getCharges(metadata, ruleEngineRequest)).build();
 
     }
 }

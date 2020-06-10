@@ -3,6 +3,7 @@ package com.mashreq.transfercoreservice.api;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.paymenthistory.PaymentHistoryService;
 import com.mashreq.webcore.dto.response.Response;
+import com.mashreq.webcore.dto.response.ResponseStatus;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -35,6 +36,7 @@ public class PaymentHistoryController {
                                   @NotNull @PathVariable("serviceType") final  String serviceType) {
 
         return Response.builder()
+                .status(ResponseStatus.SUCCESS)
                 .data(paymentHistoryService.getCharityPaid(cifId, serviceType))
                 .build();
     }
