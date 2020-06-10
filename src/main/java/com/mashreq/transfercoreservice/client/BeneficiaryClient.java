@@ -20,7 +20,7 @@ import javax.validation.constraints.NotNull;
 public interface BeneficiaryClient {
 
     @GetMapping("/v1/beneficiary/{id}")
-    Response<BeneficiaryDto> getById(@RequestHeader("X-CIF-ID") String cifId, @NotNull @PathVariable Long id);
+    Response<BeneficiaryDto> getById(@RequestHeader("HeaderNames.CIF_HEADER_NAME") String cifId, @NotNull @PathVariable Long id);
 
     @GetMapping("/v1/charity-beneficiary/{id}")
     Response<CharityBeneficiaryDto> getCharity(@NotNull @PathVariable String id);

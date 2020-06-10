@@ -38,7 +38,7 @@ public class FlexRuleEngineController {
     public Response fetchRule(@RequestAttribute("X-CHANNEL-TRACE-ID") String channelTraceId,
                               @RequestAttribute("X-CHANNEL-HOST") String channelHost,
                               @RequestAttribute("X-CHANNEL-NAME") String channelName,
-                              @RequestHeader("X-CIF-ID") final String cifId,
+                              @RequestHeader("HeaderNames.CIF_HEADER_NAME") final String cifId,
                               @Valid @RequestBody FlexRuleEngineRequestDTO request) {
         log.info("{} Flex Rule engine transfer for request received ", request);
 
@@ -62,7 +62,7 @@ public class FlexRuleEngineController {
     public Response fetchCharges(@RequestAttribute("X-CHANNEL-TRACE-ID") String channelTraceId,
                                  @RequestAttribute("X-CHANNEL-HOST") String channelHost,
                                  @RequestAttribute("X-CHANNEL-NAME") String channelName,
-                                 @RequestHeader("X-CIF-ID") final String cifId,
+                                 @RequestHeader("HeaderNames.CIF_HEADER_NAME") final String cifId,
                                  @Valid @RequestBody ChargesRequestDTO request) {
         log.info("{} Flex Rule Charge request received ", request);
 

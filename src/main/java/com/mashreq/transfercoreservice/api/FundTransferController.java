@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.api;
 
+import com.mashreq.transfercoreservice.common.HeaderNames;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferService;
@@ -34,7 +35,7 @@ public class FundTransferController {
     public Response transferFunds(@RequestAttribute("X-CHANNEL-TRACE-ID") String channelTraceId,
                                   @RequestAttribute("X-CHANNEL-HOST") String channelHost,
                                   @RequestAttribute("X-CHANNEL-NAME") String channelName,
-                                  @RequestHeader("X-CIF-ID") final String cifId,
+                                  @RequestHeader(HeaderNames.CIF_HEADER_NAME) final String cifId,
                                   @Valid @RequestBody FundTransferRequestDTO request) {
         log.info("{} Fund transfer for request received ", request.getServiceType());
         FundTransferMetadata metadata = FundTransferMetadata.builder()

@@ -32,7 +32,7 @@ public class PaymentHistoryController {
     public Response transferFunds(@RequestAttribute("X-CHANNEL-TRACE-ID") String channelTraceId,
                                   @RequestAttribute("X-CHANNEL-HOST") String channelHost,
                                   @RequestAttribute("X-CHANNEL-NAME") String channelName,
-                                  @RequestHeader("X-CIF-ID") final String cifId,
+                                  @RequestHeader("HeaderNames.CIF_HEADER_NAME") final String cifId,
                                   @NotNull @PathVariable("serviceType") final  String serviceType) {
 
         return Response.builder()

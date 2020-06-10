@@ -18,7 +18,7 @@ import java.util.Set;
 public interface MobCommonClient {
 
     @GetMapping("/v1/limit/available/{beneficiaryTypeCode}")
-    Response<LimitValidatorResultsDto> validateAvailableLimit(@RequestHeader("X-CIF-ID") String cifId,
+    Response<LimitValidatorResultsDto> validateAvailableLimit(@RequestHeader("HeaderNames.CIF_HEADER_NAME") String cifId,
                                                               @NotNull @PathVariable String beneficiaryTypeCode,
                                                               @RequestParam(value = "amount", required = false) BigDecimal amount);
 
@@ -34,7 +34,7 @@ public interface MobCommonClient {
 
 
     @GetMapping("/v1/customer")
-    Response<CustomerDetailsDto> getCustomerDetails(@RequestHeader("X-CIF-ID") String cifId);
+    Response<CustomerDetailsDto> getCustomerDetails(@RequestHeader("HeaderNames.CIF_HEADER_NAME") String cifId);
 
 
 }
