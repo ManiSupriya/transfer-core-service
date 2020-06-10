@@ -34,7 +34,7 @@ public class FundTransferController {
     @PostMapping
     public Response transferFunds(@RequestAttribute("X-CHANNEL-TRACE-ID") String channelTraceId,
                                   @RequestAttribute("X-CHANNEL-HOST") String channelHost,
-                                  @RequestAttribute("X-CHANNEL-NAME") String channelName,
+                                  @RequestHeader(HeaderNames.CHANNEL_TYPE_HEADER_NAME) String channelName,
                                   @RequestHeader(HeaderNames.CIF_HEADER_NAME) final String cifId,
                                   @Valid @RequestBody FundTransferRequestDTO request) {
         log.info("{} Fund transfer for request received ", request.getServiceType());

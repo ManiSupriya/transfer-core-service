@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.api;
 
+import com.mashreq.transfercoreservice.common.HeaderNames;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.service.FlexRuleEngineService;
 import com.mashreq.webcore.dto.response.Response;
@@ -35,10 +36,8 @@ public class FlexRuleEngineController {
             @ApiResponse(code = 500, message = "Something went wrong")
     })
     @PostMapping
-    public Response fetchRule(@RequestAttribute("X-CHANNEL-TRACE-ID") String channelTraceId,
-                              @RequestAttribute("X-CHANNEL-HOST") String channelHost,
-                              @RequestAttribute("X-CHANNEL-NAME") String channelName,
-                              @RequestHeader("HeaderNames.CIF_HEADER_NAME") final String cifId,
+    public Response fetchRule(@RequestAttribute(HeaderNames.X_CHANNEL_TRACE_ID) String channelTraceId,
+                              @RequestHeader(HeaderNames.CIF_HEADER_NAME) final String cifId,
                               @Valid @RequestBody FlexRuleEngineRequestDTO request) {
         log.info("{} Flex Rule engine transfer for request received ", request);
 
