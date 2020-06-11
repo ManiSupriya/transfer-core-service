@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.config.http;
 
+import com.mashreq.transfercoreservice.common.HeaderNames;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
@@ -36,6 +37,7 @@ public class ChannelTraceInterceptor implements HandlerInterceptor {
                 request.getHeader(COUNTRY_HEADER_NAME));
 
         request.setAttribute(X_CHANNEL_TRACE_ID, xChannelTraceId);
+        request.setAttribute("X-CHANNEL-HOST", request.getRemoteHost());
 
         MDC.put(X_CHANNEL_TRACE_ID, xChannelTraceId);
         response.setHeader(X_CHANNEL_TRACE_ID, String.valueOf(request.getAttribute(X_CHANNEL_TRACE_ID)));
