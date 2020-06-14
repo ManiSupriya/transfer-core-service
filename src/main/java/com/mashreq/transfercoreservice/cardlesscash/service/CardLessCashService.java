@@ -1,5 +1,7 @@
 package com.mashreq.transfercoreservice.cardlesscash.service;
 
+import java.util.List;
+
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashBlockRequest;
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashGenerationRequest;
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashQueryRequest;
@@ -15,5 +17,5 @@ public interface CardLessCashService {
 
     Response<CardLessCashBlockResponse> blockCardLessCashRequest(CardLessCashBlockRequest blockRequest);
     Response<CardLessCashGenerationResponse> cardLessCashRemitGenerationRequest(CardLessCashGenerationRequest cardLessCashGenerationRequest);
-    Response<CardLessCashQueryResponse> cardLessCashRemitQuery(CardLessCashQueryRequest cardLessCashQueryRequest);
+    Response<List<CardLessCashQueryResponse>> cardLessCashRemitQuery(CardLessCashQueryRequest cardLessCashQueryRequest);
 }

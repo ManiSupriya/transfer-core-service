@@ -1,7 +1,10 @@
 package com.mashreq.transfercoreservice.cardlesscash.service.impl;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
+import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashQueryResponse;
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashBlockRequest;
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashGenerationRequest;
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashQueryRequest;
@@ -32,7 +35,7 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 		return accountService.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest);
 }
 	@Override
-	public Response cardLessCashRemitQuery(CardLessCashQueryRequest cardLessCashQueryRequest) {
+	public Response<List<CardLessCashQueryResponse>> cardLessCashRemitQuery(CardLessCashQueryRequest cardLessCashQueryRequest) {
 		return accountService.cardLessCashRemitQuery(cardLessCashQueryRequest.getAccountNumber(), cardLessCashQueryRequest.getRemitNumDays());
 }
 
