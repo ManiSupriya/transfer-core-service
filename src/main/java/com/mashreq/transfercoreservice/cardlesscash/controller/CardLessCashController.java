@@ -1,6 +1,7 @@
 package com.mashreq.transfercoreservice.cardlesscash.controller;
 
 import java.math.BigInteger;
+import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -71,7 +72,7 @@ public class CardLessCashController {
             @ApiResponse(code = 401, message = "You are not authorized to view the resource")
     })
     @GetMapping(CardLessCashConstants.URL.CLC_QUERY_URL)
-    public Response<CardLessCashQueryResponse> cardLessCashRemitQuery(@PathVariable final String accountNumber, @RequestParam final BigInteger remitNumDays) {
+    public Response<List<CardLessCashQueryResponse>> cardLessCashRemitQuery(@PathVariable final String accountNumber, @RequestParam final BigInteger remitNumDays) {
     	CardLessCashQueryRequest cardLessCashQueryRequest = new CardLessCashQueryRequest();
     	cardLessCashQueryRequest.setAccountNumber(accountNumber);
     	cardLessCashQueryRequest.setRemitNumDays(remitNumDays);
