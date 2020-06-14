@@ -1,6 +1,11 @@
 package com.mashreq.transfercoreservice.client.service;
 
+import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashBlockRequest;
+import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashGenerationRequest;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
+import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashBlockResponse;
+import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashGenerationResponse;
+import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashQueryResponse;
 import com.mashreq.transfercoreservice.client.AccountClient;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.CifProductsDto;
@@ -13,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -120,5 +126,56 @@ public class AccountService {
 
     private static BigDecimal convertStringToBigDecimal(String bigDecimalValue) {
         return isBlank(bigDecimalValue) ? BigDecimal.ZERO : new BigDecimal(bigDecimalValue);
+    }
+    
+    public Response<List<CardLessCashQueryResponse>> cardLessCashRemitQuery(final String accountNumber, final BigInteger remitNumDays) {
+        log.info("Fetching results for accountNumber {} ", accountNumber);
+        try {
+            Response<List<CardLessCashQueryResponse>> cardLessCashQueryResponse = accountClient.cardLessCashRemitQuery(accountNumber, remitNumDays);
+
+            if (isNotBlank(cardLessCashQueryResponse.getErrorCode())) {
+                log.warn("Not able to fetch results, returning empty list instead");
+            }
+
+            return cardLessCashQueryResponse;
+
+        } catch (Exception e) {
+            log.error("Error occurred while calling query client {} ", e);
+        }
+		return null;
+    }
+    
+    public Response<CardLessCashBlockResponse> blockCardLessCashRequest(CardLessCashBlockRequest blockRequest) {
+        log.info("blockRequest {} ", blockRequest);
+        try {
+            Response<CardLessCashBlockResponse> cardLessCashQueryResponse = accountClient.blockCardLessCashRequest(blockRequest);
+
+            if (isNotBlank(cardLessCashQueryResponse.getErrorCode())) {
+                log.warn("Not able to fetch results, returning empty list instead");
+            }
+
+            return cardLessCashQueryResponse;
+
+        } catch (Exception e) {
+            log.error("Error occurred while calling query client {} ", e);
+        }
+		return null;
+    }
+    
+    public Response<CardLessCashGenerationResponse> cardLessCashRemitGenerationRequest(CardLessCashGenerationRequest cardLessCashGenerationRequest) {
+        log.info("cardLessCashGenerationRequest {} ", cardLessCashGenerationRequest);
+        try {
+        	Response<CardLessCashGenerationResponse> cardLessCashGenerationResponse = accountClient.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest);
+
+            if (isNotBlank(cardLessCashGenerationResponse.getErrorCode())) {
+                log.warn("Not able to fetch results, returning empty list instead");
+            }
+
+            return cardLessCashGenerationResponse;
+
+        } catch (Exception e) {
+            log.error("Error occurred while calling query client {} ", e);
+        }
+		return null;
     }
 }
