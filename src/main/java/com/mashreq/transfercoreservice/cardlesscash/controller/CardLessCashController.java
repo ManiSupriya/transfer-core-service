@@ -6,7 +6,9 @@ import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.mashreq.transfercoreservice.cardlesscash.constants.CardLessCashConstants;
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashBlockRequest;
@@ -18,10 +20,15 @@ import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashQue
 import com.mashreq.transfercoreservice.cardlesscash.service.CardLessCashService;
 import com.mashreq.webcore.dto.response.Response;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-
+import lombok.AllArgsConstructor;
+@RequestMapping(CardLessCashConstants.URL.CARD_LESS_CASH_BASE_URL)
+@RestController
+@AllArgsConstructor
+@Api(tags = {"Account MicroService"})
 public class CardLessCashController {
 
     private CardLessCashService cardLessCashService;
