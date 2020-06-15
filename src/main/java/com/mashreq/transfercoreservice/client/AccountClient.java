@@ -36,12 +36,12 @@ public interface AccountClient {
     @RequestMapping(method = RequestMethod.GET, value = "/api/accounts/{accountNumber}")
     Response<CoreAccountDetailsDTO> getAccountDetails(@PathVariable("accountNumber") String accountNumber);
     
-    @GetMapping(CardLessCashConstants.URL.CLC_QUERY_URL)
+    @GetMapping(value = CardLessCashConstants.URL.CLC_QUERY_URL)
     public Response<List<CardLessCashQueryResponse>> cardLessCashRemitQuery(@PathVariable final String accountNumber, @RequestParam final BigInteger remitNumDays);
     
-    @PostMapping(CardLessCashConstants.URL.CLC_BLOCK_URL)
+    @PostMapping(value = CardLessCashConstants.URL.CLC_BLOCK_URL)
     public Response<CardLessCashBlockResponse> blockCardLessCashRequest(CardLessCashBlockRequest blockRequest);
     
-    @PostMapping(CardLessCashConstants.URL.CLC_REQUEST_URL)
+    @PostMapping(value = CardLessCashConstants.URL.CLC_REQUEST_URL)
     public Response<CardLessCashGenerationResponse> cardLessCashRemitGenerationRequest(CardLessCashGenerationRequest cardLessCashGenerationRequest);
 }
