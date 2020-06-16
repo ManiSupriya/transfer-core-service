@@ -16,8 +16,8 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CardLessCashGenerationRequest {
 
-    private String AccountNo;
-    private BigDecimal Amount;
-    private String MobileNo;
-    private BigDecimal Fees;
+    private String accountNo;
+    private BigDecimal amount;
+    private String mobileNo;
+    private BigDecimal fees;
 }

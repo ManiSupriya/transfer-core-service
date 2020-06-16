@@ -12,5 +12,5 @@ import lombok.Data;
 @Builder
 public class CardLessCashGenerationResponse {
 
-    private LocalDateTime ExpiryDateTime;
+    private LocalDateTime expiryDateTime;
 }
