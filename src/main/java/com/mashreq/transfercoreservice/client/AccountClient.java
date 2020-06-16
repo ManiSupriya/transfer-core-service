@@ -35,12 +35,12 @@ public interface AccountClient {
     @RequestMapping(method = RequestMethod.GET, value = "/api/accounts/{accountNumber}")
     Response<CoreAccountDetailsDTO> getAccountDetails(@PathVariable("accountNumber") String accountNumber);
     
-    @GetMapping(value = "/api/accounts/cardless-cash/query/{accountNumber}")
+    @GetMapping(value = "/api/cardless-cash/query/{accountNumber}")
     public Response<List<CardLessCashQueryResponse>> cardLessCashRemitQuery(@PathVariable final String accountNumber, @RequestParam final BigInteger remitNumDays);
     
-    @PostMapping(value = "/api/accounts/cardless-cash/request-block")
+    @PostMapping(value = "/api/cardless-cash/request-block")
     public Response<CardLessCashBlockResponse> blockCardLessCashRequest(CardLessCashBlockRequest blockRequest);
     
-    @PostMapping(value = "/api/accounts/cardless-cash/request")
+    @PostMapping(value = "/api/cardless-cash/request")
     public Response<CardLessCashGenerationResponse> cardLessCashRemitGenerationRequest(CardLessCashGenerationRequest cardLessCashGenerationRequest);
 }
