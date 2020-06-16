@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.mashreq.transfercoreservice.cardlesscash.constants.CardLessCashConstants;
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashBlockRequest;
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashGenerationRequest;
 import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashBlockResponse;
@@ -36,12 +35,12 @@ public interface AccountClient {
     @RequestMapping(method = RequestMethod.GET, value = "/api/accounts/{accountNumber}")
     Response<CoreAccountDetailsDTO> getAccountDetails(@PathVariable("accountNumber") String accountNumber);
     
-    @GetMapping(value = CardLessCashConstants.URL.CLC_QUERY_URL)
+    @GetMapping(value = "/api/accounts/cardless-cash/query/{accountNumber}")
     public Response<List<CardLessCashQueryResponse>> cardLessCashRemitQuery(@PathVariable final String accountNumber, @RequestParam final BigInteger remitNumDays);
     
-    @PostMapping(value = CardLessCashConstants.URL.CLC_BLOCK_URL)
+    @PostMapping(value = "/api/accounts/cardless-cash/request-block")
     public Response<CardLessCashBlockResponse> blockCardLessCashRequest(CardLessCashBlockRequest blockRequest);
     
-    @PostMapping(value = CardLessCashConstants.URL.CLC_REQUEST_URL)
+    @PostMapping(value = "/api/accounts/cardless-cash/request")
     public Response<CardLessCashGenerationResponse> cardLessCashRemitGenerationRequest(CardLessCashGenerationRequest cardLessCashGenerationRequest);
 }
