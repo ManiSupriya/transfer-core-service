@@ -26,7 +26,6 @@ public class DigitalUser extends AbstractAuditingEntity {
     private String firstName;
     private String lastName;
     private boolean primaryFlag;
-    private boolean onboarded = false;
     private String country;
     @Column(unique = true, nullable = false)
     private String username;
