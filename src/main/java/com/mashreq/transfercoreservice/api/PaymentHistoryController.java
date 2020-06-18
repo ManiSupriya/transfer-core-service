@@ -31,7 +31,7 @@ public class PaymentHistoryController {
     })
     @GetMapping("/charity-paid/{serviceType}")
     public Response transferFunds(@RequestAttribute(HeaderNames.X_CHANNEL_TRACE_ID) String channelTraceId,
-                                  @RequestHeader("HeaderNames.CIF_HEADER_NAME") final String cifId,
+                                  @RequestHeader(HeaderNames.CIF_HEADER_NAME) final String cifId,
                                   @NotNull @PathVariable("serviceType") final  String serviceType) {
 
         return Response.builder()
