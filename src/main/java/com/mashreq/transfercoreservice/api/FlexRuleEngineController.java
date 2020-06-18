@@ -61,7 +61,7 @@ public class FlexRuleEngineController {
     public Response fetchCharges(@RequestAttribute("X-CHANNEL-TRACE-ID") String channelTraceId,
                                  @RequestAttribute("X-CHANNEL-HOST") String channelHost,
                                  @RequestAttribute("X-CHANNEL-NAME") String channelName,
-                                 @RequestHeader("HeaderNames.CIF_HEADER_NAME") final String cifId,
+                                 @RequestHeader(HeaderNames.CIF_HEADER_NAME) final String cifId,
                                  @Valid @RequestBody ChargesRequestDTO request) {
         log.info("{} Flex Rule Charge request received ", request);
 
