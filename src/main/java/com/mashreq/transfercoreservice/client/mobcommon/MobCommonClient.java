@@ -5,6 +5,7 @@ import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
+import com.mashreq.transfercoreservice.common.HeaderNames;
 import com.mashreq.transfercoreservice.config.feign.FeignConfig;
 import com.mashreq.webcore.dto.response.Response;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -18,7 +19,7 @@ import java.util.Set;
 public interface MobCommonClient {
 
     @GetMapping("/v1/limit/available/{beneficiaryTypeCode}")
-    Response<LimitValidatorResultsDto> validateAvailableLimit(@RequestHeader("HeaderNames.CIF_HEADER_NAME") String cifId,
+    Response<LimitValidatorResultsDto> validateAvailableLimit(@RequestHeader(HeaderNames.CIF_HEADER_NAME) String cifId,
                                                               @NotNull @PathVariable String beneficiaryTypeCode,
                                                               @RequestParam(value = "amount", required = false) BigDecimal amount);
 
@@ -34,7 +35,7 @@ public interface MobCommonClient {
 
 
     @GetMapping("/v1/customer")
-    Response<CustomerDetailsDto> getCustomerDetails(@RequestHeader("HeaderNames.CIF_HEADER_NAME") String cifId);
+    Response<CustomerDetailsDto> getCustomerDetails(@RequestHeader(HeaderNames.CIF_HEADER_NAME) String cifId);
 
 
 }
