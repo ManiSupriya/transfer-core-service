@@ -27,13 +27,6 @@ spring:
   main:
     banner-mode: 'off'
     lazy-initialization: true
-  cache:
-    type: redis
-  redis:
-    host: ${REDIS_HOST:kyc-redis}
-    port: ${REDIS_PORT:6379}
-    timeout: ${REDIS_TIMEOUT:5000}
-    cache-null-values: false
 
 esb-service:
   url: ${CDM_URL:http://172.24.70.29:7800/AllOperationsSOAP_HTTP_Service}
@@ -100,3 +93,12 @@ mob:
         enabled: ${HTTP_DETAILS_LOGS:true}
         request: ${HTTP_DETAILS_LOG_REQUEST:true}
         response: ${HTTP_DETAILS_LOG_RESPONSE:true}
+
+
+redis:
+  enable: false
+  write.ttl: ${REDIS_TTL:60}
+  host: ${REDIS_HOST:kyc-redis}
+  port: ${REDIS_PORT:6379}
+  timeout: ${REDIS_TIMEOUT:5000}
+  password: ${REDIS_PASSWORD:P@ssword123$}

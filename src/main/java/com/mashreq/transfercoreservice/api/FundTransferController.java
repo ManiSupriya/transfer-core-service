@@ -1,6 +1,6 @@
 package com.mashreq.transfercoreservice.api;
 
-import com.mashreq.transfercoreservice.common.HeaderNames;
+import com.mashreq.ms.commons.cache.HeaderNames;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferService;
@@ -33,7 +33,7 @@ public class FundTransferController {
     })
     @PostMapping
     public Response transferFunds(@RequestAttribute("X-CHANNEL-TRACE-ID") String channelTraceId,
-                                  @RequestAttribute("X-CHANNEL-HOST") String channelHost,
+                                  @RequestHeader("X-CHANNEL-HOST") String channelHost,
                                   @RequestHeader(HeaderNames.CHANNEL_TYPE_HEADER_NAME) String channelName,
                                   @RequestHeader(HeaderNames.CIF_HEADER_NAME) final String cifId,
                                   @Valid @RequestBody FundTransferRequestDTO request) {

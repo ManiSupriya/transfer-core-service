@@ -1,5 +1,7 @@
 package com.mashreq.transfercoreservice.middleware;
 
+import com.mashreq.mobcommons.config.middleware.SoapClientInterceptor;
+import com.mashreq.mobcommons.config.middleware.SoapLogger;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
@@ -20,7 +22,7 @@ public class SoapClient extends WebServiceGatewaySupport {
         requestFactory.setConnectTimeout(soapProperties.getConnectTimeout());
         requestFactory.setReadTimeout(soapProperties.getReadTimeout());
         setMessageSender(new ClientHttpRequestMessageSender(requestFactory));
-        ClientInterceptor[] interceptors = new ClientInterceptor[]{new SoapClientInterceptor(new HttpLoggingUtils())};
+        ClientInterceptor[] interceptors = new ClientInterceptor[]{new SoapClientInterceptor()};
 
         this.setDefaultUri(soapProperties.getUrl());
         this.setMarshaller(marshaller);

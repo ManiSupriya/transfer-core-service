@@ -11,7 +11,7 @@ import java.text.NumberFormat;
 @Slf4j
 @EnableFeignClients
 @EnableAutoConfiguration
-@SpringBootApplication(scanBasePackages = {"com.mashreq.transfercoreservice", "com.mashreq.ms"})
+@SpringBootApplication(scanBasePackages = {"com.mashreq.transfercoreservice", "com.mashreq.ms","com.mashreq.mobcommons.config"})
 public class TransferApplication {
 
     public static void main(String[] args) {

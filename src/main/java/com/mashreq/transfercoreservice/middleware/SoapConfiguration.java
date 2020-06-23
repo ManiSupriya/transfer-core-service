@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.middleware;
 
+import com.mashreq.mobcommons.config.middleware.SoapClientInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
