@@ -18,10 +18,10 @@ public class FeignAccessTokenInterceptor implements RequestInterceptor {
 
     @Autowired
     private SoapServiceProperties soapServiceProperties;
+
     /**
-     * Temporary
-     * Set header to pass ldap token to other services
-     * retrieve token from in memory
+     *
+     * @param requestTemplate
      */
     @Override
     public void apply(RequestTemplate requestTemplate) {

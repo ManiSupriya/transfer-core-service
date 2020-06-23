@@ -77,3 +77,26 @@ app:
     mobcustomer: ${MOB_CUSTOMER_SERVICE:http://mob-customer-service:8080}
     beneficiary: ${BENEFICIARY_CORE_SERVICE:http://beneficiary-core-service:8080}
     mobcommon: ${MOB_COMMON_SERVICE:http://mob-common-service:8080}
+
+instarem:
+  rules:
+    bankCodeType:
+      CA:
+        code: TRANSIT NUMBER
+        substr-index-before-assigning-to-routing-code: 4
+      IN:
+        code: IFSC CODE
+      GB:
+        code: SORT CODE
+      LK:
+        code: BRANCH CODE
+      AU:
+        code: BSB CODE
+
+mob:
+  http:
+    detailed:
+      logs:
+        enabled: ${HTTP_DETAILS_LOGS:true}
+        request: ${HTTP_DETAILS_LOG_REQUEST:true}
+        response: ${HTTP_DETAILS_LOG_RESPONSE:true}

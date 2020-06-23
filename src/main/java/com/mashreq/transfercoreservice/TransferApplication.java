@@ -31,7 +31,7 @@ public class TransferApplication {
         final long mb = 1024L * 1024L;
         final String mega = " MB";
 
-        log.info("========================== Memory Info ==========================");
+        log.info(" ========================== Memory Info ========================== ");
         log.info("Free memory: " + format.format(freeMemory / mb) + mega);
         log.info("Allocated memory: " + format.format(allocatedMemory / mb) + mega);
         log.info("Max memory: " + format.format(maxMemory / mb) + mega);

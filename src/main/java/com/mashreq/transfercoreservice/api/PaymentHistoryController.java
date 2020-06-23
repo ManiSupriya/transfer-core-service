@@ -1,8 +1,10 @@
 package com.mashreq.transfercoreservice.api;
 
+import com.mashreq.transfercoreservice.common.HeaderNames;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.paymenthistory.PaymentHistoryService;
 import com.mashreq.webcore.dto.response.Response;
+import com.mashreq.webcore.dto.response.ResponseStatus;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -28,13 +30,12 @@ public class PaymentHistoryController {
             @ApiResponse(code = 500, message = "Something went wrong")
     })
     @GetMapping("/charity-paid/{serviceType}")
-    public Response transferFunds(@RequestAttribute("X-CHANNEL-TRACE-ID") String channelTraceId,
-                                  @RequestAttribute("X-CHANNEL-HOST") String channelHost,
-                                  @RequestAttribute("X-CHANNEL-NAME") String channelName,
-                                  @RequestHeader("X-CIF-ID") final String cifId,
+    public Response transferFunds(@RequestAttribute(HeaderNames.X_CHANNEL_TRACE_ID) String channelTraceId,
+                                  @RequestHeader(HeaderNames.CIF_HEADER_NAME) final String cifId,
                                   @NotNull @PathVariable("serviceType") final  String serviceType) {
 
         return Response.builder()
+                .status(ResponseStatus.SUCCESS)
                 .data(paymentHistoryService.getCharityPaid(cifId, serviceType))
                 .build();
     }

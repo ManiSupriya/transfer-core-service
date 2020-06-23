@@ -4,12 +4,11 @@ import com.mashreq.esbcore.bindings.account.mbcdm.FundTransferReqType;
 import com.mashreq.esbcore.bindings.account.mbcdm.FundTransferResType;
 import com.mashreq.esbcore.bindings.accountservices.mbcdm.fundtransfer.EAIServices;
 import com.mashreq.esbcore.bindings.header.mbcdm.ErrorType;
+import com.mashreq.esbcore.bindings.header.mbcdm.HeaderType;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
-import com.mashreq.transfercoreservice.middleware.HeaderFactory;
-import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
-import com.mashreq.transfercoreservice.middleware.WebServiceClient;
+import com.mashreq.transfercoreservice.middleware.*;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,13 +18,14 @@ import org.springframework.stereotype.Service;
 import java.security.SecureRandom;
 import java.util.List;
 
+import static com.mashreq.transfercoreservice.middleware.SoapWebserviceClientFactory.soapClient;
+
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class FundTransferMWService {
 
-    private final WebServiceClient webServiceClient;
     private final HeaderFactory headerFactory;
     private final SoapServiceProperties soapServiceProperties;
     private static final String SUCCESS = "S";
@@ -38,7 +38,16 @@ public class FundTransferMWService {
     public FundTransferResponse transfer(FundTransferRequest request) {
         log.info("Fund transfer initiated from account [ {} ]", request.getFromAccount());
 
-        EAIServices response = (EAIServices) webServiceClient.exchange(generateEAIRequest(request));
+        SoapClient soapClient = soapClient(soapServiceProperties,
+                new Class[]{
+                        HeaderType.class ,
+                        EAIServices.class,
+                        FundTransferReqType.class,
+                        FundTransferResType.class,
+                        ErrorType.class,
+                });
+
+        EAIServices response = (EAIServices) soapClient.exchange(generateEAIRequest(request));
 
         final FundTransferResType.Transfer transfer = response.getBody().getFundTransferRes().getTransfer().get(0);
         final ErrorType exceptionDetails = response.getBody().getExceptionDetails();

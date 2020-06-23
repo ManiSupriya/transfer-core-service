@@ -13,8 +13,11 @@ import java.nio.charset.StandardCharsets;
 @Component
 public class SoapClientInterceptor implements ClientInterceptor {
 
-    @Autowired
     HttpLoggingUtils httpLoggingUtils;
+
+    public SoapClientInterceptor(HttpLoggingUtils httpLoggingUtils) {
+        this.httpLoggingUtils = httpLoggingUtils;
+    }
 
     @Override
     public boolean handleRequest(MessageContext messageContext) {

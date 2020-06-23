@@ -1,8 +1,10 @@
 package com.mashreq.transfercoreservice.api;
 
+import com.mashreq.transfercoreservice.common.HeaderNames;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.service.FlexRuleEngineService;
 import com.mashreq.webcore.dto.response.Response;
+import com.mashreq.webcore.dto.response.ResponseStatus;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -34,10 +36,8 @@ public class FlexRuleEngineController {
             @ApiResponse(code = 500, message = "Something went wrong")
     })
     @PostMapping
-    public Response fetchRule(@RequestAttribute("X-CHANNEL-TRACE-ID") String channelTraceId,
-                              @RequestAttribute("X-CHANNEL-HOST") String channelHost,
-                              @RequestAttribute("X-CHANNEL-NAME") String channelName,
-                              @RequestHeader("X-CIF-ID") final String cifId,
+    public Response fetchRule(@RequestAttribute(HeaderNames.X_CHANNEL_TRACE_ID) String channelTraceId,
+                              @RequestHeader(HeaderNames.CIF_HEADER_NAME) final String cifId,
                               @Valid @RequestBody FlexRuleEngineRequestDTO request) {
         log.info("{} Flex Rule engine transfer for request received ", request);
 
@@ -46,7 +46,9 @@ public class FlexRuleEngineController {
                 .cifId(cifId)
                 .build();
 
-        return Response.builder().data(flexRuleEngineService.getRules(metadata, request)).build();
+        return Response.builder()
+                .status(ResponseStatus.SUCCESS)
+                .data(flexRuleEngineService.getRules(metadata, request)).build();
 
     }
 
@@ -59,7 +61,7 @@ public class FlexRuleEngineController {
     public Response fetchCharges(@RequestAttribute("X-CHANNEL-TRACE-ID") String channelTraceId,
                                  @RequestAttribute("X-CHANNEL-HOST") String channelHost,
                                  @RequestAttribute("X-CHANNEL-NAME") String channelName,
-                                 @RequestHeader("X-CIF-ID") final String cifId,
+                                 @RequestHeader(HeaderNames.CIF_HEADER_NAME) final String cifId,
                                  @Valid @RequestBody ChargesRequestDTO request) {
         log.info("{} Flex Rule Charge request received ", request);
 
@@ -76,7 +78,9 @@ public class FlexRuleEngineController {
                 .accountCurrency(request.getAccountCurrency())
                 .build();
 
-        return Response.builder().data(flexRuleEngineService.getCharges(metadata, ruleEngineRequest)).build();
+        return Response.builder()
+                .status(ResponseStatus.SUCCESS)
+                .data(flexRuleEngineService.getCharges(metadata, ruleEngineRequest)).build();
 
     }
 }

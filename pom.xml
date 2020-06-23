@@ -39,11 +39,10 @@
 
         <!-- internal modules -->
         <com.mashreq.esbcore>1.0.48</com.mashreq.esbcore>
-        <com.mashreq.webcore>1.0.19</com.mashreq.webcore>
         <com.mashreq.logcore>1.0.4</com.mashreq.logcore>
         <com.mashreq.encryption>1.0.0</com.mashreq.encryption>
         <com.mashreq.encryption>1.0.0</com.mashreq.encryption>
-        <com.mashreq.ms.ms-commons>0.0.5</com.mashreq.ms.ms-commons>
+        <com.mashreq.ms.ms-commons>0.0.12</com.mashreq.ms.ms-commons>
 
         <!-- additional deps and plugins versions -->
         <apache.commons.lang.version>3.9</apache.commons.lang.version>
@@ -125,12 +124,6 @@
             <artifactId>mapstruct-processor</artifactId>
             <version>${mapstruct.version}</version>
             <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.mashreq</groupId>
-            <artifactId>webcore</artifactId>
-            <version>${com.mashreq.webcore}</version>
         </dependency>
 
         <!-- Logging | Monitoring | Api Doc -->

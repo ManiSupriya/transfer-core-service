@@ -11,7 +11,6 @@ import javax.persistence.*;
  * The persistent class for the digital_user database table.
  */
 @EqualsAndHashCode(of = "mobile", callSuper = false)
-//@ToString(exclude = {"settings", "devices"})
 @Entity
 @Table(name = "digital_user",
         indexes = {@Index(columnList = "primary_mobile", name = "digital_user_mobile_hidx"),
@@ -27,7 +26,6 @@ public class DigitalUser extends AbstractAuditingEntity {
     private String firstName;
     private String lastName;
     private boolean primaryFlag;
-    private boolean onboarded = false;
     private String country;
     @Column(unique = true, nullable = false)
     private String username;

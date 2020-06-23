@@ -4,12 +4,14 @@ import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.BeneficiaryClient;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.webcore.dto.response.Response;
+import com.mashreq.webcore.dto.response.ResponseStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import static com.mashreq.transfercoreservice.client.ErrorUtils.getErrorDetails;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_EXTERNAL_SERVICE_ERROR;
+import static java.util.Objects.isNull;
 
 /**
  * @author shahbazkh
@@ -28,7 +30,7 @@ public class BeneficiaryService {
         log.info("Fetching Beneficiary for id = {}", id);
         Response<BeneficiaryDto> response = beneficiaryClient.getById(cifId, id);
 
-        if (TRUE.equalsIgnoreCase(response.getHasError())) {
+        if (ResponseStatus.ERROR == response.getStatus() || isNull(response.getData())) {
             GenericExceptionHandler.handleError(BENE_EXTERNAL_SERVICE_ERROR, BENE_EXTERNAL_SERVICE_ERROR.getErrorMessage(),
                     getErrorDetails(response));
         }
