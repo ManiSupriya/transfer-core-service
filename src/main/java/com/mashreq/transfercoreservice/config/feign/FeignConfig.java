@@ -23,11 +23,5 @@ public class FeignConfig {
         return new FeignCustomErrorDecoder();
     }
 
-    @Bean
-    public RestTemplate restTemplate(){
-        return new RestTemplate();
-    }
-
-
 
 }

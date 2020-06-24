@@ -43,7 +43,7 @@
         <com.mashreq.encryption>1.0.0</com.mashreq.encryption>
         <com.mashreq.encryption>1.0.0</com.mashreq.encryption>
         <com.mashreq.ms.ms-commons>0.0.12</com.mashreq.ms.ms-commons>
-
+        <com.mashreq.mob-commons>0.0.16</com.mashreq.mob-commons>
         <!-- additional deps and plugins versions -->
         <apache.commons.lang.version>3.9</apache.commons.lang.version>
         <apache.commons.bean.utils.version>1.9.4</apache.commons.bean.utils.version>
@@ -112,6 +112,11 @@
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.mashreq</groupId>
+            <artifactId>mob-commons</artifactId>
+            <version>${com.mashreq.mob-commons}</version>
         </dependency>
 
         <dependency>
@@ -208,7 +213,7 @@
         </dependency>
 
         <!-- Caching -->
-        <dependency>
+        <!--<dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
             <exclusions>
@@ -221,7 +226,7 @@
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
-        </dependency>
+        </dependency>-->
 
         <!-- Testing -->
         <dependency>

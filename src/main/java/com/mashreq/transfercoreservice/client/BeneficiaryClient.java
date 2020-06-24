@@ -1,8 +1,8 @@
 package com.mashreq.transfercoreservice.client;
 
+import com.mashreq.ms.commons.cache.HeaderNames;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CharityBeneficiaryDto;
-import com.mashreq.transfercoreservice.common.HeaderNames;
 import com.mashreq.transfercoreservice.config.feign.FeignConfig;
 import com.mashreq.webcore.dto.response.Response;
 import org.springframework.cloud.openfeign.FeignClient;
