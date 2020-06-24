@@ -1,6 +1,6 @@
 package com.mashreq.transfercoreservice.api;
 
-import com.mashreq.transfercoreservice.common.HeaderNames;
+import com.mashreq.ms.commons.cache.HeaderNames;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.paymenthistory.PaymentHistoryService;
 import com.mashreq.webcore.dto.response.Response;
@@ -23,6 +23,7 @@ import javax.validation.constraints.NotNull;
 public class PaymentHistoryController {
 
     private final PaymentHistoryService paymentHistoryService;
+    private static final String X_CHANNEL_TRACE_ID = "X-CHANNEL-TRACE-ID";
 
     @ApiOperation(value = "Processes to start payment", response = FundTransferRequestDTO.class)
     @ApiResponses(value = {
@@ -30,9 +31,9 @@ public class PaymentHistoryController {
             @ApiResponse(code = 500, message = "Something went wrong")
     })
     @GetMapping("/charity-paid/{serviceType}")
-    public Response transferFunds(@RequestAttribute(HeaderNames.X_CHANNEL_TRACE_ID) String channelTraceId,
+    public Response transferFunds(@RequestAttribute(X_CHANNEL_TRACE_ID) String channelTraceId,
                                   @RequestHeader(HeaderNames.CIF_HEADER_NAME) final String cifId,
-                                  @NotNull @PathVariable("serviceType") final  String serviceType) {
+                                  @NotNull @PathVariable("serviceType") final String serviceType) {
 
         return Response.builder()
                 .status(ResponseStatus.SUCCESS)
