@@ -20,4 +20,6 @@ public class CardLessCashGenerationRequest {
     private BigDecimal amount;
     private String mobileNo;
     private BigDecimal fees;
+    private String otp;
+    private String challengeToken;
 }
