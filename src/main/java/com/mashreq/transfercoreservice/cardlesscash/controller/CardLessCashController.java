@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,7 +46,7 @@ public class CardLessCashController {
             @ApiResponse(code = 401, message = "You are not authorized to view the resource")
     })
     @PostMapping(CardLessCashConstants.URL.CLC_BLOCK_URL)
-    public Response<CardLessCashBlockResponse> blockCardLessCashRequest(CardLessCashBlockRequest blockRequest) {
+    public Response<CardLessCashBlockResponse> blockCardLessCashRequest(@RequestBody CardLessCashBlockRequest blockRequest) {
 
         return cardLessCashService.blockCardLessCashRequest(blockRequest);
     }
@@ -62,7 +63,7 @@ public class CardLessCashController {
             @ApiResponse(code = 401, message = "You are not authorized to view the resource")
     })
     @PostMapping(CardLessCashConstants.URL.CLC_REQUEST_URL)
-    public Response<CardLessCashGenerationResponse> cardLessCashRemitGenerationRequest(CardLessCashGenerationRequest cardLessCashGenerationRequest) {
+    public Response<CardLessCashGenerationResponse> cardLessCashRemitGenerationRequest(@RequestBody CardLessCashGenerationRequest cardLessCashGenerationRequest) {
 
     	return cardLessCashService.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest);
     }
