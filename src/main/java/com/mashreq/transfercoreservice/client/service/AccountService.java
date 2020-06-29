@@ -1,6 +1,7 @@
 package com.mashreq.transfercoreservice.client.service;
 
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashBlockRequest;
+import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashGenReq;
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashGenerationRequest;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashBlockResponse;
@@ -168,11 +169,16 @@ public class AccountService {
 	public Response<CardLessCashGenerationResponse> cardLessCashRemitGenerationRequest(
 			CardLessCashGenerationRequest cardLessCashGenerationRequest) {
 		log.info("cardLessCashGenerationRequest {} ", cardLessCashGenerationRequest);
-
+		
+		CardLessCashGenReq cardLessCashGenReq = CardLessCashGenReq.builder()
+				.accountNumber(cardLessCashGenerationRequest.getAccountNo())
+				.amount(cardLessCashGenerationRequest.getAmount()).mobileNo(cardLessCashGenerationRequest.getMobileNo())
+				.fees(cardLessCashGenerationRequest.getFees()).build();
+		
 		Response<CardLessCashGenerationResponse> cardLessCashGenerationResponse = null;
 		try {
 			cardLessCashGenerationResponse = accountClient
-					.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest);
+					.cardLessCashRemitGenerationRequest(cardLessCashGenReq);
 
 			if (isNotBlank(cardLessCashGenerationResponse.getErrorCode())) {
 				log.warn("Not able to generate request for cashless card");
