@@ -13,4 +13,5 @@ import lombok.Data;
 public class CardLessCashGenerationResponse {
 
     private LocalDateTime expiryDateTime;
+    private String referenceNumber;
 }
