@@ -37,7 +37,7 @@ public interface AccountClient {
     Response<CoreAccountDetailsDTO> getAccountDetails(@PathVariable("accountNumber") String accountNumber);
     
     @GetMapping(value = "/api/cardless-cash/query/{accountNumber}")
-    public Response<List<CardLessCashQueryResponse>> cardLessCashRemitQuery(@PathVariable final String accountNumber, @RequestParam final BigInteger remitNumDays);
+    public Response<List<CardLessCashQueryResponse>> cardLessCashRemitQuery(@PathVariable("accountNumber") final String accountNumber, @RequestParam  BigInteger remitNumDays);
     
     @PostMapping(value = "/api/cardless-cash/request-block")
     public Response<CardLessCashBlockResponse> blockCardLessCashRequest(CardLessCashBlockRequest blockRequest);

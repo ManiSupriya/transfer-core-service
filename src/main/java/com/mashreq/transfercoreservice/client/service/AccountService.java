@@ -123,8 +123,8 @@ public class AccountService {
 		return isBlank(bigDecimalValue) ? BigDecimal.ZERO : new BigDecimal(bigDecimalValue);
 	}
 
-	public Response<List<CardLessCashQueryResponse>> cardLessCashRemitQuery(final String accountNumber,
-			final BigInteger remitNumDays) {
+	public Response<List<CardLessCashQueryResponse>> cardLessCashRemitQuery( String accountNumber,
+			 BigInteger remitNumDays) {
 		log.info("Fetching results for accountNumber {} ", accountNumber);
 
 		Response<List<CardLessCashQueryResponse>> cardLessCashQueryResponse = null;
