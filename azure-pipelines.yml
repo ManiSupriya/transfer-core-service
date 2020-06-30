@@ -17,3 +17,5 @@ stages:
     displayName: Build
     jobs:
       - template: job-build-springboot-jar.yaml@templates
+        parameters:
+            VeracodeAppName: 'MOB'
