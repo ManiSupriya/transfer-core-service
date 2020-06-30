@@ -80,7 +80,7 @@ public class CardLessCashController {
             @ApiResponse(code = 401, message = "You are not authorized to view the resource")
     })
     @GetMapping(CardLessCashConstants.URL.CLC_QUERY_URL)
-    public Response<List<CardLessCashQueryResponse>> cardLessCashRemitQuery(@PathVariable final String accountNumber, @RequestParam final BigInteger remitNumDays) {
+    public Response<List<CardLessCashQueryResponse>> cardLessCashRemitQuery(@PathVariable final String accountNumber, @RequestParam final Integer remitNumDays) {
     	CardLessCashQueryRequest cardLessCashQueryRequest = new CardLessCashQueryRequest();
     	cardLessCashQueryRequest.setAccountNumber(accountNumber);
     	cardLessCashQueryRequest.setRemitNumDays(remitNumDays);

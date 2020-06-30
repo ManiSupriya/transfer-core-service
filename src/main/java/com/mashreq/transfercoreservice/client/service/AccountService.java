@@ -1,9 +1,27 @@
 package com.mashreq.transfercoreservice.client.service;
 
+import static com.mashreq.transfercoreservice.client.ErrorUtils.getErrorDetails;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_NOT_FOUND;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACC_EXTERNAL_SERVICE_ERROR;
+import static java.util.Objects.isNull;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
+import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashBlockRequest;
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashGenReq;
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashGenerationRequest;
-import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashBlockResponse;
 import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashGenerationResponse;
 import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashQueryResponse;
@@ -14,24 +32,9 @@ import com.mashreq.transfercoreservice.client.dto.CoreAccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.SearchAccountDto;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static com.mashreq.transfercoreservice.client.ErrorUtils.getErrorDetails;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_NOT_FOUND;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACC_EXTERNAL_SERVICE_ERROR;
-import static java.util.Objects.isNull;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
  * @author shahbazkh
@@ -45,6 +48,7 @@ public class AccountService {
 
 	public static final String TRUE = "true";
 	private final AccountClient accountClient;
+	private final AccountCardLessCashQueryService accountCardLessCashQueryService;
 
 	public List<AccountDetailsDTO> getAccountsFromCore(final String cifId) {
 		log.info("Fetching accounts for cifId {} ", cifId);
@@ -124,46 +128,14 @@ public class AccountService {
 	}
 
 	public Response<List<CardLessCashQueryResponse>> cardLessCashRemitQuery( String accountNumber,
-			 BigInteger remitNumDays) {
-		log.info("Fetching results for accountNumber {} ", accountNumber);
-
-		Response<List<CardLessCashQueryResponse>> cardLessCashQueryResponse = null;
-		try {
-			cardLessCashQueryResponse = accountClient.cardLessCashRemitQuery(accountNumber, remitNumDays);
-
-			if (isNotBlank(cardLessCashQueryResponse.getErrorCode())) {
-				log.warn("Not able to fetch results, returning empty list instead");
-				GenericExceptionHandler.handleError(null, cardLessCashQueryResponse.getErrorCode(), cardLessCashQueryResponse.getMessage());
-			}
-
-		} catch (Exception e) {
-			log.error("Error occurred while calling query client {} ", e);
-			GenericExceptionHandler.handleError(ACC_EXTERNAL_SERVICE_ERROR,
-					ACC_EXTERNAL_SERVICE_ERROR.getErrorMessage(), ACC_EXTERNAL_SERVICE_ERROR.getCustomErrorCode());
-		}
-
-		return cardLessCashQueryResponse;
+			Integer remitNumDays) {
+		return Response.<List<CardLessCashQueryResponse>>builder().status(ResponseStatus.SUCCESS).data(accountCardLessCashQueryService.getResponse(accountNumber, remitNumDays).getData()).build();
 	}
 
 	public Response<CardLessCashBlockResponse> blockCardLessCashRequest(CardLessCashBlockRequest blockRequest) {
 		log.info("blockRequest {} ", blockRequest);
 
-		Response<CardLessCashBlockResponse> cardLessCashBlockResponse = null;
-		try {
-			cardLessCashBlockResponse = accountClient.blockCardLessCashRequest(blockRequest);
-
-			if (isNotBlank(cardLessCashBlockResponse.getErrorCode())) {
-				log.warn("Not able to block request for cashless card");
-				GenericExceptionHandler.handleError(null, cardLessCashBlockResponse.getErrorCode(), cardLessCashBlockResponse.getMessage());
-			}
-
-		} catch (Exception e) {
-			log.error("Error occurred while block request for cashless card {} ", e);
-			GenericExceptionHandler.handleError(ACC_EXTERNAL_SERVICE_ERROR,
-					ACC_EXTERNAL_SERVICE_ERROR.getErrorMessage(), getErrorDetails(cardLessCashBlockResponse));
-
-		}
-		return cardLessCashBlockResponse;
+			return accountClient.blockCardLessCashRequest(blockRequest);
 	}
 
 	public Response<CardLessCashGenerationResponse> cardLessCashRemitGenerationRequest(
@@ -174,24 +146,7 @@ public class AccountService {
 				.accountNumber(cardLessCashGenerationRequest.getAccountNo())
 				.amount(cardLessCashGenerationRequest.getAmount()).mobileNo(cardLessCashGenerationRequest.getMobileNo())
 				.fees(cardLessCashGenerationRequest.getFees()).build();
-		
-		Response<CardLessCashGenerationResponse> cardLessCashGenerationResponse = null;
-		try {
-			cardLessCashGenerationResponse = accountClient
+		return accountClient
 					.cardLessCashRemitGenerationRequest(cardLessCashGenReq);
-
-			if (isNotBlank(cardLessCashGenerationResponse.getErrorCode())) {
-				log.warn("Not able to generate request for cashless card");
-				GenericExceptionHandler.handleError(null, cardLessCashGenerationResponse.getErrorCode(), cardLessCashGenerationResponse.getMessage());
-			}
-
-		} catch (Exception e) {
-			log.error("Error occurred while generate request for cashless card {} ", e);
-			GenericExceptionHandler.handleError(ACC_EXTERNAL_SERVICE_ERROR,
-					ACC_EXTERNAL_SERVICE_ERROR.getErrorMessage(), ACC_EXTERNAL_SERVICE_ERROR.getCustomErrorCode());
-
-		}
-
-		return cardLessCashGenerationResponse;
 	}
 }
