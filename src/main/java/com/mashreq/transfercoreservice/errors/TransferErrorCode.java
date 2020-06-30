@@ -79,6 +79,7 @@ public enum TransferErrorCode implements ErrorCode {
     ACC_EXTERNAL_SERVICE_ERROR("TN-5011", "Something went wrong with account external service"),
     MOB_COM_EXTERNAL_SERVICE_ERROR("TN-5012", "Something went wrong with mob-common external service"),
     MAINTENANCE_COM_EXTERNAL_SERVICE_ERROR("TN-5013", "Something went wrong with maintenance external service"),
+    ACC_SERVICE_CONNECTION_ERROR("TN-5014", "Account external service connection exception"),
 
     //Middleware error codes
     CONNECTION_TIMEOUT_MW("TN-5002", "Middleware Connection Timeout"),

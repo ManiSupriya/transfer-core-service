@@ -1,7 +1,6 @@
 package com.mashreq.transfercoreservice.cardlesscash.service.impl;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -85,7 +84,7 @@ public class CardLessCashServiceTest {
 	public void cardLessCashRemitQueryTest() {
 
         String accountNumber = "019100064328";
-        BigInteger remitNumDays = BigInteger.valueOf(1);
+        Integer remitNumDays = 1;
         CardLessCashQueryRequest cardLessCashQueryRequest = CardLessCashQueryRequest.builder()
                 .accountNumber(accountNumber)
                 .remitNumDays(remitNumDays)
