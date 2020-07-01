@@ -40,7 +40,6 @@
 
         <!-- internal modules -->
         <com.mashreq.esbcore>1.0.48</com.mashreq.esbcore>
-        <io.netty>4.1.48.Final</io.netty>
         <com.mashreq.logcore>1.0.4</com.mashreq.logcore>
         <com.mashreq.encryption>1.0.0</com.mashreq.encryption>
         <com.mashreq.encryption>1.0.0</com.mashreq.encryption>
@@ -99,11 +98,6 @@
             <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
-            <version>${io.netty}</version>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
         </dependency>
@@ -124,6 +118,12 @@
             <groupId>com.mashreq</groupId>
             <artifactId>mob-commons</artifactId>
             <version>${com.mashreq.mob-commons}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-data-redis</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
