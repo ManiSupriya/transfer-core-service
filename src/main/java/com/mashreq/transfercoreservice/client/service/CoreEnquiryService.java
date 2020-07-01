@@ -6,23 +6,21 @@ import static com.mashreq.transfercoreservice.client.ErrorUtils.getErrorDetails;
 import static com.mashreq.transfercoreservice.client.ErrorUtils.getErrorHandlingStrategy;
 import static com.mashreq.transfercoreservice.common.CommonConstants.SEND_EMPTY_ERROR_RESPONSE;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
-import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashQueryResponse;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
 
 import feign.RetryableException;
 
-public interface CoreEnquiryService<R, P, Q> {
+public interface CoreEnquiryService<R, P> {
 
 
-		Response<R> doCall(P p, Q q);
+		Response<R> doCall(P p);
 
 	    Map<String, String> errorMap();
 
@@ -32,9 +30,9 @@ public interface CoreEnquiryService<R, P, Q> {
     
     TransferErrorCode assignFeignConnectionErrorCode();
 
-    default Response<R> getResponse(P p, Q q) {
+    default Response<R> getResponse(P p) {
         try {
-            return responseHandler(doCall(p, q));
+            return responseHandler(doCall(p));
         } catch (Exception ex) {
             return handleErrorResponse(ex);
         }
@@ -42,6 +40,7 @@ public interface CoreEnquiryService<R, P, Q> {
 
     default Response<R> responseHandler(Response<R> response) {
         //error response
+    	
         if (ResponseStatus.ERROR == response.getStatus() || null == response.getData()) {
             final Optional<String> errorHandlingStrategyOptional = getErrorHandlingStrategy(errorMap(), response.getErrorCode());
             if (errorHandlingStrategyOptional.isPresent()) {
@@ -83,12 +82,14 @@ public interface CoreEnquiryService<R, P, Q> {
         }
       //when connection failed for external service
         if(throwable instanceof RetryableException) {
+        	throwable.printStackTrace();
         	GenericExceptionHandler.handleError(assignFeignConnectionErrorCode(), assignFeignConnectionErrorCode().getErrorMessage(), assignFeignConnectionErrorCode().getErrorMessage());
         }
+        throwable.printStackTrace();
         GenericExceptionHandler.handleError(assignDefaultErrorCode(), assignDefaultErrorCode().getErrorMessage());
         return null;
     }
+    
 
-	Response<List<CardLessCashQueryResponse>> doCall(String p, Integer q);
 
 }

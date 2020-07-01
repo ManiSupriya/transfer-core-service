@@ -5,11 +5,8 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_N
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACC_EXTERNAL_SERVICE_ERROR;
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -22,6 +19,7 @@ import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashBlockRequest;
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashGenReq;
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashGenerationRequest;
+import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashQueryRequest;
 import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashBlockResponse;
 import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashGenerationResponse;
 import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashQueryResponse;
@@ -30,6 +28,7 @@ import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.CifProductsDto;
 import com.mashreq.transfercoreservice.client.dto.CoreAccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.SearchAccountDto;
+import com.mashreq.transfercoreservice.common.FeesExternalConfig;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
 
@@ -49,6 +48,9 @@ public class AccountService {
 	public static final String TRUE = "true";
 	private final AccountClient accountClient;
 	private final AccountCardLessCashQueryService accountCardLessCashQueryService;
+	private final AccountCardLessCashRequestService accountCardLessCashRequestService;
+	private final AccountCardLessCashBlockRequestService accountCardLessCashBlockRequestService;
+	 private final FeesExternalConfig feeCodeConfig;
 
 	public List<AccountDetailsDTO> getAccountsFromCore(final String cifId) {
 		log.info("Fetching accounts for cifId {} ", cifId);
@@ -127,26 +129,26 @@ public class AccountService {
 		return isBlank(bigDecimalValue) ? BigDecimal.ZERO : new BigDecimal(bigDecimalValue);
 	}
 
-	public Response<List<CardLessCashQueryResponse>> cardLessCashRemitQuery( String accountNumber,
-			Integer remitNumDays) {
-		return Response.<List<CardLessCashQueryResponse>>builder().status(ResponseStatus.SUCCESS).data(accountCardLessCashQueryService.getResponse(accountNumber, remitNumDays).getData()).build();
+	public Response<List<CardLessCashQueryResponse>> cardLessCashRemitQuery(CardLessCashQueryRequest cardLessCashQueryRequest) {
+		return Response.<List<CardLessCashQueryResponse>>builder().status(ResponseStatus.SUCCESS).data(accountCardLessCashQueryService.getResponse(cardLessCashQueryRequest).getData()).build();
 	}
 
 	public Response<CardLessCashBlockResponse> blockCardLessCashRequest(CardLessCashBlockRequest blockRequest) {
 		log.info("blockRequest {} ", blockRequest);
 
-			return accountClient.blockCardLessCashRequest(blockRequest);
+		return accountCardLessCashBlockRequestService.getResponse(blockRequest);
+
 	}
 
 	public Response<CardLessCashGenerationResponse> cardLessCashRemitGenerationRequest(
-			CardLessCashGenerationRequest cardLessCashGenerationRequest) {
+			CardLessCashGenerationRequest cardLessCashGenerationRequest, String userMobileNumber) {
 		log.info("cardLessCashGenerationRequest {} ", cardLessCashGenerationRequest);
-		
+
 		CardLessCashGenReq cardLessCashGenReq = CardLessCashGenReq.builder()
 				.accountNumber(cardLessCashGenerationRequest.getAccountNo())
-				.amount(cardLessCashGenerationRequest.getAmount()).mobileNo(cardLessCashGenerationRequest.getMobileNo())
-				.fees(cardLessCashGenerationRequest.getFees()).build();
-		return accountClient
-					.cardLessCashRemitGenerationRequest(cardLessCashGenReq);
+				.amount(cardLessCashGenerationRequest.getAmount()).mobileNo(userMobileNumber)
+				.fees(new BigDecimal(feeCodeConfig.getCardLessCashExternalFee())).build();
+		return accountCardLessCashRequestService.getResponse(cardLessCashGenReq);
+
 	}
 }

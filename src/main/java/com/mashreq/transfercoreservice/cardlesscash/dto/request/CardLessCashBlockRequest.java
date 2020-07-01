@@ -1,5 +1,8 @@
 package com.mashreq.transfercoreservice.cardlesscash.dto.request;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,7 +16,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class CardLessCashBlockRequest {
-
+	@NotNull(message = "Reference Number is manadatory field")
     private String referenceNumber;
+	@NotNull(message = "Account Number is manadatory field")
+    @Pattern(regexp = "^[0-9]{12}$", message = "accountNum should have only twelve nummbers")
     private String accountNumber;
 }

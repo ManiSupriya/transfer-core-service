@@ -31,12 +31,12 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 
 	@Override
 	public Response cardLessCashRemitGenerationRequest(
-			CardLessCashGenerationRequest cardLessCashGenerationRequest) {
-		return accountService.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest);
+			CardLessCashGenerationRequest cardLessCashGenerationRequest, String userMobileNumber) {
+		return accountService.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest, userMobileNumber);
 }
 	@Override
 	public Response<List<CardLessCashQueryResponse>> cardLessCashRemitQuery(CardLessCashQueryRequest cardLessCashQueryRequest) {
-		return accountService.cardLessCashRemitQuery(cardLessCashQueryRequest.getAccountNumber(), cardLessCashQueryRequest.getRemitNumDays());
+		return accountService.cardLessCashRemitQuery(cardLessCashQueryRequest);
 }
 
 }
