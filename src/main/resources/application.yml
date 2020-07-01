@@ -52,6 +52,10 @@ external:
       accounts:
         detailCallErrorMap:
           ACC-ESB-001: SEND_EMPTY_RESPONSE
+  fees-code:
+    mapper:
+      fees:
+        cardLessCashFees: '0'
 
 app:
   local:

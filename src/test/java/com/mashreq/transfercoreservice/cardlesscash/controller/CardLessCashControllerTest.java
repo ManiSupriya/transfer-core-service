@@ -31,6 +31,9 @@ public class CardLessCashControllerTest {
 
     @InjectMocks
     CardLessCashController cardLessCashController;
+    
+    @Mock
+    CardLessCashBlockResponse cardLessCashBlockResponse;
 
     @Test
     public void blockCardLessCashRequestSuccessTest() {
@@ -41,15 +44,9 @@ public class CardLessCashControllerTest {
                 .accountNumber(accountNumber)
                 .referenceNumber(referenceNumber)
                 .build();
-
+        cardLessCashBlockResponse.setSuccess(true);
         Mockito.when(cardLessCashService.blockCardLessCashRequest(cardLessCashBlockRequest))
-                .thenReturn(Response.<CardLessCashBlockResponse>builder()
-                        .data(
-                                CardLessCashBlockResponse.builder()
-                                        .success(true)
-                                        .build()
-                        )
-                        .build());
+                .thenReturn(Response.<CardLessCashBlockResponse>builder().data(cardLessCashBlockResponse).build());
         Response<CardLessCashBlockResponse> cashBlockResponseResponse =
                 cardLessCashController.blockCardLessCashRequest(cardLessCashBlockRequest);
         Assert.assertNotNull(cashBlockResponseResponse);
@@ -62,15 +59,12 @@ public class CardLessCashControllerTest {
         String accountNumber = "019100064328";
         BigDecimal amount = new BigDecimal("1000");
         String mobileNo = "19100064328";
-        BigDecimal fees = new BigDecimal("1000");
         CardLessCashGenerationRequest cardLessCashGenerationRequest = CardLessCashGenerationRequest.builder()
                 .accountNo(accountNumber)
                 .amount(amount)
-                .mobileNo(mobileNo)
-                .fees(fees)
                 .build();
 
-        Mockito.when(cardLessCashService.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest))
+        Mockito.when(cardLessCashService.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest, mobileNo))
                 .thenReturn(Response.<CardLessCashGenerationResponse>builder().data(
                 		CardLessCashGenerationResponse.builder()
                         .expiryDateTime(LocalDateTime.now())
@@ -78,7 +72,7 @@ public class CardLessCashControllerTest {
                         )
                         .build());
         Response<CardLessCashGenerationResponse> cardLessCashGenerationResponse =
-                cardLessCashController.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest);
+                cardLessCashController.cardLessCashRemitGenerationRequest(mobileNo, cardLessCashGenerationRequest);
         Assert.assertNotNull(cardLessCashGenerationResponse);
 
     }

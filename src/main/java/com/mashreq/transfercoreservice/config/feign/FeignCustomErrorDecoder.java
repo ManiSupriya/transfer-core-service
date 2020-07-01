@@ -46,7 +46,7 @@ public class FeignCustomErrorDecoder implements ErrorDecoder {
                     responseErrorDetails,
                     responseErrorMessage);
 
-            final String errorDetails = appendToErrorDetails(responseErrorDetails, responseErrorCode);
+            final String errorDetails = appendToErrorDetails(responseErrorMessage, responseErrorCode);
             GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR, EXTERNAL_SERVICE_ERROR.getErrorMessage(), errorDetails);
 
             //This line will to throw Runtime Exception will never get executed as the GenericExceptionHandler will throw the exception.
@@ -62,10 +62,10 @@ public class FeignCustomErrorDecoder implements ErrorDecoder {
         }
     }
 
-    private String appendToErrorDetails(String responseErrorDetails, String responseErrorCode) {
-        return StringUtils.isBlank(responseErrorDetails)
+    private String appendToErrorDetails(String responseErrorMessage, String responseErrorCode) {
+        return StringUtils.isBlank(responseErrorMessage)
                 ? responseErrorCode
-                : responseErrorDetails + "," + responseErrorCode;
+                : responseErrorMessage + "," + responseErrorCode;
     }
 
     private Optional<String> getJsonValueAsText(JsonNode jsonNode, String code) {
