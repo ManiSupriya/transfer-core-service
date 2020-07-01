@@ -40,7 +40,7 @@
 
         <!-- internal modules -->
         <com.mashreq.esbcore>1.0.48</com.mashreq.esbcore>
-        <io.netty>4.1.45.Final</io.netty>
+        <io.netty>4.1.48.Final</io.netty>
         <com.mashreq.logcore>1.0.4</com.mashreq.logcore>
         <com.mashreq.encryption>1.0.0</com.mashreq.encryption>
         <com.mashreq.encryption>1.0.0</com.mashreq.encryption>
