@@ -52,6 +52,7 @@ external:
       accounts:
         detailCallErrorMap:
           ACC-ESB-001: SEND_EMPTY_RESPONSE
+          ACC-ESB-65: EXCEEDS_WITHDRAWL_FREEQUENCY
   fees-code:
     mapper:
       fees:
