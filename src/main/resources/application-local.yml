@@ -14,14 +14,24 @@ spring:
   profiles.active: local
   main.lazy-initialization: false
   datasource:
-    driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
-    url: jdbc:sqlserver://localhost:1433;databaseName=MOB-LOCAL
-    username: SA
-    password: Asdasdasd123
+    url: ${MSSQL_DEV_URL:jdbc:sqlserver://10.196.3.22:1433;databaseName=MOB-DEV}
+    username: ${MSSQL_DEV_USERNAME:Mobdbuser}
+    password: ${MSSQL_DB_KEY:Mobdbuser}
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: validate
+
+external:
+  error-code:
+    mapper:
+      accounts:
+        detailCallErrorMap:
+          ACC-ESB-001: SEND_EMPTY_RESPONSE
+  fees-code:
+    mapper:
+      fees:
+        cardLessCashFees: '0'
 
 
 logging.level:

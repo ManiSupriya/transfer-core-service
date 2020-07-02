@@ -1,11 +1,16 @@
 package com.mashreq.transfercoreservice.cardlesscash.controller;
 
-import java.math.BigInteger;
+import static com.mashreq.ms.commons.cache.HeaderNames.X_USSM_USER_MOBILE_NUMBER;
+
 import java.util.List;
+
+import javax.validation.Valid;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,7 +50,7 @@ public class CardLessCashController {
             @ApiResponse(code = 401, message = "You are not authorized to view the resource")
     })
     @PostMapping(CardLessCashConstants.URL.CLC_BLOCK_URL)
-    public Response<CardLessCashBlockResponse> blockCardLessCashRequest(CardLessCashBlockRequest blockRequest) {
+    public Response<CardLessCashBlockResponse> blockCardLessCashRequest(@Valid @RequestBody CardLessCashBlockRequest blockRequest) {
 
         return cardLessCashService.blockCardLessCashRequest(blockRequest);
     }
@@ -62,9 +67,8 @@ public class CardLessCashController {
             @ApiResponse(code = 401, message = "You are not authorized to view the resource")
     })
     @PostMapping(CardLessCashConstants.URL.CLC_REQUEST_URL)
-    public Response<CardLessCashGenerationResponse> cardLessCashRemitGenerationRequest(CardLessCashGenerationRequest cardLessCashGenerationRequest) {
-
-    	return cardLessCashService.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest);
+    public Response<CardLessCashGenerationResponse> cardLessCashRemitGenerationRequest(@RequestHeader(X_USSM_USER_MOBILE_NUMBER) final String userMobileNumber, @Valid @RequestBody CardLessCashGenerationRequest cardLessCashGenerationRequest) {
+    	return cardLessCashService.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest, userMobileNumber);
     }
     
     /**
@@ -79,7 +83,7 @@ public class CardLessCashController {
             @ApiResponse(code = 401, message = "You are not authorized to view the resource")
     })
     @GetMapping(CardLessCashConstants.URL.CLC_QUERY_URL)
-    public Response<List<CardLessCashQueryResponse>> cardLessCashRemitQuery(@PathVariable final String accountNumber, @RequestParam final BigInteger remitNumDays) {
+    public Response<List<CardLessCashQueryResponse>> cardLessCashRemitQuery(@PathVariable final String accountNumber, @RequestParam final Integer remitNumDays) {
     	CardLessCashQueryRequest cardLessCashQueryRequest = new CardLessCashQueryRequest();
     	cardLessCashQueryRequest.setAccountNumber(accountNumber);
     	cardLessCashQueryRequest.setRemitNumDays(remitNumDays);

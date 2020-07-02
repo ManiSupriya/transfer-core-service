@@ -1,7 +1,6 @@
 package com.mashreq.transfercoreservice.cardlesscash.service.impl;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -32,7 +31,10 @@ public class CardLessCashServiceTest {
 	
 	@InjectMocks
 	private CardLessCashServiceImpl cardLessCashServiceImpl;
-
+	
+	 @Mock
+	 CardLessCashBlockResponse cardLessCashBlockResponse;
+	 
     @Test
     public void blockCardLessCashRequestTest() {
     	String accountNumber = "019100064328";
@@ -42,14 +44,9 @@ public class CardLessCashServiceTest {
                 .referenceNumber(referenceNumber)
                 .build();
 
-        Mockito.when(accountService.blockCardLessCashRequest(cardLessCashBlockRequest))
-                .thenReturn(Response.<CardLessCashBlockResponse>builder()
-                        .data(
-                                CardLessCashBlockResponse.builder()
-                                        .success(true)
-                                        .build()
-                        )
-                        .build());
+        cardLessCashBlockResponse.setSuccess(true);
+        Mockito.when(cardLessCashServiceImpl.blockCardLessCashRequest(cardLessCashBlockRequest))
+                .thenReturn(Response.<CardLessCashBlockResponse>builder().data(cardLessCashBlockResponse).build());
         Response<CardLessCashBlockResponse> cashBlockResponseResponse =
         		cardLessCashServiceImpl.blockCardLessCashRequest(cardLessCashBlockRequest);
         Assert.assertNotNull(cashBlockResponseResponse);
@@ -61,15 +58,12 @@ public class CardLessCashServiceTest {
         String accountNumber = "019100064328";
         BigDecimal amount = new BigDecimal("1000");
         String mobileNo = "19100064328";
-        BigDecimal fees = new BigDecimal("1000");
         CardLessCashGenerationRequest cardLessCashGenerationRequest = CardLessCashGenerationRequest.builder()
                 .accountNo(accountNumber)
                 .amount(amount)
-                .mobileNo(mobileNo)
-                .fees(fees)
                 .build();
 
-        Mockito.when(accountService.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest))
+        Mockito.when(accountService.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest, mobileNo))
                 .thenReturn(Response.<CardLessCashGenerationResponse>builder().data(
                 		CardLessCashGenerationResponse.builder()
                         .expiryDateTime(LocalDateTime.now())
@@ -77,7 +71,7 @@ public class CardLessCashServiceTest {
                         )
                         .build());
         Response<CardLessCashGenerationResponse> cardLessCashGenerationResponse =
-        		cardLessCashServiceImpl.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest);
+        		cardLessCashServiceImpl.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest, mobileNo);
         Assert.assertNotNull(cardLessCashGenerationResponse);
 
     }
@@ -85,7 +79,7 @@ public class CardLessCashServiceTest {
 	public void cardLessCashRemitQueryTest() {
 
         String accountNumber = "019100064328";
-        BigInteger remitNumDays = BigInteger.valueOf(1);
+        Integer remitNumDays = 1;
         CardLessCashQueryRequest cardLessCashQueryRequest = CardLessCashQueryRequest.builder()
                 .accountNumber(accountNumber)
                 .remitNumDays(remitNumDays)
@@ -100,7 +94,7 @@ public class CardLessCashServiceTest {
         .build();
 		List<CardLessCashQueryResponse> cardLessCashQueryResponseList = new ArrayList<>();
 		cardLessCashQueryResponseList.add(cardLessCashQueryResponse);
-		Mockito.when(accountService.cardLessCashRemitQuery(accountNumber, remitNumDays)).thenReturn(
+		Mockito.when(accountService.cardLessCashRemitQuery(cardLessCashQueryRequest)).thenReturn(
 				Response.<List<CardLessCashQueryResponse>>builder().data(cardLessCashQueryResponseList).build());
 		Response<List<CardLessCashQueryResponse>> cardLessCashQueryRes = cardLessCashServiceImpl
 				.cardLessCashRemitQuery(cardLessCashQueryRequest);
