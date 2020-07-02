@@ -2,8 +2,8 @@ package com.mashreq.transfercoreservice.fundtransfer.validators;
 
 
 import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.RequestMetaData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +17,7 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_P
 public class PaymentPurposeValidator implements Validator {
 
     @Override
-    public ValidationResult validate(FundTransferRequestDTO request, FundTransferMetadata metadata, ValidationContext context) {
+    public ValidationResult validate(FundTransferRequestDTO request, RequestMetaData metadata, ValidationContext context) {
         final Set<MoneyTransferPurposeDto> purposes = context.get("purposes", Set.class);
 
         if(!lookForPurposeCode(purposes, request.getPurposeCode())) {

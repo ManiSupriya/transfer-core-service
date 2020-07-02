@@ -3,6 +3,7 @@ package com.mashreq.transfercoreservice.fundtransfer.validators;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.RequestMetaData;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -39,7 +40,7 @@ public class AccountBelongsToCifValidatorTest {
 
         //when
         AccountBelongsToCifValidator accountBelongsToCifValidator = new AccountBelongsToCifValidator();
-        ValidationResult result = accountBelongsToCifValidator.validate(mockFundTransferRequest, null, mockValidationContext);
+        ValidationResult result = accountBelongsToCifValidator.validate(mockFundTransferRequest,null, mockValidationContext);
 
         //then
         assertThat(result).isNotNull();

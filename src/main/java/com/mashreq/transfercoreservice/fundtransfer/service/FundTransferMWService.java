@@ -128,7 +128,7 @@ public class FundTransferMWService {
         creditLeg.setBenAddr1(request.getBeneficiaryAddressOne());
         creditLeg.setBenAddr2(request.getBeneficiaryAddressTwo());
         creditLeg.setBenAddr3(request.getBeneficiaryAddressThree());
-
+        creditLeg.setAWInstAddr2(request.getBeneficiaryAddressTwo());
 
         FundTransferReqType.Transfer transfer = new FundTransferReqType.Transfer();
         transfer.setCreditLeg(creditLeg);

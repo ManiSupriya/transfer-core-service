@@ -9,9 +9,15 @@ import lombok.Data;
  */
 @Data
 @Builder(toBuilder = true)
-public class FundTransferMetadata {
+public class RequestMetaData {
     private String primaryCif;
     private String channel;
     private String channelHost;
     private String channelTraceId;
+    private String coRelationId;
+    private String userCacheKey;
+    private String username;
+    private String actionKey;
+    private String ip;
+    private String region;
 }

@@ -33,7 +33,7 @@ public class QuickRemitInstaRemRequestMapper implements QuickRemitMapper {
 
 
     @Override
-    public QuickRemitFundTransferRequest mapTo(FundTransferMetadata metadata,
+    public QuickRemitFundTransferRequest mapTo(RequestMetaData metadata,
                                                FundTransferRequestDTO request,
                                                FundTransferContext fundTransferContext) {
 

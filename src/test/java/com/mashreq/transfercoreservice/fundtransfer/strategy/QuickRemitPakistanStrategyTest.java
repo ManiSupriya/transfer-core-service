@@ -118,7 +118,7 @@ public class QuickRemitPakistanStrategyTest {
                 .build(),CustomerPhones.builder().phoneNumberType("R").mobNumber("12345678")
                         .build())).nationality("UK").cifBranch("078").build();
 
-        FundTransferMetadata metadata =  FundTransferMetadata.builder().primaryCif(cif)
+        RequestMetaData metadata =  RequestMetaData.builder().primaryCif(cif)
                 .channel(channel).channelTraceId(channelTraceId).build();
         UserDTO userDTO = new UserDTO();
         final ValidationResult validationResult = ValidationResult.builder().success(true).build();
@@ -275,7 +275,7 @@ public class QuickRemitPakistanStrategyTest {
                 .build(),CustomerPhones.builder().phoneNumberType("R").mobNumber("12345678")
                 .build())).nationality("UK").cifBranch("078").build();
 
-        FundTransferMetadata metadata =  FundTransferMetadata.builder().primaryCif(cif)
+        RequestMetaData metadata =  RequestMetaData.builder().primaryCif(cif)
                 .channel(channel).channelTraceId(channelTraceId).build();
         UserDTO userDTO = new UserDTO();
         final ValidationResult validationResult = ValidationResult.builder().success(true).build();

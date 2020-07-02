@@ -1,8 +1,8 @@
 package com.mashreq.transfercoreservice.api;
 
 import com.mashreq.ms.commons.cache.HeaderNames;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.RequestMetaData;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferService;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
@@ -38,7 +38,7 @@ public class FundTransferController {
                                   @RequestHeader(HeaderNames.CIF_HEADER_NAME) final String cifId,
                                   @Valid @RequestBody FundTransferRequestDTO request) {
         log.info("{} Fund transfer for request received ", request.getServiceType());
-        FundTransferMetadata metadata = FundTransferMetadata.builder()
+        RequestMetaData metadata = RequestMetaData.builder()
                 .channel(channelName)
                 .channelTraceId(channelTraceId)
                 .channelHost(channelHost)

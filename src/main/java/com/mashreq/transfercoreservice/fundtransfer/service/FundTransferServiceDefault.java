@@ -4,6 +4,9 @@ import com.mashreq.logcore.annotations.TrackExec;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
+import com.mashreq.transfercoreservice.event.model.EventStatus;
+import com.mashreq.transfercoreservice.event.model.EventType;
+import com.mashreq.transfercoreservice.event.publisher.AuditEventPublisher;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageService;
@@ -33,6 +36,7 @@ import static java.time.Instant.now;
 @RequiredArgsConstructor
 public class FundTransferServiceDefault implements FundTransferService {
 
+    private static final String FUND_TRANSFER_END_SUFFIX = "_FUND_TRANSFER_ENDS";
     private final DigitalUserRepository digitalUserRepository;
     private final PaymentHistoryService paymentHistoryService;
     private final DigitalUserLimitUsageService digitalUserLimitUsageService;
@@ -42,6 +46,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final InternationalFundTransferStrategy internationalFundTransferStrategy;
     private final CharityStrategyDefault charityStrategyDefault;
     private final QuickRemitStrategy quickRemitStrategy;
+    private final AuditEventPublisher auditEventPublisher;
     private EnumMap<ServiceType, FundTransferStrategy> fundTransferStrategies;
 
 
@@ -56,56 +61,60 @@ public class FundTransferServiceDefault implements FundTransferService {
         fundTransferStrategies.put(DUBAI_CARE, charityStrategyDefault);
         fundTransferStrategies.put(DAR_AL_BER, charityStrategyDefault);
         fundTransferStrategies.put(QUICK_REMIT, quickRemitStrategy);
-
     }
 
     @Override
-    public FundTransferResponseDTO transferFund(FundTransferMetadata metadata, FundTransferRequestDTO request) {
+    public FundTransferResponseDTO transferFund(RequestMetaData metadata, FundTransferRequestDTO request) {
+
         Instant start = now();
         log.info("Starting fund transfer for {} ", request.getServiceType());
+       /* ServiceType serviceType = ServiceType.getServiceByType(request.getServiceType());
+        EventType fundTransferEndEventType = EventType.getEventTypeByCode(serviceType.getEventPrefix()+FUND_TRANSFER_END_SUFFIX);
+*/
+        //return auditEventPublisher.publishEventLifecycle(() -> {
+            log.info("Finding Digital User for CIF-ID {}", metadata.getPrimaryCif());
+            DigitalUser digitalUser = getDigitalUser(metadata);
 
-        log.info("Finding Digital User for CIF-ID {}", metadata.getPrimaryCif());
-        DigitalUser digitalUser = getDigitalUser(metadata);
+            log.info("Creating  User DTO");
+            UserDTO userDTO = createUserDTO(metadata, digitalUser);
 
-        log.info("Creating  User DTO");
-        UserDTO userDTO = createUserDTO(metadata, digitalUser);
-
-        FundTransferStrategy strategy = fundTransferStrategies.get(ServiceType.getServiceByType(request.getServiceType()));
-        FundTransferResponse response = strategy.execute(request, metadata, userDTO);
-
-
-        if (isSuccessOrProcessing(response)) {
-
-            DigitalUserLimitUsageDTO digitalUserLimitUsageDTO = generateUserLimitUsage(
-                    request.getServiceType(), response.getLimitUsageAmount(), userDTO, metadata, response.getLimitVersionUuid());
-            log.info("Inserting into limits table {} ", digitalUserLimitUsageDTO);
-            digitalUserLimitUsageService.insert(digitalUserLimitUsageDTO);
-        }
-
-        // Insert payment history irrespective of mw payment fails or success
-        PaymentHistoryDTO paymentHistoryDTO = generatePaymentHistory(request, response.getResponseDto(), userDTO, metadata);
-
-        log.info("Inserting into Payments History table {} ", paymentHistoryDTO);
-        paymentHistoryService.insert(paymentHistoryDTO);
-
-        log.info("Total time taken for {} Fund Transfer {} milli seconds ", request.getServiceType(), between(start, now()).toMillis());
-
-        if (isFailure(response)) {
-            GenericExceptionHandler.handleError(FUND_TRANSFER_FAILED,
-                    getFailureMessage(FUND_TRANSFER_FAILED, request, response),
-                    response.getResponseDto().getMwResponseCode());
-        }
+            FundTransferStrategy strategy = fundTransferStrategies.get(ServiceType.getServiceByType(request.getServiceType()));
+            FundTransferResponse response = strategy.execute(request, metadata, userDTO);
 
 
-        return FundTransferResponseDTO.builder()
-                .accountTo(paymentHistoryDTO.getAccountTo())
-                .status(paymentHistoryDTO.getStatus())
-                .paidAmount(paymentHistoryDTO.getPaidAmount())
-                .mwReferenceNo(paymentHistoryDTO.getMwReferenceNo())
-                .mwResponseCode(paymentHistoryDTO.getMwResponseCode())
-                .mwResponseDescription(paymentHistoryDTO.getMwResponseDescription())
-                .financialTransactionNo(request.getFinTxnNo())
-                .build();
+            if (isSuccessOrProcessing(response)) {
+
+                DigitalUserLimitUsageDTO digitalUserLimitUsageDTO = generateUserLimitUsage(
+                        request.getServiceType(), response.getLimitUsageAmount(), userDTO, metadata, response.getLimitVersionUuid());
+                log.info("Inserting into limits table {} ", digitalUserLimitUsageDTO);
+                digitalUserLimitUsageService.insert(digitalUserLimitUsageDTO);
+            }
+
+            // Insert payment history irrespective of mw payment fails or success
+            PaymentHistoryDTO paymentHistoryDTO = generatePaymentHistory(request, response.getResponseDto(), userDTO, metadata);
+
+            log.info("Inserting into Payments History table {} ", paymentHistoryDTO);
+            paymentHistoryService.insert(paymentHistoryDTO);
+
+            log.info("Total time taken for {} Fund Transfer {} milli seconds ", request.getServiceType(), between(start, now()).toMillis());
+
+            if (isFailure(response)) {
+                GenericExceptionHandler.handleError(FUND_TRANSFER_FAILED,
+                        getFailureMessage(FUND_TRANSFER_FAILED, request, response),
+                        response.getResponseDto().getMwResponseCode());
+            }
+
+
+            return FundTransferResponseDTO.builder()
+                    .accountTo(paymentHistoryDTO.getAccountTo())
+                    .status(paymentHistoryDTO.getStatus())
+                    .paidAmount(paymentHistoryDTO.getPaidAmount())
+                    .mwReferenceNo(paymentHistoryDTO.getMwReferenceNo())
+                    .mwResponseCode(paymentHistoryDTO.getMwResponseCode())
+                    .mwResponseDescription(paymentHistoryDTO.getMwResponseDescription())
+                    .financialTransactionNo(request.getFinTxnNo())
+                    .build();
+        //}, fundTransferEndEventType, metadata, request.toString());
     }
 
     private boolean isFailure(FundTransferResponse response) {
@@ -126,7 +135,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     }
 
 
-    private DigitalUser getDigitalUser(FundTransferMetadata fundTransferMetadata) {
+    private DigitalUser getDigitalUser(RequestMetaData fundTransferMetadata) {
         Optional<DigitalUser> digitalUserOptional = digitalUserRepository.findByCifEquals(fundTransferMetadata.getPrimaryCif());
         if (!digitalUserOptional.isPresent()) {
             GenericExceptionHandler.handleError(INVALID_CIF, INVALID_CIF.getErrorMessage());
@@ -136,7 +145,7 @@ public class FundTransferServiceDefault implements FundTransferService {
         return digitalUserOptional.get();
     }
 
-    private UserDTO createUserDTO(FundTransferMetadata fundTransferMetadata, DigitalUser digitalUser) {
+    private UserDTO createUserDTO(RequestMetaData fundTransferMetadata, DigitalUser digitalUser) {
         UserDTO userDTO = new UserDTO();
         userDTO.setCifId(fundTransferMetadata.getPrimaryCif());
         userDTO.setUserId(digitalUser.getId());
@@ -149,7 +158,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     }
 
     private DigitalUserLimitUsageDTO generateUserLimitUsage(String serviceType, BigDecimal usageAmount, UserDTO userDTO,
-                                                            FundTransferMetadata fundTransferMetadata, String versionUuid) {
+                                                            RequestMetaData fundTransferMetadata, String versionUuid) {
         return DigitalUserLimitUsageDTO.builder()
                 .digitalUserId(userDTO.getUserId())
                 .cif(fundTransferMetadata.getPrimaryCif())
@@ -163,7 +172,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     }
 
     PaymentHistoryDTO generatePaymentHistory(FundTransferRequestDTO request, CoreFundTransferResponseDto coreResponse, UserDTO userDTO,
-                                             FundTransferMetadata fundTransferMetadata) {
+                                             RequestMetaData fundTransferMetadata) {
 
         //convert dto
         return PaymentHistoryDTO.builder()

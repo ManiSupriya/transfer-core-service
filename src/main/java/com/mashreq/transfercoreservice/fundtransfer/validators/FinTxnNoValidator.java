@@ -1,8 +1,8 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.RequestMetaData;
 import com.mashreq.transfercoreservice.fundtransfer.service.PaymentHistoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ public class FinTxnNoValidator implements Validator {
     private final PaymentHistoryService paymentHistoryService;
 
     @Override
-    public ValidationResult validate(final FundTransferRequestDTO request, final FundTransferMetadata metadata, final ValidationContext context) {
+    public ValidationResult validate(final FundTransferRequestDTO request, final RequestMetaData metadata, final ValidationContext context) {
         log.info("Validating fin-txn-no {} for service type [ {} ] ", request.getFinTxnNo(), request.getServiceType());
         if (paymentHistoryService.isFinancialTransactionPresent(request.getFinTxnNo())) {
             log.warn("Duplicate fin-txn-no {} found for service type [ {} ] ", request.getFinTxnNo(), request.getServiceType());

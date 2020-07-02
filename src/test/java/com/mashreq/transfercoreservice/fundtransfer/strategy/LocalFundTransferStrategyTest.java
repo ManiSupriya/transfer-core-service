@@ -112,7 +112,7 @@ public class LocalFundTransferStrategyTest {
         requestDTO.setServiceType(ServiceType.LOCAL.getName());
         requestDTO.setBeneficiaryId(beneId);
 
-        FundTransferMetadata metadata =  FundTransferMetadata.builder().primaryCif(cif).channel(channel).channelTraceId(channelTraceId).build();
+        RequestMetaData metadata =  RequestMetaData.builder().primaryCif(cif).channel(channel).channelTraceId(channelTraceId).build();
         UserDTO userDTO = new UserDTO();
 
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
@@ -210,7 +210,7 @@ public class LocalFundTransferStrategyTest {
         requestDTO.setServiceType(ServiceType.LOCAL.getName());
         requestDTO.setBeneficiaryId(beneId);
 
-        FundTransferMetadata metadata =  FundTransferMetadata.builder().primaryCif(cif).channel(channel).channelTraceId(channelTraceId).build();
+        RequestMetaData metadata =  RequestMetaData.builder().primaryCif(cif).channel(channel).channelTraceId(channelTraceId).build();
         UserDTO userDTO = new UserDTO();
 
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
