@@ -61,7 +61,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
 
     @Override
-    public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO) {
+    public FundTransferResponse execute(FundTransferRequestDTO request, RequestMetaData metadata, UserDTO userDTO) {
         responseHandler(finTxnNoValidator.validate(request, metadata));
 
         final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metadata.getPrimaryCif());
@@ -150,7 +150,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         return amtToBePaidInSrcCurrency;
     }
 
-    private FundTransferRequest prepareFundTransferRequestPayload(FundTransferMetadata metadata, FundTransferRequestDTO request,
+    private FundTransferRequest prepareFundTransferRequestPayload(RequestMetaData metadata, FundTransferRequestDTO request,
                                                                   AccountDetailsDTO accountDetails, BeneficiaryDto beneficiaryDto) {
         return FundTransferRequest.builder()
                 .productId(LOCAL_PRODUCT_ID)

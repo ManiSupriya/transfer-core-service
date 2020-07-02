@@ -83,8 +83,10 @@ public enum TransferErrorCode implements ErrorCode {
     ACC_SERVICE_EXCEED_WITHDRAWL_ERROR("TN-5015", "Account external service exceeds withdrawal frequency exception"),
 
     //Middleware error codes
-    CONNECTION_TIMEOUT_MW("TN-5002", "Middleware Connection Timeout"),
-    EXTERNAL_SERVICE_ERROR_MW("TN-5003", "Something went wrong with middleware service");
+    CONNECTION_TIMEOUT_MW("TN-8002", "Middleware Connection Timeout"),
+    INTERNAL_ERROR("TN-8004", "Something went wrong"),
+    EXTERNAL_SERVICE_ERROR_MW("TN-8003", "Something went wrong with middleware service"),
+    INVALID_EVENT_TYPE_CODE("TN-8004","Invalid event code");
 
     private String customErrorCode;
     private String errorMessage;

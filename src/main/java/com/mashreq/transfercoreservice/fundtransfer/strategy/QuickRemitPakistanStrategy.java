@@ -46,7 +46,7 @@ public class QuickRemitPakistanStrategy implements QuickRemitFundTransfer {
     private final QuickRemitPakistanRequestMapper quickRemitPakistanRequestMapper;
 
     @Override
-    public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO, ValidationContext validationContext) {
+    public FundTransferResponse execute(FundTransferRequestDTO request, RequestMetaData metadata, UserDTO userDTO, ValidationContext validationContext) {
         log.info("Quick remit to PAKISTAN starts");
         responseHandler(finTxnNoValidator.validate(request, metadata));
 

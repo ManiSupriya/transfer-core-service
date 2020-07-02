@@ -56,7 +56,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     private String transactionCode;
 
     @Override
-    public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO) {
+    public FundTransferResponse execute(FundTransferRequestDTO request, RequestMetaData metadata, UserDTO userDTO) {
 
         Instant start = Instant.now();
 
@@ -172,7 +172,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(currencyConversionRequestDto);
         return currencyConversionDto.getTransactionAmount();
     }
-    private FundTransferRequest prepareFundTransferRequestPayload(FundTransferMetadata metadata, FundTransferRequestDTO request,
+    private FundTransferRequest prepareFundTransferRequestPayload(RequestMetaData metadata, FundTransferRequestDTO request,
                                                                   AccountDetailsDTO sourceAccount, BeneficiaryDto beneficiaryDto) {
         return FundTransferRequest.builder()
                 .amount(request.getAmount())

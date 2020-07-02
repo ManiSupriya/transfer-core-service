@@ -47,7 +47,7 @@ public class CharityStrategyDefault implements FundTransferStrategy {
 
 
     @Override
-    public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO) {
+    public FundTransferResponse execute(FundTransferRequestDTO request, RequestMetaData metadata, UserDTO userDTO) {
 
         Instant start = Instant.now();
 
@@ -108,7 +108,7 @@ public class CharityStrategyDefault implements FundTransferStrategy {
 
     }
 
-    private FundTransferRequest prepareFundTransferRequestPayload(FundTransferMetadata metadata, FundTransferRequestDTO request,
+    private FundTransferRequest prepareFundTransferRequestPayload(RequestMetaData metadata, FundTransferRequestDTO request,
                                                                   AccountDetailsDTO sourceAccount, CharityBeneficiaryDto charityBeneficiaryDto) {
         return FundTransferRequest.builder()
                 .amount(request.getAmount())

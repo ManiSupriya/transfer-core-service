@@ -2,9 +2,9 @@ package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.QuickRemitType;
+import com.mashreq.transfercoreservice.fundtransfer.dto.RequestMetaData;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
 import org.junit.Test;
@@ -42,7 +42,7 @@ public class QuickRemitStrategyTest {
 
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setBeneficiaryId("123");
-        FundTransferMetadata metadata = FundTransferMetadata.builder().primaryCif("12345").build();
+        RequestMetaData metadata = RequestMetaData.builder().primaryCif("12345").build();
         UserDTO dto = new UserDTO();
         BeneficiaryDto bene = new BeneficiaryDto();
         bene.setBeneficiaryCountryISO("IN");
@@ -65,7 +65,7 @@ public class QuickRemitStrategyTest {
 
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setBeneficiaryId("123");
-        FundTransferMetadata metadata = FundTransferMetadata.builder().primaryCif("12345").build();
+        RequestMetaData metadata = RequestMetaData.builder().primaryCif("12345").build();
         UserDTO dto = new UserDTO();
         BeneficiaryDto bene = new BeneficiaryDto();
         bene.setBeneficiaryCountryISO("PK");

@@ -1,7 +1,8 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
+
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.RequestMetaData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -23,7 +24,7 @@ public class IBANValidator implements Validator {
     private String bankCode;
 
     @Override
-    public ValidationResult validate(FundTransferRequestDTO request, FundTransferMetadata metadata, ValidationContext context) {
+    public ValidationResult validate(FundTransferRequestDTO request, RequestMetaData metadata, ValidationContext context) {
         log.info("Validating IBAN for service type [ {} ] ", request.getServiceType());
 
         final int ibanLength = context.get("iban-length", Integer.class);
