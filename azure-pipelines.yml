@@ -2,6 +2,9 @@ trigger:
   - master
   - develop
 
+parameters:
+ VeracodeAppName: 'ubtablet'
+
 pr:
   - master
   - develop
