@@ -2,15 +2,24 @@ package com.mashreq.transfercoreservice.fundtransfer.validators;
 
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
+import com.mashreq.transfercoreservice.event.model.EventStatus;
+import com.mashreq.transfercoreservice.event.model.EventType;
+import com.mashreq.transfercoreservice.event.publisher.Publisher;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.RequestMetaData;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
+import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 
 /**
  * @author shahbazkh
@@ -19,6 +28,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BalanceValidatorTest {
+
+
+    @Mock
+    private Publisher auditEventPublisher;
 
     @InjectMocks
     private BalanceValidator balanceValidator;
@@ -39,6 +52,7 @@ public class BalanceValidatorTest {
         mockFundTransferRequest.setAmount(new BigDecimal(10));
         mockFundTransferRequest.setServiceType("local");
         mockValidationContext.add("transfer-amount-in-source-currency", new BigDecimal(10));
+
 
         ValidationResult result = balanceValidator.validate(mockFundTransferRequest, null, mockValidationContext);
 

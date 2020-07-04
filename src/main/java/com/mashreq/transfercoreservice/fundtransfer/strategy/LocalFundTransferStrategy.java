@@ -70,12 +70,11 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         validationContext.add("validate-from-account", Boolean.TRUE);
 
 
-        final Set<MoneyTransferPurposeDto> allPurposeCodes = mobCommonService.getPaymentPurposes(request.getServiceType(),
-                "", INDIVIDUAL_ACCOUNT);
+        //TODO Remove the empty qrType
+        final Set<MoneyTransferPurposeDto> allPurposeCodes = mobCommonService.getPaymentPurposes(request.getServiceType(), "", INDIVIDUAL_ACCOUNT);
+
         validationContext.add("purposes", allPurposeCodes);
         responseHandler(paymentPurposeValidator.validate(request, metadata, validationContext));
-
-
         responseHandler(accountBelongsToCifValidator.validate(request, metadata, validationContext));
 
         final AccountDetailsDTO fromAccountDetails = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());

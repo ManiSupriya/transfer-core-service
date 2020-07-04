@@ -2,11 +2,13 @@ package com.mashreq.transfercoreservice.fundtransfer.validators;
 
 
 import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
+import com.mashreq.transfercoreservice.event.publisher.Publisher;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
@@ -21,6 +23,9 @@ public class PaymentPurposeValidatorTest {
 
     @InjectMocks
     private PaymentPurposeValidator paymentPurposeValidator;
+
+    @Mock
+    private Publisher auditEventPublisher;
 
     @Test
     public void test_when_pop_code_and_desc_is_valid() {
@@ -39,7 +44,7 @@ public class PaymentPurposeValidatorTest {
         final ValidationResult result = paymentPurposeValidator.validate(request, null, mockValidationContext);
 
         //then
-        Assert.assertEquals( true, result.isSuccess());
+        Assert.assertEquals(true, result.isSuccess());
 
     }
 
@@ -60,8 +65,8 @@ public class PaymentPurposeValidatorTest {
         final ValidationResult result = paymentPurposeValidator.validate(request, null, mockValidationContext);
 
         //then
-        Assert.assertEquals( false, result.isSuccess());
-        Assert.assertEquals( INVALID_PURPOSE_CODE, result.getTransferErrorCode());
+        Assert.assertEquals(false, result.isSuccess());
+        Assert.assertEquals(INVALID_PURPOSE_CODE, result.getTransferErrorCode());
 
     }
 
@@ -82,13 +87,13 @@ public class PaymentPurposeValidatorTest {
         final ValidationResult result = paymentPurposeValidator.validate(request, null, mockValidationContext);
 
         //then
-        Assert.assertEquals( false, result.isSuccess());
-        Assert.assertEquals( INVALID_PURPOSE_DESC, result.getTransferErrorCode());
+        Assert.assertEquals(false, result.isSuccess());
+        Assert.assertEquals(INVALID_PURPOSE_DESC, result.getTransferErrorCode());
 
     }
 
     @Test(expected = NullPointerException.class)
-    public void test_when_validation_throws_exception(){
+    public void test_when_validation_throws_exception() {
         //given
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setPurposeCode("FAM");
@@ -100,9 +105,6 @@ public class PaymentPurposeValidatorTest {
         paymentPurposeValidator.validate(requestDTO, null, mockValidationContext);
 
     }
-
-
-
 
 
 }

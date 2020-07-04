@@ -19,12 +19,16 @@ public class AsyncAuditEventListener implements ApplicationListener<AuditEvent> 
     private final UserEventAuditRepository userEventAuditRepository;
     private final AuditEventMapper auditEventMapper;
 
+    /**
+     * Listens to Audit Events and saves them in database
+     *
+     * @param auditEvent
+     */
     @Override
     public void onApplicationEvent(AuditEvent auditEvent) {
         log.info("Audit Event raised = {} ", auditEvent);
-        userEventAuditRepository.save(auditEventMapper.map(auditEvent));
+        userEventAuditRepository.save(auditEventMapper.createEntity(auditEvent));
     }
-
 
 
 }

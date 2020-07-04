@@ -2,16 +2,25 @@ package com.mashreq.transfercoreservice.fundtransfer.validators;
 
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
+import com.mashreq.transfercoreservice.event.model.EventStatus;
+import com.mashreq.transfercoreservice.event.model.EventType;
+import com.mashreq.transfercoreservice.event.publisher.Publisher;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.RequestMetaData;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 /**
  * @author shahbazkh
@@ -20,6 +29,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AccountBelongsToCifValidatorTest {
+
+
+
+    @Mock
+    private Publisher auditEventPublisher;
+
+    @InjectMocks
+    private AccountBelongsToCifValidator accountBelongsToCifValidator;
+
 
     @Test
     public void shouldReturnFailure_whenBothAccountDoesNotBelongToCif_inOwnAccount() {
@@ -39,8 +57,7 @@ public class AccountBelongsToCifValidatorTest {
 
 
         //when
-        AccountBelongsToCifValidator accountBelongsToCifValidator = new AccountBelongsToCifValidator();
-        ValidationResult result = accountBelongsToCifValidator.validate(mockFundTransferRequest,null, mockValidationContext);
+        ValidationResult result = accountBelongsToCifValidator.validate(mockFundTransferRequest, null, mockValidationContext);
 
         //then
         assertThat(result).isNotNull();
@@ -83,7 +100,7 @@ public class AccountBelongsToCifValidatorTest {
 
 
         //when
-        AccountBelongsToCifValidator accountBelongsToCifValidator = new AccountBelongsToCifValidator();
+
         ValidationResult result = accountBelongsToCifValidator.validate(mockFundTransferRequest, null, mockValidationContext);
 
         //then
@@ -108,7 +125,7 @@ public class AccountBelongsToCifValidatorTest {
 
 
         //when
-        AccountBelongsToCifValidator accountBelongsToCifValidator = new AccountBelongsToCifValidator();
+
         ValidationResult result = accountBelongsToCifValidator.validate(mockFundTransferRequest, null, mockValidationContext);
 
         //then
@@ -133,7 +150,6 @@ public class AccountBelongsToCifValidatorTest {
 
 
         //when
-        AccountBelongsToCifValidator accountBelongsToCifValidator = new AccountBelongsToCifValidator();
         ValidationResult result = accountBelongsToCifValidator.validate(mockFundTransferRequest, null, mockValidationContext);
 
         //then
@@ -170,7 +186,6 @@ public class AccountBelongsToCifValidatorTest {
 
 
         //when
-        AccountBelongsToCifValidator accountBelongsToCifValidator = new AccountBelongsToCifValidator();
         ValidationResult result = accountBelongsToCifValidator.validate(mockFundTransferRequest, null, mockValidationContext);
 
         //then

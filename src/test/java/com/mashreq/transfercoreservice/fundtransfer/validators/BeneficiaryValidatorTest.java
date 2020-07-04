@@ -4,16 +4,28 @@ package com.mashreq.transfercoreservice.fundtransfer.validators;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryStatus;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
+import com.mashreq.transfercoreservice.event.model.EventStatus;
+import com.mashreq.transfercoreservice.event.model.EventType;
+import com.mashreq.transfercoreservice.event.publisher.Publisher;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.RequestMetaData;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.function.Supplier;
 
 
 @RunWith(MockitoJUnitRunner.class)
 public class BeneficiaryValidatorTest {
+
+
+    @Mock
+    private Publisher auditEventPublisher;
 
     @InjectMocks
     private BeneficiaryValidator beneficiaryValidator;
@@ -33,7 +45,7 @@ public class BeneficiaryValidatorTest {
 
         //then
         Assert.assertEquals(false, result.isSuccess());
-        Assert.assertEquals(TransferErrorCode.BENE_ACC_NOT_MATCH,result.getTransferErrorCode());
+        Assert.assertEquals(TransferErrorCode.BENE_ACC_NOT_MATCH, result.getTransferErrorCode());
 
     }
 
@@ -49,7 +61,7 @@ public class BeneficiaryValidatorTest {
 
         //then
         Assert.assertEquals(false, result.isSuccess());
-        Assert.assertEquals(TransferErrorCode.BENE_NOT_FOUND,result.getTransferErrorCode());
+        Assert.assertEquals(TransferErrorCode.BENE_NOT_FOUND, result.getTransferErrorCode());
     }
 
     @Test
@@ -68,7 +80,7 @@ public class BeneficiaryValidatorTest {
 
         //then
         Assert.assertEquals(false, result.isSuccess());
-        Assert.assertEquals(TransferErrorCode.BENE_NOT_ACTIVE,result.getTransferErrorCode());
+        Assert.assertEquals(TransferErrorCode.BENE_NOT_ACTIVE, result.getTransferErrorCode());
     }
 
     @Test

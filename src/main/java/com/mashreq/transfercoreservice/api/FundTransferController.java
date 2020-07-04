@@ -1,6 +1,7 @@
 package com.mashreq.transfercoreservice.api;
 
 import com.mashreq.ms.commons.cache.HeaderNames;
+import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.RequestMetaData;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferService;
@@ -36,12 +37,19 @@ public class FundTransferController {
                                   @RequestHeader("X-CHANNEL-HOST") String channelHost,
                                   @RequestHeader(HeaderNames.CHANNEL_TYPE_HEADER_NAME) String channelName,
                                   @RequestHeader(HeaderNames.CIF_HEADER_NAME) final String cifId,
+                                  @RequestHeader(HeaderNames.X_USSM_USER_REDIS_KEY) final String userCacheKey,
+                                  @RequestHeader(HeaderNames.X_CORRELATION_ID) final String correlationId,
+                                  @RequestHeader(HeaderNames.X_USSM_USER_NAME) final String userId,
                                   @Valid @RequestBody FundTransferRequestDTO request) {
+
         log.info("{} Fund transfer for request received ", request.getServiceType());
         RequestMetaData metadata = RequestMetaData.builder()
                 .channel(channelName)
                 .channelTraceId(channelTraceId)
                 .channelHost(channelHost)
+                .userCacheKey(userCacheKey)
+                .username(userId)
+                .coRelationId(correlationId)
                 .primaryCif(cifId)
                 .build();
 
@@ -50,4 +58,5 @@ public class FundTransferController {
                 .status(ResponseStatus.SUCCESS)
                 .data(fundTransferService.transferFund(metadata, request)).build();
     }
+
 }

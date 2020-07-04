@@ -29,19 +29,19 @@ import com.mashreq.webcore.dto.response.Response;
 @FeignClient(name = "accounts", url = "${app.services.accounts}", configuration = FeignConfig.class)
 public interface AccountClient {
 
-    @GetMapping(value = "/api/accounts/cif/{cifId}")
+    @GetMapping(value = "/api/accounts/cif/{cifId}", consumes = "application/json")
     Response<CifProductsDto> searchAccounts(@PathVariable("cifId") String cifId, @RequestParam(required = false) List<String> linkedCifs);
 
 
     @RequestMapping(method = RequestMethod.GET, value = "/api/accounts/{accountNumber}")
     Response<CoreAccountDetailsDTO> getAccountDetails(@PathVariable("accountNumber") String accountNumber);
-    
+
     @GetMapping(value = "/api/cardless-cash/query/{accountNumber}")
-    public Response<List<CardLessCashQueryResponse>> cardLessCashRemitQuery(@PathVariable("accountNumber") final String accountNumber, @RequestParam  Integer remitNumDays);
-    
+    public Response<List<CardLessCashQueryResponse>> cardLessCashRemitQuery(@PathVariable("accountNumber") final String accountNumber, @RequestParam Integer remitNumDays);
+
     @PostMapping(value = "/api/cardless-cash/request-block")
     public Response<CardLessCashBlockResponse> blockCardLessCashRequest(CardLessCashBlockRequest blockRequest);
-    
+
     @PostMapping(value = "/api/cardless-cash/request")
     public Response<CardLessCashGenerationResponse> cardLessCashRemitGenerationRequest(CardLessCashGenReq cardLessCashGenReq);
 }
