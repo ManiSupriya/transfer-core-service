@@ -14,9 +14,9 @@ spring:
   profiles.active: local
   main.lazy-initialization: false
   datasource:
-    url: ${MSSQL_DEV_URL:jdbc:sqlserver://10.196.3.22:1433;databaseName=MOB-DEV}
-    username: ${MSSQL_DEV_USERNAME:Mobdbuser}
-    password: ${MSSQL_DB_KEY:Mobdbuser}
+    url: ${MSSQL_DEV_URL:jdbc:sqlserver://localhost:1433;databaseName=MOB-LOCAL}
+    username: ${MSSQL_DEV_USERNAME:SA}
+    password: ${MSSQL_DB_KEY:Asdasdasd123}
   jpa:
     show-sql: true
     hibernate:
@@ -53,14 +53,14 @@ app:
   bank:
     code: '033'
   services:
-    maintenance: ${MAINTENANCE_SERVICE_URL:http://localhost:8085}
+    maintenance: ${MAINTENANCE_SERVICE_URL:https://digital-dev.mashreq.com/api/maintenance-service}
     customers: ${CUSTOMER_SERVICE_URL:http://localhost:8083}
-    accounts: ${ACCOUNT_SERVICE_URL:http://localhost:8082}
+    accounts: ${ACCOUNT_SERVICE_URL:https://digital-dev.mashreq.com/api/accounts-service}
     cards: ${CARD_SERVICE_URL:http://cards-service:8080}
     notification: ${NOTIFICATION_SERVICE:http://notification-service:8080}
     mobcustomer: ${MOB_CUSTOMER_SERVICE:http://localhost:8088}
-    beneficiary: ${BENEFICIARY_CORE_SERVICE:http://localhost:8081}
-    mobcommon: ${MOB_COMMON_SERVICE:http://localhost:8084}
+    beneficiary: ${BENEFICIARY_CORE_SERVICE:https://digital-dev.mashreq.com/api/beneficiary-core-service}
+    mobcommon: ${MOB_COMMON_SERVICE:https://digital-dev.mashreq.com/api/mob-common-service}
 
 redis:
   enable: false
