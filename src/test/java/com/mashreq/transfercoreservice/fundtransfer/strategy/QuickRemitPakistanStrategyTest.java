@@ -222,7 +222,7 @@ public class QuickRemitPakistanStrategyTest {
         when(quickRemitPakistanRequestMapper.map(eq(channelTraceId),eq(requestDTO), eq(sourceAccountDetailsDTO),
                 eq(beneficiaryDto), eq(currencyConversionDto.getAccountCurrencyAmount()),
                 eq(currencyConversionDto.getExchangeRate()), eq(validationContext), eq(customerDetails))).thenReturn(quickRemitFundTransferRequest);
-        when(quickRemitFundTransferMWService.transfer(quickRemitFundTransferRequest)).thenReturn(response);
+        when(quickRemitFundTransferMWService.transfer(quickRemitFundTransferRequest,metadata)).thenReturn(response);
 
         FundTransferResponse result = quickRemitPakistanStrategy.execute(requestDTO, metadata, userDTO, validationContext);
 
@@ -394,7 +394,7 @@ public class QuickRemitPakistanStrategyTest {
         when(quickRemitPakistanRequestMapper.map(eq(channelTraceId),eq(requestDTO), eq(sourceAccountDetailsDTO),
                 eq(beneficiaryDto), eq(currencyConversionDto.getAccountCurrencyAmount()),
                 eq(currencyConversionDto.getExchangeRate()), eq(validationContext), eq(customerDetails))).thenReturn(quickRemitFundTransferRequest);
-        when(quickRemitFundTransferMWService.transfer(quickRemitFundTransferRequest)).thenReturn(response);
+        when(quickRemitFundTransferMWService.transfer(quickRemitFundTransferRequest,metadata)).thenReturn(response);
 
         FundTransferResponse result = quickRemitPakistanStrategy.execute(requestDTO, metadata, userDTO, validationContext);
 

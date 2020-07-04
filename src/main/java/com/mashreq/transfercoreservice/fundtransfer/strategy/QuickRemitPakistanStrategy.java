@@ -84,7 +84,7 @@ public class QuickRemitPakistanStrategy implements QuickRemitFundTransfer {
                 request, sourceAccountDetailsDTO, beneficiaryDto, currencyConversionDto.getAccountCurrencyAmount(),
                 currencyConversionDto.getExchangeRate(), validationContext, customerDetails);
         log.info("Quick Remit India middle-ware started");
-        final FundTransferResponse fundTransferResponse = quickRemitFundTransferMWService.transfer(fundTransferRequest);
+        final FundTransferResponse fundTransferResponse = quickRemitFundTransferMWService.transfer(fundTransferRequest, metadata);
 
 
         return fundTransferResponse.toBuilder()
