@@ -5,8 +5,13 @@ import com.mashreq.esbcore.bindings.customer.mbcdm.RemittancePaymentReqType.Rout
 import com.mashreq.esbcore.bindings.customerservices.mbcdm.remittancepayment.EAIServices;
 import com.mashreq.esbcore.bindings.header.mbcdm.ErrorType;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
+import com.mashreq.transfercoreservice.event.model.EventStatus;
+import com.mashreq.transfercoreservice.event.model.EventType;
+import com.mashreq.transfercoreservice.event.publisher.Publisher;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.fundtransfer.dto.QuickRemitFundTransferRequest;
+import com.mashreq.transfercoreservice.fundtransfer.dto.RequestMetaData;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.QuickRemitResponseHandler;
 import com.mashreq.transfercoreservice.middleware.HeaderFactory;
 import com.mashreq.transfercoreservice.middleware.WebServiceClient;
@@ -27,8 +32,9 @@ public class QuickRemitFundTransferMWService {
 
     private final WebServiceClient webServiceClient;
     private final HeaderFactory headerFactory;
+    private final Publisher auditEventPublisher;
 
-    public FundTransferResponse transfer(QuickRemitFundTransferRequest request) {
+    public FundTransferResponse transfer(QuickRemitFundTransferRequest request, RequestMetaData metaData) {
         log.info("Quick remit fund transfer initiated from account [ {} ]", request.getSenderBankAccount());
 
         EAIServices response = (EAIServices) webServiceClient.exchange(generateEAIServiceRequest(request));
@@ -39,7 +45,33 @@ public class QuickRemitFundTransferMWService {
         MwResponseStatus mwResponseStatus = QuickRemitResponseHandler.responseHandler(response);
 
         final CoreFundTransferResponseDto coreFundTransferResponseDto = constructQRFTResponseDTO(transactionRefNo, request.getFinTxnNo(), exceptionDetails, mwResponseStatus);
+        if(MwResponseStatus.F == mwResponseStatus) {
+            auditEventPublisher.publishEsbEvent(EventType.QR_FUND_TRANSFER_MW_CALL, EventStatus.FAILURE, metaData, getRemarks(request),request.getChannelTraceId(),
+                    coreFundTransferResponseDto.getMwResponseCode(), coreFundTransferResponseDto.getMwResponseDescription(), coreFundTransferResponseDto.getExternalErrorMessage());
+        }
+        else {
+            auditEventPublisher.publishEsbEvent(EventType.QR_FUND_TRANSFER_MW_CALL, EventStatus.SUCCESS, metaData, getRemarks(request),request.getChannelTraceId());
+        }
+
         return FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
+    }
+
+    private String getRemarks(QuickRemitFundTransferRequest request) {
+        return String.format("From Account = %s, To Account = %s, Amount = %s, Transaction Currency = %s, Destination Currency = %s, Source Currency = %s," +
+                        "Service code = %s, Financial Transaction Number = %s, Beneficiary full name = %s, Beneficiary IFSC= %s, Beneficiary routing code = %s," +
+                        "Destination country = %s ",
+                request.getSenderBankAccount(),
+                request.getBeneficiaryAccountNo(),
+                request.getTransactionAmount(),
+                request.getDestCurrency(),
+                request.getSrcCurrency(),
+                request.getServiceCode(),
+                request.getFinTxnNo(),
+                request.getBeneficiaryFullName(),
+                request.getBeneficiaryBankIFSC(),
+                request.getRoutingCode(),
+                request.getDestCountry()
+        );
     }
 
     private CoreFundTransferResponseDto constructQRFTResponseDTO(String transfer, String txnRefNum, ErrorType exceptionDetails, MwResponseStatus s) {

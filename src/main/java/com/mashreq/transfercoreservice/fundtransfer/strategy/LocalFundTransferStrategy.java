@@ -105,7 +105,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountDetails, beneficiaryDto);
         log.info("Local Fund transfer initiated.......");
 
-        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest);
+        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata);
 
 
         return fundTransferResponse.toBuilder()

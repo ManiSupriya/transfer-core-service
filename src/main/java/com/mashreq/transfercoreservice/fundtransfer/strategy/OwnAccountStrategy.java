@@ -105,7 +105,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 //        log.info("Limit Validation successful");
 
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccount, toAccount);
-        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest);
+        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata);
 
         //final FundTransferResponse fundTransferResponse = coreTransferService.transferFundsBetweenAccounts(request);
 

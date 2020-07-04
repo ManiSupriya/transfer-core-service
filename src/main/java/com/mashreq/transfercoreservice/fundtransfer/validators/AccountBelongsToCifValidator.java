@@ -2,8 +2,6 @@ package com.mashreq.transfercoreservice.fundtransfer.validators;
 
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.event.model.EventStatus;
-import com.mashreq.transfercoreservice.event.model.EventType;
-import com.mashreq.transfercoreservice.event.publisher.AuditEventPublisher;
 import com.mashreq.transfercoreservice.event.publisher.Publisher;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.RequestMetaData;

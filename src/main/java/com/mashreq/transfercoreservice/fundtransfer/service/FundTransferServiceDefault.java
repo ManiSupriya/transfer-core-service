@@ -38,7 +38,6 @@ import static java.time.Instant.now;
 @RequiredArgsConstructor
 public class FundTransferServiceDefault implements FundTransferService {
 
-    private static final String FUND_TRANSFER_END_SUFFIX = "_FUND_TRANSFER_ENDS";
     private static final String FUND_TRANSFER_INITIATION_SUFFIX = "_FUND_TRANSFER_REQUEST";
     private final DigitalUserRepository digitalUserRepository;
     private final PaymentHistoryService paymentHistoryService;
@@ -144,7 +143,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     private String getInitiatedRemarks(FundTransferRequestDTO request) {
         return String.format("From Account = %s, To Account = %s, Amount = %s, Currency = %s, Financial Transaction Number = %s, Beneficiary Id = %s ",
                 request.getFromAccount(),
-                request.getFromAccount(),
+                request.getToAccount(),
                 request.getAmount(),
                 request.getCurrency(),
                 request.getFinTxnNo(),

@@ -105,7 +105,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
 
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, sourceAccountDetailsDTO, beneficiaryDto);
         log.info("International Fund transfer initiated.......");
-        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest);
+        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata);
 
 
         return fundTransferResponse.toBuilder()
