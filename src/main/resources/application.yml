@@ -121,6 +121,6 @@ redis:
   timeout: ${REDIS_TIMEOUT:5000}
   password: ${REDIS_PASSWORD:P@ssword123$}
 
-logging:
-  level:
-    feign: DEBUG
+#error:
+#  map:
+#    ACCOUNT_BELONGS_TO_CIF: ignore
