@@ -2,8 +2,13 @@ package com.mashreq.transfercoreservice.fundtransfer.validators;
 
 
 import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferMetadata;
+import com.mashreq.transfercoreservice.event.model.EventStatus;
+import com.mashreq.transfercoreservice.event.model.EventType;
+import com.mashreq.transfercoreservice.event.publisher.AuditEventPublisher;
+import com.mashreq.transfercoreservice.event.publisher.Publisher;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.RequestMetaData;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -11,25 +16,32 @@ import java.util.Set;
 
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_PURPOSE_CODE;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_PURPOSE_DESC;
+import static com.mashreq.transfercoreservice.event.model.EventType.PAYMENT_PURPOSE_VALIDATION;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class PaymentPurposeValidator implements Validator {
 
+    private final Publisher auditEventPublisher;
+
     @Override
-    public ValidationResult validate(FundTransferRequestDTO request, FundTransferMetadata metadata, ValidationContext context) {
+    public ValidationResult validate(FundTransferRequestDTO request, RequestMetaData metadata, ValidationContext context) {
         final Set<MoneyTransferPurposeDto> purposes = context.get("purposes", Set.class);
 
-        if(!lookForPurposeCode(purposes, request.getPurposeCode())) {
+        if (!lookForPurposeCode(purposes, request.getPurposeCode())) {
+            auditEventPublisher.publishEvent(PAYMENT_PURPOSE_VALIDATION, EventStatus.FAILURE, metadata, null);
             return ValidationResult.builder().success(false).transferErrorCode(INVALID_PURPOSE_CODE)
                     .build();
         }
 
-        if(!lookForPurposeDesc(purposes, request.getPurposeDesc())) {
+        if (!lookForPurposeDesc(purposes, request.getPurposeDesc())) {
+            auditEventPublisher.publishEvent(PAYMENT_PURPOSE_VALIDATION, EventStatus.FAILURE, metadata, null);
             return ValidationResult.builder().success(false).transferErrorCode(INVALID_PURPOSE_DESC)
                     .build();
         }
         log.info("Purpose code and description validation successful");
+        auditEventPublisher.publishEvent(PAYMENT_PURPOSE_VALIDATION, EventStatus.SUCCESS, metadata, null);
         return ValidationResult.builder().success(true).build();
     }
 

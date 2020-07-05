@@ -9,5 +9,5 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 @FunctionalInterface
 public interface QuickRemitMapper {
 
-    QuickRemitFundTransferRequest mapTo(FundTransferMetadata metadata, FundTransferRequestDTO request, FundTransferContext context);
+    QuickRemitFundTransferRequest mapTo(RequestMetaData metadata, FundTransferRequestDTO request, FundTransferContext context);
 }

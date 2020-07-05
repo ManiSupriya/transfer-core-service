@@ -112,7 +112,7 @@ public class LocalFundTransferStrategyTest {
         requestDTO.setServiceType(ServiceType.LOCAL.getName());
         requestDTO.setBeneficiaryId(beneId);
 
-        FundTransferMetadata metadata =  FundTransferMetadata.builder().primaryCif(cif).channel(channel).channelTraceId(channelTraceId).build();
+        RequestMetaData metadata =  RequestMetaData.builder().primaryCif(cif).channel(channel).channelTraceId(channelTraceId).build();
         UserDTO userDTO = new UserDTO();
 
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
@@ -146,7 +146,7 @@ public class LocalFundTransferStrategyTest {
         when(limitValidator.validate(eq(userDTO), eq("local"), eq(limitUsageAmount)))
                 .thenReturn(LimitValidatorResultsDto.builder().limitVersionUuid(limitVersionUuid).build());
 
-        when(fundTransferMWService.transfer(fundTransferRequest.capture()))
+        when(fundTransferMWService.transfer(fundTransferRequest.capture(),eq(metadata)))
                 .thenReturn(FundTransferResponse.builder().limitUsageAmount(limitUsageAmount).limitVersionUuid(limitVersionUuid).build());
 
         final FundTransferResponse response = localFundTransferStrategy.execute(requestDTO, metadata, userDTO);
@@ -210,7 +210,7 @@ public class LocalFundTransferStrategyTest {
         requestDTO.setServiceType(ServiceType.LOCAL.getName());
         requestDTO.setBeneficiaryId(beneId);
 
-        FundTransferMetadata metadata =  FundTransferMetadata.builder().primaryCif(cif).channel(channel).channelTraceId(channelTraceId).build();
+        RequestMetaData metadata =  RequestMetaData.builder().primaryCif(cif).channel(channel).channelTraceId(channelTraceId).build();
         UserDTO userDTO = new UserDTO();
 
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
@@ -270,7 +270,7 @@ public class LocalFundTransferStrategyTest {
         when(limitValidator.validate(eq(userDTO), eq("local"), eq(paidAmt)))
                 .thenReturn(LimitValidatorResultsDto.builder().isValid(true).limitVersionUuid(limitVersionUuid).build());
 
-        when(fundTransferMWService.transfer(fundTransferRequest.capture()))
+        when(fundTransferMWService.transfer(fundTransferRequest.capture(),eq(metadata)))
                 .thenReturn(FundTransferResponse.builder().limitUsageAmount(paidAmt).limitVersionUuid(limitVersionUuid).build());
 
         final FundTransferResponse response = localFundTransferStrategy.execute(requestDTO, metadata, userDTO);

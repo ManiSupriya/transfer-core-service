@@ -54,7 +54,7 @@ public class QuickRemitInstaRemStrategy implements QuickRemitFundTransfer {
 
 
     @Override
-    public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO, ValidationContext validationContext) {
+    public FundTransferResponse execute(FundTransferRequestDTO request, RequestMetaData metadata, UserDTO userDTO, ValidationContext validationContext) {
 
         log.info("Quick Remit InstaRem initiated");
 
@@ -112,7 +112,7 @@ public class QuickRemitInstaRemStrategy implements QuickRemitFundTransfer {
         final QuickRemitFundTransferRequest quickRemitFundTransferRequest = mapper.mapTo(metadata, request, fundTransferContext);
 
         log.info("Quick Remit InstaRem Middleware started");
-        final FundTransferResponse fundTransferResponse = quickRemitFundTransferMWService.transfer(quickRemitFundTransferRequest);
+        final FundTransferResponse fundTransferResponse = quickRemitFundTransferMWService.transfer(quickRemitFundTransferRequest, metadata);
 
         return fundTransferResponse.toBuilder()
                 .limitUsageAmount(limitUsageAmount)

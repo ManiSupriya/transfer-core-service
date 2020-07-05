@@ -5,6 +5,9 @@ import static com.mashreq.transfercoreservice.client.ErrorUtils.getAllErrorCodes
 import static com.mashreq.transfercoreservice.client.ErrorUtils.getErrorDetails;
 import static com.mashreq.transfercoreservice.client.ErrorUtils.getErrorHandlingStrategy;
 import static com.mashreq.transfercoreservice.common.CommonConstants.SEND_EMPTY_ERROR_RESPONSE;
+import static com.mashreq.transfercoreservice.common.CommonConstants.EXCEEDS_WITHDRAWL_FREEQUENCY;
+
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACC_SERVICE_EXCEED_WITHDRAWL_ERROR;
 
 import java.util.Map;
 import java.util.Optional;
@@ -72,6 +75,9 @@ public interface CoreEnquiryService<R, P> {
                 final String errorHandlingStrategy = errorHandlingStrategyOptional.get();
                 if (SEND_EMPTY_ERROR_RESPONSE.equals(errorHandlingStrategy)) {
                     return defaultSuccessResponse();
+                } 
+                else if (EXCEEDS_WITHDRAWL_FREEQUENCY.equals(errorHandlingStrategy)) {
+                	GenericExceptionHandler.handleError(ACC_SERVICE_EXCEED_WITHDRAWL_ERROR, ACC_SERVICE_EXCEED_WITHDRAWL_ERROR.getErrorMessage(), errorDetails);
                 } else {
                     TransferErrorCode errorCode = TransferErrorCode.valueOf(errorHandlingStrategy);
                     GenericExceptionHandler.handleError(errorCode, errorCode.getErrorMessage(), errorDetails);
@@ -82,10 +88,8 @@ public interface CoreEnquiryService<R, P> {
         }
       //when connection failed for external service
         if(throwable instanceof RetryableException) {
-        	throwable.printStackTrace();
         	GenericExceptionHandler.handleError(assignFeignConnectionErrorCode(), assignFeignConnectionErrorCode().getErrorMessage(), assignFeignConnectionErrorCode().getErrorMessage());
         }
-        throwable.printStackTrace();
         GenericExceptionHandler.handleError(assignDefaultErrorCode(), assignDefaultErrorCode().getErrorMessage());
         return null;
     }

@@ -1,20 +1,31 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
+import com.mashreq.transfercoreservice.event.model.EventStatus;
+import com.mashreq.transfercoreservice.event.model.EventType;
+import com.mashreq.transfercoreservice.event.publisher.Publisher;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.RequestMetaData;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
+
+import java.util.function.Supplier;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IBANValidatorTest {
 
+
+    @Mock
+    private Publisher auditEventPublisher;
+
     @InjectMocks
     private IBANValidator ibanValidator;
-
 
     @Test
     public void test_when_iban_is_invalid(){
@@ -23,8 +34,9 @@ public class IBANValidatorTest {
         requestDTO.setToAccount("AE120330001015673975601");
         ValidationContext mockValidationContext = new ValidationContext();
         mockValidationContext.add("iban-length", 23);
-        ReflectionTestUtils.setField(ibanValidator,"bankCode", "033");
+
         //when
+        ReflectionTestUtils.setField(ibanValidator,"bankCode", "033");
         final ValidationResult result = ibanValidator.validate(requestDTO, null, mockValidationContext);
 
         //then
@@ -40,8 +52,11 @@ public class IBANValidatorTest {
         requestDTO.setToAccount("AE1203300010156739756");
         ValidationContext mockValidationContext = new ValidationContext();
         mockValidationContext.add("iban-length", 23);
-        ReflectionTestUtils.setField(ibanValidator,"bankCode", "033");
+
         //when
+
+          
+        ReflectionTestUtils.setField(ibanValidator,"bankCode", "033");
         final ValidationResult result = ibanValidator.validate(requestDTO, null, mockValidationContext);
 
         //then
@@ -58,8 +73,11 @@ public class IBANValidatorTest {
         requestDTO.setToAccount("AE120260001015673975601");
         ValidationContext mockValidationContext = new ValidationContext();
         mockValidationContext.add("iban-length", 23);
-        ReflectionTestUtils.setField(ibanValidator,"bankCode", "033");
+
         //when
+
+          
+        ReflectionTestUtils.setField(ibanValidator,"bankCode", "033");
         final ValidationResult result = ibanValidator.validate(requestDTO, null, mockValidationContext);
 
         //then
@@ -74,9 +92,11 @@ public class IBANValidatorTest {
         requestDTO.setToAccount("AE120260001015673975601");
         ValidationContext mockValidationContext = new ValidationContext();
         mockValidationContext.add("iban-length", null);
-        ReflectionTestUtils.setField(ibanValidator,"bankCode", "033");
+
 
         //when
+          
+        ReflectionTestUtils.setField(ibanValidator,"bankCode", "033");
         final ValidationResult result = ibanValidator.validate(requestDTO, null, mockValidationContext);
         //then
 

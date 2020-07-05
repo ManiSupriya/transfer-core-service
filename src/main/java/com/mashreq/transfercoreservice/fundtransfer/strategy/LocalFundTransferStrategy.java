@@ -61,7 +61,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
 
     @Override
-    public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO) {
+    public FundTransferResponse execute(FundTransferRequestDTO request, RequestMetaData metadata, UserDTO userDTO) {
         responseHandler(finTxnNoValidator.validate(request, metadata));
 
         final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metadata.getPrimaryCif());
@@ -70,12 +70,11 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         validationContext.add("validate-from-account", Boolean.TRUE);
 
 
-        final Set<MoneyTransferPurposeDto> allPurposeCodes = mobCommonService.getPaymentPurposes(request.getServiceType(),
-                "", INDIVIDUAL_ACCOUNT);
+        //TODO Remove the empty qrType
+        final Set<MoneyTransferPurposeDto> allPurposeCodes = mobCommonService.getPaymentPurposes(request.getServiceType(), "", INDIVIDUAL_ACCOUNT);
+
         validationContext.add("purposes", allPurposeCodes);
         responseHandler(paymentPurposeValidator.validate(request, metadata, validationContext));
-
-
         responseHandler(accountBelongsToCifValidator.validate(request, metadata, validationContext));
 
         final AccountDetailsDTO fromAccountDetails = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
@@ -106,7 +105,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountDetails, beneficiaryDto);
         log.info("Local Fund transfer initiated.......");
 
-        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest);
+        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata);
 
 
         return fundTransferResponse.toBuilder()
@@ -150,7 +149,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         return amtToBePaidInSrcCurrency;
     }
 
-    private FundTransferRequest prepareFundTransferRequestPayload(FundTransferMetadata metadata, FundTransferRequestDTO request,
+    private FundTransferRequest prepareFundTransferRequestPayload(RequestMetaData metadata, FundTransferRequestDTO request,
                                                                   AccountDetailsDTO accountDetails, BeneficiaryDto beneficiaryDto) {
         return FundTransferRequest.builder()
                 .productId(LOCAL_PRODUCT_ID)

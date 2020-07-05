@@ -15,17 +15,17 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_P
  */
 public enum ServiceType implements ValidEnum {
 
-    OWN_ACCOUNT("own-account"),
-    WITHIN_MASHREQ("within-mashreq"),
-    LOCAL("local"),
-    INTERNATIONAL("international"),
-    DAR_AL_BER("dar-al-ber"),
-    BAIT_AL_KHAIR("bait-al-khair"),
-    DUBAI_CARE("dubai-care"),
-    QUICK_REMIT("quick-remit");
+    OWN_ACCOUNT("own-account","OWN_ACCOUNT"),
+    WITHIN_MASHREQ("within-mashreq","WITHIN_MASHREQ"),
+    LOCAL("local","LOCAL"),
+    INTERNATIONAL("international","INTERNATIONAL"),
+    DAR_AL_BER("dar-al-ber","DAR_AL_BER"),
+    BAIT_AL_KHAIR("bait-al-khair","BAIT_AL_KHAIR"),
+    DUBAI_CARE("dubai-care","DUBAI_CARE"),
+    QUICK_REMIT("quick-remit","QUICK_REMIT");
 
     private String name;
-
+    private String eventPrefix;
 
     private static final Map<String, ServiceType> serviceTypeLookup = Stream.of(ServiceType.values())
             .collect(Collectors.toMap(ServiceType::getName, serviceType -> serviceType));
@@ -37,8 +37,13 @@ public enum ServiceType implements ValidEnum {
         return serviceTypeLookup.get(name);
     }
 
-    ServiceType(String name) {
+    ServiceType(String name, String eventPrefix) {
         this.name = name;
+        this.eventPrefix = eventPrefix;
+    }
+
+    public String getEventPrefix() {
+        return eventPrefix;
     }
 
     public String getName() {

@@ -6,8 +6,13 @@ import com.mashreq.esbcore.bindings.accountservices.mbcdm.fundtransfer.EAIServic
 import com.mashreq.esbcore.bindings.header.mbcdm.ErrorType;
 import com.mashreq.esbcore.bindings.header.mbcdm.HeaderType;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
+import com.mashreq.transfercoreservice.event.model.EventStatus;
+import com.mashreq.transfercoreservice.event.model.EventType;
+import com.mashreq.transfercoreservice.event.publisher.Publisher;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
+import com.mashreq.transfercoreservice.fundtransfer.dto.RequestMetaData;
 import com.mashreq.transfercoreservice.middleware.*;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import lombok.RequiredArgsConstructor;
@@ -33,9 +38,10 @@ public class FundTransferMWService {
     private static final String NARRATION_PREFIX = "Fund Transfer-";
     private static final String NARRATION_SUFFIX = " Banking";
     private static final String PAYMENT_DETAIL_PREFIX = "/REF/ ";
+    private final Publisher auditEventPublisher;
 
 
-    public FundTransferResponse transfer(FundTransferRequest request) {
+    public FundTransferResponse transfer(FundTransferRequest request, RequestMetaData metaData) {
         log.info("Fund transfer initiated from account [ {} ]", request.getFromAccount());
 
         SoapClient soapClient = soapClient(soapServiceProperties,
@@ -52,6 +58,7 @@ public class FundTransferMWService {
         final FundTransferResType.Transfer transfer = response.getBody().getFundTransferRes().getTransfer().get(0);
         final ErrorType exceptionDetails = response.getBody().getExceptionDetails();
         if (isSuccessfull(response)) {
+            auditEventPublisher.publishEsbEvent(EventType.FUND_TRANSFER_MW_CALL, EventStatus.SUCCESS, metaData, getRemarks(request), request.getChannelTraceId());
             log.info("Fund transferred successfully to account [ {} ]", request.getToAccount());
             final CoreFundTransferResponseDto coreFundTransferResponseDto = constructFTResponseDTO(transfer, exceptionDetails, MwResponseStatus.S);
             return FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
@@ -59,7 +66,23 @@ public class FundTransferMWService {
 
         log.info("Fund transfer failed to account [ {} ]", request.getToAccount());
         final CoreFundTransferResponseDto coreFundTransferResponseDto = constructFTResponseDTO(transfer, exceptionDetails, MwResponseStatus.F);
+        auditEventPublisher.publishEsbEvent(EventType.FUND_TRANSFER_MW_CALL, EventStatus.FAILURE, metaData, getRemarks(request), request.getChannelTraceId(),
+                coreFundTransferResponseDto.getMwResponseCode(), coreFundTransferResponseDto.getMwResponseDescription(), coreFundTransferResponseDto.getExternalErrorMessage());
         return FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
+    }
+
+    private String getRemarks(FundTransferRequest request) {
+        return String.format("From Account = %s, To Account = %s, Amount = %s, Destination Currency = %s, Source Currency = %s," +
+                        " Financial Transaction Number = %s, Beneficiary full name = %s, Swift code= %s, Beneficiary bank branch = %s ",
+                request.getFromAccount(),
+                request.getToAccount(),
+                request.getAmount(),
+                request.getDestinationCurrency(),
+                request.getSourceCurrency(),
+                request.getFinTxnNo(),
+                request.getBeneficiaryFullName(),
+                request.getAwInstBICCode(),
+                request.getAwInstName());
     }
 
     private CoreFundTransferResponseDto constructFTResponseDTO(FundTransferResType.Transfer transfer, ErrorType exceptionDetails, MwResponseStatus s) {
@@ -128,7 +151,7 @@ public class FundTransferMWService {
         creditLeg.setBenAddr1(request.getBeneficiaryAddressOne());
         creditLeg.setBenAddr2(request.getBeneficiaryAddressTwo());
         creditLeg.setBenAddr3(request.getBeneficiaryAddressThree());
-
+        creditLeg.setAWInstAddr2(request.getBeneficiaryAddressTwo());
 
         FundTransferReqType.Transfer transfer = new FundTransferReqType.Transfer();
         transfer.setCreditLeg(creditLeg);

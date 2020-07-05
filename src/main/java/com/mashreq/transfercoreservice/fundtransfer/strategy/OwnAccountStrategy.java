@@ -46,7 +46,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     private final BalanceValidator balanceValidator;
 
     @Override
-    public FundTransferResponse execute(FundTransferRequestDTO request, FundTransferMetadata metadata, UserDTO userDTO) {
+    public FundTransferResponse execute(FundTransferRequestDTO request, RequestMetaData metadata, UserDTO userDTO) {
 
         Instant start = Instant.now();
 
@@ -105,7 +105,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 //        log.info("Limit Validation successful");
 
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccount, toAccount);
-        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest);
+        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata);
 
         //final FundTransferResponse fundTransferResponse = coreTransferService.transferFundsBetweenAccounts(request);
 
@@ -117,7 +117,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 
     }
 
-    private FundTransferRequest prepareFundTransferRequestPayload(FundTransferMetadata metadata, FundTransferRequestDTO request,
+    private FundTransferRequest prepareFundTransferRequestPayload(RequestMetaData metadata, FundTransferRequestDTO request,
                                                                   AccountDetailsDTO sourceAccount, AccountDetailsDTO destinationAccount) {
         return FundTransferRequest.builder()
                 .amount(request.getAmount())

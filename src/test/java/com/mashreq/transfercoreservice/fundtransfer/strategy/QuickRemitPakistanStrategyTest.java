@@ -118,7 +118,7 @@ public class QuickRemitPakistanStrategyTest {
                 .build(),CustomerPhones.builder().phoneNumberType("R").mobNumber("12345678")
                         .build())).nationality("UK").cifBranch("078").build();
 
-        FundTransferMetadata metadata =  FundTransferMetadata.builder().primaryCif(cif)
+        RequestMetaData metadata =  RequestMetaData.builder().primaryCif(cif)
                 .channel(channel).channelTraceId(channelTraceId).build();
         UserDTO userDTO = new UserDTO();
         final ValidationResult validationResult = ValidationResult.builder().success(true).build();
@@ -222,7 +222,7 @@ public class QuickRemitPakistanStrategyTest {
         when(quickRemitPakistanRequestMapper.map(eq(channelTraceId),eq(requestDTO), eq(sourceAccountDetailsDTO),
                 eq(beneficiaryDto), eq(currencyConversionDto.getAccountCurrencyAmount()),
                 eq(currencyConversionDto.getExchangeRate()), eq(validationContext), eq(customerDetails))).thenReturn(quickRemitFundTransferRequest);
-        when(quickRemitFundTransferMWService.transfer(quickRemitFundTransferRequest)).thenReturn(response);
+        when(quickRemitFundTransferMWService.transfer(quickRemitFundTransferRequest,metadata)).thenReturn(response);
 
         FundTransferResponse result = quickRemitPakistanStrategy.execute(requestDTO, metadata, userDTO, validationContext);
 
@@ -275,7 +275,7 @@ public class QuickRemitPakistanStrategyTest {
                 .build(),CustomerPhones.builder().phoneNumberType("R").mobNumber("12345678")
                 .build())).nationality("UK").cifBranch("078").build();
 
-        FundTransferMetadata metadata =  FundTransferMetadata.builder().primaryCif(cif)
+        RequestMetaData metadata =  RequestMetaData.builder().primaryCif(cif)
                 .channel(channel).channelTraceId(channelTraceId).build();
         UserDTO userDTO = new UserDTO();
         final ValidationResult validationResult = ValidationResult.builder().success(true).build();
@@ -394,7 +394,7 @@ public class QuickRemitPakistanStrategyTest {
         when(quickRemitPakistanRequestMapper.map(eq(channelTraceId),eq(requestDTO), eq(sourceAccountDetailsDTO),
                 eq(beneficiaryDto), eq(currencyConversionDto.getAccountCurrencyAmount()),
                 eq(currencyConversionDto.getExchangeRate()), eq(validationContext), eq(customerDetails))).thenReturn(quickRemitFundTransferRequest);
-        when(quickRemitFundTransferMWService.transfer(quickRemitFundTransferRequest)).thenReturn(response);
+        when(quickRemitFundTransferMWService.transfer(quickRemitFundTransferRequest,metadata)).thenReturn(response);
 
         FundTransferResponse result = quickRemitPakistanStrategy.execute(requestDTO, metadata, userDTO, validationContext);
 

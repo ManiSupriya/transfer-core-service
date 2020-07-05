@@ -4,6 +4,10 @@ import com.mashreq.logcore.annotations.TrackExec;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
+import com.mashreq.transfercoreservice.event.model.EventStatus;
+import com.mashreq.transfercoreservice.event.model.EventType;
+import com.mashreq.transfercoreservice.event.publisher.AuditEventPublisher;
+import com.mashreq.transfercoreservice.event.publisher.Publisher;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageService;
@@ -23,6 +27,7 @@ import java.util.Optional;
 
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.FUND_TRANSFER_FAILED;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
+import static com.mashreq.transfercoreservice.event.model.EventType.getEventTypeByCode;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.*;
 import static java.time.Duration.between;
 import static java.time.Instant.now;
@@ -33,6 +38,7 @@ import static java.time.Instant.now;
 @RequiredArgsConstructor
 public class FundTransferServiceDefault implements FundTransferService {
 
+    private static final String FUND_TRANSFER_INITIATION_SUFFIX = "_FUND_TRANSFER_REQUEST";
     private final DigitalUserRepository digitalUserRepository;
     private final PaymentHistoryService paymentHistoryService;
     private final DigitalUserLimitUsageService digitalUserLimitUsageService;
@@ -42,6 +48,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final InternationalFundTransferStrategy internationalFundTransferStrategy;
     private final CharityStrategyDefault charityStrategyDefault;
     private final QuickRemitStrategy quickRemitStrategy;
+    private final Publisher auditEventPublisher;
     private EnumMap<ServiceType, FundTransferStrategy> fundTransferStrategies;
 
 
@@ -56,26 +63,34 @@ public class FundTransferServiceDefault implements FundTransferService {
         fundTransferStrategies.put(DUBAI_CARE, charityStrategyDefault);
         fundTransferStrategies.put(DAR_AL_BER, charityStrategyDefault);
         fundTransferStrategies.put(QUICK_REMIT, quickRemitStrategy);
-
     }
 
     @Override
-    public FundTransferResponseDTO transferFund(FundTransferMetadata metadata, FundTransferRequestDTO request) {
+    public FundTransferResponseDTO transferFund(RequestMetaData metadata, FundTransferRequestDTO request) {
+        final ServiceType serviceType = getServiceByType(request.getServiceType());
+        final EventType initiatedEvent = getEventTypeByCode(serviceType.getEventPrefix() + FUND_TRANSFER_INITIATION_SUFFIX);
+
+        return auditEventPublisher.publishEventLifecycle(
+                () -> getFundTransferResponse(metadata, request),
+                initiatedEvent,
+                metadata,
+                getInitiatedRemarks(request));
+    }
+
+    private FundTransferResponseDTO getFundTransferResponse(RequestMetaData metadata, FundTransferRequestDTO request) {
         Instant start = now();
         log.info("Starting fund transfer for {} ", request.getServiceType());
-
         log.info("Finding Digital User for CIF-ID {}", metadata.getPrimaryCif());
         DigitalUser digitalUser = getDigitalUser(metadata);
 
         log.info("Creating  User DTO");
         UserDTO userDTO = createUserDTO(metadata, digitalUser);
 
-        FundTransferStrategy strategy = fundTransferStrategies.get(ServiceType.getServiceByType(request.getServiceType()));
+        FundTransferStrategy strategy = fundTransferStrategies.get(getServiceByType(request.getServiceType()));
         FundTransferResponse response = strategy.execute(request, metadata, userDTO);
 
 
         if (isSuccessOrProcessing(response)) {
-
             DigitalUserLimitUsageDTO digitalUserLimitUsageDTO = generateUserLimitUsage(
                     request.getServiceType(), response.getLimitUsageAmount(), userDTO, metadata, response.getLimitVersionUuid());
             log.info("Inserting into limits table {} ", digitalUserLimitUsageDTO);
@@ -125,8 +140,17 @@ public class FundTransferServiceDefault implements FundTransferService {
         );
     }
 
+    private String getInitiatedRemarks(FundTransferRequestDTO request) {
+        return String.format("From Account = %s, To Account = %s, Amount = %s, Currency = %s, Financial Transaction Number = %s, Beneficiary Id = %s ",
+                request.getFromAccount(),
+                request.getToAccount(),
+                request.getAmount(),
+                request.getCurrency(),
+                request.getFinTxnNo(),
+                request.getBeneficiaryId());
+    }
 
-    private DigitalUser getDigitalUser(FundTransferMetadata fundTransferMetadata) {
+    private DigitalUser getDigitalUser(RequestMetaData fundTransferMetadata) {
         Optional<DigitalUser> digitalUserOptional = digitalUserRepository.findByCifEquals(fundTransferMetadata.getPrimaryCif());
         if (!digitalUserOptional.isPresent()) {
             GenericExceptionHandler.handleError(INVALID_CIF, INVALID_CIF.getErrorMessage());
@@ -136,7 +160,7 @@ public class FundTransferServiceDefault implements FundTransferService {
         return digitalUserOptional.get();
     }
 
-    private UserDTO createUserDTO(FundTransferMetadata fundTransferMetadata, DigitalUser digitalUser) {
+    private UserDTO createUserDTO(RequestMetaData fundTransferMetadata, DigitalUser digitalUser) {
         UserDTO userDTO = new UserDTO();
         userDTO.setCifId(fundTransferMetadata.getPrimaryCif());
         userDTO.setUserId(digitalUser.getId());
@@ -149,7 +173,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     }
 
     private DigitalUserLimitUsageDTO generateUserLimitUsage(String serviceType, BigDecimal usageAmount, UserDTO userDTO,
-                                                            FundTransferMetadata fundTransferMetadata, String versionUuid) {
+                                                            RequestMetaData fundTransferMetadata, String versionUuid) {
         return DigitalUserLimitUsageDTO.builder()
                 .digitalUserId(userDTO.getUserId())
                 .cif(fundTransferMetadata.getPrimaryCif())
@@ -163,7 +187,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     }
 
     PaymentHistoryDTO generatePaymentHistory(FundTransferRequestDTO request, CoreFundTransferResponseDto coreResponse, UserDTO userDTO,
-                                             FundTransferMetadata fundTransferMetadata) {
+                                             RequestMetaData fundTransferMetadata) {
 
         //convert dto
         return PaymentHistoryDTO.builder()
@@ -183,10 +207,6 @@ public class FundTransferServiceDefault implements FundTransferService {
                 .mwResponseDescription(coreResponse.getMwResponseDescription())
                 .accountFrom(request.getFromAccount())
                 .financialTransactionNo(request.getFinTxnNo())
-                //.encryptedCardFrom(request.getDebitAccountNo())
-//                .encryptedCardFromFourdigit(
-//                        StringUtils.isEmpty(request.getDebitAccountNo()) ? null :
-//                                (request.getDebitAccountNo().substring(request.getDebitAccountNo().length() - 4)))
                 .build();
 
     }
