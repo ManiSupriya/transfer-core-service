@@ -105,11 +105,12 @@ mob:
         request: ${HTTP_DETAILS_LOG_REQUEST:true}
         response: ${HTTP_DETAILS_LOG_RESPONSE:true}
   thread:
-    pool: enable
-    maxPoolSize: 50
-    corePoolSize: 30
-    queueCapacity: 100
-    threadNamePrefix: mob-transfer-pool
+    userEventAuditTaskExecutor:
+      pool: enable
+      maxPoolSize: 50
+      corePoolSize: 30
+      queueCapacity: 100
+      threadNamePrefix: mob-transfer-pool
 
 
 

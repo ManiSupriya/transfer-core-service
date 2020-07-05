@@ -2,7 +2,7 @@ package com.mashreq.transfercoreservice.fundtransfer.validators;
 
 
 import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
-import com.mashreq.transfercoreservice.event.publisher.Publisher;
+import com.mashreq.transfercoreservice.event.publisher.AsyncUserEventPublisher;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,7 +25,7 @@ public class PaymentPurposeValidatorTest {
     private PaymentPurposeValidator paymentPurposeValidator;
 
     @Mock
-    private Publisher auditEventPublisher;
+    private AsyncUserEventPublisher auditEventPublisher;
 
     @Test
     public void test_when_pop_code_and_desc_is_valid() {

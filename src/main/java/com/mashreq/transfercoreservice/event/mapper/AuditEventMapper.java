@@ -15,6 +15,8 @@ import org.springframework.stereotype.Component;
 public class AuditEventMapper {
 
     public static final String SYSTEM = "SYSTEM";
+    private static final int DESCRIPTION_COLUMN_MAX_LENGTH = 500;
+    private static final int DETAILS_COLUMN_MAX_LENGTH = 200;
 
     public AuditEvent createAuditEvent(final EventType eventType, final EventStatus status, final RequestMetaData billPaymentMetaData, final String remarks,
                                        final String errorCode, final String errorDesc, final String errorDetails, final String mwSrcMsgId) {
@@ -54,17 +56,17 @@ public class AuditEventMapper {
         userEventAudit.setEventCategory(auditEvent.getEventType().getType());
         userEventAudit.setEventName(auditEvent.getEventType().name());
         userEventAudit.setErrorCode(auditEvent.getErrorCode());
-        userEventAudit.setErrorDescription(trimString(auditEvent.getErrorMessage()));
-        userEventAudit.setErrorDetails(trimString(auditEvent.getErrorDetails()));
+        userEventAudit.setErrorDescription(trimString(auditEvent.getErrorMessage(), DESCRIPTION_COLUMN_MAX_LENGTH));
+        userEventAudit.setErrorDetails(trimString(auditEvent.getErrorDetails(), DETAILS_COLUMN_MAX_LENGTH));
         userEventAudit.setClientIp(auditEvent.getClientIp());
         userEventAudit.setRegion(auditEvent.getRegion());
-        userEventAudit.setRemarks(trimString(auditEvent.getRemarks()));
+        userEventAudit.setRemarks(trimString(auditEvent.getRemarks(), DESCRIPTION_COLUMN_MAX_LENGTH));
         return userEventAudit;
     }
 
-    private String trimString(String inputString) {
-        return StringUtils.length(inputString) > 500
-                ? StringUtils.substring(inputString, 500)
+    private String trimString(String inputString, int length) {
+        return StringUtils.length(inputString) > length
+                ? StringUtils.substring(inputString, length)
                 : inputString;
     }
 

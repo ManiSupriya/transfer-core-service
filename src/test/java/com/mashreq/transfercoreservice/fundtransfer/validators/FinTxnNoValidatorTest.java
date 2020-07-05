@@ -1,7 +1,7 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
-import com.mashreq.transfercoreservice.event.publisher.Publisher;
+import com.mashreq.transfercoreservice.event.publisher.AsyncUserEventPublisher;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.service.PaymentHistoryService;
 import org.junit.Assert;
@@ -22,7 +22,7 @@ public class FinTxnNoValidatorTest {
     private PaymentHistoryService paymentHistoryService;
 
     @Mock
-    private Publisher auditEventPublisher;
+    private AsyncUserEventPublisher auditEventPublisher;
 
     @Test
     public void test_when_fin_tx_id_is_invalid(){

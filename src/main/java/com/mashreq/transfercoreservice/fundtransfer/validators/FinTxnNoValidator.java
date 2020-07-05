@@ -1,9 +1,7 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
-import com.mashreq.transfercoreservice.event.model.EventStatus;
-import com.mashreq.transfercoreservice.event.model.EventType;
-import com.mashreq.transfercoreservice.event.publisher.Publisher;
+import com.mashreq.transfercoreservice.event.publisher.AsyncUserEventPublisher;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.RequestMetaData;
 import com.mashreq.transfercoreservice.fundtransfer.service.PaymentHistoryService;
@@ -24,7 +22,7 @@ import static com.mashreq.transfercoreservice.event.model.EventType.FIN_TRANSACT
 public class FinTxnNoValidator implements Validator {
 
     private final PaymentHistoryService paymentHistoryService;
-    private final Publisher auditEventPublisher;
+    private final AsyncUserEventPublisher auditEventPublisher;
 
     @Override
     public ValidationResult validate(final FundTransferRequestDTO request, final RequestMetaData metadata, final ValidationContext context) {
@@ -32,14 +30,15 @@ public class FinTxnNoValidator implements Validator {
 
         if (paymentHistoryService.isFinancialTransactionPresent(request.getFinTxnNo())) {
             log.warn("Duplicate fin-txn-no {} found for service type [ {} ] ", request.getFinTxnNo(), request.getServiceType());
-            auditEventPublisher.publishEvent(FIN_TRANSACTION_VALIDATION, EventStatus.FAILURE, metadata, null);
+            auditEventPublisher.publishFailureEvent(FIN_TRANSACTION_VALIDATION, metadata, null,
+                    TransferErrorCode.DUPLICATION_FUND_TRANSFER_REQUEST.getCustomErrorCode(),  TransferErrorCode.DUPLICATION_FUND_TRANSFER_REQUEST.getErrorMessage(), null);
             return ValidationResult.builder()
                     .success(false)
                     .transferErrorCode(TransferErrorCode.DUPLICATION_FUND_TRANSFER_REQUEST)
                     .build();
         }
         log.info("Financial Txn No Validating successful service type [ {} ] ", request.getServiceType());
-        auditEventPublisher.publishEvent(FIN_TRANSACTION_VALIDATION, EventStatus.SUCCESS, metadata, null);
+        auditEventPublisher.publishSuccessEvent(FIN_TRANSACTION_VALIDATION, metadata, null);
         return ValidationResult.builder().success(true).build();
     }
 }

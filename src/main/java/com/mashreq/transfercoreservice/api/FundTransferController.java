@@ -1,7 +1,6 @@
 package com.mashreq.transfercoreservice.api;
 
 import com.mashreq.ms.commons.cache.HeaderNames;
-import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.RequestMetaData;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferService;
@@ -15,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @Slf4j
@@ -26,7 +26,6 @@ public class FundTransferController {
 
     private final FundTransferService fundTransferService;
 
-
     @ApiOperation(value = "Processes to start payment", response = FundTransferRequestDTO.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully processed"),
@@ -34,7 +33,7 @@ public class FundTransferController {
     })
     @PostMapping
     public Response transferFunds(@RequestAttribute("X-CHANNEL-TRACE-ID") String channelTraceId,
-                                  @RequestHeader("X-CHANNEL-HOST") String channelHost,
+                                  @RequestAttribute("X-REQUEST-METADATA") RequestMetaData metaData,
                                   @RequestHeader(HeaderNames.CHANNEL_TYPE_HEADER_NAME) String channelName,
                                   @RequestHeader(HeaderNames.CIF_HEADER_NAME) final String cifId,
                                   @RequestHeader(HeaderNames.X_USSM_USER_REDIS_KEY) final String userCacheKey,
@@ -43,20 +42,10 @@ public class FundTransferController {
                                   @Valid @RequestBody FundTransferRequestDTO request) {
 
         log.info("{} Fund transfer for request received ", request.getServiceType());
-        RequestMetaData metadata = RequestMetaData.builder()
-                .channel(channelName)
-                .channelTraceId(channelTraceId)
-                .channelHost(channelHost)
-                .userCacheKey(userCacheKey)
-                .username(userId)
-                .coRelationId(correlationId)
-                .primaryCif(cifId)
-                .build();
-
-        log.info("Fund transfer meta data created {} ", metadata);
+        log.info("Fund transfer meta data created {} ", metaData);
         return Response.builder()
                 .status(ResponseStatus.SUCCESS)
-                .data(fundTransferService.transferFund(metadata, request)).build();
+                .data(fundTransferService.transferFund(metaData, request)).build();
     }
 
 }

@@ -6,11 +6,9 @@ import com.mashreq.esbcore.bindings.accountservices.mbcdm.fundtransfer.EAIServic
 import com.mashreq.esbcore.bindings.header.mbcdm.ErrorType;
 import com.mashreq.esbcore.bindings.header.mbcdm.HeaderType;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
-import com.mashreq.transfercoreservice.event.model.EventStatus;
 import com.mashreq.transfercoreservice.event.model.EventType;
-import com.mashreq.transfercoreservice.event.publisher.Publisher;
+import com.mashreq.transfercoreservice.event.publisher.AsyncUserEventPublisher;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.fundtransfer.dto.RequestMetaData;
 import com.mashreq.transfercoreservice.middleware.*;
@@ -38,7 +36,7 @@ public class FundTransferMWService {
     private static final String NARRATION_PREFIX = "Fund Transfer-";
     private static final String NARRATION_SUFFIX = " Banking";
     private static final String PAYMENT_DETAIL_PREFIX = "/REF/ ";
-    private final Publisher auditEventPublisher;
+    private final AsyncUserEventPublisher auditEventPublisher;
 
 
     public FundTransferResponse transfer(FundTransferRequest request, RequestMetaData metaData) {
@@ -58,7 +56,7 @@ public class FundTransferMWService {
         final FundTransferResType.Transfer transfer = response.getBody().getFundTransferRes().getTransfer().get(0);
         final ErrorType exceptionDetails = response.getBody().getExceptionDetails();
         if (isSuccessfull(response)) {
-            auditEventPublisher.publishEsbEvent(EventType.FUND_TRANSFER_MW_CALL, EventStatus.SUCCESS, metaData, getRemarks(request), request.getChannelTraceId());
+            auditEventPublisher.publishSuccessfulEsbEvent(EventType.FUND_TRANSFER_MW_CALL, metaData, getRemarks(request), request.getChannelTraceId());
             log.info("Fund transferred successfully to account [ {} ]", request.getToAccount());
             final CoreFundTransferResponseDto coreFundTransferResponseDto = constructFTResponseDTO(transfer, exceptionDetails, MwResponseStatus.S);
             return FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
@@ -66,7 +64,7 @@ public class FundTransferMWService {
 
         log.info("Fund transfer failed to account [ {} ]", request.getToAccount());
         final CoreFundTransferResponseDto coreFundTransferResponseDto = constructFTResponseDTO(transfer, exceptionDetails, MwResponseStatus.F);
-        auditEventPublisher.publishEsbEvent(EventType.FUND_TRANSFER_MW_CALL, EventStatus.FAILURE, metaData, getRemarks(request), request.getChannelTraceId(),
+        auditEventPublisher.publishFailedEsbEvent(EventType.FUND_TRANSFER_MW_CALL, metaData, getRemarks(request), request.getChannelTraceId(),
                 coreFundTransferResponseDto.getMwResponseCode(), coreFundTransferResponseDto.getMwResponseDescription(), coreFundTransferResponseDto.getExternalErrorMessage());
         return FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
     }
