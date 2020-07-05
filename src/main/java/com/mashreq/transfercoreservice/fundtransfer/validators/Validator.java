@@ -1,7 +1,7 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
+import com.mashreq.mobcommons.config.http.RequestMetaData;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.RequestMetaData;
 
 /**
  * @author shahbazkh

@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
+import com.mashreq.mobcommons.config.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;

@@ -1,12 +1,12 @@
 package com.mashreq.transfercoreservice.event.publisher;
 
+import com.mashreq.mobcommons.config.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.transfercoreservice.event.conf.EventProperties;
 import com.mashreq.transfercoreservice.event.mapper.AuditEventMapper;
 import com.mashreq.transfercoreservice.event.model.AuditEvent;
 import com.mashreq.transfercoreservice.event.model.EventStatus;
 import com.mashreq.transfercoreservice.event.model.EventType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.RequestMetaData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -25,6 +25,7 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
 @RequiredArgsConstructor
 public class AuditEventPublisher implements AsyncUserEventPublisher {
 
+    private static final String IGNORE = "ignore";
     private final ApplicationEventPublisher applicationEventPublisher;
     private final AuditEventMapper auditEventMapper;
     private final EventProperties eventProperties;
@@ -156,7 +157,7 @@ public class AuditEventPublisher implements AsyncUserEventPublisher {
         if (map == null || map.size() == 0) {
             return true;
         }
-        return !"ignore".equalsIgnoreCase(eventProperties.getMap().get(eventType.name()));
+        return !IGNORE.equalsIgnoreCase(eventProperties.getMap().get(eventType.name()));
     }
 
 }

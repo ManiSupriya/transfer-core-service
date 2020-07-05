@@ -1,11 +1,11 @@
 package com.mashreq.transfercoreservice.event.mapper;
 
 
+import com.mashreq.mobcommons.config.http.RequestMetaData;
 import com.mashreq.transfercoreservice.event.entity.UserEventAudit;
 import com.mashreq.transfercoreservice.event.model.AuditEvent;
 import com.mashreq.transfercoreservice.event.model.EventStatus;
 import com.mashreq.transfercoreservice.event.model.EventType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.RequestMetaData;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -36,7 +36,7 @@ public class AuditEventMapper {
                 .errorDetails(errorDetails)
                 .region(billPaymentMetaData.getRegion())
                 .remarks(remarks)
-                .clientIp(billPaymentMetaData.getIp())
+                .clientIp(billPaymentMetaData.getDeviceIP())
                 .mwSrcMsgId(mwSrcMsgId)
                 .build();
     }

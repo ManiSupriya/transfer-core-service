@@ -1,6 +1,7 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
 import com.mashreq.logcore.annotations.TrackExec;
+import com.mashreq.mobcommons.config.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
@@ -195,7 +196,7 @@ public class FundTransferServiceDefault implements FundTransferService {
                 .beneficiaryTypeCode(request.getServiceType())
                 .channel(fundTransferMetadata.getChannel())
                 //.billRefNo(coreResponse.getBillRefNo())
-                .ipAddress(fundTransferMetadata.getIp())
+                .ipAddress(fundTransferMetadata.getDeviceIP())
                 .paidAmount(request.getAmount())
                 //.dueAmount(request.getDueAmount())
                 //.toCurrency(PaymentConstants.BILL_PAYMENT_TO_CURRENCY)

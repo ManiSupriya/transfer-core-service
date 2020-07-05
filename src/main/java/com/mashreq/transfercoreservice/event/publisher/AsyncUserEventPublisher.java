@@ -1,7 +1,7 @@
 package com.mashreq.transfercoreservice.event.publisher;
 
+import com.mashreq.mobcommons.config.http.RequestMetaData;
 import com.mashreq.transfercoreservice.event.model.EventType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.RequestMetaData;
 
 import java.util.function.Supplier;
 

@@ -1,8 +1,8 @@
 package com.mashreq.transfercoreservice.api;
 
+import com.mashreq.mobcommons.config.http.RequestMetaData;
 import com.mashreq.ms.commons.cache.HeaderNames;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.RequestMetaData;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferService;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @Slf4j
@@ -32,7 +31,7 @@ public class FundTransferController {
             @ApiResponse(code = 500, message = "Something went wrong")
     })
     @PostMapping
-    public Response transferFunds(@RequestAttribute("X-CHANNEL-TRACE-ID") String channelTraceId,
+    public Response transferFunds(
                                   @RequestAttribute("X-REQUEST-METADATA") RequestMetaData metaData,
                                   @RequestHeader(HeaderNames.CHANNEL_TYPE_HEADER_NAME) String channelName,
                                   @RequestHeader(HeaderNames.CIF_HEADER_NAME) final String cifId,

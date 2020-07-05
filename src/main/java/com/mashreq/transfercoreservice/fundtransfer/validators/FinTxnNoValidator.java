@@ -1,9 +1,9 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
+import com.mashreq.mobcommons.config.http.RequestMetaData;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.publisher.AsyncUserEventPublisher;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.RequestMetaData;
 import com.mashreq.transfercoreservice.fundtransfer.service.PaymentHistoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
