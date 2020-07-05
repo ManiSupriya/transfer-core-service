@@ -2,8 +2,11 @@ package com.mashreq.transfercoreservice.banksearch;
 
 import com.mashreq.esbcore.bindings.customer.mbcdm.FetchAccuityDataReqType;
 import com.mashreq.esbcore.bindings.customerservices.mbcdm.fetchaccuitydata.EAIServices;
+import com.mashreq.mobcommons.config.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
+import com.mashreq.transfercoreservice.event.model.EventType;
+import com.mashreq.transfercoreservice.event.publisher.AsyncUserEventPublisher;
 import com.mashreq.transfercoreservice.middleware.HeaderFactory;
 import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
 import com.mashreq.transfercoreservice.middleware.WebServiceClient;
@@ -31,18 +34,19 @@ public class RoutingCodeSearchMWService {
     private final WebServiceClient webServiceClient;
     private final HeaderFactory headerFactory;
     private final SoapServiceProperties soapServiceProperties;
+    private final AsyncUserEventPublisher asyncUserEventPublisher;
     private static final String SUCCESS = "S";
     private static final String SUCCESS_CODE_ENDS_WITH = "-000";
 
-    public List<BankResultsDto> fetchBankDetailsWithRoutingCode(String channelTraceId, BankDetailRequestDto bankDetailRequest) {
+    public List<BankResultsDto> fetchBankDetailsWithRoutingCode(String channelTraceId, BankDetailRequestDto bankDetailRequest, RequestMetaData requestMetaData) {
 
         log.info("Searching for Bank details with routing code ", bankDetailRequest);
 
         EAIServices response = (EAIServices) webServiceClient.exchange(
                 this.getRequestForRoutingCode(channelTraceId, bankDetailRequest));
 
-        validateOMWResponse(response);
-
+        validateOMWResponse(response, requestMetaData, channelTraceId, bankDetailRequest);
+        asyncUserEventPublisher.publishSuccessfulEsbEvent(EventType.ROUTING_CODE_SEARCH_MW_CALL, requestMetaData, bankDetailRequest.toString(), channelTraceId);
         List<BankResultsDto> results = response.getBody().getFetchAccuityDataRes().getAccuityDetails()
                 .stream()
                 .map(x -> new BankResultsDto(x))
@@ -52,11 +56,13 @@ public class RoutingCodeSearchMWService {
     }
 
 
-    private void validateOMWResponse(EAIServices response) {
+    private void validateOMWResponse(EAIServices response,RequestMetaData metaData, String channelTraceId, BankDetailRequestDto bankDetailRequest) {
         log.debug("Validate response {}", response);
         if (!(StringUtils.endsWith(response.getBody().getExceptionDetails().getErrorCode(), SUCCESS_CODE_ENDS_WITH)
                 && SUCCESS.equals(response.getHeader().getStatus()))) {
-
+            asyncUserEventPublisher.publishFailedEsbEvent(EventType.ROUTING_CODE_SEARCH_MW_CALL, metaData, bankDetailRequest.toString(), channelTraceId,
+                    response.getBody().getExceptionDetails().getErrorCode(), response.getBody().getExceptionDetails().getErrorDescription(),
+                    response.getBody().getExceptionDetails().getData());
             GenericExceptionHandler.handleError(TransferErrorCode.ROUTING_CODE_NOT_FOUND,
                     response.getBody().getExceptionDetails().getErrorDescription(), response.getBody().getExceptionDetails().getErrorCode());
         }
