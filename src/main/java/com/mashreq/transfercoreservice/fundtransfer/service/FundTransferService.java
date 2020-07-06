@@ -1,8 +1,8 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
 
+import com.mashreq.mobcommons.config.http.RequestMetaData;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.RequestMetaData;
 
 
 public interface FundTransferService {

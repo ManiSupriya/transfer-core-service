@@ -26,4 +26,6 @@ public class BankDetailRequestDto {
     private String value;
 
     private String countryCode;
+
+
 }

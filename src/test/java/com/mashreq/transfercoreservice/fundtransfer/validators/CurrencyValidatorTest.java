@@ -6,21 +6,15 @@ import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryStatus;
 import com.mashreq.transfercoreservice.client.dto.CharityBeneficiaryDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
-import com.mashreq.transfercoreservice.event.model.EventStatus;
-import com.mashreq.transfercoreservice.event.model.EventType;
-import com.mashreq.transfercoreservice.event.publisher.Publisher;
+import com.mashreq.transfercoreservice.event.publisher.AsyncUserEventPublisher;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.RequestMetaData;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.function.Supplier;
 
 /**
  *
@@ -29,7 +23,7 @@ import java.util.function.Supplier;
 public class CurrencyValidatorTest {
 
     @Mock
-    private Publisher auditEventPublisher;
+    private AsyncUserEventPublisher auditEventPublisher;
 
     @InjectMocks
     private CurrencyValidator currencyValidator;

@@ -1,13 +1,12 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
 import com.mashreq.logcore.annotations.TrackExec;
+import com.mashreq.mobcommons.config.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
-import com.mashreq.transfercoreservice.event.model.EventStatus;
 import com.mashreq.transfercoreservice.event.model.EventType;
-import com.mashreq.transfercoreservice.event.publisher.AuditEventPublisher;
-import com.mashreq.transfercoreservice.event.publisher.Publisher;
+import com.mashreq.transfercoreservice.event.publisher.AsyncUserEventPublisher;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageService;
@@ -48,7 +47,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final InternationalFundTransferStrategy internationalFundTransferStrategy;
     private final CharityStrategyDefault charityStrategyDefault;
     private final QuickRemitStrategy quickRemitStrategy;
-    private final Publisher auditEventPublisher;
+    private final AsyncUserEventPublisher auditEventPublisher;
     private EnumMap<ServiceType, FundTransferStrategy> fundTransferStrategies;
 
 
@@ -197,7 +196,7 @@ public class FundTransferServiceDefault implements FundTransferService {
                 .beneficiaryTypeCode(request.getServiceType())
                 .channel(fundTransferMetadata.getChannel())
                 //.billRefNo(coreResponse.getBillRefNo())
-                .ipAddress(fundTransferMetadata.getChannelHost())
+                .ipAddress(fundTransferMetadata.getDeviceIP())
                 .paidAmount(request.getAmount())
                 //.dueAmount(request.getDueAmount())
                 //.toCurrency(PaymentConstants.BILL_PAYMENT_TO_CURRENCY)

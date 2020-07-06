@@ -30,8 +30,12 @@ public enum EventType {
     PAYMENT_PURPOSE_VALIDATION("FUND_TRANSFER", "Payment Purpose Validation"),
     SAME_ACCOUNT_VALIDATION("FUND_TRANSFER", "Check account credit and deit account should not be same"),
     FUND_TRANSFER_MW_CALL("FUND_TRANSFER", "Call middleware for fund transfer"),
-    QR_FUND_TRANSFER_MW_CALL("FUND_TRANSFER", "Call middleware for quick remit fund transfer");
+    QR_FUND_TRANSFER_MW_CALL("FUND_TRANSFER", "Call middleware for quick remit fund transfer"),
 
+    IBAN_SEARCH_MW_CALL("FUND_TRANSFER_ENQUIRY","Get bank details using IBAN"),
+    ROUTING_CODE_SEARCH_MW_CALL("FUND_TRANSFER_ENQUIRY","Get bank details using Routing code"),
+    IFSC_SEARCH_MW_CALL("FUND_TRANSFER_ENQUIRY","Get bank details using IFSC code"),
+    ;
 
 
     private static final Map<String, EventType> eventTypeLookup = Stream.of(EventType.values())
