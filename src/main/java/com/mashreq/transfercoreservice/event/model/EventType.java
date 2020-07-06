@@ -13,7 +13,7 @@ public enum EventType {
 
     WITHIN_MASHREQ_FUND_TRANSFER_REQUEST("FUND_TRANSFER", "WITHIN MASHREQ transfer request has been received"),
     LOCAL_FUND_TRANSFER_REQUEST("FUND_TRANSFER", "LOCAL FUND transfer request has been received"),
-    OWN_ACCOUNT_TRANSFER_REQUEST("FUND_TRANSFER", "OWN ACCOUNT transfer request has been received"),
+    OWN_ACCOUNT_FUND_TRANSFER_REQUEST("FUND_TRANSFER", "OWN ACCOUNT transfer request has been received"),
     INTERNATIONAL_FUND_TRANSFER_REQUEST("FUND_TRANSFER", "INTERNATIONAL Fund transfer request has been received"),
     DAR_AL_BER_FUND_TRANSFER_REQUEST("FUND_TRANSFER", "DAR AL BER Fund transfer request has been received"),
     BAIT_AL_KHAIR_FUND_TRANSFER_REQUEST("FUND_TRANSFER", "BAIT AL KHAIR Fund transfer request has been received"),
