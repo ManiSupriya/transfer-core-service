@@ -1,6 +1,7 @@
 package com.mashreq.transfercoreservice.api;
 
 
+import com.mashreq.mobcommons.config.http.RequestMetaData;
 import com.mashreq.transfercoreservice.banksearch.BankDetailRequestDto;
 import com.mashreq.transfercoreservice.banksearch.BankDetailService;
 import com.mashreq.webcore.dto.response.Response;
@@ -23,23 +24,22 @@ import javax.validation.Valid;
 public class BankDetailController {
 
     private final BankDetailService bankDetailService;
-    private static final String X_CHANNEL_TRACE_ID = "X-CHANNEL-TRACE-ID";
 
     @PostMapping
-    public Response getBankDetails(@RequestAttribute(X_CHANNEL_TRACE_ID) String channelTraceId,
+    public Response getBankDetails(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData metaData,
                                    @Valid @RequestBody BankDetailRequestDto bankDetailRequest) {
         log.info("Received request to search {} with value {} ", bankDetailRequest.getType(), bankDetailRequest.getValue());
         return Response.builder()
                 .status(ResponseStatus.SUCCESS)
-                .data(bankDetailService.getBankDetails(channelTraceId, bankDetailRequest)).build();
+                .data(bankDetailService.getBankDetails(metaData.getChannelTraceId(), bankDetailRequest, metaData)).build();
     }
 
     @GetMapping("/ifsc/{code}")
-    public Response getIfscCodeDetails(@RequestAttribute(X_CHANNEL_TRACE_ID) String channelTraceId,
+    public Response getIfscCodeDetails(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData metaData,
                                        @PathVariable final String code) {
         log.info("Received request to search ifsc-code with value {} ", code);
         return Response.builder()
                 .status(ResponseStatus.SUCCESS)
-                .data(bankDetailService.getBankDeatilsByIfsc(channelTraceId, code)).build();
+                .data(bankDetailService.getBankDeatilsByIfsc(metaData.getChannelTraceId(), code, metaData)).build();
     }
 }

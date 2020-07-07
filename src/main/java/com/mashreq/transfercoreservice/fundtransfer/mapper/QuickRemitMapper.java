@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.fundtransfer.mapper;
 
+import com.mashreq.mobcommons.config.http.RequestMetaData;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 
 /**

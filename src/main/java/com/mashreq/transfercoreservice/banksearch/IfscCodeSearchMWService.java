@@ -2,8 +2,11 @@ package com.mashreq.transfercoreservice.banksearch;
 
 import com.mashreq.esbcore.bindings.customer.mbcdm.AxisRemittanceIFSCDetailsReqType;
 import com.mashreq.esbcore.bindings.customerservices.mbcdm.axisremittanceifscdetails.EAIServices;
+import com.mashreq.mobcommons.config.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
+import com.mashreq.transfercoreservice.event.model.EventType;
+import com.mashreq.transfercoreservice.event.publisher.AsyncUserEventPublisher;
 import com.mashreq.transfercoreservice.middleware.HeaderFactory;
 import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
 import com.mashreq.transfercoreservice.middleware.WebServiceClient;
@@ -27,25 +30,28 @@ public class IfscCodeSearchMWService {
     private final WebServiceClient webServiceClient;
     private final HeaderFactory headerFactory;
     private final SoapServiceProperties soapServiceProperties;
+    private final AsyncUserEventPublisher asyncUserEventPublisher;
     private static final String SUCCESS = "S";
     private static final String SUCCESS_CODE_ENDS_WITH = "-000";
 
-    public BankResultsDto getBankDetailByIfscCode(final String channelTraceId, final String ifscCode) {
+    public BankResultsDto getBankDetailByIfscCode(final String channelTraceId, final String ifscCode, RequestMetaData requestMetaData) {
         log.info("Searching for Bank details with ifsc-cde [ {} ]", ifscCode);
 
         EAIServices response = (EAIServices) webServiceClient.exchange(generateIfscSearchRequest(channelTraceId, ifscCode));
-        validateOMWResponse(response);
-
+        validateOMWResponse(response, requestMetaData, channelTraceId, ifscCode);
+        asyncUserEventPublisher.publishSuccessfulEsbEvent(EventType.IFSC_SEARCH_MW_CALL, requestMetaData, ifscCode, channelTraceId);
         BankResultsDto bankResultsDto = new BankResultsDto(response.getBody().getAxisRemittanceIFSCDetailsRes());
         return bankResultsDto;
 
     }
 
-    private void validateOMWResponse(EAIServices response) {
+    private void validateOMWResponse(final EAIServices response, final RequestMetaData requestMetaData, final String channelTraceId, final String ifscCode) {
         log.debug("Validate response {}", response);
         if (!(StringUtils.endsWith(response.getBody().getExceptionDetails().getErrorCode(), SUCCESS_CODE_ENDS_WITH)
                 && SUCCESS.equals(response.getHeader().getStatus()))) {
-
+            asyncUserEventPublisher.publishFailedEsbEvent(EventType.IFSC_SEARCH_MW_CALL, requestMetaData, ifscCode, channelTraceId,
+                    response.getBody().getExceptionDetails().getErrorCode(), response.getBody().getExceptionDetails().getErrorDescription(),
+                    response.getBody().getExceptionDetails().getData());
             GenericExceptionHandler.handleError(TransferErrorCode.IFSC_CODE_NOT_FOUND,
                     response.getBody().getExceptionDetails().getErrorDescription(), response.getBody().getExceptionDetails().getErrorCode());
         }

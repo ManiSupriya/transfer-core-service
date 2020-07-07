@@ -1,13 +1,10 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
+import com.mashreq.mobcommons.config.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
-import com.mashreq.transfercoreservice.event.model.EventStatus;
-import com.mashreq.transfercoreservice.event.model.EventType;
-import com.mashreq.transfercoreservice.event.publisher.AuditEventPublisher;
-import com.mashreq.transfercoreservice.event.publisher.Publisher;
+import com.mashreq.transfercoreservice.event.publisher.AsyncUserEventPublisher;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.RequestMetaData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -30,7 +27,7 @@ import static com.mashreq.transfercoreservice.event.model.EventType.BENEFICIARY_
 public class BeneficiaryValidator implements Validator {
 
     private static final String QUICK_REMIT = "quick-remit";
-    private final Publisher auditEventPublisher;
+    private final AsyncUserEventPublisher auditEventPublisher;
 
 
     @Override
@@ -40,14 +37,16 @@ public class BeneficiaryValidator implements Validator {
         log.info("Validating Beneficiary for service type [ {} ] ", request.getServiceType());
 
         if (beneficiaryDto == null) {
-            auditEventPublisher.publishEvent(BENEFICIARY_VALIDATION, EventStatus.FAILURE, metadata, null);
+            auditEventPublisher.publishFailureEvent(BENEFICIARY_VALIDATION, metadata, null,
+                    BENE_NOT_FOUND.getCustomErrorCode(), BENE_NOT_FOUND.getErrorMessage(), null );
             return ValidationResult.builder().success(false).transferErrorCode(BENE_NOT_FOUND)
                     .build();
         }
 
 
         if (!beneficiaryDto.getAccountNumber().equals(request.getToAccount())) {
-            auditEventPublisher.publishEvent(BENEFICIARY_VALIDATION, EventStatus.FAILURE, metadata, null);
+            auditEventPublisher.publishFailureEvent(BENEFICIARY_VALIDATION, metadata, null,
+                    BENE_ACC_NOT_MATCH.getCustomErrorCode(), BENE_ACC_NOT_MATCH.getErrorMessage(), null);
             return ValidationResult.builder().success(false).transferErrorCode(BENE_ACC_NOT_MATCH)
                     .build();
         }
@@ -63,10 +62,11 @@ public class BeneficiaryValidator implements Validator {
 
     private ValidationResult validateBeneficiaryStatus(List<String> validStatus, String beneficiaryStatus, TransferErrorCode errorCode, RequestMetaData metadata) {
         if (validStatus.contains(beneficiaryStatus)) {
-            auditEventPublisher.publishEvent(BENEFICIARY_VALIDATION, EventStatus.SUCCESS, metadata, null);
+            auditEventPublisher.publishSuccessEvent(BENEFICIARY_VALIDATION, metadata, null);
             return ValidationResult.builder().success(true).build();
         } else {
-            auditEventPublisher.publishEvent(BENEFICIARY_VALIDATION, EventStatus.FAILURE, metadata, null);
+            auditEventPublisher.publishFailureEvent(BENEFICIARY_VALIDATION, metadata, null,
+                    errorCode.getCustomErrorCode(), errorCode.getErrorMessage(), null);
             return ValidationResult.builder().success(false).transferErrorCode(errorCode)
                     .build();
         }

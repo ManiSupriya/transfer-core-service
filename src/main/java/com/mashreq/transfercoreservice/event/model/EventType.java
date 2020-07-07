@@ -13,7 +13,7 @@ public enum EventType {
 
     WITHIN_MASHREQ_FUND_TRANSFER_REQUEST("FUND_TRANSFER", "WITHIN MASHREQ transfer request has been received"),
     LOCAL_FUND_TRANSFER_REQUEST("FUND_TRANSFER", "LOCAL FUND transfer request has been received"),
-    OWN_ACCOUNT_TRANSFER_REQUEST("FUND_TRANSFER", "OWN ACCOUNT transfer request has been received"),
+    OWN_ACCOUNT_FUND_TRANSFER_REQUEST("FUND_TRANSFER", "OWN ACCOUNT transfer request has been received"),
     INTERNATIONAL_FUND_TRANSFER_REQUEST("FUND_TRANSFER", "INTERNATIONAL Fund transfer request has been received"),
     DAR_AL_BER_FUND_TRANSFER_REQUEST("FUND_TRANSFER", "DAR AL BER Fund transfer request has been received"),
     BAIT_AL_KHAIR_FUND_TRANSFER_REQUEST("FUND_TRANSFER", "BAIT AL KHAIR Fund transfer request has been received"),
@@ -30,8 +30,12 @@ public enum EventType {
     PAYMENT_PURPOSE_VALIDATION("FUND_TRANSFER", "Payment Purpose Validation"),
     SAME_ACCOUNT_VALIDATION("FUND_TRANSFER", "Check account credit and deit account should not be same"),
     FUND_TRANSFER_MW_CALL("FUND_TRANSFER", "Call middleware for fund transfer"),
-    QR_FUND_TRANSFER_MW_CALL("FUND_TRANSFER", "Call middleware for quick remit fund transfer");
+    QR_FUND_TRANSFER_MW_CALL("FUND_TRANSFER", "Call middleware for quick remit fund transfer"),
 
+    IBAN_SEARCH_MW_CALL("FUND_TRANSFER_ENQUIRY","Get bank details using IBAN"),
+    ROUTING_CODE_SEARCH_MW_CALL("FUND_TRANSFER_ENQUIRY","Get bank details using Routing code"),
+    IFSC_SEARCH_MW_CALL("FUND_TRANSFER_ENQUIRY","Get bank details using IFSC code"),
+    ;
 
 
     private static final Map<String, EventType> eventTypeLookup = Stream.of(EventType.values())

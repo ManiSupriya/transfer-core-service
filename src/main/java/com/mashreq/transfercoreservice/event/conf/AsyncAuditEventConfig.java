@@ -16,7 +16,7 @@ import java.util.concurrent.Executor;
 public class AsyncAuditEventConfig {
 
     @Bean
-    public ApplicationEventMulticaster applicationEventMulticaster(@Qualifier("taskExecutor") Executor taskExecutor) {
+    public ApplicationEventMulticaster applicationEventMulticaster(@Qualifier("userEventAuditTaskExecutor") Executor taskExecutor) {
         SimpleApplicationEventMulticaster eventMultiCaster = new SimpleApplicationEventMulticaster();
         eventMultiCaster.setTaskExecutor(taskExecutor);
         eventMultiCaster.setErrorHandler(throwable -> log.error("[AsyncAuditEventConfig] Error while publishing events to audit table", throwable));
