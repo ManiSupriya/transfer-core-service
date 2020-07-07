@@ -24,25 +24,22 @@ import javax.validation.Valid;
 public class BankDetailController {
 
     private final BankDetailService bankDetailService;
-    private static final String X_CHANNEL_TRACE_ID = "X-CHANNEL-TRACE-ID";
 
     @PostMapping
-    public Response getBankDetails(@RequestAttribute(X_CHANNEL_TRACE_ID) String channelTraceId,
-                                   @RequestAttribute("X-REQUEST-METADATA") RequestMetaData metaData,
+    public Response getBankDetails(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData metaData,
                                    @Valid @RequestBody BankDetailRequestDto bankDetailRequest) {
         log.info("Received request to search {} with value {} ", bankDetailRequest.getType(), bankDetailRequest.getValue());
         return Response.builder()
                 .status(ResponseStatus.SUCCESS)
-                .data(bankDetailService.getBankDetails(channelTraceId, bankDetailRequest, metaData)).build();
+                .data(bankDetailService.getBankDetails(metaData.getChannelTraceId(), bankDetailRequest, metaData)).build();
     }
 
     @GetMapping("/ifsc/{code}")
-    public Response getIfscCodeDetails(@RequestAttribute(X_CHANNEL_TRACE_ID) String channelTraceId,
-                                       @RequestAttribute("X-REQUEST-METADATA") RequestMetaData metaData,
+    public Response getIfscCodeDetails(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData metaData,
                                        @PathVariable final String code) {
         log.info("Received request to search ifsc-code with value {} ", code);
         return Response.builder()
                 .status(ResponseStatus.SUCCESS)
-                .data(bankDetailService.getBankDeatilsByIfsc(channelTraceId, code, metaData)).build();
+                .data(bankDetailService.getBankDeatilsByIfsc(metaData.getChannelTraceId(), code, metaData)).build();
     }
 }
