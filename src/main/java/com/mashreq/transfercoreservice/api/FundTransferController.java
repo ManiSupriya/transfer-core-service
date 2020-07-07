@@ -44,8 +44,8 @@ public class FundTransferController {
 
         log.info("{} Fund transfer for request received ", request.getServiceType());
         log.info("Fund transfer meta data created {} ", metaData);
-        if(request.getAmount() == null && request.getDestAmount() ==null){
-            GenericExceptionHandler.handleError(TransferErrorCode.INVALID_REQUEST, "Bad Request", "Both destAmount and credit amount are not populated");
+        if(request.getAmount() == null && request.getSrcAmount() ==null){
+            GenericExceptionHandler.handleError(TransferErrorCode.INVALID_REQUEST, "Bad Request", "Both srcAmount and credit amount are not populated");
         }
         return Response.builder()
                 .status(ResponseStatus.SUCCESS)

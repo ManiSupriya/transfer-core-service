@@ -197,7 +197,7 @@ public class FundTransferServiceDefault implements FundTransferService {
                 .channel(fundTransferMetadata.getChannel())
                 //.billRefNo(coreResponse.getBillRefNo())
                 .ipAddress(fundTransferMetadata.getDeviceIP())
-                .paidAmount(request.getAmount() == null ? request.getDestAmount() : request.getAmount())
+                .paidAmount(request.getAmount() == null ? request.getSrcAmount() : request.getAmount())
                 //.dueAmount(request.getDueAmount())
                 //.toCurrency(PaymentConstants.BILL_PAYMENT_TO_CURRENCY)
                 .status(coreResponse.getMwResponseStatus().name())

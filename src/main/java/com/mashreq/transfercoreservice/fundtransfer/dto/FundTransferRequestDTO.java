@@ -33,7 +33,7 @@ public class FundTransferRequestDTO {
     private BigDecimal amount;
 
     @TransactionAmount
-    private BigDecimal destAmount;
+    private BigDecimal srcAmount;
 
     @ValueOfEnum(enumClass = ServiceType.class, message = "Not a valid value for service Type")
     private String serviceType;

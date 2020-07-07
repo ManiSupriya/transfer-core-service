@@ -2,7 +2,6 @@ package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
 import com.mashreq.mobcommons.config.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
-import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
 import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
@@ -14,7 +13,6 @@ import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWServic
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -72,7 +70,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         validateAccountContext.add("to-account-currency", toAccount.getCurrency());
         responseHandler(currencyValidator.validate(request, metadata, validateAccountContext));
 
-        BigDecimal transactionAmount = request.getAmount() == null ? request.getDestAmount() : request.getAmount();
+        BigDecimal transactionAmount = request.getAmount() == null ? request.getSrcAmount() : request.getAmount();
 
         final BigDecimal transferAmountInSrcCurrency = isCurrencySame(toAccount, fromAccount)
                 ? transactionAmount
@@ -124,7 +122,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
                                                                   AccountDetailsDTO sourceAccount, AccountDetailsDTO destinationAccount) {
         return FundTransferRequest.builder()
                 .amount(request.getAmount())
-                .destAmount(request.getDestAmount())
+                .srcAmount(request.getSrcAmount())
                 .channel(metadata.getChannel())
                 .channelTraceId(metadata.getChannelTraceId())
                 .fromAccount(request.getFromAccount())

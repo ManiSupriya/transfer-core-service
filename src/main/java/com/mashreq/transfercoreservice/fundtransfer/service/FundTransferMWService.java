@@ -75,7 +75,7 @@ public class FundTransferMWService {
                 request.getFromAccount(),
                 request.getToAccount(),
                 request.getAmount(),
-                request.getDestAmount(),
+                request.getSrcAmount(),
                 request.getDestinationCurrency(),
                 request.getSourceCurrency(),
                 request.getFinTxnNo(),
@@ -137,7 +137,7 @@ public class FundTransferMWService {
         debitLeg.setCurrency(request.getSourceCurrency());
         debitLeg.setNarration1(generateNarration(request.getChannel()));
         debitLeg.setInternalAccFlag(request.getInternalAccFlag());
-        debitLeg.setAmount(request.getDestAmount());
+        debitLeg.setAmount(request.getSrcAmount());
 
         creditLeg.setAccountNo(request.getToAccount());
         creditLeg.setTransactionCode(request.getTransactionCode());
