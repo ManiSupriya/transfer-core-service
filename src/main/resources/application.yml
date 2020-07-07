@@ -110,7 +110,7 @@ mob:
       maxPoolSize: 50
       corePoolSize: 30
       queueCapacity: 100
-      threadNamePrefix: mob-transfer-user-event-pool
+      threadNamePrefix: mob-transfer-usereventlog-pool
     generalTaskExecutor:
       enable: true
       maxPoolSize: 50
