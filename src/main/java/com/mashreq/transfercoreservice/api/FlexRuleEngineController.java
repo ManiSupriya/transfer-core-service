@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.api;
 
+import com.mashreq.mobcommons.config.http.RequestMetaData;
 import com.mashreq.ms.commons.cache.HeaderNames;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.service.FlexRuleEngineService;
@@ -29,7 +30,6 @@ import javax.validation.Valid;
 public class FlexRuleEngineController {
 
     private final FlexRuleEngineService flexRuleEngineService;
-    private static final String X_CHANNEL_TRACE_ID = "X-CHANNEL-TRACE-ID";
 
     @ApiOperation(value = "Fetch Rules for flex engine", response = FlexRuleEngineResponseDTO.class)
     @ApiResponses(value = {
@@ -37,13 +37,13 @@ public class FlexRuleEngineController {
             @ApiResponse(code = 500, message = "Something went wrong")
     })
     @PostMapping
-    public Response fetchRule(@RequestAttribute(X_CHANNEL_TRACE_ID) String channelTraceId,
+    public Response fetchRule(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData requestMetaData,
                               @RequestHeader(HeaderNames.CIF_HEADER_NAME) final String cifId,
                               @Valid @RequestBody FlexRuleEngineRequestDTO request) {
         log.info("{} Flex Rule engine transfer for request received ", request);
 
         FlexRuleEngineMetadata metadata = FlexRuleEngineMetadata.builder()
-                .channelTraceId(channelTraceId)
+                .channelTraceId(requestMetaData.getChannelTraceId())
                 .cifId(cifId)
                 .build();
 
@@ -59,15 +59,13 @@ public class FlexRuleEngineController {
             @ApiResponse(code = 500, message = "Something went wrong")
     })
     @PostMapping("/charges")
-    public Response fetchCharges(@RequestAttribute("X-CHANNEL-TRACE-ID") String channelTraceId,
-                                 @RequestAttribute("X-CHANNEL-HOST") String channelHost,
-                                 @RequestAttribute("X-CHANNEL-NAME") String channelName,
+    public Response fetchCharges(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData requestMetaData,
                                  @RequestHeader(HeaderNames.CIF_HEADER_NAME) final String cifId,
                                  @Valid @RequestBody ChargesRequestDTO request) {
         log.info("{} Flex Rule Charge request received ", request);
 
         FlexRuleEngineMetadata metadata = FlexRuleEngineMetadata.builder()
-                .channelTraceId(channelTraceId)
+                .channelTraceId(requestMetaData.getChannelTraceId())
                 .cifId(cifId)
                 .build();
 
