@@ -15,7 +15,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 /**
  * @author shahbazkh
  */
-//@NotNull(message = "Amount cannot be empty")
 @Positive(message = "Should be positive")
 @Digits(fraction = 2, integer = 6, message = "Amount should be in 6 digits with two fraction")
 @Target(FIELD)
