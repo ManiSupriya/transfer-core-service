@@ -5,8 +5,6 @@ import com.mashreq.transfercoreservice.annotations.ConditionalRequired;
 import com.mashreq.transfercoreservice.annotations.TransactionAmount;
 import com.mashreq.transfercoreservice.annotations.ValueOfEnum;
 import lombok.Data;
-import org.springframework.context.annotation.Conditional;
-
 import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
 
