@@ -70,11 +70,12 @@ public class FundTransferMWService {
     }
 
     private String getRemarks(FundTransferRequest request) {
-        return String.format("From Account = %s, To Account = %s, Amount = %s, Destination Currency = %s, Source Currency = %s," +
+        return String.format("From Account = %s, To Account = %s, Amount = %s, DestAmount= %s, Destination Currency = %s, Source Currency = %s," +
                         " Financial Transaction Number = %s, Beneficiary full name = %s, Swift code= %s, Beneficiary bank branch = %s ",
                 request.getFromAccount(),
                 request.getToAccount(),
                 request.getAmount(),
+                request.getDestAmount(),
                 request.getDestinationCurrency(),
                 request.getSourceCurrency(),
                 request.getFinTxnNo(),
@@ -136,6 +137,7 @@ public class FundTransferMWService {
         debitLeg.setCurrency(request.getSourceCurrency());
         debitLeg.setNarration1(generateNarration(request.getChannel()));
         debitLeg.setInternalAccFlag(request.getInternalAccFlag());
+        debitLeg.setAmount(request.getDestAmount());
 
         creditLeg.setAccountNo(request.getToAccount());
         creditLeg.setTransactionCode(request.getTransactionCode());

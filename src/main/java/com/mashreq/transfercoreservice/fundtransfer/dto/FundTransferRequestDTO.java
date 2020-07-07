@@ -5,6 +5,7 @@ import com.mashreq.transfercoreservice.annotations.ConditionalRequired;
 import com.mashreq.transfercoreservice.annotations.TransactionAmount;
 import com.mashreq.transfercoreservice.annotations.ValueOfEnum;
 import lombok.Data;
+import org.springframework.context.annotation.Conditional;
 
 import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
@@ -30,6 +31,9 @@ public class FundTransferRequestDTO {
 
     @TransactionAmount
     private BigDecimal amount;
+
+    @TransactionAmount
+    private BigDecimal destAmount;
 
     @ValueOfEnum(enumClass = ServiceType.class, message = "Not a valid value for service Type")
     private String serviceType;

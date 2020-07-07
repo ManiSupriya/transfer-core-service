@@ -14,6 +14,7 @@ import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWServic
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -71,10 +72,11 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         validateAccountContext.add("to-account-currency", toAccount.getCurrency());
         responseHandler(currencyValidator.validate(request, metadata, validateAccountContext));
 
+        BigDecimal transactionAmount = request.getAmount() == null ? request.getDestAmount() : request.getAmount();
 
         final BigDecimal transferAmountInSrcCurrency = isCurrencySame(toAccount, fromAccount)
-                ? request.getAmount()
-                : getAmountInSrcCurrency(request, toAccount, fromAccount);
+                ? transactionAmount
+                : getAmountInSrcCurrency(transactionAmount, toAccount, fromAccount);
         validateAccountContext.add("transfer-amount-in-source-currency", transferAmountInSrcCurrency);
         responseHandler(balanceValidator.validate(request, metadata, validateAccountContext));
 
@@ -122,6 +124,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
                                                                   AccountDetailsDTO sourceAccount, AccountDetailsDTO destinationAccount) {
         return FundTransferRequest.builder()
                 .amount(request.getAmount())
+                .destAmount(request.getDestAmount())
                 .channel(metadata.getChannel())
                 .channelTraceId(metadata.getChannelTraceId())
                 .fromAccount(request.getFromAccount())
@@ -163,12 +166,12 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         return destinationAccount.getCurrency().equalsIgnoreCase(sourceAccount.getCurrency());
     }
 
-    private BigDecimal getAmountInSrcCurrency(FundTransferRequestDTO request, AccountDetailsDTO destAccount, AccountDetailsDTO sourceAccount) {
+    private BigDecimal getAmountInSrcCurrency(BigDecimal transactionAmount, AccountDetailsDTO destAccount, AccountDetailsDTO sourceAccount) {
         final CoreCurrencyConversionRequestDto currencyRequest = CoreCurrencyConversionRequestDto.builder()
                 .accountNumber(sourceAccount.getNumber())
                 .accountCurrency(sourceAccount.getCurrency())
                 .transactionCurrency(destAccount.getCurrency())
-                .transactionAmount(request.getAmount())
+                .transactionAmount(transactionAmount)
                 .build();
         CurrencyConversionDto conversionResultInSourceAcctCurrency = maintenanceService.convertBetweenCurrencies(currencyRequest);
         BigDecimal amtToBePaidInSrcCurrency = conversionResultInSourceAcctCurrency.getAccountCurrencyAmount();

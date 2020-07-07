@@ -30,5 +30,6 @@ public class FundTransferRequest {
     private String beneficiaryAddressThree;
     private String transactionCode;
     private String internalAccFlag;
+    private BigDecimal destAmount;
 
 }
