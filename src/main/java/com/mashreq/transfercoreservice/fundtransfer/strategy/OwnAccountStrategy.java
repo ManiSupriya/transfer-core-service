@@ -72,9 +72,10 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 
         BigDecimal transactionAmount = request.getAmount() == null ? request.getSrcAmount() : request.getAmount();
 
-        final BigDecimal transferAmountInSrcCurrency = isCurrencySame(toAccount, fromAccount)
-                ? transactionAmount
-                : getAmountInSrcCurrency(transactionAmount, toAccount, fromAccount);
+        final BigDecimal transferAmountInSrcCurrency = request.getAmount()!=null && !isCurrencySame(toAccount, fromAccount)
+            ? getAmountInSrcCurrency(transactionAmount, toAccount, fromAccount)
+            : transactionAmount;
+
         validateAccountContext.add("transfer-amount-in-source-currency", transferAmountInSrcCurrency);
         responseHandler(balanceValidator.validate(request, metadata, validateAccountContext));
 

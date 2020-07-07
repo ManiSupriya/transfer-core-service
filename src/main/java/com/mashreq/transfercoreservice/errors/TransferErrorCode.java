@@ -17,7 +17,7 @@ public enum TransferErrorCode implements ErrorCode {
     INVALID_CIF("TN-1002", "CIF is invalid"),
     DUPLICATION_FUND_TRANSFER_REQUEST("TN-1003", "Duplicate Fund Transfer Request"),
     CREDIT_AND_DEBIT_ACC_SAME("TN-1004", "Credit and Debit Account cannot be same"),
-    INVALID_REQUEST("TN-1005","Invalid tranfer request missing"),
+    INVALID_REQUEST("TN-1005","Invalid tranfer request"),
 
     BALANCE_NOT_SUFFICIENT("TN-1200", "Balance is not sufficient"),
 
