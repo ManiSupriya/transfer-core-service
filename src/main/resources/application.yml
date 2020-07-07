@@ -104,13 +104,19 @@ mob:
         enabled: ${HTTP_DETAILS_LOGS:true}
         request: ${HTTP_DETAILS_LOG_REQUEST:true}
         response: ${HTTP_DETAILS_LOG_RESPONSE:true}
+        responseLength: 1000
   threadPool:
     userEventAuditTaskExecutor:
       maxPoolSize: 50
       corePoolSize: 30
       queueCapacity: 100
-      threadNamePrefix: mob-transfer-pool
-
+      threadNamePrefix: mob-transfer-user-event-pool
+    generalTaskExecutor:
+      enable: true
+      maxPoolSize: 50
+      corePoolSize: 30
+      queueCapacity: 100
+      threadNamePrefix: mob-transfer-general-pool
 
 redis:
   enable: false
