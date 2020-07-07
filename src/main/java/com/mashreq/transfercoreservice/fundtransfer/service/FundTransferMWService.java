@@ -70,7 +70,7 @@ public class FundTransferMWService {
     }
 
     private String getRemarks(FundTransferRequest request) {
-        return String.format("From Account = %s, To Account = %s, Amount = %s, DestAmount= %s, Destination Currency = %s, Source Currency = %s," +
+        return String.format("From Account = %s, To Account = %s, Amount = %s, SrcAmount= %s, Destination Currency = %s, Source Currency = %s," +
                         " Financial Transaction Number = %s, Beneficiary full name = %s, Swift code= %s, Beneficiary bank branch = %s ",
                 request.getFromAccount(),
                 request.getToAccount(),
