@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.api;
 
+import com.mashreq.mobcommons.config.http.RequestMetaData;
 import com.mashreq.ms.commons.cache.HeaderNames;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.paymenthistory.PaymentHistoryService;
@@ -11,6 +12,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.regexp.RE;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
@@ -23,7 +25,6 @@ import javax.validation.constraints.NotNull;
 public class PaymentHistoryController {
 
     private final PaymentHistoryService paymentHistoryService;
-    private static final String X_CHANNEL_TRACE_ID = "X-CHANNEL-TRACE-ID";
 
     @ApiOperation(value = "Processes to start payment", response = FundTransferRequestDTO.class)
     @ApiResponses(value = {
@@ -31,7 +32,7 @@ public class PaymentHistoryController {
             @ApiResponse(code = 500, message = "Something went wrong")
     })
     @GetMapping("/charity-paid/{serviceType}")
-    public Response transferFunds(@RequestAttribute(X_CHANNEL_TRACE_ID) String channelTraceId,
+    public Response transferFunds(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData requestMetaData,
                                   @RequestHeader(HeaderNames.CIF_HEADER_NAME) final String cifId,
                                   @NotNull @PathVariable("serviceType") final String serviceType) {
 
