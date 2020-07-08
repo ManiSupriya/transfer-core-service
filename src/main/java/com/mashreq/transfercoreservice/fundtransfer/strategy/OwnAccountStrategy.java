@@ -2,7 +2,6 @@ package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
 import com.mashreq.mobcommons.config.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
-import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
 import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
@@ -71,10 +70,12 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         validateAccountContext.add("to-account-currency", toAccount.getCurrency());
         responseHandler(currencyValidator.validate(request, metadata, validateAccountContext));
 
+        BigDecimal transactionAmount = request.getAmount() == null ? request.getSrcAmount() : request.getAmount();
 
-        final BigDecimal transferAmountInSrcCurrency = isCurrencySame(toAccount, fromAccount)
-                ? request.getAmount()
-                : getAmountInSrcCurrency(request, toAccount, fromAccount);
+        final BigDecimal transferAmountInSrcCurrency = request.getAmount()!=null && !isCurrencySame(toAccount, fromAccount)
+            ? getAmountInSrcCurrency(transactionAmount, toAccount, fromAccount)
+            : transactionAmount;
+
         validateAccountContext.add("transfer-amount-in-source-currency", transferAmountInSrcCurrency);
         responseHandler(balanceValidator.validate(request, metadata, validateAccountContext));
 
@@ -122,6 +123,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
                                                                   AccountDetailsDTO sourceAccount, AccountDetailsDTO destinationAccount) {
         return FundTransferRequest.builder()
                 .amount(request.getAmount())
+                .srcAmount(request.getSrcAmount())
                 .channel(metadata.getChannel())
                 .channelTraceId(metadata.getChannelTraceId())
                 .fromAccount(request.getFromAccount())
@@ -163,12 +165,12 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         return destinationAccount.getCurrency().equalsIgnoreCase(sourceAccount.getCurrency());
     }
 
-    private BigDecimal getAmountInSrcCurrency(FundTransferRequestDTO request, AccountDetailsDTO destAccount, AccountDetailsDTO sourceAccount) {
+    private BigDecimal getAmountInSrcCurrency(BigDecimal transactionAmount, AccountDetailsDTO destAccount, AccountDetailsDTO sourceAccount) {
         final CoreCurrencyConversionRequestDto currencyRequest = CoreCurrencyConversionRequestDto.builder()
                 .accountNumber(sourceAccount.getNumber())
                 .accountCurrency(sourceAccount.getCurrency())
                 .transactionCurrency(destAccount.getCurrency())
-                .transactionAmount(request.getAmount())
+                .transactionAmount(transactionAmount)
                 .build();
         CurrencyConversionDto conversionResultInSourceAcctCurrency = maintenanceService.convertBetweenCurrencies(currencyRequest);
         BigDecimal amtToBePaidInSrcCurrency = conversionResultInSourceAcctCurrency.getAccountCurrencyAmount();

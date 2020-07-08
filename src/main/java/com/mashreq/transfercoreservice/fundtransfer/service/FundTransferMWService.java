@@ -70,11 +70,12 @@ public class FundTransferMWService {
     }
 
     private String getRemarks(FundTransferRequest request) {
-        return String.format("From Account = %s, To Account = %s, Amount = %s, Destination Currency = %s, Source Currency = %s," +
+        return String.format("From Account = %s, To Account = %s, Amount = %s, SrcAmount= %s, Destination Currency = %s, Source Currency = %s," +
                         " Financial Transaction Number = %s, Beneficiary full name = %s, Swift code= %s, Beneficiary bank branch = %s ",
                 request.getFromAccount(),
                 request.getToAccount(),
                 request.getAmount(),
+                request.getSrcAmount(),
                 request.getDestinationCurrency(),
                 request.getSourceCurrency(),
                 request.getFinTxnNo(),
@@ -140,7 +141,6 @@ public class FundTransferMWService {
         creditLeg.setAccountNo(request.getToAccount());
         creditLeg.setTransactionCode(request.getTransactionCode());
         creditLeg.setCurrency(request.getDestinationCurrency());
-        creditLeg.setAmount(request.getAmount());
         creditLeg.setChargeBearer(request.getChargeBearer());
         creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc());
         creditLeg.setBenName(request.getBeneficiaryFullName());
@@ -150,6 +150,13 @@ public class FundTransferMWService {
         creditLeg.setBenAddr2(request.getBeneficiaryAddressTwo());
         creditLeg.setBenAddr3(request.getBeneficiaryAddressThree());
         creditLeg.setAWInstAddr2(request.getBeneficiaryAddressTwo());
+
+        if(request.getAmount() == null) {
+            debitLeg.setAmount(request.getSrcAmount());
+        }
+        else {
+            creditLeg.setAmount(request.getAmount());
+        }
 
         FundTransferReqType.Transfer transfer = new FundTransferReqType.Transfer();
         transfer.setCreditLeg(creditLeg);

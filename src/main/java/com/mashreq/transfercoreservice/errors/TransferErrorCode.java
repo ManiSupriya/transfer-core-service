@@ -17,6 +17,7 @@ public enum TransferErrorCode implements ErrorCode {
     INVALID_CIF("TN-1002", "CIF is invalid"),
     DUPLICATION_FUND_TRANSFER_REQUEST("TN-1003", "Duplicate Fund Transfer Request"),
     CREDIT_AND_DEBIT_ACC_SAME("TN-1004", "Credit and Debit Account cannot be same"),
+    INVALID_REQUEST("TN-1005","Invalid tranfer request"),
 
     BALANCE_NOT_SUFFICIENT("TN-1200", "Balance is not sufficient"),
 
@@ -87,6 +88,7 @@ public enum TransferErrorCode implements ErrorCode {
     INTERNAL_ERROR("TN-8004", "Something went wrong"),
     EXTERNAL_SERVICE_ERROR_MW("TN-8003", "Something went wrong with middleware service"),
     INVALID_EVENT_TYPE_CODE("TN-8004","Invalid event code");
+
 
     private String customErrorCode;
     private String errorMessage;
