@@ -1,6 +1,7 @@
 package com.mashreq.transfercoreservice.api;
 
-import com.mashreq.mobcommons.config.http.RequestMetaData;
+
+import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.commons.cache.HeaderNames;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;

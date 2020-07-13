@@ -1,12 +1,13 @@
 package com.mashreq.transfercoreservice.fundtransfer.mapper;
 
-import com.mashreq.mobcommons.config.http.RequestMetaData;
+import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
-import com.mashreq.transfercoreservice.fundtransfer.dto.*;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferContext;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.QuickRemitFundTransferRequest;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.BankCodeExtractor;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.BankCodeUtils;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.CustomerDetailsUtils;
 import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
 import lombok.RequiredArgsConstructor;

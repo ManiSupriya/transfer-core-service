@@ -1,12 +1,12 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
 import com.mashreq.logcore.annotations.TrackExec;
-import com.mashreq.mobcommons.config.http.RequestMetaData;
+import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
+import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
-import com.mashreq.transfercoreservice.event.model.EventType;
-import com.mashreq.transfercoreservice.event.publisher.AsyncUserEventPublisher;
+import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageService;
@@ -26,7 +26,6 @@ import java.util.Optional;
 
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.FUND_TRANSFER_FAILED;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
-import static com.mashreq.transfercoreservice.event.model.EventType.getEventTypeByCode;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.*;
 import static java.time.Duration.between;
 import static java.time.Instant.now;
@@ -67,7 +66,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     @Override
     public FundTransferResponseDTO transferFund(RequestMetaData metadata, FundTransferRequestDTO request) {
         final ServiceType serviceType = getServiceByType(request.getServiceType());
-        final EventType initiatedEvent = getEventTypeByCode(serviceType.getEventPrefix() + FUND_TRANSFER_INITIATION_SUFFIX);
+        final FundTransferEventType initiatedEvent = FundTransferEventType.getEventTypeByCode(serviceType.getEventPrefix() + FUND_TRANSFER_INITIATION_SUFFIX);
 
         return auditEventPublisher.publishEventLifecycle(
                 () -> getFundTransferResponse(metadata, request),

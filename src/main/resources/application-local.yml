@@ -69,3 +69,14 @@ redis:
   port: 6379
   timeout: 5000
   password:
+
+
+mob-common:
+  commonUserEventDataSource:
+    driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    jdbcUrl: ${MSSQL_EVENT_DEV_URL:jdbc:sqlserver://localhost:1433;databaseName=MOB-LOCAL}
+    username: ${MSSQL_EVENT_DEV_USERNAME:SA}
+    password: ${MSSQL_EVENT _DB_KEY:Asdasdasd123}
+    maxPoolSize: 40
+    poolName: hikari-user-events-life-pool
+    minimumidletime: 600000

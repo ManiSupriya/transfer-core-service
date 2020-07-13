@@ -1,5 +1,6 @@
-package com.mashreq.transfercoreservice.event.model;
+package com.mashreq.transfercoreservice.event;
 
+import com.mashreq.mobcommons.services.events.model.EventType;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import lombok.Getter;
@@ -9,7 +10,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Getter
-public enum EventType {
+public enum FundTransferEventType implements EventType {
 
     WITHIN_MASHREQ_FUND_TRANSFER_REQUEST("FUND_TRANSFER", "WITHIN MASHREQ transfer request has been received"),
     LOCAL_FUND_TRANSFER_REQUEST("FUND_TRANSFER", "LOCAL FUND transfer request has been received"),
@@ -38,10 +39,10 @@ public enum EventType {
     ;
 
 
-    private static final Map<String, EventType> eventTypeLookup = Stream.of(EventType.values())
-            .collect(Collectors.toMap(EventType::name, eventType -> eventType));
+    private static final Map<String, FundTransferEventType> eventTypeLookup = Stream.of(FundTransferEventType.values())
+            .collect(Collectors.toMap(FundTransferEventType::name, eventType -> eventType));
 
-    public static EventType getEventTypeByCode(String code) {
+    public static FundTransferEventType getEventTypeByCode(String code) {
         if (!eventTypeLookup.containsKey(code))
             GenericExceptionHandler.handleError(TransferErrorCode.INVALID_EVENT_TYPE_CODE, String.format("No Event type found for requested code [ %s ]", code));
         return eventTypeLookup.get(code);
@@ -50,7 +51,7 @@ public enum EventType {
     private String type;
     private String description;
 
-    EventType(String type, String description) {
+    FundTransferEventType(String type, String description) {
         this.type = type;
         this.description = description;
     }
