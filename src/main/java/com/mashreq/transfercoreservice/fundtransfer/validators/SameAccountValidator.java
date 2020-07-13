@@ -1,14 +1,14 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
-import com.mashreq.mobcommons.config.http.RequestMetaData;
+import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
+import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
-import com.mashreq.transfercoreservice.event.publisher.AsyncUserEventPublisher;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import static com.mashreq.transfercoreservice.event.model.EventType.SAME_ACCOUNT_VALIDATION;
+import static com.mashreq.transfercoreservice.event.FundTransferEventType.SAME_ACCOUNT_VALIDATION;
 
 /**
  * @author shahbazkh

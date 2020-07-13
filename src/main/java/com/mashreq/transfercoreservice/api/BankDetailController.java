@@ -1,7 +1,7 @@
 package com.mashreq.transfercoreservice.api;
 
 
-import com.mashreq.mobcommons.config.http.RequestMetaData;
+import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.banksearch.BankDetailRequestDto;
 import com.mashreq.transfercoreservice.banksearch.BankDetailService;
 import com.mashreq.webcore.dto.response.Response;

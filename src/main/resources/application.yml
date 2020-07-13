@@ -97,26 +97,34 @@ instarem:
       AU:
         code: BSB CODE
 
-mob:
-  http:
-    detailed:
-      logs:
-        enabled: ${HTTP_DETAILS_LOGS:true}
-        request: ${HTTP_DETAILS_LOG_REQUEST:true}
-        response: ${HTTP_DETAILS_LOG_RESPONSE:true}
-        responseLength: 1000
+
+mob-common:
+  loggers:
+    logRequest: ${HTTP_DETAILS_LOG_REQUEST:true}
+    logResponse: ${HTTP_DETAILS_LOG_RESPONSE:true}
+    maxResponseLength: 1000
   threadPool:
     userEventAuditTaskExecutor:
-      maxPoolSize: 50
-      corePoolSize: 30
+      maxPoolSize: 60
+      corePoolSize: 40
       queueCapacity: 100
+      keepAliveSeconds: 60
       threadNamePrefix: mob-transfer-usereventlog-pool
     generalTaskExecutor:
-      enable: true
-      maxPoolSize: 50
-      corePoolSize: 30
-      queueCapacity: 100
+      maxPoolSize: 30
+      corePoolSize: 20
+      queueCapacity: 50
+      keepAliveSeconds: 60
       threadNamePrefix: mob-transfer-general-pool
+  commonUserEventDataSource:
+    driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    jdbcUrl: ${MSSQL_EVENT_DEV_URL:jdbc:sqlserver://10.196.3.22:1433;databaseName=MOB-DEV}
+    username: ${MSSQL_EVENT_DEV_USERNAME:Mobdbuser}
+    password: ${MSSQL_EVENT _DB_KEY:Mobdbuser}
+    maxPoolSize: 40
+    poolName: hikari-user-events-life-pool
+    minimumidletime: 600000
+
 
 redis:
   enable: false

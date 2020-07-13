@@ -2,11 +2,11 @@ package com.mashreq.transfercoreservice.banksearch;
 
 import com.mashreq.esbcore.bindings.customer.mbcdm.FetchAccuityDataReqType;
 import com.mashreq.esbcore.bindings.customerservices.mbcdm.fetchaccuitydata.EAIServices;
-import com.mashreq.mobcommons.config.http.RequestMetaData;
+import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
+import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
-import com.mashreq.transfercoreservice.event.model.EventType;
-import com.mashreq.transfercoreservice.event.publisher.AsyncUserEventPublisher;
+import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.middleware.HeaderFactory;
 import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
 import com.mashreq.transfercoreservice.middleware.WebServiceClient;
@@ -46,7 +46,7 @@ public class RoutingCodeSearchMWService {
                 this.getRequestForRoutingCode(channelTraceId, bankDetailRequest));
 
         validateOMWResponse(response, requestMetaData, channelTraceId, bankDetailRequest);
-        asyncUserEventPublisher.publishSuccessfulEsbEvent(EventType.ROUTING_CODE_SEARCH_MW_CALL, requestMetaData, bankDetailRequest.toString(), channelTraceId);
+        asyncUserEventPublisher.publishSuccessfulEsbEvent(FundTransferEventType.ROUTING_CODE_SEARCH_MW_CALL, requestMetaData, bankDetailRequest.toString(), channelTraceId);
         List<BankResultsDto> results = response.getBody().getFetchAccuityDataRes().getAccuityDetails()
                 .stream()
                 .map(x -> new BankResultsDto(x))
@@ -60,7 +60,7 @@ public class RoutingCodeSearchMWService {
         log.debug("Validate response {}", response);
         if (!(StringUtils.endsWith(response.getBody().getExceptionDetails().getErrorCode(), SUCCESS_CODE_ENDS_WITH)
                 && SUCCESS.equals(response.getHeader().getStatus()))) {
-            asyncUserEventPublisher.publishFailedEsbEvent(EventType.ROUTING_CODE_SEARCH_MW_CALL, metaData, bankDetailRequest.toString(), channelTraceId,
+            asyncUserEventPublisher.publishFailedEsbEvent(FundTransferEventType.ROUTING_CODE_SEARCH_MW_CALL, metaData, bankDetailRequest.toString(), channelTraceId,
                     response.getBody().getExceptionDetails().getErrorCode(), response.getBody().getExceptionDetails().getErrorDescription(),
                     response.getBody().getExceptionDetails().getData());
             GenericExceptionHandler.handleError(TransferErrorCode.ROUTING_CODE_NOT_FOUND,

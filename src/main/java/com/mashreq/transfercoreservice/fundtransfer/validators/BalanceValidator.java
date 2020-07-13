@@ -1,8 +1,9 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
-import com.mashreq.mobcommons.config.http.RequestMetaData;
+import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
+import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
-import com.mashreq.transfercoreservice.event.publisher.AsyncUserEventPublisher;
+import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BALANCE_NOT_SUFFICIENT;
-import static com.mashreq.transfercoreservice.event.model.EventType.BALANCE_VALIDATION;
 
 /**
  * @author shahbazkh
@@ -36,13 +36,13 @@ public class BalanceValidator implements Validator {
         log.info("Amount to be credited is [ {} {} ] ", transferAmountInSrcCurrency, fromAccount.getCurrency());
 
         if (!isBalanceAvailable(fromAccount.getAvailableBalance(), transferAmountInSrcCurrency)) {
-            auditEventPublisher.publishFailureEvent(BALANCE_VALIDATION, metadata, null,
+            auditEventPublisher.publishFailureEvent(FundTransferEventType.BALANCE_VALIDATION, metadata, null,
                     BALANCE_NOT_SUFFICIENT.getErrorMessage(),BALANCE_NOT_SUFFICIENT.getCustomErrorCode(), null);
             return ValidationResult.builder().success(false).transferErrorCode(BALANCE_NOT_SUFFICIENT)
                     .build();
         }
         log.info("Balance Validation successful");
-        auditEventPublisher.publishSuccessEvent(BALANCE_VALIDATION, metadata, null);
+        auditEventPublisher.publishSuccessEvent(FundTransferEventType.BALANCE_VALIDATION, metadata, null);
         return ValidationResult.builder().success(true).build();
     }
 

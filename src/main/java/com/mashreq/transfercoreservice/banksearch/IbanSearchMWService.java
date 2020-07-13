@@ -2,11 +2,11 @@ package com.mashreq.transfercoreservice.banksearch;
 
 import com.mashreq.esbcore.bindings.account.mbcdm.IBANDetailsReqType;
 import com.mashreq.esbcore.bindings.accountservices.mbcdm.ibandetails.EAIServices;
-import com.mashreq.mobcommons.config.http.RequestMetaData;
+import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
+import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
-import com.mashreq.transfercoreservice.event.model.EventType;
-import com.mashreq.transfercoreservice.event.publisher.AsyncUserEventPublisher;
+import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.middleware.HeaderFactory;
 import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
 import com.mashreq.transfercoreservice.middleware.WebServiceClient;
@@ -41,7 +41,7 @@ public class IbanSearchMWService {
 
         EAIServices response = (EAIServices) webServiceClient.exchange(getIbanEAIRequest(channelTraceId, ibanValue));
         validateOMWResponse(response, metaData, channelTraceId, ibanValue);
-        asyncUserEventPublisher.publishSuccessfulEsbEvent(EventType.IBAN_SEARCH_MW_CALL, metaData, ibanValue, channelTraceId);
+        asyncUserEventPublisher.publishSuccessfulEsbEvent(FundTransferEventType.IBAN_SEARCH_MW_CALL, metaData, ibanValue, channelTraceId);
         BankResultsDto resultsDto = new BankResultsDto(response.getBody().getIBANDetailsRes());
         return Arrays.asList(resultsDto);
 
@@ -51,7 +51,7 @@ public class IbanSearchMWService {
         log.debug("Validate response {}", response);
         if (!(StringUtils.endsWith(response.getBody().getExceptionDetails().getErrorCode(), SUCCESS_CODE_ENDS_WITH)
                 && SUCCESS.equals(response.getHeader().getStatus()))) {
-            asyncUserEventPublisher.publishFailedEsbEvent(EventType.IBAN_SEARCH_MW_CALL, metaData, ibanValue, channelTraceId,
+            asyncUserEventPublisher.publishFailedEsbEvent(FundTransferEventType.IBAN_SEARCH_MW_CALL, metaData, ibanValue, channelTraceId,
                     response.getBody().getExceptionDetails().getErrorCode(), response.getBody().getExceptionDetails().getErrorDescription(),
             response.getBody().getExceptionDetails().getData());
             GenericExceptionHandler.handleError(TransferErrorCode.IBAN_NOT_FOUND,

@@ -5,13 +5,15 @@ import com.mashreq.esbcore.bindings.account.mbcdm.FundTransferResType;
 import com.mashreq.esbcore.bindings.accountservices.mbcdm.fundtransfer.EAIServices;
 import com.mashreq.esbcore.bindings.header.mbcdm.ErrorType;
 import com.mashreq.esbcore.bindings.header.mbcdm.HeaderType;
-import com.mashreq.mobcommons.config.http.RequestMetaData;
+import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
+import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
-import com.mashreq.transfercoreservice.event.model.EventType;
-import com.mashreq.transfercoreservice.event.publisher.AsyncUserEventPublisher;
+import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
-import com.mashreq.transfercoreservice.middleware.*;
+import com.mashreq.transfercoreservice.middleware.HeaderFactory;
+import com.mashreq.transfercoreservice.middleware.SoapClient;
+import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,7 +58,7 @@ public class FundTransferMWService {
         final FundTransferResType.Transfer transfer = response.getBody().getFundTransferRes().getTransfer().get(0);
         final ErrorType exceptionDetails = response.getBody().getExceptionDetails();
         if (isSuccessfull(response)) {
-            auditEventPublisher.publishSuccessfulEsbEvent(EventType.FUND_TRANSFER_MW_CALL, metaData, getRemarks(request), request.getChannelTraceId());
+            auditEventPublisher.publishSuccessfulEsbEvent(FundTransferEventType.FUND_TRANSFER_MW_CALL, metaData, getRemarks(request), request.getChannelTraceId());
             log.info("Fund transferred successfully to account [ {} ]", request.getToAccount());
             final CoreFundTransferResponseDto coreFundTransferResponseDto = constructFTResponseDTO(transfer, exceptionDetails, MwResponseStatus.S);
             return FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
@@ -64,7 +66,7 @@ public class FundTransferMWService {
 
         log.info("Fund transfer failed to account [ {} ]", request.getToAccount());
         final CoreFundTransferResponseDto coreFundTransferResponseDto = constructFTResponseDTO(transfer, exceptionDetails, MwResponseStatus.F);
-        auditEventPublisher.publishFailedEsbEvent(EventType.FUND_TRANSFER_MW_CALL, metaData, getRemarks(request), request.getChannelTraceId(),
+        auditEventPublisher.publishFailedEsbEvent(FundTransferEventType.FUND_TRANSFER_MW_CALL, metaData, getRemarks(request), request.getChannelTraceId(),
                 coreFundTransferResponseDto.getMwResponseCode(), coreFundTransferResponseDto.getMwResponseDescription(), coreFundTransferResponseDto.getExternalErrorMessage());
         return FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
     }

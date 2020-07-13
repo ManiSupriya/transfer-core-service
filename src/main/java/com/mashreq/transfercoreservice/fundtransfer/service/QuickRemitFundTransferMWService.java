@@ -4,10 +4,10 @@ import com.mashreq.esbcore.bindings.customer.mbcdm.RemittancePaymentReqType;
 import com.mashreq.esbcore.bindings.customer.mbcdm.RemittancePaymentReqType.RoutingCode;
 import com.mashreq.esbcore.bindings.customerservices.mbcdm.remittancepayment.EAIServices;
 import com.mashreq.esbcore.bindings.header.mbcdm.ErrorType;
-import com.mashreq.mobcommons.config.http.RequestMetaData;
+import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
+import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
-import com.mashreq.transfercoreservice.event.model.EventType;
-import com.mashreq.transfercoreservice.event.publisher.AsyncUserEventPublisher;
+import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.fundtransfer.dto.QuickRemitFundTransferRequest;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.QuickRemitResponseHandler;
@@ -44,11 +44,11 @@ public class QuickRemitFundTransferMWService {
 
         final CoreFundTransferResponseDto coreFundTransferResponseDto = constructQRFTResponseDTO(transactionRefNo, request.getFinTxnNo(), exceptionDetails, mwResponseStatus);
         if(MwResponseStatus.F == mwResponseStatus) {
-            auditEventPublisher.publishFailedEsbEvent(EventType.QR_FUND_TRANSFER_MW_CALL, metaData, getRemarks(request),request.getChannelTraceId(),
+            auditEventPublisher.publishFailedEsbEvent(FundTransferEventType.QR_FUND_TRANSFER_MW_CALL, metaData, getRemarks(request),request.getChannelTraceId(),
                     coreFundTransferResponseDto.getMwResponseCode(), coreFundTransferResponseDto.getMwResponseDescription(), coreFundTransferResponseDto.getExternalErrorMessage());
         }
         else {
-            auditEventPublisher.publishSuccessfulEsbEvent(EventType.QR_FUND_TRANSFER_MW_CALL, metaData, getRemarks(request),request.getChannelTraceId());
+            auditEventPublisher.publishSuccessfulEsbEvent(FundTransferEventType.QR_FUND_TRANSFER_MW_CALL, metaData, getRemarks(request),request.getChannelTraceId());
         }
 
         return FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();

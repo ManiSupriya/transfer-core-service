@@ -1,6 +1,6 @@
 package com.mashreq.transfercoreservice.middleware;
 
-import com.mashreq.mobcommons.config.middleware.SoapClientInterceptor;
+import com.mashreq.mobcommons.services.middleware.MobSoapClientInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -25,7 +25,7 @@ public class SoapConfiguration {
     private SoapServiceProperties serviceProperties;
 
     @Autowired
-    SoapClientInterceptor logHttpHeaderClientInterceptor;
+    MobSoapClientInterceptor logHttpHeaderClientInterceptor;
 
     @Bean
     public Jaxb2Marshaller marshaller() {
