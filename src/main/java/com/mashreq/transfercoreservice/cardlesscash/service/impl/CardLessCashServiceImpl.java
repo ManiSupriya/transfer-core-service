@@ -88,8 +88,13 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 		log.info("cardLessCash Generation otp request{} ", verifyOTPRequestDTO);
 		Response<VerifyOTPResponseDTO> verifyOTP = otpService.verifyOTP(verifyOTPRequestDTO);
 		log.info("cardLessCash Generation otp response{} ", verifyOTP);
-		if(!verifyOTP.getData().isAuthenticated())
+		if(!verifyOTP.getData().isAuthenticated()) {
+			asyncUserEventPublisher.publishFailedEsbEvent(FundTransferEventType.CARD_LESS_CASH_OTP_DOES_NOT_MATCH,
+					metaData, CARD_LESS_CASH, metaData.getChannelTraceId(),
+					TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.toString(),
+					TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.getErrorMessage(), TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.getErrorMessage());
 			GenericExceptionHandler.handleError(TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR, verifyOTP.getErrorDetails(), verifyOTP.getErrorDetails());
+		}
 		UserDTO userDTO = new UserDTO();
 		userDTO.setCifId(metaData.getPrimaryCif());
 		userDTO.setUserId(Long.parseLong(userId));
