@@ -66,7 +66,7 @@ public class CardLessCashController {
     public Response<CardLessCashBlockResponse> blockCardLessCashRequest(@RequestAttribute(X_REQUEST_METADATA) RequestMetaData metaData, @Valid @RequestBody CardLessCashBlockRequest blockRequest) {
     	log.info("cardLessCash  blockRequest {} ", blockRequest);
     	asyncUserEventPublisher.publishStartedEvent(FundTransferEventType.CARD_LESS_CASH_BLOCK_REQUEST, metaData, CARD_LESS_CASH);
-    	assertLoanAccountBelongsToUser(blockRequest.getAccountNumber(), metaData);
+    	assertAccountBelongsToUser(blockRequest.getAccountNumber(), metaData);
     	Response<CardLessCashBlockResponse> cardLessCashBlockResponse = cardLessCashService.blockCardLessCashRequest(blockRequest, metaData);
     	log.info("cardLessCash  blockResponse {} ", cardLessCashBlockResponse);
     	asyncUserEventPublisher.publishSuccessEvent(FundTransferEventType.CARD_LESS_CASH_BLOCK_REQUEST, metaData, CARD_LESS_CASH);
@@ -94,7 +94,7 @@ public class CardLessCashController {
 		asyncUserEventPublisher.publishStartedEvent(FundTransferEventType.CARD_LESS_CASH_GENERATION_REQUEST, metaData,
 				CARD_LESS_CASH);
 		assertMobileNo(userMobileNumber, metaData);
-		assertLoanAccountBelongsToUser(cardLessCashGenerationRequest.getAccountNo(), metaData);
+		assertAccountBelongsToUser(cardLessCashGenerationRequest.getAccountNo(), metaData);
 		Response<CardLessCashGenerationResponse> cardLessCashGenerationResponse = cardLessCashService
 				.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest, userMobileNumber, userId, metaData);
 		log.info("cardLessCash generate Response {} ", cardLessCashGenerationResponse);
@@ -124,7 +124,7 @@ public class CardLessCashController {
 		log.info("cardLessCash  Query Details {} ", cardLessCashQueryRequest);
 		asyncUserEventPublisher.publishStartedEvent(FundTransferEventType.CARD_LESS_CASH_QUERY_DETAILS, metaData,
 				CARD_LESS_CASH);
-		assertLoanAccountBelongsToUser(accountNumber, metaData);
+		assertAccountBelongsToUser(accountNumber, metaData);
 		Response<List<CardLessCashQueryResponse>> cardLessCashQueryResponse = cardLessCashService
 				.cardLessCashRemitQuery(cardLessCashQueryRequest, metaData);
 		log.info("cardLessCash  Query Result {} ", cardLessCashQueryResponse);
@@ -133,13 +133,13 @@ public class CardLessCashController {
 		return cardLessCashQueryResponse;
 	}
     
-    private void assertLoanAccountBelongsToUser(final String loansAccountNumber, RequestMetaData metaData) {
- 	   log.info("cardLessCash  Loan Account Details {} Validation with User", loansAccountNumber);
-         if (!userSessionCacheService.isLoanNumberNumberBelongsToCif(loansAccountNumber, metaData.getUserCacheKey())) {
+    private void assertAccountBelongsToUser(final String accountNumber, RequestMetaData metaData) {
+ 	   log.info("cardLessCash  Account Details {} Validation with User", accountNumber);
+         if (!userSessionCacheService.isAccountNumberBelongsToCif(accountNumber, metaData.getUserCacheKey())) {
          	asyncUserEventPublisher.publishFailedEsbEvent(FundTransferEventType.CARD_LESS_CASH_ACCOUNT_NUMBER_DOES_NOT_MATCH, metaData, CARD_LESS_CASH, metaData.getChannelTraceId(),
-         			TransferErrorCode.LOAN_NUMBER_DOES_NOT_BELONG_TO_CIF.toString(), TransferErrorCode.LOAN_NUMBER_DOES_NOT_BELONG_TO_CIF.getErrorMessage(),
-         			TransferErrorCode.LOAN_NUMBER_DOES_NOT_BELONG_TO_CIF.getErrorMessage());
-             GenericExceptionHandler.handleError(TransferErrorCode.LOAN_NUMBER_DOES_NOT_BELONG_TO_CIF, TransferErrorCode.LOAN_NUMBER_DOES_NOT_BELONG_TO_CIF.getErrorMessage());
+         			TransferErrorCode.ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF.toString(), TransferErrorCode.ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF.getErrorMessage(),
+         			TransferErrorCode.ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF.getErrorMessage());
+             GenericExceptionHandler.handleError(TransferErrorCode.ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF, TransferErrorCode.ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF.getErrorMessage());
          }
      }
      

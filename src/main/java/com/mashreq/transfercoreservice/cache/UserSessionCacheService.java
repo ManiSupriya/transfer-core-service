@@ -19,16 +19,17 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 public class UserSessionCacheService {
-    private static final String LOAN_ACCOUNT_NUMBERS = "loan-account-number";
+	private static final String ACCOUNT_NUMBERS = "account-numbers";
     private MobRedisService redisService;
     
-    public boolean isLoanNumberNumberBelongsToCif(final String loadAccountNumber, final String redisKey) {
+    public boolean isAccountNumberBelongsToCif(final String accountNumber, final String redisKey) {
         IAMSessionUser iamSessionUser = redisService.get(redisKey, IAMSessionUser.class);
         assertUserSessionContextPresent(iamSessionUser);
+
         return Optional.ofNullable(iamSessionUser.getCustomContext())
-                .map(x -> x.get(LOAN_ACCOUNT_NUMBERS))
+                .map(x -> x.get(ACCOUNT_NUMBERS))
                 .map(x -> (List<String>) x)
-                .map(x -> x.contains(loadAccountNumber))
+                .map(x -> x.contains(accountNumber))
                 .orElse(false);
     }
     

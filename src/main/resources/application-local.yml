@@ -40,6 +40,7 @@ external:
           VERIFY_OTP_USSM_101: NOT_FOUND_USER_IN_DB
           VERIFY_OTP_USSM_102: USER_BLOCKED_STATUS
           VERIFY_OTP_USSM_103: USER_INACTIVE_STATUS
+          
   fees-code:
     mapper:
       fees:
@@ -89,23 +90,6 @@ redis:
 
 
 mob-common:
-  loggers:
-    logRequest: ${HTTP_DETAILS_LOG_REQUEST:true}
-    logResponse: ${HTTP_DETAILS_LOG_RESPONSE:true}
-    maxResponseLength: 1000
-  threadPool:
-    userEventAuditTaskExecutor:
-      maxPoolSize: 60
-      corePoolSize: 40
-      queueCapacity: 100
-      keepAliveSeconds: 60
-      threadNamePrefix: mob-transfer-usereventlog-pool
-    generalTaskExecutor:
-      maxPoolSize: 30
-      corePoolSize: 20
-      queueCapacity: 50
-      keepAliveSeconds: 60
-      threadNamePrefix: mob-transfer-general-pool
   commonUserEventDataSource:
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
     jdbcUrl: ${MSSQL_EVENT_DEV_URL:jdbc:sqlserver://localhost:1433;databaseName=MOB-LOCAL}

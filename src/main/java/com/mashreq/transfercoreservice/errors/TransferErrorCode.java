@@ -18,7 +18,7 @@ public enum TransferErrorCode implements ErrorCode {
     DUPLICATION_FUND_TRANSFER_REQUEST("TN-1003", "Duplicate Fund Transfer Request"),
     CREDIT_AND_DEBIT_ACC_SAME("TN-1004", "Credit and Debit Account cannot be same"),
     INVALID_REQUEST("TN-1005","Invalid tranfer request"),
-    LOAN_NUMBER_DOES_NOT_BELONG_TO_CIF("TN-1006", "Loan Account Number does not belong to CIF"),
+    ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF("TN-1006", "Account Number does not belong to CIF"),
     USER_SESSION_CONTEXT_NOT_FOUND("MD-1007", "User Session Context not found"),
     MOBILE_NUMBER_DOES_NOT_MATCH("TN-1008", "Mobile Number is not valid"),
 

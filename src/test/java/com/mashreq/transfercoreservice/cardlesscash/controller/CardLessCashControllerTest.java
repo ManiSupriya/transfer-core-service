@@ -57,7 +57,7 @@ public class CardLessCashControllerTest {
         cardLessCashBlockResponse.setSuccess(true);
         Mockito.when(cardLessCashService.blockCardLessCashRequest(cardLessCashBlockRequest, metaData))
                 .thenReturn(Response.<CardLessCashBlockResponse>builder().data(cardLessCashBlockResponse).build());
-        Mockito.doReturn(true).when(userSessionCacheService).isLoanNumberNumberBelongsToCif(Mockito.any(), Mockito.any());
+        Mockito.doReturn(true).when(userSessionCacheService).isAccountNumberBelongsToCif(Mockito.any(), Mockito.any());
         Mockito.doNothing().when(asyncUserEventPublisher).publishStartedEvent(Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.doNothing().when(asyncUserEventPublisher).publishSuccessEvent(Mockito.any(), Mockito.any(), Mockito.any());
         Response<CardLessCashBlockResponse> cashBlockResponseResponse =
@@ -85,7 +85,7 @@ public class CardLessCashControllerTest {
                         .build()
                         )
                         .build());
-        Mockito.doReturn(true).when(userSessionCacheService).isLoanNumberNumberBelongsToCif(Mockito.any(), Mockito.any());
+        Mockito.doReturn(true).when(userSessionCacheService).isAccountNumberBelongsToCif(Mockito.any(), Mockito.any());
         Mockito.doNothing().when(asyncUserEventPublisher).publishStartedEvent(Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.doNothing().when(asyncUserEventPublisher).publishSuccessEvent(Mockito.any(), Mockito.any(), Mockito.any());
         Response<CardLessCashGenerationResponse> cardLessCashGenerationResponse =
@@ -115,7 +115,7 @@ public class CardLessCashControllerTest {
 		cardLessCashQueryResponseList.add(cardLessCashQueryResponse);
 		Mockito.when(cardLessCashService.cardLessCashRemitQuery(cardLessCashQueryRequest, metaData)).thenReturn(
 				Response.<List<CardLessCashQueryResponse>>builder().data(cardLessCashQueryResponseList).build());
-		Mockito.doReturn(true).when(userSessionCacheService).isLoanNumberNumberBelongsToCif(Mockito.any(), Mockito.any());
+		Mockito.doReturn(true).when(userSessionCacheService).isAccountNumberBelongsToCif(Mockito.any(), Mockito.any());
 		Mockito.doNothing().when(asyncUserEventPublisher).publishStartedEvent(Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.doNothing().when(asyncUserEventPublisher).publishSuccessEvent(Mockito.any(), Mockito.any(), Mockito.any());
 		Response<List<CardLessCashQueryResponse>> cardLessCashQueryRes = cardLessCashController

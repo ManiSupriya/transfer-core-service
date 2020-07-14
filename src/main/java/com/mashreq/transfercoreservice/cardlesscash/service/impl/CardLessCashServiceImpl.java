@@ -166,7 +166,7 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 		
 		PaymentHistoryDTO paymentHistoryDTO = PaymentHistoryDTO.builder().cif(metaData.getPrimaryCif()).userId(Long.parseLong(userId)).channel(MOB_CHANNEL)
 				.beneficiaryTypeCode(CARD_LESS_CASH).paidAmount(cardLessCashGenerationRequest.getAmount())
-				.status(coreResponse.getStatus().toString())
+				.status(coreResponse.getStatus().toString()).ipAddress(metaData.getDeviceIP())
 				.mwReferenceNo(coreResponse.getData().getReferenceNumber())
 				.mwResponseCode(coreResponse.getErrorCode()).mwResponseDescription(coreResponse.getErrorDetails())
 				.accountFrom(cardLessCashGenerationRequest.getAccountNo()).accountTo(cardLessCashGenerationRequest.getAccountNo())
