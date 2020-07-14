@@ -130,11 +130,12 @@ public class AccountService {
 	}
 
 	public Response<List<CardLessCashQueryResponse>> cardLessCashRemitQuery(CardLessCashQueryRequest cardLessCashQueryRequest) {
+		log.info("cardless cash query request {} ", cardLessCashQueryRequest);
 		return Response.<List<CardLessCashQueryResponse>>builder().status(ResponseStatus.SUCCESS).data(accountCardLessCashQueryService.getResponse(cardLessCashQueryRequest).getData()).build();
 	}
 
 	public Response<CardLessCashBlockResponse> blockCardLessCashRequest(CardLessCashBlockRequest blockRequest) {
-		log.info("blockRequest {} ", blockRequest);
+		log.info("cardless cash blockRequest {} ", blockRequest);
 
 		return accountCardLessCashBlockRequestService.getResponse(blockRequest);
 
@@ -142,7 +143,7 @@ public class AccountService {
 
 	public Response<CardLessCashGenerationResponse> cardLessCashRemitGenerationRequest(
 			CardLessCashGenerationRequest cardLessCashGenerationRequest, String userMobileNumber) {
-		log.info("cardLessCashGenerationRequest {} ", cardLessCashGenerationRequest);
+		log.info("cardLess cash request Generation {} ", cardLessCashGenerationRequest);
 
 		CardLessCashGenReq cardLessCashGenReq = CardLessCashGenReq.builder()
 				.accountNumber(cardLessCashGenerationRequest.getAccountNo())
