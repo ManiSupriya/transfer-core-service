@@ -44,6 +44,7 @@ public enum FundTransferEventType implements EventType {
     IFSC_SEARCH_MW_CALL("FUND_TRANSFER_ENQUIRY","Get bank details using IFSC code"),
     CARD_LESS_CASH_MOBILE_NUMBER_DOES_NOT_MATCH("CARDLESS-CASH","Mobile Number is not valid"),
     CARD_LESS_CASH_ACCOUNT_NUMBER_DOES_NOT_MATCH("CARDLESS-CASH","Account Number is not valid"),
+    CARD_LESS_CASH_ACCOUNT_NUMBER_VALIDATION_FAILED("CARDLESS-CASH","Account Number validation failed"),
     CARD_LESS_CASH_OTP_DOES_NOT_MATCH("CARDLESS-CASH","OTP is not valid"),
     ;
 

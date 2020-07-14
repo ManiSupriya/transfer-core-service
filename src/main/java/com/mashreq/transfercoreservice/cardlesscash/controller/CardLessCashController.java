@@ -135,11 +135,20 @@ public class CardLessCashController {
     
     private void assertAccountBelongsToUser(final String accountNumber, RequestMetaData metaData) {
  	   log.info("cardLessCash  Account Details {} Validation with User", accountNumber);
-         if (!userSessionCacheService.isAccountNumberBelongsToCif(accountNumber, metaData.getUserCacheKey())) {
+         try{
+        	 if (!userSessionCacheService.isAccountNumberBelongsToCif(accountNumber, metaData.getUserCacheKey())) {
          	asyncUserEventPublisher.publishFailedEsbEvent(FundTransferEventType.CARD_LESS_CASH_ACCOUNT_NUMBER_DOES_NOT_MATCH, metaData, CARD_LESS_CASH, metaData.getChannelTraceId(),
          			TransferErrorCode.ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF.toString(), TransferErrorCode.ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF.getErrorMessage(),
          			TransferErrorCode.ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF.getErrorMessage());
              GenericExceptionHandler.handleError(TransferErrorCode.ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF, TransferErrorCode.ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF.getErrorMessage());
+         }
+         }catch(Exception e) {
+        	 log.info("cardLessCash  Exception Occured while validating accountNUmber {}", accountNumber);
+        	 asyncUserEventPublisher.publishFailedEsbEvent(FundTransferEventType.CARD_LESS_CASH_ACCOUNT_NUMBER_VALIDATION_FAILED, metaData, CARD_LESS_CASH, metaData.getChannelTraceId(),
+          			TransferErrorCode.ACCOUNT_NUMBER_VALIDATION_FAILED_TO_CIF.toString(), TransferErrorCode.ACCOUNT_NUMBER_VALIDATION_FAILED_TO_CIF.getErrorMessage(),
+          			TransferErrorCode.ACCOUNT_NUMBER_VALIDATION_FAILED_TO_CIF.getErrorMessage());
+              GenericExceptionHandler.handleError(TransferErrorCode.ACCOUNT_NUMBER_VALIDATION_FAILED_TO_CIF, TransferErrorCode.ACCOUNT_NUMBER_VALIDATION_FAILED_TO_CIF.getErrorMessage());
+          
          }
      }
      
