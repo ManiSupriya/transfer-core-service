@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class UserSessionCacheService {
 	private static final String ACCOUNT_NUMBERS = "account-numbers";
-    private MobRedisService redisService;
+    private final MobRedisService redisService;
     
     public boolean isAccountNumberBelongsToCif(final String accountNumber, final String redisKey) {
         IAMSessionUser iamSessionUser = redisService.get(redisKey, IAMSessionUser.class);
