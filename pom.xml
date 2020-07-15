@@ -44,7 +44,7 @@
         <com.mashreq.encryption>1.0.0</com.mashreq.encryption>
         <com.mashreq.encryption>1.0.0</com.mashreq.encryption>
         <com.mashreq.ms.ms-commons>0.0.16</com.mashreq.ms.ms-commons>
-        <com.mashreq.mob-commons>0.0.27</com.mashreq.mob-commons>
+        <com.mashreq.mob-commons>0.0.33</com.mashreq.mob-commons>
         <!-- additional deps and plugins versions -->
         <apache.commons.lang.version>3.9</apache.commons.lang.version>
         <apache.commons.bean.utils.version>1.9.4</apache.commons.bean.utils.version>
@@ -93,6 +93,22 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
+        <!-- Redis -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.lettuce</groupId>
+                    <artifactId>lettuce-core</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+        </dependency>
+        
 
         <!-- Web Client -->
         <dependency>

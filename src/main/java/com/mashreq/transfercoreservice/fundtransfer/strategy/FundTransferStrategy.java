@@ -1,6 +1,6 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
-import com.mashreq.mobcommons.config.http.RequestMetaData;
+import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;

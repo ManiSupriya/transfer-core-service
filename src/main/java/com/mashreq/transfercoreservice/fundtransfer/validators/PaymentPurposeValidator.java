@@ -1,9 +1,9 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
 
-import com.mashreq.mobcommons.config.http.RequestMetaData;
+import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
+import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
-import com.mashreq.transfercoreservice.event.publisher.AsyncUserEventPublisher;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +13,7 @@ import java.util.Set;
 
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_PURPOSE_CODE;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_PURPOSE_DESC;
-import static com.mashreq.transfercoreservice.event.model.EventType.PAYMENT_PURPOSE_VALIDATION;
+import static com.mashreq.transfercoreservice.event.FundTransferEventType.PAYMENT_PURPOSE_VALIDATION;
 
 @Slf4j
 @Component

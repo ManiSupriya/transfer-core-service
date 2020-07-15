@@ -53,10 +53,26 @@ external:
         detailCallErrorMap:
           ACC-ESB-001: SEND_EMPTY_RESPONSE
           ACC-ESB-65: EXCEEDS_WITHDRAWL_FREEQUENCY
+          ACC-ESB-61: EXCEEDS_WITHDRAWL_LIMIT
+      otp:
+        detailcallErrorMap:
+          VERIFY_OTP_4003: INVALID_SESSION_TOKEN
+          VERIFY_OTP_10020: OTP_VERIFIVATION_FAILED
+          VERIFY_OTP_10200: MAX_OTP_ATTEMPTS_EXCEEDED
+          VERIFY_OTP_10403: MAX_OTP_FAILED_ATTEMPTS_EXCEEDED
+          VERIFY_OTP_USSM_100: FAILED_TO_VERIFY_OTP
+          VERIFY_OTP_USSM_101: NOT_FOUND_USER_IN_DB
+          VERIFY_OTP_USSM_102: USER_BLOCKED_STATUS
+          VERIFY_OTP_USSM_103: USER_INACTIVE_STATUS
   fees-code:
     mapper:
       fees:
         cardLessCashFees: '0'
+  otp-code:
+    mapper:
+       otp:
+         dpPublicKey: 1
+         dpRandomNumber: 1234
 
 app:
   local:
@@ -76,6 +92,7 @@ app:
     maintenance: ${MAINTENANCE_SERVICE_URL:http://maintenance-service:8080}
     customers: ${CUSTOMER_SERVICE_URL:http://customers-service:8080}
     accounts: ${ACCOUNT_SERVICE_URL:http://accounts-service:8080}
+    otp: ${IAM_SERVICE_URL:https://ms-security-iam:8080}
     cards: ${CARD_SERVICE_URL:http://cards-service:8080}
     notification: ${NOTIFICATION_SERVICE:http://notification-service:8080}
     mobcustomer: ${MOB_CUSTOMER_SERVICE:http://mob-customer-service:8080}
@@ -97,26 +114,34 @@ instarem:
       AU:
         code: BSB CODE
 
-mob:
-  http:
-    detailed:
-      logs:
-        enabled: ${HTTP_DETAILS_LOGS:true}
-        request: ${HTTP_DETAILS_LOG_REQUEST:true}
-        response: ${HTTP_DETAILS_LOG_RESPONSE:true}
-        responseLength: 1000
+
+mob-common:
+  loggers:
+    logRequest: ${HTTP_DETAILS_LOG_REQUEST:true}
+    logResponse: ${HTTP_DETAILS_LOG_RESPONSE:true}
+    maxResponseLength: 1000
   threadPool:
     userEventAuditTaskExecutor:
-      maxPoolSize: 50
-      corePoolSize: 30
+      maxPoolSize: 60
+      corePoolSize: 40
       queueCapacity: 100
+      keepAliveSeconds: 60
       threadNamePrefix: mob-transfer-usereventlog-pool
     generalTaskExecutor:
-      enable: true
-      maxPoolSize: 50
-      corePoolSize: 30
-      queueCapacity: 100
+      maxPoolSize: 30
+      corePoolSize: 20
+      queueCapacity: 50
+      keepAliveSeconds: 60
       threadNamePrefix: mob-transfer-general-pool
+  commonUserEventDataSource:
+    driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    jdbcUrl: ${MSSQL_EVENT_DEV_URL:jdbc:sqlserver://10.196.3.22:1433;databaseName=MOB-DEV}
+    username: ${MSSQL_EVENT_DEV_USERNAME:Mobdbuser}
+    password: ${MSSQL_EVENT _DB_KEY:Mobdbuser}
+    maxPoolSize: 40
+    poolName: hikari-user-events-life-pool
+    minimumidletime: 600000
+
 
 redis:
   enable: false

@@ -1,8 +1,8 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
+import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
-import com.mashreq.transfercoreservice.event.publisher.AsyncUserEventPublisher;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,7 +13,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.math.BigDecimal;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 
 /**
  * @author shahbazkh

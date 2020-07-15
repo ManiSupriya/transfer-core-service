@@ -1,6 +1,6 @@
 package com.mashreq.transfercoreservice.api;
 
-import com.mashreq.mobcommons.config.http.RequestMetaData;
+import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.commons.cache.HeaderNames;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.service.FlexRuleEngineService;

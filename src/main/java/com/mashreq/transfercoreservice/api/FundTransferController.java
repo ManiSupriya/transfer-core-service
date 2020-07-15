@@ -1,7 +1,10 @@
 package com.mashreq.transfercoreservice.api;
 
-import com.mashreq.mobcommons.config.http.RequestMetaData;
+
+import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.commons.cache.HeaderNames;
+import com.mashreq.ms.exceptions.GenericExceptionHandler;
+import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferService;
 import com.mashreq.webcore.dto.response.Response;
@@ -42,6 +45,9 @@ public class FundTransferController {
 
         log.info("{} Fund transfer for request received ", request.getServiceType());
         log.info("Fund transfer meta data created {} ", metaData);
+        if(request.getAmount() == null && request.getSrcAmount() ==null){
+            GenericExceptionHandler.handleError(TransferErrorCode.INVALID_REQUEST, "Bad Request", "Both debitAmount and credit amount are missing");
+        }
         return Response.builder()
                 .status(ResponseStatus.SUCCESS)
                 .data(fundTransferService.transferFund(metaData, request)).build();
