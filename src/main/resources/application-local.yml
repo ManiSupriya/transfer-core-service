@@ -81,7 +81,7 @@ app:
     mobcommon: ${MOB_COMMON_SERVICE:https://digital-dev.mashreq.com/api/mob-common-service}
 
 redis:
-  enable: false
+  enable: true
   write.ttl: 60
   host: localhost
   port: 6379
