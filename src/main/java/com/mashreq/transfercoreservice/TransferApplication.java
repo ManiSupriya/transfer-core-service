@@ -1,11 +1,16 @@
 package com.mashreq.transfercoreservice;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
+import javax.annotation.PostConstruct;
 import java.text.NumberFormat;
 
 @Slf4j
@@ -14,9 +19,19 @@ import java.text.NumberFormat;
 @SpringBootApplication(scanBasePackages = {"com.mashreq.transfercoreservice", "com.mashreq.ms"})
 public class TransferApplication {
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     public static void main(String[] args) {
         SpringApplication.run(TransferApplication.class, args);
         printMetrix();
+
+    }
+
+    @PostConstruct
+    public void setUp() {
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
     }
 
     /**
