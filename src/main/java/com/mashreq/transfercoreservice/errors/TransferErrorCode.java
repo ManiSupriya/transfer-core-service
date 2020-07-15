@@ -21,7 +21,6 @@ public enum TransferErrorCode implements ErrorCode {
     ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF("TN-1006", "Account Number does not belong to CIF"),
     USER_SESSION_CONTEXT_NOT_FOUND("MD-1007", "User Session Context not found"),
     MOBILE_NUMBER_DOES_NOT_MATCH("TN-1008", "Mobile Number is not valid"),
-    ACCOUNT_NUMBER_VALIDATION_FAILED_TO_CIF("TN-1009", "Account Number validation failed to CIF for User Session"),
 
 
     BALANCE_NOT_SUFFICIENT("TN-1200", "Balance is not sufficient"),
