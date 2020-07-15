@@ -144,7 +144,7 @@ mob-common:
 
 
 redis:
-  enable: false
+  enable: true
   write.ttl: ${REDIS_TTL:60}
   host: ${REDIS_HOST:kyc-redis}
   port: ${REDIS_PORT:6379}
