@@ -4,12 +4,13 @@ import java.time.LocalDateTime;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * This class is to hold the detail for the CLC Generated response.
  */
 @Data
-@Builder
+@NoArgsConstructor
 public class CardLessCashGenerationResponse {
 
     private LocalDateTime expiryDateTime;
