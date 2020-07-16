@@ -17,7 +17,7 @@ public class CardLessCashQueryResponse {
     private String status;
     private BigDecimal amount;
     private String remitNo;
-    private String transactionDate;
+    private LocalDate transactionDate;
     private String channelName;
     private LocalDate redeemedDate;
 }
