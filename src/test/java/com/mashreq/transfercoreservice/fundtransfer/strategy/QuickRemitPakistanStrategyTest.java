@@ -216,9 +216,10 @@ public class QuickRemitPakistanStrategyTest {
         when(maintenanceService.convertBetweenCurrencies(any()))
                 .thenReturn(currencyConversionDto);
         when(balanceValidator.validate(eq(requestDTO),eq(metadata),any())).thenReturn(validationResult);
-
+        LimitValidatorResultsDto limitValidatorResultsDto = new LimitValidatorResultsDto();
+        limitValidatorResultsDto.setLimitVersionUuid(limitVersionUuid);
         when(limitValidator.validate(eq(userDTO), eq("quick-remit"), eq(limitUsageAmount)))
-                .thenReturn(LimitValidatorResultsDto.builder().limitVersionUuid(limitVersionUuid).build());
+                .thenReturn(limitValidatorResultsDto);
         when(quickRemitPakistanRequestMapper.map(eq(channelTraceId),eq(requestDTO), eq(sourceAccountDetailsDTO),
                 eq(beneficiaryDto), eq(currencyConversionDto.getAccountCurrencyAmount()),
                 eq(currencyConversionDto.getExchangeRate()), eq(validationContext), eq(customerDetails))).thenReturn(quickRemitFundTransferRequest);
@@ -388,9 +389,10 @@ public class QuickRemitPakistanStrategyTest {
 
         when(maintenanceService.convertCurrency(eq(currencyConversionRequestDtoForLimit)))
                 .thenReturn(currencyConversionDtoInAed);
-
+        LimitValidatorResultsDto limitValidatorResultsDto = new LimitValidatorResultsDto();
+        limitValidatorResultsDto.setLimitVersionUuid(limitVersionUuid);
         when(limitValidator.validate(eq(userDTO), eq("quick-remit"), eq(limitUsageAmount)))
-                .thenReturn(LimitValidatorResultsDto.builder().limitVersionUuid(limitVersionUuid).build());
+                .thenReturn(limitValidatorResultsDto);
         when(quickRemitPakistanRequestMapper.map(eq(channelTraceId),eq(requestDTO), eq(sourceAccountDetailsDTO),
                 eq(beneficiaryDto), eq(currencyConversionDto.getAccountCurrencyAmount()),
                 eq(currencyConversionDto.getExchangeRate()), eq(validationContext), eq(customerDetails))).thenReturn(quickRemitFundTransferRequest);
