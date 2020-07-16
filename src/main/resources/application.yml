@@ -137,7 +137,7 @@ mob-common:
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
     jdbcUrl: ${MSSQL_EVENT_DEV_URL:jdbc:sqlserver://10.196.3.22:1433;databaseName=MOB-DEV}
     username: ${MSSQL_EVENT_DEV_USERNAME:Mobdbuser}
-    password: ${MSSQL_EVENT _DB_KEY:Mobdbuser}
+    password: ${MSSQL_EVENT_DB_KEY:Mobdbuser}
     maxPoolSize: 40
     poolName: hikari-user-events-life-pool
     minimumidletime: 600000
