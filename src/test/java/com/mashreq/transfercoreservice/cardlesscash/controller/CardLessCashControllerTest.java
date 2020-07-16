@@ -105,7 +105,7 @@ public class CardLessCashControllerTest {
         cardLessCashQueryResponse.setStatus("A");
         cardLessCashQueryResponse.setAmount(new BigDecimal(1));
         cardLessCashQueryResponse.setRemitNo("1");
-        cardLessCashQueryResponse.setTransactionDate(LocalDate.now().toString());
+        cardLessCashQueryResponse.setTransactionDate(LocalDate.now());
         cardLessCashQueryResponse.setChannelName("A");
         cardLessCashQueryResponse.setRedeemedDate(LocalDate.now());
 		List<CardLessCashQueryResponse> cardLessCashQueryResponseList = new ArrayList<>();
