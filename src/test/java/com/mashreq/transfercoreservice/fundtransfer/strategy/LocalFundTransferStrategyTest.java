@@ -125,7 +125,7 @@ public class LocalFundTransferStrategyTest {
         beneficiaryDto.setFullName(fullName);
         final List<AccountDetailsDTO> accountsFromCore = Arrays.asList(AccountDetailsDTO.builder()
                 .number(fromAcct).currency(srcCurrency).branchCode(branchCode).build());
-        final Set<MoneyTransferPurposeDto> popList = new HashSet(Arrays.asList(MoneyTransferPurposeDto.builder().build()));
+        final Set<MoneyTransferPurposeDto> popList = new HashSet(Arrays.asList(MoneyTransferPurposeDto.class));
 
         //when
 
@@ -226,7 +226,7 @@ public class LocalFundTransferStrategyTest {
         beneficiaryDto.setFullName(fullName);
         final List<AccountDetailsDTO> accountsFromCore = Arrays.asList(AccountDetailsDTO.builder()
                 .number(fromAcct).currency(srcCurrency).branchCode(branchCode).build());
-        final Set<MoneyTransferPurposeDto> popList = new HashSet(Arrays.asList(MoneyTransferPurposeDto.builder().build()));
+        final Set<MoneyTransferPurposeDto> popList = new HashSet(Arrays.asList(MoneyTransferPurposeDto.class));
 
 
         CoreCurrencyConversionRequestDto currencyRequest = CoreCurrencyConversionRequestDto.builder()
