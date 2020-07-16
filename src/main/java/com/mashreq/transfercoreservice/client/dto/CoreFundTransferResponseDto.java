@@ -1,11 +1,12 @@
 package com.mashreq.transfercoreservice.client.dto;
 
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
-import lombok.Builder;
+
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-@Builder
+@NoArgsConstructor
 public class CoreFundTransferResponseDto {
     private MwResponseStatus mwResponseStatus;
     private String transactionRefNo;

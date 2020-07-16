@@ -73,14 +73,14 @@ public class QuickRemitFundTransferMWService {
     }
 
     private CoreFundTransferResponseDto constructQRFTResponseDTO(String transfer, String txnRefNum, ErrorType exceptionDetails, MwResponseStatus s) {
-        return CoreFundTransferResponseDto.builder()
-                .externalErrorMessage(exceptionDetails.getData())
-                .mwReferenceNo(transfer)
-                .mwResponseDescription(exceptionDetails.getErrorDescription())
-                .mwResponseStatus(s)
-                .mwResponseCode(exceptionDetails.getErrorCode())
-                .transactionRefNo(txnRefNum)
-                .build();
+        CoreFundTransferResponseDto coreFundTransferResponseDto = new CoreFundTransferResponseDto();
+        	coreFundTransferResponseDto.setExternalErrorMessage(exceptionDetails.getData());
+        	coreFundTransferResponseDto.setMwReferenceNo(transfer);
+        	coreFundTransferResponseDto.setMwResponseDescription(exceptionDetails.getErrorDescription());
+        	coreFundTransferResponseDto.setMwResponseStatus(s);
+        	coreFundTransferResponseDto.setMwResponseCode(exceptionDetails.getErrorCode());
+        	coreFundTransferResponseDto.setTransactionRefNo(txnRefNum);
+                return coreFundTransferResponseDto;
     }
 
     public EAIServices generateEAIServiceRequest(QuickRemitFundTransferRequest request) {

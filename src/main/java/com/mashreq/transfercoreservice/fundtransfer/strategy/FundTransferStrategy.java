@@ -36,13 +36,13 @@ public interface FundTransferStrategy {
 
     default CoreCurrencyConversionRequestDto generateCurrencyConversionRequest(
             String givenCurrency, String givenAccount, BigDecimal givenAmount, String dealNumber, String localCurrency) {
-        return CoreCurrencyConversionRequestDto.builder()
-                .accountNumber(givenAccount)
-                .accountCurrency(givenCurrency)
-                .accountCurrencyAmount(givenAmount)
-                .dealNumber(dealNumber)
-                .transactionCurrency(localCurrency)
-                .build();
+        CoreCurrencyConversionRequestDto coreCurrencyConversionRequestDto = new CoreCurrencyConversionRequestDto();
+        coreCurrencyConversionRequestDto.setAccountNumber(givenAccount);
+        coreCurrencyConversionRequestDto.setAccountCurrency(givenCurrency);
+        coreCurrencyConversionRequestDto.setAccountCurrencyAmount(givenAmount);
+        coreCurrencyConversionRequestDto.setDealNumber(dealNumber);
+        coreCurrencyConversionRequestDto.setTransactionCurrency(localCurrency);
+        return coreCurrencyConversionRequestDto ;
     }
 
 }

@@ -55,14 +55,13 @@ public class QuickRemitPakistanRequestMapperTest {
         String beneBankCode = "076";
         String docType= "PASSPORT_CNIC";
         String docNum= "23452345";
-        AccountDetailsDTO accountDetails = AccountDetailsDTO.builder()
-                .number(senderAcctNum)
-                .customerName(senderName)
-                .currency(senderCurrency)
-                .availableBalance(new BigDecimal(3000))
-                .branchCode("083")
-                .accountName(senderName)
-                .build();
+        AccountDetailsDTO accountDetails = new AccountDetailsDTO();
+        accountDetails.setNumber(senderAcctNum);
+        accountDetails.setCustomerName(senderName);
+        accountDetails.setCurrency(senderCurrency);
+        accountDetails.setAvailableBalance(new BigDecimal(3000));
+        accountDetails.setBranchCode("083");
+        accountDetails.setAccountName(senderName);
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setAmount(txnAmt);
         requestDTO.setPurposeCode(popCode);
