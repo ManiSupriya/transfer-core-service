@@ -1,12 +1,12 @@
 package com.mashreq.transfercoreservice.client.mobcommon.dto;
 
-import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
 @Data
-@Builder
+@NoArgsConstructor
 public class LimitValidatorResultsDto {
     private boolean isValid;
     private String limitVersionUuid;

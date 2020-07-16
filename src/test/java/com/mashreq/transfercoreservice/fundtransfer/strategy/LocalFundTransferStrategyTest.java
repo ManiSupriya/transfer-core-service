@@ -145,8 +145,10 @@ public class LocalFundTransferStrategyTest {
         when(beneficiaryValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
         when(ibanValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
         when(balanceValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
+        LimitValidatorResultsDto limitValidatorResultsDto = new LimitValidatorResultsDto();
+        limitValidatorResultsDto.setLimitVersionUuid(limitVersionUuid);
         when(limitValidator.validate(eq(userDTO), eq("local"), eq(limitUsageAmount)))
-                .thenReturn(LimitValidatorResultsDto.builder().limitVersionUuid(limitVersionUuid).build());
+                .thenReturn(limitValidatorResultsDto);
 
         when(fundTransferMWService.transfer(fundTransferRequest.capture(),eq(metadata)))
                 .thenReturn(FundTransferResponse.builder().limitUsageAmount(limitUsageAmount).limitVersionUuid(limitVersionUuid).build());
@@ -268,9 +270,10 @@ public class LocalFundTransferStrategyTest {
         when(balanceValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
 
         when(maintenanceService.convertCurrency(eq(currencyConversionRequestDto))).thenReturn(secondConversion);
-
+        LimitValidatorResultsDto limitValidatorResultsDto = new LimitValidatorResultsDto();
+        limitValidatorResultsDto.setLimitVersionUuid(limitVersionUuid);
         when(limitValidator.validate(eq(userDTO), eq("local"), eq(paidAmt)))
-                .thenReturn(LimitValidatorResultsDto.builder().isValid(true).limitVersionUuid(limitVersionUuid).build());
+                .thenReturn(limitValidatorResultsDto);
 
         when(fundTransferMWService.transfer(fundTransferRequest.capture(),eq(metadata)))
                 .thenReturn(FundTransferResponse.builder().limitUsageAmount(paidAmt).limitVersionUuid(limitVersionUuid).build());

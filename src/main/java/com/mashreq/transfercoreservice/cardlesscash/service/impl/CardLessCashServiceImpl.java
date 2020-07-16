@@ -25,7 +25,6 @@ import com.mashreq.webcore.dto.response.Response;
 import static com.mashreq.transfercoreservice.common.CommonConstants.*;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.PaymentHistoryDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.service.PaymentHistoryService;
 
 import lombok.AllArgsConstructor;
@@ -85,7 +84,7 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 		verifyOTPRequestDTO.setDpRandomNumber(otpConfig.getDpRandomNumber());
 		verifyOTPRequestDTO.setLoginId(userId);
 		verifyOTPRequestDTO.setRedisKey(metaData.getUserCacheKey());
-		/*log.info("cardLessCash Generation otp request{} ", verifyOTPRequestDTO);
+		log.info("cardLessCash Generation otp request{} ", verifyOTPRequestDTO);
 		Response<VerifyOTPResponseDTO> verifyOTP = otpService.verifyOTP(verifyOTPRequestDTO);
 		log.info("cardLessCash Generation otp response{} ", verifyOTP);
 		if(!verifyOTP.getData().isAuthenticated()) {
@@ -94,10 +93,7 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 					TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.toString(),
 					TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.getErrorMessage(), TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.getErrorMessage());
 			GenericExceptionHandler.handleError(TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR, verifyOTP.getErrorDetails(), verifyOTP.getErrorDetails());
-		}*/
-		UserDTO userDTO = new UserDTO();
-		userDTO.setCifId(metaData.getPrimaryCif());
-		userDTO.setUserId(Long.parseLong(userId));
+		}
 		try {
 			cardLessCashGenerationResponse = accountService
 					.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest, userMobileNumber);
