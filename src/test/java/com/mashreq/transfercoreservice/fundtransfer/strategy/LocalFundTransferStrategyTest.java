@@ -27,6 +27,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -123,8 +124,12 @@ public class LocalFundTransferStrategyTest {
         beneficiaryDto.setSwiftCode(swift);
         beneficiaryDto.setBankName(bankName);
         beneficiaryDto.setFullName(fullName);
-        final List<AccountDetailsDTO> accountsFromCore = Arrays.asList(AccountDetailsDTO.builder()
-                .number(fromAcct).currency(srcCurrency).branchCode(branchCode).build());
+        AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
+        accountDetailsDTO.setNumber(fromAcct);
+        accountDetailsDTO.setCurrency(srcCurrency);
+        accountDetailsDTO.setBranchCode(branchCode);
+        final List<AccountDetailsDTO> accountsFromCore = new ArrayList<>();
+        accountsFromCore.add(accountDetailsDTO);
         final Set<MoneyTransferPurposeDto> popList = new HashSet(Arrays.asList(MoneyTransferPurposeDto.class));
 
         //when
@@ -224,26 +229,29 @@ public class LocalFundTransferStrategyTest {
         beneficiaryDto.setBankName(bankName);
         beneficiaryDto.setBeneficiaryCurrency(destCurrency);
         beneficiaryDto.setFullName(fullName);
-        final List<AccountDetailsDTO> accountsFromCore = Arrays.asList(AccountDetailsDTO.builder()
-                .number(fromAcct).currency(srcCurrency).branchCode(branchCode).build());
+        AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
+        accountDetailsDTO.setNumber(fromAcct);
+        accountDetailsDTO.setCurrency(srcCurrency);
+        accountDetailsDTO.setBranchCode(branchCode);
+        final List<AccountDetailsDTO> accountsFromCore = new ArrayList<>();
+        accountsFromCore.add(accountDetailsDTO);
         final Set<MoneyTransferPurposeDto> popList = new HashSet(Arrays.asList(MoneyTransferPurposeDto.class));
 
 
-        CoreCurrencyConversionRequestDto currencyRequest = CoreCurrencyConversionRequestDto.builder()
-                .accountNumber(fromAcct)
-                .accountCurrency(srcCurrency)
-                .transactionCurrency(destCurrency)
-                .transactionAmount(paidAmt).build();
+        CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
+        currencyRequest.setAccountNumber(fromAcct);
+        currencyRequest.setAccountCurrency(srcCurrency);
+        currencyRequest.setTransactionCurrency(destCurrency);
+        currencyRequest.setTransactionAmount(paidAmt);
         CurrencyConversionDto currencyConversionDto = new CurrencyConversionDto();
         currencyConversionDto.setAccountCurrencyAmount(paidAmtInSrcCurrency);
 
-        CoreCurrencyConversionRequestDto currencyConversionRequestDto = CoreCurrencyConversionRequestDto.builder()
-                .accountNumber(fromAcct)
-                .accountCurrency(srcCurrency)
-                .accountCurrencyAmount(paidAmtInSrcCurrency)
-                .dealNumber(null)
-                .transactionCurrency("AED")
-                .build();
+        CoreCurrencyConversionRequestDto currencyConversionRequestDto = new CoreCurrencyConversionRequestDto();
+        currencyConversionRequestDto.setAccountNumber(fromAcct);
+        currencyConversionRequestDto.setAccountCurrency(srcCurrency);
+        currencyConversionRequestDto.setAccountCurrencyAmount(paidAmtInSrcCurrency);
+        currencyConversionRequestDto.setDealNumber(null);
+        currencyConversionRequestDto.setTransactionCurrency("AED");
         CurrencyConversionDto secondConversion = new CurrencyConversionDto();
         secondConversion.setTransactionAmount(paidAmt);
         //when

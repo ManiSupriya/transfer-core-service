@@ -152,13 +152,12 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 
     private BigDecimal convertAmountInLocalCurrency(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO,
                                                     final BigDecimal transferAmountInSrcCurrency) {
-        CoreCurrencyConversionRequestDto currencyConversionRequestDto = CoreCurrencyConversionRequestDto.builder()
-                .accountNumber(sourceAccountDetailsDTO.getNumber())
-                .accountCurrency(sourceAccountDetailsDTO.getCurrency())
-                .accountCurrencyAmount(transferAmountInSrcCurrency)
-                .dealNumber(dealNumber)
-                .transactionCurrency(LOCAL_CURRENCY)
-                .build();
+        CoreCurrencyConversionRequestDto currencyConversionRequestDto = new CoreCurrencyConversionRequestDto();
+        currencyConversionRequestDto.setAccountNumber(sourceAccountDetailsDTO.getNumber());
+        currencyConversionRequestDto.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
+        currencyConversionRequestDto.setAccountCurrencyAmount(transferAmountInSrcCurrency);
+        currencyConversionRequestDto.setDealNumber(dealNumber);
+        currencyConversionRequestDto.setTransactionCurrency(LOCAL_CURRENCY);
 
         CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(currencyConversionRequestDto);
         return currencyConversionDto.getTransactionAmount();
@@ -169,12 +168,11 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     }
 
     private BigDecimal getAmountInSrcCurrency(BigDecimal transactionAmount, AccountDetailsDTO destAccount, AccountDetailsDTO sourceAccount) {
-        final CoreCurrencyConversionRequestDto currencyRequest = CoreCurrencyConversionRequestDto.builder()
-                .accountNumber(sourceAccount.getNumber())
-                .accountCurrency(sourceAccount.getCurrency())
-                .transactionCurrency(destAccount.getCurrency())
-                .transactionAmount(transactionAmount)
-                .build();
+        final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
+        currencyRequest.setAccountNumber(sourceAccount.getNumber());
+        currencyRequest.setAccountCurrency(sourceAccount.getCurrency());
+        currencyRequest.setTransactionCurrency(destAccount.getCurrency());
+        currencyRequest.setTransactionAmount(transactionAmount);
         CurrencyConversionDto conversionResultInSourceAcctCurrency = maintenanceService.convertBetweenCurrencies(currencyRequest);
         BigDecimal amtToBePaidInSrcCurrency = conversionResultInSourceAcctCurrency.getAccountCurrencyAmount();
         return amtToBePaidInSrcCurrency;

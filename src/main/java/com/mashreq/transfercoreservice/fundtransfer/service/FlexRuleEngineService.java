@@ -117,14 +117,13 @@ public class FlexRuleEngineService {
     private CurrencyConversionDto getConvertedChargeAmount(FlexRuleEngineRequestDTO request, FlexRuleEngineMWResponse response) {
         log.info("Debit Account Currency = {} and Charge Currency = {} calling currency conversion with Product code = {} ",
                 request.getAccountCurrency(), response.getChargeCurrency(), response.getProductCode());
-
-        return maintenanceService.convertBetweenCurrencies(CoreCurrencyConversionRequestDto.builder()
-                .accountNumber(request.getCustomerAccountNo())
-                .accountCurrency(request.getAccountCurrency())
-                .transactionCurrency(response.getChargeCurrency())
-                .transactionAmount(new BigDecimal(response.getChargeAmount()))
-                .productCode(response.getProductCode())
-                .build());
+        CoreCurrencyConversionRequestDto coreCurrencyConversionRequestDto = new CoreCurrencyConversionRequestDto();
+        coreCurrencyConversionRequestDto.setAccountNumber(request.getCustomerAccountNo());
+        coreCurrencyConversionRequestDto.setAccountCurrency(request.getAccountCurrency());
+        coreCurrencyConversionRequestDto.setTransactionCurrency(response.getChargeCurrency());
+        coreCurrencyConversionRequestDto.setTransactionAmount(new BigDecimal(response.getChargeAmount()));
+        coreCurrencyConversionRequestDto.setProductCode(response.getProductCode());
+        return maintenanceService.convertBetweenCurrencies(coreCurrencyConversionRequestDto);
     }
 
     /**

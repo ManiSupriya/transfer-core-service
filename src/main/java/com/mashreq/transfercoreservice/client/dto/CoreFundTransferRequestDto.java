@@ -1,12 +1,12 @@
 package com.mashreq.transfercoreservice.client.dto;
 
-import lombok.Builder;
-import lombok.Data;
-
 import java.math.BigDecimal;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Data
-@Builder
+@NoArgsConstructor
 public class CoreFundTransferRequestDto {
     private String fromAccount;
     private String toAccount;

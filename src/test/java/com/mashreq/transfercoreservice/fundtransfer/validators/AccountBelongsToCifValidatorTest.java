@@ -59,17 +59,14 @@ public class AccountBelongsToCifValidatorTest {
     }
 
     private List<AccountDetailsDTO> getAccountDetailsDTOS() {
-        AccountDetailsDTO fromAcc1 = AccountDetailsDTO.builder()
-                .number("010797697124")
-                .build();
-
-        AccountDetailsDTO fromAcc2 = AccountDetailsDTO.builder()
-                .number("019010050532")
-                .build();
-
-        AccountDetailsDTO fromAcc3 = AccountDetailsDTO.builder()
-                .number("019010073901")
-                .build();
+        AccountDetailsDTO fromAcc1 = new AccountDetailsDTO();
+        fromAcc1.setNumber("010797697124");
+        
+        AccountDetailsDTO fromAcc2 = new AccountDetailsDTO();
+        fromAcc2.setNumber("019010050532");
+        
+        AccountDetailsDTO fromAcc3 = new AccountDetailsDTO();
+        fromAcc3.setNumber("019010073901");
 
         return Arrays.asList(fromAcc1, fromAcc2, fromAcc3);
     }
@@ -154,17 +151,14 @@ public class AccountBelongsToCifValidatorTest {
     public void shouldReturnFailure_whenToAccount_doesnot_belongToCif_inLocal() {
 
         //given
-        AccountDetailsDTO fromAcc1 = AccountDetailsDTO.builder()
-                .number("010797697124")
-                .build();
-
-        AccountDetailsDTO fromAcc2 = AccountDetailsDTO.builder()
-                .number("019010050532")
-                .build();
-
-        AccountDetailsDTO fromAcc3 = AccountDetailsDTO.builder()
-                .number("019010073901")
-                .build();
+    	AccountDetailsDTO fromAcc1 = new AccountDetailsDTO();
+        fromAcc1.setNumber("010797697124");
+        
+        AccountDetailsDTO fromAcc2 = new AccountDetailsDTO();
+        fromAcc2.setNumber("019010050532");
+        
+        AccountDetailsDTO fromAcc3 = new AccountDetailsDTO();
+        fromAcc3.setNumber("019010073901");
 
         List<AccountDetailsDTO> listOfMockAccounts = Arrays.asList(fromAcc1, fromAcc2, fromAcc3);
 

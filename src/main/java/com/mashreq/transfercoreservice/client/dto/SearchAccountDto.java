@@ -1,12 +1,14 @@
 package com.mashreq.transfercoreservice.client.dto;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author shahbazkh
  * @date 3/8/20
  */
 @Data
+@NoArgsConstructor
 public class SearchAccountDto {
     private String customerName;
     private String customerCif;

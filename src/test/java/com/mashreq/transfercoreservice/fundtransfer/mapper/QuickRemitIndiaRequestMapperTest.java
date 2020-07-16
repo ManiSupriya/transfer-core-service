@@ -56,14 +56,13 @@ public class QuickRemitIndiaRequestMapperTest {
         String beneMobileNum = "1234567890";
         String srcIsoCurrency = "784";
         String destIsoCurrency = "356";
-        AccountDetailsDTO accountDetails = AccountDetailsDTO.builder()
-                .number(senderAcctNum)
-                .customerName(senderName)
-                .currency(senderCurrency)
-                .availableBalance(new BigDecimal(3000))
-                .branchCode("083")
-                .accountName(senderName)
-                .build();
+        AccountDetailsDTO accountDetails = new AccountDetailsDTO();
+        accountDetails.setNumber(senderAcctNum);
+        accountDetails.setCustomerName(senderName);
+        accountDetails.setCurrency(senderCurrency);
+        accountDetails.setAvailableBalance(new BigDecimal(3000));
+        accountDetails.setBranchCode("083");
+        accountDetails.setAccountName(senderName);
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setAmount(txnAmt);
         requestDTO.setPurposeCode(popCode);
@@ -178,14 +177,13 @@ public class QuickRemitIndiaRequestMapperTest {
         String beneMobileNum = "1234567890";
         String srcIsoCurrency = "784";
         String destIsoCurrency = "356";
-        AccountDetailsDTO accountDetails = AccountDetailsDTO.builder()
-                .number(senderAcctNum)
-                .customerName(senderName)
-                .currency(senderCurrency)
-                .availableBalance(new BigDecimal(3000))
-                .branchCode("083")
-                .accountName(senderName)
-                .build();
+        AccountDetailsDTO accountDetails = new AccountDetailsDTO();
+        accountDetails.setNumber(senderAcctNum);
+                accountDetails.setCustomerName(senderName);
+                accountDetails.setCurrency(senderCurrency);
+                accountDetails.setAvailableBalance(new BigDecimal(3000));
+                accountDetails.setBranchCode("083");
+                accountDetails.setAccountName(senderName);
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setAmount(txnAmt);
         requestDTO.setPurposeCode(popCode);
