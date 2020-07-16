@@ -91,10 +91,11 @@ public class CardLessCashServiceTest {
         cardLessCashGenerationRes.setReferenceNumber("test");
 		Mockito.when(accountService.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest, mobileNo))
 				.thenReturn(Response.<CardLessCashGenerationResponse>builder().status(ResponseStatus.SUCCESS).errorCode("test").data(cardLessCashGenerationRes).build());
-		
+		VerifyOTPResponseDTO verifyOTPResponseDTO = new VerifyOTPResponseDTO();
+		verifyOTPResponseDTO.setAuthenticated(true);
 		Mockito.doNothing().when(asyncUserEventPublisher).publishSuccessfulEsbEvent(Mockito.any(), Mockito.any(),
 				Mockito.any(), Mockito.any());
-		//Mockito.when(iamService.verifyOTP(Mockito.any())).thenReturn(Response.<VerifyOTPResponseDTO>builder().data(VerifyOTPResponseDTO.builder().authenticated(true).build()).build());
+		Mockito.when(iamService.verifyOTP(Mockito.any())).thenReturn(Response.<VerifyOTPResponseDTO>builder().data(verifyOTPResponseDTO).build());
 		Mockito.doNothing().when(paymentHistoryService).insert(Mockito.any());
 		Response<CardLessCashGenerationResponse> cardLessCashGenerationResponse = cardLessCashServiceImpl
 				.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest, mobileNo, userId, metaData);
