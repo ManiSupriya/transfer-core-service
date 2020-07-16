@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 /**
  * 
  * @author SURESH
@@ -11,7 +12,7 @@ import lombok.Data;
  */
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Builder
+@NoArgsConstructor
 public class VerifyOTPResponseDTO {
 	
 	boolean authenticated; 

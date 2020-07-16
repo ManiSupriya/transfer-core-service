@@ -77,13 +77,11 @@ public class CardLessCashControllerTest {
                 .accountNo(accountNumber)
                 .amount(amount)
                 .build();
-
+        CardLessCashGenerationResponse cardLessCashGenerationRes = new CardLessCashGenerationResponse();
+        cardLessCashGenerationRes.setExpiryDateTime(LocalDateTime.now());
+        cardLessCashGenerationRes.setReferenceNumber("test");
         Mockito.when(cardLessCashService.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest, mobileNo, userId, metaData))
-                .thenReturn(Response.<CardLessCashGenerationResponse>builder().data(
-                		CardLessCashGenerationResponse.builder()
-                        .expiryDateTime(LocalDateTime.now())
-                        .build()
-                        )
+                .thenReturn(Response.<CardLessCashGenerationResponse>builder().data(cardLessCashGenerationRes)
                         .build());
         Mockito.doReturn(true).when(userSessionCacheService).isAccountNumberBelongsToCif(Mockito.any(), Mockito.any());
         Mockito.doNothing().when(asyncUserEventPublisher).publishStartedEvent(Mockito.any(), Mockito.any(), Mockito.any());
@@ -103,14 +101,13 @@ public class CardLessCashControllerTest {
                 .accountNumber(accountNumber)
                 .remitNumDays(remitNumDays)
                 .build();
-        CardLessCashQueryResponse cardLessCashQueryResponse = CardLessCashQueryResponse.builder()
-        .status("A")
-        .amount(new BigDecimal(1))
-        .remitNo("1")
-        .transactionDate(LocalDate.now())
-        .channelName("A")
-        .redeemedDate(LocalDate.now())
-        .build();
+        CardLessCashQueryResponse cardLessCashQueryResponse = new CardLessCashQueryResponse();
+        cardLessCashQueryResponse.setStatus("A");
+        cardLessCashQueryResponse.setAmount(new BigDecimal(1));
+        cardLessCashQueryResponse.setRemitNo("1");
+        cardLessCashQueryResponse.setTransactionDate(LocalDate.now().toString());
+        cardLessCashQueryResponse.setChannelName("A");
+        cardLessCashQueryResponse.setRedeemedDate(LocalDate.now());
 		List<CardLessCashQueryResponse> cardLessCashQueryResponseList = new ArrayList<>();
 		cardLessCashQueryResponseList.add(cardLessCashQueryResponse);
 		Mockito.when(cardLessCashService.cardLessCashRemitQuery(cardLessCashQueryRequest, metaData)).thenReturn(

@@ -11,6 +11,8 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
 import java.util.Map;
 import java.util.Optional;
 
+import org.jfree.util.Log;
+
 import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
@@ -145,6 +147,7 @@ public interface CoreEnquiryService<R, P> {
         if(throwable instanceof RetryableException) {
         	GenericExceptionHandler.handleError(assignFeignConnectionErrorCode(), assignFeignConnectionErrorCode().getErrorMessage(), assignFeignConnectionErrorCode().getErrorMessage());
         }
+        throwable.printStackTrace();
         GenericExceptionHandler.handleError(assignDefaultErrorCode(), assignDefaultErrorCode().getErrorMessage());
         return null;
     }
