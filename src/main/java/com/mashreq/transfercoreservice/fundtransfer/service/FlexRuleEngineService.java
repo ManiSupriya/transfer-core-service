@@ -69,12 +69,12 @@ public class FlexRuleEngineService {
 
         assertAccountCurrencyMatch(request, searchAccountDto);
 
-        log.info("Calling Flex Rule MW for CHARGES with Debit Leg {} {} ", request.getAccountCurrency(), request.getAccountCurrencyAmount());
+        log.info("Calling Flex Rule MW for CHARGES with Debit Leg {} {} ", htmlEscape(request.getAccountCurrency()), htmlEscape(request.getAccountCurrencyAmount().toString()));
 
         final FlexRuleEngineMWResponse response = flexRuleEngineMWService.getRules(
                 getFlexRequestWithDebitLeg(metadata, request, valueDate, beneficiary), metaData);
 
-        log.info("Debit Amount  = {} {} ", request.getAccountCurrency(), request.getAccountCurrencyAmount());
+        log.info("Debit Amount  = {} {} ", htmlEscape(request.getAccountCurrency()), htmlEscape(request.getAccountCurrencyAmount().toString()));
 
         if (!request.getAccountCurrency().equals(response.getChargeCurrency())) {
             return getChargeWithConvertedCurrency(request, response);
