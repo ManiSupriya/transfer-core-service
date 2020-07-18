@@ -16,6 +16,7 @@ import java.util.List;
 import static com.mashreq.transfercoreservice.client.dto.BeneficiaryStatus.ACTIVE;
 import static com.mashreq.transfercoreservice.client.dto.BeneficiaryStatus.IN_COOLING_PERIOD;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 /**
  * @author shahbazkh
@@ -34,7 +35,7 @@ public class BeneficiaryValidator implements Validator {
     public ValidationResult validate(FundTransferRequestDTO request, RequestMetaData metadata, ValidationContext context) {
 
         final BeneficiaryDto beneficiaryDto = context.get("beneficiary-dto", BeneficiaryDto.class);
-        log.info("Validating Beneficiary for service type [ {} ] ", request.getServiceType());
+        log.info("Validating Beneficiary for service type [ {} ] ", htmlEscape(request.getServiceType()));
 
         if (beneficiaryDto == null) {
             auditEventPublisher.publishFailureEvent(FundTransferEventType.BENEFICIARY_VALIDATION, metadata, null,
@@ -56,7 +57,7 @@ public class BeneficiaryValidator implements Validator {
                     beneficiaryDto.getStatus(), BENE_NOT_ACTIVE_OR_COOLING,metadata);
         }
 
-        log.info("Beneficiary validation successful for service type [ {} ] ", request.getServiceType());
+        log.info("Beneficiary validation successful for service type [ {} ] ", htmlEscape(request.getServiceType()));
         return validateBeneficiaryStatus(Arrays.asList(ACTIVE.name()), beneficiaryDto.getStatus(), BENE_NOT_ACTIVE,metadata);
     }
 

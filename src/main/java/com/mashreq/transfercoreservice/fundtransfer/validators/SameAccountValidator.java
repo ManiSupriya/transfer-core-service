@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import static com.mashreq.transfercoreservice.event.FundTransferEventType.SAME_ACCOUNT_VALIDATION;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 /**
  * @author shahbazkh
@@ -24,9 +25,9 @@ public class SameAccountValidator implements Validator {
 
     @Override
     public ValidationResult validate(FundTransferRequestDTO request, RequestMetaData metadata, ValidationContext context) {
-        log.info("Validating same-credit-and-debit account for service type [ {} ] ", request.getFinTxnNo(), request.getServiceType());
+        log.info("Validating same-credit-and-debit account for service type [ {} ] ", htmlEscape(request.getFinTxnNo()), htmlEscape(request.getServiceType()));
         if (request.getToAccount().equals(request.getFromAccount())) {
-            log.warn("Same Debit and credit account found service type [ {} ] ", request.getServiceType());
+            log.warn("Same Debit and credit account found service type [ {} ] ", htmlEscape(request.getServiceType()));
             auditEventPublisher.publishFailureEvent(SAME_ACCOUNT_VALIDATION, metadata, null,
                     TransferErrorCode.CREDIT_AND_DEBIT_ACC_SAME.getCustomErrorCode(), TransferErrorCode.CREDIT_AND_DEBIT_ACC_SAME.getErrorMessage(), null);
             return ValidationResult.builder()
@@ -34,7 +35,7 @@ public class SameAccountValidator implements Validator {
                     .transferErrorCode(TransferErrorCode.CREDIT_AND_DEBIT_ACC_SAME)
                     .build();
         }
-        log.info("Same Credit/Debit Account Validating successful service type [ {} ] ", request.getServiceType());
+        log.info("Same Credit/Debit Account Validating successful service type [ {} ] ", htmlEscape(request.getServiceType()));
         auditEventPublisher.publishSuccessEvent(SAME_ACCOUNT_VALIDATION, metadata, null);
         return ValidationResult.builder().success(true).build();
     }

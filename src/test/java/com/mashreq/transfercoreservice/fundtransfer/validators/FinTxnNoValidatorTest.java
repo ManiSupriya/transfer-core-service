@@ -29,6 +29,7 @@ public class FinTxnNoValidatorTest {
         //given
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setFinTxnNo("1234");
+        requestDTO.setServiceType("test");
 
         //when
         Mockito.when(paymentHistoryService.isFinancialTransactionPresent(Mockito.eq("1234"))).thenReturn(Boolean.TRUE);
@@ -44,6 +45,7 @@ public class FinTxnNoValidatorTest {
         //given
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setFinTxnNo("1234");
+        requestDTO.setServiceType("test");
 
         //when
         Mockito.when(paymentHistoryService.isFinancialTransactionPresent(Mockito.eq("1234"))).thenReturn(Boolean.FALSE);
@@ -57,6 +59,7 @@ public class FinTxnNoValidatorTest {
         //given
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setFinTxnNo("1234");
+        requestDTO.setServiceType("test");
 
         //when
         Mockito.when(paymentHistoryService.isFinancialTransactionPresent(Mockito.eq("1234"))).thenThrow(new RuntimeException());

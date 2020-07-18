@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
 
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -22,7 +24,7 @@ public class PaymentHistoryService {
      */
     public CharityPaidDto getCharityPaid(String cifId, String serviceType) {
 
-        log.info("[PaymentHistoryService] get charity paid for cif={} and serviceType={}", cifId, serviceType);
+        log.info("[PaymentHistoryService] get charity paid for cif={} and serviceType={}", htmlEscape(cifId), htmlEscape(serviceType));
 
         BigDecimal totalPaidAmount = new BigDecimal(0);
 
@@ -30,7 +32,7 @@ public class PaymentHistoryService {
         if(tmpObj.isEmpty())
             return CharityPaidDto.builder().totalPaidAmount(totalPaidAmount).build();
 
-        log.info("[PaymentHistoryService] charity paid found for cif={} and serviceType={}", cifId, serviceType);
+        log.info("[PaymentHistoryService] charity paid found for cif={} and serviceType={}", htmlEscape(cifId), htmlEscape(serviceType));
 
         Object[] resultSet = tmpObj.get(0);
         totalPaidAmount =  (BigDecimal) resultSet[0];
