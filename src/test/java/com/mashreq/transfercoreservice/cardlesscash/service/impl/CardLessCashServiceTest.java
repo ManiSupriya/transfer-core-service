@@ -86,13 +86,16 @@ public class CardLessCashServiceTest {
 		String userId = "12345";
 		CardLessCashGenerationRequest cardLessCashGenerationRequest = CardLessCashGenerationRequest.builder()
 				.accountNo(accountNumber).amount(amount).build();
+		CardLessCashGenerationResponse cardLessCashGenerationRes = new CardLessCashGenerationResponse();
+        cardLessCashGenerationRes.setExpiryDateTime(LocalDateTime.now());
+        cardLessCashGenerationRes.setReferenceNumber("test");
 		Mockito.when(accountService.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest, mobileNo))
-				.thenReturn(Response.<CardLessCashGenerationResponse>builder().status(ResponseStatus.SUCCESS).errorCode("test").data(CardLessCashGenerationResponse
-						.builder().expiryDateTime(LocalDateTime.now()).referenceNumber("test").build()).build());
-		
+				.thenReturn(Response.<CardLessCashGenerationResponse>builder().status(ResponseStatus.SUCCESS).errorCode("test").data(cardLessCashGenerationRes).build());
+		VerifyOTPResponseDTO verifyOTPResponseDTO = new VerifyOTPResponseDTO();
+		verifyOTPResponseDTO.setAuthenticated(true);
 		Mockito.doNothing().when(asyncUserEventPublisher).publishSuccessfulEsbEvent(Mockito.any(), Mockito.any(),
 				Mockito.any(), Mockito.any());
-		//Mockito.when(iamService.verifyOTP(Mockito.any())).thenReturn(Response.<VerifyOTPResponseDTO>builder().data(VerifyOTPResponseDTO.builder().authenticated(true).build()).build());
+		//Mockito.when(iamService.verifyOTP(Mockito.any())).thenReturn(Response.<VerifyOTPResponseDTO>builder().data(verifyOTPResponseDTO).build());
 		Mockito.doNothing().when(paymentHistoryService).insert(Mockito.any());
 		Response<CardLessCashGenerationResponse> cardLessCashGenerationResponse = cardLessCashServiceImpl
 				.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest, mobileNo, userId, metaData);
@@ -108,14 +111,13 @@ public class CardLessCashServiceTest {
                 .accountNumber(accountNumber)
                 .remitNumDays(remitNumDays)
                 .build();
-        CardLessCashQueryResponse cardLessCashQueryResponse = CardLessCashQueryResponse.builder()
-        .status("A")
-        .amount(new BigDecimal(1))
-        .remitNo("1")
-        .transactionDate(LocalDate.now())
-        .channelName("A")
-        .redeemedDate(LocalDate.now())
-        .build();
+        CardLessCashQueryResponse cardLessCashQueryResponse = new CardLessCashQueryResponse();
+        cardLessCashQueryResponse.setStatus("A");
+        cardLessCashQueryResponse.setAmount(new BigDecimal(1));
+        cardLessCashQueryResponse.setRemitNo("1");
+        cardLessCashQueryResponse.setTransactionDate(LocalDate.now());
+        cardLessCashQueryResponse.setChannelName("A");
+        cardLessCashQueryResponse.setRedeemedDate(LocalDate.now());
 		List<CardLessCashQueryResponse> cardLessCashQueryResponseList = new ArrayList<>();
 		cardLessCashQueryResponseList.add(cardLessCashQueryResponse);
 		Mockito.when(accountService.cardLessCashRemitQuery(cardLessCashQueryRequest)).thenReturn(

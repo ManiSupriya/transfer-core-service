@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Set;
 
 
-
 @RequiredArgsConstructor
 @Slf4j
 @Service
@@ -83,7 +82,7 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
         //Limit Validation
         final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), sourceAccountDetailsDTO,
                 currencyConversionDto.getAccountCurrencyAmount());
-        final LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount);
+        final LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount, metadata);
 
 
         final QuickRemitFundTransferRequest fundTransferRequest = quickRemitIndiaRequestMapper.map(metadata.getChannelTraceId(),
@@ -103,12 +102,12 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
     private CurrencyConversionDto getAmountInSrcCurrency(FundTransferRequestDTO request, BeneficiaryDto beneficiaryDto,
                                                          AccountDetailsDTO sourceAccountDetailsDTO) {
 
-        final CoreCurrencyConversionRequestDto currencyRequest = CoreCurrencyConversionRequestDto.builder()
-                .accountNumber(sourceAccountDetailsDTO.getNumber())
-                .accountCurrency(sourceAccountDetailsDTO.getCurrency())
-                .transactionCurrency(beneficiaryDto.getBeneficiaryCurrency())
-                .productCode(request.getProductCode())
-                .transactionAmount(request.getAmount()).build();
+        final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
+        currencyRequest.setAccountNumber(sourceAccountDetailsDTO.getNumber());
+        currencyRequest.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
+        currencyRequest.setTransactionCurrency(beneficiaryDto.getBeneficiaryCurrency());
+        currencyRequest.setProductCode(request.getProductCode());
+        currencyRequest.setTransactionAmount(request.getAmount());
 
         return maintenanceService.convertBetweenCurrencies(currencyRequest);
     }
@@ -122,13 +121,12 @@ public class QuickRemitIndiaStrategy implements QuickRemitFundTransfer {
 
     private BigDecimal convertAmountInLocalCurrency(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO,
                                                     final BigDecimal transferAmountInSrcCurrency) {
-        CoreCurrencyConversionRequestDto currencyConversionRequestDto = CoreCurrencyConversionRequestDto.builder()
-                .accountNumber(sourceAccountDetailsDTO.getNumber())
-                .accountCurrency(sourceAccountDetailsDTO.getCurrency())
-                .accountCurrencyAmount(transferAmountInSrcCurrency)
-                .dealNumber(dealNumber)
-                .transactionCurrency("AED")
-                .build();
+        CoreCurrencyConversionRequestDto currencyConversionRequestDto = new CoreCurrencyConversionRequestDto();
+        currencyConversionRequestDto.setAccountNumber(sourceAccountDetailsDTO.getNumber());
+        currencyConversionRequestDto.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
+        currencyConversionRequestDto.setAccountCurrencyAmount(transferAmountInSrcCurrency);
+        currencyConversionRequestDto.setDealNumber(dealNumber);
+        currencyConversionRequestDto.setTransactionCurrency("AED");
 
         CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(currencyConversionRequestDto);
         return currencyConversionDto.getTransactionAmount();

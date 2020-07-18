@@ -1,10 +1,10 @@
 package com.mashreq.transfercoreservice.client.mobcommon.dto;
 
-import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-@Builder
+@NoArgsConstructor
 public class AddressTypeDto {
     private String addressType;
     private String prefFlag;

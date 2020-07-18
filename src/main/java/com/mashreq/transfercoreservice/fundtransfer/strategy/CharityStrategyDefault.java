@@ -94,7 +94,7 @@ public class CharityStrategyDefault implements FundTransferStrategy {
 
         log.info("Limit Validation start.");
         BigDecimal limitUsageAmount = request.getAmount();
-        LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount);
+        LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount, metadata);
         log.info("Limit Validation successful");
 
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountOpt.get(), charityBeneficiaryDto);

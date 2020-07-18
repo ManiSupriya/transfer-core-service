@@ -104,7 +104,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
         //Limit Validation
         final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), fromAccountDetails, transferAmountInSrcCurrency);
-        final LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount);
+        final LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount, metadata);
 
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountDetails, beneficiaryDto);
         log.info("Local Fund transfer initiated.......");
@@ -125,13 +125,12 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     }
 
     private BigDecimal convertAmountInLocalCurrency(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO, final BigDecimal transferAmountInSrcCurrency) {
-        CoreCurrencyConversionRequestDto currencyConversionRequestDto = CoreCurrencyConversionRequestDto.builder()
-                .accountNumber(sourceAccountDetailsDTO.getNumber())
-                .accountCurrency(sourceAccountDetailsDTO.getCurrency())
-                .accountCurrencyAmount(transferAmountInSrcCurrency)
-                .dealNumber(dealNumber)
-                .transactionCurrency("AED")
-                .build();
+        CoreCurrencyConversionRequestDto currencyConversionRequestDto = new CoreCurrencyConversionRequestDto();
+        currencyConversionRequestDto.setAccountNumber(sourceAccountDetailsDTO.getNumber());
+        currencyConversionRequestDto.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
+        currencyConversionRequestDto.setAccountCurrencyAmount(transferAmountInSrcCurrency);
+        currencyConversionRequestDto.setDealNumber(dealNumber);
+        currencyConversionRequestDto.setTransactionCurrency("AED");
 
         CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(currencyConversionRequestDto);
         return currencyConversionDto.getTransactionAmount();
@@ -143,11 +142,11 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
     private BigDecimal getAmountInSrcCurrency(FundTransferRequestDTO request, BeneficiaryDto beneficiaryDto, AccountDetailsDTO sourceAccountDetailsDTO) {
         BigDecimal amtToBePaidInSrcCurrency;
-        final CoreCurrencyConversionRequestDto currencyRequest = CoreCurrencyConversionRequestDto.builder()
-                .accountNumber(sourceAccountDetailsDTO.getNumber())
-                .accountCurrency(sourceAccountDetailsDTO.getCurrency())
-                .transactionCurrency("AED")
-                .transactionAmount(request.getAmount()).build();
+        final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
+        currencyRequest.setAccountNumber(sourceAccountDetailsDTO.getNumber());
+        currencyRequest.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
+        currencyRequest.setTransactionCurrency("AED");
+        currencyRequest.setTransactionAmount(request.getAmount());
         CurrencyConversionDto conversionResultInSourceAcctCurrency = maintenanceService.convertBetweenCurrencies(currencyRequest);
         amtToBePaidInSrcCurrency = conversionResultInSourceAcctCurrency.getAccountCurrencyAmount();
         return amtToBePaidInSrcCurrency;

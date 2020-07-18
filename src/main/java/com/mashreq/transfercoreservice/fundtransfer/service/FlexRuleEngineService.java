@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
+import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
@@ -54,7 +55,7 @@ public class FlexRuleEngineService {
      * @param request
      * @return
      */
-    public ChargeResponseDTO getCharges(final FlexRuleEngineMetadata metadata, final FlexRuleEngineRequestDTO request) {
+    public ChargeResponseDTO getCharges(final FlexRuleEngineMetadata metadata, final FlexRuleEngineRequestDTO request, final RequestMetaData metaData) {
 
         final String valueDate = ofPattern(DATE_FORMAT).format(now());
 
@@ -70,7 +71,7 @@ public class FlexRuleEngineService {
         log.info("Calling Flex Rule MW for CHARGES with Debit Leg {} {} ", request.getAccountCurrency(), request.getAccountCurrencyAmount());
 
         final FlexRuleEngineMWResponse response = flexRuleEngineMWService.getRules(
-                getFlexRequestWithDebitLeg(metadata, request, valueDate, beneficiary));
+                getFlexRequestWithDebitLeg(metadata, request, valueDate, beneficiary), metaData);
 
         log.info("Debit Amount  = {} {} ", request.getAccountCurrency(), request.getAccountCurrencyAmount());
 
@@ -117,14 +118,13 @@ public class FlexRuleEngineService {
     private CurrencyConversionDto getConvertedChargeAmount(FlexRuleEngineRequestDTO request, FlexRuleEngineMWResponse response) {
         log.info("Debit Account Currency = {} and Charge Currency = {} calling currency conversion with Product code = {} ",
                 request.getAccountCurrency(), response.getChargeCurrency(), response.getProductCode());
-
-        return maintenanceService.convertBetweenCurrencies(CoreCurrencyConversionRequestDto.builder()
-                .accountNumber(request.getCustomerAccountNo())
-                .accountCurrency(request.getAccountCurrency())
-                .transactionCurrency(response.getChargeCurrency())
-                .transactionAmount(new BigDecimal(response.getChargeAmount()))
-                .productCode(response.getProductCode())
-                .build());
+        CoreCurrencyConversionRequestDto coreCurrencyConversionRequestDto = new CoreCurrencyConversionRequestDto();
+        coreCurrencyConversionRequestDto.setAccountNumber(request.getCustomerAccountNo());
+        coreCurrencyConversionRequestDto.setAccountCurrency(request.getAccountCurrency());
+        coreCurrencyConversionRequestDto.setTransactionCurrency(response.getChargeCurrency());
+        coreCurrencyConversionRequestDto.setTransactionAmount(new BigDecimal(response.getChargeAmount()));
+        coreCurrencyConversionRequestDto.setProductCode(response.getProductCode());
+        return maintenanceService.convertBetweenCurrencies(coreCurrencyConversionRequestDto);
     }
 
     /**
@@ -134,7 +134,7 @@ public class FlexRuleEngineService {
      * @param request
      * @return
      */
-    public FlexRuleEngineResponseDTO getRules(final FlexRuleEngineMetadata metadata, final FlexRuleEngineRequestDTO request) {
+    public FlexRuleEngineResponseDTO getRules(final FlexRuleEngineMetadata metadata, final FlexRuleEngineRequestDTO request, final RequestMetaData metaData) {
 
         assertEitherDebitOrCreditAmountPresent(request);
         final CompletableFuture<SearchAccountDto> searchAccountFut = CompletableFuture.supplyAsync(() ->
@@ -155,7 +155,7 @@ public class FlexRuleEngineService {
                 ? getFlexRequestWithCreditLeg(metadata, request, ofPattern(DATE_FORMAT).format(now()), beneficiary)
                 : getFlexRequestWithDebitLeg(metadata, request, ofPattern(DATE_FORMAT).format(now()), beneficiary);
 
-        final FlexRuleEngineMWResponse response = flexRuleEngineMWService.getRules(flexRequestMW);
+        final FlexRuleEngineMWResponse response = flexRuleEngineMWService.getRules(flexRequestMW, metaData);
 
 
         if (INDIA_CODE.equals(beneficiary.getBeneficiaryCountryISO())

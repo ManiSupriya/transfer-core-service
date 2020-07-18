@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.api;
 
+import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.commons.cache.HeaderNames;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
@@ -16,6 +17,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
+import static com.mashreq.transfercoreservice.event.FundTransferEventType.FLEX_GET_CHARGES;
+import static com.mashreq.transfercoreservice.event.FundTransferEventType.FLEX_GET_EXCHANGE_RATE;
+
 /**
  * @author shahbazkh
  * @date 4/21/20
@@ -30,6 +34,7 @@ import javax.validation.Valid;
 public class FlexRuleEngineController {
 
     private final FlexRuleEngineService flexRuleEngineService;
+    private final AsyncUserEventPublisher asyncUserEventPublisher;
 
     @ApiOperation(value = "Fetch Rules for flex engine", response = FlexRuleEngineResponseDTO.class)
     @ApiResponses(value = {
@@ -47,9 +52,9 @@ public class FlexRuleEngineController {
                 .cifId(cifId)
                 .build();
 
-        return Response.builder()
+        return asyncUserEventPublisher.publishEvent(() -> Response.builder()
                 .status(ResponseStatus.SUCCESS)
-                .data(flexRuleEngineService.getRules(metadata, request)).build();
+                .data(flexRuleEngineService.getRules(metadata, request, requestMetaData)).build(), FLEX_GET_EXCHANGE_RATE, requestMetaData, getRemarks(request, cifId));
 
     }
 
@@ -77,9 +82,30 @@ public class FlexRuleEngineController {
                 .accountCurrency(request.getAccountCurrency())
                 .build();
 
-        return Response.builder()
+        return asyncUserEventPublisher.publishEvent(() -> Response.builder()
                 .status(ResponseStatus.SUCCESS)
-                .data(flexRuleEngineService.getCharges(metadata, ruleEngineRequest)).build();
+                .data(flexRuleEngineService.getCharges(metadata, ruleEngineRequest, requestMetaData)).build(), FLEX_GET_CHARGES, requestMetaData, getRemarks(request, cifId));
 
+    }
+
+    private String getRemarks(FlexRuleEngineRequestDTO ruleEngineRequestDTO, String cif) {
+        return String.format("Cif=%s,customerAccountNo=%s,transactionCurrency=%s,transactionAmount=%s,accountCurrency=%s,accountCurrencyAmount=%s,beneficiaryId=%s",
+                cif,
+                ruleEngineRequestDTO.getCustomerAccountNo(),
+                ruleEngineRequestDTO.getTransactionCurrency(),
+                ruleEngineRequestDTO.getTransactionAmount(),
+                ruleEngineRequestDTO.getAccountCurrency(),
+                ruleEngineRequestDTO.getAccountCurrencyAmount(),
+                ruleEngineRequestDTO.getBeneficiaryId());
+    }
+
+    private String getRemarks(ChargesRequestDTO chargesRequestDTO, String cif) {
+        return String.format("Cif=%s,customerAccountNo=%s,transactionCurrency=%s,accountCurrencyAmount=%s,beneficiaryId=%s,accountCurrency=%s",
+                cif,
+                chargesRequestDTO.getCustomerAccountNo(),
+                chargesRequestDTO.getTransactionCurrency(),
+                chargesRequestDTO.getAccountCurrencyAmount(),
+                chargesRequestDTO.getBeneficiaryId(),
+                chargesRequestDTO.getAccountCurrency());
     }
 }

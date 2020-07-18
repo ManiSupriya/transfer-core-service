@@ -1,6 +1,7 @@
 package com.mashreq.transfercoreservice.client.dto;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
@@ -9,6 +10,7 @@ import java.math.BigDecimal;
  * @date 3/8/20
  */
 @Data
+@NoArgsConstructor
 public class CoreCardDetailsDto {
     private String cardIssuer;
     private String cifId;

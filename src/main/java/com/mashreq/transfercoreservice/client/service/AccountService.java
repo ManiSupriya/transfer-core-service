@@ -111,13 +111,19 @@ public class AccountService {
 	}
 
 	private AccountDetailsDTO convertCoreAccountsToAccountDTO(SearchAccountDto coreAccount) {
-		return AccountDetailsDTO.builder().accountName(coreAccount.getAccountName())
-				.availableBalance(convertStringToBigDecimal(coreAccount.getAvailableBalance()))
-				.customerName(coreAccount.getCustomerName()).accountName(coreAccount.getAccountName())
-				.schemeType(coreAccount.getAccountType().getSchemaType())
-				.accountType(coreAccount.getAccountType().getAccountType()).currency(coreAccount.getCurrency())
-				.number(coreAccount.getNumber()).status(coreAccount.getStatus()).segment("conventional")
-				.branchCode(coreAccount.getBranch()).build();
+		AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
+		accountDetailsDTO.setAccountName(coreAccount.getAccountName());
+		accountDetailsDTO.setAvailableBalance(convertStringToBigDecimal(coreAccount.getAvailableBalance()));
+		accountDetailsDTO.setCustomerName(coreAccount.getCustomerName());
+		accountDetailsDTO.setAccountName(coreAccount.getAccountName());
+		accountDetailsDTO.setSchemeType(coreAccount.getAccountType().getSchemaType());
+		accountDetailsDTO.setAccountType(coreAccount.getAccountType().getAccountType());
+		accountDetailsDTO.setCurrency(coreAccount.getCurrency());
+		accountDetailsDTO.setNumber(coreAccount.getNumber());
+		accountDetailsDTO.setStatus(coreAccount.getStatus());
+		accountDetailsDTO.setSegment("conventional");
+		accountDetailsDTO.setBranchCode(coreAccount.getBranch());
+		return accountDetailsDTO;
 	}
 
 	private List<AccountDetailsDTO> convertResponseToAccounts(CifProductsDto cifProductsDto) {

@@ -2,6 +2,7 @@ package com.mashreq.transfercoreservice.client.dto;
 
 import com.mashreq.transfercoreservice.annotations.ValueOfEnum;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -11,6 +12,7 @@ import java.time.Instant;
  * @date 3/16/20
  */
 @Data
+@NoArgsConstructor
 public class BeneficiaryDto {
 
     private Long id;

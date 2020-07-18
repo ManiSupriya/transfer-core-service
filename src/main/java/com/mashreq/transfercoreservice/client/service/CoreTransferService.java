@@ -22,14 +22,13 @@ public class CoreTransferService {
 
 
     public FundTransferResponse transferFundsBetweenAccounts(FundTransferRequestDTO request) {
-        CoreFundTransferRequestDto coreFundTransferRequestDto = CoreFundTransferRequestDto.builder()
-                .fromAccount(request.getFromAccount())
-                .toAccount(request.getToAccount())
-                .amount(request.getAmount())
-                .currency(request.getCurrency())
-                .dealNumber(request.getDealNumber())
-                .purposeCode(request.getPurposeCode())
-                .build();
+        CoreFundTransferRequestDto coreFundTransferRequestDto = new CoreFundTransferRequestDto();
+        coreFundTransferRequestDto.setFromAccount(request.getFromAccount());
+        coreFundTransferRequestDto.setToAccount(request.getToAccount());
+        coreFundTransferRequestDto.setAmount(request.getAmount());
+        coreFundTransferRequestDto.setCurrency(request.getCurrency());
+        coreFundTransferRequestDto.setDealNumber(request.getDealNumber());
+        coreFundTransferRequestDto.setPurposeCode(request.getPurposeCode());
         log.info("Calling external service for fundtransfer {} ", coreFundTransferRequestDto);
         return transferFundsBetweenAccounts(coreFundTransferRequestDto);
     }
@@ -43,13 +42,12 @@ public class CoreTransferService {
                 coreTransferClient.transferFundsBetweenAccounts(coreFundTransferRequestDto);
 
         log.info("Response for fund-transfer call {} ", transferFundsResponse);
-        final CoreFundTransferResponseDto coreResponse = CoreFundTransferResponseDto.builder()
-                .transactionRefNo(transferFundsResponse.getData().getTransactionRefNo())
-                .mwReferenceNo(transferFundsResponse.getData().getMwReferenceNo())
-                .mwResponseStatus(transferFundsResponse.getData().getMwResponseStatus())
-                .mwResponseCode(transferFundsResponse.getData().getMwResponseCode())
-                .mwResponseDescription(transferFundsResponse.getData().getMwResponseDescription())
-                .build();
+        final CoreFundTransferResponseDto coreResponse = new CoreFundTransferResponseDto();
+        coreResponse.setTransactionRefNo(transferFundsResponse.getData().getTransactionRefNo());
+        coreResponse.setMwReferenceNo(transferFundsResponse.getData().getMwReferenceNo());
+        coreResponse.setMwResponseStatus(transferFundsResponse.getData().getMwResponseStatus());
+        coreResponse.setMwResponseCode(transferFundsResponse.getData().getMwResponseCode());
+        coreResponse.setMwResponseDescription(transferFundsResponse.getData().getMwResponseDescription());
 
         return result.toBuilder().responseDto(coreResponse).build();
     }

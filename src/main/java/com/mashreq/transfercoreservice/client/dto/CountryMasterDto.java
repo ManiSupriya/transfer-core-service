@@ -1,7 +1,7 @@
 package com.mashreq.transfercoreservice.client.dto;
 
-import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author shahbazkh
@@ -9,7 +9,7 @@ import lombok.Data;
  */
 
 @Data
-@Builder
+@NoArgsConstructor
 public class CountryMasterDto {
     private String code;
     private String name;

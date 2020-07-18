@@ -4,6 +4,7 @@ package com.mashreq.transfercoreservice.fundtransfer.strategy;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.*;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
+import com.mashreq.transfercoreservice.client.mobcommon.dto.AddressTypeDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerPhones;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
@@ -27,6 +28,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -113,18 +115,34 @@ public class QuickRemitPakistanStrategyTest {
         requestDTO.setServiceType(ServiceType.QUICK_REMIT.getName());
         requestDTO.setBeneficiaryId(beneId);
         requestDTO.setProductCode(productCode);
+        List<CustomerPhones> customerPhonesList = new ArrayList<>();
+        CustomerPhones customerPhones = new CustomerPhones();
+        customerPhones.setMobNumber("1234567899");
+        customerPhones.setPhoneNumberType("P");
+        CustomerPhones customerPhones1 = new CustomerPhones();
+        customerPhones1.setMobNumber("1234567898");
+        customerPhones1.setPhoneNumberType("O");
+        customerPhonesList.add(customerPhones1);
+        customerPhonesList.add(customerPhones);
+       
+        CustomerDetailsDto customerDetails = new CustomerDetailsDto();
+        customerDetails.setCifBranch("078");
+        customerDetails.setNationality("UK");
+        customerDetails.setPhones(customerPhonesList);
+        customerDetails.setUniqueIDName("PASSPORT");
+        customerDetails.setUniqueIDValue("33333333");
 
-        CustomerDetailsDto customerDetails = CustomerDetailsDto.builder().phones(Arrays.asList(CustomerPhones.builder().phoneNumberType("P").mobNumber("1234567890")
-                .build(),CustomerPhones.builder().phoneNumberType("R").mobNumber("12345678")
-                        .build())).nationality("UK").cifBranch("078").build();
 
         RequestMetaData metadata =  RequestMetaData.builder().primaryCif(cif)
                 .channel(channel).channelTraceId(channelTraceId).build();
         UserDTO userDTO = new UserDTO();
         final ValidationResult validationResult = ValidationResult.builder().success(true).build();
 
-        final AccountDetailsDTO sourceAccountDetailsDTO = AccountDetailsDTO.builder()
-                .number(fromAcct).currency(srcCurrency).branchCode(branchCode).customerName("Deepa S").number(fromAcct).build();
+        final AccountDetailsDTO sourceAccountDetailsDTO = new AccountDetailsDTO();
+        sourceAccountDetailsDTO.setNumber(fromAcct);
+        sourceAccountDetailsDTO.setCurrency(srcCurrency);
+        sourceAccountDetailsDTO.setBranchCode(branchCode);
+        sourceAccountDetailsDTO.setCustomerName("Deepa S");
         final List<AccountDetailsDTO> accountsFromCore = Arrays.asList(sourceAccountDetailsDTO);
 
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
@@ -133,13 +151,13 @@ public class QuickRemitPakistanStrategyTest {
         beneficiaryDto.setBankName(bankName);
         beneficiaryDto.setFullName(fullName);
         beneficiaryDto.setFinalName(fullName);
-        final Set<MoneyTransferPurposeDto> popList = new HashSet(Arrays.asList(MoneyTransferPurposeDto.builder().build()));
-        CoreCurrencyConversionRequestDto currencyRequest = CoreCurrencyConversionRequestDto.builder()
-                .accountNumber(fromAcct)
-                .accountCurrency(srcCurrency)
-                .transactionCurrency(destCurrency)
-                .productCode(productCode)
-                .transactionAmount(txnAmount).build();
+        final Set<MoneyTransferPurposeDto> popList = new HashSet(Arrays.asList(MoneyTransferPurposeDto.class));
+        CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
+        		currencyRequest.setAccountNumber(fromAcct);
+        		currencyRequest.setAccountCurrency(srcCurrency);
+        		currencyRequest.setTransactionCurrency(destCurrency);
+        		currencyRequest.setProductCode(productCode);
+        		currencyRequest.setTransactionAmount(txnAmount);
 
         CurrencyConversionDto currencyConversionDto = new CurrencyConversionDto();
         currencyConversionDto.setAccountCurrencyAmount(amountInSrcCurrency);
@@ -192,9 +210,10 @@ public class QuickRemitPakistanStrategyTest {
                 .beneficiaryIdType(beneficiaryDto.getDocumentType())
                 .beneficiaryIdNo(beneficiaryDto.getDocumentNumber())
                 .build();
-
+        CoreFundTransferResponseDto coreFundTransferResponseDto = new CoreFundTransferResponseDto();
+        coreFundTransferResponseDto.setMwResponseStatus(MwResponseStatus.S);
         FundTransferResponse response = FundTransferResponse.builder()
-                .responseDto(CoreFundTransferResponseDto.builder().mwResponseStatus(MwResponseStatus.S).build())
+                .responseDto(coreFundTransferResponseDto)
                 .limitUsageAmount(limitUsageAmount)
                 .limitVersionUuid(limitVersionUuid)
                 .build();
@@ -216,9 +235,10 @@ public class QuickRemitPakistanStrategyTest {
         when(maintenanceService.convertBetweenCurrencies(any()))
                 .thenReturn(currencyConversionDto);
         when(balanceValidator.validate(eq(requestDTO),eq(metadata),any())).thenReturn(validationResult);
-
-        when(limitValidator.validate(eq(userDTO), eq("quick-remit"), eq(limitUsageAmount)))
-                .thenReturn(LimitValidatorResultsDto.builder().limitVersionUuid(limitVersionUuid).build());
+        LimitValidatorResultsDto limitValidatorResultsDto = new LimitValidatorResultsDto();
+        limitValidatorResultsDto.setLimitVersionUuid(limitVersionUuid);
+        when(limitValidator.validate(eq(userDTO), eq("quick-remit"), eq(limitUsageAmount), eq(metadata)))
+                .thenReturn(limitValidatorResultsDto);
         when(quickRemitPakistanRequestMapper.map(eq(channelTraceId),eq(requestDTO), eq(sourceAccountDetailsDTO),
                 eq(beneficiaryDto), eq(currencyConversionDto.getAccountCurrencyAmount()),
                 eq(currencyConversionDto.getExchangeRate()), eq(validationContext), eq(customerDetails))).thenReturn(quickRemitFundTransferRequest);
@@ -270,18 +290,34 @@ public class QuickRemitPakistanStrategyTest {
         requestDTO.setServiceType(ServiceType.QUICK_REMIT.getName());
         requestDTO.setBeneficiaryId(beneId);
         requestDTO.setProductCode(productCode);
-
-        CustomerDetailsDto customerDetails = CustomerDetailsDto.builder().phones(Arrays.asList(CustomerPhones.builder().phoneNumberType("P").mobNumber("1234567890")
-                .build(),CustomerPhones.builder().phoneNumberType("R").mobNumber("12345678")
-                .build())).nationality("UK").cifBranch("078").build();
+        
+        List<CustomerPhones> customerPhonesList = new ArrayList<>();
+        CustomerPhones customerPhones = new CustomerPhones();
+        customerPhones.setMobNumber("1234567899");
+        customerPhones.setPhoneNumberType("P");
+        CustomerPhones customerPhones1 = new CustomerPhones();
+        customerPhones1.setMobNumber("1234567898");
+        customerPhones1.setPhoneNumberType("O");
+        customerPhonesList.add(customerPhones1);
+        customerPhonesList.add(customerPhones);
+       
+        CustomerDetailsDto customerDetailsDto = new CustomerDetailsDto();
+        customerDetailsDto.setCifBranch("078");
+        customerDetailsDto.setNationality("UK");
+        customerDetailsDto.setPhones(customerPhonesList);
+        customerDetailsDto.setUniqueIDName("PASSPORT");
+        customerDetailsDto.setUniqueIDValue("33333333");
 
         RequestMetaData metadata =  RequestMetaData.builder().primaryCif(cif)
                 .channel(channel).channelTraceId(channelTraceId).build();
         UserDTO userDTO = new UserDTO();
         final ValidationResult validationResult = ValidationResult.builder().success(true).build();
 
-        final AccountDetailsDTO sourceAccountDetailsDTO = AccountDetailsDTO.builder()
-                .number(fromAcct).currency(srcCurrency).branchCode(branchCode).customerName("Deepa S").number(fromAcct).build();
+        final AccountDetailsDTO sourceAccountDetailsDTO = new AccountDetailsDTO();
+        sourceAccountDetailsDTO.setNumber(fromAcct);
+        sourceAccountDetailsDTO.setCurrency(srcCurrency);
+        sourceAccountDetailsDTO.setBranchCode(branchCode);
+        sourceAccountDetailsDTO.setCustomerName("Deepa S");
         final List<AccountDetailsDTO> accountsFromCore = Arrays.asList(sourceAccountDetailsDTO);
 
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
@@ -290,26 +326,25 @@ public class QuickRemitPakistanStrategyTest {
         beneficiaryDto.setBankName(bankName);
         beneficiaryDto.setFullName(fullName);
         beneficiaryDto.setFinalName(fullName);
-        final Set<MoneyTransferPurposeDto> popList = new HashSet(Arrays.asList(MoneyTransferPurposeDto.builder().build()));
+        final Set<MoneyTransferPurposeDto> popList = new HashSet(Arrays.asList(MoneyTransferPurposeDto.class));
 
 
-        CoreCurrencyConversionRequestDto currencyRequest = CoreCurrencyConversionRequestDto.builder()
-                .accountNumber(fromAcct)
-                .accountCurrency(srcCurrency)
-                .transactionCurrency(destCurrency)
-                .productCode(productCode)
-                .transactionAmount(txnAmount).build();
+        CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
+        currencyRequest.setAccountNumber(fromAcct);
+        currencyRequest.setAccountCurrency(srcCurrency);
+        currencyRequest.setTransactionCurrency(destCurrency);
+        currencyRequest.setProductCode(productCode);
+        currencyRequest.setTransactionAmount(txnAmount);
 
         CurrencyConversionDto currencyConversionDto = new CurrencyConversionDto();
         currencyConversionDto.setAccountCurrencyAmount(amountInSrcCurrency);
         currencyConversionDto.setExchangeRate(exchangeRate);
 
-        CoreCurrencyConversionRequestDto currencyConversionRequestDtoForLimit = CoreCurrencyConversionRequestDto.builder()
-                .accountNumber(fromAcct)
-                .accountCurrency(srcCurrency)
-                .accountCurrencyAmount(amountInSrcCurrency)
-                .transactionCurrency("AED")
-                .build();
+        CoreCurrencyConversionRequestDto currencyConversionRequestDtoForLimit = new CoreCurrencyConversionRequestDto();
+        currencyConversionRequestDtoForLimit.setAccountNumber(fromAcct);
+        currencyConversionRequestDtoForLimit.setAccountCurrency(srcCurrency);
+        currencyConversionRequestDtoForLimit.setAccountCurrencyAmount(amountInSrcCurrency);
+        currencyConversionRequestDtoForLimit.setTransactionCurrency("AED");
 
         CurrencyConversionDto currencyConversionDtoInAed = new CurrencyConversionDto();
         currencyConversionDtoInAed.setTransactionAmount(limitUsageAmount);
@@ -348,9 +383,9 @@ public class QuickRemitPakistanStrategyTest {
                 .reasonText(purposeDesc)
                 .senderBankAccount(sourceAccountDetailsDTO.getNumber())
                 //todo : change to digital user country
-                .senderCountryISOCode(customerDetails.getNationality())
-                .senderBankBranch(customerDetails.getCifBranch())
-                .senderMobileNo(CustomerDetailsUtils.getMobileNumber(customerDetails))
+                .senderCountryISOCode(customerDetailsDto.getNationality())
+                .senderBankBranch(customerDetailsDto.getCifBranch())
+                .senderMobileNo(CustomerDetailsUtils.getMobileNumber(customerDetailsDto))
                 .senderName(sourceAccountDetailsDTO.getCustomerName())
                 .srcCurrency(srcCurrency)
                 .transactionAmount(txnAmount.toString())
@@ -362,9 +397,12 @@ public class QuickRemitPakistanStrategyTest {
                 .beneficiaryIdType(beneficiaryDto.getDocumentType())
                 .beneficiaryIdNo(beneficiaryDto.getDocumentNumber())
                 .build();
+        
+        CoreFundTransferResponseDto coreFundTransferResponseDto = new CoreFundTransferResponseDto();
+        coreFundTransferResponseDto.setMwResponseStatus(MwResponseStatus.S);
 
         FundTransferResponse response = FundTransferResponse.builder()
-                .responseDto(CoreFundTransferResponseDto.builder().mwResponseStatus(MwResponseStatus.S).build())
+                .responseDto(coreFundTransferResponseDto)
                 .limitUsageAmount(limitUsageAmount)
                 .limitVersionUuid(limitVersionUuid)
                 .build();
@@ -372,7 +410,7 @@ public class QuickRemitPakistanStrategyTest {
         when(finTxnNoValidator.validate(requestDTO, metadata))
                 .thenReturn(validationResult);
         when(mobCommonService.getCustomerDetails(Mockito.eq(metadata.getPrimaryCif())))
-                .thenReturn(customerDetails);
+                .thenReturn(customerDetailsDto);
         when(accountService.getAccountsFromCore(Mockito.eq(metadata.getPrimaryCif())))
                 .thenReturn(accountsFromCore);
         when(accountBelongsToCifValidator.validate(eq(requestDTO), eq(metadata), any()))
@@ -388,12 +426,13 @@ public class QuickRemitPakistanStrategyTest {
 
         when(maintenanceService.convertCurrency(eq(currencyConversionRequestDtoForLimit)))
                 .thenReturn(currencyConversionDtoInAed);
-
-        when(limitValidator.validate(eq(userDTO), eq("quick-remit"), eq(limitUsageAmount)))
-                .thenReturn(LimitValidatorResultsDto.builder().limitVersionUuid(limitVersionUuid).build());
+        LimitValidatorResultsDto limitValidatorResultsDto = new LimitValidatorResultsDto();
+        limitValidatorResultsDto.setLimitVersionUuid(limitVersionUuid);
+        when(limitValidator.validate(eq(userDTO), eq("quick-remit"), eq(limitUsageAmount), eq(metadata)))
+                .thenReturn(limitValidatorResultsDto);
         when(quickRemitPakistanRequestMapper.map(eq(channelTraceId),eq(requestDTO), eq(sourceAccountDetailsDTO),
                 eq(beneficiaryDto), eq(currencyConversionDto.getAccountCurrencyAmount()),
-                eq(currencyConversionDto.getExchangeRate()), eq(validationContext), eq(customerDetails))).thenReturn(quickRemitFundTransferRequest);
+                eq(currencyConversionDto.getExchangeRate()), eq(validationContext), eq(customerDetailsDto))).thenReturn(quickRemitFundTransferRequest);
         when(quickRemitFundTransferMWService.transfer(quickRemitFundTransferRequest,metadata)).thenReturn(response);
 
         FundTransferResponse result = quickRemitPakistanStrategy.execute(requestDTO, metadata, userDTO, validationContext);

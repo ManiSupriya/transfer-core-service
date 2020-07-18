@@ -54,15 +54,15 @@ public class CardService {
     }
 
     private CardDetailsDTO convertCoreCardToCard(CoreCardDetailsDto coreCard) {
-        return CardDetailsDTO.builder()
-                .availableCreditLimit(coreCard.getAvailableCreditLimit())
-                .cardHolderName(coreCard.getCardHolderName())
-                .cardNo(coreCard.getCardNo())
-                .cardType(coreCard.getCardType())
-                .cardStatus(coreCard.getCardStatus())
-                .segment("conventional")
-                .encryptedCardNumber(coreCard.getEncryptedCardNumber())
-                .build();
+    	CardDetailsDTO cardDetailsDTO = new CardDetailsDTO();
+    	cardDetailsDTO.setAvailableCreditLimit(coreCard.getAvailableCreditLimit());
+    	cardDetailsDTO.setCardHolderName(coreCard.getCardHolderName());
+    	cardDetailsDTO.setCardNo(coreCard.getCardNo());
+    	cardDetailsDTO.setCardType(coreCard.getCardType());
+    	cardDetailsDTO.setCardStatus(coreCard.getCardStatus());
+    	cardDetailsDTO.setSegment("conventional");
+    	cardDetailsDTO.setEncryptedCardNumber(coreCard.getEncryptedCardNumber());
+        return cardDetailsDTO;
     }
 
     private CardType getCardType(final CardType cardType) {

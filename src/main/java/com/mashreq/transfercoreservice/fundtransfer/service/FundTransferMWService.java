@@ -87,14 +87,14 @@ public class FundTransferMWService {
     }
 
     private CoreFundTransferResponseDto constructFTResponseDTO(FundTransferResType.Transfer transfer, ErrorType exceptionDetails, MwResponseStatus s) {
-        return CoreFundTransferResponseDto.builder()
-                .transactionRefNo(transfer.getTransactionRefNo())
-                .externalErrorMessage(exceptionDetails.getData())
-                .mwReferenceNo(transfer.getTransactionRefNo())
-                .mwResponseDescription(exceptionDetails.getErrorDescription())
-                .mwResponseStatus(s)
-                .mwResponseCode(exceptionDetails.getErrorCode())
-                .build();
+        CoreFundTransferResponseDto coreFundTransferResponseDto = new CoreFundTransferResponseDto();
+        coreFundTransferResponseDto.setTransactionRefNo(transfer.getTransactionRefNo());
+        coreFundTransferResponseDto.setExternalErrorMessage(exceptionDetails.getData());
+        coreFundTransferResponseDto.setMwReferenceNo(transfer.getTransactionRefNo());
+        coreFundTransferResponseDto.setMwResponseDescription(exceptionDetails.getErrorDescription());
+        coreFundTransferResponseDto.setMwResponseStatus(s);
+        coreFundTransferResponseDto.setMwResponseCode(exceptionDetails.getErrorCode());
+                return coreFundTransferResponseDto;
     }
 
     private boolean isSuccessfull(EAIServices response) {

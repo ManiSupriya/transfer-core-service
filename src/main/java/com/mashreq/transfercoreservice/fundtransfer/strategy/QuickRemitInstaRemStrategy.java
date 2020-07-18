@@ -90,7 +90,8 @@ public class QuickRemitInstaRemStrategy implements QuickRemitFundTransfer {
                         .transactionCurrency(beneficiary.getBeneficiaryCurrency())
                         .transactionAmount(request.getAmount())
                         .beneficiaryId(beneficiary.getId())
-                        .build()
+                        .build(),
+                metadata
         );
 
         validationContext.add("transfer-amount-in-source-currency", flexRuleEngineResponse.getAccountCurrencyAmount());
@@ -100,7 +101,7 @@ public class QuickRemitInstaRemStrategy implements QuickRemitFundTransfer {
         final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), sourceAccountDetails,
                 flexRuleEngineResponse.getAccountCurrencyAmount());
 
-        final LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount);
+        final LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount, metadata);
 
         final FundTransferContext fundTransferContext = new FundTransferContext();
         fundTransferContext.add(Constants.BENEFICIARY_FUND_CONTEXT_KEY, beneficiary);
@@ -130,13 +131,12 @@ public class QuickRemitInstaRemStrategy implements QuickRemitFundTransfer {
 
     private BigDecimal convertAmountInLocalCurrency(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO,
                                                     final BigDecimal transferAmountInSrcCurrency) {
-        CoreCurrencyConversionRequestDto currencyConversionRequestDto = CoreCurrencyConversionRequestDto.builder()
-                .accountNumber(sourceAccountDetailsDTO.getNumber())
-                .accountCurrency(sourceAccountDetailsDTO.getCurrency())
-                .accountCurrencyAmount(transferAmountInSrcCurrency)
-                .dealNumber(dealNumber)
-                .transactionCurrency("AED")
-                .build();
+        CoreCurrencyConversionRequestDto currencyConversionRequestDto = new CoreCurrencyConversionRequestDto();
+        currencyConversionRequestDto.setAccountNumber(sourceAccountDetailsDTO.getNumber());
+        currencyConversionRequestDto.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
+        currencyConversionRequestDto.setAccountCurrencyAmount(transferAmountInSrcCurrency);
+        currencyConversionRequestDto.setDealNumber(dealNumber);
+        currencyConversionRequestDto.setTransactionCurrency("AED");
 
         CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(currencyConversionRequestDto);
         return currencyConversionDto.getTransactionAmount();
