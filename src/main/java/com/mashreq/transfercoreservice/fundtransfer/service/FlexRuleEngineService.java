@@ -24,6 +24,7 @@ import static java.time.LocalDateTime.now;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 /**
  * @author shahbazkh
@@ -85,10 +86,10 @@ public class FlexRuleEngineService {
 
     private ChargeResponseDTO getCharge(FlexRuleEngineRequestDTO request, FlexRuleEngineMWResponse response) {
         final BigDecimal chargeAmount = new BigDecimal(response.getChargeAmount());
-        log.info("Charge in Debit Currency = {} {} ", request.getAccountCurrency(), chargeAmount);
+        log.info("Charge in Debit Currency = {} {} ", htmlEscape(request.getAccountCurrency()), htmlEscape(chargeAmount.toString()));
 
         final BigDecimal totalDebitAmount = request.getAccountCurrencyAmount().add(chargeAmount);
-        log.info("Total Debit Amount = {} {} ", request.getAccountCurrency(), totalDebitAmount);
+        log.info("Total Debit Amount = {} {} ", htmlEscape(request.getAccountCurrency()), htmlEscape(totalDebitAmount.toString()));
 
         return ChargeResponseDTO.builder()
                 .flexChargeAmount(chargeAmount)
@@ -101,9 +102,9 @@ public class FlexRuleEngineService {
 
     private ChargeResponseDTO getChargeWithConvertedCurrency(FlexRuleEngineRequestDTO request, FlexRuleEngineMWResponse response) {
         CurrencyConversionDto convertedCurrency = getConvertedChargeAmount(request, response);
-        log.info("Charge in Debit Currency = {} {} ", request.getAccountCurrency(), convertedCurrency.getAccountCurrencyAmount());
+        log.info("Charge in Debit Currency = {} {} ", htmlEscape(request.getAccountCurrency()), htmlEscape(convertedCurrency.getAccountCurrencyAmount().toString()));
         final BigDecimal totalDebitAmount = request.getAccountCurrencyAmount().add(convertedCurrency.getAccountCurrencyAmount());
-        log.info("Total Debit Amount = {} {} ", request.getAccountCurrency(), totalDebitAmount);
+        log.info("Total Debit Amount = {} {} ", htmlEscape(request.getAccountCurrency()), htmlEscape(totalDebitAmount.toString()));
 
         return ChargeResponseDTO.builder()
                 .flexChargeCurrency(response.getChargeCurrency())
@@ -117,7 +118,7 @@ public class FlexRuleEngineService {
 
     private CurrencyConversionDto getConvertedChargeAmount(FlexRuleEngineRequestDTO request, FlexRuleEngineMWResponse response) {
         log.info("Debit Account Currency = {} and Charge Currency = {} calling currency conversion with Product code = {} ",
-                request.getAccountCurrency(), response.getChargeCurrency(), response.getProductCode());
+                htmlEscape(request.getAccountCurrency()), htmlEscape(response.getChargeCurrency()), htmlEscape(response.getProductCode()));
         CoreCurrencyConversionRequestDto coreCurrencyConversionRequestDto = new CoreCurrencyConversionRequestDto();
         coreCurrencyConversionRequestDto.setAccountNumber(request.getCustomerAccountNo());
         coreCurrencyConversionRequestDto.setAccountCurrency(request.getAccountCurrency());
