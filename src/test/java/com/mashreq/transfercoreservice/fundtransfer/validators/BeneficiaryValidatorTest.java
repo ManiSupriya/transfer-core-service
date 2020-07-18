@@ -11,7 +11,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.web.util.HtmlUtils;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -20,6 +22,9 @@ public class BeneficiaryValidatorTest {
 
     @Mock
     private AsyncUserEventPublisher auditEventPublisher;
+    
+    @Mock
+    HtmlUtils htmlutils;
 
     @InjectMocks
     private BeneficiaryValidator beneficiaryValidator;
@@ -31,6 +36,7 @@ public class BeneficiaryValidatorTest {
         beneficiaryDto.setAccountNumber("019010073766");
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setToAccount("019010073765");
+        requestDTO.setServiceType("test");
         ValidationContext mockValidationContext = new ValidationContext();
         mockValidationContext.add("beneficiary-dto", beneficiaryDto);
 
@@ -49,7 +55,7 @@ public class BeneficiaryValidatorTest {
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         ValidationContext mockValidationContext = new ValidationContext();
         mockValidationContext.add("beneficiary-dto", null);
-
+        requestDTO.setServiceType("test");
         //when
         final ValidationResult result = beneficiaryValidator.validate(requestDTO, null, mockValidationContext);
 
@@ -66,6 +72,7 @@ public class BeneficiaryValidatorTest {
         beneficiaryDto.setStatus(BeneficiaryStatus.DRAFT.getValue());
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setToAccount("019010073766");
+        requestDTO.setServiceType("test");
         ValidationContext mockValidationContext = new ValidationContext();
         mockValidationContext.add("beneficiary-dto", beneficiaryDto);
 
@@ -85,6 +92,7 @@ public class BeneficiaryValidatorTest {
         beneficiaryDto.setStatus(BeneficiaryStatus.ACTIVE.name());
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setToAccount("019010073766");
+        requestDTO.setServiceType("test");
         ValidationContext mockValidationContext = new ValidationContext();
         mockValidationContext.add("beneficiary-dto", beneficiaryDto);
 
@@ -103,6 +111,7 @@ public class BeneficiaryValidatorTest {
         beneficiaryDto.setStatus(BeneficiaryStatus.DRAFT.name());
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setToAccount("019010073766");
+        requestDTO.setServiceType("test");
         ValidationContext mockValidationContext = new ValidationContext();
         mockValidationContext.add("beneficiary-dto", beneficiaryDto);
 
