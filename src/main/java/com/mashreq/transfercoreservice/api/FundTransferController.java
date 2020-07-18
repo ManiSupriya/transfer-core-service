@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
+
 @Slf4j
 @RestController
 @RequestMapping("/v1/transfer")
@@ -43,8 +45,8 @@ public class FundTransferController {
                                   @RequestHeader(HeaderNames.X_USSM_USER_NAME) final String userId,
                                   @Valid @RequestBody FundTransferRequestDTO request) {
 
-        log.info("{} Fund transfer for request received ", request.getServiceType());
-        log.info("Fund transfer meta data created {} ", metaData);
+        log.info("{} Fund transfer for request received ", htmlEscape(request.getServiceType()));
+        log.info("Fund transfer meta data created {} ", htmlEscape(metaData.toString()));
         if(request.getAmount() == null && request.getSrcAmount() ==null){
             GenericExceptionHandler.handleError(TransferErrorCode.INVALID_REQUEST, "Bad Request", "Both debitAmount and credit amount are missing");
         }

@@ -29,7 +29,7 @@ public class AccountBelongsToCifValidator implements Validator {
     @Override
     public ValidationResult validate(FundTransferRequestDTO request, RequestMetaData metadata, ValidationContext context) {
 
-        log.info("Validating Account for service type [ {} ] ", request.getServiceType());
+        log.info("Validating Account for service type [ {} ] ", htmlEscape(request.getServiceType()));
 
         final List<AccountDetailsDTO> accounts = context.get("account-details", List.class);
         final Boolean validateToAccount = context.get("validate-to-account", Boolean.class);
