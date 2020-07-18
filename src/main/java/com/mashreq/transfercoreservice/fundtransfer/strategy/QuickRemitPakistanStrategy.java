@@ -81,7 +81,7 @@ public class QuickRemitPakistanStrategy implements QuickRemitFundTransfer {
         //Limit Validation
         final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), sourceAccountDetailsDTO,
                 currencyConversionDto.getAccountCurrencyAmount());
-        final LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount);
+        final LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount, metadata);
 
 
         final QuickRemitFundTransferRequest fundTransferRequest = quickRemitPakistanRequestMapper.map(metadata.getChannelTraceId(),

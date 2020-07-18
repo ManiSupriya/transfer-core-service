@@ -152,7 +152,7 @@ public class LocalFundTransferStrategyTest {
         when(balanceValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
         LimitValidatorResultsDto limitValidatorResultsDto = new LimitValidatorResultsDto();
         limitValidatorResultsDto.setLimitVersionUuid(limitVersionUuid);
-        when(limitValidator.validate(eq(userDTO), eq("local"), eq(limitUsageAmount)))
+        when(limitValidator.validate(eq(userDTO), eq("local"), eq(limitUsageAmount), eq(metadata)))
                 .thenReturn(limitValidatorResultsDto);
 
         when(fundTransferMWService.transfer(fundTransferRequest.capture(),eq(metadata)))
@@ -280,7 +280,7 @@ public class LocalFundTransferStrategyTest {
         when(maintenanceService.convertCurrency(eq(currencyConversionRequestDto))).thenReturn(secondConversion);
         LimitValidatorResultsDto limitValidatorResultsDto = new LimitValidatorResultsDto();
         limitValidatorResultsDto.setLimitVersionUuid(limitVersionUuid);
-        when(limitValidator.validate(eq(userDTO), eq("local"), eq(paidAmt)))
+        when(limitValidator.validate(eq(userDTO), eq("local"), eq(paidAmt), eq(metadata)))
                 .thenReturn(limitValidatorResultsDto);
 
         when(fundTransferMWService.transfer(fundTransferRequest.capture(),eq(metadata)))
