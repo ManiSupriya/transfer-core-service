@@ -25,6 +25,7 @@ import static com.mashreq.transfercoreservice.client.ErrorUtils.getErrorDetails;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.EXTERNAL_SERVICE_ERROR;
 import static java.time.Instant.now;
 import static java.util.Objects.isNull;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 @Slf4j
 @Service
@@ -38,7 +39,7 @@ public class MobCommonService {
         Instant startTime = Instant.now();
         log.info("[MobCommonService] Calling MobCommonService for limit validation for cif={} beneficiaryTypeCode = {} " +
                         "and amount ={}",
-                cifId, beneficiaryTypeCode, amount);
+                htmlEscape(cifId), htmlEscape(beneficiaryTypeCode), htmlEscape(amount.toString()));
 
         Response<LimitValidatorResultsDto> response =
                 mobCommonClient.validateAvailableLimit(cifId, beneficiaryTypeCode, amount);

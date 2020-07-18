@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -19,7 +21,7 @@ public class PaymentHistoryServiceDefault implements PaymentHistoryService {
 
     @Override
     public void insert(PaymentHistoryDTO paymentHistoryDTO) {
-        log.info("Store payment history for cif = {} and beneficiary type {} ", paymentHistoryDTO.getCif(), paymentHistoryDTO.getBeneficiaryTypeCode());
+        log.info("Store payment history for cif = {} and beneficiary type {} ", htmlEscape(paymentHistoryDTO.getCif()), htmlEscape(paymentHistoryDTO.getBeneficiaryTypeCode()));
         PaymentHistory paymentHistory = paymentHistoryMapper.paymentHistoryDtoToEntity(paymentHistoryDTO);
         paymentHistoryRepository.save(paymentHistory);
     }

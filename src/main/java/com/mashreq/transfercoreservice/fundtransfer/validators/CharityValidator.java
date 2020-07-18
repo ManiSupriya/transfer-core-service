@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_ACC_NOT_MATCH;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 /**
  * @author shahbazkh
@@ -26,17 +27,17 @@ public class CharityValidator implements Validator {
     @Override
     public ValidationResult validate(FundTransferRequestDTO request, RequestMetaData metadata, ValidationContext context) {
 
-        log.info("Validating charity beneficiary for service type [ {} ] ", request.getServiceType());
+        log.info("Validating charity beneficiary for service type [ {} ] ", htmlEscape(request.getServiceType()));
         final CharityBeneficiaryDto charityBeneficiaryDto = context.get("charity-beneficiary-dto", CharityBeneficiaryDto.class);
 
         if (!request.getToAccount().equals(charityBeneficiaryDto.getAccountNumber())) {
-            log.warn("Charity Beneficiary not found for service type [ {} ] ", request.getServiceType());
+            log.warn("Charity Beneficiary not found for service type [ {} ] ", htmlEscape(request.getServiceType()));
             auditEventPublisher.publishFailureEvent(FundTransferEventType.CHARITY_ACCOUNT_VALIDATION, metadata, null,
                     BENE_ACC_NOT_MATCH.getCustomErrorCode(), BENE_ACC_NOT_MATCH.getErrorMessage(), null);
             return ValidationResult.builder().success(false).transferErrorCode(BENE_ACC_NOT_MATCH).build();
         }
 
-        log.info("Charity Beneficiary Validating successful service type [ {} ] ", request.getServiceType());
+        log.info("Charity Beneficiary Validating successful service type [ {} ] ", htmlEscape(request.getServiceType()));
         auditEventPublisher.publishSuccessEvent(FundTransferEventType.CHARITY_ACCOUNT_VALIDATION, metadata, null);
         return ValidationResult.builder().success(true).build();
     }

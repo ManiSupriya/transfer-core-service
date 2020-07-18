@@ -12,6 +12,7 @@ import java.util.List;
 
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_NOT_BELONG_TO_CIF;
 import static com.mashreq.transfercoreservice.event.FundTransferEventType.ACCOUNT_BELONGS_TO_CIF;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 /**
  * @author shahbazkh
@@ -49,7 +50,7 @@ public class AccountBelongsToCifValidator implements Validator {
         }
 
 
-        log.info("Account validation Successful for service type [ {} ] ", request.getServiceType());
+        log.info("Account validation Successful for service type [ {} ] ", htmlEscape(request.getServiceType()));
         auditEventPublisher.publishSuccessEvent(ACCOUNT_BELONGS_TO_CIF, metadata, null);
         return prepareValidationResult(Boolean.TRUE);
     }

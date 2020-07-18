@@ -24,6 +24,7 @@ import java.util.Optional;
 
 import static java.time.Duration.between;
 import static java.time.Instant.now;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 /**
  * @author shahbazkh
@@ -104,7 +105,7 @@ public class CharityStrategyDefault implements FundTransferStrategy {
         //final FundTransferResponse fundTransferResponse = coreTransferService.transferFundsBetweenAccounts(request);
 
 
-        log.info("Total time taken for {} strategy {} milli seconds ", request.getServiceType(), between(start, now()).toMillis());
+        log.info("Total time taken for {} strategy {} milli seconds ", htmlEscape(request.getServiceType()), htmlEscape(Long.toString(between(start, now()).toMillis())));
 
         return fundTransferResponse.toBuilder()
                 .limitUsageAmount(limitUsageAmount)

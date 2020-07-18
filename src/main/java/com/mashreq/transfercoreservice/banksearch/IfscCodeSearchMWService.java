@@ -15,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
+
 /**
  * @author shahbazkh
  * @date 4/19/20
@@ -35,7 +37,7 @@ public class IfscCodeSearchMWService {
     private static final String SUCCESS_CODE_ENDS_WITH = "-000";
 
     public BankResultsDto getBankDetailByIfscCode(final String channelTraceId, final String ifscCode, RequestMetaData requestMetaData) {
-        log.info("Searching for Bank details with ifsc-cde [ {} ]", ifscCode);
+        log.info("Searching for Bank details with ifsc-cde [ {} ]", htmlEscape(ifscCode));
 
         EAIServices response = (EAIServices) webServiceClient.exchange(generateIfscSearchRequest(channelTraceId, ifscCode));
         validateOMWResponse(response, requestMetaData, channelTraceId, ifscCode);

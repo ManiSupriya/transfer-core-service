@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.IBAN_LENGTH_NOT_VALID;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.SAME_BANK_IBAN;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 @Slf4j
 @Component
@@ -29,7 +30,7 @@ public class IBANValidator implements Validator {
 
     @Override
     public ValidationResult validate(FundTransferRequestDTO request, RequestMetaData metadata, ValidationContext context) {
-        log.info("Validating IBAN for service type [ {} ] ", request.getServiceType());
+        log.info("Validating IBAN for service type [ {} ] ", htmlEscape(request.getServiceType()));
 
         final int ibanLength = context.get("iban-length", Integer.class);
         if (request.getToAccount().length() != ibanLength) {

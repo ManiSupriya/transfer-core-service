@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
+
 /**
  * @author shahbazkh
  * @date 3/23/20
@@ -37,7 +39,7 @@ public class IbanSearchMWService {
 
 
     public List<BankResultsDto> fetchBankDetailsWithIban(String channelTraceId, String ibanValue, RequestMetaData metaData) {
-        log.info("Searching for Bank details with iban [ {} ]", ibanValue);
+        log.info("Searching for Bank details with iban [ {} ]", htmlEscape(ibanValue));
 
         EAIServices response = (EAIServices) webServiceClient.exchange(getIbanEAIRequest(channelTraceId, ibanValue));
         validateOMWResponse(response, metaData, channelTraceId, ibanValue);

@@ -29,6 +29,7 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_C
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.*;
 import static java.time.Duration.between;
 import static java.time.Instant.now;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 @Slf4j
 @TrackExec
@@ -77,8 +78,8 @@ public class FundTransferServiceDefault implements FundTransferService {
 
     private FundTransferResponseDTO getFundTransferResponse(RequestMetaData metadata, FundTransferRequestDTO request) {
         Instant start = now();
-        log.info("Starting fund transfer for {} ", request.getServiceType());
-        log.info("Finding Digital User for CIF-ID {}", metadata.getPrimaryCif());
+        log.info("Starting fund transfer for {} ", htmlEscape(request.getServiceType()));
+        log.info("Finding Digital User for CIF-ID {}", htmlEscape(metadata.getPrimaryCif()));
         DigitalUser digitalUser = getDigitalUser(metadata);
 
         log.info("Creating  User DTO");
@@ -101,7 +102,7 @@ public class FundTransferServiceDefault implements FundTransferService {
         log.info("Inserting into Payments History table {} ", paymentHistoryDTO);
         paymentHistoryService.insert(paymentHistoryDTO);
 
-        log.info("Total time taken for {} Fund Transfer {} milli seconds ", request.getServiceType(), between(start, now()).toMillis());
+        log.info("Total time taken for {} Fund Transfer {} milli seconds ", htmlEscape(request.getServiceType()), htmlEscape(Long.toString(between(start, now()).toMillis())));
 
         if (isFailure(response)) {
             GenericExceptionHandler.handleError(FUND_TRANSFER_FAILED,
