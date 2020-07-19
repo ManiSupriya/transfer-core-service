@@ -26,6 +26,7 @@ import static com.mashreq.transfercoreservice.common.CommonConstants.*;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.PaymentHistoryDTO;
 import com.mashreq.transfercoreservice.fundtransfer.service.PaymentHistoryService;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -87,7 +88,7 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 		log.info("cardLessCash Generation otp request{} ", verifyOTPRequestDTO);
 		try {
 		Response<VerifyOTPResponseDTO> verifyOTP = otpService.verifyOTP(verifyOTPRequestDTO);
-		log.info("cardLessCash Generation otp response{} ", verifyOTP);
+		log.info("cardLessCash Generation otp response{} ", htmlEscape(verifyOTP.getStatus().toString()));
 			if (!verifyOTP.getData().isAuthenticated()) {
 				asyncUserEventPublisher.publishFailedEsbEvent(FundTransferEventType.CARD_LESS_CASH_OTP_DOES_NOT_MATCH,
 						metaData, CARD_LESS_CASH, metaData.getChannelTraceId(),
