@@ -24,6 +24,7 @@ import java.security.SecureRandom;
 import java.util.List;
 
 import static com.mashreq.transfercoreservice.middleware.SoapWebserviceClientFactory.soapClient;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 
 @Slf4j
@@ -42,7 +43,7 @@ public class FundTransferMWService {
 
 
     public FundTransferResponse transfer(FundTransferRequest request, RequestMetaData metaData) {
-        log.info("Fund transfer initiated from account [ {} ]", request.getFromAccount());
+        log.info("Fund transfer initiated from account [ {} ]", htmlEscape(request.getFromAccount()));
 
         SoapClient soapClient = soapClient(soapServiceProperties,
                 new Class[]{
