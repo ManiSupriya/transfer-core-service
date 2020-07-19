@@ -26,6 +26,7 @@ import static com.mashreq.transfercoreservice.common.CommonConstants.*;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.PaymentHistoryDTO;
 import com.mashreq.transfercoreservice.fundtransfer.service.PaymentHistoryService;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -85,15 +86,27 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 		verifyOTPRequestDTO.setLoginId(userId);
 		verifyOTPRequestDTO.setRedisKey(metaData.getUserCacheKey());
 		log.info("cardLessCash Generation otp request{} ", verifyOTPRequestDTO);
+		try {
 		Response<VerifyOTPResponseDTO> verifyOTP = otpService.verifyOTP(verifyOTPRequestDTO);
-		/*log.info("cardLessCash Generation otp response{} ", verifyOTP);
-		if(!verifyOTP.getData().isAuthenticated()) {
+		log.info("cardLessCash Generation otp response{} ", htmlEscape(verifyOTP.getStatus().toString()));
+			if (!verifyOTP.getData().isAuthenticated()) {
+				asyncUserEventPublisher.publishFailedEsbEvent(FundTransferEventType.CARD_LESS_CASH_OTP_DOES_NOT_MATCH,
+						metaData, CARD_LESS_CASH, metaData.getChannelTraceId(),
+						TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.toString(),
+						TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.getErrorMessage(),
+						TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.getErrorMessage());
+				GenericExceptionHandler.handleError(TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR,
+						verifyOTP.getErrorDetails(), verifyOTP.getErrorDetails());
+			}
+		} catch (GenericException ge) {
 			asyncUserEventPublisher.publishFailedEsbEvent(FundTransferEventType.CARD_LESS_CASH_OTP_DOES_NOT_MATCH,
 					metaData, CARD_LESS_CASH, metaData.getChannelTraceId(),
 					TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.toString(),
-					TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.getErrorMessage(), TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.getErrorMessage());
-			GenericExceptionHandler.handleError(TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR, verifyOTP.getErrorDetails(), verifyOTP.getErrorDetails());
-		}*/
+					TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.getErrorMessage(),
+					TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.getErrorMessage());
+			GenericExceptionHandler.handleError(TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR,
+					ge.getErrorDetails(), ge.getErrorDetails());
+		}
 		try {
 			cardLessCashGenerationResponse = accountService
 					.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest, userMobileNumber);
