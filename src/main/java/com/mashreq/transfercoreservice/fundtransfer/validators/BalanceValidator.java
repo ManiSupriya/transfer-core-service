@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BALANCE_NOT_SUFFICIENT;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 /**
  * @author shahbazkh
@@ -28,12 +29,12 @@ public class BalanceValidator implements Validator {
     @Override
     public ValidationResult validate(FundTransferRequestDTO request, RequestMetaData metadata, ValidationContext context) {
 
-        log.info("Validating Balance for service type [ {} ] ", request.getServiceType());
+        log.info("Validating Balance for service type [ {} ] ", htmlEscape(request.getServiceType()));
         AccountDetailsDTO fromAccount = context.get("from-account", AccountDetailsDTO.class);
-        log.info("Balance in account [ {} {} ] ", fromAccount.getAvailableBalance(), fromAccount.getCurrency());
+        log.info("Balance in account [ {} {} ] ", htmlEscape(fromAccount.getAvailableBalance().toString()), htmlEscape(fromAccount.getCurrency()));
 
         BigDecimal transferAmountInSrcCurrency = context.get("transfer-amount-in-source-currency", BigDecimal.class);
-        log.info("Amount to be credited is [ {} {} ] ", transferAmountInSrcCurrency, fromAccount.getCurrency());
+        log.info("Amount to be credited is [ {} {} ] ", htmlEscape(transferAmountInSrcCurrency.toString()), htmlEscape(fromAccount.getCurrency()));
 
         if (!isBalanceAvailable(fromAccount.getAvailableBalance(), transferAmountInSrcCurrency)) {
             auditEventPublisher.publishFailureEvent(FundTransferEventType.BALANCE_VALIDATION, metadata, null,

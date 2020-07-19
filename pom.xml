@@ -43,7 +43,7 @@
         <com.mashreq.logcore>1.0.4</com.mashreq.logcore>
         <com.mashreq.encryption>1.0.0</com.mashreq.encryption>
         <com.mashreq.encryption>1.0.0</com.mashreq.encryption>
-        <com.mashreq.ms.ms-commons>0.0.16</com.mashreq.ms.ms-commons>
+        <com.mashreq.ms.ms-commons>0.0.18</com.mashreq.ms.ms-commons>
         <com.mashreq.mob-commons>0.0.33</com.mashreq.mob-commons>
         <!-- additional deps and plugins versions -->
         <apache.commons.lang.version>3.9</apache.commons.lang.version>

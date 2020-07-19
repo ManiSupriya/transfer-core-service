@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.DAY_AMOUNT_LIMIT_REACHED;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.MONTH_AMOUNT_LIMIT_REACHED;
 import static com.mashreq.transfercoreservice.event.FundTransferEventType.LIMIT_VALIDATION;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 @Slf4j
 @Service
@@ -32,7 +33,7 @@ public class LimitValidator {
      */
     public LimitValidatorResultsDto validate(final UserDTO userDTO, final String beneficiaryType, final BigDecimal paidAmount, final RequestMetaData metaData) {
         log.info("[LimitValidator] limit validator called cif ={} and beneficiaryType={} and paidAmount={}",
-                userDTO.getCifId(), beneficiaryType, paidAmount);
+                htmlEscape(userDTO.getCifId()), htmlEscape(beneficiaryType), htmlEscape(paidAmount.toString()));
         LimitValidatorResultsDto limitValidatorResultsDto =
                 mobCommonService.validateAvailableLimit(userDTO.getCifId(), beneficiaryType, paidAmount);
 

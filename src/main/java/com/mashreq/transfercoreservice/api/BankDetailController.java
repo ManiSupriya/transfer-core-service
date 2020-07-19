@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
+
 /**
  * @author shahbazkh
  * @date 3/23/20
@@ -28,7 +30,7 @@ public class BankDetailController {
     @PostMapping
     public Response getBankDetails(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData metaData,
                                    @Valid @RequestBody BankDetailRequestDto bankDetailRequest) {
-        log.info("Received request to search {} with value {} ", bankDetailRequest.getType(), bankDetailRequest.getValue());
+        log.info("Received request to search {} with value {} ", htmlEscape(bankDetailRequest.getType()), htmlEscape(bankDetailRequest.getValue()));
         return Response.builder()
                 .status(ResponseStatus.SUCCESS)
                 .data(bankDetailService.getBankDetails(metaData.getChannelTraceId(), bankDetailRequest, metaData)).build();
@@ -37,7 +39,7 @@ public class BankDetailController {
     @GetMapping("/ifsc/{code}")
     public Response getIfscCodeDetails(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData metaData,
                                        @PathVariable final String code) {
-        log.info("Received request to search ifsc-code with value {} ", code);
+        log.info("Received request to search ifsc-code with value {} ", htmlEscape(code));
         return Response.builder()
                 .status(ResponseStatus.SUCCESS)
                 .data(bankDetailService.getBankDeatilsByIfsc(metaData.getChannelTraceId(), code, metaData)).build();

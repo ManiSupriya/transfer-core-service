@@ -32,6 +32,8 @@ import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 
 import static com.mashreq.transfercoreservice.common.CommonConstants.*;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
+
 import com.mashreq.webcore.dto.response.Response;
 
 import io.swagger.annotations.Api;
@@ -64,11 +66,11 @@ public class CardLessCashController {
     })
     @PostMapping(CardLessCashConstants.URL.CLC_BLOCK_URL)
     public Response<CardLessCashBlockResponse> blockCardLessCashRequest(@RequestAttribute(X_REQUEST_METADATA) RequestMetaData metaData, @Valid @RequestBody CardLessCashBlockRequest blockRequest) {
-    	log.info("cardLessCash  blockRequest {} ", blockRequest);
+    	log.info("cardLessCash  blockRequest {} ", htmlEscape(blockRequest.toString()));
     	asyncUserEventPublisher.publishStartedEvent(FundTransferEventType.CARD_LESS_CASH_BLOCK_REQUEST, metaData, CARD_LESS_CASH);
     	assertAccountBelongsToUser(blockRequest.getAccountNumber(), metaData);
     	Response<CardLessCashBlockResponse> cardLessCashBlockResponse = cardLessCashService.blockCardLessCashRequest(blockRequest, metaData);
-    	log.info("cardLessCash  blockResponse {} ", cardLessCashBlockResponse);
+    	log.info("cardLessCash  blockResponse {} ", htmlEscape(cardLessCashBlockResponse.toString()));
     	asyncUserEventPublisher.publishSuccessEvent(FundTransferEventType.CARD_LESS_CASH_BLOCK_REQUEST, metaData, CARD_LESS_CASH);
     	return cardLessCashBlockResponse;
     }
@@ -90,14 +92,14 @@ public class CardLessCashController {
 			@RequestHeader(X_USSM_USER_MOBILE_NUMBER) final String userMobileNumber,
 			@RequestAttribute(X_REQUEST_METADATA) RequestMetaData metaData,
 			@Valid @RequestBody CardLessCashGenerationRequest cardLessCashGenerationRequest) {
-		log.info("cardLessCash GenerationRequest {} ", cardLessCashGenerationRequest);
+		log.info("cardLessCash GenerationRequest {} ", htmlEscape(cardLessCashGenerationRequest.toString()));
 		asyncUserEventPublisher.publishStartedEvent(FundTransferEventType.CARD_LESS_CASH_GENERATION_REQUEST, metaData,
 				CARD_LESS_CASH);
 		assertMobileNo(userMobileNumber, metaData);
 		assertAccountBelongsToUser(cardLessCashGenerationRequest.getAccountNo(), metaData);
 		Response<CardLessCashGenerationResponse> cardLessCashGenerationResponse = cardLessCashService
 				.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest, userMobileNumber, userId, metaData);
-		log.info("cardLessCash generate Response {} ", cardLessCashGenerationResponse);
+		log.info("cardLessCash generate Response {} ", htmlEscape(cardLessCashGenerationResponse.toString()));
 		asyncUserEventPublisher.publishSuccessEvent(FundTransferEventType.CARD_LESS_CASH_GENERATION_REQUEST, metaData,
 				CARD_LESS_CASH);
 		return cardLessCashGenerationResponse;
@@ -121,20 +123,20 @@ public class CardLessCashController {
 		CardLessCashQueryRequest cardLessCashQueryRequest = new CardLessCashQueryRequest();
 		cardLessCashQueryRequest.setAccountNumber(accountNumber);
 		cardLessCashQueryRequest.setRemitNumDays(remitNumDays);
-		log.info("cardLessCash  Query Details {} ", cardLessCashQueryRequest);
+		log.info("cardLessCash  Query Details {} ", htmlEscape(cardLessCashQueryRequest.toString()));
 		asyncUserEventPublisher.publishStartedEvent(FundTransferEventType.CARD_LESS_CASH_QUERY_DETAILS, metaData,
 				CARD_LESS_CASH);
 		assertAccountBelongsToUser(accountNumber, metaData);
 		Response<List<CardLessCashQueryResponse>> cardLessCashQueryResponse = cardLessCashService
 				.cardLessCashRemitQuery(cardLessCashQueryRequest, metaData);
-		log.info("cardLessCash  Query Result {} ", cardLessCashQueryResponse);
+		log.info("cardLessCash  Query Result {} ", htmlEscape(cardLessCashQueryResponse.toString()));
 		asyncUserEventPublisher.publishSuccessEvent(FundTransferEventType.CARD_LESS_CASH_QUERY_DETAILS, metaData,
 				CARD_LESS_CASH);
 		return cardLessCashQueryResponse;
 	}
     
     private void assertAccountBelongsToUser(final String accountNumber, RequestMetaData metaData) {
- 	   log.info("cardLessCash  Account Details {} Validation with User", accountNumber);
+ 	   log.info("cardLessCash  Account Details {} Validation with User", htmlEscape(accountNumber));
          if (!userSessionCacheService.isAccountNumberBelongsToCif(accountNumber, metaData.getUserCacheKey())) {
          	asyncUserEventPublisher.publishFailedEsbEvent(FundTransferEventType.CARD_LESS_CASH_ACCOUNT_NUMBER_DOES_NOT_MATCH, metaData, CARD_LESS_CASH, metaData.getChannelTraceId(),
          			TransferErrorCode.ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF.toString(), TransferErrorCode.ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF.getErrorMessage(),
@@ -144,7 +146,7 @@ public class CardLessCashController {
      }
      
      private void assertMobileNo(final String mobileNumber, RequestMetaData metaData) {
-     	log.info("cardLessCash  mobileNumber {} Validation", mobileNumber);
+     	log.info("cardLessCash  mobileNumber {} Validation", htmlEscape(mobileNumber));
          if (mobileNumber.isEmpty() || !mobileNumber.matches("^[0-9]{10}$")) {
          	asyncUserEventPublisher.publishFailedEsbEvent(FundTransferEventType.CARD_LESS_CASH_MOBILE_NUMBER_DOES_NOT_MATCH, metaData, CARD_LESS_CASH, metaData.getChannelTraceId(),
          			TransferErrorCode.MOBILE_NUMBER_DOES_NOT_MATCH.toString(), TransferErrorCode.MOBILE_NUMBER_DOES_NOT_MATCH.getErrorMessage(),
