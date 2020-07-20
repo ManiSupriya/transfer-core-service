@@ -27,7 +27,7 @@ public class HeaderFactory {
         header.setSrcAppId(soapServiceProperties.getAppId());
         header.setOrgId(soapServiceProperties.getOriginId());
         header.setUserId("MOBANKUSER");
-        header.setSrcMsgId(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS").format(LocalDateTime.now()));
+        header.setSrcMsgId(DateTimeFormatter.ofPattern("yyMMddHHmmssSSS").format(LocalDateTime.now()));
         header.setSrcAppTimestamp(getCurrentTimeStamp());
         header.setSrvCode(service);
         return header;
