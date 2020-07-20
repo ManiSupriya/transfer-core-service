@@ -118,7 +118,7 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 			/**
 			 * Insert payment history irrespective of payment fails or success
 			 */
-			generatePaymentHistory(cardLessCashGenerationRequest, cardLessCashGenerationResponse, metaData, userId);
+			generatePaymentHistory(cardLessCashGenerationRequest, cardLessCashGenerationResponse, metaData, metaData.getUserCacheKey());
 			throw exception;
 
 		} catch (Exception exception) {
@@ -126,7 +126,7 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 					metaData, CARD_LESS_CASH, metaData.getChannelTraceId(),
 					TransferErrorCode.ACC_EXTERNAL_SERVICE_ERROR.toString(),
 					TransferErrorCode.ACC_EXTERNAL_SERVICE_ERROR.getErrorMessage(), exception.getMessage());
-			generatePaymentHistory(cardLessCashGenerationRequest, cardLessCashGenerationResponse, metaData, userId);
+			generatePaymentHistory(cardLessCashGenerationRequest, cardLessCashGenerationResponse, metaData, metaData.getUserCacheKey());
 			GenericExceptionHandler.handleError(TransferErrorCode.ACC_EXTERNAL_SERVICE_ERROR,
 					TransferErrorCode.ACC_EXTERNAL_SERVICE_ERROR.getErrorMessage());
 
@@ -135,7 +135,7 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 		/**
 		 * Insert payment history irrespective of payment fails or success
 		 */
-		generatePaymentHistory(cardLessCashGenerationRequest, cardLessCashGenerationResponse, metaData, userId);
+		generatePaymentHistory(cardLessCashGenerationRequest, cardLessCashGenerationResponse, metaData, metaData.getUserCacheKey());
 
 		return cardLessCashGenerationResponse;
 	}
