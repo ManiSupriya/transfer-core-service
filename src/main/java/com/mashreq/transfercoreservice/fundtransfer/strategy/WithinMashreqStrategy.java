@@ -1,6 +1,6 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
-import com.mashreq.mobcommons.config.http.RequestMetaData;
+import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
@@ -9,7 +9,10 @@ import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResult
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
-import com.mashreq.transfercoreservice.fundtransfer.dto.*;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
+import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
@@ -26,6 +29,7 @@ import java.util.Optional;
 import static java.lang.Long.valueOf;
 import static java.time.Duration.between;
 import static java.time.Instant.now;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 /**
  * @author shahbazkh
@@ -93,7 +97,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
 
         //Limit Validation
         final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), fromAccountOpt.get(),transferAmountInSrcCurrency);
-        final LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount);
+        final LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount, metadata);
 
 
 
@@ -120,7 +124,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
 
 
 
-        log.info("Total time taken for {} strategy {} milli seconds ", request.getServiceType(), between(start, now()).toMillis());
+        log.info("Total time taken for {} strategy {} milli seconds ", htmlEscape(request.getServiceType()), htmlEscape(Long.toString(between(start, now()).toMillis())));
 
 
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountOpt.get(), beneficiaryDto);
@@ -142,11 +146,11 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     private BigDecimal getAmountInSrcCurrency(FundTransferRequestDTO request, BeneficiaryDto beneficiaryDto,
                                               AccountDetailsDTO sourceAccountDetailsDTO) {
         BigDecimal amtToBePaidInSrcCurrency;
-        final CoreCurrencyConversionRequestDto currencyRequest = CoreCurrencyConversionRequestDto.builder()
-                .accountNumber(sourceAccountDetailsDTO.getNumber())
-                .accountCurrency(sourceAccountDetailsDTO.getCurrency())
-                .transactionCurrency(beneficiaryDto.getBeneficiaryCurrency())
-                .transactionAmount(request.getAmount()).build();
+        final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
+        		currencyRequest.setAccountNumber(sourceAccountDetailsDTO.getNumber());
+        		currencyRequest.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
+        		currencyRequest.setTransactionCurrency(beneficiaryDto.getBeneficiaryCurrency());
+        		currencyRequest.setTransactionAmount(request.getAmount());
         CurrencyConversionDto conversionResultInSourceAcctCurrency = maintenanceService.convertBetweenCurrencies(currencyRequest);
         amtToBePaidInSrcCurrency = conversionResultInSourceAcctCurrency.getAccountCurrencyAmount();
         return amtToBePaidInSrcCurrency;
@@ -162,13 +166,12 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
 
     private BigDecimal convertAmountInLocalCurrency(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO,
                                                     final BigDecimal transferAmountInSrcCurrency) {
-        CoreCurrencyConversionRequestDto currencyConversionRequestDto = CoreCurrencyConversionRequestDto.builder()
-                .accountNumber(sourceAccountDetailsDTO.getNumber())
-                .accountCurrency(sourceAccountDetailsDTO.getCurrency())
-                .accountCurrencyAmount(transferAmountInSrcCurrency)
-                .dealNumber(dealNumber)
-                .transactionCurrency(LOCAL_CURRENCY)
-                .build();
+        CoreCurrencyConversionRequestDto currencyConversionRequestDto = new CoreCurrencyConversionRequestDto();
+        currencyConversionRequestDto.setAccountNumber(sourceAccountDetailsDTO.getNumber());
+        currencyConversionRequestDto.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
+        currencyConversionRequestDto.setAccountCurrencyAmount(transferAmountInSrcCurrency);
+        currencyConversionRequestDto.setDealNumber(dealNumber);
+        currencyConversionRequestDto.setTransactionCurrency(LOCAL_CURRENCY);
 
         CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(currencyConversionRequestDto);
         return currencyConversionDto.getTransactionAmount();

@@ -6,7 +6,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import lombok.Data;
-
+/**
+ * 
+ * @author SURESH
+ *
+ */
 @Data
 @Component
 @ConfigurationProperties(prefix = "external.fees-code.mapper")

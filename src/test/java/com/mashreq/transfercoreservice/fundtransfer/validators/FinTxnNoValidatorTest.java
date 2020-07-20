@@ -1,7 +1,7 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
+import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
-import com.mashreq.transfercoreservice.event.publisher.AsyncUserEventPublisher;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.service.PaymentHistoryService;
 import org.junit.Assert;
@@ -29,6 +29,7 @@ public class FinTxnNoValidatorTest {
         //given
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setFinTxnNo("1234");
+        requestDTO.setServiceType("test");
 
         //when
         Mockito.when(paymentHistoryService.isFinancialTransactionPresent(Mockito.eq("1234"))).thenReturn(Boolean.TRUE);
@@ -44,6 +45,7 @@ public class FinTxnNoValidatorTest {
         //given
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setFinTxnNo("1234");
+        requestDTO.setServiceType("test");
 
         //when
         Mockito.when(paymentHistoryService.isFinancialTransactionPresent(Mockito.eq("1234"))).thenReturn(Boolean.FALSE);
@@ -57,6 +59,7 @@ public class FinTxnNoValidatorTest {
         //given
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setFinTxnNo("1234");
+        requestDTO.setServiceType("test");
 
         //when
         Mockito.when(paymentHistoryService.isFinancialTransactionPresent(Mockito.eq("1234"))).thenThrow(new RuntimeException());

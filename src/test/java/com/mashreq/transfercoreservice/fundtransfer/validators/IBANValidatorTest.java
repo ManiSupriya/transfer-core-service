@@ -1,7 +1,7 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
+import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
-import com.mashreq.transfercoreservice.event.publisher.AsyncUserEventPublisher;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import org.junit.Assert;
 import org.junit.Test;
@@ -28,6 +28,7 @@ public class IBANValidatorTest {
         requestDTO.setToAccount("AE120330001015673975601");
         ValidationContext mockValidationContext = new ValidationContext();
         mockValidationContext.add("iban-length", 23);
+        requestDTO.setServiceType("test");
 
         //when
         ReflectionTestUtils.setField(ibanValidator,"bankCode", "033");
@@ -46,6 +47,7 @@ public class IBANValidatorTest {
         requestDTO.setToAccount("AE1203300010156739756");
         ValidationContext mockValidationContext = new ValidationContext();
         mockValidationContext.add("iban-length", 23);
+        requestDTO.setServiceType("test");
 
         //when
 
@@ -67,6 +69,7 @@ public class IBANValidatorTest {
         requestDTO.setToAccount("AE120260001015673975601");
         ValidationContext mockValidationContext = new ValidationContext();
         mockValidationContext.add("iban-length", 23);
+        requestDTO.setServiceType("test");
 
         //when
 
@@ -86,6 +89,7 @@ public class IBANValidatorTest {
         requestDTO.setToAccount("AE120260001015673975601");
         ValidationContext mockValidationContext = new ValidationContext();
         mockValidationContext.add("iban-length", null);
+        requestDTO.setServiceType("test");
 
 
         //when

@@ -1,12 +1,12 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
 import com.mashreq.logcore.annotations.TrackExec;
-import com.mashreq.mobcommons.config.http.RequestMetaData;
+import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
+import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
-import com.mashreq.transfercoreservice.event.model.EventType;
-import com.mashreq.transfercoreservice.event.publisher.AsyncUserEventPublisher;
+import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageService;
@@ -26,10 +26,10 @@ import java.util.Optional;
 
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.FUND_TRANSFER_FAILED;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
-import static com.mashreq.transfercoreservice.event.model.EventType.getEventTypeByCode;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.*;
 import static java.time.Duration.between;
 import static java.time.Instant.now;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 @Slf4j
 @TrackExec
@@ -67,7 +67,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     @Override
     public FundTransferResponseDTO transferFund(RequestMetaData metadata, FundTransferRequestDTO request) {
         final ServiceType serviceType = getServiceByType(request.getServiceType());
-        final EventType initiatedEvent = getEventTypeByCode(serviceType.getEventPrefix() + FUND_TRANSFER_INITIATION_SUFFIX);
+        final FundTransferEventType initiatedEvent = FundTransferEventType.getEventTypeByCode(serviceType.getEventPrefix() + FUND_TRANSFER_INITIATION_SUFFIX);
 
         return auditEventPublisher.publishEventLifecycle(
                 () -> getFundTransferResponse(metadata, request),
@@ -78,8 +78,8 @@ public class FundTransferServiceDefault implements FundTransferService {
 
     private FundTransferResponseDTO getFundTransferResponse(RequestMetaData metadata, FundTransferRequestDTO request) {
         Instant start = now();
-        log.info("Starting fund transfer for {} ", request.getServiceType());
-        log.info("Finding Digital User for CIF-ID {}", metadata.getPrimaryCif());
+        log.info("Starting fund transfer for {} ", htmlEscape(request.getServiceType()));
+        log.info("Finding Digital User for CIF-ID {}", htmlEscape(metadata.getPrimaryCif()));
         DigitalUser digitalUser = getDigitalUser(metadata);
 
         log.info("Creating  User DTO");
@@ -102,7 +102,7 @@ public class FundTransferServiceDefault implements FundTransferService {
         log.info("Inserting into Payments History table {} ", paymentHistoryDTO);
         paymentHistoryService.insert(paymentHistoryDTO);
 
-        log.info("Total time taken for {} Fund Transfer {} milli seconds ", request.getServiceType(), between(start, now()).toMillis());
+        log.info("Total time taken for {} Fund Transfer {} milli seconds ", htmlEscape(request.getServiceType()), htmlEscape(Long.toString(between(start, now()).toMillis())));
 
         if (isFailure(response)) {
             GenericExceptionHandler.handleError(FUND_TRANSFER_FAILED,

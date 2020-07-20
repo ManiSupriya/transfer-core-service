@@ -1,8 +1,8 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
-import com.mashreq.mobcommons.config.http.RequestMetaData;
+import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
+import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
-import com.mashreq.transfercoreservice.event.publisher.AsyncUserEventPublisher;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +11,8 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_NOT_BELONG_TO_CIF;
-import static com.mashreq.transfercoreservice.event.model.EventType.ACCOUNT_BELONGS_TO_CIF;
+import static com.mashreq.transfercoreservice.event.FundTransferEventType.ACCOUNT_BELONGS_TO_CIF;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 /**
  * @author shahbazkh
@@ -28,7 +29,7 @@ public class AccountBelongsToCifValidator implements Validator {
     @Override
     public ValidationResult validate(FundTransferRequestDTO request, RequestMetaData metadata, ValidationContext context) {
 
-        log.info("Validating Account for service type [ {} ] ", request.getServiceType());
+        log.info("Validating Account for service type [ {} ] ", htmlEscape(request.getServiceType()));
 
         final List<AccountDetailsDTO> accounts = context.get("account-details", List.class);
         final Boolean validateToAccount = context.get("validate-to-account", Boolean.class);
@@ -49,7 +50,7 @@ public class AccountBelongsToCifValidator implements Validator {
         }
 
 
-        log.info("Account validation Successful for service type [ {} ] ", request.getServiceType());
+        log.info("Account validation Successful for service type [ {} ] ", htmlEscape(request.getServiceType()));
         auditEventPublisher.publishSuccessEvent(ACCOUNT_BELONGS_TO_CIF, metadata, null);
         return prepareValidationResult(Boolean.TRUE);
     }

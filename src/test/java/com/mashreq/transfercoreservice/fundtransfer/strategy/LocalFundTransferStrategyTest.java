@@ -1,6 +1,7 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
-import com.mashreq.mobcommons.config.http.RequestMetaData;
+
+import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
@@ -26,6 +27,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -122,9 +124,13 @@ public class LocalFundTransferStrategyTest {
         beneficiaryDto.setSwiftCode(swift);
         beneficiaryDto.setBankName(bankName);
         beneficiaryDto.setFullName(fullName);
-        final List<AccountDetailsDTO> accountsFromCore = Arrays.asList(AccountDetailsDTO.builder()
-                .number(fromAcct).currency(srcCurrency).branchCode(branchCode).build());
-        final Set<MoneyTransferPurposeDto> popList = new HashSet(Arrays.asList(MoneyTransferPurposeDto.builder().build()));
+        AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
+        accountDetailsDTO.setNumber(fromAcct);
+        accountDetailsDTO.setCurrency(srcCurrency);
+        accountDetailsDTO.setBranchCode(branchCode);
+        final List<AccountDetailsDTO> accountsFromCore = new ArrayList<>();
+        accountsFromCore.add(accountDetailsDTO);
+        final Set<MoneyTransferPurposeDto> popList = new HashSet(Arrays.asList(MoneyTransferPurposeDto.class));
 
         //when
 
@@ -144,8 +150,10 @@ public class LocalFundTransferStrategyTest {
         when(beneficiaryValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
         when(ibanValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
         when(balanceValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
-        when(limitValidator.validate(eq(userDTO), eq("local"), eq(limitUsageAmount)))
-                .thenReturn(LimitValidatorResultsDto.builder().limitVersionUuid(limitVersionUuid).build());
+        LimitValidatorResultsDto limitValidatorResultsDto = new LimitValidatorResultsDto();
+        limitValidatorResultsDto.setLimitVersionUuid(limitVersionUuid);
+        when(limitValidator.validate(eq(userDTO), eq("local"), eq(limitUsageAmount), eq(metadata)))
+                .thenReturn(limitValidatorResultsDto);
 
         when(fundTransferMWService.transfer(fundTransferRequest.capture(),eq(metadata)))
                 .thenReturn(FundTransferResponse.builder().limitUsageAmount(limitUsageAmount).limitVersionUuid(limitVersionUuid).build());
@@ -221,26 +229,29 @@ public class LocalFundTransferStrategyTest {
         beneficiaryDto.setBankName(bankName);
         beneficiaryDto.setBeneficiaryCurrency(destCurrency);
         beneficiaryDto.setFullName(fullName);
-        final List<AccountDetailsDTO> accountsFromCore = Arrays.asList(AccountDetailsDTO.builder()
-                .number(fromAcct).currency(srcCurrency).branchCode(branchCode).build());
-        final Set<MoneyTransferPurposeDto> popList = new HashSet(Arrays.asList(MoneyTransferPurposeDto.builder().build()));
+        AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
+        accountDetailsDTO.setNumber(fromAcct);
+        accountDetailsDTO.setCurrency(srcCurrency);
+        accountDetailsDTO.setBranchCode(branchCode);
+        final List<AccountDetailsDTO> accountsFromCore = new ArrayList<>();
+        accountsFromCore.add(accountDetailsDTO);
+        final Set<MoneyTransferPurposeDto> popList = new HashSet(Arrays.asList(MoneyTransferPurposeDto.class));
 
 
-        CoreCurrencyConversionRequestDto currencyRequest = CoreCurrencyConversionRequestDto.builder()
-                .accountNumber(fromAcct)
-                .accountCurrency(srcCurrency)
-                .transactionCurrency(destCurrency)
-                .transactionAmount(paidAmt).build();
+        CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
+        currencyRequest.setAccountNumber(fromAcct);
+        currencyRequest.setAccountCurrency(srcCurrency);
+        currencyRequest.setTransactionCurrency(destCurrency);
+        currencyRequest.setTransactionAmount(paidAmt);
         CurrencyConversionDto currencyConversionDto = new CurrencyConversionDto();
         currencyConversionDto.setAccountCurrencyAmount(paidAmtInSrcCurrency);
 
-        CoreCurrencyConversionRequestDto currencyConversionRequestDto = CoreCurrencyConversionRequestDto.builder()
-                .accountNumber(fromAcct)
-                .accountCurrency(srcCurrency)
-                .accountCurrencyAmount(paidAmtInSrcCurrency)
-                .dealNumber(null)
-                .transactionCurrency("AED")
-                .build();
+        CoreCurrencyConversionRequestDto currencyConversionRequestDto = new CoreCurrencyConversionRequestDto();
+        currencyConversionRequestDto.setAccountNumber(fromAcct);
+        currencyConversionRequestDto.setAccountCurrency(srcCurrency);
+        currencyConversionRequestDto.setAccountCurrencyAmount(paidAmtInSrcCurrency);
+        currencyConversionRequestDto.setDealNumber(null);
+        currencyConversionRequestDto.setTransactionCurrency("AED");
         CurrencyConversionDto secondConversion = new CurrencyConversionDto();
         secondConversion.setTransactionAmount(paidAmt);
         //when
@@ -267,9 +278,10 @@ public class LocalFundTransferStrategyTest {
         when(balanceValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
 
         when(maintenanceService.convertCurrency(eq(currencyConversionRequestDto))).thenReturn(secondConversion);
-
-        when(limitValidator.validate(eq(userDTO), eq("local"), eq(paidAmt)))
-                .thenReturn(LimitValidatorResultsDto.builder().isValid(true).limitVersionUuid(limitVersionUuid).build());
+        LimitValidatorResultsDto limitValidatorResultsDto = new LimitValidatorResultsDto();
+        limitValidatorResultsDto.setLimitVersionUuid(limitVersionUuid);
+        when(limitValidator.validate(eq(userDTO), eq("local"), eq(paidAmt), eq(metadata)))
+                .thenReturn(limitValidatorResultsDto);
 
         when(fundTransferMWService.transfer(fundTransferRequest.capture(),eq(metadata)))
                 .thenReturn(FundTransferResponse.builder().limitUsageAmount(paidAmt).limitVersionUuid(limitVersionUuid).build());

@@ -18,7 +18,9 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QuickRemitPakistanRequestMapperTest {
@@ -53,14 +55,13 @@ public class QuickRemitPakistanRequestMapperTest {
         String beneBankCode = "076";
         String docType= "PASSPORT_CNIC";
         String docNum= "23452345";
-        AccountDetailsDTO accountDetails = AccountDetailsDTO.builder()
-                .number(senderAcctNum)
-                .customerName(senderName)
-                .currency(senderCurrency)
-                .availableBalance(new BigDecimal(3000))
-                .branchCode("083")
-                .accountName(senderName)
-                .build();
+        AccountDetailsDTO accountDetails = new AccountDetailsDTO();
+        accountDetails.setNumber(senderAcctNum);
+        accountDetails.setCustomerName(senderName);
+        accountDetails.setCurrency(senderCurrency);
+        accountDetails.setAvailableBalance(new BigDecimal(3000));
+        accountDetails.setBranchCode("083");
+        accountDetails.setAccountName(senderName);
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setAmount(txnAmt);
         requestDTO.setPurposeCode(popCode);
@@ -84,26 +85,35 @@ public class QuickRemitPakistanRequestMapperTest {
         ValidationContext validationContext = new ValidationContext();
         validationContext.add("src-currency-iso", srcIsoCurrency);
         validationContext.add("src-country-iso", originatingCountry);
-
-        CustomerDetailsDto customerDetails = CustomerDetailsDto.builder()
-                .cifBranch(senderBankBranch)
-                .nationality("UK")
-                .phones(Arrays.asList(CustomerPhones.builder().mobNumber("1234567899").phoneNumberType("P").build(),
-                        CustomerPhones.builder().mobNumber("1234567898").phoneNumberType("O").build()))
-                .uniqueIDName("PASSPORT")
-                .uniqueIDValue("33333333")
-                .address(Arrays.asList(AddressTypeDto.builder()
-                                .addressType("P")
-                                .address1("Paddress1")
-                                .address2("Paddress2")
-                                .address3("Paddress3")
-                                .build(),
-                        AddressTypeDto.builder()
-                                .addressType("R")
-                                .address1("Raddress1")
-                                .address2("Raddress2")
-                                .address3("Raddress3")
-                                .build())).build();
+        List<CustomerPhones> customerPhonesList = new ArrayList<>();
+        CustomerPhones customerPhones = new CustomerPhones();
+        customerPhones.setMobNumber("1234567899");
+        customerPhones.setPhoneNumberType("P");
+        CustomerPhones customerPhones1 = new CustomerPhones();
+        customerPhones1.setMobNumber("1234567898");
+        customerPhones1.setPhoneNumberType("O");
+        customerPhonesList.add(customerPhones1);
+        customerPhonesList.add(customerPhones);
+        List<AddressTypeDto> addressTypeDtoList = new ArrayList<>();
+        AddressTypeDto addressTypeDto = new AddressTypeDto();
+        addressTypeDto.setAddressType("P");
+        addressTypeDto.setAddress1("Paddress1");
+        addressTypeDto.setAddress2("Paddress2");
+        addressTypeDto.setAddress3("Paddress3");
+        AddressTypeDto addressTypeDto1 = new AddressTypeDto();
+        addressTypeDto1.setAddressType("R");
+        addressTypeDto1.setAddress1("Raddress1");
+        addressTypeDto1.setAddress2("Raddress2");
+        addressTypeDto1.setAddress3("Raddress3");
+        addressTypeDtoList.add(addressTypeDto);
+        addressTypeDtoList.add(addressTypeDto1);
+        CustomerDetailsDto customerDetailsDto = new CustomerDetailsDto();
+        customerDetailsDto.setCifBranch(senderBankBranch);
+        customerDetailsDto.setNationality("UK");
+        customerDetailsDto.setPhones(customerPhonesList);
+        customerDetailsDto.setAddress(addressTypeDtoList);
+        customerDetailsDto.setUniqueIDName("PASSPORT");
+        customerDetailsDto.setUniqueIDValue("33333333");
         //when
         final SoapServiceProperties.ServiceCodes serviceCodes = new SoapServiceProperties.ServiceCodes();
         serviceCodes.setQuickRemitPakistan(serviceCode);
@@ -111,7 +121,7 @@ public class QuickRemitPakistanRequestMapperTest {
 
         final QuickRemitFundTransferRequest quickRemitFundTransferRequest = quickRemitPakistanRequestMapper.map
                 (channelTraceId, requestDTO, accountDetails, beneficiaryDto, transferAmountInSrcCurrency,
-                        exchangeRate, validationContext, customerDetails);
+                        exchangeRate, validationContext, customerDetailsDto);
 
         //then
         Assert.assertEquals(serviceCode, quickRemitFundTransferRequest.getServiceCode());

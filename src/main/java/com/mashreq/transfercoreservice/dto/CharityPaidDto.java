@@ -1,9 +1,9 @@
 package com.mashreq.transfercoreservice.dto;
 
+import java.math.BigDecimal;
+
 import lombok.Builder;
 import lombok.Data;
-
-import java.math.BigDecimal;
 
 @Data
 @Builder

@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
+import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
@@ -23,6 +24,7 @@ import static java.time.LocalDateTime.now;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 /**
  * @author shahbazkh
@@ -54,7 +56,7 @@ public class FlexRuleEngineService {
      * @param request
      * @return
      */
-    public ChargeResponseDTO getCharges(final FlexRuleEngineMetadata metadata, final FlexRuleEngineRequestDTO request) {
+    public ChargeResponseDTO getCharges(final FlexRuleEngineMetadata metadata, final FlexRuleEngineRequestDTO request, final RequestMetaData metaData) {
 
         final String valueDate = ofPattern(DATE_FORMAT).format(now());
 
@@ -67,12 +69,12 @@ public class FlexRuleEngineService {
 
         assertAccountCurrencyMatch(request, searchAccountDto);
 
-        log.info("Calling Flex Rule MW for CHARGES with Debit Leg {} {} ", request.getAccountCurrency(), request.getAccountCurrencyAmount());
+        log.info("Calling Flex Rule MW for CHARGES with Debit Leg {} {} ", htmlEscape(request.getAccountCurrency()), htmlEscape(request.getAccountCurrencyAmount().toString()));
 
         final FlexRuleEngineMWResponse response = flexRuleEngineMWService.getRules(
-                getFlexRequestWithDebitLeg(metadata, request, valueDate, beneficiary));
+                getFlexRequestWithDebitLeg(metadata, request, valueDate, beneficiary), metaData);
 
-        log.info("Debit Amount  = {} {} ", request.getAccountCurrency(), request.getAccountCurrencyAmount());
+        log.info("Debit Amount  = {} {} ", htmlEscape(request.getAccountCurrency()), htmlEscape(request.getAccountCurrencyAmount().toString()));
 
         if (!request.getAccountCurrency().equals(response.getChargeCurrency())) {
             return getChargeWithConvertedCurrency(request, response);
@@ -84,10 +86,10 @@ public class FlexRuleEngineService {
 
     private ChargeResponseDTO getCharge(FlexRuleEngineRequestDTO request, FlexRuleEngineMWResponse response) {
         final BigDecimal chargeAmount = new BigDecimal(response.getChargeAmount());
-        log.info("Charge in Debit Currency = {} {} ", request.getAccountCurrency(), chargeAmount);
+        log.info("Charge in Debit Currency = {} {} ", htmlEscape(request.getAccountCurrency()), htmlEscape(chargeAmount.toString()));
 
         final BigDecimal totalDebitAmount = request.getAccountCurrencyAmount().add(chargeAmount);
-        log.info("Total Debit Amount = {} {} ", request.getAccountCurrency(), totalDebitAmount);
+        log.info("Total Debit Amount = {} {} ", htmlEscape(request.getAccountCurrency()), htmlEscape(totalDebitAmount.toString()));
 
         return ChargeResponseDTO.builder()
                 .flexChargeAmount(chargeAmount)
@@ -100,9 +102,9 @@ public class FlexRuleEngineService {
 
     private ChargeResponseDTO getChargeWithConvertedCurrency(FlexRuleEngineRequestDTO request, FlexRuleEngineMWResponse response) {
         CurrencyConversionDto convertedCurrency = getConvertedChargeAmount(request, response);
-        log.info("Charge in Debit Currency = {} {} ", request.getAccountCurrency(), convertedCurrency.getAccountCurrencyAmount());
+        log.info("Charge in Debit Currency = {} {} ", htmlEscape(request.getAccountCurrency()), htmlEscape(convertedCurrency.getAccountCurrencyAmount().toString()));
         final BigDecimal totalDebitAmount = request.getAccountCurrencyAmount().add(convertedCurrency.getAccountCurrencyAmount());
-        log.info("Total Debit Amount = {} {} ", request.getAccountCurrency(), totalDebitAmount);
+        log.info("Total Debit Amount = {} {} ", htmlEscape(request.getAccountCurrency()), htmlEscape(totalDebitAmount.toString()));
 
         return ChargeResponseDTO.builder()
                 .flexChargeCurrency(response.getChargeCurrency())
@@ -116,15 +118,14 @@ public class FlexRuleEngineService {
 
     private CurrencyConversionDto getConvertedChargeAmount(FlexRuleEngineRequestDTO request, FlexRuleEngineMWResponse response) {
         log.info("Debit Account Currency = {} and Charge Currency = {} calling currency conversion with Product code = {} ",
-                request.getAccountCurrency(), response.getChargeCurrency(), response.getProductCode());
-
-        return maintenanceService.convertBetweenCurrencies(CoreCurrencyConversionRequestDto.builder()
-                .accountNumber(request.getCustomerAccountNo())
-                .accountCurrency(request.getAccountCurrency())
-                .transactionCurrency(response.getChargeCurrency())
-                .transactionAmount(new BigDecimal(response.getChargeAmount()))
-                .productCode(response.getProductCode())
-                .build());
+                htmlEscape(request.getAccountCurrency()), htmlEscape(response.getChargeCurrency()), htmlEscape(response.getProductCode()));
+        CoreCurrencyConversionRequestDto coreCurrencyConversionRequestDto = new CoreCurrencyConversionRequestDto();
+        coreCurrencyConversionRequestDto.setAccountNumber(request.getCustomerAccountNo());
+        coreCurrencyConversionRequestDto.setAccountCurrency(request.getAccountCurrency());
+        coreCurrencyConversionRequestDto.setTransactionCurrency(response.getChargeCurrency());
+        coreCurrencyConversionRequestDto.setTransactionAmount(new BigDecimal(response.getChargeAmount()));
+        coreCurrencyConversionRequestDto.setProductCode(response.getProductCode());
+        return maintenanceService.convertBetweenCurrencies(coreCurrencyConversionRequestDto);
     }
 
     /**
@@ -134,7 +135,7 @@ public class FlexRuleEngineService {
      * @param request
      * @return
      */
-    public FlexRuleEngineResponseDTO getRules(final FlexRuleEngineMetadata metadata, final FlexRuleEngineRequestDTO request) {
+    public FlexRuleEngineResponseDTO getRules(final FlexRuleEngineMetadata metadata, final FlexRuleEngineRequestDTO request, final RequestMetaData metaData) {
 
         assertEitherDebitOrCreditAmountPresent(request);
         final CompletableFuture<SearchAccountDto> searchAccountFut = CompletableFuture.supplyAsync(() ->
@@ -155,7 +156,7 @@ public class FlexRuleEngineService {
                 ? getFlexRequestWithCreditLeg(metadata, request, ofPattern(DATE_FORMAT).format(now()), beneficiary)
                 : getFlexRequestWithDebitLeg(metadata, request, ofPattern(DATE_FORMAT).format(now()), beneficiary);
 
-        final FlexRuleEngineMWResponse response = flexRuleEngineMWService.getRules(flexRequestMW);
+        final FlexRuleEngineMWResponse response = flexRuleEngineMWService.getRules(flexRequestMW, metaData);
 
 
         if (INDIA_CODE.equals(beneficiary.getBeneficiaryCountryISO())

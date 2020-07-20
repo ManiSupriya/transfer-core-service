@@ -1,6 +1,7 @@
 package com.mashreq.transfercoreservice.api;
 
-import com.mashreq.mobcommons.config.http.RequestMetaData;
+
+import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.commons.cache.HeaderNames;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
@@ -17,6 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 @Slf4j
 @RestController
@@ -42,8 +45,8 @@ public class FundTransferController {
                                   @RequestHeader(HeaderNames.X_USSM_USER_NAME) final String userId,
                                   @Valid @RequestBody FundTransferRequestDTO request) {
 
-        log.info("{} Fund transfer for request received ", request.getServiceType());
-        log.info("Fund transfer meta data created {} ", metaData);
+        log.info("{} Fund transfer for request received ", htmlEscape(request.getServiceType()));
+        log.info("Fund transfer meta data created {} ", htmlEscape(metaData.toString()));
         if(request.getAmount() == null && request.getSrcAmount() ==null){
             GenericExceptionHandler.handleError(TransferErrorCode.INVALID_REQUEST, "Bad Request", "Both debitAmount and credit amount are missing");
         }

@@ -1,7 +1,7 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
+import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.transfercoreservice.client.dto.CharityBeneficiaryDto;
-import com.mashreq.transfercoreservice.event.publisher.AsyncUserEventPublisher;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,6 +27,7 @@ public class CharityValidatorTest {
         charityBeneficiaryDto.setAccountNumber("019010073766");
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setToAccount("019010073766");
+        requestDTO.setServiceType("test");
         ValidationContext mockValidationContext = new ValidationContext();
         mockValidationContext.add("charity-beneficiary-dto", charityBeneficiaryDto);
 
@@ -46,6 +47,7 @@ public class CharityValidatorTest {
         charityBeneficiaryDto.setAccountNumber("019010073744");
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setToAccount("019010073766");
+        requestDTO.setServiceType("test");
         ValidationContext mockValidationContext = new ValidationContext();
         mockValidationContext.add("charity-beneficiary-dto", charityBeneficiaryDto);
 
@@ -63,6 +65,7 @@ public class CharityValidatorTest {
         //given
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         ValidationContext mockValidationContext = new ValidationContext();
+        requestDTO.setServiceType("test");
         mockValidationContext.add("charity-beneficiary-dto", null);
 
         //when

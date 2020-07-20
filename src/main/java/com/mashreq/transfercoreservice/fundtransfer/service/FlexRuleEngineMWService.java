@@ -4,6 +4,9 @@ package com.mashreq.transfercoreservice.fundtransfer.service;
 import com.mashreq.esbcore.bindings.customer.mbcdm.FlexRuleEngineReqType;
 import com.mashreq.esbcore.bindings.customer.mbcdm.FlexRuleEngineResType;
 import com.mashreq.esbcore.bindings.customerservices.mbcdm.flexruleengine.EAIServices;
+import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
+import com.mashreq.mobcommons.services.http.RequestMetaData;
+import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FlexRuleEngineMWRequest;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FlexRuleEngineMWResponse;
 import com.mashreq.transfercoreservice.middleware.HeaderFactory;
@@ -31,16 +34,16 @@ public class FlexRuleEngineMWService {
     private final HeaderFactory headerFactory;
     private final SoapServiceProperties soapServiceProperties;
     private final FlexRuleEngineResponseHandler responseHandler;
-    private static final String SUCCESS = "S";
-    private static final String SUCCESS_CODE_ENDS_WITH = "-000";
+    private final AsyncUserEventPublisher asyncUserEventPublisher;
 
-    public FlexRuleEngineMWResponse getRules(final FlexRuleEngineMWRequest request) {
+    public FlexRuleEngineMWResponse getRules(final FlexRuleEngineMWRequest request, final RequestMetaData requestMetaData) {
         log.info("Flex Rule engine call initiated [ {} ]", request);
 
         EAIServices response = (EAIServices) webServiceClient.exchange(generateFlexRuleEngineRequest(request));
+        final String remarks = getRemarks(request, requestMetaData.getPrimaryCif());
+        responseHandler.validateResponse(response, requestMetaData, remarks, request.getChannelTraceId());
 
-        responseHandler.validateResponse(response);
-
+        asyncUserEventPublisher.publishSuccessfulEsbEvent(FundTransferEventType.FLEX_RULE_ENGINE_MW_CALL, requestMetaData, remarks, request.getChannelTraceId());
         FlexRuleEngineResType responseDTO = response.getBody().getFlexRuleEngineRes();
 
         return FlexRuleEngineMWResponse.builder()
@@ -51,6 +54,24 @@ public class FlexRuleEngineMWService {
                 .transactionAmount(new BigDecimal(responseDTO.getGatewayDetails().get(0).getTransactionAmount()))
                 .exchangeRate(new BigDecimal(responseDTO.getGatewayDetails().get(0).getExchangeRate()))
                 .build();
+    }
+
+    private String getRemarks(FlexRuleEngineMWRequest request, String cif) {
+        return String.format("Cif=%s,customerAccountNo=%s,transactionCurrency=%s,transactionAmount=%s,accountCurrency=%s," +
+                        "accountCurrencyAmount=%s,transferType=%s,transactionStatus=%s," +
+                        "accountWithInstitution=%s,valueDate=%s,channelTraceId=%s",
+                cif,
+                request.getCustomerAccountNo(),
+                request.getTransactionCurrency(),
+                request.getTransactionAmount(),
+                request.getAccountCurrency(),
+                request.getAccountCurrencyAmount(),
+                request.getTransferType(),
+                request.getTransactionStatus(),
+                request.getAccountWithInstitution(),
+                request.getValueDate(),
+                request.getChannelTraceId()
+        );
     }
 
 

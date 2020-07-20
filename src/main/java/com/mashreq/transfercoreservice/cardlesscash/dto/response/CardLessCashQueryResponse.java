@@ -5,12 +5,13 @@ import java.time.LocalDate;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * This class is to hold the detail for blocking the CLC response.
  */
 @Data
-@Builder
+@NoArgsConstructor
 public class CardLessCashQueryResponse {
 
     private String status;

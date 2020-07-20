@@ -1,8 +1,8 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
+import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
-import com.mashreq.transfercoreservice.event.publisher.AsyncUserEventPublisher;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,7 +13,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.math.BigDecimal;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 
 /**
  * @author shahbazkh
@@ -35,10 +34,9 @@ public class BalanceValidatorTest {
     public void shouldReturnFailure_whenAvailableBalanceIsLess() {
 
         ValidationContext mockValidationContext = new ValidationContext();
-        AccountDetailsDTO mockAccount = AccountDetailsDTO.builder()
-                .availableBalance(new BigDecimal(1))
-                .currency("AED")
-                .build();
+        AccountDetailsDTO mockAccount = new AccountDetailsDTO();
+        mockAccount.setAvailableBalance(new BigDecimal(1));
+        mockAccount.setCurrency("AED");
 
         mockValidationContext.add("from-account", mockAccount);
 
@@ -59,10 +57,9 @@ public class BalanceValidatorTest {
     public void shouldReturnSuccess_whenAvailableBalanceIsEqual() {
 
         ValidationContext mockValidationContext = new ValidationContext();
-        AccountDetailsDTO mockAccount = AccountDetailsDTO.builder()
-                .availableBalance(new BigDecimal(10))
-                .currency("AED")
-                .build();
+        AccountDetailsDTO mockAccount = new AccountDetailsDTO();
+        mockAccount.setAvailableBalance(new BigDecimal(10));
+        mockAccount.setCurrency("AED");
 
         mockValidationContext.add("from-account", mockAccount);
 
@@ -81,10 +78,9 @@ public class BalanceValidatorTest {
     public void shouldReturnSuccess_whenAvailableBalanceIsGreater() {
 
         ValidationContext mockValidationContext = new ValidationContext();
-        AccountDetailsDTO mockAccount = AccountDetailsDTO.builder()
-                .availableBalance(new BigDecimal(20))
-                .currency("AED")
-                .build();
+        AccountDetailsDTO mockAccount = new AccountDetailsDTO();
+        mockAccount.setAvailableBalance(new BigDecimal(10));
+        mockAccount.setCurrency("AED");
 
         mockValidationContext.add("from-account", mockAccount);
 
@@ -104,16 +100,16 @@ public class BalanceValidatorTest {
     public void shouldReturnSuccess_whenAvailableBalanceIsEqual_andCurrencyDifferent() {
 
         ValidationContext mockValidationContext = new ValidationContext();
-        AccountDetailsDTO mockAccount = AccountDetailsDTO.builder()
-                .number("12345")
-                .availableBalance(new BigDecimal("20"))
-                .currency("USD")
-                .build();
+        AccountDetailsDTO mockAccount = new AccountDetailsDTO();
+        		mockAccount.setNumber("12345");
+        		mockAccount.setAvailableBalance(new BigDecimal("20"));
+        		mockAccount.setCurrency("USD");
 
         mockValidationContext.add("from-account", mockAccount);
         mockValidationContext.add("transfer-amount-in-source-currency", new BigDecimal(8.17));
         FundTransferRequestDTO mockFundTransferRequest = new FundTransferRequestDTO();
         mockFundTransferRequest.setAmount(new BigDecimal(20));
+        mockFundTransferRequest.setServiceType("local");
 
         ValidationResult result = balanceValidator.validate(mockFundTransferRequest, null, mockValidationContext);
 
@@ -125,16 +121,16 @@ public class BalanceValidatorTest {
     public void shouldReturnFailure_whenAvailableBalanceIsNotSufficient_andCurrencyDifferent() {
 
         ValidationContext mockValidationContext = new ValidationContext();
-        AccountDetailsDTO mockAccount = AccountDetailsDTO.builder()
-                .number("12345")
-                .availableBalance(new BigDecimal("20"))
-                .currency("USD")
-                .build();
+        AccountDetailsDTO mockAccount = new AccountDetailsDTO();
+		mockAccount.setNumber("12345");
+		mockAccount.setAvailableBalance(new BigDecimal("20"));
+		mockAccount.setCurrency("USD");
 
         mockValidationContext.add("from-account", mockAccount);
         mockValidationContext.add("transfer-amount-in-source-currency", new BigDecimal(108.90));
         FundTransferRequestDTO mockFundTransferRequest = new FundTransferRequestDTO();
         mockFundTransferRequest.setAmount(new BigDecimal(400));
+        mockFundTransferRequest.setServiceType("local");
 
         ValidationResult result = balanceValidator.validate(mockFundTransferRequest, null, mockValidationContext);
 
@@ -146,16 +142,16 @@ public class BalanceValidatorTest {
     public void shouldReturnSuccess_whenAvailableBalanceIsSufficient_andCurrencyDifferent() {
 
         ValidationContext mockValidationContext = new ValidationContext();
-        AccountDetailsDTO mockAccount = AccountDetailsDTO.builder()
-                .number("12345")
-                .availableBalance(new BigDecimal("1000"))
-                .currency("USD")
-                .build();
+        AccountDetailsDTO mockAccount = new AccountDetailsDTO();
+		mockAccount.setNumber("12345");
+		mockAccount.setAvailableBalance(new BigDecimal("1000"));
+		mockAccount.setCurrency("USD");
 
         mockValidationContext.add("from-account", mockAccount);
         mockValidationContext.add("transfer-amount-in-source-currency", new BigDecimal(108.90));
         FundTransferRequestDTO mockFundTransferRequest = new FundTransferRequestDTO();
         mockFundTransferRequest.setAmount(new BigDecimal(400));
+        mockFundTransferRequest.setServiceType("local");
 
         ValidationResult result = balanceValidator.validate(mockFundTransferRequest, null, mockValidationContext);
 

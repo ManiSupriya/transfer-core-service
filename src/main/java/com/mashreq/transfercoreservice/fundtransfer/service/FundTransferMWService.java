@@ -5,13 +5,15 @@ import com.mashreq.esbcore.bindings.account.mbcdm.FundTransferResType;
 import com.mashreq.esbcore.bindings.accountservices.mbcdm.fundtransfer.EAIServices;
 import com.mashreq.esbcore.bindings.header.mbcdm.ErrorType;
 import com.mashreq.esbcore.bindings.header.mbcdm.HeaderType;
-import com.mashreq.mobcommons.config.http.RequestMetaData;
+import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
+import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
-import com.mashreq.transfercoreservice.event.model.EventType;
-import com.mashreq.transfercoreservice.event.publisher.AsyncUserEventPublisher;
+import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
-import com.mashreq.transfercoreservice.middleware.*;
+import com.mashreq.transfercoreservice.middleware.HeaderFactory;
+import com.mashreq.transfercoreservice.middleware.SoapClient;
+import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +24,7 @@ import java.security.SecureRandom;
 import java.util.List;
 
 import static com.mashreq.transfercoreservice.middleware.SoapWebserviceClientFactory.soapClient;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 
 @Slf4j
@@ -40,7 +43,7 @@ public class FundTransferMWService {
 
 
     public FundTransferResponse transfer(FundTransferRequest request, RequestMetaData metaData) {
-        log.info("Fund transfer initiated from account [ {} ]", request.getFromAccount());
+        log.info("Fund transfer initiated from account [ {} ]", htmlEscape(request.getFromAccount()));
 
         SoapClient soapClient = soapClient(soapServiceProperties,
                 new Class[]{
@@ -56,7 +59,7 @@ public class FundTransferMWService {
         final FundTransferResType.Transfer transfer = response.getBody().getFundTransferRes().getTransfer().get(0);
         final ErrorType exceptionDetails = response.getBody().getExceptionDetails();
         if (isSuccessfull(response)) {
-            auditEventPublisher.publishSuccessfulEsbEvent(EventType.FUND_TRANSFER_MW_CALL, metaData, getRemarks(request), request.getChannelTraceId());
+            auditEventPublisher.publishSuccessfulEsbEvent(FundTransferEventType.FUND_TRANSFER_MW_CALL, metaData, getRemarks(request), request.getChannelTraceId());
             log.info("Fund transferred successfully to account [ {} ]", request.getToAccount());
             final CoreFundTransferResponseDto coreFundTransferResponseDto = constructFTResponseDTO(transfer, exceptionDetails, MwResponseStatus.S);
             return FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
@@ -64,7 +67,7 @@ public class FundTransferMWService {
 
         log.info("Fund transfer failed to account [ {} ]", request.getToAccount());
         final CoreFundTransferResponseDto coreFundTransferResponseDto = constructFTResponseDTO(transfer, exceptionDetails, MwResponseStatus.F);
-        auditEventPublisher.publishFailedEsbEvent(EventType.FUND_TRANSFER_MW_CALL, metaData, getRemarks(request), request.getChannelTraceId(),
+        auditEventPublisher.publishFailedEsbEvent(FundTransferEventType.FUND_TRANSFER_MW_CALL, metaData, getRemarks(request), request.getChannelTraceId(),
                 coreFundTransferResponseDto.getMwResponseCode(), coreFundTransferResponseDto.getMwResponseDescription(), coreFundTransferResponseDto.getExternalErrorMessage());
         return FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
     }
@@ -85,14 +88,14 @@ public class FundTransferMWService {
     }
 
     private CoreFundTransferResponseDto constructFTResponseDTO(FundTransferResType.Transfer transfer, ErrorType exceptionDetails, MwResponseStatus s) {
-        return CoreFundTransferResponseDto.builder()
-                .transactionRefNo(transfer.getTransactionRefNo())
-                .externalErrorMessage(exceptionDetails.getData())
-                .mwReferenceNo(transfer.getTransactionRefNo())
-                .mwResponseDescription(exceptionDetails.getErrorDescription())
-                .mwResponseStatus(s)
-                .mwResponseCode(exceptionDetails.getErrorCode())
-                .build();
+        CoreFundTransferResponseDto coreFundTransferResponseDto = new CoreFundTransferResponseDto();
+        coreFundTransferResponseDto.setTransactionRefNo(transfer.getTransactionRefNo());
+        coreFundTransferResponseDto.setExternalErrorMessage(exceptionDetails.getData());
+        coreFundTransferResponseDto.setMwReferenceNo(transfer.getTransactionRefNo());
+        coreFundTransferResponseDto.setMwResponseDescription(exceptionDetails.getErrorDescription());
+        coreFundTransferResponseDto.setMwResponseStatus(s);
+        coreFundTransferResponseDto.setMwResponseCode(exceptionDetails.getErrorCode());
+                return coreFundTransferResponseDto;
     }
 
     private boolean isSuccessfull(EAIServices response) {

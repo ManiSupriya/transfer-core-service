@@ -1,12 +1,12 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
 
+import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryStatus;
 import com.mashreq.transfercoreservice.client.dto.CharityBeneficiaryDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
-import com.mashreq.transfercoreservice.event.publisher.AsyncUserEventPublisher;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import org.junit.Assert;
@@ -32,10 +32,9 @@ public class CurrencyValidatorTest {
     public void test_within_mashreq_requested_currecy_is_source_currency() {
 
         //given
-        AccountDetailsDTO accountDetailsDTO =  AccountDetailsDTO.builder()
-                .number("019010073766")
-                .currency("AED")
-                .build();
+        AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
+        		accountDetailsDTO.setNumber("019010073766");
+        		accountDetailsDTO.setCurrency("AED");
         ValidationContext mockValidationContext = new ValidationContext();
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setServiceType(ServiceType.WITHIN_MASHREQ.getName());
@@ -61,10 +60,9 @@ public class CurrencyValidatorTest {
     public void test_charity_bait_al_khair_requested_currecy_is_source_currency() {
 
         //given
-        AccountDetailsDTO accountDetailsDTO =  AccountDetailsDTO.builder()
-                .number("019010073766")
-                .currency("AED")
-                .build();
+        AccountDetailsDTO accountDetailsDTO =  new AccountDetailsDTO();
+        accountDetailsDTO.setNumber("019010073766");
+        accountDetailsDTO.setCurrency("AED");
         ValidationContext mockValidationContext = new ValidationContext();
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setServiceType(ServiceType.BAIT_AL_KHAIR.getName());
@@ -90,10 +88,9 @@ public class CurrencyValidatorTest {
     public void test_charity_dubai_khair_requested_currecy_is_source_currency() {
 
         //given
-        AccountDetailsDTO accountDetailsDTO =  AccountDetailsDTO.builder()
-                .number("019010073766")
-                .currency("AED")
-                .build();
+    	AccountDetailsDTO accountDetailsDTO =  new AccountDetailsDTO();
+        accountDetailsDTO.setNumber("019010073766");
+        accountDetailsDTO.setCurrency("AED");
         ValidationContext mockValidationContext = new ValidationContext();
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setServiceType(ServiceType.DUBAI_CARE.getName());
@@ -120,10 +117,9 @@ public class CurrencyValidatorTest {
     public void test_charity_dar_al_bair_requested_currecy_is_source_currency() {
 
         //given
-        AccountDetailsDTO accountDetailsDTO =  AccountDetailsDTO.builder()
-                .number("019010073766")
-                .currency("AED")
-                .build();
+    	AccountDetailsDTO accountDetailsDTO =  new AccountDetailsDTO();
+        accountDetailsDTO.setNumber("019010073766");
+        accountDetailsDTO.setCurrency("AED");
         ValidationContext mockValidationContext = new ValidationContext();
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setServiceType(ServiceType.DAR_AL_BER.getName());
@@ -150,10 +146,9 @@ public class CurrencyValidatorTest {
     public void test_charity_dar_al_bair_requested_currecy_is_destination_currency() {
 
         //given
-        AccountDetailsDTO accountDetailsDTO =  AccountDetailsDTO.builder()
-                .number("019010073766")
-                .currency("USD")
-                .build();
+    	AccountDetailsDTO accountDetailsDTO =  new AccountDetailsDTO();
+        accountDetailsDTO.setNumber("019010073766");
+        accountDetailsDTO.setCurrency("AED");
         ValidationContext mockValidationContext = new ValidationContext();
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setServiceType(ServiceType.DAR_AL_BER.getName());
@@ -180,10 +175,9 @@ public class CurrencyValidatorTest {
     public void test_charity_dar_al_bair_requested_currecy_is_invalid_currency() {
 
         //given
-        AccountDetailsDTO accountDetailsDTO =  AccountDetailsDTO.builder()
-                .number("019010073766")
-                .currency("USD")
-                .build();
+        AccountDetailsDTO accountDetailsDTO =  new AccountDetailsDTO();
+        accountDetailsDTO.setNumber("019010073766");
+        accountDetailsDTO.setCurrency("AED");
         ValidationContext mockValidationContext = new ValidationContext();
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setServiceType(ServiceType.DAR_AL_BER.getName());
@@ -212,14 +206,12 @@ public class CurrencyValidatorTest {
     public void test_own_cif_requested_currecy_is_source_currency() {
 
         //given
-        AccountDetailsDTO toAccount =  AccountDetailsDTO.builder()
-                .number("019010073766")
-                .currency("AED")
-                .build();
-        AccountDetailsDTO fromAccount =  AccountDetailsDTO.builder()
-                .number("019010073789")
-                .currency("GBP")
-                .build();
+    	AccountDetailsDTO toAccount =  new AccountDetailsDTO();
+    	toAccount.setNumber("019010073766");
+    	toAccount.setCurrency("AED");
+        AccountDetailsDTO fromAccount =  new AccountDetailsDTO();
+        fromAccount.setNumber("019010073789");
+        fromAccount.setCurrency("GBP");
         ValidationContext mockValidationContext = new ValidationContext();
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setServiceType(ServiceType.OWN_ACCOUNT.getName());
@@ -243,10 +235,9 @@ public class CurrencyValidatorTest {
     public void test_within_mashreq_requested_currecy_is_destination_currency() {
 
         //given
-        AccountDetailsDTO accountDetailsDTO =  AccountDetailsDTO.builder()
-                .number("019010073766")
-                .currency("AED")
-                .build();
+    	 AccountDetailsDTO accountDetailsDTO =  new AccountDetailsDTO();
+         accountDetailsDTO.setNumber("019010073766");
+         accountDetailsDTO.setCurrency("AED");
         ValidationContext mockValidationContext = new ValidationContext();
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setServiceType(ServiceType.WITHIN_MASHREQ.getName());
@@ -273,14 +264,12 @@ public class CurrencyValidatorTest {
     public void test_own_cif_requested_currecy_is_destination_currency() {
 
         //given
-        AccountDetailsDTO toAccount =  AccountDetailsDTO.builder()
-                .number("019010073766")
-                .currency("AED")
-                .build();
-        AccountDetailsDTO fromAccount =  AccountDetailsDTO.builder()
-                .number("019010073789")
-                .currency("GBP")
-                .build();
+    	AccountDetailsDTO toAccount =  new AccountDetailsDTO();
+    	toAccount.setNumber("019010073766");
+    	toAccount.setCurrency("AED");
+        AccountDetailsDTO fromAccount =  new AccountDetailsDTO();
+        fromAccount.setNumber("019010073789");
+        fromAccount.setCurrency("GBP");
         ValidationContext mockValidationContext = new ValidationContext();
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setServiceType(ServiceType.OWN_ACCOUNT.getName());
@@ -304,10 +293,9 @@ public class CurrencyValidatorTest {
     public void test_within_mashreq_requested_currecy_is_invalid_currency() {
 
         //given
-        AccountDetailsDTO accountDetailsDTO =  AccountDetailsDTO.builder()
-                .number("019010073766")
-                .currency("AED")
-                .build();
+    	AccountDetailsDTO accountDetailsDTO =  new AccountDetailsDTO();
+    	accountDetailsDTO.setNumber("019010073766");
+    	accountDetailsDTO.setCurrency("AED");
         ValidationContext mockValidationContext = new ValidationContext();
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setServiceType(ServiceType.WITHIN_MASHREQ.getName());
@@ -335,14 +323,12 @@ public class CurrencyValidatorTest {
     public void test_own_cif_requested_currecy_is_invalid_currency() {
 
         //given
-        AccountDetailsDTO toAccount =  AccountDetailsDTO.builder()
-                .number("019010073766")
-                .currency("AED")
-                .build();
-        AccountDetailsDTO fromAccount =  AccountDetailsDTO.builder()
-                .number("019010073789")
-                .currency("GBP")
-                .build();
+    	AccountDetailsDTO toAccount =  new AccountDetailsDTO();
+    	toAccount.setNumber("019010073766");
+    	toAccount.setCurrency("AED");
+        AccountDetailsDTO fromAccount =  new AccountDetailsDTO();
+        fromAccount.setNumber("019010073789");
+        fromAccount.setCurrency("GBP");
         ValidationContext mockValidationContext = new ValidationContext();
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setServiceType(ServiceType.OWN_ACCOUNT.getName());

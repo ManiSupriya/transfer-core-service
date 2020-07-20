@@ -14,6 +14,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
+import com.mashreq.mobcommons.services.http.RequestMetaData;
+import com.mashreq.transfercoreservice.cache.UserSessionCacheService;
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashBlockRequest;
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashGenerationRequest;
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashQueryRequest;
@@ -34,21 +37,31 @@ public class CardLessCashControllerTest {
     
     @Mock
     CardLessCashBlockResponse cardLessCashBlockResponse;
+    @Mock
+    RequestMetaData metaData; 
+    @Mock
+    AsyncUserEventPublisher asyncUserEventPublisher;
+    @Mock
+    UserSessionCacheService userSessionCacheService;
 
     @Test
     public void blockCardLessCashRequestSuccessTest() {
 
-        String accountNumber = "019100064328";
+        String accountNumber = "01910006432";
         String referenceNumber = "MBX246931";
+        
         CardLessCashBlockRequest cardLessCashBlockRequest = CardLessCashBlockRequest.builder()
                 .accountNumber(accountNumber)
                 .referenceNumber(referenceNumber)
                 .build();
         cardLessCashBlockResponse.setSuccess(true);
-        Mockito.when(cardLessCashService.blockCardLessCashRequest(cardLessCashBlockRequest))
+        Mockito.when(cardLessCashService.blockCardLessCashRequest(cardLessCashBlockRequest, metaData))
                 .thenReturn(Response.<CardLessCashBlockResponse>builder().data(cardLessCashBlockResponse).build());
+        Mockito.doReturn(true).when(userSessionCacheService).isAccountNumberBelongsToCif(Mockito.any(), Mockito.any());
+        Mockito.doNothing().when(asyncUserEventPublisher).publishStartedEvent(Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.doNothing().when(asyncUserEventPublisher).publishSuccessEvent(Mockito.any(), Mockito.any(), Mockito.any());
         Response<CardLessCashBlockResponse> cashBlockResponseResponse =
-                cardLessCashController.blockCardLessCashRequest(cardLessCashBlockRequest);
+                cardLessCashController.blockCardLessCashRequest(metaData, cardLessCashBlockRequest);
         Assert.assertNotNull(cashBlockResponseResponse);
 
     }
@@ -58,21 +71,23 @@ public class CardLessCashControllerTest {
 
         String accountNumber = "019100064328";
         BigDecimal amount = new BigDecimal("1000");
-        String mobileNo = "19100064328";
+        String mobileNo = "1910064328";
+        String userId = "12345";
         CardLessCashGenerationRequest cardLessCashGenerationRequest = CardLessCashGenerationRequest.builder()
                 .accountNo(accountNumber)
                 .amount(amount)
                 .build();
-
-        Mockito.when(cardLessCashService.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest, mobileNo))
-                .thenReturn(Response.<CardLessCashGenerationResponse>builder().data(
-                		CardLessCashGenerationResponse.builder()
-                        .expiryDateTime(LocalDateTime.now())
-                        .build()
-                        )
+        CardLessCashGenerationResponse cardLessCashGenerationRes = new CardLessCashGenerationResponse();
+        cardLessCashGenerationRes.setExpiryDateTime(LocalDateTime.now());
+        cardLessCashGenerationRes.setReferenceNumber("test");
+        Mockito.when(cardLessCashService.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest, mobileNo, userId, metaData))
+                .thenReturn(Response.<CardLessCashGenerationResponse>builder().data(cardLessCashGenerationRes)
                         .build());
+        Mockito.doReturn(true).when(userSessionCacheService).isAccountNumberBelongsToCif(Mockito.any(), Mockito.any());
+        Mockito.doNothing().when(asyncUserEventPublisher).publishStartedEvent(Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.doNothing().when(asyncUserEventPublisher).publishSuccessEvent(Mockito.any(), Mockito.any(), Mockito.any());
         Response<CardLessCashGenerationResponse> cardLessCashGenerationResponse =
-                cardLessCashController.cardLessCashRemitGenerationRequest(mobileNo, cardLessCashGenerationRequest);
+                cardLessCashController.cardLessCashRemitGenerationRequest(userId, mobileNo, metaData, cardLessCashGenerationRequest);
         Assert.assertNotNull(cardLessCashGenerationResponse);
 
     }
@@ -86,20 +101,22 @@ public class CardLessCashControllerTest {
                 .accountNumber(accountNumber)
                 .remitNumDays(remitNumDays)
                 .build();
-        CardLessCashQueryResponse cardLessCashQueryResponse = CardLessCashQueryResponse.builder()
-        .status("A")
-        .amount(new BigDecimal(1))
-        .remitNo("1")
-        .transactionDate(LocalDate.now())
-        .channelName("A")
-        .redeemedDate(LocalDate.now())
-        .build();
+        CardLessCashQueryResponse cardLessCashQueryResponse = new CardLessCashQueryResponse();
+        cardLessCashQueryResponse.setStatus("A");
+        cardLessCashQueryResponse.setAmount(new BigDecimal(1));
+        cardLessCashQueryResponse.setRemitNo("1");
+        cardLessCashQueryResponse.setTransactionDate(LocalDate.now());
+        cardLessCashQueryResponse.setChannelName("A");
+        cardLessCashQueryResponse.setRedeemedDate(LocalDate.now());
 		List<CardLessCashQueryResponse> cardLessCashQueryResponseList = new ArrayList<>();
 		cardLessCashQueryResponseList.add(cardLessCashQueryResponse);
-		Mockito.when(cardLessCashService.cardLessCashRemitQuery(cardLessCashQueryRequest)).thenReturn(
+		Mockito.when(cardLessCashService.cardLessCashRemitQuery(cardLessCashQueryRequest, metaData)).thenReturn(
 				Response.<List<CardLessCashQueryResponse>>builder().data(cardLessCashQueryResponseList).build());
+		Mockito.doReturn(true).when(userSessionCacheService).isAccountNumberBelongsToCif(Mockito.any(), Mockito.any());
+		Mockito.doNothing().when(asyncUserEventPublisher).publishStartedEvent(Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.doNothing().when(asyncUserEventPublisher).publishSuccessEvent(Mockito.any(), Mockito.any(), Mockito.any());
 		Response<List<CardLessCashQueryResponse>> cardLessCashQueryRes = cardLessCashController
-				.cardLessCashRemitQuery(accountNumber, remitNumDays);
+				.cardLessCashRemitQuery(metaData, accountNumber, remitNumDays);
 		Assert.assertNotNull(cardLessCashQueryRes);
 
 	}

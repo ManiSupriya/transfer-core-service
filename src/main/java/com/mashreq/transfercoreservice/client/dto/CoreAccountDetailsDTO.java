@@ -1,10 +1,12 @@
 package com.mashreq.transfercoreservice.client.dto;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
+@NoArgsConstructor
 public class CoreAccountDetailsDTO {
     private String customerName;
     private String chequeBookName;

@@ -18,6 +18,10 @@ public enum TransferErrorCode implements ErrorCode {
     DUPLICATION_FUND_TRANSFER_REQUEST("TN-1003", "Duplicate Fund Transfer Request"),
     CREDIT_AND_DEBIT_ACC_SAME("TN-1004", "Credit and Debit Account cannot be same"),
     INVALID_REQUEST("TN-1005","Invalid tranfer request"),
+    ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF("TN-1006", "Account Number does not belong to CIF"),
+    USER_SESSION_CONTEXT_NOT_FOUND("MD-1007", "User Session Context not found"),
+    MOBILE_NUMBER_DOES_NOT_MATCH("TN-1008", "Mobile Number is not valid"),
+
 
     BALANCE_NOT_SUFFICIENT("TN-1200", "Balance is not sufficient"),
 
@@ -82,6 +86,18 @@ public enum TransferErrorCode implements ErrorCode {
     MAINTENANCE_COM_EXTERNAL_SERVICE_ERROR("TN-5013", "Something went wrong with maintenance external service"),
     ACC_SERVICE_CONNECTION_ERROR("TN-5014", "Account external service connection exception"),
     ACC_SERVICE_EXCEED_WITHDRAWL_ERROR("TN-5015", "Account external service exceeds withdrawal frequency exception"),
+    ACC_SERVICE_EXCEED_WITHDRAWL_LIMIT_ERROR("TN-5016", "Account external service exceeds withdrawal limit exception"),
+    OTP_EXTERNAL_SERVICE_ERROR("TN-5016", "Something went wrong with OTP external service"),
+    OTP_SERVICE_CONNECTION_ERROR("TN-5017", "OTP external service connection exception"),    
+    OTP_VERIFY_INVALID_SESSION_TOKEN("TN-5018", "OTP external service Invalid session token exception"),
+    OTP_VERIFY_OTP_FAILED("TN-5019", "OTP external service Otp verification failed exception"),
+    OTP_VERIFY_ATTEMPTS_EXCEEDED("TN-5020", "otp verification attempts exceeded exception"),
+    OTP_VERIFY_FAILED_ATTEMPTS_EXCEEDED("TN-5021", "Max otp verification failed attempt is reached exception"),
+    OTP_VERIFY_FAILED_TO_VERIFY("TN-5022", "Failed to verify OTP in OTP exception"),
+    OTP_VERIFY_NOT_FOUND_USER_IN_DB("TN-5023", "Could not find user in database exception"),
+    OTP_VERIFY_USER_BLOCKED_STATUS("TN-5024", "User is in blocked status in database. Operation not allowed"),
+    OTP_VERIFY_USER_INACTIVE_STATUS("TN-5025", "User is in inactive status in database. Operation not allowed"),
+    OTP_VERIFY_USER_FAILED_TO_DECRYPT("TN-5026", "Failed to decrypt OTP exception."),
 
     //Middleware error codes
     CONNECTION_TIMEOUT_MW("TN-8002", "Middleware Connection Timeout"),

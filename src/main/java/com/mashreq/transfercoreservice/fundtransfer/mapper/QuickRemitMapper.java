@@ -1,7 +1,9 @@
 package com.mashreq.transfercoreservice.fundtransfer.mapper;
 
-import com.mashreq.mobcommons.config.http.RequestMetaData;
-import com.mashreq.transfercoreservice.fundtransfer.dto.*;
+import com.mashreq.mobcommons.services.http.RequestMetaData;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferContext;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.QuickRemitFundTransferRequest;
 
 /**
  * @author shahbazkh

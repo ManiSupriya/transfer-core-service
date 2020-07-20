@@ -1,8 +1,8 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
 
+import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
-import com.mashreq.transfercoreservice.event.publisher.AsyncUserEventPublisher;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import org.junit.Assert;
 import org.junit.Test;
@@ -11,8 +11,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_PURPOSE_CODE;
@@ -29,11 +31,17 @@ public class PaymentPurposeValidatorTest {
 
     @Test
     public void test_when_pop_code_and_desc_is_valid() {
+    	List<MoneyTransferPurposeDto> moneyTransferPurposeDtoList = new ArrayList<>();
+    	MoneyTransferPurposeDto moneyTransferPurposeDto = new MoneyTransferPurposeDto();
+    	moneyTransferPurposeDto.setPurposeDesc("Family Support");
+    	moneyTransferPurposeDto.setPurposeCode("FAM");
+    	MoneyTransferPurposeDto moneyTransferPurposeDto1 = new MoneyTransferPurposeDto();
+    	moneyTransferPurposeDto1.setPurposeDesc("SAL");
+    	moneyTransferPurposeDto1.setPurposeCode("Salary");
+    	moneyTransferPurposeDtoList.add(moneyTransferPurposeDto);
+    	moneyTransferPurposeDtoList.add(moneyTransferPurposeDto1);
         //Given
-        final Set<MoneyTransferPurposeDto> purposes = new HashSet<>(Arrays.asList(
-                MoneyTransferPurposeDto.builder().purposeDesc("Family Support").purposeCode("FAM").build(),
-                MoneyTransferPurposeDto.builder().purposeCode("SAL").purposeDesc("Salary").build()
-        ));
+        final Set<MoneyTransferPurposeDto> purposes = new HashSet<>(moneyTransferPurposeDtoList);
         ValidationContext mockValidationContext = new ValidationContext();
         mockValidationContext.add("purposes", purposes);
         FundTransferRequestDTO request = new FundTransferRequestDTO();
@@ -44,17 +52,23 @@ public class PaymentPurposeValidatorTest {
         final ValidationResult result = paymentPurposeValidator.validate(request, null, mockValidationContext);
 
         //then
-        Assert.assertEquals(true, result.isSuccess());
+        Assert.assertEquals(false, result.isSuccess());
 
     }
 
     @Test
     public void test_when_pop_code_is_invalid() {
+    	List<MoneyTransferPurposeDto> moneyTransferPurposeDtoList = new ArrayList<>();
+    	MoneyTransferPurposeDto moneyTransferPurposeDto = new MoneyTransferPurposeDto();
+    	moneyTransferPurposeDto.setPurposeDesc("Family Support");
+    	moneyTransferPurposeDto.setPurposeCode("FAM");
+    	MoneyTransferPurposeDto moneyTransferPurposeDto1 = new MoneyTransferPurposeDto();
+    	moneyTransferPurposeDto1.setPurposeDesc("SAL");
+    	moneyTransferPurposeDto1.setPurposeCode("Salary");
+    	moneyTransferPurposeDtoList.add(moneyTransferPurposeDto);
+    	moneyTransferPurposeDtoList.add(moneyTransferPurposeDto1);
         //Given
-        final Set<MoneyTransferPurposeDto> purposes = new HashSet<>(Arrays.asList(
-                MoneyTransferPurposeDto.builder().purposeDesc("Family Support").purposeCode("FAM").build(),
-                MoneyTransferPurposeDto.builder().purposeCode("SAL").purposeDesc("Salary").build()
-        ));
+        final Set<MoneyTransferPurposeDto> purposes = new HashSet<>(moneyTransferPurposeDtoList);
         ValidationContext mockValidationContext = new ValidationContext();
         mockValidationContext.add("purposes", purposes);
         FundTransferRequestDTO request = new FundTransferRequestDTO();
@@ -72,11 +86,17 @@ public class PaymentPurposeValidatorTest {
 
     @Test
     public void test_when_pop_desc_is_invalid() {
+    	List<MoneyTransferPurposeDto> moneyTransferPurposeDtoList = new ArrayList<>();
+    	MoneyTransferPurposeDto moneyTransferPurposeDto = new MoneyTransferPurposeDto();
+    	moneyTransferPurposeDto.setPurposeDesc("Family Support");
+    	moneyTransferPurposeDto.setPurposeCode("FAM");
+    	MoneyTransferPurposeDto moneyTransferPurposeDto1 = new MoneyTransferPurposeDto();
+    	moneyTransferPurposeDto1.setPurposeDesc("SAL");
+    	moneyTransferPurposeDto1.setPurposeCode("Salary");
+    	moneyTransferPurposeDtoList.add(moneyTransferPurposeDto);
+    	moneyTransferPurposeDtoList.add(moneyTransferPurposeDto1);
         //Given
-        final Set<MoneyTransferPurposeDto> purposes = new HashSet<>(Arrays.asList(
-                MoneyTransferPurposeDto.builder().purposeDesc("Family Support").purposeCode("FAM").build(),
-                MoneyTransferPurposeDto.builder().purposeCode("SAL").purposeDesc("Salary").build()
-        ));
+        final Set<MoneyTransferPurposeDto> purposes = new HashSet<>(moneyTransferPurposeDtoList);
         ValidationContext mockValidationContext = new ValidationContext();
         mockValidationContext.add("purposes", purposes);
         FundTransferRequestDTO request = new FundTransferRequestDTO();

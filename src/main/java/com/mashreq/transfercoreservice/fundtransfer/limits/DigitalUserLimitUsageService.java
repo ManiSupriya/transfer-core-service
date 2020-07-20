@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -15,7 +17,7 @@ public class DigitalUserLimitUsageService {
 
     public void insert(DigitalUserLimitUsageDTO digitalUserLimitUsageDTO) {
         log.info("Store limit usage for CIF={} and beneficiaryTypeCode={} ",
-                digitalUserLimitUsageDTO.getCif(), digitalUserLimitUsageDTO.getDigitalUserId());
+                htmlEscape(digitalUserLimitUsageDTO.getCif()), htmlEscape(Long.toString(digitalUserLimitUsageDTO.getDigitalUserId())));
         DigitalUserLimitUsage digitalUserLimitUsage = digitalUserLimitUsageMapper.userLimitUsageDTOToEntity(digitalUserLimitUsageDTO);
         digitalUserLimitUsageRepository.save(digitalUserLimitUsage);
     }

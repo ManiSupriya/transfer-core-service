@@ -1,7 +1,7 @@
 package com.mashreq.transfercoreservice.client.dto;
 
-import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotBlank;
@@ -9,7 +9,7 @@ import javax.validation.constraints.Pattern;
 import java.math.BigDecimal;
 
 @Data
-@Builder
+@NoArgsConstructor
 public class CoreCurrencyConversionRequestDto {
 
     @NotBlank

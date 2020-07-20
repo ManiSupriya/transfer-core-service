@@ -5,6 +5,7 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_N
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACC_EXTERNAL_SERVICE_ERROR;
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -53,7 +54,7 @@ public class AccountService {
 	 private final FeesExternalConfig feeCodeConfig;
 
 	public List<AccountDetailsDTO> getAccountsFromCore(final String cifId) {
-		log.info("Fetching accounts for cifId {} ", cifId);
+		log.info("Fetching accounts for cifId {} ", htmlEscape(cifId));
 		Response<CifProductsDto> cifProductsResponse = accountClient.searchAccounts(cifId, null);
 
 		if (ResponseStatus.ERROR == cifProductsResponse.getStatus() || isNull(cifProductsResponse.getData())) {
@@ -62,13 +63,13 @@ public class AccountService {
 		}
 
 		List<AccountDetailsDTO> accounts = convertResponseToAccounts(cifProductsResponse.getData());
-		log.info("{} Accounts fetched for cif id {} ", accounts.size(), cifId);
+		log.info("{} Accounts fetched for cif id {} ", htmlEscape(Integer.toString(accounts.size())), htmlEscape(cifId));
 		return accounts;
 
 	}
 
 	public SearchAccountDto getAccountDetailsFromCore(final String accountNumber) {
-		log.info("Fetching account details for accountNumber {} ", accountNumber);
+		log.info("Fetching account details for accountNumber {} ", htmlEscape(accountNumber));
 		Response<CoreAccountDetailsDTO> response = accountClient.getAccountDetails(accountNumber);
 
 		if (ResponseStatus.ERROR == response.getStatus() || isNull(response.getData())) {
@@ -76,7 +77,7 @@ public class AccountService {
 			GenericExceptionHandler.handleError(ACC_EXTERNAL_SERVICE_ERROR,
 					ACC_EXTERNAL_SERVICE_ERROR.getErrorMessage(), getErrorDetails(response));
 		}
-		log.info("Accounts fetched for account number {}  ", accountNumber);
+		log.info("Accounts fetched for account number {}  ", htmlEscape(accountNumber));
 
 		Optional<SearchAccountDto> searchAccountOpt = response.getData().getConnectedAccounts().stream().findFirst();
 
@@ -111,13 +112,19 @@ public class AccountService {
 	}
 
 	private AccountDetailsDTO convertCoreAccountsToAccountDTO(SearchAccountDto coreAccount) {
-		return AccountDetailsDTO.builder().accountName(coreAccount.getAccountName())
-				.availableBalance(convertStringToBigDecimal(coreAccount.getAvailableBalance()))
-				.customerName(coreAccount.getCustomerName()).accountName(coreAccount.getAccountName())
-				.schemeType(coreAccount.getAccountType().getSchemaType())
-				.accountType(coreAccount.getAccountType().getAccountType()).currency(coreAccount.getCurrency())
-				.number(coreAccount.getNumber()).status(coreAccount.getStatus()).segment("conventional")
-				.branchCode(coreAccount.getBranch()).build();
+		AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
+		accountDetailsDTO.setAccountName(coreAccount.getAccountName());
+		accountDetailsDTO.setAvailableBalance(convertStringToBigDecimal(coreAccount.getAvailableBalance()));
+		accountDetailsDTO.setCustomerName(coreAccount.getCustomerName());
+		accountDetailsDTO.setAccountName(coreAccount.getAccountName());
+		accountDetailsDTO.setSchemeType(coreAccount.getAccountType().getSchemaType());
+		accountDetailsDTO.setAccountType(coreAccount.getAccountType().getAccountType());
+		accountDetailsDTO.setCurrency(coreAccount.getCurrency());
+		accountDetailsDTO.setNumber(coreAccount.getNumber());
+		accountDetailsDTO.setStatus(coreAccount.getStatus());
+		accountDetailsDTO.setSegment("conventional");
+		accountDetailsDTO.setBranchCode(coreAccount.getBranch());
+		return accountDetailsDTO;
 	}
 
 	private List<AccountDetailsDTO> convertResponseToAccounts(CifProductsDto cifProductsDto) {
@@ -130,11 +137,12 @@ public class AccountService {
 	}
 
 	public Response<List<CardLessCashQueryResponse>> cardLessCashRemitQuery(CardLessCashQueryRequest cardLessCashQueryRequest) {
+		log.info("cardless cash query request {} ", cardLessCashQueryRequest);
 		return Response.<List<CardLessCashQueryResponse>>builder().status(ResponseStatus.SUCCESS).data(accountCardLessCashQueryService.getResponse(cardLessCashQueryRequest).getData()).build();
 	}
 
 	public Response<CardLessCashBlockResponse> blockCardLessCashRequest(CardLessCashBlockRequest blockRequest) {
-		log.info("blockRequest {} ", blockRequest);
+		log.info("cardless cash blockRequest {} ", blockRequest);
 
 		return accountCardLessCashBlockRequestService.getResponse(blockRequest);
 
@@ -142,7 +150,7 @@ public class AccountService {
 
 	public Response<CardLessCashGenerationResponse> cardLessCashRemitGenerationRequest(
 			CardLessCashGenerationRequest cardLessCashGenerationRequest, String userMobileNumber) {
-		log.info("cardLessCashGenerationRequest {} ", cardLessCashGenerationRequest);
+		log.info("cardLess cash request Generation {} ", cardLessCashGenerationRequest);
 
 		CardLessCashGenReq cardLessCashGenReq = CardLessCashGenReq.builder()
 				.accountNumber(cardLessCashGenerationRequest.getAccountNo())

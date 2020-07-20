@@ -10,6 +10,7 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.logcore.annotations.TrackExec;
+import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashQueryRequest;
 import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashQueryResponse;
 import com.mashreq.transfercoreservice.client.AccountClient;
@@ -51,5 +52,9 @@ public class AccountCardLessCashQueryService implements CoreEnquiryService<List<
 	@Override
 	public TransferErrorCode assignFeignConnectionErrorCode() {
 		 return ACC_SERVICE_CONNECTION_ERROR;
+	}
+	@Override
+	public void assignCustomErrorCode(String errorDetail, TransferErrorCode errorCode) {
+		GenericExceptionHandler.handleError(errorCode, errorCode.getErrorMessage());
 	}
 }
