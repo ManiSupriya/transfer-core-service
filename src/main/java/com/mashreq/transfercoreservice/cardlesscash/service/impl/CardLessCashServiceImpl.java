@@ -1,6 +1,7 @@
 package com.mashreq.transfercoreservice.cardlesscash.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -22,9 +23,15 @@ import com.mashreq.transfercoreservice.client.service.OTPService;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.webcore.dto.response.Response;
 import static com.mashreq.transfercoreservice.common.CommonConstants.*;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
+
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.PaymentHistoryDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.service.PaymentHistoryService;
+import com.mashreq.transfercoreservice.model.DigitalUser;
+import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
+
 import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 import lombok.AllArgsConstructor;
@@ -41,6 +48,7 @@ public class CardLessCashServiceImpl implements CardLessCashService {
     private AsyncUserEventPublisher asyncUserEventPublisher;
     private final PaymentHistoryService paymentHistoryService;
     private final OTPService otpService;
+    private final DigitalUserRepository digitalUserRepository;
 
     @Override
 	public Response<CardLessCashBlockResponse> blockCardLessCashRequest(CardLessCashBlockRequest blockRequest,
@@ -105,6 +113,10 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 			GenericExceptionHandler.handleError(TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR,
 					ge.getErrorDetails(), ge.getErrorDetails());
 		}
+		 DigitalUser digitalUser = getDigitalUser(metaData);
+
+	        log.info("Creating  User DTO");
+	        UserDTO userDTO = createUserDTO(metaData, digitalUser);
 		try {
 			cardLessCashGenerationResponse = accountService
 					.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest, userMobileNumber);
@@ -118,7 +130,7 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 			/**
 			 * Insert payment history irrespective of payment fails or success
 			 */
-			generatePaymentHistory(cardLessCashGenerationRequest, cardLessCashGenerationResponse, metaData, metaData.getUserCacheKey());
+			generatePaymentHistory(cardLessCashGenerationRequest, cardLessCashGenerationResponse, metaData, userDTO);
 			throw exception;
 
 		} catch (Exception exception) {
@@ -126,7 +138,7 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 					metaData, CARD_LESS_CASH, metaData.getChannelTraceId(),
 					TransferErrorCode.ACC_EXTERNAL_SERVICE_ERROR.toString(),
 					TransferErrorCode.ACC_EXTERNAL_SERVICE_ERROR.getErrorMessage(), exception.getMessage());
-			generatePaymentHistory(cardLessCashGenerationRequest, cardLessCashGenerationResponse, metaData, metaData.getUserCacheKey());
+			generatePaymentHistory(cardLessCashGenerationRequest, cardLessCashGenerationResponse, metaData, userDTO);
 			GenericExceptionHandler.handleError(TransferErrorCode.ACC_EXTERNAL_SERVICE_ERROR,
 					TransferErrorCode.ACC_EXTERNAL_SERVICE_ERROR.getErrorMessage());
 
@@ -135,7 +147,7 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 		/**
 		 * Insert payment history irrespective of payment fails or success
 		 */
-		generatePaymentHistory(cardLessCashGenerationRequest, cardLessCashGenerationResponse, metaData, metaData.getUserCacheKey());
+		generatePaymentHistory(cardLessCashGenerationRequest, cardLessCashGenerationResponse, metaData, userDTO);
 
 		return cardLessCashGenerationResponse;
 	}
@@ -169,9 +181,9 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 	}
 	
 	private void generatePaymentHistory(CardLessCashGenerationRequest cardLessCashGenerationRequest,
-			Response<CardLessCashGenerationResponse> coreResponse, RequestMetaData metaData, String userId) {
+			Response<CardLessCashGenerationResponse> coreResponse, RequestMetaData metaData, UserDTO userDTO) {
 		
-		PaymentHistoryDTO paymentHistoryDTO = PaymentHistoryDTO.builder().cif(metaData.getPrimaryCif()).userId(Long.parseLong(userId)).channel(MOB_CHANNEL)
+		PaymentHistoryDTO paymentHistoryDTO = PaymentHistoryDTO.builder().cif(metaData.getPrimaryCif()).userId(userDTO.getUserId()).channel(MOB_CHANNEL)
 				.beneficiaryTypeCode(CARD_LESS_CASH).paidAmount(cardLessCashGenerationRequest.getAmount())
 				.status(coreResponse.getStatus().toString()).ipAddress(metaData.getDeviceIP())
 				.mwReferenceNo(coreResponse.getData().getReferenceNumber())
@@ -183,5 +195,25 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 		paymentHistoryService.insert(paymentHistoryDTO);
 
 	}
+	private UserDTO createUserDTO(RequestMetaData fundTransferMetadata, DigitalUser digitalUser) {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setCifId(fundTransferMetadata.getPrimaryCif());
+        userDTO.setUserId(digitalUser.getId());
+        userDTO.setSegmentId(digitalUser.getDigitalUserGroup().getSegment().getId());
+        userDTO.setCountryId(digitalUser.getDigitalUserGroup().getCountry().getId());
+        userDTO.setLocalCurrency(digitalUser.getDigitalUserGroup().getCountry().getLocalCurrency());
 
+        log.info("User DTO  created {} ", userDTO);
+        return userDTO;
+    }
+	private DigitalUser getDigitalUser(RequestMetaData metaData) {
+        Optional<DigitalUser> digitalUserOptional = digitalUserRepository.findByCifEquals(metaData.getPrimaryCif());
+        if (!digitalUserOptional.isPresent()) {
+            GenericExceptionHandler.handleError(INVALID_CIF, INVALID_CIF.getErrorMessage());
+        }
+        log.info("Digital User found successfully {} ", digitalUserOptional.get());
+
+        return digitalUserOptional.get();
+    }
+	
 }
