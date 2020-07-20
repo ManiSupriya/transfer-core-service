@@ -64,15 +64,11 @@ external:
           VERIFY_OTP_USSM_101: NOT_FOUND_USER_IN_DB
           VERIFY_OTP_USSM_102: USER_BLOCKED_STATUS
           VERIFY_OTP_USSM_103: USER_INACTIVE_STATUS
+          VERIFY_OTP_USSM_104: FAILED_TO_DECRYPT
   fees-code:
     mapper:
       fees:
         cardLessCashFees: '0'
-  otp-code:
-    mapper:
-       otp:
-         dpPublicKey: 1
-         dpRandomNumber: 1234
 
 app:
   local:

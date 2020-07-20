@@ -97,6 +97,7 @@ public enum TransferErrorCode implements ErrorCode {
     OTP_VERIFY_NOT_FOUND_USER_IN_DB("TN-5023", "Could not find user in database exception"),
     OTP_VERIFY_USER_BLOCKED_STATUS("TN-5024", "User is in blocked status in database. Operation not allowed"),
     OTP_VERIFY_USER_INACTIVE_STATUS("TN-5025", "User is in inactive status in database. Operation not allowed"),
+    OTP_VERIFY_USER_FAILED_TO_DECRYPT("TN-5026", "Failed to decrypt OTP exception."),
 
     //Middleware error codes
     CONNECTION_TIMEOUT_MW("TN-8002", "Middleware Connection Timeout"),

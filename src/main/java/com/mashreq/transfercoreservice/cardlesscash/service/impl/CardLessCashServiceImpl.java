@@ -19,7 +19,6 @@ import com.mashreq.transfercoreservice.client.dto.VerifyOTPRequestDTO;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPResponseDTO;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.OTPService;
-import com.mashreq.transfercoreservice.common.OTPExternalConfig;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.webcore.dto.response.Response;
 import static com.mashreq.transfercoreservice.common.CommonConstants.*;
@@ -42,7 +41,6 @@ public class CardLessCashServiceImpl implements CardLessCashService {
     private AsyncUserEventPublisher asyncUserEventPublisher;
     private final PaymentHistoryService paymentHistoryService;
     private final OTPService otpService;
-	private final OTPExternalConfig otpConfig;
 
     @Override
 	public Response<CardLessCashBlockResponse> blockCardLessCashRequest(CardLessCashBlockRequest blockRequest,
@@ -81,8 +79,8 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 		VerifyOTPRequestDTO verifyOTPRequestDTO = new VerifyOTPRequestDTO();
 		verifyOTPRequestDTO.setOtp(cardLessCashGenerationRequest.getOtp());
 		verifyOTPRequestDTO.setChallengeToken(cardLessCashGenerationRequest.getChallengeToken());
-		verifyOTPRequestDTO.setDpPublicKeyIndex(otpConfig.getDpPublicKey());
-		verifyOTPRequestDTO.setDpRandomNumber(otpConfig.getDpRandomNumber());
+		verifyOTPRequestDTO.setDpPublicKeyIndex(cardLessCashGenerationRequest.getDpPublicKeyIndex());
+		verifyOTPRequestDTO.setDpRandomNumber(cardLessCashGenerationRequest.getDpRandomNumber());
 		verifyOTPRequestDTO.setLoginId(userId);
 		verifyOTPRequestDTO.setRedisKey(metaData.getUserCacheKey());
 		log.info("cardLessCash Generation otp request{} ", verifyOTPRequestDTO);

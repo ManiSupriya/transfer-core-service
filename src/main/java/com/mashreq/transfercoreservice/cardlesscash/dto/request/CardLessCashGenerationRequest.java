@@ -25,4 +25,6 @@ public class CardLessCashGenerationRequest {
     private BigDecimal amount;
     private String otp;
     private String challengeToken;
+    private int dpPublicKeyIndex;
+    private String dpRandomNumber; 
 }
