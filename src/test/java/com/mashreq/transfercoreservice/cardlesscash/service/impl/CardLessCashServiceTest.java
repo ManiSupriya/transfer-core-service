@@ -1,7 +1,6 @@
 package com.mashreq.transfercoreservice.cardlesscash.service.impl;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -28,7 +27,6 @@ import com.mashreq.transfercoreservice.client.dto.VerifyOTPRequestDTO;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPResponseDTO;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.OTPService;
-import com.mashreq.transfercoreservice.common.OTPExternalConfig;
 import com.mashreq.transfercoreservice.fundtransfer.service.PaymentHistoryService;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
@@ -51,9 +49,7 @@ public class CardLessCashServiceTest {
 	 @Mock
 	 PaymentHistoryService paymentHistoryService;
 	 @Mock
-	 Response<CardLessCashGenerationResponse> coreResponse;
-	 @Mock
-	 OTPExternalConfig otpConfig;	 
+	 Response<CardLessCashGenerationResponse> coreResponse;	 
 	 @Mock
 	 VerifyOTPRequestDTO verifyOTPRequestDTO;	 
 	 @Mock
