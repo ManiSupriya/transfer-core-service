@@ -3,7 +3,6 @@ package com.mashreq.transfercoreservice.cardlesscash.dto.response;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

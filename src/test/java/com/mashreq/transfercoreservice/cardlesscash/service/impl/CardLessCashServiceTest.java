@@ -24,11 +24,15 @@ import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashQuer
 import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashBlockResponse;
 import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashGenerationResponse;
 import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashQueryResponse;
+import com.mashreq.transfercoreservice.cardlesscash.dto.response.LimitValidatorResponse;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPRequestDTO;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPResponseDTO;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.OTPService;
+import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsage;
+import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageRepository;
 import com.mashreq.transfercoreservice.fundtransfer.service.PaymentHistoryService;
+import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
 import com.mashreq.transfercoreservice.model.Country;
 import com.mashreq.transfercoreservice.model.DigitalUser;
 import com.mashreq.transfercoreservice.model.DigitalUserGroup;
@@ -62,6 +66,14 @@ public class CardLessCashServiceTest {
 	 OTPService iamService;
 	 @Mock
 	 DigitalUserRepository digitalUserRepository;
+	 @Mock
+	 BalanceValidator balanceValidator;
+	 @Mock
+	 DigitalUserLimitUsageRepository digitalUserLimitUsageRepository;
+	 @Mock
+	 DigitalUserLimitUsage digitalUserLimitUsage;
+	 @Mock
+	 LimitValidatorResponse limitValidatorResponse;
 	 
     @Test
     public void blockCardLessCashRequestTest() {
@@ -72,9 +84,8 @@ public class CardLessCashServiceTest {
                 .referenceNumber(referenceNumber)
                 .build();
         cardLessCashBlockResponse.setSuccess(true);
-        Mockito.when(accountService.blockCardLessCashRequest(cardLessCashBlockRequest))
+        Mockito.when(accountService.blockCardLessCashRequest(cardLessCashBlockRequest, metaData))
                 .thenReturn(Response.<CardLessCashBlockResponse>builder().data(cardLessCashBlockResponse).build());
-        Mockito.doNothing().when(asyncUserEventPublisher).publishSuccessfulEsbEvent(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
         Response<CardLessCashBlockResponse> cashBlockResponseResponse =
         		cardLessCashServiceImpl.blockCardLessCashRequest(cardLessCashBlockRequest, metaData);
         Assert.assertNotNull(cashBlockResponseResponse);
@@ -93,12 +104,10 @@ public class CardLessCashServiceTest {
 		CardLessCashGenerationResponse cardLessCashGenerationRes = new CardLessCashGenerationResponse();
         cardLessCashGenerationRes.setExpiryDateTime(LocalDateTime.now());
         cardLessCashGenerationRes.setReferenceNumber("test");
-		Mockito.when(accountService.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest, mobileNo))
+		Mockito.when(accountService.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest, mobileNo, metaData))
 				.thenReturn(Response.<CardLessCashGenerationResponse>builder().status(ResponseStatus.SUCCESS).errorCode("test").data(cardLessCashGenerationRes).build());
 		VerifyOTPResponseDTO verifyOTPResponseDTO = new VerifyOTPResponseDTO();
 		verifyOTPResponseDTO.setAuthenticated(true);
-		Mockito.doNothing().when(asyncUserEventPublisher).publishSuccessfulEsbEvent(Mockito.any(), Mockito.any(),
-				Mockito.any(), Mockito.any());
 		Segment segment = new Segment();
 		segment.setId(1L);
 		 Country country = new Country();
@@ -109,11 +118,21 @@ public class CardLessCashServiceTest {
 		digitalUserGroup.setCountry(country);
 		DigitalUser digitalUser = new DigitalUser();
 		digitalUser.setId(2L);
+		digitalUser.setCif("1234");
 		digitalUser.setDigitalUserGroup(digitalUserGroup);
 		Optional<DigitalUser> digiUser= Optional.of(digitalUser);
 		Mockito.when(digitalUserRepository.findByCifEquals(Mockito.any())).thenReturn(digiUser);
 		Mockito.when(iamService.verifyOTP(Mockito.any())).thenReturn(Response.<VerifyOTPResponseDTO>builder().status(ResponseStatus.SUCCESS).data(verifyOTPResponseDTO).build());
 		Mockito.doNothing().when(paymentHistoryService).insert(Mockito.any());
+		Mockito.when(balanceValidator.validateBalance(Mockito.any(), Mockito.any())).thenReturn(true);
+		Mockito.when(digitalUserLimitUsageRepository.save(Mockito.any())).thenReturn(digitalUserLimitUsage);
+		limitValidatorResponse.setAmountRemark("test");
+		limitValidatorResponse.setCountRemark("test");
+		limitValidatorResponse.setCurrentAvailableAmount(new BigDecimal("100000"));
+		limitValidatorResponse.setCurrentAvailableCount(new BigDecimal("10000"));
+		limitValidatorResponse.setTrxReferanceNo("ANCV");
+		limitValidatorResponse.setValid(true);
+		Mockito.when(digitalUserLimitUsageRepository.checkLimit(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.any())).thenReturn(limitValidatorResponse);
 		Response<CardLessCashGenerationResponse> cardLessCashGenerationResponse = cardLessCashServiceImpl
 				.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest, mobileNo, userId, metaData);
 		Assert.assertNotNull(cardLessCashGenerationResponse);
@@ -137,9 +156,8 @@ public class CardLessCashServiceTest {
         cardLessCashQueryResponse.setRedeemedDate(LocalDate.now());
 		List<CardLessCashQueryResponse> cardLessCashQueryResponseList = new ArrayList<>();
 		cardLessCashQueryResponseList.add(cardLessCashQueryResponse);
-		Mockito.when(accountService.cardLessCashRemitQuery(cardLessCashQueryRequest)).thenReturn(
+		Mockito.when(accountService.cardLessCashRemitQuery(cardLessCashQueryRequest, metaData)).thenReturn(
 				Response.<List<CardLessCashQueryResponse>>builder().data(cardLessCashQueryResponseList).build());
-        Mockito.doNothing().when(asyncUserEventPublisher).publishSuccessfulEsbEvent(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
 		Response<List<CardLessCashQueryResponse>> cardLessCashQueryRes = cardLessCashServiceImpl
 				.cardLessCashRemitQuery(cardLessCashQueryRequest, metaData);
 		Assert.assertNotNull(cardLessCashQueryRes);
