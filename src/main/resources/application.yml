@@ -18,6 +18,10 @@ spring:
     url: ${MSSQL_DEV_URL}
     username: ${MSSQL_DEV_USERNAME}
     password: ${MSSQL_DB_KEY}
+    hikari:
+      poolName: hikari-life-insur-db-pool
+      maxPoolSize: ${MSSQL_HIKARI_MAX_POOL_SIZE:30}
+      minimumConnections: ${MSSQL_HIKARI_MIN_CONNECTIONS:10}
   jpa:
     show-sql: false
     properties:
@@ -118,26 +122,33 @@ mob-common:
     maxResponseLength: 1000
   threadPool:
     userEventAuditTaskExecutor:
-      maxPoolSize: 60
-      corePoolSize: 40
-      queueCapacity: 100
-      keepAliveSeconds: 60
-      threadNamePrefix: mob-transfer-usereventlog-pool
+      maxPoolSize: ${EVENT_EXECUTOR_MAX_POOL_SIZE:30}
+      corePoolSize: ${EVENT_EXECUTOR_CORE_POOL_SIZE:20}
+      queueCapacity: ${EVENT_EXECUTOR_QUEUE_CAPACITY:60}
+      keepAliveSeconds: ${EVENT_EXECUTOR_KEEP_ALIVE:60}
+      threadNamePrefix: mob-insurance-life-usereventlog-pool
     generalTaskExecutor:
-      maxPoolSize: 30
-      corePoolSize: 20
-      queueCapacity: 50
-      keepAliveSeconds: 60
-      threadNamePrefix: mob-transfer-general-pool
+      maxPoolSize: ${GENERAL_EXECUTOR_MAX_POOL_SIZE:30}
+      corePoolSize: ${GENERAL_EXECUTOR_CORE_POOL_SIZE:20}
+      queueCapacity: ${GENERAL_EXECUTOR_QUEUE_CAPACITY:60}
+      keepAliveSeconds: ${GENERAL_EXECUTOR_KEEP_ALIVE:60}
+      threadNamePrefix: mob-insurance-life-general-pool
   commonUserEventDataSource:
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
     jdbcUrl: ${MSSQL_EVENT_DEV_URL:jdbc:sqlserver://10.196.3.22:1433;databaseName=MOB-DEV}
     username: ${MSSQL_EVENT_DEV_USERNAME:Mobdbuser}
     password: ${MSSQL_EVENT_DB_KEY:Mobdbuser}
-    maxPoolSize: 40
+    maxPoolSize: ${MSSQL_EVENT_MAX_POOL_SIZE:40}
     poolName: hikari-user-events-life-pool
-    minimumidletime: 600000
+    minimumConnections: ${MSSQL_EVENT_MIN_CONNECTIONS:10}
 
+feign:
+  hystrix:
+    enabled: false
+  httpclient:
+    enabled: true
+    max-connections: ${FEIGN_MAX_CONNECTION:200}
+    connection-timeout: ${FEIGN_CONNECTION_TIMEOUT:2000}
 
 redis:
   enable: true
