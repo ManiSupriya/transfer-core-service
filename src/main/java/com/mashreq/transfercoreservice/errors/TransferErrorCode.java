@@ -1,9 +1,7 @@
 package com.mashreq.transfercoreservice.errors;
 
 import com.mashreq.ms.exceptions.ErrorCode;
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 /**
  * @author shahbazkh
@@ -89,15 +87,15 @@ public enum TransferErrorCode implements ErrorCode {
     ACC_SERVICE_EXCEED_WITHDRAWL_LIMIT_ERROR("TN-5016", "Account external service exceeds withdrawal limit exception"),
     OTP_EXTERNAL_SERVICE_ERROR("TN-5016", "Something went wrong with OTP external service"),
     OTP_SERVICE_CONNECTION_ERROR("TN-5017", "OTP external service connection exception"),    
-    OTP_VERIFY_INVALID_SESSION_TOKEN("TN-5018", "OTP external service Invalid session token exception"),
-    OTP_VERIFY_OTP_FAILED("TN-5019", "OTP external service Otp verification failed exception"),
-    OTP_VERIFY_ATTEMPTS_EXCEEDED("TN-5020", "otp verification attempts exceeded exception"),
-    OTP_VERIFY_FAILED_ATTEMPTS_EXCEEDED("TN-5021", "Max otp verification failed attempt is reached exception"),
-    OTP_VERIFY_FAILED_TO_VERIFY("TN-5022", "Failed to verify OTP in OTP exception"),
-    OTP_VERIFY_NOT_FOUND_USER_IN_DB("TN-5023", "Could not find user in database exception"),
-    OTP_VERIFY_USER_BLOCKED_STATUS("TN-5024", "User is in blocked status in database. Operation not allowed"),
-    OTP_VERIFY_USER_INACTIVE_STATUS("TN-5025", "User is in inactive status in database. Operation not allowed"),
-    OTP_VERIFY_USER_FAILED_TO_DECRYPT("TN-5026", "Failed to decrypt OTP exception."),
+    OTP_VERIFY_INVALID_SESSION_TOKEN("VERIFY_OTP_4003", "OTP external service Invalid session token exception"),
+    OTP_VERIFY_OTP_FAILED("VERIFY_OTP_10020", "OTP external service Otp verification failed exception"),
+    OTP_VERIFY_ATTEMPTS_EXCEEDED("VERIFY_OTP_10200", "otp verification attempts exceeded exception"),
+    OTP_VERIFY_FAILED_ATTEMPTS_EXCEEDED("VERIFY_OTP_10403", "Max otp verification failed attempt is reached exception"),
+    OTP_VERIFY_FAILED_TO_VERIFY("VERIFY_OTP_USSM_100", "Failed to verify OTP in OTP exception"),
+    OTP_VERIFY_NOT_FOUND_USER_IN_DB("VERIFY_OTP_USSM_101", "Could not find user in database exception"),
+    OTP_VERIFY_USER_BLOCKED_STATUS("VERIFY_OTP_USSM_102", "User is in blocked status in database. Operation not allowed"),
+    OTP_VERIFY_USER_INACTIVE_STATUS("VERIFY_OTP_USSM_103", "User is in inactive status in database. Operation not allowed"),
+    OTP_VERIFY_USER_FAILED_TO_DECRYPT("VERIFY_OTP_USSM_104", "Failed to decrypt OTP exception."),
 
     //Middleware error codes
     CONNECTION_TIMEOUT_MW("TN-8002", "Middleware Connection Timeout"),

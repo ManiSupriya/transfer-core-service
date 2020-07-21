@@ -16,6 +16,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
+import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashBlockRequest;
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashGenReq;
@@ -29,7 +31,9 @@ import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.CifProductsDto;
 import com.mashreq.transfercoreservice.client.dto.CoreAccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.SearchAccountDto;
+import com.mashreq.transfercoreservice.common.CommonConstants;
 import com.mashreq.transfercoreservice.common.FeesExternalConfig;
+import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
 
@@ -52,6 +56,7 @@ public class AccountService {
 	private final AccountCardLessCashRequestService accountCardLessCashRequestService;
 	private final AccountCardLessCashBlockRequestService accountCardLessCashBlockRequestService;
 	 private final FeesExternalConfig feeCodeConfig;
+	 private final AsyncUserEventPublisher asyncUserEventPublisher;
 
 	public List<AccountDetailsDTO> getAccountsFromCore(final String cifId) {
 		log.info("Fetching accounts for cifId {} ", htmlEscape(cifId));
@@ -136,27 +141,39 @@ public class AccountService {
 		return isBlank(bigDecimalValue) ? BigDecimal.ZERO : new BigDecimal(bigDecimalValue);
 	}
 
-	public Response<List<CardLessCashQueryResponse>> cardLessCashRemitQuery(CardLessCashQueryRequest cardLessCashQueryRequest) {
+	public Response<List<CardLessCashQueryResponse>> cardLessCashRemitQuery(CardLessCashQueryRequest cardLessCashQueryRequest, RequestMetaData metaData) {
 		log.info("cardless cash query request {} ", cardLessCashQueryRequest);
-		return Response.<List<CardLessCashQueryResponse>>builder().status(ResponseStatus.SUCCESS).data(accountCardLessCashQueryService.getResponse(cardLessCashQueryRequest).getData()).build();
+		return asyncUserEventPublisher.publishEventLifecycle(
+                () -> Response.<List<CardLessCashQueryResponse>>builder().status(ResponseStatus.SUCCESS).data(accountCardLessCashQueryService.getResponse(cardLessCashQueryRequest).getData()).build(),
+                FundTransferEventType.CARD_LESS_CASH_QUERY_DETAILS,
+                metaData, CommonConstants.CARD_LESS_CASH
+                );
 	}
 
-	public Response<CardLessCashBlockResponse> blockCardLessCashRequest(CardLessCashBlockRequest blockRequest) {
+	public Response<CardLessCashBlockResponse> blockCardLessCashRequest(CardLessCashBlockRequest blockRequest, RequestMetaData metaData) {
 		log.info("cardless cash blockRequest {} ", blockRequest);
 
-		return accountCardLessCashBlockRequestService.getResponse(blockRequest);
+		return asyncUserEventPublisher.publishEventLifecycle(
+                () -> accountCardLessCashBlockRequestService.getResponse(blockRequest),
+                FundTransferEventType.CARD_LESS_CASH_BLOCK_REQUEST,
+                metaData, CommonConstants.CARD_LESS_CASH
+                );
 
 	}
 
 	public Response<CardLessCashGenerationResponse> cardLessCashRemitGenerationRequest(
-			CardLessCashGenerationRequest cardLessCashGenerationRequest, String userMobileNumber) {
+			CardLessCashGenerationRequest cardLessCashGenerationRequest, String userMobileNumber, RequestMetaData metaData) {
 		log.info("cardLess cash request Generation {} ", cardLessCashGenerationRequest);
 
 		CardLessCashGenReq cardLessCashGenReq = CardLessCashGenReq.builder()
 				.accountNumber(cardLessCashGenerationRequest.getAccountNo())
 				.amount(cardLessCashGenerationRequest.getAmount()).mobileNo(userMobileNumber)
 				.fees(new BigDecimal(feeCodeConfig.getCardLessCashExternalFee())).build();
-		return accountCardLessCashRequestService.getResponse(cardLessCashGenReq);
+		return asyncUserEventPublisher.publishEventLifecycle(
+                () -> accountCardLessCashRequestService.getResponse(cardLessCashGenReq),
+                FundTransferEventType.CARD_LESS_CASH_GENERATION_REQUEST,
+                metaData, CommonConstants.CARD_LESS_CASH
+                );
 
 	}
 }

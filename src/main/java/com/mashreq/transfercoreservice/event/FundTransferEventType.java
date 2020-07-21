@@ -26,6 +26,8 @@ public enum FundTransferEventType implements EventType {
     CARD_LESS_CASH_GENERATION_FAILED("CARDLESS-CASH", "CARDLESS-CASH request generation failed"),
     CARD_LESS_CASH_QUERY_DETAILS_FAILED("CARDLESS-CASH", "CARDLESS-CASH query details failed"),
     CARD_LESS_CASH_BLOCK_REQUEST_FAILED("CARDLESS-CASH", "CARDLESS-CASH block request failed"),
+    CARD_LESS_CASH_BALANCE_VALIDATION_SUCCESS("CARDLESS-CASH", "Balance Validation Success"),
+    CARD_LESS_CASH_BALANCE_VALIDATION("CARDLESS-CASH", "Balance Validation Failed"),
 
     CHARITY_ACCOUNT_VALIDATION("FUND_TRANSFER", "Charity Account Validation"),
     ACCOUNT_BELONGS_TO_CIF("FUND_TRANSFER", "Account belongs to cif"),
@@ -39,6 +41,7 @@ public enum FundTransferEventType implements EventType {
     FUND_TRANSFER_MW_CALL("FUND_TRANSFER", "Call middleware for fund transfer"),
     QR_FUND_TRANSFER_MW_CALL("FUND_TRANSFER", "Call middleware for quick remit fund transfer"),
     LIMIT_VALIDATION("FUND_TRANSFER", "Call mob common to validate the spend limit"),
+    LIMIT_CHECK_FAILED("CARDLESS-CASH", "CARDLESS-CASH limit check failed"),
 
     IBAN_SEARCH_MW_CALL("FUND_TRANSFER_ENQUIRY","Get bank details using IBAN"),
     ROUTING_CODE_SEARCH_MW_CALL("FUND_TRANSFER_ENQUIRY","Get bank details using Routing code"),
