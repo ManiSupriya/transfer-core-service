@@ -22,4 +22,6 @@ public interface CommonConstants {
 	String USER_BLOCKED_STATUS = "USER_BLOCKED_STATUS";
 	String USER_INACTIVE_STATUS = "USER_INACTIVE_STATUS";
 	String FAILED_TO_DECRYPT = "FAILED_TO_DECRYPT";
+	String LIMIT_CHECK_FAILED = "CARDLESS-CASH limit check failed ";
+	String App_CODE = "transfer-core";
 }

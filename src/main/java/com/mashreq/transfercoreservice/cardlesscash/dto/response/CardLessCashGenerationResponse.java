@@ -2,7 +2,6 @@ package com.mashreq.transfercoreservice.cardlesscash.dto.response;
 
 import java.time.LocalDateTime;
 
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

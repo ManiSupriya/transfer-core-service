@@ -1,16 +1,16 @@
 package com.mashreq.transfercoreservice.cardlesscash.service.impl;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.stereotype.Service;
 
 import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashBlockResponse;
 import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashGenerationResponse;
 import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashQueryResponse;
+import com.mashreq.transfercoreservice.cardlesscash.dto.response.LimitValidatorResponse;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
-import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashBlockRequest;
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashGenerationRequest;
@@ -18,8 +18,10 @@ import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashQuer
 import com.mashreq.transfercoreservice.cardlesscash.service.CardLessCashService;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPRequestDTO;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPResponseDTO;
+import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitCheckType;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.OTPService;
+import com.mashreq.transfercoreservice.common.CommonConstants;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.webcore.dto.response.Response;
 import static com.mashreq.transfercoreservice.common.CommonConstants.*;
@@ -28,7 +30,10 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_C
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.PaymentHistoryDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
+import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsage;
+import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageRepository;
 import com.mashreq.transfercoreservice.fundtransfer.service.PaymentHistoryService;
+import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
 import com.mashreq.transfercoreservice.model.DigitalUser;
 import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
 
@@ -45,37 +50,18 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 public class CardLessCashServiceImpl implements CardLessCashService {
 	private final AccountService accountService;
-    private AsyncUserEventPublisher asyncUserEventPublisher;
-    private final PaymentHistoryService paymentHistoryService;
-    private final OTPService otpService;
-    private final DigitalUserRepository digitalUserRepository;
+	private AsyncUserEventPublisher asyncUserEventPublisher;
+	private final PaymentHistoryService paymentHistoryService;
+	private final OTPService otpService;
+	private final DigitalUserRepository digitalUserRepository;
+	private final DigitalUserLimitUsageRepository digitalUserLimitUsageRepository;
+	private final BalanceValidator balanceValidator;
 
-    @Override
+	@Override
 	public Response<CardLessCashBlockResponse> blockCardLessCashRequest(CardLessCashBlockRequest blockRequest,
 			RequestMetaData metaData) {
 
-		Response<CardLessCashBlockResponse> cardLessCashBlockResponse = null;
-		try {
-			cardLessCashBlockResponse = accountService.blockCardLessCashRequest(blockRequest);
-			asyncUserEventPublisher.publishSuccessfulEsbEvent(FundTransferEventType.CARD_LESS_CASH_BLOCK_REQUEST,
-					metaData, CARD_LESS_CASH, metaData.getChannelTraceId());
-
-		} catch (GenericException exception) {
-			asyncUserEventPublisher.publishFailedEsbEvent(FundTransferEventType.CARD_LESS_CASH_BLOCK_REQUEST_FAILED,
-					metaData, CARD_LESS_CASH, metaData.getChannelTraceId(), exception.getErrorCode(),
-					exception.getMessage(), exception.getErrorDetails());
-			throw exception;
-
-		} catch (Exception exception) {
-			asyncUserEventPublisher.publishFailedEsbEvent(FundTransferEventType.CARD_LESS_CASH_BLOCK_REQUEST_FAILED,
-					metaData, CARD_LESS_CASH, metaData.getChannelTraceId(),
-					TransferErrorCode.ACC_EXTERNAL_SERVICE_ERROR.toString(),
-					TransferErrorCode.ACC_EXTERNAL_SERVICE_ERROR.getErrorMessage(), exception.getMessage());
-			GenericExceptionHandler.handleError(TransferErrorCode.ACC_EXTERNAL_SERVICE_ERROR,
-					TransferErrorCode.ACC_EXTERNAL_SERVICE_ERROR.getErrorMessage());
-
-		}
-		return cardLessCashBlockResponse;
+		return accountService.blockCardLessCashRequest(blockRequest, metaData);
 	}
 
 	@Override
@@ -92,9 +78,8 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 		verifyOTPRequestDTO.setLoginId(userId);
 		verifyOTPRequestDTO.setRedisKey(metaData.getUserCacheKey());
 		log.info("cardLessCash Generation otp request{} ", verifyOTPRequestDTO);
-		try {
-		Response<VerifyOTPResponseDTO> verifyOTP = otpService.verifyOTP(verifyOTPRequestDTO);
-		log.info("cardLessCash Generation otp response{} ", htmlEscape(verifyOTP.getStatus().toString()));
+			Response<VerifyOTPResponseDTO> verifyOTP = otpService.verifyOTP(verifyOTPRequestDTO);
+			log.info("cardLessCash Generation otp response{} ", htmlEscape(verifyOTP.getStatus().toString()));
 			if (!verifyOTP.getData().isAuthenticated()) {
 				asyncUserEventPublisher.publishFailedEsbEvent(FundTransferEventType.CARD_LESS_CASH_OTP_DOES_NOT_MATCH,
 						metaData, CARD_LESS_CASH, metaData.getChannelTraceId(),
@@ -104,46 +89,46 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 				GenericExceptionHandler.handleError(TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR,
 						verifyOTP.getErrorDetails(), verifyOTP.getErrorDetails());
 			}
-		} catch (GenericException ge) {
-			asyncUserEventPublisher.publishFailedEsbEvent(FundTransferEventType.CARD_LESS_CASH_OTP_DOES_NOT_MATCH,
-					metaData, CARD_LESS_CASH, metaData.getChannelTraceId(),
-					TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.toString(),
-					TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.getErrorMessage(),
-					TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.getErrorMessage());
-			GenericExceptionHandler.handleError(TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR,
-					ge.getErrorDetails(), ge.getErrorDetails());
-		}
-		 DigitalUser digitalUser = getDigitalUser(metaData);
+		DigitalUser digitalUser = getDigitalUser(metaData);
 
-	        log.info("Creating  User DTO");
-	        UserDTO userDTO = createUserDTO(metaData, digitalUser);
-		try {
+		log.info("Creating  User DTO");
+		UserDTO userDTO = createUserDTO(metaData, digitalUser);
+		 if (!balanceValidator.validateBalance(cardLessCashGenerationRequest, metaData)) {
+			 asyncUserEventPublisher.publishFailureEvent(FundTransferEventType.CARD_LESS_CASH_BALANCE_VALIDATION, metaData, FundTransferEventType.CARD_LESS_CASH_BALANCE_VALIDATION.name(), TransferErrorCode.BALANCE_NOT_SUFFICIENT.name(), TransferErrorCode.BALANCE_NOT_SUFFICIENT.name(), TransferErrorCode.BALANCE_NOT_SUFFICIENT.getErrorMessage());
+	            GenericExceptionHandler.handleError(TransferErrorCode.BALANCE_NOT_SUFFICIENT, TransferErrorCode.BALANCE_NOT_SUFFICIENT.getErrorMessage());
+	        }
+		 asyncUserEventPublisher.publishSuccessEvent(FundTransferEventType.CARD_LESS_CASH_BALANCE_VALIDATION_SUCCESS, metaData, FundTransferEventType.CARD_LESS_CASH_BALANCE_VALIDATION_SUCCESS.getDescription());
+		LimitValidatorResponse limitValidatorResultsDto = checkLimit(cardLessCashGenerationRequest, metaData);
+	        if (limitValidatorResultsDto == null) {
+	        	asyncUserEventPublisher.publishFailureEvent(FundTransferEventType.LIMIT_VALIDATION, metaData, "limit check failed ", TransferErrorCode.LIMIT_PACKAGE_NOT_FOUND.getErrorMessage(), TransferErrorCode.LIMIT_PACKAGE_NOT_FOUND.name(), "limit check failed");
+	            GenericExceptionHandler.handleError(TransferErrorCode.LIMIT_PACKAGE_NOT_FOUND,
+	            		TransferErrorCode.LIMIT_PACKAGE_NOT_FOUND.getErrorMessage());
+	        }
+	        if (!limitValidatorResultsDto.isValid()) {
+	            if (!limitValidatorResultsDto.isValid()) {
+	                if (LimitCheckType.MONTHLY_AMOUNT.toString().toString().equalsIgnoreCase(limitValidatorResultsDto.getAmountRemark())) {
+	                	asyncUserEventPublisher.publishFailureEvent(FundTransferEventType.LIMIT_CHECK_FAILED, metaData, CommonConstants.LIMIT_CHECK_FAILED + limitValidatorResultsDto.getTrxReferanceNo(), TransferErrorCode.MONTH_AMOUNT_LIMIT_REACHED.getErrorMessage(), TransferErrorCode.MONTH_AMOUNT_LIMIT_REACHED.name(), CommonConstants.LIMIT_CHECK_FAILED);
+	                    GenericExceptionHandler.handleError(TransferErrorCode.MONTH_AMOUNT_LIMIT_REACHED,
+	                    		TransferErrorCode.MONTH_AMOUNT_LIMIT_REACHED.getErrorMessage());
+	                } else if (LimitCheckType.MONTHLY_COUNT.toString().equalsIgnoreCase(limitValidatorResultsDto.getCountRemark())) {
+	                	asyncUserEventPublisher.publishFailureEvent(FundTransferEventType.LIMIT_CHECK_FAILED, metaData, CommonConstants.LIMIT_CHECK_FAILED + limitValidatorResultsDto.getTrxReferanceNo(), TransferErrorCode.MONTH_COUNT_LIMIT_REACHED.getErrorMessage(), TransferErrorCode.MONTH_COUNT_LIMIT_REACHED.name(), CommonConstants.LIMIT_CHECK_FAILED);
+	                    GenericExceptionHandler.handleError(TransferErrorCode.MONTH_COUNT_LIMIT_REACHED,
+	                    		TransferErrorCode.MONTH_COUNT_LIMIT_REACHED.getErrorMessage());
+	                } else if (LimitCheckType.DAILY_AMOUNT.toString().equalsIgnoreCase(limitValidatorResultsDto.getAmountRemark())) {
+	                	asyncUserEventPublisher.publishFailureEvent(FundTransferEventType.LIMIT_CHECK_FAILED, metaData, CommonConstants.LIMIT_CHECK_FAILED + limitValidatorResultsDto.getTrxReferanceNo(), TransferErrorCode.DAY_AMOUNT_LIMIT_REACHED.getErrorMessage(), TransferErrorCode.DAY_AMOUNT_LIMIT_REACHED.name(), CommonConstants.LIMIT_CHECK_FAILED);
+	                    GenericExceptionHandler.handleError(TransferErrorCode.DAY_AMOUNT_LIMIT_REACHED,
+	                    		TransferErrorCode.DAY_AMOUNT_LIMIT_REACHED.getErrorMessage());
+	                } else if (LimitCheckType.DAILY_COUNT.toString().equalsIgnoreCase(limitValidatorResultsDto.getCountRemark())) {
+	                	asyncUserEventPublisher.publishFailureEvent(FundTransferEventType.LIMIT_CHECK_FAILED, metaData, CommonConstants.LIMIT_CHECK_FAILED + limitValidatorResultsDto.getTrxReferanceNo(), TransferErrorCode.DAY_COUNT_LIMIT_REACHED.getErrorMessage(), TransferErrorCode.DAY_COUNT_LIMIT_REACHED.name(), CommonConstants.LIMIT_CHECK_FAILED);
+	                    GenericExceptionHandler.handleError(TransferErrorCode.DAY_COUNT_LIMIT_REACHED,
+	                    		TransferErrorCode.DAY_COUNT_LIMIT_REACHED.getErrorMessage());
+	                }
+	            }
+	        }
+	        asyncUserEventPublisher.publishSuccessEvent(FundTransferEventType.LIMIT_VALIDATION, metaData, "limit validated");
 			cardLessCashGenerationResponse = accountService
-					.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest, userMobileNumber);
-			asyncUserEventPublisher.publishSuccessfulEsbEvent(FundTransferEventType.CARD_LESS_CASH_GENERATION_REQUEST,
-					metaData, CARD_LESS_CASH, metaData.getChannelTraceId());
-
-		} catch (GenericException exception) {
-			asyncUserEventPublisher.publishFailedEsbEvent(FundTransferEventType.CARD_LESS_CASH_GENERATION_FAILED,
-					metaData, CARD_LESS_CASH, metaData.getChannelTraceId(), exception.getErrorCode(),
-					exception.getMessage(), exception.getErrorDetails());
-			/**
-			 * Insert payment history irrespective of payment fails or success
-			 */
-			generatePaymentHistory(cardLessCashGenerationRequest, cardLessCashGenerationResponse, metaData, userDTO);
-			throw exception;
-
-		} catch (Exception exception) {
-			asyncUserEventPublisher.publishFailedEsbEvent(FundTransferEventType.CARD_LESS_CASH_GENERATION_FAILED,
-					metaData, CARD_LESS_CASH, metaData.getChannelTraceId(),
-					TransferErrorCode.ACC_EXTERNAL_SERVICE_ERROR.toString(),
-					TransferErrorCode.ACC_EXTERNAL_SERVICE_ERROR.getErrorMessage(), exception.getMessage());
-			generatePaymentHistory(cardLessCashGenerationRequest, cardLessCashGenerationResponse, metaData, userDTO);
-			GenericExceptionHandler.handleError(TransferErrorCode.ACC_EXTERNAL_SERVICE_ERROR,
-					TransferErrorCode.ACC_EXTERNAL_SERVICE_ERROR.getErrorMessage());
-
-		}
-
+					.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest, userMobileNumber, metaData);
+			insertUserLimitUsage(metaData, cardLessCashGenerationRequest.getAmount());
 		/**
 		 * Insert payment history irrespective of payment fails or success
 		 */
@@ -151,69 +136,72 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 
 		return cardLessCashGenerationResponse;
 	}
-		
+
 	@Override
 	public Response<List<CardLessCashQueryResponse>> cardLessCashRemitQuery(
 			CardLessCashQueryRequest cardLessCashQueryRequest, RequestMetaData metaData) {
-		Response<List<CardLessCashQueryResponse>> cardLessCashQueryResponse = null;
 		log.info("cardLessCash  Query Details {} ", cardLessCashQueryRequest);
-		try {
-			cardLessCashQueryResponse = accountService.cardLessCashRemitQuery(cardLessCashQueryRequest);
-			asyncUserEventPublisher.publishSuccessfulEsbEvent(FundTransferEventType.CARD_LESS_CASH_QUERY_DETAILS,
-					metaData, CARD_LESS_CASH, metaData.getChannelTraceId());
-
-		} catch (GenericException exception) {
-			asyncUserEventPublisher.publishFailedEsbEvent(FundTransferEventType.CARD_LESS_CASH_QUERY_DETAILS_FAILED,
-					metaData, CARD_LESS_CASH, metaData.getChannelTraceId(), exception.getErrorCode(),
-					exception.getMessage(), exception.getErrorDetails());
-			throw exception;
-
-		} catch (Exception exception) {
-			asyncUserEventPublisher.publishFailedEsbEvent(FundTransferEventType.CARD_LESS_CASH_QUERY_DETAILS_FAILED,
-					metaData, CARD_LESS_CASH, metaData.getChannelTraceId(),
-					TransferErrorCode.ACC_EXTERNAL_SERVICE_ERROR.toString(),
-					TransferErrorCode.ACC_EXTERNAL_SERVICE_ERROR.getErrorMessage(), exception.getMessage());
-			GenericExceptionHandler.handleError(TransferErrorCode.ACC_EXTERNAL_SERVICE_ERROR,
-					TransferErrorCode.ACC_EXTERNAL_SERVICE_ERROR.getErrorMessage());
-
-		}
-		return cardLessCashQueryResponse;
+		return accountService.cardLessCashRemitQuery(cardLessCashQueryRequest, metaData);
 	}
-	
+
 	private void generatePaymentHistory(CardLessCashGenerationRequest cardLessCashGenerationRequest,
 			Response<CardLessCashGenerationResponse> coreResponse, RequestMetaData metaData, UserDTO userDTO) {
-		
-		PaymentHistoryDTO paymentHistoryDTO = PaymentHistoryDTO.builder().cif(metaData.getPrimaryCif()).userId(userDTO.getUserId()).channel(MOB_CHANNEL)
-				.beneficiaryTypeCode(CARD_LESS_CASH).paidAmount(cardLessCashGenerationRequest.getAmount())
-				.status(coreResponse.getStatus().toString()).ipAddress(metaData.getDeviceIP())
-				.mwReferenceNo(coreResponse.getData().getReferenceNumber())
+
+		PaymentHistoryDTO paymentHistoryDTO = PaymentHistoryDTO.builder().cif(metaData.getPrimaryCif())
+				.userId(userDTO.getUserId()).channel(MOB_CHANNEL).beneficiaryTypeCode(CARD_LESS_CASH)
+				.paidAmount(cardLessCashGenerationRequest.getAmount()).status(coreResponse.getStatus().toString())
+				.ipAddress(metaData.getDeviceIP()).mwReferenceNo(coreResponse.getData().getReferenceNumber())
 				.mwResponseCode(coreResponse.getErrorCode()).mwResponseDescription(coreResponse.getErrorDetails())
-				.accountFrom(cardLessCashGenerationRequest.getAccountNo()).accountTo(cardLessCashGenerationRequest.getAccountNo())
+				.accountFrom(cardLessCashGenerationRequest.getAccountNo())
+				.accountTo(cardLessCashGenerationRequest.getAccountNo())
 				.financialTransactionNo(coreResponse.getData().getReferenceNumber()).build();
-		
+
 		log.info("Inserting into Payments History table {} ", paymentHistoryDTO);
 		paymentHistoryService.insert(paymentHistoryDTO);
 
 	}
+
 	private UserDTO createUserDTO(RequestMetaData fundTransferMetadata, DigitalUser digitalUser) {
-        UserDTO userDTO = new UserDTO();
-        userDTO.setCifId(fundTransferMetadata.getPrimaryCif());
-        userDTO.setUserId(digitalUser.getId());
-        userDTO.setSegmentId(digitalUser.getDigitalUserGroup().getSegment().getId());
-        userDTO.setCountryId(digitalUser.getDigitalUserGroup().getCountry().getId());
-        userDTO.setLocalCurrency(digitalUser.getDigitalUserGroup().getCountry().getLocalCurrency());
+		UserDTO userDTO = new UserDTO();
+		userDTO.setCifId(fundTransferMetadata.getPrimaryCif());
+		userDTO.setUserId(digitalUser.getId());
+		userDTO.setSegmentId(digitalUser.getDigitalUserGroup().getSegment().getId());
+		userDTO.setCountryId(digitalUser.getDigitalUserGroup().getCountry().getId());
+		userDTO.setLocalCurrency(digitalUser.getDigitalUserGroup().getCountry().getLocalCurrency());
 
-        log.info("User DTO  created {} ", userDTO);
-        return userDTO;
-    }
+		log.info("User DTO  created {} ", userDTO);
+		return userDTO;
+	}
+
 	private DigitalUser getDigitalUser(RequestMetaData metaData) {
-        Optional<DigitalUser> digitalUserOptional = digitalUserRepository.findByCifEquals(metaData.getPrimaryCif());
-        if (!digitalUserOptional.isPresent()) {
-            GenericExceptionHandler.handleError(INVALID_CIF, INVALID_CIF.getErrorMessage());
-        }
-        log.info("Digital User found successfully {} ", digitalUserOptional.get());
+		Optional<DigitalUser> digitalUserOptional = digitalUserRepository.findByCifEquals(metaData.getPrimaryCif());
+		if (!digitalUserOptional.isPresent()) {
+			GenericExceptionHandler.handleError(INVALID_CIF, INVALID_CIF.getErrorMessage());
+		}
+		log.info("Digital User found successfully {} ", digitalUserOptional.get());
 
-        return digitalUserOptional.get();
+		return digitalUserOptional.get();
+	}
+	
+	public LimitValidatorResponse checkLimit(CardLessCashGenerationRequest cardLessCashGenerationRequest, RequestMetaData metaData) {
+        return digitalUserLimitUsageRepository.checkLimit(metaData.getPrimaryCif(), App_CODE, metaData.getCountry(), metaData.getSegment(), 0, cardLessCashGenerationRequest.getAmount());
     }
 	
+	public void insertUserLimitUsage(RequestMetaData metaData, BigDecimal amount) {
+        DigitalUserLimitUsage digitalUserLimitUsage = new DigitalUserLimitUsage();
+        DigitalUser digitalUser = getDigitalUser(metaData);
+        Long userId = digitalUser.getId();
+        digitalUserLimitUsage.setDigitalUserId(userId);
+        digitalUserLimitUsage.setBeneficiaryTypeCode(App_CODE);
+        digitalUserLimitUsage.setCif(digitalUser.getCif());
+        digitalUserLimitUsage.setChannel(metaData.getChannel());
+        digitalUserLimitUsage.setPaidAmount(amount);
+        digitalUserLimitUsage.setCreatedBy(String.valueOf(userId));
+        System.out.println(digitalUserLimitUsage.getCif()+"cif ID-"+digitalUserLimitUsage.getDigitalUserId());
+       digitalUserLimitUsage.setVersionUuid("DEF-1");
+        log.info("Store limit usage for CIF={} and beneficiaryTypeCode={} ",
+                htmlEscape(digitalUserLimitUsage.getCif()), htmlEscape(String.valueOf(digitalUserLimitUsage.getDigitalUserId())));
+        digitalUserLimitUsageRepository.save(digitalUserLimitUsage);
+    }
+
 }
