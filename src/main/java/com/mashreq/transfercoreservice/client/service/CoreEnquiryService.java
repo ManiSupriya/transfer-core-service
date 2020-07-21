@@ -4,26 +4,8 @@ package com.mashreq.transfercoreservice.client.service;
 import static com.mashreq.transfercoreservice.client.ErrorUtils.getAllErrorCodesFromGenericException;
 import static com.mashreq.transfercoreservice.client.ErrorUtils.getErrorDetails;
 import static com.mashreq.transfercoreservice.client.ErrorUtils.getErrorHandlingStrategy;
-import static com.mashreq.transfercoreservice.common.CommonConstants.EXCEEDS_WITHDRAWL_FREEQUENCY;
-import static com.mashreq.transfercoreservice.common.CommonConstants.EXCEEDS_WITHDRAWL_LIMIT;
-import static com.mashreq.transfercoreservice.common.CommonConstants.FAILED_TO_VERIFY_OTP;
-import static com.mashreq.transfercoreservice.common.CommonConstants.INVALID_SESSION_TOKEN;
-import static com.mashreq.transfercoreservice.common.CommonConstants.MAX_OTP_ATTEMPTS_EXCEEDED;
-import static com.mashreq.transfercoreservice.common.CommonConstants.MAX_OTP_FAILED_ATTEMPTS_EXCEEDED;
-import static com.mashreq.transfercoreservice.common.CommonConstants.NOT_FOUND_USER_IN_DB;
-import static com.mashreq.transfercoreservice.common.CommonConstants.OTP_VERIFIVATION_FAILED;
-import static com.mashreq.transfercoreservice.common.CommonConstants.SEND_EMPTY_ERROR_RESPONSE;
-import static com.mashreq.transfercoreservice.common.CommonConstants.USER_BLOCKED_STATUS;
-import static com.mashreq.transfercoreservice.common.CommonConstants.USER_INACTIVE_STATUS;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACC_SERVICE_EXCEED_WITHDRAWL_ERROR;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.OTP_VERIFY_ATTEMPTS_EXCEEDED;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.OTP_VERIFY_FAILED_ATTEMPTS_EXCEEDED;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.OTP_VERIFY_FAILED_TO_VERIFY;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.OTP_VERIFY_INVALID_SESSION_TOKEN;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.OTP_VERIFY_NOT_FOUND_USER_IN_DB;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.OTP_VERIFY_OTP_FAILED;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.OTP_VERIFY_USER_BLOCKED_STATUS;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.OTP_VERIFY_USER_INACTIVE_STATUS;
+import static com.mashreq.transfercoreservice.common.CommonConstants.*;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
 
 import java.util.Map;
 import java.util.Optional;
@@ -86,7 +68,9 @@ public interface CoreEnquiryService<R, P> {
 					assignCustomErrorCode(response.getErrorCode(), OTP_VERIFY_USER_BLOCKED_STATUS);
 				} else if (USER_INACTIVE_STATUS.equals(errorHandlingStrategy)) {
 					assignCustomErrorCode(response.getErrorCode(), OTP_VERIFY_USER_INACTIVE_STATUS);
-				}else {
+				} else if (FAILED_TO_DECRYPT.equals(errorHandlingStrategy)) {
+					assignCustomErrorCode(response.getErrorCode(), OTP_VERIFY_USER_FAILED_TO_DECRYPT);
+				} else {
                     TransferErrorCode errorCode = TransferErrorCode.valueOf(errorHandlingStrategy);
                     GenericExceptionHandler.handleError(errorCode, errorCode.getErrorMessage(), getErrorDetails(response));
                 }
@@ -143,6 +127,9 @@ public interface CoreEnquiryService<R, P> {
 				} else if (USER_INACTIVE_STATUS.equals(errorHandlingStrategy)) {
 					GenericExceptionHandler.handleError(OTP_VERIFY_USER_INACTIVE_STATUS,
 							OTP_VERIFY_USER_INACTIVE_STATUS.getErrorMessage(), errorDetails);
+				} else if (FAILED_TO_DECRYPT.equals(errorHandlingStrategy)) {
+					GenericExceptionHandler.handleError(OTP_VERIFY_USER_FAILED_TO_DECRYPT,
+							OTP_VERIFY_USER_FAILED_TO_DECRYPT.getErrorMessage(), errorDetails);
 				} else {
                     TransferErrorCode errorCode = TransferErrorCode.valueOf(errorHandlingStrategy);
                     GenericExceptionHandler.handleError(errorCode, errorCode.getErrorMessage(), errorDetails);

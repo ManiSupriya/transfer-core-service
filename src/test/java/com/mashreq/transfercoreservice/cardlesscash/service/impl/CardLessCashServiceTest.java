@@ -1,12 +1,12 @@
 package com.mashreq.transfercoreservice.cardlesscash.service.impl;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -28,8 +28,12 @@ import com.mashreq.transfercoreservice.client.dto.VerifyOTPRequestDTO;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPResponseDTO;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.OTPService;
-import com.mashreq.transfercoreservice.common.OTPExternalConfig;
 import com.mashreq.transfercoreservice.fundtransfer.service.PaymentHistoryService;
+import com.mashreq.transfercoreservice.model.Country;
+import com.mashreq.transfercoreservice.model.DigitalUser;
+import com.mashreq.transfercoreservice.model.DigitalUserGroup;
+import com.mashreq.transfercoreservice.model.Segment;
+import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
 
@@ -51,13 +55,13 @@ public class CardLessCashServiceTest {
 	 @Mock
 	 PaymentHistoryService paymentHistoryService;
 	 @Mock
-	 Response<CardLessCashGenerationResponse> coreResponse;
-	 @Mock
-	 OTPExternalConfig otpConfig;	 
+	 Response<CardLessCashGenerationResponse> coreResponse;	 
 	 @Mock
 	 VerifyOTPRequestDTO verifyOTPRequestDTO;	 
 	 @Mock
 	 OTPService iamService;
+	 @Mock
+	 DigitalUserRepository digitalUserRepository;
 	 
     @Test
     public void blockCardLessCashRequestTest() {
@@ -95,7 +99,20 @@ public class CardLessCashServiceTest {
 		verifyOTPResponseDTO.setAuthenticated(true);
 		Mockito.doNothing().when(asyncUserEventPublisher).publishSuccessfulEsbEvent(Mockito.any(), Mockito.any(),
 				Mockito.any(), Mockito.any());
-		//Mockito.when(iamService.verifyOTP(Mockito.any())).thenReturn(Response.<VerifyOTPResponseDTO>builder().data(verifyOTPResponseDTO).build());
+		Segment segment = new Segment();
+		segment.setId(1L);
+		 Country country = new Country();
+		 country.setId(1L);
+		 country.setLocalCurrency("AED");
+		DigitalUserGroup digitalUserGroup = new DigitalUserGroup();
+		digitalUserGroup.setSegment(segment);
+		digitalUserGroup.setCountry(country);
+		DigitalUser digitalUser = new DigitalUser();
+		digitalUser.setId(2L);
+		digitalUser.setDigitalUserGroup(digitalUserGroup);
+		Optional<DigitalUser> digiUser= Optional.of(digitalUser);
+		Mockito.when(digitalUserRepository.findByCifEquals(Mockito.any())).thenReturn(digiUser);
+		Mockito.when(iamService.verifyOTP(Mockito.any())).thenReturn(Response.<VerifyOTPResponseDTO>builder().status(ResponseStatus.SUCCESS).data(verifyOTPResponseDTO).build());
 		Mockito.doNothing().when(paymentHistoryService).insert(Mockito.any());
 		Response<CardLessCashGenerationResponse> cardLessCashGenerationResponse = cardLessCashServiceImpl
 				.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest, mobileNo, userId, metaData);
