@@ -163,7 +163,7 @@ public class CardLessCashServiceImpl implements CardLessCashService {
         DigitalUser digitalUser = getDigitalUser(metaData);
         Long userId = digitalUser.getId();
         digitalUserLimitUsage.setDigitalUserId(userId);
-        digitalUserLimitUsage.setBeneficiaryTypeCode(App_CODE);
+        digitalUserLimitUsage.setBeneficiaryTypeCode(CARD_LESS_CASH);
         digitalUserLimitUsage.setCif(digitalUser.getCif());
         digitalUserLimitUsage.setChannel(metaData.getChannel());
         digitalUserLimitUsage.setPaidAmount(amount);
