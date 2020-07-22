@@ -24,13 +24,14 @@ import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashQuer
 import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashBlockResponse;
 import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashGenerationResponse;
 import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashQueryResponse;
-import com.mashreq.transfercoreservice.cardlesscash.dto.response.LimitValidatorResponse;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPRequestDTO;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPResponseDTO;
+import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.OTPService;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsage;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageRepository;
+import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.PaymentHistoryService;
 import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
 import com.mashreq.transfercoreservice.model.Country;
@@ -65,6 +66,8 @@ public class CardLessCashServiceTest {
 	 @Mock
 	 OTPService iamService;
 	 @Mock
+	 LimitValidator limitValidator;
+	 @Mock
 	 DigitalUserRepository digitalUserRepository;
 	 @Mock
 	 BalanceValidator balanceValidator;
@@ -73,7 +76,7 @@ public class CardLessCashServiceTest {
 	 @Mock
 	 DigitalUserLimitUsage digitalUserLimitUsage;
 	 @Mock
-	 LimitValidatorResponse limitValidatorResponse;
+	 LimitValidatorResultsDto limitValidatorResponse;
 	 
     @Test
     public void blockCardLessCashRequestTest() {
@@ -126,13 +129,8 @@ public class CardLessCashServiceTest {
 		Mockito.doNothing().when(paymentHistoryService).insert(Mockito.any());
 		Mockito.when(balanceValidator.validateBalance(Mockito.any(), Mockito.any())).thenReturn(true);
 		Mockito.when(digitalUserLimitUsageRepository.save(Mockito.any())).thenReturn(digitalUserLimitUsage);
-		limitValidatorResponse.setAmountRemark("test");
-		limitValidatorResponse.setCountRemark("test");
-		limitValidatorResponse.setCurrentAvailableAmount(new BigDecimal("100000"));
-		limitValidatorResponse.setCurrentAvailableCount(new BigDecimal("10000"));
-		limitValidatorResponse.setTrxReferanceNo("ANCV");
 		limitValidatorResponse.setValid(true);
-		Mockito.when(digitalUserLimitUsageRepository.checkLimit(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.any())).thenReturn(limitValidatorResponse);
+		Mockito.when(limitValidator.validate(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(limitValidatorResponse);
 		Response<CardLessCashGenerationResponse> cardLessCashGenerationResponse = cardLessCashServiceImpl
 				.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest, mobileNo, userId, metaData);
 		Assert.assertNotNull(cardLessCashGenerationResponse);

@@ -42,6 +42,7 @@ public enum FundTransferEventType implements EventType {
     QR_FUND_TRANSFER_MW_CALL("FUND_TRANSFER", "Call middleware for quick remit fund transfer"),
     LIMIT_VALIDATION("FUND_TRANSFER", "Call mob common to validate the spend limit"),
     LIMIT_CHECK_FAILED("CARDLESS-CASH", "CARDLESS-CASH limit check failed"),
+    LIMIT_CHECK_SUCCESS("CARDLESS-CASH", "CARDLESS-CASH limit check success"),
 
     IBAN_SEARCH_MW_CALL("FUND_TRANSFER_ENQUIRY","Get bank details using IBAN"),
     ROUTING_CODE_SEARCH_MW_CALL("FUND_TRANSFER_ENQUIRY","Get bank details using Routing code"),
@@ -49,6 +50,7 @@ public enum FundTransferEventType implements EventType {
     CARD_LESS_CASH_MOBILE_NUMBER_DOES_NOT_MATCH("CARDLESS-CASH","Mobile Number is not valid"),
     CARD_LESS_CASH_ACCOUNT_NUMBER_DOES_NOT_MATCH("CARDLESS-CASH","Account Number is not valid"),
     CARD_LESS_CASH_OTP_DOES_NOT_MATCH("CARDLESS-CASH","OTP is not valid"),
+    CARD_LESS_CASH_OTP_VALIDATION("CARDLESS-CASH","OTP validation is success"),
 
     FLEX_GET_EXCHANGE_RATE("FUND_TRANSFER_ENQUIRY", "Get exchange rate for QR"),
     FLEX_GET_CHARGES("FUND_TRANSFER_ENQUIRY", "Get charges for QR"),

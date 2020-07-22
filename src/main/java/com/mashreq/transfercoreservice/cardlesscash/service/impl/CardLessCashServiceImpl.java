@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashBlockResponse;
 import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashGenerationResponse;
 import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashQueryResponse;
-import com.mashreq.transfercoreservice.cardlesscash.dto.response.LimitValidatorResponse;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
@@ -18,7 +17,6 @@ import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashQuer
 import com.mashreq.transfercoreservice.cardlesscash.service.CardLessCashService;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPRequestDTO;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPResponseDTO;
-import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitCheckType;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.OTPService;
 import com.mashreq.transfercoreservice.common.CommonConstants;
@@ -32,6 +30,7 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.PaymentHistoryDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsage;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageRepository;
+import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.PaymentHistoryService;
 import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
 import com.mashreq.transfercoreservice.model.DigitalUser;
@@ -56,6 +55,7 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 	private final DigitalUserRepository digitalUserRepository;
 	private final DigitalUserLimitUsageRepository digitalUserLimitUsageRepository;
 	private final BalanceValidator balanceValidator;
+	private final LimitValidator limitValidator;
 
 	@Override
 	public Response<CardLessCashBlockResponse> blockCardLessCashRequest(CardLessCashBlockRequest blockRequest,
@@ -89,6 +89,7 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 				GenericExceptionHandler.handleError(TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR,
 						verifyOTP.getErrorDetails(), verifyOTP.getErrorDetails());
 			}
+		asyncUserEventPublisher.publishSuccessEvent(FundTransferEventType.CARD_LESS_CASH_OTP_VALIDATION, metaData, FundTransferEventType.CARD_LESS_CASH_OTP_VALIDATION.getDescription());
 		DigitalUser digitalUser = getDigitalUser(metaData);
 
 		log.info("Creating  User DTO");
@@ -98,34 +99,8 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 	            GenericExceptionHandler.handleError(TransferErrorCode.BALANCE_NOT_SUFFICIENT, TransferErrorCode.BALANCE_NOT_SUFFICIENT.getErrorMessage());
 	        }
 		 asyncUserEventPublisher.publishSuccessEvent(FundTransferEventType.CARD_LESS_CASH_BALANCE_VALIDATION_SUCCESS, metaData, FundTransferEventType.CARD_LESS_CASH_BALANCE_VALIDATION_SUCCESS.getDescription());
-		LimitValidatorResponse limitValidatorResultsDto = checkLimit(cardLessCashGenerationRequest, metaData);
-	        if (limitValidatorResultsDto == null) {
-	        	asyncUserEventPublisher.publishFailureEvent(FundTransferEventType.LIMIT_VALIDATION, metaData, "limit check failed ", TransferErrorCode.LIMIT_PACKAGE_NOT_FOUND.getErrorMessage(), TransferErrorCode.LIMIT_PACKAGE_NOT_FOUND.name(), "limit check failed");
-	            GenericExceptionHandler.handleError(TransferErrorCode.LIMIT_PACKAGE_NOT_FOUND,
-	            		TransferErrorCode.LIMIT_PACKAGE_NOT_FOUND.getErrorMessage());
-	        }
-	        if (!limitValidatorResultsDto.isValid()) {
-	            if (!limitValidatorResultsDto.isValid()) {
-	                if (LimitCheckType.MONTHLY_AMOUNT.toString().toString().equalsIgnoreCase(limitValidatorResultsDto.getAmountRemark())) {
-	                	asyncUserEventPublisher.publishFailureEvent(FundTransferEventType.LIMIT_CHECK_FAILED, metaData, CommonConstants.LIMIT_CHECK_FAILED + limitValidatorResultsDto.getTrxReferanceNo(), TransferErrorCode.MONTH_AMOUNT_LIMIT_REACHED.getErrorMessage(), TransferErrorCode.MONTH_AMOUNT_LIMIT_REACHED.name(), CommonConstants.LIMIT_CHECK_FAILED);
-	                    GenericExceptionHandler.handleError(TransferErrorCode.MONTH_AMOUNT_LIMIT_REACHED,
-	                    		TransferErrorCode.MONTH_AMOUNT_LIMIT_REACHED.getErrorMessage());
-	                } else if (LimitCheckType.MONTHLY_COUNT.toString().equalsIgnoreCase(limitValidatorResultsDto.getCountRemark())) {
-	                	asyncUserEventPublisher.publishFailureEvent(FundTransferEventType.LIMIT_CHECK_FAILED, metaData, CommonConstants.LIMIT_CHECK_FAILED + limitValidatorResultsDto.getTrxReferanceNo(), TransferErrorCode.MONTH_COUNT_LIMIT_REACHED.getErrorMessage(), TransferErrorCode.MONTH_COUNT_LIMIT_REACHED.name(), CommonConstants.LIMIT_CHECK_FAILED);
-	                    GenericExceptionHandler.handleError(TransferErrorCode.MONTH_COUNT_LIMIT_REACHED,
-	                    		TransferErrorCode.MONTH_COUNT_LIMIT_REACHED.getErrorMessage());
-	                } else if (LimitCheckType.DAILY_AMOUNT.toString().equalsIgnoreCase(limitValidatorResultsDto.getAmountRemark())) {
-	                	asyncUserEventPublisher.publishFailureEvent(FundTransferEventType.LIMIT_CHECK_FAILED, metaData, CommonConstants.LIMIT_CHECK_FAILED + limitValidatorResultsDto.getTrxReferanceNo(), TransferErrorCode.DAY_AMOUNT_LIMIT_REACHED.getErrorMessage(), TransferErrorCode.DAY_AMOUNT_LIMIT_REACHED.name(), CommonConstants.LIMIT_CHECK_FAILED);
-	                    GenericExceptionHandler.handleError(TransferErrorCode.DAY_AMOUNT_LIMIT_REACHED,
-	                    		TransferErrorCode.DAY_AMOUNT_LIMIT_REACHED.getErrorMessage());
-	                } else if (LimitCheckType.DAILY_COUNT.toString().equalsIgnoreCase(limitValidatorResultsDto.getCountRemark())) {
-	                	asyncUserEventPublisher.publishFailureEvent(FundTransferEventType.LIMIT_CHECK_FAILED, metaData, CommonConstants.LIMIT_CHECK_FAILED + limitValidatorResultsDto.getTrxReferanceNo(), TransferErrorCode.DAY_COUNT_LIMIT_REACHED.getErrorMessage(), TransferErrorCode.DAY_COUNT_LIMIT_REACHED.name(), CommonConstants.LIMIT_CHECK_FAILED);
-	                    GenericExceptionHandler.handleError(TransferErrorCode.DAY_COUNT_LIMIT_REACHED,
-	                    		TransferErrorCode.DAY_COUNT_LIMIT_REACHED.getErrorMessage());
-	                }
-	            }
-	        }
-	        asyncUserEventPublisher.publishSuccessEvent(FundTransferEventType.LIMIT_VALIDATION, metaData, "limit validated");
+		 limitValidator.validate(userDTO, CommonConstants.CARD_LESS_CASH, cardLessCashGenerationRequest.getAmount(), metaData);
+		    asyncUserEventPublisher.publishSuccessEvent(FundTransferEventType.LIMIT_CHECK_SUCCESS, metaData, FundTransferEventType.LIMIT_CHECK_SUCCESS.getDescription());
 			cardLessCashGenerationResponse = accountService
 					.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest, userMobileNumber, metaData);
 			insertUserLimitUsage(metaData, cardLessCashGenerationRequest.getAmount());
@@ -183,16 +158,12 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 		return digitalUserOptional.get();
 	}
 	
-	public LimitValidatorResponse checkLimit(CardLessCashGenerationRequest cardLessCashGenerationRequest, RequestMetaData metaData) {
-        return digitalUserLimitUsageRepository.checkLimit(metaData.getPrimaryCif(), App_CODE, metaData.getCountry(), metaData.getSegment(), 0, cardLessCashGenerationRequest.getAmount());
-    }
-	
 	public void insertUserLimitUsage(RequestMetaData metaData, BigDecimal amount) {
         DigitalUserLimitUsage digitalUserLimitUsage = new DigitalUserLimitUsage();
         DigitalUser digitalUser = getDigitalUser(metaData);
         Long userId = digitalUser.getId();
         digitalUserLimitUsage.setDigitalUserId(userId);
-        digitalUserLimitUsage.setBeneficiaryTypeCode(App_CODE);
+        digitalUserLimitUsage.setBeneficiaryTypeCode(CARD_LESS_CASH);
         digitalUserLimitUsage.setCif(digitalUser.getCif());
         digitalUserLimitUsage.setChannel(metaData.getChannel());
         digitalUserLimitUsage.setPaidAmount(amount);

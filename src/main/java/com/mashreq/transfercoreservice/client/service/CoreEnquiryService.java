@@ -130,13 +130,13 @@ public interface CoreEnquiryService<R, P> {
 				} else if (FAILED_TO_DECRYPT.equals(errorHandlingStrategy)) {
 					GenericExceptionHandler.handleError(OTP_VERIFY_USER_FAILED_TO_DECRYPT,
 							OTP_VERIFY_USER_FAILED_TO_DECRYPT.getErrorMessage(), errorDetails);
-				} else {
+				} else if (EXCEEDS_WITHDRAWL_LIMIT.equals(errorHandlingStrategy)) {
+					GenericExceptionHandler.handleError(TransferErrorCode.ACC_SERVICE_EXCEED_WITHDRAWL_LIMIT_ERROR,
+							TransferErrorCode.ACC_SERVICE_EXCEED_WITHDRAWL_LIMIT_ERROR.getErrorMessage(), errorDetails);
+				}else {
                     TransferErrorCode errorCode = TransferErrorCode.valueOf(errorHandlingStrategy);
                     GenericExceptionHandler.handleError(errorCode, errorCode.getErrorMessage(), errorDetails);
                 }
-            }
-            if (EXCEEDS_WITHDRAWL_LIMIT.equals(errorHandlingStrategy)) {
-            	GenericExceptionHandler.handleError(TransferErrorCode.ACC_SERVICE_EXCEED_WITHDRAWL_LIMIT_ERROR, TransferErrorCode.ACC_SERVICE_EXCEED_WITHDRAWL_LIMIT_ERROR.getErrorMessage(), errorDetails);
             }
            /**
             * when no mapping present send
