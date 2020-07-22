@@ -157,6 +157,7 @@ redis:
   port: ${REDIS_PORT:6379}
   timeout: ${REDIS_TIMEOUT:5000}
   password: ${REDIS_PASSWORD:P@ssword123$}
+  ssl: ${REDIS_SSL:false}
 
 #error:
 #  map:
