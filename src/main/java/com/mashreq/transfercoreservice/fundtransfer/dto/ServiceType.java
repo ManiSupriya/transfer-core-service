@@ -22,7 +22,10 @@ public enum ServiceType implements ValidEnum {
     DAR_AL_BER("dar-al-ber","DAR_AL_BER"),
     BAIT_AL_KHAIR("bait-al-khair","BAIT_AL_KHAIR"),
     DUBAI_CARE("dubai-care","DUBAI_CARE"),
-    QUICK_REMIT("quick-remit","QUICK_REMIT");
+    QUICK_REMIT("quick-remit","QUICK_REMIT"),
+    XAU("xau","GOLD_TRANSFER"),
+    XAG("xag","SILVER_TRANSFER")
+    ;
 
     private String name;
     private String eventPrefix;
