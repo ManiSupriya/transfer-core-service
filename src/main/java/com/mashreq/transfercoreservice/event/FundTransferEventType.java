@@ -41,6 +41,7 @@ public enum FundTransferEventType implements EventType {
     FUND_TRANSFER_MW_CALL("FUND_TRANSFER", "Call middleware for fund transfer"),
     QR_FUND_TRANSFER_MW_CALL("FUND_TRANSFER", "Call middleware for quick remit fund transfer"),
     LIMIT_VALIDATION("FUND_TRANSFER", "Call mob common to validate the spend limit"),
+    MIN_LIMIT_VALIDATION("FUND_TRANSFER", "Call serviceType to get min amount"),
     LIMIT_CHECK_FAILED("CARDLESS-CASH", "CARDLESS-CASH limit check failed"),
     LIMIT_CHECK_SUCCESS("CARDLESS-CASH", "CARDLESS-CASH limit check success"),
 

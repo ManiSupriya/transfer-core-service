@@ -6,18 +6,19 @@ import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitCheckType;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
-import com.mashreq.transfercoreservice.errors.TransferErrorCode;
-import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
+import com.mashreq.transfercoreservice.model.ServiceType;
+import com.mashreq.transfercoreservice.repository.ServiceTypeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.DAY_AMOUNT_LIMIT_REACHED;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.MONTH_AMOUNT_LIMIT_REACHED;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
 import static com.mashreq.transfercoreservice.event.FundTransferEventType.LIMIT_VALIDATION;
+import static com.mashreq.transfercoreservice.event.FundTransferEventType.MIN_LIMIT_VALIDATION;
 import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 @Slf4j
@@ -27,6 +28,7 @@ public class LimitValidator {
 
     private final MobCommonService mobCommonService;
     private final AsyncUserEventPublisher auditEventPublisher;
+    private final ServiceTypeRepository serviceTypeRepository;
 
     /**
      * Method to get the limits and validate against user's consumed limit
@@ -70,4 +72,50 @@ public class LimitValidator {
         );
 
     }
+
+    public void validateMin(UserDTO userDTO, final String beneficiaryType, BigDecimal limitUsageAmount, RequestMetaData metadata) {
+        log.info("[LimitValidator] Min limit validator called cif ={} and beneficiaryType={} and paidAmount={}",
+                htmlEscape(userDTO.getCifId()), htmlEscape(beneficiaryType), htmlEscape(limitUsageAmount.toString()));
+        ServiceType serviceType = getServiceType(beneficiaryType);
+        BigDecimal minAmount = getMinAmount(serviceType.getMinAmount());
+        String remarks = getRemarks(minAmount,userDTO.getCifId(),limitUsageAmount,beneficiaryType,LimitCheckType.MIN_AMOUNT.name());
+        if(minAmount.compareTo(limitUsageAmount) <0){
+            auditEventPublisher.publishFailureEvent(MIN_LIMIT_VALIDATION, metadata, remarks,
+                    MIN_AMOUNT_LIMIT_REACHED.getCustomErrorCode(), MIN_AMOUNT_LIMIT_REACHED.getErrorMessage(), null);
+            GenericExceptionHandler.handleError(MIN_AMOUNT_LIMIT_REACHED,
+                    MIN_AMOUNT_LIMIT_REACHED.getErrorMessage());
+        }
+        auditEventPublisher.publishSuccessEvent(MIN_LIMIT_VALIDATION, metadata, remarks);
+        log.info("Min Limit validation successful");
+    }
+
+    private BigDecimal getMinAmount(String minAmount) {
+        if(minAmount == null){
+            return new BigDecimal(0);
+        }
+        else return new BigDecimal(minAmount);
+    }
+
+    private ServiceType getServiceType(String benCode) {
+        Optional<ServiceType> serviceTypeOptional = serviceTypeRepository.findByCodeEquals(benCode);
+        if (!serviceTypeOptional.isPresent()) {
+            GenericExceptionHandler.handleError(INVALID_BEN_CODE, INVALID_BEN_CODE.getErrorMessage());
+        }
+        log.info("Digital User found successfully {} ", serviceTypeOptional.get());
+
+        return serviceTypeOptional.get();
+    }
+
+    private String getRemarks(BigDecimal minAmount, String cif, BigDecimal paidAmount, String beneficiaryType, String limitCheckType) {
+        return String.format(
+                "Cif=%s,PaidAmount=%s,BeneType=%s,minAmount=%s,limitCheckType=%s",
+                cif,
+                paidAmount,
+                beneficiaryType,
+                minAmount,
+                limitCheckType
+        );
+
+    }
+
 }

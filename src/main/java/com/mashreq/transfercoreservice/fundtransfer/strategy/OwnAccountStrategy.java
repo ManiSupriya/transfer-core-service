@@ -88,6 +88,9 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), fromAccount,transferAmountInSrcCurrency);
         String benCode = getBeneficiaryCode(request);
         final LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, benCode, limitUsageAmount, metadata);
+        if(request.getCurrency().equalsIgnoreCase("XAU") || request.getCurrency().equalsIgnoreCase("XAG")){
+            limitValidator.validateMin(userDTO, benCode, transactionAmount, metadata);
+        }
 
 
 
