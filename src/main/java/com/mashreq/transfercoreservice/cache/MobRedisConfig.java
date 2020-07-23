@@ -35,9 +35,8 @@ public class MobRedisConfig {
     private Integer redisPort;
     @Value("${redis.password}")
     private String redisPass;
-
-    public MobRedisConfig() {
-    }
+    @Value("${redis.ssl}")
+    private boolean useSsl;
 
     @Bean
     @Primary
@@ -46,6 +45,7 @@ public class MobRedisConfig {
         factory.setHostName(this.redisHost);
         factory.setPort(this.redisPort);
         factory.setUsePool(true);
+        factory.setUseSsl(useSsl);
         if (this.redisPass != null) {
             factory.setPassword(this.redisPass);
         }
