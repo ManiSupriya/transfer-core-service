@@ -105,7 +105,9 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 
         return fundTransferResponse.toBuilder()
                 .limitUsageAmount(limitUsageAmount)
-                .limitVersionUuid(validationResult.getLimitVersionUuid()).build();
+                .limitVersionUuid(validationResult.getLimitVersionUuid())
+                .transactionRefNo(validationResult.getTransactionRefNo())
+                .build();
 
     }
 

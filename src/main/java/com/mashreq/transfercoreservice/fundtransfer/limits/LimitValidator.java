@@ -20,6 +20,7 @@ import java.util.Optional;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
 import static com.mashreq.transfercoreservice.event.FundTransferEventType.LIMIT_VALIDATION;
 import static com.mashreq.transfercoreservice.event.FundTransferEventType.MIN_LIMIT_VALIDATION;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.getCodeByType;
 import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 @Slf4j
@@ -144,6 +145,9 @@ public class LimitValidator {
         LimitValidatorResponse limitValidatorResultsDto =
                 digitalUserLimitUsageRepository.checkLimit(userDTO.getCifId(), beneficiaryType, metaData.getCountry(),metaData.getSegment(),0,paidAmount);
 
+        String transactionRefNo = generateTransactionRefNo(limitValidatorResultsDto,metaData,beneficiaryType);
+        limitValidatorResultsDto.setTransactionRefNo(transactionRefNo);
+
         final String remarks = getRemarks(limitValidatorResultsDto, metaData.getPrimaryCif(), String.valueOf(paidAmount), beneficiaryType);
         if (limitValidatorResultsDto == null) {
             auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks,
@@ -173,6 +177,10 @@ public class LimitValidator {
         auditEventPublisher.publishSuccessEvent(LIMIT_VALIDATION, metaData, remarks);
         log.info("Limit validation successful");
         return limitValidatorResultsDto;
+    }
+
+    private String generateTransactionRefNo(LimitValidatorResponse validationResult, RequestMetaData metadata, String benCode) {
+        return metadata.getChannel().substring(0,1) + getCodeByType(benCode) + validationResult.getTransactionRefNo();
     }
 
 }
