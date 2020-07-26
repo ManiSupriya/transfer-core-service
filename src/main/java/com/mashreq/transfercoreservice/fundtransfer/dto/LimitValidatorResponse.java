@@ -1,10 +1,16 @@
 package com.mashreq.transfercoreservice.fundtransfer.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class LimitValidatorResponse {
 
     private boolean isValid;
@@ -19,10 +25,11 @@ public class LimitValidatorResponse {
     private String maxCountMonthly;
     private String dailyUsedCount;
     private String maxCountDaily;
-    private String maxTrxAmout;
+    private String maxTrxAmount;
     private String maxAmountDaily;
     private String monthlyUsedAmount;
     private String coolingLimitCount;
     private String coolingLimitAmount;
     private String limitVersionUuid;
+    private String errorCode;
 }

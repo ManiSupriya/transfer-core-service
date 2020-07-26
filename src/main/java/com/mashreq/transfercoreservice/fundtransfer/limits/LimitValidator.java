@@ -31,7 +31,7 @@ public class LimitValidator {
     private final MobCommonService mobCommonService;
     private final AsyncUserEventPublisher auditEventPublisher;
     private final ServiceTypeRepository serviceTypeRepository;
-    private final DigitalUserLimitUsageRepository digitalUserLimitUsageRepository;
+    private final LimitCheckService limitCheckService;
     /**
      * Method to get the limits and validate against user's consumed limit
      */
@@ -142,9 +142,7 @@ public class LimitValidator {
     public LimitValidatorResponse validateWithProc(final UserDTO userDTO, final String beneficiaryType, final BigDecimal paidAmount, final RequestMetaData metaData) {
         log.info("[LimitValidator] limit validator called cif ={} and beneficiaryType={} and paidAmount={}",
                 htmlEscape(userDTO.getCifId()), htmlEscape(beneficiaryType), htmlEscape(paidAmount.toString()));
-        LimitValidatorResponse limitValidatorResultsDto =
-                digitalUserLimitUsageRepository.checkLimit(userDTO.getCifId(), beneficiaryType, metaData.getCountry(),metaData.getSegment(),0,paidAmount);
-
+        LimitValidatorResponse limitValidatorResultsDto = limitCheckService.validateLimit(userDTO.getCifId(), beneficiaryType, metaData.getCountry(),metaData.getSegment(),null,paidAmount);
         String transactionRefNo = generateTransactionRefNo(limitValidatorResultsDto,metaData,beneficiaryType);
         limitValidatorResultsDto.setTransactionRefNo(transactionRefNo);
 
