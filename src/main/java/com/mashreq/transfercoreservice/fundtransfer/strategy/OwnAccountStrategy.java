@@ -93,7 +93,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         if(GOLD.equalsIgnoreCase(request.getCurrency())|| SILVER.equalsIgnoreCase(request.getCurrency())){
             limitValidator.validateMin(userDTO, benCode, transactionAmount, metadata);
         }
-        final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, benCode, limitUsageAmount, metadata);
+        final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, benCode, limitUsageAmount, metadata,null);
 
 
 

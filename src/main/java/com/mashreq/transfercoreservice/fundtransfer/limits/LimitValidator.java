@@ -139,10 +139,10 @@ public class LimitValidator {
 
     }
 
-    public LimitValidatorResponse validateWithProc(final UserDTO userDTO, final String beneficiaryType, final BigDecimal paidAmount, final RequestMetaData metaData) {
+    public LimitValidatorResponse validateWithProc(final UserDTO userDTO, final String beneficiaryType, final BigDecimal paidAmount, final RequestMetaData metaData,Long benId) {
         log.info("[LimitValidator] limit validator called cif ={} and beneficiaryType={} and paidAmount={}",
                 htmlEscape(userDTO.getCifId()), htmlEscape(beneficiaryType), htmlEscape(paidAmount.toString()));
-        LimitValidatorResponse limitValidatorResultsDto = limitCheckService.validateLimit(userDTO.getCifId(), beneficiaryType, metaData.getCountry(),metaData.getSegment(),null,paidAmount);
+        LimitValidatorResponse limitValidatorResultsDto = limitCheckService.validateLimit(userDTO.getCifId(), beneficiaryType, metaData.getCountry(),metaData.getSegment(),benId,paidAmount);
         String transactionRefNo = generateTransactionRefNo(limitValidatorResultsDto,metaData,beneficiaryType);
         limitValidatorResultsDto.setTransactionRefNo(transactionRefNo);
 
