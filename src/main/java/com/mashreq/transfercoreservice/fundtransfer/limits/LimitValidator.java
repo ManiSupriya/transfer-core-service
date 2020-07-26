@@ -6,6 +6,7 @@ import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitCheckType;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
+import com.mashreq.transfercoreservice.fundtransfer.dto.LimitValidatorResponse;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.model.ServiceType;
 import com.mashreq.transfercoreservice.repository.ServiceTypeRepository;
@@ -29,7 +30,7 @@ public class LimitValidator {
     private final MobCommonService mobCommonService;
     private final AsyncUserEventPublisher auditEventPublisher;
     private final ServiceTypeRepository serviceTypeRepository;
-
+    private final DigitalUserLimitUsageRepository digitalUserLimitUsageRepository;
     /**
      * Method to get the limits and validate against user's consumed limit
      */
@@ -69,6 +70,25 @@ public class LimitValidator {
                 resultsDto.getMaxAmountDaily(),
                 resultsDto.getMaxAmountMonthly(),
                 resultsDto.getLimitCheckType()
+        );
+    }
+
+    private String getRemarks(LimitValidatorResponse resultsDto, String cif, String paidAmount, String beneficiaryType) {
+        return String.format(
+                "Cif=%s,PaidAmount=%s,BeneType=%s,availableLimitAmount=%s,availableLimitCount=%s,maxAmountDaily=%s,maxAmountMonthly=%s,maxCountMonthly=%s,maxCountDaily=%s," +
+                        "countRemark=%s,amountRemark=%s,transacationId=%s",
+                cif,
+                paidAmount,
+                beneficiaryType,
+                resultsDto.getCurrentAvailableAmount(),
+                resultsDto.getCurrentAvailableCount(),
+                resultsDto.getMaxAmountDaily(),
+                resultsDto.getMaxAmountMonthly(),
+                resultsDto.getMaxCountMonthly(),
+                resultsDto.getMaxCountDaily(),
+                resultsDto.getCountRemark(),
+                resultsDto.getAmountRemark(),
+                resultsDto.getTransactionRefNo()
         );
 
     }
@@ -116,6 +136,43 @@ public class LimitValidator {
                 limitCheckType
         );
 
+    }
+
+    public LimitValidatorResponse validateWithProc(final UserDTO userDTO, final String beneficiaryType, final BigDecimal paidAmount, final RequestMetaData metaData) {
+        log.info("[LimitValidator] limit validator called cif ={} and beneficiaryType={} and paidAmount={}",
+                htmlEscape(userDTO.getCifId()), htmlEscape(beneficiaryType), htmlEscape(paidAmount.toString()));
+        LimitValidatorResponse limitValidatorResultsDto =
+                digitalUserLimitUsageRepository.checkLimit(userDTO.getCifId(), beneficiaryType, metaData.getCountry(),metaData.getSegment(),0,paidAmount);
+
+        final String remarks = getRemarks(limitValidatorResultsDto, metaData.getPrimaryCif(), String.valueOf(paidAmount), beneficiaryType);
+        if (limitValidatorResultsDto == null) {
+            auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks,
+                    MONTH_AMOUNT_LIMIT_REACHED.getCustomErrorCode(), MONTH_AMOUNT_LIMIT_REACHED.getErrorMessage(), null);
+            GenericExceptionHandler.handleError(LIMIT_PACKAGE_NOT_FOUND,
+                    LIMIT_PACKAGE_NOT_FOUND.getErrorMessage());
+        }
+        if (!limitValidatorResultsDto.isValid()) {
+            if (LimitCheckType.MONTHLY_AMOUNT.equals(limitValidatorResultsDto.getAmountRemark())) {
+                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, MONTH_AMOUNT_LIMIT_REACHED.getCustomErrorCode(), MONTH_AMOUNT_LIMIT_REACHED.getErrorMessage(), "limit check failed");
+                GenericExceptionHandler.handleError(MONTH_AMOUNT_LIMIT_REACHED,
+                        MONTH_AMOUNT_LIMIT_REACHED.getErrorMessage());
+            } else if (LimitCheckType.MONTHLY_COUNT.equals(limitValidatorResultsDto.getCountRemark())) {
+                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, MONTH_COUNT_LIMIT_REACHED.getCustomErrorCode(), MONTH_COUNT_LIMIT_REACHED.getErrorMessage(), "limit check failed");
+                GenericExceptionHandler.handleError(MONTH_COUNT_LIMIT_REACHED,
+                        MONTH_COUNT_LIMIT_REACHED.getErrorMessage());
+            } else if (LimitCheckType.DAILY_AMOUNT.equals(limitValidatorResultsDto.getAmountRemark())) {
+                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, DAY_AMOUNT_LIMIT_REACHED.getCustomErrorCode(), DAY_AMOUNT_LIMIT_REACHED.getErrorMessage(), "limit check failed");
+                GenericExceptionHandler.handleError(DAY_AMOUNT_LIMIT_REACHED,
+                        DAY_AMOUNT_LIMIT_REACHED.getErrorMessage());
+            } else if (LimitCheckType.DAILY_COUNT.equals(limitValidatorResultsDto.getCountRemark())) {
+                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, DAY_COUNT_LIMIT_REACHED.getCustomErrorCode(), DAY_COUNT_LIMIT_REACHED.getErrorMessage(), "limit check failed");
+                GenericExceptionHandler.handleError(DAY_COUNT_LIMIT_REACHED,
+                        DAY_COUNT_LIMIT_REACHED.getErrorMessage());
+            }
+        }
+        auditEventPublisher.publishSuccessEvent(LIMIT_VALIDATION, metaData, remarks);
+        log.info("Limit validation successful");
+        return limitValidatorResultsDto;
     }
 
 }

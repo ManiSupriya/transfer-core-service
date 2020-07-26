@@ -1,13 +1,12 @@
 package com.mashreq.transfercoreservice.fundtransfer.limits;
 
-import java.math.BigDecimal;
-
+import com.mashreq.transfercoreservice.fundtransfer.dto.LimitValidatorResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.mashreq.transfercoreservice.cardlesscash.dto.response.LimitValidatorResponse;
+import java.math.BigDecimal;
 
 @Repository
 public interface DigitalUserLimitUsageRepository extends JpaRepository<DigitalUserLimitUsage, Long> {

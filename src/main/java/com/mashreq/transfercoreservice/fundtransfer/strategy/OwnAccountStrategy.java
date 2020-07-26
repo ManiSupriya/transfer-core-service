@@ -4,7 +4,6 @@ import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
 import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
-import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
@@ -91,32 +90,11 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         //Limit Validation
         final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), fromAccount,transferAmountInSrcCurrency);
         String benCode = getBeneficiaryCode(request);
-        final LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, benCode, limitUsageAmount, metadata);
+        final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, benCode, limitUsageAmount, metadata);
         if(GOLD.equalsIgnoreCase(request.getCurrency())|| SILVER.equalsIgnoreCase(request.getCurrency())){
             limitValidator.validateMin(userDTO, benCode, transactionAmount, metadata);
         }
 
-
-
-        // As per current implementation with FE they are sending toCurrency and its value for within and own
-//        log.info("Limit Validation start.");
-//        BigDecimal limitUsageAmount = request.getAmount();
-//        if (!userDTO.getLocalCurrency().equalsIgnoreCase(request.getCurrency())) {
-//
-//            // Since we support request currency it can be  debitLeg or creditLeg
-//            String givenAccount = request.getToAccount();
-//            if (request.getCurrency().equalsIgnoreCase(fromAccount.getCurrency())) {
-//                log.info("Limit Validation with respect to from account.");
-//                givenAccount = request.getFromAccount();
-//            }
-//            CoreCurrencyConversionRequestDto requestDto = generateCurrencyConversionRequest(request.getCurrency(),
-//                    givenAccount, request.getAmount(),
-//                    request.getDealNumber(), userDTO.getLocalCurrency());
-//            CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(requestDto);
-//            limitUsageAmount = currencyConversionDto.getTransactionAmount();
-//        }
-//        LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount);
-//        log.info("Limit Validation successful");
 
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccount, toAccount,conversionResult.getExchangeRate());
         final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata);
@@ -185,17 +163,6 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 
     private boolean isCurrencySame(AccountDetailsDTO destinationAccount, AccountDetailsDTO sourceAccount) {
         return destinationAccount.getCurrency().equalsIgnoreCase(sourceAccount.getCurrency());
-    }
-
-    private BigDecimal getAmountInSrcCurrency(BigDecimal transactionAmount, AccountDetailsDTO destAccount, AccountDetailsDTO sourceAccount) {
-        final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
-        currencyRequest.setAccountNumber(sourceAccount.getNumber());
-        currencyRequest.setAccountCurrency(sourceAccount.getCurrency());
-        currencyRequest.setTransactionCurrency(destAccount.getCurrency());
-        currencyRequest.setTransactionAmount(transactionAmount);
-        CurrencyConversionDto conversionResultInSourceAcctCurrency = maintenanceService.convertBetweenCurrencies(currencyRequest);
-        BigDecimal amtToBePaidInSrcCurrency = conversionResultInSourceAcctCurrency.getAccountCurrencyAmount();
-        return amtToBePaidInSrcCurrency;
     }
 
     //convert to sourceAccount from destAccount
