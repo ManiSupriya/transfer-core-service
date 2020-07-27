@@ -108,7 +108,7 @@ public class FundTransferMWService {
 
     private CoreFundTransferResponseDto constructFTResponseDTO(FundTransferResType.Transfer transfer, ErrorType exceptionDetails, MwResponseStatus s) {
         CoreFundTransferResponseDto coreFundTransferResponseDto = new CoreFundTransferResponseDto();
-        coreFundTransferResponseDto.setTransactionRefNo(transfer.getTransactionRefNo());
+        coreFundTransferResponseDto.setHostRefNo(transfer.getTransactionRefNo());
         coreFundTransferResponseDto.setExternalErrorMessage(exceptionDetails.getData());
         coreFundTransferResponseDto.setMwReferenceNo(transfer.getTransactionRefNo());
         coreFundTransferResponseDto.setMwResponseDescription(exceptionDetails.getErrorDescription());
