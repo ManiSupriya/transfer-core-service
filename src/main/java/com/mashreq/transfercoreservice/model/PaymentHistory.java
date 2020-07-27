@@ -53,6 +53,6 @@ public class PaymentHistory extends AbstractAuditingEntity {
 
     private String ipAddress;
     private String financialTransactionNo;
-    private String hostReferenceNo;
+    private String hostReferanceNo;
     private String transactionRefNo;
 }
