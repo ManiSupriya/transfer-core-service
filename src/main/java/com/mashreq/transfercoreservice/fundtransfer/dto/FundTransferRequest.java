@@ -32,5 +32,6 @@ public class FundTransferRequest {
     private String internalAccFlag;
     private BigDecimal srcAmount;
     private BigDecimal exchangeRate;
+    private String limitTransactionRefNo;
 
 }
