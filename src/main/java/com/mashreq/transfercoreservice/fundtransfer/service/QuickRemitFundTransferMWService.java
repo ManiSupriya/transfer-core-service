@@ -79,7 +79,7 @@ public class QuickRemitFundTransferMWService {
         	coreFundTransferResponseDto.setMwResponseDescription(exceptionDetails.getErrorDescription());
         	coreFundTransferResponseDto.setMwResponseStatus(s);
         	coreFundTransferResponseDto.setMwResponseCode(exceptionDetails.getErrorCode());
-        	coreFundTransferResponseDto.setTransactionRefNo(txnRefNum);
+        	coreFundTransferResponseDto.setHostRefNo(txnRefNum);
                 return coreFundTransferResponseDto;
     }
 

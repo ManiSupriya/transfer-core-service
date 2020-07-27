@@ -32,6 +32,9 @@ public enum TransferErrorCode implements ErrorCode {
     INVALID_BEN_CODE("TN-1106","Invalid ben code"),
     MIN_AMOUNT_LIMIT_REACHED("TN-1107", "Min Amount Limit Reached"),
     ERROR_LIMIT_CHECK("TN-1108","Error while fetching limit from db"),
+    COOLING_COUNT_LIMIT_REACHED("TN-1109", "Cooling Count Limit Reached"),
+    COOLING_AMOUNT_LIMIT_REACHED("TN-1110", "Cooling Count Limit Reached"),
+    TXN_AMOUNT_LIMIT_REACHED("TN-1111", "Transaction amount Limit Reached"),
 
     BENE_NOT_FOUND("TN-4001", "Beneficiary Not Found"),
     BENE_ACC_NOT_MATCH("TN-4002", "Beneficiary Account Number does not match"),

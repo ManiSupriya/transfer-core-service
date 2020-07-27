@@ -43,7 +43,7 @@ public class CoreTransferService {
 
         log.info("Response for fund-transfer call {} ", transferFundsResponse);
         final CoreFundTransferResponseDto coreResponse = new CoreFundTransferResponseDto();
-        coreResponse.setTransactionRefNo(transferFundsResponse.getData().getTransactionRefNo());
+        coreResponse.setHostRefNo(transferFundsResponse.getData().getTransactionRefNo());
         coreResponse.setMwReferenceNo(transferFundsResponse.getData().getMwReferenceNo());
         coreResponse.setMwResponseStatus(transferFundsResponse.getData().getMwResponseStatus());
         coreResponse.setMwResponseCode(transferFundsResponse.getData().getMwResponseCode());

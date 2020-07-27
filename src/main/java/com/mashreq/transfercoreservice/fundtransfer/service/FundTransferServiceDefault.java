@@ -206,6 +206,7 @@ public class FundTransferServiceDefault implements FundTransferService {
                 .accountFrom(request.getFromAccount())
                 .financialTransactionNo(request.getFinTxnNo())
                 .transactionRefNo(fundTransferResponse.getTransactionRefNo())
+                .hostRefNo(fundTransferResponse.getResponseDto().getHostRefNo())
                 .build();
 
     }

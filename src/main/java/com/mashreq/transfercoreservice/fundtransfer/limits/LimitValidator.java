@@ -171,6 +171,21 @@ public class LimitValidator {
                 GenericExceptionHandler.handleError(DAY_COUNT_LIMIT_REACHED,
                         DAY_COUNT_LIMIT_REACHED.getErrorMessage());
             }
+            else if (LimitCheckType.COOLING_LIMIT_COUNT.equals(limitValidatorResultsDto.getCountRemark())) {
+                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, COOLING_COUNT_LIMIT_REACHED.getCustomErrorCode(), COOLING_COUNT_LIMIT_REACHED.getErrorMessage(), "limit check failed");
+                GenericExceptionHandler.handleError(COOLING_COUNT_LIMIT_REACHED,
+                        COOLING_COUNT_LIMIT_REACHED.getErrorMessage());
+            }
+            else if (LimitCheckType.COOLING_LIMIT_AMOUNT.equals(limitValidatorResultsDto.getAmountRemark())) {
+                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, COOLING_AMOUNT_LIMIT_REACHED.getCustomErrorCode(), COOLING_AMOUNT_LIMIT_REACHED.getErrorMessage(), "limit check failed");
+                GenericExceptionHandler.handleError(COOLING_AMOUNT_LIMIT_REACHED,
+                        COOLING_AMOUNT_LIMIT_REACHED.getErrorMessage());
+            }
+            else if (LimitCheckType.TXN_AMOUNT.equals(limitValidatorResultsDto.getAmountRemark())) {
+                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, TXN_AMOUNT_LIMIT_REACHED.getCustomErrorCode(), TXN_AMOUNT_LIMIT_REACHED.getErrorMessage(), "limit check failed");
+                GenericExceptionHandler.handleError(TXN_AMOUNT_LIMIT_REACHED,
+                        TXN_AMOUNT_LIMIT_REACHED.getErrorMessage());
+            }
         }
         auditEventPublisher.publishSuccessEvent(LIMIT_VALIDATION, metaData, remarks);
         log.info("Limit validation successful");

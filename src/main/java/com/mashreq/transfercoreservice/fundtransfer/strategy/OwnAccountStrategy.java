@@ -89,15 +89,13 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 
         //Limit Validation
         final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), fromAccount,transferAmountInSrcCurrency);
-        String benCode = getBeneficiaryCode(request);
+        request.setServiceType(getBeneficiaryCode(request));
         if(GOLD.equalsIgnoreCase(request.getCurrency())|| SILVER.equalsIgnoreCase(request.getCurrency())){
-            limitValidator.validateMin(userDTO, benCode, transactionAmount, metadata);
+            limitValidator.validateMin(userDTO, request.getServiceType(), transactionAmount, metadata);
         }
-        final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, benCode, limitUsageAmount, metadata,null);
+        final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metadata,null);
 
-
-
-        final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccount, toAccount,conversionResult.getExchangeRate());
+        final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccount, toAccount,conversionResult.getExchangeRate(),validationResult);
         final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata);
 
         //final FundTransferResponse fundTransferResponse = coreTransferService.transferFundsBetweenAccounts(request);
@@ -123,7 +121,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     }
 
     private FundTransferRequest prepareFundTransferRequestPayload(RequestMetaData metadata, FundTransferRequestDTO request,
-                                                                  AccountDetailsDTO sourceAccount, AccountDetailsDTO destinationAccount,BigDecimal exchangeRate) {
+                                                                  AccountDetailsDTO sourceAccount, AccountDetailsDTO destinationAccount, BigDecimal exchangeRate, LimitValidatorResponse validationResult) {
         return FundTransferRequest.builder()
                 .amount(request.getAmount())
                 .srcAmount(request.getSrcAmount())
@@ -139,6 +137,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
                 .transactionCode(OWN_ACCOUNT_TRANSACTION_CODE)
                 .internalAccFlag(INTERNAL_ACCOUNT_FLAG)
                 .exchangeRate(exchangeRate)
+                .limitTransactionRefNo(validationResult.getTransactionRefNo())
                 .build();
 
     }
