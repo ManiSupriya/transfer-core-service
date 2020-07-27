@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.util.List;
 
@@ -40,6 +41,8 @@ public class FundTransferMWService {
     private static final String NARRATION_SUFFIX = " Banking";
     private static final String PAYMENT_DETAIL_PREFIX = "/REF/ ";
     private final AsyncUserEventPublisher auditEventPublisher;
+    private static final String GOLD = "XAU";
+    private static final String SILVER = "XAG";
 
 
     public FundTransferResponse transfer(FundTransferRequest request, RequestMetaData metaData) {
@@ -160,6 +163,9 @@ public class FundTransferMWService {
         else {
             creditLeg.setAmount(request.getAmount());
         }
+        if(isInvestment(request)){
+            debitLeg.setNarration1(generateNarrationForInvestment(request.getChannel(),request.getExchangeRate()));
+        }
 
         FundTransferReqType.Transfer transfer = new FundTransferReqType.Transfer();
         transfer.setCreditLeg(creditLeg);
@@ -171,8 +177,19 @@ public class FundTransferMWService {
         return services;
     }
 
+    private boolean isInvestment(FundTransferRequest request) {
+               return (GOLD.equalsIgnoreCase(request.getDestinationCurrency())||
+        GOLD.equalsIgnoreCase(request.getSourceCurrency())||
+                       SILVER.equalsIgnoreCase(request.getDestinationCurrency())||
+                       SILVER.equalsIgnoreCase(request.getSourceCurrency()));
+    }
+
     private String generateNarration(String channel) {
         return NARRATION_PREFIX + channel + NARRATION_SUFFIX;
+    }
+
+    private String generateNarrationForInvestment(String channel, BigDecimal exchangeRate) {
+        return NARRATION_PREFIX + channel + NARRATION_SUFFIX + " ExchangeRate " + exchangeRate;
     }
 
 

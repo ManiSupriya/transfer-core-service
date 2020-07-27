@@ -29,6 +29,9 @@ public enum TransferErrorCode implements ErrorCode {
     DAY_COUNT_LIMIT_REACHED("TN-1104", "Day count Limit Reached"),
     MONTH_AMOUNT_LIMIT_REACHED("TN-1104", "Month Amount Limit Reached"),
     MONTH_COUNT_LIMIT_REACHED("TN-1105", "Month Count Limit Reached"),
+    INVALID_BEN_CODE("TN-1106","Invalid ben code"),
+    MIN_AMOUNT_LIMIT_REACHED("TN-1107", "Min Amount Limit Reached"),
+    ERROR_LIMIT_CHECK("TN-1108","Error while fetching limit from db"),
 
     BENE_NOT_FOUND("TN-4001", "Beneficiary Not Found"),
     BENE_ACC_NOT_MATCH("TN-4002", "Beneficiary Account Number does not match"),
@@ -101,7 +104,10 @@ public enum TransferErrorCode implements ErrorCode {
     CONNECTION_TIMEOUT_MW("TN-8002", "Middleware Connection Timeout"),
     INTERNAL_ERROR("TN-8004", "Something went wrong"),
     EXTERNAL_SERVICE_ERROR_MW("TN-8003", "Something went wrong with middleware service"),
-    INVALID_EVENT_TYPE_CODE("TN-8004","Invalid event code");
+    INVALID_EVENT_TYPE_CODE("TN-8004","Invalid event code"),
+
+
+    ;
 
 
     private String customErrorCode;

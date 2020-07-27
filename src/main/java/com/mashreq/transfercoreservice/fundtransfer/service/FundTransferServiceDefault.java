@@ -4,7 +4,6 @@ import com.mashreq.logcore.annotations.TrackExec;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
-import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
@@ -97,7 +96,7 @@ public class FundTransferServiceDefault implements FundTransferService {
         }
 
         // Insert payment history irrespective of mw payment fails or success
-        PaymentHistoryDTO paymentHistoryDTO = generatePaymentHistory(request, response.getResponseDto(), userDTO, metadata);
+        PaymentHistoryDTO paymentHistoryDTO = generatePaymentHistory(request, response, userDTO, metadata);
 
         log.info("Inserting into Payments History table {} ", paymentHistoryDTO);
         paymentHistoryService.insert(paymentHistoryDTO);
@@ -185,7 +184,7 @@ public class FundTransferServiceDefault implements FundTransferService {
 
     }
 
-    PaymentHistoryDTO generatePaymentHistory(FundTransferRequestDTO request, CoreFundTransferResponseDto coreResponse, UserDTO userDTO,
+    PaymentHistoryDTO generatePaymentHistory(FundTransferRequestDTO request, FundTransferResponse fundTransferResponse, UserDTO userDTO,
                                              RequestMetaData fundTransferMetadata) {
 
         //convert dto
@@ -200,12 +199,13 @@ public class FundTransferServiceDefault implements FundTransferService {
                 .paidAmount(request.getAmount() == null ? request.getSrcAmount() : request.getAmount())
                 //.dueAmount(request.getDueAmount())
                 //.toCurrency(PaymentConstants.BILL_PAYMENT_TO_CURRENCY)
-                .status(coreResponse.getMwResponseStatus().name())
-                .mwReferenceNo(coreResponse.getMwReferenceNo())
-                .mwResponseCode(coreResponse.getMwResponseCode())
-                .mwResponseDescription(coreResponse.getMwResponseDescription())
+                .status(fundTransferResponse.getResponseDto().getMwResponseStatus().name())
+                .mwReferenceNo(fundTransferResponse.getResponseDto().getMwReferenceNo())
+                .mwResponseCode(fundTransferResponse.getResponseDto().getMwResponseCode())
+                .mwResponseDescription(fundTransferResponse.getResponseDto().getMwResponseDescription())
                 .accountFrom(request.getFromAccount())
                 .financialTransactionNo(request.getFinTxnNo())
+                .transactionRefNo(fundTransferResponse.getTransactionRefNo())
                 .build();
 
     }

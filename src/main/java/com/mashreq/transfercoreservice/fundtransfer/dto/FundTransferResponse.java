@@ -16,5 +16,6 @@ public class FundTransferResponse {
     private CoreFundTransferResponseDto responseDto;
     private String limitVersionUuid;
     private BigDecimal limitUsageAmount;
+    private String transactionRefNo;
 
 }
