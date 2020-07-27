@@ -186,7 +186,6 @@ public class LimitValidator {
                 GenericExceptionHandler.handleError(TXN_AMOUNT_LIMIT_REACHED,
                         TXN_AMOUNT_LIMIT_REACHED.getErrorMessage());
             }
-
         }
         auditEventPublisher.publishSuccessEvent(LIMIT_VALIDATION, metaData, remarks);
         log.info("Limit validation successful");

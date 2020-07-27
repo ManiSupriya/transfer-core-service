@@ -50,6 +50,7 @@ public class FundTransferMWService {
     public FundTransferResponse transfer(FundTransferRequest request, RequestMetaData metaData) {
         log.info("Fund transfer initiated from account [ {} ]", htmlEscape(request.getFromAccount()));
 
+        //todo - remove this and use transactionid only fro request once  everyone starts using limit validation proc
         String msgId = getUniqueIdForRequest(request);
 
         SoapClient soapClient = soapClient(soapServiceProperties,
