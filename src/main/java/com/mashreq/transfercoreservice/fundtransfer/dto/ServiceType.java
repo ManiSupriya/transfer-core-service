@@ -15,16 +15,16 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_P
  */
 public enum ServiceType implements ValidEnum {
 
-    OWN_ACCOUNT("own-account","OWN_ACCOUNT","AC"),
-    WITHIN_MASHREQ("within-mashreq","WITHIN_MASHREQ","WM"),
-    LOCAL("local","LOCAL","LC"),
-    INTERNATIONAL("international","INTERNATIONAL","IN"),
-    DAR_AL_BER("dar-al-ber","DAR_AL_BER","DA"),
-    BAIT_AL_KHAIR("bait-al-khair","BAIT_AL_KHAIR","BA"),
-    DUBAI_CARE("dubai-care","DUBAI_CARE","DC"),
-    QUICK_REMIT("quick-remit","QUICK_REMIT","QR"),
-    XAU("xau","GOLD_TRANSFER","GL"),
-    XAG("xag","SILVER_TRANSFER","SL")
+    OWN_ACCOUNT("WYMA","OWN_ACCOUNT","AC"),
+    WITHIN_MASHREQ("WAMA","WITHIN_MASHREQ","WM"),
+    LOCAL("LOCAL","LOCAL","LC"),
+    INTERNATIONAL("INFT","INTERNATIONAL","IN"),
+    DAR_AL_BER("DALBR","DAR_AL_BER","DA"),
+    BAIT_AL_KHAIR("BALKH","BAIT_AL_KHAIR","BA"),
+    DUBAI_CARE("DCARE","DUBAI_CARE","DC"),
+    QUICK_REMIT("QRT","QUICK_REMIT","QR"),
+    XAU("XAU","GOLD_TRANSFER","GL"),
+    XAG("XAG","SILVER_TRANSFER","SL")
     ;
 
     private String name;
