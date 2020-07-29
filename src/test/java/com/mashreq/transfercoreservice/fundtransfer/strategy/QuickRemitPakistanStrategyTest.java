@@ -4,7 +4,6 @@ package com.mashreq.transfercoreservice.fundtransfer.strategy;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.*;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
-import com.mashreq.transfercoreservice.client.mobcommon.dto.AddressTypeDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerPhones;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
@@ -28,11 +27,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -237,7 +232,7 @@ public class QuickRemitPakistanStrategyTest {
         when(balanceValidator.validate(eq(requestDTO),eq(metadata),any())).thenReturn(validationResult);
         LimitValidatorResultsDto limitValidatorResultsDto = new LimitValidatorResultsDto();
         limitValidatorResultsDto.setLimitVersionUuid(limitVersionUuid);
-        when(limitValidator.validate(eq(userDTO), eq("quick-remit"), eq(limitUsageAmount), eq(metadata)))
+        when(limitValidator.validate(eq(userDTO), eq("QRT"), eq(limitUsageAmount), eq(metadata)))
                 .thenReturn(limitValidatorResultsDto);
         when(quickRemitPakistanRequestMapper.map(eq(channelTraceId),eq(requestDTO), eq(sourceAccountDetailsDTO),
                 eq(beneficiaryDto), eq(currencyConversionDto.getAccountCurrencyAmount()),
@@ -428,7 +423,7 @@ public class QuickRemitPakistanStrategyTest {
                 .thenReturn(currencyConversionDtoInAed);
         LimitValidatorResultsDto limitValidatorResultsDto = new LimitValidatorResultsDto();
         limitValidatorResultsDto.setLimitVersionUuid(limitVersionUuid);
-        when(limitValidator.validate(eq(userDTO), eq("quick-remit"), eq(limitUsageAmount), eq(metadata)))
+        when(limitValidator.validate(eq(userDTO), eq("QRT"), eq(limitUsageAmount), eq(metadata)))
                 .thenReturn(limitValidatorResultsDto);
         when(quickRemitPakistanRequestMapper.map(eq(channelTraceId),eq(requestDTO), eq(sourceAccountDetailsDTO),
                 eq(beneficiaryDto), eq(currencyConversionDto.getAccountCurrencyAmount()),
