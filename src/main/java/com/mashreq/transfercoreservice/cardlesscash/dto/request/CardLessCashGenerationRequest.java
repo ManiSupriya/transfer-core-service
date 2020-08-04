@@ -23,7 +23,7 @@ public class CardLessCashGenerationRequest {
 	@NotNull(message = "Account Number is manadatory field")
     @Pattern(regexp = "^[0-9]{12}$", message = "accountNum should have only twelve nummbers")
     private String accountNo;
-    @DecimalMin(value = "100.00")
+    @DecimalMin(value = "100.00", message = "Amount should be multiples of hundred")
     @Digits(integer=4, fraction=2)
     private BigDecimal amount;
     private String otp;
