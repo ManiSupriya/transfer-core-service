@@ -58,6 +58,13 @@ spec:
         - containerPort: 8080
           name: http
           protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /api/actuator/info
+            port: 8080
+          initialDelaySeconds: 180
+          periodSeconds: 60
+          timeoutSeconds: 5
         volumeMounts:
         - mountPath: /opt/appd
           name: appd-agent-repo
