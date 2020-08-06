@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.client.dto;
 
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class SearchAccountDto {
+
     private String customerName;
     private String customerCif;
     private String accountName;
@@ -19,9 +21,10 @@ public class SearchAccountDto {
     private String creationDate;
     private String currentBalance;
     private String availableBalance;
+    private String unclearedBalance;
+    private String chequeBook;
     private String status;
     private String branch;
-    private String branchName;
     private String operatingInstruction;
     private boolean jointAccount;
     private boolean dormant;
@@ -30,4 +33,12 @@ public class SearchAccountDto {
     private boolean noDebitForCompliance;
     private boolean noDebit;
     private boolean noCredit;
+    private String totalOverdraft;
+    private String holdAmount;
+    private String freezeAmount;
+    private String overDraft;
+    private String overdraftStartDate;
+    private String overdraftExpiryDate;
+    private String tempOverDraft;
+    private String accountClosedDate;
 }

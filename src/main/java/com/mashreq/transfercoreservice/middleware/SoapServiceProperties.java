@@ -27,5 +27,6 @@ public class SoapServiceProperties {
         private String quickRemitIndia;
         private String quickRemitPakistan;
         private String quickRemitInstaRem;
+        private String searchAccountDetails;
     }
 }

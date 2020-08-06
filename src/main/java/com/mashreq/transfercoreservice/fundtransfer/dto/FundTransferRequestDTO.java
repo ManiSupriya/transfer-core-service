@@ -56,4 +56,8 @@ public class FundTransferRequestDTO {
     private String beneficiaryId;
 
     private String productCode;
+    private String otp;
+    private String challengeToken;
+    private int dpPublicKeyIndex;
+    private String dpRandomNumber; 
 }
