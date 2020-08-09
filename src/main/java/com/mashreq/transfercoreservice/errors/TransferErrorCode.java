@@ -22,6 +22,7 @@ public enum TransferErrorCode implements ErrorCode {
 
 
     BALANCE_NOT_SUFFICIENT("TN-1200", "Balance is not sufficient"),
+    DEAL_VALIDATION_FAILED("TN-1201", "Deal Number validation Failed"),
 
     LIMIT_PACKAGE_NOT_FOUND("TN-1101", "Limit Package not Found"),
     TRX_LIMIT_REACHED("TN-1102", "Transaction Limit Reached"),
@@ -52,6 +53,7 @@ public enum TransferErrorCode implements ErrorCode {
     CURRENCY_IS_INVALID("TN-4202", "Currency does not match"),
     ACCOUNT_NOT_FOUND("TN-4003", "Account not found"),
     CONNECTED_ACCOUNT_EMPTY("TN-4004", "Connected Account is empty"),
+    ACCOUNT_RESOURCES_MISMATCH("TN-4005", "There was not enough resources in account "),
 
     IBAN_NOT_FOUND("TN-5100", "IBAN not found"),
     ROUTING_CODE_NOT_FOUND("TN-5102", "Routing Code not found"),

@@ -49,6 +49,7 @@ esb-service:
     quickRemitIndia: ${QUICK_REMIT_INDIA:TRTPTIN}
     quickRemitPakistan: ${QUICK_REMIT_INDIA:TRTPTPK}
     quickRemitInstaRem: ${QUICK_REMIT_INDIA:TINSRPMT}
+    searchAccountDetails: ${SEARCH_ACCOUNT_DETAILS:QACCDTL}
 
 external:
   error-code:
