@@ -138,7 +138,7 @@ public class FundTransferServiceDefault implements FundTransferService {
 
         if (isSuccessOrProcessing(response)) {
             DigitalUserLimitUsageDTO digitalUserLimitUsageDTO = generateUserLimitUsage(
-                    request.getServiceType(), response.getLimitUsageAmount(), userDTO, metadata, response.getLimitVersionUuid());
+                    request.getServiceType(), response.getLimitUsageAmount(), userDTO, metadata, response.getLimitVersionUuid(),response.getTransactionRefNo());
             log.info("Inserting into limits table {} ", digitalUserLimitUsageDTO);
             digitalUserLimitUsageService.insert(digitalUserLimitUsageDTO);
         }
@@ -219,7 +219,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     }
 
     private DigitalUserLimitUsageDTO generateUserLimitUsage(String serviceType, BigDecimal usageAmount, UserDTO userDTO,
-                                                            RequestMetaData fundTransferMetadata, String versionUuid) {
+                                                            RequestMetaData fundTransferMetadata, String versionUuid,String transactionRefNo) {
         return DigitalUserLimitUsageDTO.builder()
                 .digitalUserId(userDTO.getUserId())
                 .cif(fundTransferMetadata.getPrimaryCif())
@@ -228,6 +228,7 @@ public class FundTransferServiceDefault implements FundTransferService {
                 .paidAmount(usageAmount)
                 .versionUuid(versionUuid)
                 .createdBy(String.valueOf(userDTO.getUserId()))
+                .transactionRefNo(transactionRefNo)
                 .build();
 
     }
