@@ -28,5 +28,7 @@ public class SoapServiceProperties {
         private String quickRemitPakistan;
         private String quickRemitInstaRem;
         private String searchAccountDetails;
+        private String gpiTransactionDetails;
+        private String swiftGpiTransactionDetails;
     }
 }

@@ -14,13 +14,35 @@ spring:
   profiles.active: local
   main.lazy-initialization: false
   datasource:
-    url: ${MSSQL_DEV_URL:jdbc:sqlserver://localhost:1433;databaseName=MOB-LOCAL}
-    username: ${MSSQL_DEV_USERNAME:SA}
-    password: ${MSSQL_DB_KEY:Asdasdasd123}
+    driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    url: ${MSSQL_DB_URL:jdbc:sqlserver://10.196.3.22:1433;databaseName=MOB-DEV}
+    username: ${MSSQL_DB_USERNAME:Mobdbuser}
+    password: ${MSSQL_DB_KEY:Mobdbuser}
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: validate
+
+esb-service:
+  url: ${CDM_URL:http://172.24.70.29:7800/AllOperationsSOAP_HTTP_Service}
+  app-id: ${SOAP_SERVICE_APPID:SITAPPS}
+  origin-id: ${SOAP_SERVICE_ORIGINID:AE}
+  channel: ${SOAP_SERVICE_USERID:MOMMUSER}
+  connect-timeout: ${SOAP_SERVICE_CONNECTIONTIMEOUT:40000}
+  read-timeout: ${SOAP_SERVICE_READTIMEOUT:30000}
+  user-id: ${USER_ID:MOMMUSER}
+  service-codes:
+    fundTransfer: TFT
+    ibanSearch: ${ACCUITYIBAN_SERVICE_CODE:QIBANVAL}
+    routingCodeSearch: ${ACCUITYROUTING_SERVICE_CODE:QFAD}
+    ifscSearch: ${IFSCSEARCH_SERVICE_CODE:QAXIFSC}
+    flexRuleEngine: ${FLEXRULEENGINE_SERVICE_CODE:QRMTGW}
+    quickRemitIndia: ${QUICK_REMIT_INDIA:TRTPTIN}
+    quickRemitPakistan: ${QUICK_REMIT_INDIA:TRTPTPK}
+    quickRemitInstaRem: ${QUICK_REMIT_INDIA:TINSRPMT}
+    searchAccountDetails: ${SEARCH_ACCOUNT_DETAILS:QACCDTL}
+    gpiTransactionDetails: ${SEARCH_ACCOUNT_DETAILS:QSFGPITDTL}
+    swiftGpiTransactionDetails: ${AWIFT_GPI_TRANSACTION_DETAILS:QSFGPITDTL}
 
 external:
   error-code:
@@ -89,9 +111,9 @@ redis:
 mob-common:
   commonUserEventDataSource:
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
-    jdbcUrl: ${MSSQL_EVENT_DEV_URL:jdbc:sqlserver://localhost:1433;databaseName=MOB-LOCAL}
-    username: ${MSSQL_EVENT_DEV_USERNAME:SA}
-    password: ${MSSQL_EVENT_DB_KEY:Asdasdasd123}
+    jdbcUrl: ${MSSQL_DB_URL:jdbc:sqlserver://10.196.3.22:1433;databaseName=MOB-DEV}
+    username: ${MSSQL_DB_USERNAME:Mobdbuser}
+    password: ${MSSQL_DB_KEY:Mobdbuser}
     maxPoolSize: 40
     poolName: hikari-user-events-life-pool
     minimumidletime: 600000
