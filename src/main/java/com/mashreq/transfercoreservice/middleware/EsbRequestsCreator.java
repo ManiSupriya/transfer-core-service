@@ -74,7 +74,7 @@ public class EsbRequestsCreator {
             transferReqType.setDealFlag(YesNo.N.name());
         }
         eaiServices.getBody().setFundTransferReq(transferReqType);
-        eaiServices.setHeader(headerfactory.getHeader(CommonConstants.ESB_SRV_FUND_TRANSFER, tracer.currentSpan().context().traceIdString()));
+        eaiServices.setHeader(headerfactory.getHeader(appProperties.getServiceCodes().getFundTransfer(), tracer.currentSpan().context().traceIdString()));
         return eaiServices;
     }
     
