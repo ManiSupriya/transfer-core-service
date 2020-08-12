@@ -51,7 +51,7 @@ esb-service:
     quickRemitInstaRem: ${QUICK_REMIT_INDIA:TINSRPMT}
     searchAccountDetails: ${SEARCH_ACCOUNT_DETAILS:QACCDTL}
     gpiTransactionDetails: ${GPI_TRANSACTION_DETAILS:QGPITDTL}
-    swiftGpiTransactionDetails: ${AWIFT_GPI_TRANSACTION_DETAILS:QSFGPITDTL}
+    swiftGpiTransactionDetails: ${SWIFT_GPI_TRANSACTION_DETAILS:QSFGPITDTL}
 
 external:
   error-code:
