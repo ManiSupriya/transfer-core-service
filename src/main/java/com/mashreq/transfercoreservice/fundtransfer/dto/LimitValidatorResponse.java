@@ -15,7 +15,7 @@ public class LimitValidatorResponse {
 
     private boolean isValid;
     private BigDecimal currentAvailableAmount;
-    private BigDecimal currentAvailableCount;
+    private Integer currentAvailableCount;
     private String amountRemark;
     private String countRemark;
     private String transactionRefNo;
