@@ -111,6 +111,8 @@ public enum TransferErrorCode implements ErrorCode {
     EXTERNAL_SERVICE_ERROR_MW("TN-8003", "Something went wrong with middleware service"),
     INVALID_EVENT_TYPE_CODE("TN-8004","Invalid event code"),
 
+    SMS_NOTIFICATION_FAILED("SMS_9001","Failed to send sms notification")
+
 
     ;
 
