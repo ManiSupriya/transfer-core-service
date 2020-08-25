@@ -15,6 +15,7 @@ public class SoapServiceProperties {
     private Integer connectTimeout;
     private ServiceCodes serviceCodes;
     private String url;
+    private String accessToken;
 
 
     @Data
