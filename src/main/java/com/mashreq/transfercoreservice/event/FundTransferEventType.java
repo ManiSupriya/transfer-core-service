@@ -59,9 +59,8 @@ public enum FundTransferEventType implements EventType {
 
     FLEX_GET_EXCHANGE_RATE("FUND_TRANSFER_ENQUIRY", "Get exchange rate for QR"),
     FLEX_GET_CHARGES("FUND_TRANSFER_ENQUIRY", "Get charges for QR"),
-    SWIFT_GPI_TRANSACTION_DETAILS("SWIFT-TRANSACTION", "Get Swift Transaction Details"),
-    GET_GPI_TRANSACTION_DETAILS("GPI-TRANSACTION", "Get Swift Message Details"),
-    FLEX_RULE_ENGINE_MW_CALL("FUND_TRANSFER_ENQUIRY","Flex rule engine MW call")
+    FLEX_RULE_ENGINE_MW_CALL("FUND_TRANSFER_ENQUIRY","Flex rule engine MW call"),
+    SMS_NOTIFICATION("SMS_NOTIFICATION","Send Sms for transfer-core")
     ;
 
 
