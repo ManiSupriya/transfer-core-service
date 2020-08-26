@@ -100,7 +100,7 @@ public class LimitValidator {
         ServiceType serviceType = getServiceType(beneficiaryType);
         BigDecimal minAmount = getMinAmount(serviceType.getMinAmount());
         String remarks = getRemarks(minAmount,userDTO.getCifId(),limitUsageAmount,beneficiaryType,LimitCheckType.MIN_AMOUNT.name());
-        if(minAmount.compareTo(limitUsageAmount) <0){
+        if(limitUsageAmount.compareTo(minAmount) < 0){
             auditEventPublisher.publishFailureEvent(MIN_LIMIT_VALIDATION, metadata, remarks,
                     MIN_AMOUNT_LIMIT_REACHED.getCustomErrorCode(), MIN_AMOUNT_LIMIT_REACHED.getErrorMessage(), null);
             GenericExceptionHandler.handleError(MIN_AMOUNT_LIMIT_REACHED,

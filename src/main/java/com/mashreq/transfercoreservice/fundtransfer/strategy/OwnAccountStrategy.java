@@ -10,6 +10,8 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
+import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
+import com.mashreq.transfercoreservice.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,6 +38,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     public static final String LOCAL_CURRENCY = "AED";
     public static final String GOLD = "XAU";
     public static final String SILVER = "XAG";
+    private static final String  OWN_ACCOUNT_TRANSACTION = "OWN_ACCOUNT_TRANSACTION";
 
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
     private final SameAccountValidator sameAccountValidator;
@@ -46,6 +49,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     private final MaintenanceService maintenanceService;
     private final FundTransferMWService fundTransferMWService;
     private final BalanceValidator balanceValidator;
+    private final NotificationService notificationService;
 
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, RequestMetaData metadata, UserDTO userDTO) {
@@ -96,6 +100,10 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metadata,null);
 
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccount, toAccount,conversionResult.getExchangeRate(),validationResult);
+
+        final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getCurrency(),transactionAmount);
+        notificationService.sendNotifications(customerNotification,OWN_ACCOUNT_TRANSACTION,metadata);
+
         final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata);
 
         //final FundTransferResponse fundTransferResponse = coreTransferService.transferFundsBetweenAccounts(request);
@@ -108,6 +116,14 @@ public class OwnAccountStrategy implements FundTransferStrategy {
                 .transactionRefNo(validationResult.getTransactionRefNo())
                 .build();
 
+    }
+
+    private CustomerNotification populateCustomerNotification(String transactionRefNo, String currency, BigDecimal amount) {
+        CustomerNotification customerNotification =new CustomerNotification();
+        customerNotification.setAmount(String.valueOf(amount));
+        customerNotification.setCurrency(currency);
+        customerNotification.setTxnRef(transactionRefNo);
+        return customerNotification;
     }
 
     private String getBeneficiaryCode(FundTransferRequestDTO request) {

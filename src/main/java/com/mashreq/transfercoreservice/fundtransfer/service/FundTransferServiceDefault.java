@@ -1,29 +1,5 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.FUND_TRANSFER_FAILED;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.BAIT_AL_KHAIR;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.DAR_AL_BER;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.DUBAI_CARE;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.INTERNATIONAL;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.LOCAL;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.OWN_ACCOUNT;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.QUICK_REMIT;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WITHIN_MASHREQ;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.getServiceByType;
-import static java.time.Duration.between;
-import static java.time.Instant.now;
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.EnumMap;
-import java.util.Optional;
-
-import javax.annotation.PostConstruct;
-
-import org.springframework.stereotype.Service;
-
 import com.mashreq.logcore.annotations.TrackExec;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
@@ -34,28 +10,30 @@ import com.mashreq.transfercoreservice.client.service.OTPService;
 import com.mashreq.transfercoreservice.common.CommonConstants;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponseDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.PaymentHistoryDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageService;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.CharityStrategyDefault;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.FundTransferStrategy;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.InternationalFundTransferStrategy;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.LocalFundTransferStrategy;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.OwnAccountStrategy;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.QuickRemitStrategy;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.WithinMashreqStrategy;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.*;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.model.DigitalUser;
 import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
 import com.mashreq.webcore.dto.response.Response;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.EnumMap;
+import java.util.Optional;
+
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.FUND_TRANSFER_FAILED;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.*;
+import static java.time.Duration.between;
+import static java.time.Instant.now;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 @Slf4j
 @TrackExec
@@ -95,32 +73,38 @@ public class FundTransferServiceDefault implements FundTransferService {
     public FundTransferResponseDTO transferFund(RequestMetaData metadata, FundTransferRequestDTO request) {
         final ServiceType serviceType = getServiceByType(request.getServiceType());
         final FundTransferEventType initiatedEvent = FundTransferEventType.getEventTypeByCode(serviceType.getEventPrefix() + FUND_TRANSFER_INITIATION_SUFFIX);
-        VerifyOTPRequestDTO verifyOTPRequestDTO = new VerifyOTPRequestDTO();
-		verifyOTPRequestDTO.setOtp(request.getOtp());
-		verifyOTPRequestDTO.setChallengeToken(request.getChallengeToken());
-		verifyOTPRequestDTO.setDpPublicKeyIndex(request.getDpPublicKeyIndex());
-		verifyOTPRequestDTO.setDpRandomNumber(request.getDpRandomNumber());
-		verifyOTPRequestDTO.setLoginId(metadata.getLoginId());
-		verifyOTPRequestDTO.setRedisKey(metadata.getUserCacheKey());
-		log.info("fund transfer otp request{} ", verifyOTPRequestDTO);
-			Response<VerifyOTPResponseDTO> verifyOTP = otpService.verifyOTP(verifyOTPRequestDTO);
-			log.info("fund transfer otp response{} ", htmlEscape(verifyOTP.getStatus().toString()));
-			if (!verifyOTP.getData().isAuthenticated()) {
-				auditEventPublisher.publishFailedEsbEvent(FundTransferEventType.FUND_TRANSFER_OTP_DOES_NOT_MATCH,
-						metadata, CommonConstants.FUND_TRANSFER, metadata.getChannelTraceId(),
-						TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.toString(),
-						TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.getErrorMessage(),
-						TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.getErrorMessage());
-				GenericExceptionHandler.handleError(TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR,
-						verifyOTP.getErrorDetails(), verifyOTP.getErrorDetails());
-			}
-			auditEventPublisher.publishSuccessEvent(FundTransferEventType.FUND_TRANSFER_OTP_VALIDATION, metadata, FundTransferEventType.FUND_TRANSFER_OTP_VALIDATION.getDescription());
-		
+        if(!OWN_ACCOUNT.getName().equals(serviceType.getName())){
+            verifyOtp(request,metadata);
+        }
         return auditEventPublisher.publishEventLifecycle(
                 () -> getFundTransferResponse(metadata, request),
                 initiatedEvent,
                 metadata,
                 getInitiatedRemarks(request));
+    }
+
+    private void verifyOtp(FundTransferRequestDTO request, RequestMetaData metadata) {
+        VerifyOTPRequestDTO verifyOTPRequestDTO = new VerifyOTPRequestDTO();
+        verifyOTPRequestDTO.setOtp(request.getOtp());
+        verifyOTPRequestDTO.setChallengeToken(request.getChallengeToken());
+        verifyOTPRequestDTO.setDpPublicKeyIndex(request.getDpPublicKeyIndex());
+        verifyOTPRequestDTO.setDpRandomNumber(request.getDpRandomNumber());
+        verifyOTPRequestDTO.setLoginId(metadata.getLoginId());
+        verifyOTPRequestDTO.setRedisKey(metadata.getUserCacheKey());
+        log.info("fund transfer otp request{} ", verifyOTPRequestDTO);
+        Response<VerifyOTPResponseDTO> verifyOTP = otpService.verifyOTP(verifyOTPRequestDTO);
+        log.info("fund transfer otp response{} ", htmlEscape(verifyOTP.getStatus().toString()));
+        if (!verifyOTP.getData().isAuthenticated()) {
+            auditEventPublisher.publishFailedEsbEvent(FundTransferEventType.FUND_TRANSFER_OTP_DOES_NOT_MATCH,
+                    metadata, CommonConstants.FUND_TRANSFER, metadata.getChannelTraceId(),
+                    TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.toString(),
+                    TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.getErrorMessage(),
+                    TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.getErrorMessage());
+            GenericExceptionHandler.handleError(TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR,
+                    verifyOTP.getErrorDetails(), verifyOTP.getErrorDetails());
+        }
+        auditEventPublisher.publishSuccessEvent(FundTransferEventType.FUND_TRANSFER_OTP_VALIDATION, metadata, FundTransferEventType.FUND_TRANSFER_OTP_VALIDATION.getDescription());
+
     }
 
     private FundTransferResponseDTO getFundTransferResponse(RequestMetaData metadata, FundTransferRequestDTO request) {
