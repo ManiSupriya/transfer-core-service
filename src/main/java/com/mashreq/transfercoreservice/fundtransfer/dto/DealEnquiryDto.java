@@ -5,17 +5,16 @@ import java.util.Set;
 
 import javax.validation.constraints.NotBlank;
 
-
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@Getter
-@RequiredArgsConstructor
+@Data
+@NoArgsConstructor
 @ToString(callSuper = true)
 public class DealEnquiryDto {
     @NotBlank
-    private final String dealNo;
+    private String dealNo;
     private Set<DealEnquiryDetailsDto> detailsDtoList = new HashSet<>();
 
     public void addDealEnquiryDetails(Set<DealEnquiryDetailsDto> detailsDto) {

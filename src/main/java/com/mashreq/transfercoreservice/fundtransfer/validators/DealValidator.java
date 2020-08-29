@@ -1,8 +1,6 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
 
 import org.springframework.stereotype.Component;
 
@@ -34,24 +32,24 @@ public class DealValidator implements Validator {
 		log.info("Deal Validation Started");
 		final DealEnquiryDto dealEnquiryDto = maintenanceService.getFXDealInformation(request.getDealNumber());
 		for (DealEnquiryDetailsDto dealEnquiryDetailsDto : dealEnquiryDto.getDetailsDtoList()) {
-			Date dealExpiryDate = null;
-			try {
-				dealExpiryDate = new SimpleDateFormat("dd/MM/yyyy").parse(dealEnquiryDetailsDto.getDealExpiryDate());
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			if (dealExpiryDate.compareTo(new Date()) < 0) {
-				log.info("Deal Validation failed");
+   		 LocalDate localDate = LocalDate.parse(dealEnquiryDetailsDto.getDealExpiryDate());
+			if(dealEnquiryDetailsDto.getDealAmount().compareTo(request.getAmount()) == -1) {
+				log.info("Deal Validation failed");	
 				auditEventPublisher.publishFailureEvent(FundTransferEventType.DEAL_VALIDATION, metadata,
-						CommonConstants.FUND_TRANSFER, TransferErrorCode.DEAL_VALIDATION_FAILED.toString(),
-						TransferErrorCode.DEAL_VALIDATION_FAILED.getErrorMessage(),
-						TransferErrorCode.DEAL_VALIDATION_FAILED.getErrorMessage());
-				GenericExceptionHandler.handleError(TransferErrorCode.DEAL_VALIDATION_FAILED,
-						TransferErrorCode.DEAL_VALIDATION_FAILED.getErrorMessage(),
-						TransferErrorCode.DEAL_VALIDATION_FAILED.getErrorMessage());
-				return ValidationResult.builder().success(false)
-						.transferErrorCode(TransferErrorCode.DEAL_VALIDATION_FAILED).build();
+						CommonConstants.DEAL_VALIDATION, TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE.toString(),
+						TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE.getErrorMessage(),
+						TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE.getErrorMessage());
+				GenericExceptionHandler.handleError(TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE,
+						TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE.getErrorMessage(),TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE.getErrorMessage());
+			}
+			if (localDate.isBefore(LocalDate.now())) {
+				log.info("Deal Validation failed");	
+				auditEventPublisher.publishFailureEvent(FundTransferEventType.DEAL_VALIDATION, metadata,
+						CommonConstants.DEAL_VALIDATION, TransferErrorCode.DEAL_NUMBER_EXPIRED.toString(),
+						TransferErrorCode.DEAL_NUMBER_EXPIRED.getErrorMessage(),
+						TransferErrorCode.DEAL_NUMBER_EXPIRED.getErrorMessage());
+				GenericExceptionHandler.handleError(TransferErrorCode.DEAL_NUMBER_EXPIRED,
+						TransferErrorCode.DEAL_NUMBER_EXPIRED.getErrorMessage(),TransferErrorCode.DEAL_NUMBER_EXPIRED.getErrorMessage());
 			}
 		}
 

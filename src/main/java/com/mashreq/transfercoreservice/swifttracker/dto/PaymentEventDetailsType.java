@@ -7,13 +7,13 @@ import lombok.Data;
 
 @Data
 @Builder
-public class PaymentEventDetails {
+public class PaymentEventDetailsType {
 	private String networkReference;
 	private String msgNameId;
 	private String businessService;
-	private boolean valid; 
+	private String valid; 
 	private String instructionId;
-	private TransactionStatus transactionStatus;
+	private String transactionStatus;
 	private String from;
 	private String to;
 	private String originator;

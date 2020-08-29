@@ -2,11 +2,11 @@ package com.mashreq.transfercoreservice.fundtransfer.dto;
 
 import java.math.BigDecimal;
 
-import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-@Builder
+@NoArgsConstructor
 public class DealEnquiryDetailsDto {
     private String dealDate;
     private String internalDealRefNo;
