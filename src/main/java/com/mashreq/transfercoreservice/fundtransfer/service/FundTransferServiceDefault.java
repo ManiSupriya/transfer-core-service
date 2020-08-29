@@ -150,6 +150,7 @@ public class FundTransferServiceDefault implements FundTransferService {
                 .mwResponseCode(paymentHistoryDTO.getMwResponseCode())
                 .mwResponseDescription(paymentHistoryDTO.getMwResponseDescription())
                 .financialTransactionNo(request.getFinTxnNo())
+                .transactionRefNo(response.getTransactionRefNo())
                 .build();
     }
 
