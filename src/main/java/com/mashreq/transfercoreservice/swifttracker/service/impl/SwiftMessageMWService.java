@@ -2,10 +2,7 @@ package com.mashreq.transfercoreservice.swifttracker.service.impl;
 
 import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
-import java.time.LocalDateTime;
 import java.util.stream.Collectors;
-
-import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.springframework.stereotype.Service;
 
@@ -49,17 +46,7 @@ public class SwiftMessageMWService {
 	 private EAIServices generateSwiftMessageEaiServices(RequestMetaData metaData) {
 		 EAIServices request = new EAIServices();
 	     request.setBody(new EAIServices.Body());
-	     HeaderType headerType = headerFactory.getHeader(soapServiceProperties.getServiceCodes().getGpiTransactionDetails(), metaData.getChannelTraceId());     
-	        headerType.setMsgVersion("V1.1.1.1");
-	        headerType.setSrcAppReqId("20170818114213");
-	        // headerType.setSrcAppTimestamp("CurrentStamp");
-	        headerType.setSrcAppSessionId("SessionId");
-	        headerType.setSrvName("GPITransactionDetails");
-	        headerType.setSrvOpCode("GPITransactionDetails");
-	        headerType.setTargetApp("CBS");
-	        //headerType.setEAITimestamp(new XMLGregorianCalendar());
-	        headerType.setTrackingId("fd6aeadc-7e6d-11e7-b86c-0a0406850000");
-	        headerType.setStatus("S");
+	     HeaderType headerType = headerFactory.getHeader(soapServiceProperties.getServiceCodes().getGpiTransactionDetails(), metaData.getChannelTraceId());
 	     request.setHeader(headerType);
 	     GPITransactionsDetailsReqType gpiTransactionsDetailsReqType = new GPITransactionsDetailsReqType();
 	     gpiTransactionsDetailsReqType.setCIFId(metaData.getPrimaryCif());

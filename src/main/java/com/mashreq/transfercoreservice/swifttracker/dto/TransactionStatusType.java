@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class TransactionStatus {
+public class TransactionStatusType {
 	private String status;
 	private String reason;
 
