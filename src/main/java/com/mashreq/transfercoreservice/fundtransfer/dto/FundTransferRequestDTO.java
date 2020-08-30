@@ -56,4 +56,6 @@ public class FundTransferRequestDTO {
     private String beneficiaryId;
 
     private String productCode;
+
+    private String txnCurrency;
 }
