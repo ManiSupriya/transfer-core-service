@@ -59,5 +59,7 @@ public class FundTransferRequestDTO {
     private String otp;
     private String challengeToken;
     private int dpPublicKeyIndex;
-    private String dpRandomNumber; 
+    private String dpRandomNumber;
+    private String txnCurrency;
+
 }
