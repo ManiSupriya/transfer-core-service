@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_COUNTRY_CODE;
 import static org.apache.commons.lang3.StringUtils.upperCase;
+import static org.apache.commons.lang3.StringUtils.trimToNull;;
 
 /**
  * @author shahbazkh
@@ -73,15 +74,20 @@ public class RoutingCodeSearchMWService {
         request.setBody(new EAIServices.Body());
         request.setHeader(headerFactory.getHeader(soapServiceProperties.getServiceCodes().getRoutingCodeSearch(), channelTraceId));
         FetchAccuityDataReqType reqBody = new FetchAccuityDataReqType();
+        
         reqBody.setCountryCode(bankDetailRequest.getCountryCode());
+        reqBody.setBankBranch(trimToNull(bankDetailRequest.getBankBranch()));
+        reqBody.setBankCity(trimToNull(bankDetailRequest.getBankCity()));
+        reqBody.setBankName(trimToNull(bankDetailRequest.getBankName()));
+        
         switch (bankDetailRequest.getType()) {
             case "swift":
-                reqBody.setRoutingType(StringUtils.upperCase(bankDetailRequest.getType()));
-                reqBody.setRoutingCode(upperCase(bankDetailRequest.getValue()));
+                reqBody.setRoutingType(upperCase(bankDetailRequest.getType()));
+                reqBody.setRoutingCode(upperCase(getRoutingCode(bankDetailRequest.getValue())));
                 break;
             case "routing-code":
-                reqBody.setRoutingType(StringUtils.upperCase(getRoutingCodeType(bankDetailRequest)));
-                reqBody.setRoutingCode(StringUtils.upperCase(bankDetailRequest.getValue()));
+                reqBody.setRoutingType(upperCase(getRoutingCodeType(bankDetailRequest)));
+                reqBody.setRoutingCode(upperCase(bankDetailRequest.getValue()));
                 break;
             default:
                 break;
@@ -90,7 +96,12 @@ public class RoutingCodeSearchMWService {
         return request;
     }
 
-    private String getRoutingCodeType(BankDetailRequestDto bankDetailRequest) {
+    private String getRoutingCode(String routingCode) {
+		return StringUtils.isNotBlank(routingCode) && routingCode.length() == 8 ? routingCode.concat("XXX") : routingCode;
+	}
+
+
+	private String getRoutingCodeType(BankDetailRequestDto bankDetailRequest) {
         final String routingTypeCode = bankDetailRequest.getRoutingCodeType();
         RoutingCodeType routingCodeType = RoutingCodeType.getRoutingCodeByType(routingTypeCode);
         if (!routingCodeType.name().equals(bankDetailRequest.getCountryCode())) {
