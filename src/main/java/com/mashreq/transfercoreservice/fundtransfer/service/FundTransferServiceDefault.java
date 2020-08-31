@@ -59,21 +59,21 @@ public class FundTransferServiceDefault implements FundTransferService {
     @PostConstruct
     public void init() {
         fundTransferStrategies = new EnumMap<>(ServiceType.class);
-        fundTransferStrategies.put(OWN_ACCOUNT, ownAccountStrategy);
-        fundTransferStrategies.put(WITHIN_MASHREQ, withinMashreqStrategy);
+        fundTransferStrategies.put(WYMA, ownAccountStrategy);
+        fundTransferStrategies.put(WAMA, withinMashreqStrategy);
         fundTransferStrategies.put(LOCAL, localFundTransferStrategy);
-        fundTransferStrategies.put(INTERNATIONAL, internationalFundTransferStrategy);
+        fundTransferStrategies.put(INFT, internationalFundTransferStrategy);
         fundTransferStrategies.put(BAIT_AL_KHAIR, charityStrategyDefault);
         fundTransferStrategies.put(DUBAI_CARE, charityStrategyDefault);
         fundTransferStrategies.put(DAR_AL_BER, charityStrategyDefault);
-        fundTransferStrategies.put(QUICK_REMIT, quickRemitStrategy);
+        fundTransferStrategies.put(QRT, quickRemitStrategy);
     }
 
     @Override
     public FundTransferResponseDTO transferFund(RequestMetaData metadata, FundTransferRequestDTO request) {
         final ServiceType serviceType = getServiceByType(request.getServiceType());
         final FundTransferEventType initiatedEvent = FundTransferEventType.getEventTypeByCode(serviceType.getEventPrefix() + FUND_TRANSFER_INITIATION_SUFFIX);
-        if(!OWN_ACCOUNT.getName().equals(serviceType.getName())){
+        if(!WYMA.getName().equals(serviceType.getName())){
             verifyOtp(request,metadata);
         }
         return auditEventPublisher.publishEventLifecycle(

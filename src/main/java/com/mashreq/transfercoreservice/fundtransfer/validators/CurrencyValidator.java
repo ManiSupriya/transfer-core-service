@@ -36,7 +36,7 @@ public class CurrencyValidator implements Validator {
         String requestedCurrency = request.getCurrency();
         log.info("Requested currency [ {} ] service type [ {} ] ", htmlEscape(requestedCurrency), htmlEscape(request.getServiceType()));
 
-        if(WITHIN_MASHREQ.getName().equals(request.getServiceType()) ) {
+        if(WAMA.getName().equals(request.getServiceType()) ) {
             BeneficiaryDto beneficiaryDto = context.get("beneficiary-dto", BeneficiaryDto.class);
             if (beneficiaryDto != null && !isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), beneficiaryDto.getBeneficiaryCurrency())) {
                 log.error("Beneficiary Currency and Requested Currency does not match for service type [ {} ]  ", htmlEscape(request.getServiceType()));
@@ -56,7 +56,7 @@ public class CurrencyValidator implements Validator {
             }
         }
 
-        if(OWN_ACCOUNT.getName().equals(request.getServiceType()) ) {
+        if(WYMA.getName().equals(request.getServiceType()) ) {
             AccountDetailsDTO toAccount = context.get("to-account", AccountDetailsDTO.class);
             if (!(requestedCurrency.equals(fromAccount.getCurrency()) || requestedCurrency.equals(toAccount.getCurrency()))) {
                 log.error("To Account Currency and Requested Currency does not match for service type [ {} ]  ", htmlEscape(request.getServiceType()));
