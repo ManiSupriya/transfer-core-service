@@ -107,7 +107,7 @@ public class QuickRemitPakistanStrategyTest {
         requestDTO.setPurposeCode(purposeCode);
         requestDTO.setFinTxnNo(finTxnNo);
         requestDTO.setAmount(txnAmount);
-        requestDTO.setServiceType(ServiceType.QUICK_REMIT.getName());
+        requestDTO.setServiceType(ServiceType.QRT.getName());
         requestDTO.setBeneficiaryId(beneId);
         requestDTO.setProductCode(productCode);
         List<CustomerPhones> customerPhonesList = new ArrayList<>();
@@ -282,7 +282,7 @@ public class QuickRemitPakistanStrategyTest {
         requestDTO.setPurposeCode(purposeCode);
         requestDTO.setFinTxnNo(finTxnNo);
         requestDTO.setAmount(txnAmount);
-        requestDTO.setServiceType(ServiceType.QUICK_REMIT.getName());
+        requestDTO.setServiceType(ServiceType.QRT.getName());
         requestDTO.setBeneficiaryId(beneId);
         requestDTO.setProductCode(productCode);
         
