@@ -15,14 +15,14 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_P
  */
 public enum ServiceType implements ValidEnum {
 
-    OWN_ACCOUNT("WYMA","OWN_ACCOUNT","AC"),
-    WITHIN_MASHREQ("WAMA","WITHIN_MASHREQ","WM"),
+    WYMA("WYMA","OWN_ACCOUNT","AC"),
+    WAMA("WAMA","WITHIN_MASHREQ","WM"),
     LOCAL("LOCAL","LOCAL","LC"),
-    INTERNATIONAL("INFT","INTERNATIONAL","IN"),
+    INFT("INFT","INTERNATIONAL","IN"),
     DAR_AL_BER("DALBR","DAR_AL_BER","DA"),
     BAIT_AL_KHAIR("BALKH","BAIT_AL_KHAIR","BA"),
     DUBAI_CARE("DCARE","DUBAI_CARE","DC"),
-    QUICK_REMIT("QRT","QUICK_REMIT","QR"),
+    QRT("QRT","QUICK_REMIT","QR"),
     XAU("XAU","GOLD_TRANSFER","GL"),
     XAG("XAG","SILVER_TRANSFER","SL")
     ;

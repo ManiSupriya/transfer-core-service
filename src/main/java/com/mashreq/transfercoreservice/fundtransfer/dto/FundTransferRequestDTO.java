@@ -61,5 +61,6 @@ public class FundTransferRequestDTO {
     private int dpPublicKeyIndex;
     private String dpRandomNumber;
     private String txnCurrency;
+    private String additionalField;
 
 }
