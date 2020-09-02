@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Slf4j
 @Component
@@ -22,12 +21,12 @@ public class HeaderFactory {
     /*
     added current time instead of channleTraceId for srcMsgId as it channelTraceId >18 and was failing middleware calls
      */
-    public HeaderType getHeader(String service, String channelTraceId) {
+    public HeaderType getHeader(String service, String msgId) {
         HeaderType header = new HeaderType();
         header.setSrcAppId(soapServiceProperties.getAppId());
         header.setOrgId(soapServiceProperties.getOriginId());
         header.setUserId("MOBANKUSER");
-        header.setSrcMsgId(DateTimeFormatter.ofPattern("yyMMddHHmmssSSS").format(LocalDateTime.now()));
+        header.setSrcMsgId(msgId);
         header.setSrcAppTimestamp(getCurrentTimeStamp());
         header.setSrvCode(service);
         return header;

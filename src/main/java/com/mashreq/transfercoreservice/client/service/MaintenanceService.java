@@ -6,10 +6,14 @@ import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestD
 import com.mashreq.transfercoreservice.client.dto.CountryMasterDto;
 import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
+import com.mashreq.transfercoreservice.fundtransfer.dto.DealEnquiryDto;
+import com.mashreq.webcore.dto.response.Response;
+
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -57,6 +61,11 @@ public class MaintenanceService {
     public List<CountryMasterDto> getAllCountries(final String channel, final String region, final Boolean active) {
         log.info("[MaintenanceService] calling maintenance service client for getting all countries");
         return maintenanceClient.getAllCountries(channel, region, active).getData();
+    }
+    
+    public DealEnquiryDto getFXDealInformation(final String dealNumber) {
+        log.info("[MaintenanceService] calling maintenance service client for getting deal information");
+        return maintenanceClient.getFXDealInformation(dealNumber).getBody().getData();
     }
 
 

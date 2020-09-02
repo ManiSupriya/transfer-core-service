@@ -5,6 +5,7 @@ import com.mashreq.transfercoreservice.annotations.ConditionalRequired;
 import com.mashreq.transfercoreservice.annotations.TransactionAmount;
 import com.mashreq.transfercoreservice.annotations.ValueOfEnum;
 import lombok.Data;
+
 import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
 
@@ -14,11 +15,11 @@ import java.math.BigDecimal;
  */
 
 @Data
-@ConditionalRequired(fieldName = "beneficiaryId", dependentFieldName = "serviceType", noneMatch = "own-account", message = "Beneficiary ID is mandatory")
-@ConditionalRequired(fieldName = "purposeCode", dependentFieldName = "serviceType", anyMatch = {"international", "local"}, message = "Purpose code cannot be empty")
-@ConditionalRequired(fieldName = "purposeDesc", dependentFieldName = "serviceType", anyMatch = {"international", "local"}, message = "Purpose Description code cannot be empty")
-@ConditionalRequired(fieldName = "chargeBearer", dependentFieldName = "serviceType", anyMatch = {"international", "local"}, message = "charge bearer cannot be empty")
-@ConditionalRequired(fieldName = "productCode", dependentFieldName = "serviceType", anyMatch = "quick-remit", message = "Product Code is mandatory")
+@ConditionalRequired(fieldName = "beneficiaryId", dependentFieldName = "serviceType", noneMatch = "WYMA", message = "Beneficiary ID is mandatory")
+@ConditionalRequired(fieldName = "purposeCode", dependentFieldName = "serviceType", anyMatch = {"INFT", "LOCAL"}, message = "Purpose code cannot be empty")
+@ConditionalRequired(fieldName = "purposeDesc", dependentFieldName = "serviceType", anyMatch = {"INFT", "LOCAL"}, message = "Purpose Description code cannot be empty")
+@ConditionalRequired(fieldName = "chargeBearer", dependentFieldName = "serviceType", anyMatch = {"INFT", "LOCAL"}, message = "charge bearer cannot be empty")
+@ConditionalRequired(fieldName = "productCode", dependentFieldName = "serviceType", anyMatch = "QRT", message = "Product Code is mandatory")
 public class FundTransferRequestDTO {
 
     @Account
@@ -55,4 +56,11 @@ public class FundTransferRequestDTO {
     private String beneficiaryId;
 
     private String productCode;
+    private String otp;
+    private String challengeToken;
+    private int dpPublicKeyIndex;
+    private String dpRandomNumber;
+    private String txnCurrency;
+    private String additionalField;
+
 }

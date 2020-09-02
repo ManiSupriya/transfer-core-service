@@ -19,9 +19,13 @@ public enum TransferErrorCode implements ErrorCode {
     ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF("TN-1006", "Account Number does not belong to CIF"),
     USER_SESSION_CONTEXT_NOT_FOUND("MD-1007", "User Session Context not found"),
     MOBILE_NUMBER_DOES_NOT_MATCH("TN-1008", "Mobile Number is not valid"),
+    INVALID_DEAL_NUMBER("TN-1009", "Invalid Deal Number"),
+    DEAL_NUMBER_EXPIRED("TN-1010", "Deal Number Expired"),
+    DEAL_NUMBER_NOT_APPLICABLE("TN-1011", "Deal Number Not Applicable for this transaction"),
 
 
     BALANCE_NOT_SUFFICIENT("TN-1200", "Balance is not sufficient"),
+    DEAL_VALIDATION_FAILED("TN-1201", "Deal Number validation Failed"),
 
     LIMIT_PACKAGE_NOT_FOUND("TN-1101", "Limit Package not Found"),
     TRX_LIMIT_REACHED("TN-1102", "Transaction Limit Reached"),
@@ -29,6 +33,12 @@ public enum TransferErrorCode implements ErrorCode {
     DAY_COUNT_LIMIT_REACHED("TN-1104", "Day count Limit Reached"),
     MONTH_AMOUNT_LIMIT_REACHED("TN-1104", "Month Amount Limit Reached"),
     MONTH_COUNT_LIMIT_REACHED("TN-1105", "Month Count Limit Reached"),
+    INVALID_BEN_CODE("TN-1106","Invalid ben code"),
+    MIN_AMOUNT_LIMIT_REACHED("TN-1107", "Min Amount Limit Reached"),
+    ERROR_LIMIT_CHECK("TN-1108","Error while fetching limit from db"),
+    COOLING_COUNT_LIMIT_REACHED("TN-1109", "Cooling Count Limit Reached"),
+    COOLING_AMOUNT_LIMIT_REACHED("TN-1110", "Cooling Count Limit Reached"),
+    TXN_AMOUNT_LIMIT_REACHED("TN-1111", "Transaction amount Limit Reached"),
 
     BENE_NOT_FOUND("TN-4001", "Beneficiary Not Found"),
     BENE_ACC_NOT_MATCH("TN-4002", "Beneficiary Account Number does not match"),
@@ -46,6 +56,7 @@ public enum TransferErrorCode implements ErrorCode {
     CURRENCY_IS_INVALID("TN-4202", "Currency does not match"),
     ACCOUNT_NOT_FOUND("TN-4003", "Account not found"),
     CONNECTED_ACCOUNT_EMPTY("TN-4004", "Connected Account is empty"),
+    ACCOUNT_RESOURCES_MISMATCH("TN-4005", "There was not enough resources in account "),
 
     IBAN_NOT_FOUND("TN-5100", "IBAN not found"),
     ROUTING_CODE_NOT_FOUND("TN-5102", "Routing Code not found"),
@@ -58,6 +69,7 @@ public enum TransferErrorCode implements ErrorCode {
     SWIFT_CODE_EMPTY("TN-5109", "Beneficiary SWIFT code cannot be empty"),
     IFSC_CODE_NOT_FOUND("TN-5110", "IFSC Code not found"),
     INVALID_FLEX_RULE_COUNTRY("TN-5111", "Invalid Country for rule engine"),
+    INVALID_SWIFT_CODE("TN-5112", "Invalid Swift code"),
 
 
     EXTERNAL_SERVICE_ERROR("TN-5000", "Something went wrong with external service"),
@@ -101,7 +113,12 @@ public enum TransferErrorCode implements ErrorCode {
     CONNECTION_TIMEOUT_MW("TN-8002", "Middleware Connection Timeout"),
     INTERNAL_ERROR("TN-8004", "Something went wrong"),
     EXTERNAL_SERVICE_ERROR_MW("TN-8003", "Something went wrong with middleware service"),
-    INVALID_EVENT_TYPE_CODE("TN-8004","Invalid event code");
+    INVALID_EVENT_TYPE_CODE("TN-8004","Invalid event code"),
+
+    SMS_NOTIFICATION_FAILED("SMS_9001","Failed to send sms notification")
+
+
+    ;
 
 
     private String customErrorCode;

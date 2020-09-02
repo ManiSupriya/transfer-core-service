@@ -23,4 +23,8 @@ public interface CommonConstants {
 	String USER_INACTIVE_STATUS = "USER_INACTIVE_STATUS";
 	String FAILED_TO_DECRYPT = "FAILED_TO_DECRYPT";
 	String LIMIT_CHECK_FAILED = "CARDLESS-CASH limit check failed ";
+	String FUND_TRANSFER = "Fund Transfer";
+	String ESB_SRV_FUND_TRANSFER = "fundTransfer";
+	String SEARCH_ACCOUNT_DETAILS = "searchAccountDetails";
+	String DEAL_VALIDATION = "DEAL_VALIDATION";
 }

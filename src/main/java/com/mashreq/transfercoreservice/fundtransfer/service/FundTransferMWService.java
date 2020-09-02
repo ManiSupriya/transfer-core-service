@@ -20,7 +20,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static com.mashreq.transfercoreservice.middleware.SoapWebserviceClientFactory.soapClient;
@@ -40,10 +43,15 @@ public class FundTransferMWService {
     private static final String NARRATION_SUFFIX = " Banking";
     private static final String PAYMENT_DETAIL_PREFIX = "/REF/ ";
     private final AsyncUserEventPublisher auditEventPublisher;
+    private static final String GOLD = "XAU";
+    private static final String SILVER = "XAG";
 
 
     public FundTransferResponse transfer(FundTransferRequest request, RequestMetaData metaData) {
         log.info("Fund transfer initiated from account [ {} ]", htmlEscape(request.getFromAccount()));
+
+        //todo - remove this and use transactionid only fro request once  everyone starts using limit validation proc
+        String msgId = getUniqueIdForRequest(request);
 
         SoapClient soapClient = soapClient(soapServiceProperties,
                 new Class[]{
@@ -54,12 +62,12 @@ public class FundTransferMWService {
                         ErrorType.class,
                 });
 
-        EAIServices response = (EAIServices) soapClient.exchange(generateEAIRequest(request));
+        EAIServices response = (EAIServices) soapClient.exchange(generateEAIRequest(request,msgId));
 
         final FundTransferResType.Transfer transfer = response.getBody().getFundTransferRes().getTransfer().get(0);
         final ErrorType exceptionDetails = response.getBody().getExceptionDetails();
         if (isSuccessfull(response)) {
-            auditEventPublisher.publishSuccessfulEsbEvent(FundTransferEventType.FUND_TRANSFER_MW_CALL, metaData, getRemarks(request), request.getChannelTraceId());
+            auditEventPublisher.publishSuccessfulEsbEvent(FundTransferEventType.FUND_TRANSFER_MW_CALL, metaData, getRemarks(request), msgId);
             log.info("Fund transferred successfully to account [ {} ]", request.getToAccount());
             final CoreFundTransferResponseDto coreFundTransferResponseDto = constructFTResponseDTO(transfer, exceptionDetails, MwResponseStatus.S);
             return FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
@@ -67,9 +75,20 @@ public class FundTransferMWService {
 
         log.info("Fund transfer failed to account [ {} ]", request.getToAccount());
         final CoreFundTransferResponseDto coreFundTransferResponseDto = constructFTResponseDTO(transfer, exceptionDetails, MwResponseStatus.F);
-        auditEventPublisher.publishFailedEsbEvent(FundTransferEventType.FUND_TRANSFER_MW_CALL, metaData, getRemarks(request), request.getChannelTraceId(),
+        auditEventPublisher.publishFailedEsbEvent(FundTransferEventType.FUND_TRANSFER_MW_CALL, metaData, getRemarks(request), msgId,
                 coreFundTransferResponseDto.getMwResponseCode(), coreFundTransferResponseDto.getMwResponseDescription(), coreFundTransferResponseDto.getExternalErrorMessage());
         return FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
+    }
+
+    private String getUniqueIdForRequest(FundTransferRequest request) {
+        if(!StringUtils.isEmpty(request.getLimitTransactionRefNo())){
+            log.info("returning refNo");
+            return request.getLimitTransactionRefNo();
+        }
+        else if(request.getChannelTraceId().length() >16){
+            return DateTimeFormatter.ofPattern("yyMMddHHmmssSSS").format(LocalDateTime.now());
+        }
+        else return request.getChannelTraceId();
     }
 
     private String getRemarks(FundTransferRequest request) {
@@ -89,7 +108,7 @@ public class FundTransferMWService {
 
     private CoreFundTransferResponseDto constructFTResponseDTO(FundTransferResType.Transfer transfer, ErrorType exceptionDetails, MwResponseStatus s) {
         CoreFundTransferResponseDto coreFundTransferResponseDto = new CoreFundTransferResponseDto();
-        coreFundTransferResponseDto.setTransactionRefNo(transfer.getTransactionRefNo());
+        coreFundTransferResponseDto.setHostRefNo(transfer.getTransactionRefNo());
         coreFundTransferResponseDto.setExternalErrorMessage(exceptionDetails.getData());
         coreFundTransferResponseDto.setMwReferenceNo(transfer.getTransactionRefNo());
         coreFundTransferResponseDto.setMwResponseDescription(exceptionDetails.getErrorDescription());
@@ -110,14 +129,14 @@ public class FundTransferMWService {
         return true;
     }
 
-    public EAIServices generateEAIRequest(FundTransferRequest request) {
+    public EAIServices generateEAIRequest(FundTransferRequest request, String msgId) {
 
         //TODO remove this
         SecureRandom secureRandom = new SecureRandom();
         int batchTransIdTemporary = Math.abs((secureRandom.nextInt() * 9000) + 1000);
 
         EAIServices services = new EAIServices();
-        services.setHeader(headerFactory.getHeader(soapServiceProperties.getServiceCodes().getFundTransfer(), request.getChannelTraceId()));
+        services.setHeader(headerFactory.getHeader(soapServiceProperties.getServiceCodes().getFundTransfer(),msgId));
         services.setBody(new EAIServices.Body());
 
 
@@ -160,6 +179,9 @@ public class FundTransferMWService {
         else {
             creditLeg.setAmount(request.getAmount());
         }
+        if(isInvestment(request)){
+            debitLeg.setNarration1(generateNarrationForInvestment(request.getChannel(),request.getExchangeRate()));
+        }
 
         FundTransferReqType.Transfer transfer = new FundTransferReqType.Transfer();
         transfer.setCreditLeg(creditLeg);
@@ -171,8 +193,19 @@ public class FundTransferMWService {
         return services;
     }
 
+    private boolean isInvestment(FundTransferRequest request) {
+               return (GOLD.equalsIgnoreCase(request.getDestinationCurrency())||
+        GOLD.equalsIgnoreCase(request.getSourceCurrency())||
+                       SILVER.equalsIgnoreCase(request.getDestinationCurrency())||
+                       SILVER.equalsIgnoreCase(request.getSourceCurrency()));
+    }
+
     private String generateNarration(String channel) {
         return NARRATION_PREFIX + channel + NARRATION_SUFFIX;
+    }
+
+    private String generateNarrationForInvestment(String channel, BigDecimal exchangeRate) {
+        return NARRATION_PREFIX + channel + NARRATION_SUFFIX + " ExchangeRate " + exchangeRate;
     }
 
 

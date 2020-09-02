@@ -27,11 +27,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.mockito.Mockito.*;
 
@@ -142,7 +138,7 @@ public class LocalFundTransferStrategyTest {
         when(finTxnNoValidator.validate(requestDTO, metadata)).thenReturn(validationResult);
         when(paymentPurposeValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(validationResult);
         when(accountService.getAccountsFromCore(eq(metadata.getPrimaryCif()))).thenReturn(accountsFromCore);
-        when(mobCommonService.getPaymentPurposes( eq("local"), eq(""), eq("I"))).thenReturn(popList);
+        when(mobCommonService.getPaymentPurposes( eq("LOCAL"), eq(""), eq("I"))).thenReturn(popList);
 
         when(accountBelongsToCifValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
 
@@ -152,7 +148,7 @@ public class LocalFundTransferStrategyTest {
         when(balanceValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
         LimitValidatorResultsDto limitValidatorResultsDto = new LimitValidatorResultsDto();
         limitValidatorResultsDto.setLimitVersionUuid(limitVersionUuid);
-        when(limitValidator.validate(eq(userDTO), eq("local"), eq(limitUsageAmount), eq(metadata)))
+        when(limitValidator.validate(eq(userDTO), eq("LOCAL"), eq(limitUsageAmount), eq(metadata)))
                 .thenReturn(limitValidatorResultsDto);
 
         when(fundTransferMWService.transfer(fundTransferRequest.capture(),eq(metadata)))
@@ -264,7 +260,7 @@ public class LocalFundTransferStrategyTest {
         when(finTxnNoValidator.validate(requestDTO, metadata)).thenReturn(validationResult);
         when(paymentPurposeValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(validationResult);
         when(accountService.getAccountsFromCore(eq(metadata.getPrimaryCif()))).thenReturn(accountsFromCore);
-        when(mobCommonService.getPaymentPurposes( eq("local"), eq(""),eq("I"))).thenReturn(popList);
+        when(mobCommonService.getPaymentPurposes( eq("LOCAL"), eq(""),eq("I"))).thenReturn(popList);
 
         when(accountBelongsToCifValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
 
@@ -280,7 +276,7 @@ public class LocalFundTransferStrategyTest {
         when(maintenanceService.convertCurrency(eq(currencyConversionRequestDto))).thenReturn(secondConversion);
         LimitValidatorResultsDto limitValidatorResultsDto = new LimitValidatorResultsDto();
         limitValidatorResultsDto.setLimitVersionUuid(limitVersionUuid);
-        when(limitValidator.validate(eq(userDTO), eq("local"), eq(paidAmt), eq(metadata)))
+        when(limitValidator.validate(eq(userDTO), eq("LOCAL"), eq(paidAmt), eq(metadata)))
                 .thenReturn(limitValidatorResultsDto);
 
         when(fundTransferMWService.transfer(fundTransferRequest.capture(),eq(metadata)))

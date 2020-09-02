@@ -4,7 +4,10 @@ import com.mashreq.logcore.annotations.TrackExec;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
-import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
+import com.mashreq.transfercoreservice.client.dto.VerifyOTPRequestDTO;
+import com.mashreq.transfercoreservice.client.dto.VerifyOTPResponseDTO;
+import com.mashreq.transfercoreservice.client.service.OTPService;
+import com.mashreq.transfercoreservice.common.CommonConstants;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
@@ -14,6 +17,7 @@ import com.mashreq.transfercoreservice.fundtransfer.strategy.*;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.model.DigitalUser;
 import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
+import com.mashreq.webcore.dto.response.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -49,31 +53,58 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final QuickRemitStrategy quickRemitStrategy;
     private final AsyncUserEventPublisher auditEventPublisher;
     private EnumMap<ServiceType, FundTransferStrategy> fundTransferStrategies;
+    private final OTPService otpService;
 
 
     @PostConstruct
     public void init() {
         fundTransferStrategies = new EnumMap<>(ServiceType.class);
-        fundTransferStrategies.put(OWN_ACCOUNT, ownAccountStrategy);
-        fundTransferStrategies.put(WITHIN_MASHREQ, withinMashreqStrategy);
+        fundTransferStrategies.put(WYMA, ownAccountStrategy);
+        fundTransferStrategies.put(WAMA, withinMashreqStrategy);
         fundTransferStrategies.put(LOCAL, localFundTransferStrategy);
-        fundTransferStrategies.put(INTERNATIONAL, internationalFundTransferStrategy);
+        fundTransferStrategies.put(INFT, internationalFundTransferStrategy);
         fundTransferStrategies.put(BAIT_AL_KHAIR, charityStrategyDefault);
         fundTransferStrategies.put(DUBAI_CARE, charityStrategyDefault);
         fundTransferStrategies.put(DAR_AL_BER, charityStrategyDefault);
-        fundTransferStrategies.put(QUICK_REMIT, quickRemitStrategy);
+        fundTransferStrategies.put(QRT, quickRemitStrategy);
     }
 
     @Override
     public FundTransferResponseDTO transferFund(RequestMetaData metadata, FundTransferRequestDTO request) {
         final ServiceType serviceType = getServiceByType(request.getServiceType());
         final FundTransferEventType initiatedEvent = FundTransferEventType.getEventTypeByCode(serviceType.getEventPrefix() + FUND_TRANSFER_INITIATION_SUFFIX);
-
+        if(!WYMA.getName().equals(serviceType.getName())){
+            verifyOtp(request,metadata);
+        }
         return auditEventPublisher.publishEventLifecycle(
                 () -> getFundTransferResponse(metadata, request),
                 initiatedEvent,
                 metadata,
                 getInitiatedRemarks(request));
+    }
+
+    private void verifyOtp(FundTransferRequestDTO request, RequestMetaData metadata) {
+        VerifyOTPRequestDTO verifyOTPRequestDTO = new VerifyOTPRequestDTO();
+        verifyOTPRequestDTO.setOtp(request.getOtp());
+        verifyOTPRequestDTO.setChallengeToken(request.getChallengeToken());
+        verifyOTPRequestDTO.setDpPublicKeyIndex(request.getDpPublicKeyIndex());
+        verifyOTPRequestDTO.setDpRandomNumber(request.getDpRandomNumber());
+        verifyOTPRequestDTO.setLoginId(metadata.getLoginId());
+        verifyOTPRequestDTO.setRedisKey(metadata.getUserCacheKey());
+        log.info("fund transfer otp request{} ", verifyOTPRequestDTO);
+        Response<VerifyOTPResponseDTO> verifyOTP = otpService.verifyOTP(verifyOTPRequestDTO);
+        log.info("fund transfer otp response{} ", htmlEscape(verifyOTP.getStatus().toString()));
+        if (!verifyOTP.getData().isAuthenticated()) {
+            auditEventPublisher.publishFailedEsbEvent(FundTransferEventType.FUND_TRANSFER_OTP_DOES_NOT_MATCH,
+                    metadata, CommonConstants.FUND_TRANSFER, metadata.getChannelTraceId(),
+                    TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.toString(),
+                    TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.getErrorMessage(),
+                    TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.getErrorMessage());
+            GenericExceptionHandler.handleError(TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR,
+                    verifyOTP.getErrorDetails(), verifyOTP.getErrorDetails());
+        }
+        auditEventPublisher.publishSuccessEvent(FundTransferEventType.FUND_TRANSFER_OTP_VALIDATION, metadata, FundTransferEventType.FUND_TRANSFER_OTP_VALIDATION.getDescription());
+
     }
 
     private FundTransferResponseDTO getFundTransferResponse(RequestMetaData metadata, FundTransferRequestDTO request) {
@@ -91,13 +122,13 @@ public class FundTransferServiceDefault implements FundTransferService {
 
         if (isSuccessOrProcessing(response)) {
             DigitalUserLimitUsageDTO digitalUserLimitUsageDTO = generateUserLimitUsage(
-                    request.getServiceType(), response.getLimitUsageAmount(), userDTO, metadata, response.getLimitVersionUuid());
+                    request.getServiceType(), response.getLimitUsageAmount(), userDTO, metadata, response.getLimitVersionUuid(),response.getTransactionRefNo());
             log.info("Inserting into limits table {} ", digitalUserLimitUsageDTO);
             digitalUserLimitUsageService.insert(digitalUserLimitUsageDTO);
         }
 
         // Insert payment history irrespective of mw payment fails or success
-        PaymentHistoryDTO paymentHistoryDTO = generatePaymentHistory(request, response.getResponseDto(), userDTO, metadata);
+        PaymentHistoryDTO paymentHistoryDTO = generatePaymentHistory(request, response, userDTO, metadata);
 
         log.info("Inserting into Payments History table {} ", paymentHistoryDTO);
         paymentHistoryService.insert(paymentHistoryDTO);
@@ -119,6 +150,7 @@ public class FundTransferServiceDefault implements FundTransferService {
                 .mwResponseCode(paymentHistoryDTO.getMwResponseCode())
                 .mwResponseDescription(paymentHistoryDTO.getMwResponseDescription())
                 .financialTransactionNo(request.getFinTxnNo())
+                .transactionRefNo(response.getTransactionRefNo())
                 .build();
     }
 
@@ -172,7 +204,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     }
 
     private DigitalUserLimitUsageDTO generateUserLimitUsage(String serviceType, BigDecimal usageAmount, UserDTO userDTO,
-                                                            RequestMetaData fundTransferMetadata, String versionUuid) {
+                                                            RequestMetaData fundTransferMetadata, String versionUuid,String transactionRefNo) {
         return DigitalUserLimitUsageDTO.builder()
                 .digitalUserId(userDTO.getUserId())
                 .cif(fundTransferMetadata.getPrimaryCif())
@@ -181,11 +213,12 @@ public class FundTransferServiceDefault implements FundTransferService {
                 .paidAmount(usageAmount)
                 .versionUuid(versionUuid)
                 .createdBy(String.valueOf(userDTO.getUserId()))
+                .transactionRefNo(transactionRefNo)
                 .build();
 
     }
 
-    PaymentHistoryDTO generatePaymentHistory(FundTransferRequestDTO request, CoreFundTransferResponseDto coreResponse, UserDTO userDTO,
+    PaymentHistoryDTO generatePaymentHistory(FundTransferRequestDTO request, FundTransferResponse fundTransferResponse, UserDTO userDTO,
                                              RequestMetaData fundTransferMetadata) {
 
         //convert dto
@@ -200,12 +233,14 @@ public class FundTransferServiceDefault implements FundTransferService {
                 .paidAmount(request.getAmount() == null ? request.getSrcAmount() : request.getAmount())
                 //.dueAmount(request.getDueAmount())
                 //.toCurrency(PaymentConstants.BILL_PAYMENT_TO_CURRENCY)
-                .status(coreResponse.getMwResponseStatus().name())
-                .mwReferenceNo(coreResponse.getMwReferenceNo())
-                .mwResponseCode(coreResponse.getMwResponseCode())
-                .mwResponseDescription(coreResponse.getMwResponseDescription())
+                .status(fundTransferResponse.getResponseDto().getMwResponseStatus().name())
+                .mwReferenceNo(fundTransferResponse.getResponseDto().getMwReferenceNo())
+                .mwResponseCode(fundTransferResponse.getResponseDto().getMwResponseCode())
+                .mwResponseDescription(fundTransferResponse.getResponseDto().getMwResponseDescription())
                 .accountFrom(request.getFromAccount())
                 .financialTransactionNo(request.getFinTxnNo())
+                .transactionRefNo(fundTransferResponse.getTransactionRefNo())
+                .hostRefNo(fundTransferResponse.getResponseDto().getHostRefNo())
                 .build();
 
     }
