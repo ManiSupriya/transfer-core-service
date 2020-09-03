@@ -1,5 +1,29 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.FUND_TRANSFER_FAILED;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.BAIT_AL_KHAIR;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.DAR_AL_BER;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.DUBAI_CARE;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.INFT;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.LOCAL;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.QRT;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WAMA;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WYMA;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.getServiceByType;
+import static java.time.Duration.between;
+import static java.time.Instant.now;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.EnumMap;
+import java.util.Optional;
+
+import javax.annotation.PostConstruct;
+
+import org.springframework.stereotype.Service;
+
 import com.mashreq.logcore.annotations.TrackExec;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
@@ -10,30 +34,29 @@ import com.mashreq.transfercoreservice.client.service.OTPService;
 import com.mashreq.transfercoreservice.common.CommonConstants;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.*;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponseDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
+import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageService;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.*;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.CharityStrategyDefault;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.FundTransferStrategy;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.InternationalFundTransferStrategy;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.LocalFundTransferStrategy;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.OwnAccountStrategy;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.QuickRemitStrategy;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.WithinMashreqStrategy;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.model.DigitalUser;
 import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
+import com.mashreq.transfercoreservice.transactionqueue.TransactionHistory;
+import com.mashreq.transfercoreservice.transactionqueue.TransactionRepository;
 import com.mashreq.webcore.dto.response.Response;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.EnumMap;
-import java.util.Optional;
-
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.FUND_TRANSFER_FAILED;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.*;
-import static java.time.Duration.between;
-import static java.time.Instant.now;
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 @Slf4j
 @TrackExec
@@ -43,7 +66,7 @@ public class FundTransferServiceDefault implements FundTransferService {
 
     private static final String FUND_TRANSFER_INITIATION_SUFFIX = "_FUND_TRANSFER_REQUEST";
     private final DigitalUserRepository digitalUserRepository;
-    private final PaymentHistoryService paymentHistoryService;
+    private final TransactionRepository transactionRepository;
     private final DigitalUserLimitUsageService digitalUserLimitUsageService;
     private final OwnAccountStrategy ownAccountStrategy;
     private final WithinMashreqStrategy withinMashreqStrategy;
@@ -128,10 +151,10 @@ public class FundTransferServiceDefault implements FundTransferService {
         }
 
         // Insert payment history irrespective of mw payment fails or success
-        PaymentHistoryDTO paymentHistoryDTO = generatePaymentHistory(request, response, userDTO, metadata);
+        TransactionHistory transactionHistory = generateTransactionHistory(request, response, userDTO, metadata);
 
-        log.info("Inserting into Payments History table {} ", paymentHistoryDTO);
-        paymentHistoryService.insert(paymentHistoryDTO);
+        log.info("Inserting into Payments History table {} ", transactionHistory);
+        transactionRepository.save(transactionHistory);
 
         log.info("Total time taken for {} Fund Transfer {} milli seconds ", htmlEscape(request.getServiceType()), htmlEscape(Long.toString(between(start, now()).toMillis())));
 
@@ -143,12 +166,12 @@ public class FundTransferServiceDefault implements FundTransferService {
 
 
         return FundTransferResponseDTO.builder()
-                .accountTo(paymentHistoryDTO.getAccountTo())
-                .status(paymentHistoryDTO.getStatus())
-                .paidAmount(paymentHistoryDTO.getPaidAmount())
-                .mwReferenceNo(paymentHistoryDTO.getMwReferenceNo())
-                .mwResponseCode(paymentHistoryDTO.getMwResponseCode())
-                .mwResponseDescription(paymentHistoryDTO.getMwResponseDescription())
+                .accountTo(transactionHistory.getAccountTo())
+                .status(transactionHistory.getStatus())
+                .paidAmount(transactionHistory.getPaidAmount())
+                .mwReferenceNo(transactionHistory.getBillRefNo())
+                .mwResponseCode(transactionHistory.getMwResponseCode())
+                .mwResponseDescription(transactionHistory.getMwResponseDescription())
                 .financialTransactionNo(request.getFinTxnNo())
                 .transactionRefNo(response.getTransactionRefNo())
                 .build();
@@ -218,29 +241,27 @@ public class FundTransferServiceDefault implements FundTransferService {
 
     }
 
-    PaymentHistoryDTO generatePaymentHistory(FundTransferRequestDTO request, FundTransferResponse fundTransferResponse, UserDTO userDTO,
+    TransactionHistory generateTransactionHistory(FundTransferRequestDTO request, FundTransferResponse fundTransferResponse, UserDTO userDTO,
                                              RequestMetaData fundTransferMetadata) {
 
         //convert dto
-        return PaymentHistoryDTO.builder()
+        return TransactionHistory.builder()
                 .cif(fundTransferMetadata.getPrimaryCif())
                 .userId(userDTO.getUserId())
                 .accountTo(request.getToAccount())
-                .beneficiaryTypeCode(request.getServiceType())
+                .transactionTypeCode(request.getServiceType())
                 .channel(fundTransferMetadata.getChannel())
-                //.billRefNo(coreResponse.getBillRefNo())
+                .billRefNo(fundTransferResponse.getResponseDto().getMwReferenceNo())
                 .ipAddress(fundTransferMetadata.getDeviceIP())
                 .paidAmount(request.getAmount() == null ? request.getSrcAmount() : request.getAmount())
-                //.dueAmount(request.getDueAmount())
-                //.toCurrency(PaymentConstants.BILL_PAYMENT_TO_CURRENCY)
+                .fromCurrency(request.getCurrency())
+                .toCurrency(request.getTxnCurrency())
                 .status(fundTransferResponse.getResponseDto().getMwResponseStatus().name())
-                .mwReferenceNo(fundTransferResponse.getResponseDto().getMwReferenceNo())
                 .mwResponseCode(fundTransferResponse.getResponseDto().getMwResponseCode())
                 .mwResponseDescription(fundTransferResponse.getResponseDto().getMwResponseDescription())
                 .accountFrom(request.getFromAccount())
                 .financialTransactionNo(request.getFinTxnNo())
                 .transactionRefNo(fundTransferResponse.getTransactionRefNo())
-                .hostRefNo(fundTransferResponse.getResponseDto().getHostRefNo())
                 .build();
 
     }

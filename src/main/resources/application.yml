@@ -73,6 +73,9 @@ external:
           VERIFY_OTP_USSM_102: USER_BLOCKED_STATUS
           VERIFY_OTP_USSM_103: USER_INACTIVE_STATUS
           VERIFY_OTP_USSM_104: FAILED_TO_DECRYPT
+      deal:
+        detailcallErrorMap:
+          ACC-ESB-15280: RECORD_NOT_FOUND
   fees-code:
     mapper:
       fees:

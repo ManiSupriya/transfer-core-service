@@ -18,6 +18,7 @@ public class FundTransferRequest {
     private String purposeCode;
     private String purposeDesc;
     private String chargeBearer;
+    private String dealNumber;
     private String finTxnNo;
     private String sourceCurrency;
     private String destinationCurrency;
