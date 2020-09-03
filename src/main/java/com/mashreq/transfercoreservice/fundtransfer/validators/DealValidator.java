@@ -50,27 +50,31 @@ public class DealValidator implements Validator {
 	        	}
 		DealEnquiryDto dealEnquiryDto = null ;
 		try {
-			if(request.getDealNumber()!=null)
-			dealEnquiryDto = maintenanceService.getFXDealInformation(request.getDealNumber());
-			for (DealEnquiryDetailsDto dealEnquiryDetailsDto : dealEnquiryDto.getDetailsDtoList()) {
-	   		 LocalDate localDate = LocalDate.parse(dealEnquiryDetailsDto.getDealExpiryDate());
-				if(dealEnquiryDetailsDto.getDealAmount().compareTo(request.getAmount()) == -1) {
-					log.info("Deal Validation failed");	
-					auditEventPublisher.publishFailureEvent(FundTransferEventType.DEAL_VALIDATION, metadata,
-							CommonConstants.DEAL_VALIDATION, TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE.toString(),
-							TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE.getErrorMessage(),
-							TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE.getErrorMessage());
-					GenericExceptionHandler.handleError(TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE,
-							TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE.getErrorMessage(),TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE.getErrorMessage());
-				}
-				if (localDate.isBefore(LocalDate.now())) {
-					log.info("Deal Validation failed");	
-					auditEventPublisher.publishFailureEvent(FundTransferEventType.DEAL_VALIDATION, metadata,
-							CommonConstants.DEAL_VALIDATION, TransferErrorCode.DEAL_NUMBER_EXPIRED.toString(),
-							TransferErrorCode.DEAL_NUMBER_EXPIRED.getErrorMessage(),
-							TransferErrorCode.DEAL_NUMBER_EXPIRED.getErrorMessage());
-					GenericExceptionHandler.handleError(TransferErrorCode.DEAL_NUMBER_EXPIRED,
-							TransferErrorCode.DEAL_NUMBER_EXPIRED.getErrorMessage(),TransferErrorCode.DEAL_NUMBER_EXPIRED.getErrorMessage());
+			if (request.getDealNumber() != null) {
+				dealEnquiryDto = maintenanceService.getFXDealInformation(request.getDealNumber());
+				for (DealEnquiryDetailsDto dealEnquiryDetailsDto : dealEnquiryDto.getDetailsDtoList()) {
+					LocalDate localDate = LocalDate.parse(dealEnquiryDetailsDto.getDealExpiryDate());
+					if (dealEnquiryDetailsDto.getDealAmount().compareTo(request.getAmount()) == -1) {
+						log.info("Deal Validation failed");
+						auditEventPublisher.publishFailureEvent(FundTransferEventType.DEAL_VALIDATION, metadata,
+								CommonConstants.DEAL_VALIDATION,
+								TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE.toString(),
+								TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE.getErrorMessage(),
+								TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE.getErrorMessage());
+						GenericExceptionHandler.handleError(TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE,
+								TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE.getErrorMessage(),
+								TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE.getErrorMessage());
+					}
+					if (localDate.isBefore(LocalDate.now())) {
+						log.info("Deal Validation failed");
+						auditEventPublisher.publishFailureEvent(FundTransferEventType.DEAL_VALIDATION, metadata,
+								CommonConstants.DEAL_VALIDATION, TransferErrorCode.DEAL_NUMBER_EXPIRED.toString(),
+								TransferErrorCode.DEAL_NUMBER_EXPIRED.getErrorMessage(),
+								TransferErrorCode.DEAL_NUMBER_EXPIRED.getErrorMessage());
+						GenericExceptionHandler.handleError(TransferErrorCode.DEAL_NUMBER_EXPIRED,
+								TransferErrorCode.DEAL_NUMBER_EXPIRED.getErrorMessage(),
+								TransferErrorCode.DEAL_NUMBER_EXPIRED.getErrorMessage());
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -108,6 +112,7 @@ public class DealValidator implements Validator {
 	        if(throwable instanceof RetryableException) {
          	GenericExceptionHandler.handleError(assignFeignConnectionErrorCode(), assignFeignConnectionErrorCode().getErrorMessage(), assignFeignConnectionErrorCode().getErrorMessage());
          } 
+	        throwable.printStackTrace();
 	        GenericExceptionHandler.handleError(TransferErrorCode.MAINTENANCE_SERVICE_ERROR, TransferErrorCode.MAINTENANCE_SERVICE_ERROR.getErrorMessage(), TransferErrorCode.MAINTENANCE_SERVICE_ERROR.getErrorMessage());
 			return null;
 	    }
