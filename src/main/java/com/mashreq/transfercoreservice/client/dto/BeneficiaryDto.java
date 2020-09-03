@@ -22,7 +22,7 @@ public class BeneficiaryDto {
     private String serviceType;
     private String serviceTypeCode;
     private String status;
-    private Instant createdDate;
+    //private Instant createdDate;
     private Instant activeAfter;
     private String activeAfterDuration;
 
