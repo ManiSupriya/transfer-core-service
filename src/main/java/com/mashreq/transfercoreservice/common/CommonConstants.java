@@ -27,4 +27,5 @@ public interface CommonConstants {
 	String ESB_SRV_FUND_TRANSFER = "fundTransfer";
 	String SEARCH_ACCOUNT_DETAILS = "searchAccountDetails";
 	String DEAL_VALIDATION = "DEAL_VALIDATION";
+	String INVALID_DEAL_NUMBER = "RECORD_NOT_FOUND";
 }

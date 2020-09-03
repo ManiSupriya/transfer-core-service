@@ -8,6 +8,7 @@ import com.mashreq.esbcore.bindings.header.mbcdm.HeaderType;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
+import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
@@ -15,6 +16,8 @@ import com.mashreq.transfercoreservice.middleware.HeaderFactory;
 import com.mashreq.transfercoreservice.middleware.SoapClient;
 import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
+import com.mashreq.transfercoreservice.middleware.enums.YesNo;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -22,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.security.SecureRandom;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -47,7 +51,7 @@ public class FundTransferMWService {
     private static final String SILVER = "XAG";
 
 
-    public FundTransferResponse transfer(FundTransferRequest request, RequestMetaData metaData) {
+    public FundTransferResponse transfer(FundTransferRequest request, RequestMetaData metaData, CurrencyConversionDto currencyConversionDto) {
         log.info("Fund transfer initiated from account [ {} ]", htmlEscape(request.getFromAccount()));
 
         //todo - remove this and use transactionid only fro request once  everyone starts using limit validation proc
@@ -187,7 +191,14 @@ public class FundTransferMWService {
         transfer.setCreditLeg(creditLeg);
         transfer.setDebitLeg(debitLeg);
         transferList.add(transfer);
-
+        if (StringUtils.isNotEmpty(request.getDealNumber())) {
+        	fundTransferReqType.setDealReferenceNo(request.getDealNumber());
+        	fundTransferReqType.setDealFlag(YesNo.Y.name());
+            transfer.setDealDate(LocalDate.now().toString());
+            transfer.setRate(request.getExchangeRate().toPlainString());
+        } else {
+        	fundTransferReqType.setDealFlag(YesNo.N.name());
+        }
         services.getBody().setFundTransferReq(fundTransferReqType);
         log.info("EAI Service request for fund transfer prepared {}", services);
         return services;

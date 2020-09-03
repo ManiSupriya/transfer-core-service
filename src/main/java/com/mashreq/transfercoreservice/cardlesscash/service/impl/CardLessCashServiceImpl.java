@@ -1,19 +1,25 @@
 package com.mashreq.transfercoreservice.cardlesscash.service.impl;
 
+import static com.mashreq.transfercoreservice.common.CommonConstants.CARD_LESS_CASH;
+import static com.mashreq.transfercoreservice.common.CommonConstants.MOB_CHANNEL;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
+
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 
-import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashBlockResponse;
-import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashGenerationResponse;
-import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashQueryResponse;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashBlockRequest;
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashGenerationRequest;
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashQueryRequest;
+import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashBlockResponse;
+import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashGenerationResponse;
+import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashQueryResponse;
 import com.mashreq.transfercoreservice.cardlesscash.service.CardLessCashService;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPRequestDTO;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPResponseDTO;
@@ -21,22 +27,17 @@ import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.OTPService;
 import com.mashreq.transfercoreservice.common.CommonConstants;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
-import com.mashreq.webcore.dto.response.Response;
-import static com.mashreq.transfercoreservice.common.CommonConstants.*;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
-
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.PaymentHistoryDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsage;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageRepository;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
-import com.mashreq.transfercoreservice.fundtransfer.service.PaymentHistoryService;
 import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
 import com.mashreq.transfercoreservice.model.DigitalUser;
 import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
-
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
+import com.mashreq.transfercoreservice.transactionqueue.TransactionHistory;
+import com.mashreq.transfercoreservice.transactionqueue.TransactionRepository;
+import com.mashreq.webcore.dto.response.Response;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,12 +51,12 @@ import lombok.extern.slf4j.Slf4j;
 public class CardLessCashServiceImpl implements CardLessCashService {
 	private final AccountService accountService;
 	private AsyncUserEventPublisher asyncUserEventPublisher;
-	private final PaymentHistoryService paymentHistoryService;
 	private final OTPService otpService;
 	private final DigitalUserRepository digitalUserRepository;
 	private final DigitalUserLimitUsageRepository digitalUserLimitUsageRepository;
 	private final BalanceValidator balanceValidator;
 	private final LimitValidator limitValidator;
+	private final TransactionRepository transactionRepository;
 
 	@Override
 	public Response<CardLessCashBlockResponse> blockCardLessCashRequest(CardLessCashBlockRequest blockRequest,
@@ -99,15 +100,15 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 	            GenericExceptionHandler.handleError(TransferErrorCode.BALANCE_NOT_SUFFICIENT, TransferErrorCode.BALANCE_NOT_SUFFICIENT.getErrorMessage());
 	        }
 		 asyncUserEventPublisher.publishSuccessEvent(FundTransferEventType.CARD_LESS_CASH_BALANCE_VALIDATION_SUCCESS, metaData, FundTransferEventType.CARD_LESS_CASH_BALANCE_VALIDATION_SUCCESS.getDescription());
-		 limitValidator.validate(userDTO, CommonConstants.CARD_LESS_CASH, cardLessCashGenerationRequest.getAmount(), metaData);
-		    asyncUserEventPublisher.publishSuccessEvent(FundTransferEventType.LIMIT_CHECK_SUCCESS, metaData, FundTransferEventType.LIMIT_CHECK_SUCCESS.getDescription());
+		 limitValidator.validateWithProc(userDTO, CommonConstants.CARD_LESS_CASH, cardLessCashGenerationRequest.getAmount(), metaData, null);  
+		 asyncUserEventPublisher.publishSuccessEvent(FundTransferEventType.LIMIT_CHECK_SUCCESS, metaData, FundTransferEventType.LIMIT_CHECK_SUCCESS.getDescription());
 			cardLessCashGenerationResponse = accountService
 					.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest, userMobileNumber, metaData);
 			insertUserLimitUsage(metaData, cardLessCashGenerationRequest.getAmount());
 		/**
-		 * Insert payment history irrespective of payment fails or success
+		 * Insert transaction history irrespective of payment fails or success
 		 */
-		generatePaymentHistory(cardLessCashGenerationRequest, cardLessCashGenerationResponse, metaData, userDTO);
+		generateTransactionHistory(cardLessCashGenerationRequest, cardLessCashGenerationResponse, metaData, userDTO);
 
 		return cardLessCashGenerationResponse;
 	}
@@ -118,21 +119,22 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 		log.info("cardLessCash  Query Details {} ", cardLessCashQueryRequest);
 		return accountService.cardLessCashRemitQuery(cardLessCashQueryRequest, metaData);
 	}
-
-	private void generatePaymentHistory(CardLessCashGenerationRequest cardLessCashGenerationRequest,
+	
+	private void generateTransactionHistory(CardLessCashGenerationRequest cardLessCashGenerationRequest,
 			Response<CardLessCashGenerationResponse> coreResponse, RequestMetaData metaData, UserDTO userDTO) {
-
-		PaymentHistoryDTO paymentHistoryDTO = PaymentHistoryDTO.builder().cif(metaData.getPrimaryCif())
-				.userId(userDTO.getUserId()).channel(MOB_CHANNEL).beneficiaryTypeCode(CARD_LESS_CASH)
-				.paidAmount(cardLessCashGenerationRequest.getAmount()).status(coreResponse.getStatus().toString())
-				.ipAddress(metaData.getDeviceIP()).mwReferenceNo(coreResponse.getData().getReferenceNumber())
-				.mwResponseCode(coreResponse.getErrorCode()).mwResponseDescription(coreResponse.getErrorDetails())
+		TransactionHistory transactionHistory = TransactionHistory.builder().cif(metaData.getPrimaryCif())
+				.userId(userDTO.getUserId()).channel(MOB_CHANNEL)
+				.transactionTypeCode(CARD_LESS_CASH)
+				.paidAmount(cardLessCashGenerationRequest.getAmount())
+				.status(coreResponse.getStatus().toString())
+				.ipAddress(metaData.getDeviceIP())
+				.mwResponseDescription(coreResponse.getErrorDetails())
 				.accountFrom(cardLessCashGenerationRequest.getAccountNo())
 				.accountTo(cardLessCashGenerationRequest.getAccountNo())
+				.billRefNo(coreResponse.getData().getReferenceNumber())
 				.financialTransactionNo(coreResponse.getData().getReferenceNumber()).build();
-
-		log.info("Inserting into Payments History table {} ", paymentHistoryDTO);
-		paymentHistoryService.insert(paymentHistoryDTO);
+		log.info("Inserting into Transaction History table {} ", transactionHistory);
+		transactionRepository.save(transactionHistory);
 
 	}
 

@@ -1,4 +1,4 @@
-package com.mashreq.transfercoreservice.cardlesscash.service.impl;
+/*package com.mashreq.transfercoreservice.cardlesscash.service.impl;
 
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
@@ -163,3 +163,4 @@ public class CardLessCashServiceTest {
 	}
 
 }
+*/

@@ -75,7 +75,7 @@ public interface CoreEnquiryService<R, P> {
                     GenericExceptionHandler.handleError(errorCode, errorCode.getErrorMessage(), getErrorDetails(response));
                 }
             } else {
-                GenericExceptionHandler.handleError(assignDefaultErrorCode(), assignDefaultErrorCode().getErrorMessage(), getErrorDetails(response));
+                GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR, EXTERNAL_SERVICE_ERROR.getErrorMessage(), getErrorDetails(response));
             }
         }
 
