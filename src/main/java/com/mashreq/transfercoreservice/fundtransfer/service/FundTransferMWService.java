@@ -1,5 +1,18 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
+import static com.mashreq.transfercoreservice.middleware.SoapWebserviceClientFactory.soapClient;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
+
+import java.math.BigDecimal;
+import java.security.SecureRandom;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+
 import com.mashreq.esbcore.bindings.account.mbcdm.FundTransferReqType;
 import com.mashreq.esbcore.bindings.account.mbcdm.FundTransferResType;
 import com.mashreq.esbcore.bindings.accountservices.mbcdm.fundtransfer.EAIServices;
@@ -8,7 +21,6 @@ import com.mashreq.esbcore.bindings.header.mbcdm.HeaderType;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
-import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
@@ -20,18 +32,6 @@ import com.mashreq.transfercoreservice.middleware.enums.YesNo;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.security.SecureRandom;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-
-import static com.mashreq.transfercoreservice.middleware.SoapWebserviceClientFactory.soapClient;
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 
 @Slf4j
@@ -51,7 +51,7 @@ public class FundTransferMWService {
     private static final String SILVER = "XAG";
 
 
-    public FundTransferResponse transfer(FundTransferRequest request, RequestMetaData metaData, CurrencyConversionDto currencyConversionDto) {
+    public FundTransferResponse transfer(FundTransferRequest request, RequestMetaData metaData) {
         log.info("Fund transfer initiated from account [ {} ]", htmlEscape(request.getFromAccount()));
 
         //todo - remove this and use transactionid only fro request once  everyone starts using limit validation proc
