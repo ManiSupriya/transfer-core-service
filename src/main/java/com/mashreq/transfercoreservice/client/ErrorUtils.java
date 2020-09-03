@@ -22,7 +22,7 @@ public class ErrorUtils {
         if (StringUtils.isNotBlank(response.getErrorDetails())) {
             return response.getErrorCode() + "," + response.getErrorDetails() + "," +  response.getMessage();
         }
-        return response.getErrorCode();
+        return response.getErrorCode() + "," +  response.getMessage();
     }
     
     /**

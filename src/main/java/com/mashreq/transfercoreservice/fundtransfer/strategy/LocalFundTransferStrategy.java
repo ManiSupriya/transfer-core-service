@@ -86,7 +86,8 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
         final BeneficiaryDto beneficiaryDto = beneficiaryService.getById((metadata.getPrimaryCif()), valueOf(request.getBeneficiaryId()));
         validationContext.add("beneficiary-dto", beneficiaryDto);
-        validationContext.add("to-account-currency", request.getTxnCurrency());
+        validationContext.add("to-account-currency", StringUtils.isBlank(beneficiaryDto.getBeneficiaryCurrency())
+                ? localCurrency : beneficiaryDto.getBeneficiaryCurrency());
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
 
 

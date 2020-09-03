@@ -1,35 +1,44 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
-import com.mashreq.mobcommons.services.http.RequestMetaData;
-import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
-import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
-import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
-import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
-import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
-import com.mashreq.transfercoreservice.client.service.AccountService;
-import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
-import com.mashreq.transfercoreservice.client.service.MaintenanceService;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
-import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
-import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
-import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
-import com.mashreq.transfercoreservice.fundtransfer.validators.*;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import static java.lang.Long.valueOf;
+import static java.time.Duration.between;
+import static java.time.Instant.now;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-import static java.lang.Long.valueOf;
-import static java.time.Duration.between;
-import static java.time.Instant.now;
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import com.mashreq.mobcommons.services.http.RequestMetaData;
+import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
+import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
+import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
+import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
+import com.mashreq.transfercoreservice.client.service.AccountService;
+import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
+import com.mashreq.transfercoreservice.client.service.MaintenanceService;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
+import com.mashreq.transfercoreservice.fundtransfer.dto.LimitValidatorResponse;
+import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
+import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
+import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
+import com.mashreq.transfercoreservice.fundtransfer.validators.AccountBelongsToCifValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.BeneficiaryValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.CurrencyValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.FinTxnNoValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.SameAccountValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author shahbazkh
@@ -56,6 +65,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     private final MaintenanceService maintenanceService;
     private final FundTransferMWService fundTransferMWService;
     private final BalanceValidator balanceValidator;
+    private final DealValidator dealValidator;
 
     @Value("${app.uae.transaction.code:096}")
     private String transactionCode;
@@ -97,30 +107,12 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
 
         //Limit Validation
         final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), fromAccountOpt.get(),transferAmountInSrcCurrency);
-        final LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount, metadata);
+        final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metadata, null);
 
 
 
-        // As per current implementation with FE they are sending toCurrency and its value for within and own
-//        log.info("Limit Validation start.");
-//        BigDecimal limitUsageAmount = request.getAmount();
-//        if (!userDTO.getLocalCurrency().equalsIgnoreCase(request.getCurrency())) {
-//
-//            // Since we support request currency it can be  debitLeg or creditLeg
-//            String givenAccount = request.getToAccount();
-//            if (request.getCurrency().equalsIgnoreCase(fromAccountOpt.get().getCurrency())) {
-//                log.info("Limit Validation with respect to from account.");
-//                givenAccount = request.getFromAccount();
-//            }
-//            CoreCurrencyConversionRequestDto requestDto = generateCurrencyConversionRequest(request.getCurrency(),
-//                    givenAccount, request.getAmount(),
-//                    request.getDealNumber(), userDTO.getLocalCurrency());
-//            CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(requestDto);
-//            limitUsageAmount = currencyConversionDto.getTransactionAmount();
-//        }
-//
-//        LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount);
-//        log.info("Limit Validation successful");
+        //Deal Validator
+        responseHandler(dealValidator.validate(request, metadata, validationContext));
 
 
 
@@ -129,9 +121,6 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
 
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountOpt.get(), beneficiaryDto);
         final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata);
-
-
-        //final FundTransferResponse fundTransferResponse = coreTransferService.transferFundsBetweenAccounts(request);
 
         return fundTransferResponse.toBuilder()
                 .limitUsageAmount(limitUsageAmount)
@@ -149,7 +138,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
         		currencyRequest.setAccountNumber(sourceAccountDetailsDTO.getNumber());
         		currencyRequest.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
-        		currencyRequest.setTransactionCurrency(beneficiaryDto.getBeneficiaryCurrency());
+        		currencyRequest.setTransactionCurrency(request.getTxnCurrency());
         		currencyRequest.setTransactionAmount(request.getAmount());
         CurrencyConversionDto conversionResultInSourceAcctCurrency = maintenanceService.convertBetweenCurrencies(currencyRequest);
         amtToBePaidInSrcCurrency = conversionResultInSourceAcctCurrency.getAccountCurrencyAmount();
