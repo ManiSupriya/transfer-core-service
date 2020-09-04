@@ -72,6 +72,9 @@ public class LocalFundTransferStrategyTest {
 
     @Mock
     private MobCommonService mobCommonService;
+    
+    @Mock
+    private DealValidator dealValidator;
 
     @Captor
     private ArgumentCaptor<FundTransferRequest> fundTransferRequest;
@@ -148,8 +151,11 @@ public class LocalFundTransferStrategyTest {
         when(balanceValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
         LimitValidatorResultsDto limitValidatorResultsDto = new LimitValidatorResultsDto();
         limitValidatorResultsDto.setLimitVersionUuid(limitVersionUuid);
-        when(limitValidator.validate(eq(userDTO), eq("LOCAL"), eq(limitUsageAmount), eq(metadata)))
-                .thenReturn(limitValidatorResultsDto);
+        LimitValidatorResponse limitValidatorResponse = new LimitValidatorResponse();
+        limitValidatorResponse.setLimitVersionUuid(limitVersionUuid);
+        when(limitValidator.validateWithProc(eq(userDTO), eq("LOCAL"), eq(limitUsageAmount), eq(metadata), any()))
+        .thenReturn(limitValidatorResponse);
+        when(dealValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
 
         when(fundTransferMWService.transfer(fundTransferRequest.capture(),eq(metadata)))
                 .thenReturn(FundTransferResponse.builder().limitUsageAmount(limitUsageAmount).limitVersionUuid(limitVersionUuid).build());
@@ -274,10 +280,11 @@ public class LocalFundTransferStrategyTest {
         when(balanceValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
 
         when(maintenanceService.convertCurrency(eq(currencyConversionRequestDto))).thenReturn(secondConversion);
-        LimitValidatorResultsDto limitValidatorResultsDto = new LimitValidatorResultsDto();
-        limitValidatorResultsDto.setLimitVersionUuid(limitVersionUuid);
-        when(limitValidator.validate(eq(userDTO), eq("LOCAL"), eq(paidAmt), eq(metadata)))
-                .thenReturn(limitValidatorResultsDto);
+        LimitValidatorResponse limitValidatorResponse = new LimitValidatorResponse();
+        limitValidatorResponse.setLimitVersionUuid(limitVersionUuid);
+        when(limitValidator.validateWithProc(eq(userDTO), eq("LOCAL"), eq(paidAmt), eq(metadata), any()))
+                .thenReturn(limitValidatorResponse);
+        when(dealValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
 
         when(fundTransferMWService.transfer(fundTransferRequest.capture(),eq(metadata)))
                 .thenReturn(FundTransferResponse.builder().limitUsageAmount(paidAmt).limitVersionUuid(limitVersionUuid).build());
