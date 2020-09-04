@@ -53,6 +53,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
 
     private final BeneficiaryService beneficiaryService;
     private final LimitValidator limitValidator;
+    private BigDecimal exchangeRate;
 
     private final HashMap<String, String> countryToCurrencyMap = new HashMap<>();
 
@@ -154,6 +155,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         currencyRequest.setTransactionAmount(request.getAmount());
         CurrencyConversionDto conversionResultInSourceAcctCurrency = maintenanceService.convertBetweenCurrencies(currencyRequest);
         amtToBePaidInSrcCurrency = conversionResultInSourceAcctCurrency.getAccountCurrencyAmount();
+        exchangeRate = conversionResultInSourceAcctCurrency.getExchangeRate();
         return amtToBePaidInSrcCurrency;
     }
 
@@ -178,6 +180,8 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .beneficiaryAddressTwo(beneficiaryDto.getAddressLine2())
                 .beneficiaryAddressThree(beneficiaryDto.getAddressLine3())
                 .transactionCode("15")
+                .dealNumber(request.getDealNumber())
+                .exchangeRate(exchangeRate)
                 .build();
 
         return enrichFundTransferRequestByCountryCode(fundTransferRequest, beneficiaryDto);
