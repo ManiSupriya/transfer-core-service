@@ -62,5 +62,6 @@ public class FundTransferRequestDTO {
     private String dpRandomNumber;
     private String txnCurrency;
     private String additionalField;
+    private String finalBene;
 
 }
