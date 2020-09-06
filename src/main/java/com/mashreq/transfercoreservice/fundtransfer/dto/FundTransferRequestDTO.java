@@ -63,5 +63,7 @@ public class FundTransferRequestDTO {
     private String txnCurrency;
     private String additionalField;
     private String finalBene;
+    AdditionalFields additionalFields;
+    private BigDecimal dealRate;
 
 }

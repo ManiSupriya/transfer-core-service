@@ -49,7 +49,7 @@ public class QuickRemitStrategy implements QuickRemitFundTransfer {
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, RequestMetaData metadata, UserDTO userDTO, ValidationContext context) {
         log.info("Quick remit flow initiated");
-        final BeneficiaryDto beneficiaryDto = beneficiaryService.getById((metadata.getPrimaryCif()), valueOf(request.getBeneficiaryId()));
+        final BeneficiaryDto beneficiaryDto = beneficiaryService.getById(metadata.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), metadata);
         final String countryCodeISo = beneficiaryDto.getBeneficiaryCountryISO();
         log.info("Initiating Quick Remit transfer to {}", countryCodeISo);
         final ValidationContext validateContext = new ValidationContext();

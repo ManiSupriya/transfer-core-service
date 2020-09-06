@@ -52,7 +52,7 @@ public class QuickRemitStrategyTest {
 
         //when
         quickRemitStrategy.init();
-        Mockito.when(beneficiaryService.getById(Mockito.eq("12345"), Mockito.eq(123L))).thenReturn(bene);
+        Mockito.when(beneficiaryService.getById(Mockito.eq("12345"), Mockito.eq(123L), Mockito.eq(metadata))).thenReturn(bene);
 
         quickRemitStrategy.execute(requestDTO, metadata, dto);
         //then
@@ -75,7 +75,7 @@ public class QuickRemitStrategyTest {
 
         //when
         quickRemitStrategy.init();
-        Mockito.when(beneficiaryService.getById(Mockito.eq("12345"), Mockito.eq(123L))).thenReturn(bene);
+        Mockito.when(beneficiaryService.getById(Mockito.eq("12345"), Mockito.eq(123L), Mockito.eq(metadata))).thenReturn(bene);
 
         quickRemitStrategy.execute(requestDTO, metadata, dto);
         //then

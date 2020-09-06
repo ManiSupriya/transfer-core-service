@@ -139,6 +139,17 @@ public class FundTransferServiceDefault implements FundTransferService {
         log.info("Creating  User DTO");
         UserDTO userDTO = createUserDTO(metadata, digitalUser);
 
+        //deal number not applicable if both currencies are same
+        if(request.getCurrency().equalsIgnoreCase(request.getTxnCurrency()) && (request.getDealNumber()!=null && !request.getDealNumber().isEmpty())) {
+        	 auditEventPublisher.publishFailedEsbEvent(FundTransferEventType.DEAL_VALIDATION,
+                     metadata, CommonConstants.FUND_TRANSFER, metadata.getChannelTraceId(),
+                     TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SAME_CRNCY.toString(),
+                     TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SAME_CRNCY.getErrorMessage(),
+                     TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SAME_CRNCY.getErrorMessage());
+        	 GenericExceptionHandler.handleError(TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SAME_CRNCY,
+        			  TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SAME_CRNCY.getErrorMessage());
+        }
+        
         FundTransferStrategy strategy = fundTransferStrategies.get(getServiceByType(request.getServiceType()));
         FundTransferResponse response = strategy.execute(request, metadata, userDTO);
 
@@ -161,7 +172,7 @@ public class FundTransferServiceDefault implements FundTransferService {
         if (isFailure(response)) {
             GenericExceptionHandler.handleError(FUND_TRANSFER_FAILED,
                     getFailureMessage(FUND_TRANSFER_FAILED, request, response),
-                    response.getResponseDto().getMwResponseCode());
+                    response.getResponseDto().getMwResponseCode()+"-"+ response.getResponseDto().getMwResponseDescription());
         }
 
 

@@ -24,6 +24,7 @@ public enum TransferErrorCode implements ErrorCode {
     DEAL_NUMBER_NOT_APPLICABLE("TN-1011", "Deal Number Not Applicable for this transaction"),
     MAINTENANCE_SERVICE_CONNECTION_ERROR("TN-1012", "Maintenance external service connection exception"),
     MAINTENANCE_SERVICE_ERROR("TN-1013", "Something went wrong with maintenance service"),
+    DEAL_NUMBER_NOT_APPLICABLE_WITH_SAME_CRNCY("TN-1014", "Deal Number Not Applicable for same currency transaction"),
 
 
     BALANCE_NOT_SUFFICIENT("TN-1200", "Balance is not sufficient"),
@@ -47,6 +48,8 @@ public enum TransferErrorCode implements ErrorCode {
     BENE_CUR_NOT_MATCH("TN-4003", "Beneficiary Currency does not match"),
     BENE_NOT_ACTIVE("TN-4004", "Beneficiary status is not active"),
     BENE_NOT_ACTIVE_OR_COOLING("TN-4004", "Beneficiary status is not active/cooling"),
+    BEN_DETAIL_FAILED("TN-4005", "Failed to fetch ben details"),
+    MISSING_BEN_DETAILS("TN-4006", "Required ben details are missing"),
 
     CURRENCY_CONVERSION_FAIL("TN-4100", "Currency conversion failed."),
     INVALID_PURPOSE_CODE("TN-4101", "Invalid purpose code"),

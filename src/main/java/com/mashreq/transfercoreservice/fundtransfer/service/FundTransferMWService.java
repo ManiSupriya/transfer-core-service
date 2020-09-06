@@ -196,7 +196,7 @@ public class FundTransferMWService {
         	fundTransferReqType.setDealReferenceNo(request.getDealNumber());
         	fundTransferReqType.setDealFlag(YesNo.Y.name());
             transfer.setDealDate(LocalDate.now().toString());
-            transfer.setRate(request.getExchangeRate().toPlainString());
+            transfer.setRate(request.getDealRate().toPlainString());
         } else {
         	fundTransferReqType.setDealFlag(YesNo.N.name());
         }

@@ -91,6 +91,9 @@ public interface CoreEnquiryService<R, P> {
             GenericException genericException = (GenericException) throwable;
             final String[] errorCodes = getAllErrorCodesFromGenericException(genericException);
             final String errorDetails = genericException.getErrorDetails();
+            if(((GenericException) throwable).getErrorCode().equals("TN-5000")){
+                GenericExceptionHandler.handleError(assignDefaultErrorCode(), assignDefaultErrorCode().getErrorMessage(), ((GenericException) throwable).getErrorDetails());
+            }
             final Optional<String> errorHandlingStrategyOptional = getErrorHandlingStrategy(errorMap(), errorCodes);
             final String errorHandlingStrategy = errorHandlingStrategyOptional.get();
 
