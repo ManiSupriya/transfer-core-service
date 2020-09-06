@@ -176,7 +176,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
                 .sourceCurrency(sourceAccount.getCurrency())
                 .sourceBranchCode(sourceAccount.getBranchCode())
                 .beneficiaryFullName(beneficiaryDto.getFullName())
-                .destinationCurrency(beneficiaryDto.getBeneficiaryCurrency())
+                .destinationCurrency(request.getTxnCurrency())
                 .transactionCode(WITHIN_MASHREQ_TRANSACTION_CODE)
                 .internalAccFlag(INTERNAL_ACCOUNT_FLAG)
                 .dealNumber(request.getDealNumber())

@@ -187,7 +187,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .sourceCurrency(accountDetails.getCurrency())
                 .sourceBranchCode(accountDetails.getBranchCode())
                 .beneficiaryFullName(beneficiaryDto.getFullName())
-                .destinationCurrency(beneficiaryDto.getBeneficiaryCurrency())
+                .destinationCurrency(request.getTxnCurrency())
                 .beneficiaryAddressOne(beneficiaryDto.getAddressLine1())
                 .beneficiaryAddressTwo(beneficiaryDto.getAddressLine2())
                 .beneficiaryAddressThree(beneficiaryDto.getAddressLine3())
