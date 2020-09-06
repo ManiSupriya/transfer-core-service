@@ -96,8 +96,8 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         validationContext.add("purposes", allPurposeCodes);
         responseHandler(paymentPurposeValidator.validate(request, metadata, validationContext));
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
-        if (request.getAdditionalFields() != null) {
-            beneficiaryDto = beneficiaryService.getUpdate(request.getAdditionalFields(), Long.valueOf(request.getBeneficiaryId()), metadata);
+        if (request.getBeneRequiredFields() != null) {
+            beneficiaryDto = beneficiaryService.getUpdate(request.getBeneRequiredFields(), Long.valueOf(request.getBeneficiaryId()), metadata);
         } else {
             beneficiaryDto = beneficiaryService.getById(metadata.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), metadata);
         }
