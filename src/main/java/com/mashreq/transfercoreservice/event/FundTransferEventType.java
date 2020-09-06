@@ -36,6 +36,7 @@ public enum FundTransferEventType implements EventType {
     BALANCE_VALIDATION("FUND_TRANSFER", "Balance Validation"),
     DEAL_VALIDATION("FUND_TRANSFER", "Deal Validation"),
     BENEFICIARY_VALIDATION("FUND_TRANSFER", "Beneficiary validation"),
+    FUNDTRANSFER_BENDETAILS("FUND_TRANSFER", "Ben detail retrieval failed"),
     CURRENCY_VALIDATION("FUND_TRANSFER", "Currency Validation"),
     FIN_TRANSACTION_VALIDATION("FUND_TRANSFER", "Financial Transaction Number Validation"),
     IBAN_VALIDATION("FUND_TRANSFER", "Iban Validation"),

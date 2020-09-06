@@ -75,6 +75,7 @@ public class DealValidator implements Validator {
 								TransferErrorCode.DEAL_NUMBER_EXPIRED.getErrorMessage(),
 								TransferErrorCode.DEAL_NUMBER_EXPIRED.getErrorMessage());
 					}
+					request.setDealRate(dealEnquiryDetailsDto.getDealRate());
 				}
 			}
 		} catch (Exception e) {

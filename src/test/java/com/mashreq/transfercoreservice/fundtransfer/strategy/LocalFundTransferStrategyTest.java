@@ -145,7 +145,7 @@ public class LocalFundTransferStrategyTest {
 
         when(accountBelongsToCifValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
 
-        when(beneficiaryService.getById(eq(metadata.getPrimaryCif()), eq(Long.valueOf(beneId)))).thenReturn(beneficiaryDto);
+        when(beneficiaryService.getById(eq(metadata.getPrimaryCif()), eq(Long.valueOf(beneId)), any())).thenReturn(beneficiaryDto);
         when(beneficiaryValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
         when(ibanValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
         when(balanceValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
@@ -270,7 +270,7 @@ public class LocalFundTransferStrategyTest {
 
         when(accountBelongsToCifValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
 
-        when(beneficiaryService.getById(eq(metadata.getPrimaryCif()), eq(Long.valueOf(beneId)))).thenReturn(beneficiaryDto);
+        when(beneficiaryService.getById(eq(metadata.getPrimaryCif()), eq(Long.valueOf(beneId)), any())).thenReturn(beneficiaryDto);
 
         when(maintenanceService.convertBetweenCurrencies(eq(currencyRequest)))
                 .thenReturn(currencyConversionDto);

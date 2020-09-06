@@ -94,7 +94,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         final AccountDetailsDTO fromAccountDetails = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
         validationContext.add("from-account", fromAccountDetails);
 
-        final BeneficiaryDto beneficiaryDto = beneficiaryService.getById((metadata.getPrimaryCif()), valueOf(request.getBeneficiaryId()));
+        final BeneficiaryDto beneficiaryDto = beneficiaryService.getById(metadata.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), metadata);
         validationContext.add("beneficiary-dto", beneficiaryDto);
         validationContext.add("to-account-currency", StringUtils.isBlank(beneficiaryDto.getBeneficiaryCurrency())
                 ? localCurrency : beneficiaryDto.getBeneficiaryCurrency());
@@ -186,6 +186,8 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
                 .awInstBICCode(beneficiaryDto.getSwiftCode())
                 .beneficiaryAddressTwo(address)
                 .transactionCode(LOCAL_TRANSACTION_CODE)
+                .dealNumber(request.getDealNumber())
+                .dealRate(request.getDealRate())
                 .build();
 
     }

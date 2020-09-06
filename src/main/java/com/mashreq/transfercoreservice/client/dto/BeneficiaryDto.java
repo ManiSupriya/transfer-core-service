@@ -1,11 +1,11 @@
 package com.mashreq.transfercoreservice.client.dto;
 
+import java.math.BigDecimal;
+
 import com.mashreq.transfercoreservice.annotations.ValueOfEnum;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.math.BigDecimal;
-import java.time.Instant;
 
 /**
  * @author shahbazkh
@@ -22,8 +22,8 @@ public class BeneficiaryDto {
     private String serviceType;
     private String serviceTypeCode;
     private String status;
-    //private Instant createdDate;
-    private Instant activeAfter;
+    private String createdDate;
+    private String activeAfter;
     private String activeAfterDuration;
 
     // bill specific

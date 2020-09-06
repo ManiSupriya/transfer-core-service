@@ -151,6 +151,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
                 .transactionCode(OWN_ACCOUNT_TRANSACTION_CODE)
                 .internalAccFlag(INTERNAL_ACCOUNT_FLAG)
                 .dealNumber(request.getDealNumber())
+                .dealRate(request.getDealRate())
                 .exchangeRate(exchangeRate)
                 .limitTransactionRefNo(validationResult.getTransactionRefNo())
                 .build();
