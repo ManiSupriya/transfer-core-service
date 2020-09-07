@@ -1,4 +1,6 @@
 package com.mashreq.transfercoreservice.swifttracker.service.impl;
+import java.util.Date;
+
 import org.springframework.stereotype.Service;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
@@ -23,9 +25,16 @@ public class SwiftTrackerServiceImpl implements SwiftTrackerService{
 	}
 
 	@Override
-	public Response getSwiftMessageDetails(RequestMetaData metaData) {
+	public Response getSwiftMessageDetails(RequestMetaData metaData, String startDate, String endDate) {
 		log.info("getSwiftMessageDetails middle ware call started");
-		return swiftMessageMWService.getSwiftMessageDetails(metaData);
+
+		if (startDate == null || startDate.isEmpty()) {
+			startDate = "1900-01-01";
+		}
+		if (endDate == null || endDate.isEmpty()) {
+			endDate = (new Date()).toString();
+		}
+		return swiftMessageMWService.getSwiftMessageDetails(metaData, startDate, endDate);
 	}
 
 }
