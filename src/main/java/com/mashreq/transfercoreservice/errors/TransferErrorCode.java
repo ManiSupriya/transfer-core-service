@@ -39,8 +39,7 @@ public enum TransferErrorCode implements ErrorCode {
     BENE_NOT_ACTIVE_OR_COOLING("TN-4004", "Beneficiary status is not active/cooling"),
 
     CURRENCY_CONVERSION_FAIL("TN-4100", "Currency conversion failed."),
-    INVALID_PURPOSE_CODE("TN-4101", "Invalid purpose code"),
-    INVALID_PURPOSE_DESC("TN-4102", "Invalid purpose description"),
+    INVALID_PURPOSE_CODE("TN-4101", "Invalid payment purpose passed "),
 
 
     ACCOUNT_NOT_BELONG_TO_CIF("TN-4200", "Account does not belong to CIF"),
