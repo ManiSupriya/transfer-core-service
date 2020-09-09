@@ -66,7 +66,6 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     private final FundTransferMWService fundTransferMWService;
     private final BalanceValidator balanceValidator;
     private final DealValidator dealValidator;
-    private BigDecimal exchangeRate;
 
     @Value("${app.uae.transaction.code:096}")
     private String transactionCode;
@@ -164,7 +163,6 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         currencyConversionRequestDto.setTransactionCurrency(LOCAL_CURRENCY);
 
         CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(currencyConversionRequestDto);
-        exchangeRate = currencyConversionDto.getExchangeRate();
         return currencyConversionDto.getTransactionAmount();
     }
     private FundTransferRequest prepareFundTransferRequestPayload(RequestMetaData metadata, FundTransferRequestDTO request,
@@ -182,8 +180,6 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
                 .destinationCurrency(beneficiaryDto.getBeneficiaryCurrency())
                 .transactionCode(WITHIN_MASHREQ_TRANSACTION_CODE)
                 .internalAccFlag(INTERNAL_ACCOUNT_FLAG)
-                .dealNumber(request.getDealNumber())
-                .exchangeRate(exchangeRate)
                 .build();
 
     }

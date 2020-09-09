@@ -106,6 +106,8 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 
         final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata);
 
+        //final FundTransferResponse fundTransferResponse = coreTransferService.transferFundsBetweenAccounts(request);
+
         log.info("Total time taken for {} strategy {} milli seconds ", htmlEscape(request.getServiceType()), htmlEscape(Long.toString(between(start, now()).toMillis())));
 
         return fundTransferResponse.toBuilder()
@@ -150,7 +152,6 @@ public class OwnAccountStrategy implements FundTransferStrategy {
                 .destinationCurrency(destinationAccount.getCurrency())
                 .transactionCode(OWN_ACCOUNT_TRANSACTION_CODE)
                 .internalAccFlag(INTERNAL_ACCOUNT_FLAG)
-                .dealNumber(request.getDealNumber())
                 .exchangeRate(exchangeRate)
                 .limitTransactionRefNo(validationResult.getTransactionRefNo())
                 .build();
