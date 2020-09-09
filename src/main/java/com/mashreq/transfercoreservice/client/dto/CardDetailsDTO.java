@@ -51,6 +51,8 @@ public class CardDetailsDTO {
     @JsonProperty("encryptedCardNumber")
     private String encryptedCardNumber;
 
+    private String expiryDate;
+
     public String getCardNo() {
         return StringUtils.isBlank(cardNo) ? null : cardNo.substring(cardNo.length() - 4);
     }

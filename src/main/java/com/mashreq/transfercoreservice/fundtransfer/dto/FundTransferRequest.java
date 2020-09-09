@@ -35,5 +35,9 @@ public class FundTransferRequest {
     private BigDecimal srcAmount;
     private BigDecimal exchangeRate;
     private String limitTransactionRefNo;
-
+    // below fields are applicable for credit card
+    private String cardNo;
+    private String expiryDate;
+    private String sourceISOCurrency;
+    private String destinationISOCurrency;
 }

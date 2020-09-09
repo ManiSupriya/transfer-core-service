@@ -65,5 +65,6 @@ public class FundTransferRequestDTO {
     private String finalBene;
     AdditionalFields beneRequiredFields;
     private BigDecimal dealRate;
+    private String cardNo;
 
 }

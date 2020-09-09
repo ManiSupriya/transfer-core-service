@@ -53,7 +53,14 @@ logging.level:
   ROOT: warn
   # org.hibernate.type.descriptor.sql: trace
   com.mashreq: debug
-
+esb-service:
+  url: ${CDM_URL:http://172.24.70.29:7800/AllOperationsSOAP_HTTP_Service}
+  app-id: ${SOAP_SERVICE_APPID:SITAPPS}
+  origin-id: ${SOAP_SERVICE_ORIGINID:AE}
+  connect-timeout: ${SOAP_SERVICE_CONNECTIONTIMEOUT:15000}
+  read-timeout: ${SOAP_SERVICE_READTIMEOUT:30000}
+  max-connection: ${SOAP_SERVICE_MAXCONNECTION:30}
+  keep-alive: ${SOAP_SERVICE_KEEPALIVE:30000}
 
 app:
   local:
@@ -71,11 +78,34 @@ app:
     customers: ${CUSTOMER_SERVICE_URL:http://localhost:8083}
     accounts: ${ACCOUNT_SERVICE_URL:http://digital-dev.mashreq.com/api/accounts-service}
     otp: http://digital-dev.mashreq.com/api/ms-security-iam/
-    cards: ${CARD_SERVICE_URL:http://cards-service:8080}
+    cards: ${CARD_SERVICE_URL:http://digital-dev.mashreq.com/api/cards-service}
     notification: ${NOTIFICATION_SERVICE:http://digital-dev.mashreq.com/api/notification-service/common/notification}
     mobcustomer: ${MOB_CUSTOMER_SERVICE:http://localhost:8088}
     beneficiary: ${BENEFICIARY_CORE_SERVICE:http://digital-dev.mashreq.com/api/beneficiary-core-service}
     mobcommon: ${MOB_COMMON_SERVICE:http://digital-dev.mashreq.com/api/mob-common-service}
+  middleware:
+    endpoint: http://172.24.70.29:7800/AllOperationsSOAP_HTTP_Service
+    timeout: 100000
+    srvMsgVersion: 1.0
+    srcAppId: SITAPPS
+    orgId: AE
+    passPhrase: lkoiuytreaghjknvgtsfgdhelaopghen
+    narration: Transfer Core Banking
+    srvCode: TFT
+    service:
+      ftcc:
+        srvCode: TFTCC
+        userId: ${SRV_TFTCC_REGISTRATION_USER_ID:MOBANKUSER}
+  ftcc:
+    merchantId: 000008026734
+    terminalId: 20091124
+    authStatus: A
+    acwthInst5: UNITED ARAB EMIRATES
+    amountTag: TFR_AMT
+    messageThrough: U
+    transTypeCode: FAM
+    srvCode: TFTCC
+
 
 redis:
   enable: true

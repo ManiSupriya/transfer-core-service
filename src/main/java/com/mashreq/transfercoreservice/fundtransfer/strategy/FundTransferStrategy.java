@@ -3,6 +3,7 @@ package com.mashreq.transfercoreservice.fundtransfer.strategy;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
+import com.mashreq.transfercoreservice.client.dto.CardDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
@@ -43,6 +44,18 @@ public interface FundTransferStrategy {
         coreCurrencyConversionRequestDto.setDealNumber(dealNumber);
         coreCurrencyConversionRequestDto.setTransactionCurrency(localCurrency);
         return coreCurrencyConversionRequestDto ;
+    }
+
+
+    default CardDetailsDTO getSelectedCreditCard(List<CardDetailsDTO> coreCardAccounts, String cardNo) {
+        CardDetailsDTO cardDetailsDTO = null;
+        for(CardDetailsDTO curr : coreCardAccounts){
+            if(curr.getCardNo().equalsIgnoreCase(cardNo)) {
+                cardDetailsDTO = curr;
+                break;
+            }
+        }
+        return cardDetailsDTO;
     }
 
 }
