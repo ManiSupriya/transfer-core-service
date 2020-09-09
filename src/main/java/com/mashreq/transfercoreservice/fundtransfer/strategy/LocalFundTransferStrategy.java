@@ -1,5 +1,5 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
-
+import static java.lang.Long.valueOf;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.*;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
@@ -154,10 +154,29 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         validationContext.add("account-details", accountsFromCore);
         validationContext.add("validate-from-account", Boolean.TRUE);
 
+
+        //TODO Remove the empty qrType
+        final Set<MoneyTransferPurposeDto> allPurposeCodes = mobCommonService.getPaymentPurposes(request.getServiceType(), "", INDIVIDUAL_ACCOUNT);
+
+        validationContext.add("purposes", allPurposeCodes);
+        responseHandler(paymentPurposeValidator.validate(request, metadata, validationContext));
+        responseHandler(accountBelongsToCifValidator.validate(request, metadata, validationContext));
+
         final AccountDetailsDTO fromAccountDetails = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
         validationContext.add("from-account", fromAccountDetails);
 
-        final BeneficiaryDto beneficiaryDto = execute(request, metadata, validationContext);
+        final BeneficiaryDto beneficiaryDto = beneficiaryService.getById(metadata.getPrimaryCif(), valueOf(request.getBeneficiaryId()), metadata);
+        validationContext.add("beneficiary-dto", beneficiaryDto);
+        validationContext.add("to-account-currency", StringUtils.isBlank(beneficiaryDto.getBeneficiaryCurrency())
+                ? localCurrency : beneficiaryDto.getBeneficiaryCurrency());
+        responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
+
+
+        validationContext.add("iban-length", LOCAL_IBAN_LENGTH);
+        responseHandler(ibanValidator.validate(request, metadata, validationContext));
+
+        //Deal Validator
+        responseHandler(dealValidator.validate(request, metadata, validationContext));
 
         //Balance Validation
         final BigDecimal transferAmountInSrcCurrency = isCurrencySame(beneficiaryDto, fromAccountDetails.getCurrency())
@@ -171,10 +190,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), fromAccountDetails, transferAmountInSrcCurrency);
         final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metadata, null);
 
-
-
-        final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountDetails.getCurrency(),
-                fromAccountDetails.getBranchCode(), beneficiaryDto);
+        final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountDetails.getCurrency(), fromAccountDetails.getBranchCode(), beneficiaryDto);
         log.info("Local Fund transfer initiated.......");
 
         final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata);
