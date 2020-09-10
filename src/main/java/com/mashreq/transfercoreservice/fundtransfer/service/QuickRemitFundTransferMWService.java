@@ -90,7 +90,7 @@ public class QuickRemitFundTransferMWService {
         EAIServices services = new EAIServices();
         services.setHeader(headerFactory.getHeader(request.getServiceCode(), request.getChannelTraceId()));
         services.setBody(new EAIServices.Body());
-
+        List<RoutingCodeType> routingCodeTypeList;
         //Setting individual components for IN and PK
         RemittancePaymentReqType remittancePaymentReq = new RemittancePaymentReqType();
         remittancePaymentReq.setPaymentID(request.getFinTxnNo());
@@ -144,7 +144,10 @@ public class QuickRemitFundTransferMWService {
         remittancePaymentReq.setSenderBeneficiaryRelationShip(request.getSenderBeneficiaryRelationship());
         remittancePaymentReq.setSenderSourceOfIncome(request.getSenderSourceOfIncome());
         remittancePaymentReq.setProductCode(request.getProductCode());
-        remittancePaymentReq.getRoutingCode().addAll(getRoutingCode(request));
+        routingCodeTypeList = getRoutingCode(request);
+        if(routingCodeTypeList != null) {
+            remittancePaymentReq.getRoutingCode().addAll(routingCodeTypeList);
+        }
         remittancePaymentReq.setPaymentNarration(request.getPaymentNarration());
         remittancePaymentReq.setBCity(request.getBeneficiaryCity());
         remittancePaymentReq.setBPinCode(request.getBeneficiaryPinCode());
@@ -164,7 +167,7 @@ public class QuickRemitFundTransferMWService {
     }
 
     private RoutingCodeType mapRoutingCode(com.mashreq.transfercoreservice.fundtransfer.dto.RoutingCode x) {
-    	RoutingCodeType routingCode = new RoutingCodeType();
+        RoutingCodeType routingCode = new RoutingCodeType();
         routingCode.setType(x.getType());
         routingCode.setValue(x.getValue());
         return routingCode;
