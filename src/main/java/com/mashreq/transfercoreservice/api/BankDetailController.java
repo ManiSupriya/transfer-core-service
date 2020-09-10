@@ -37,7 +37,7 @@ public class BankDetailController {
     private final BankDetailService bankDetailService;
 
     
-    @GetMapping
+    @PostMapping("/dblink")
     public Response getSwiftBankDetails(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData metaData,
                                    @Valid @RequestBody SwiftBankDetailRequestDto bankDetailRequest) {
         log.info("Received request to search bank detail for swift code {} ", htmlEscape(bankDetailRequest.getSwiftCode()));
