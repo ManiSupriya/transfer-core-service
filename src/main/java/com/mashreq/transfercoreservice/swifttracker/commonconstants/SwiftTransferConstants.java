@@ -22,4 +22,8 @@ public interface SwiftTransferConstants {
     String HOUR = "h ";
     String MIN = "m ";
     String EMPTY = "";
+    String GPI_TRACKER_URL =  "/v1/gpiTransaction";
+    String SWIFT_TRACKER = "/swiftTransfer";
+    String REQ_METADATA = "X-REQUEST-METADATA";
+    String GPI_TRANSACTIONS = "GPI Transactions";
 }

@@ -3,21 +3,22 @@ package com.mashreq.transfercoreservice.client.service;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.MaintenanceClient;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
+import com.mashreq.transfercoreservice.client.dto.CoreCurrencyDto;
 import com.mashreq.transfercoreservice.client.dto.CountryMasterDto;
 import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.DealEnquiryDto;
 import com.mashreq.webcore.dto.response.Response;
-
+import com.mashreq.webcore.dto.response.ResponseStatus;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -25,6 +26,8 @@ import java.util.List;
 public class MaintenanceService {
 
     private final MaintenanceClient maintenanceClient;
+
+    public static final String DEFAULT_REGION = "AE";
 
     /**
      * Convert currency from account to transactionCurrency
@@ -66,6 +69,15 @@ public class MaintenanceService {
     public DealEnquiryDto getFXDealInformation(final String dealNumber) {
         log.info("[MaintenanceService] calling maintenance service client for getting deal information");
         return maintenanceClient.getFXDealInformation(dealNumber).getBody().getData();
+    }
+
+    public List<CoreCurrencyDto> getAllCurrencies() {
+        log.info("Fetching all currencies  from maintenance service ");
+        Response<List<CoreCurrencyDto>> response = maintenanceClient.getAllCurrencies(DEFAULT_REGION);
+        if (ResponseStatus.ERROR == response.getStatus() || Objects.isNull(response.getData())) {
+          //  GenericExceptionHandler.handleError(MobCommonErrorCode.MAINTENANCE_SERVICE_ERROR, MobCommonErrorCode.MAINTENANCE_SERVICE_ERROR.getErrorMessage());
+        }
+        return response.getData();
     }
 
 

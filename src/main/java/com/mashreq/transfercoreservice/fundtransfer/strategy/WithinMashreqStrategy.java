@@ -1,6 +1,5 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
-import static java.lang.Long.valueOf;
 import static java.time.Duration.between;
 import static java.time.Instant.now;
 import static org.springframework.web.util.HtmlUtils.htmlEscape;
@@ -91,13 +90,13 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         //from account will always be present as it has been validated in the accountBelongsToCifValidator
         validationContext.add("from-account", fromAccountOpt.get());
 
-        BeneficiaryDto beneficiaryDto = beneficiaryService.getById(metadata.getPrimaryCif(), valueOf(request.getBeneficiaryId()));
+        BeneficiaryDto beneficiaryDto = beneficiaryService.getById(metadata.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), metadata);
         validationContext.add("to-account-currency",beneficiaryDto.getBeneficiaryCurrency());
         validationContext.add("beneficiary-dto", beneficiaryDto);
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
         responseHandler(currencyValidator.validate(request, metadata, validationContext));
 
-        final BigDecimal transferAmountInSrcCurrency = isCurrencySame(beneficiaryDto, fromAccountOpt.get())
+        final BigDecimal transferAmountInSrcCurrency = isCurrencySame(request)
                 ? request.getAmount()
                 : getAmountInSrcCurrency(request, beneficiaryDto, fromAccountOpt.get());
 
@@ -128,8 +127,8 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
 
     }
 
-    private boolean isCurrencySame(BeneficiaryDto beneficiaryDto, AccountDetailsDTO sourceAccountDetailsDTO) {
-        return sourceAccountDetailsDTO.getCurrency().equalsIgnoreCase(beneficiaryDto.getBeneficiaryCurrency());
+    private boolean isCurrencySame(FundTransferRequestDTO request) {
+        return request.getCurrency().equalsIgnoreCase(request.getTxnCurrency());
     }
 
     private BigDecimal getAmountInSrcCurrency(FundTransferRequestDTO request, BeneficiaryDto beneficiaryDto,
@@ -177,9 +176,11 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
                 .sourceCurrency(sourceAccount.getCurrency())
                 .sourceBranchCode(sourceAccount.getBranchCode())
                 .beneficiaryFullName(beneficiaryDto.getFullName())
-                .destinationCurrency(beneficiaryDto.getBeneficiaryCurrency())
+                .destinationCurrency(request.getTxnCurrency())
                 .transactionCode(WITHIN_MASHREQ_TRANSACTION_CODE)
                 .internalAccFlag(INTERNAL_ACCOUNT_FLAG)
+                .dealNumber(request.getDealNumber())
+                .dealRate(request.getDealRate())
                 .build();
 
     }

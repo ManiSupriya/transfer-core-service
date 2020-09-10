@@ -62,6 +62,7 @@ public class CardService {
     	cardDetailsDTO.setCardStatus(coreCard.getCardStatus());
     	cardDetailsDTO.setSegment("conventional");
     	cardDetailsDTO.setEncryptedCardNumber(coreCard.getEncryptedCardNumber());
+    	cardDetailsDTO.setExpiryDate(coreCard.getExpiryDate());
         return cardDetailsDTO;
     }
 

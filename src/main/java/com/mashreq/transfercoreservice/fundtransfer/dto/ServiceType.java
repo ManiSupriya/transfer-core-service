@@ -24,7 +24,8 @@ public enum ServiceType implements ValidEnum {
     DUBAI_CARE("DCARE","DUBAI_CARE","DC"),
     QRT("QRT","QUICK_REMIT","QR"),
     XAU("XAU","GOLD_TRANSFER","GL"),
-    XAG("XAG","SILVER_TRANSFER","SL")
+    XAG("XAG","SILVER_TRANSFER","SL"),
+    CLC("cardless-cash","CARDLESS_CASH","cardless-cash")
     ;
 
     private String name;

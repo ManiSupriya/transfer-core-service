@@ -24,6 +24,7 @@ public enum TransferErrorCode implements ErrorCode {
     DEAL_NUMBER_NOT_APPLICABLE("TN-1011", "Deal Number Not Applicable for this transaction"),
     MAINTENANCE_SERVICE_CONNECTION_ERROR("TN-1012", "Maintenance external service connection exception"),
     MAINTENANCE_SERVICE_ERROR("TN-1013", "Something went wrong with maintenance service"),
+    DEAL_NUMBER_NOT_APPLICABLE_WITH_SAME_CRNCY("TN-1014", "Deal Number Not Applicable for same currency transaction"),
 
 
     BALANCE_NOT_SUFFICIENT("TN-1200", "Balance is not sufficient"),
@@ -47,6 +48,8 @@ public enum TransferErrorCode implements ErrorCode {
     BENE_CUR_NOT_MATCH("TN-4003", "Beneficiary Currency does not match"),
     BENE_NOT_ACTIVE("TN-4004", "Beneficiary status is not active"),
     BENE_NOT_ACTIVE_OR_COOLING("TN-4004", "Beneficiary status is not active/cooling"),
+    BEN_DETAIL_FAILED("TN-4005", "Failed to fetch ben details"),
+    MISSING_BEN_DETAILS("TN-4006", "Required ben details are missing"),
 
     CURRENCY_CONVERSION_FAIL("TN-4100", "Currency conversion failed."),
     INVALID_PURPOSE_CODE("TN-4101", "Invalid payment purpose passed "),
@@ -116,8 +119,14 @@ public enum TransferErrorCode implements ErrorCode {
     EXTERNAL_SERVICE_ERROR_MW("TN-8003", "Something went wrong with middleware service"),
     INVALID_EVENT_TYPE_CODE("TN-8004","Invalid event code"),
 
-    SMS_NOTIFICATION_FAILED("SMS_9001","Failed to send sms notification")
+    SMS_NOTIFICATION_FAILED("SMS_9001","Failed to send sms notification"),
 
+    FT_CC_NOT_BELONG_TO_CIF("TN-8005", "CC does not belong to CIF"),
+    FT_CC_MW_ERROR("TN-8006","Error is occurred while calling middleware for Fund Transfer via CC"),
+    FT_CC_MW_EMPTY_RESPONSE("TN-8007","Null response from middleware for Fund Transfer via CC"),
+    FT_CC_MW_ERROR_RESPONSE("TN-8008","Error response from middleware for Fund Transfer via CC"),
+    FT_CC_NO_DEALS("TN-8008","No credit cards deals are available for the given cif"),
+    FT_CC_BALANCE_NOT_SUFFICIENT("TN-8009","No available balance on the given credit card"),
 
     ;
 

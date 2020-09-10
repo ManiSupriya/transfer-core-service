@@ -2,6 +2,8 @@ package com.mashreq.transfercoreservice.swifttracker.service.impl;
 
 import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -29,14 +31,17 @@ public class SwiftMessageMWService {
 	private final HeaderFactory headerFactory;
 	private final SoapServiceProperties soapServiceProperties;
 
-	public Response<Object> getSwiftMessageDetails(RequestMetaData metaData){
+	public Response<Object> getSwiftMessageDetails(RequestMetaData metaData, String startDate, String endDate){
 		log.info("GPI Transaction Details call initiated [ {} ]", htmlEscape(metaData.getPrimaryCif()));
-
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         EAIServices response = (EAIServices) webServiceClient.exchange(generateSwiftMessageEaiServices(metaData));
 		return Response.builder()
                 .status(ResponseStatus.SUCCESS)
                 .data(response.getBody().getGPITransactionsDetailsRes().getGPITransactionsDetails()
                         .stream()
+                        .filter(date -> LocalDate.parse(date.getDate(), formatter)
+                        		.isAfter(LocalDate.parse(startDate, formatter)) && LocalDate.parse(date.getDate(), formatter)
+                        		.isBefore(LocalDate.parse(endDate, formatter)))
                         .map(this::convert)
                         .collect(Collectors.toList()))
                 .build();
