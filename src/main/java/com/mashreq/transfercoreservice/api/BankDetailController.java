@@ -1,18 +1,27 @@
 package com.mashreq.transfercoreservice.api;
 
 
-import com.mashreq.mobcommons.services.http.RequestMetaData;
-import com.mashreq.transfercoreservice.banksearch.BankDetailRequestDto;
-import com.mashreq.transfercoreservice.banksearch.BankDetailService;
-import com.mashreq.webcore.dto.response.Response;
-import com.mashreq.webcore.dto.response.ResponseStatus;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.*;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 import javax.validation.Valid;
 
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.mashreq.mobcommons.services.http.RequestMetaData;
+import com.mashreq.transfercoreservice.banksearch.BankDetailRequestDto;
+import com.mashreq.transfercoreservice.banksearch.BankDetailService;
+import com.mashreq.transfercoreservice.banksearch.SwiftBankDetailRequestDto;
+import com.mashreq.webcore.dto.response.Response;
+import com.mashreq.webcore.dto.response.ResponseStatus;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author shahbazkh
@@ -27,6 +36,22 @@ public class BankDetailController {
 
     private final BankDetailService bankDetailService;
 
+    
+    @GetMapping
+    public Response getSwiftBankDetails(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData metaData,
+                                   @Valid @RequestBody SwiftBankDetailRequestDto bankDetailRequest) {
+        log.info("Received request to search bank detail for swift code {} ", htmlEscape(bankDetailRequest.getSwiftCode()));
+        
+        //TODO:- remove after middleware is finalised
+        BankDetailRequestDto bankDetailRequestDto = new BankDetailRequestDto();
+        bankDetailRequestDto.setType("swift");
+        bankDetailRequestDto.setValue(bankDetailRequest.getSwiftCode());
+        bankDetailRequestDto.setCountryCode("IN");
+        return Response.builder()
+                .status(ResponseStatus.SUCCESS)
+                .data(bankDetailService.getBankDetails(metaData.getChannelTraceId(), bankDetailRequestDto, metaData).get(0)).build();
+    }
+    
     @PostMapping
     public Response getBankDetails(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData metaData,
                                    @Valid @RequestBody BankDetailRequestDto bankDetailRequest) {

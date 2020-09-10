@@ -1,7 +1,12 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
-import com.mashreq.esbcore.bindings.customer.mbcdm.RemittancePaymentReqType;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.stereotype.Service;
+
+import com.mashreq.esbcore.bindings.customer.mbcdm.RemittancePaymentReqType;
 import com.mashreq.esbcore.bindings.customer.mbcdm.RoutingCodeType;
 import com.mashreq.esbcore.bindings.customerservices.mbcdm.remittancepayment.EAIServices;
 import com.mashreq.esbcore.bindings.header.mbcdm.ErrorType;
@@ -15,13 +20,9 @@ import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.QuickRemitRes
 import com.mashreq.transfercoreservice.middleware.HeaderFactory;
 import com.mashreq.transfercoreservice.middleware.WebServiceClient;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Slf4j
