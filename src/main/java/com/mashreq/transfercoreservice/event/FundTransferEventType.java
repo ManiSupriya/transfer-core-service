@@ -44,6 +44,8 @@ public enum FundTransferEventType implements EventType {
     PAYMENT_PURPOSE_VALIDATION("FUND_TRANSFER", "Payment Purpose Validation"),
     SAME_ACCOUNT_VALIDATION("FUND_TRANSFER", "Check account credit and deit account should not be same"),
     FUND_TRANSFER_MW_CALL("FUND_TRANSFER", "Call middleware for fund transfer"),
+    FUND_TRANSFER_CC_MW_CALL("FUND_TRANSFER", "Call middleware for fund transfer Credit card as source of fund"),
+    FUND_TRANSFER_CC_CALL("FUND_TRANSFER", "Fund transfer Credit card as source of fund"),
     QR_FUND_TRANSFER_MW_CALL("FUND_TRANSFER", "Call middleware for quick remit fund transfer"),
     LIMIT_VALIDATION("FUND_TRANSFER", "Call mob common to validate the spend limit"),
     MIN_LIMIT_VALIDATION("FUND_TRANSFER", "Call serviceType to get min amount"),
