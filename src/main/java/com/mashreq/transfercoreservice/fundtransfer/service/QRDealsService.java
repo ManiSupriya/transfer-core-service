@@ -6,5 +6,5 @@ public interface QRDealsService {
 
     QRDealDetails getQRDealDetails(String cif, String country);
 
-    void updateQRDeals(String cif, Integer utilizedAmount);
+    void updateQRDeals(String cif, Float utilizedAmount);
 }

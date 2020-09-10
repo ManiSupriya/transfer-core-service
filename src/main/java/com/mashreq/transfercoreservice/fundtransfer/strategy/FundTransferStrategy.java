@@ -46,16 +46,4 @@ public interface FundTransferStrategy {
         return coreCurrencyConversionRequestDto ;
     }
 
-
-    default CardDetailsDTO getSelectedCreditCard(List<CardDetailsDTO> coreCardAccounts, String cardNo) {
-        CardDetailsDTO cardDetailsDTO = null;
-        for(CardDetailsDTO curr : coreCardAccounts){
-            if(curr.getCardNo().equalsIgnoreCase(cardNo)) {
-                cardDetailsDTO = curr;
-                break;
-            }
-        }
-        return cardDetailsDTO;
-    }
-
 }

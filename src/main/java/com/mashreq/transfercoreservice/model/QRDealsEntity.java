@@ -25,7 +25,7 @@ public class QRDealsEntity {
     private Integer totalLimitAmount;
 
     @Column(name = "utilized_amount")
-    private Integer utilizedLimitAmount;
+    private Float utilizedLimitAmount;
 
     @Column(name = "eligibility_start_date")
     private Date eligibilityStartDate;

@@ -92,19 +92,17 @@ app:
     passPhrase: lkoiuytreaghjknvgtsfgdhelaopghen
     narration: Transfer Core Banking
     srvCode: TFT
-    service:
-      ftcc:
-        srvCode: TFTCC
-        userId: ${SRV_TFTCC_REGISTRATION_USER_ID:MOBANKUSER}
   ftcc:
-    merchantId: 000008026734
-    terminalId: 20091124
-    authStatus: A
-    acwthInst5: UNITED ARAB EMIRATES
-    amountTag: TFR_AMT
-    messageThrough: U
-    transTypeCode: FAM
-    srvCode: TFTCC
+    merchantId: ${TFTCC_MERCHANT_ID:000008026734}
+    terminalId: ${TFTCC_TERMINAL_ID:20091124}
+    authStatus: ${TFTCC_AUTH_STATUS:A}
+    amountTag: ${TFTCC_AMOUNT_TAG:TFR_AMT}
+    messageThrough: ${TFTCC_MESSAGE_THROUGH:U}
+    transTypeCode: ${TFTCC_TRANSFER_TYPE_CODE:FAM}
+    srvCode: ${TFTCC_SERVICE_CODE:TFTCC}
+    productCode: ${TFTCC_PRODUCT_CODE:PACC}
+    debitAccountNo: ${TFTCC_DEBIT_ACCOUNT_NO:011099270455}
+    bankReferenceNo: ${TFTCC_BANK_REFERENCE_NO:363c5a1abb}
 
 
 redis:

@@ -28,10 +28,10 @@ public class QRDealsServiceImpl implements  QRDealsService{
 
     // TODO need to confirm whether throw an exception or not.
     @Override
-    public void updateQRDeals(String cif, Integer utilizedAmount) {
+    public void updateQRDeals(String cif, Float utilizedAmount) {
         QRDealsEntity qrDealsEntity = qrDealRepository.findDealsByCif(cif);
         if(qrDealsEntity != null) {
-            qrDealsEntity.setUtilizedLimitAmount(utilizedAmount.intValue());
+            qrDealsEntity.setUtilizedLimitAmount(utilizedAmount);
             qrDealRepository.save(qrDealsEntity);
         }
     }

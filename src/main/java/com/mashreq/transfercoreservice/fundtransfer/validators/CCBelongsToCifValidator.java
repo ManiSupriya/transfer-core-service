@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
+import com.mashreq.encryption.encryptor.EncryptionService;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.CardDetailsDTO;
@@ -25,6 +26,7 @@ import static org.springframework.web.util.HtmlUtils.htmlEscape;
 public class CCBelongsToCifValidator implements Validator {
 
     private final AsyncUserEventPublisher auditEventPublisher;
+    private final EncryptionService encryptionService = new EncryptionService();
 
     @Override
     public ValidationResult validate(FundTransferRequestDTO request, RequestMetaData metadata, ValidationContext context) {
@@ -34,16 +36,16 @@ public class CCBelongsToCifValidator implements Validator {
         final List<CardDetailsDTO> accounts = context.get("account-details", List.class);
         final Boolean validateToAccount = context.get("validate-to-account", Boolean.class);
 
-
-        if (validateToAccount != null && validateToAccount && !isAccountNumberBelongsToCif(accounts, request.getToAccount())) {
+        // TODO Need to confirm with Soma
+        /*if (validateToAccount != null && validateToAccount && !isCCBelongsToCif(accounts, request.getToAccount())) {
             auditEventPublisher.publishFailureEvent(ACCOUNT_BELONGS_TO_CIF, metadata, null,
                     ACCOUNT_NOT_BELONG_TO_CIF.getErrorMessage(), ACCOUNT_NOT_BELONG_TO_CIF.getErrorMessage(), null);
             return prepareValidationResult(Boolean.FALSE);
-        }
+        }*/
 
         final Boolean validateFromAccount = context.get("validate-from-account", Boolean.class);
 
-        if (validateFromAccount != null && validateFromAccount && !isAccountNumberBelongsToCif(accounts, request.getCardNo())) {
+        if (validateFromAccount != null && validateFromAccount && !isCCBelongsToCif(accounts, request.getCardNo())) {
             auditEventPublisher.publishFailureEvent(ACCOUNT_BELONGS_TO_CIF, metadata, null,
                     ACCOUNT_NOT_BELONG_TO_CIF.getErrorMessage(), ACCOUNT_NOT_BELONG_TO_CIF.getCustomErrorCode(), null);
             return prepareValidationResult(Boolean.FALSE);
@@ -55,10 +57,13 @@ public class CCBelongsToCifValidator implements Validator {
         return prepareValidationResult(Boolean.TRUE);
     }
 
-    private boolean isAccountNumberBelongsToCif(List<CardDetailsDTO> coreAccounts, String cardNo) {
+    private boolean isCCBelongsToCif(List<CardDetailsDTO> coreAccounts, String encryptedCardNo) {
         boolean isMatch = false;
-        for(CardDetailsDTO cardDetailsDTO : coreAccounts){
-            if(cardDetailsDTO.getCardNo().equalsIgnoreCase(cardNo)){
+        String decryptedCardNo;
+        String givenDecryptedCardNo = encryptionService.decrypt(encryptedCardNo);
+        for(CardDetailsDTO currCardDetails : coreAccounts){
+            decryptedCardNo = encryptionService.decrypt(currCardDetails.getEncryptedCardNumber());
+            if(decryptedCardNo.equalsIgnoreCase(givenDecryptedCardNo)){
                 isMatch = true;
                 break;
             }

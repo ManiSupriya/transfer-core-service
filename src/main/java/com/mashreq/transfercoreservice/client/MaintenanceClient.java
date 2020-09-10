@@ -1,6 +1,7 @@
 package com.mashreq.transfercoreservice.client;
 
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
+import com.mashreq.transfercoreservice.client.dto.CoreCurrencyDto;
 import com.mashreq.transfercoreservice.client.dto.CountryMasterDto;
 import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.config.feign.FeignConfig;
@@ -38,7 +39,8 @@ public interface MaintenanceClient {
     @GetMapping("/api/deal-enquiry/{dealNumber}")
     public ResponseEntity<Response<DealEnquiryDto>> getFXDealInformation( @ApiParam("FX Deal Number")  @NotEmpty @PathVariable("dealNumber") String dealNumber);
 
-
+    @GetMapping("/api/currencies/{region}")
+    Response<List<CoreCurrencyDto>> getAllCurrencies(@PathVariable final String region);
 
 
 }

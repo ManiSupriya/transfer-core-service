@@ -10,8 +10,8 @@ import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
 import com.mashreq.transfercoreservice.config.FTCCConfig;
+import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.ErrorCodeSet;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.middleware.HeaderFactory;
@@ -28,12 +28,20 @@ import java.math.BigDecimal;
 import static com.mashreq.transfercoreservice.middleware.SoapWebserviceClientFactory.soapClient;
 import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
+
+/**
+ * This class is used to call the middle ware to process the Credit cards Fund Transfer request
+ *
+ * @author ThanigachalamP
+ */
 @Slf4j
 @Service
 @AllArgsConstructor
 public class FundTransferCCMWService {
 
 
+    public static final String HYPEN_DELIMITER = "-";
+    public static final String FUND_TRANSFER_USING_CC = "Fund Transfer using CC";
     private final HeaderFactory headerFactory;
     private final SoapServiceProperties soapServiceProperties;
     private final FTCCConfig ftCCConfig;
@@ -45,8 +53,14 @@ public class FundTransferCCMWService {
 
     public static final String DEBIT_ACCOUNT_BRANCH = "030";
 
+    /**
+     * used to call the middle ware to process the Credit cards Fund Transfer request
+     * @param fundTransferRequest
+     * @param requestMetaData
+     * @return
+     */
     public FundTransferResponse transfer(FundTransferRequest fundTransferRequest, RequestMetaData requestMetaData) {
-        log.info("Fund transfer initiated from account [ {} ]", htmlEscape(fundTransferRequest.getFromAccount()));
+        log.info("Fund transfer CC initiated from account [ {} ]", htmlEscape(fundTransferRequest.getFromAccount()));
         String mwSrcMsgId = null;
         SoapClient mobSoapClient;
         EAIServices soapResponse;
@@ -69,7 +83,7 @@ public class FundTransferCCMWService {
             EAIServices eaiServices = generateEAIRequest(fundTransferRequest, requestMetaData, mwSrcMsgId);
             soapResponse = (EAIServices) mobSoapClient.exchange(eaiServices);
             if (soapResponse == null || soapResponse.getBody() == null) {
-                logPublishFailureEvent(requestMetaData, FundTransferEventType.FUND_TRANSFER_CC_MW_CALL, ErrorCodeSet.FTCC0002,
+                logPublishFailureEvent(requestMetaData, FundTransferEventType.FUND_TRANSFER_CC_MW_CALL, TransferErrorCode.FT_CC_MW_EMPTY_RESPONSE,
                         null, mwSrcMsgId, remarks);
             }
             body = soapResponse.getBody();
@@ -88,48 +102,25 @@ public class FundTransferCCMWService {
                 return FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
             }
         }catch (Exception exception){
-                logPublishFailureEvent(requestMetaData, FundTransferEventType.FUND_TRANSFER_CC_MW_CALL, ErrorCodeSet.FTCC0001, exception, mwSrcMsgId, remarks);
+                logPublishFailureEvent(requestMetaData, FundTransferEventType.FUND_TRANSFER_CC_MW_CALL, TransferErrorCode.FT_CC_MW_ERROR, exception, mwSrcMsgId, remarks);
         }
         return null;
     }
 
-
-    private void logPublishFailureEvent(RequestMetaData requestMetaData , FundTransferEventType auditEventType,
-                                        ErrorCodeSet errorCodeSet, Exception exception, String mwSrcMsgId, String remarks){
-        auditEventPublisher.publishFailedEsbEvent(auditEventType, requestMetaData, remarks,mwSrcMsgId,
-                errorCodeSet.name(), errorCodeSet.getErrorDesc(), errorCodeSet.getErrorDesc());
-        if(exception == null){
-            GenericExceptionHandler.handleError(errorCodeSet,errorCodeSet.getErrorDesc());
-        }
-        GenericExceptionHandler.handleError(errorCodeSet,errorCodeSet.getErrorDesc(), exception);
-    }
-
-
-    private boolean isSuccess(EAIServices response) {
+    /**
+     * Used to validate the middle ware response whether it is a success or failure
+     * @param response
+     * @return
+     */
+   private boolean isSuccess(EAIServices response) {
         log.info("Validate response {}", response);
         if (!(StringUtils.endsWith(response.getBody().getExceptionDetails().getErrorCode(), SUCCESS_CODE_ENDS_WITH)
                 && SUCCESS.equals(response.getHeader().getStatus()))) {
-            log.error("Exception during fund transfer. Code: {} , Description: {}", response.getBody()
+            log.error("FT CC Exception during fund transfer. Code: {} , Description: {}", response.getBody()
                     .getExceptionDetails().getErrorCode(), response.getBody().getExceptionDetails().getData());
-
             return false;
         }
         return true;
-    }
-
-    private String getRemarks(FundTransferRequest request) {
-        return String.format("From Account = %s, To Account = %s, Amount = %s, SrcAmount= %s, Destination Currency = %s, Source Currency = %s," +
-                        " Financial Transaction Number = %s, Beneficiary full name = %s, Swift code= %s, Beneficiary bank branch = %s ",
-                request.getFromAccount(),
-                request.getToAccount(),
-                request.getAmount(),
-                request.getSrcAmount(),
-                request.getDestinationCurrency(),
-                request.getSourceCurrency(),
-                request.getFinTxnNo(),
-                request.getBeneficiaryFullName(),
-                request.getAwInstBICCode(),
-                request.getAwInstName());
     }
 
     // TODO need to verify
@@ -149,76 +140,23 @@ public class FundTransferCCMWService {
         return coreFundTransferResponseDto;
     }
 
+    /**
+     * Used to build the request model for the middle ware
+     * @param fundTransferRequest
+     * @param requestMetaData
+     * @param mwSrcMsgId
+     * @return
+     */
     public EAIServices generateEAIRequest(FundTransferRequest fundTransferRequest, RequestMetaData requestMetaData, String mwSrcMsgId) {
 
         EAIServices services = new EAIServices();
-
         services.setHeader(headerFactory.getHeader(ftCCConfig.getSrvCode(), mwSrcMsgId));
         services.setBody(new EAIServices.Body());
-
-        //Setting individual components
         FundTransferCCReqType fundTransferReqType = new FundTransferCCReqType();
-
         FundTransferCCReqType.CreditLeg creditLeg = new FundTransferCCReqType.CreditLeg();
         FundTransferCCReqType.DebitLeg debitLeg = new FundTransferCCReqType.DebitLeg();
-        FundTransferCCReqType.CreditLeg.SettlementAddlDetails settlementAddlDetails =
-                new FundTransferCCReqType.CreditLeg.SettlementAddlDetails();
-        FundTransferCCReqType.CreditLeg.SettlementAddlDetails.SettlementAddlMain settlementAddlMain =
-                new FundTransferCCReqType.CreditLeg.SettlementAddlDetails.SettlementAddlMain();
-
-
-        testDataForDebitLeg(debitLeg);
-        testDataForCreditLeg(creditLeg);
-        testDataForSettlementAddlMain(settlementAddlDetails);
-
-
-        /*debitLeg.setCardNumber(fundTransferRequest.getCardNo());
-        debitLeg.setBankRef("363c5a1abb");
-        debitLeg.setAmountSRCCurrency("10.00");
-        // call other service to get the exact currency
-        debitLeg.setSRCISOCurrency(fundTransferRequest.getSourceISOCurrency());
-        debitLeg.setAmountDESTCurrency(fundTransferRequest.getDestinationCurrency());
-        debitLeg.setDESTISOCurrency(fundTransferRequest.getDestinationISOCurrency());
-        debitLeg.setExpiryYear("2021");
-        debitLeg.setExpiryMonth("11");
-        debitLeg.setMerchantId(ftCCConfig.getMerchantId());
-        debitLeg.setTerminalId(ftCCConfig.getTerminalId());
-        debitLeg.setCIFNo(requestMetaData.getPrimaryCif());
-
-        creditLeg.setExternalReferenceNo("363c5a1abb");
-        creditLeg.setProductCode("PACC");
-        creditLeg.setExchangeRate(convertToString(fundTransferRequest.getExchangeRate()));
-        creditLeg.setRemarks("Local Transfer using CC");
-        creditLeg.setDebitAccountNo(fundTransferRequest.getFromAccount());
-        creditLeg.setDebitAccountBranch(DEBIT_ACCOUNT_BRANCH);
-        creditLeg.setDebitAmount(convertToString(fundTransferRequest.getAmount()));
-        creditLeg.setDebitCurrency(fundTransferRequest.getSourceCurrency());
-        creditLeg.setDebitCurrency("AED");
-        creditLeg.setCreditAmount(fundTransferRequest.getToAccount());
-        creditLeg.setCreditCurrency(fundTransferRequest.getDestinationCurrency());
-        creditLeg.setCreditCurrency("AED");
-        creditLeg.setAuthStatus(ftCCConfig.getAuthStatus());
-        creditLeg.setUltimateBeneficiary1(fundTransferRequest.getBeneficiaryFullName());
-        creditLeg.setUltimateBeneficiary2(fundTransferRequest.getBeneficiaryFullName());
-        creditLeg.setUltimateBeneficiary4(fundTransferRequest.getBeneficiaryFullName());
-        creditLeg.setChargeBearer(fundTransferRequest.getChargeBearer());
-        creditLeg.setPaymentDetails1(PAYMENT_DETAIL_PREFIX + fundTransferRequest.getPurposeDesc());
-        creditLeg.setAcwthInst1(fundTransferRequest.getBeneficiaryAddressOne());
-        creditLeg.setAcwthInst1("EBILAEADXXX");
-        creditLeg.setAcwthInst2(fundTransferRequest.getBeneficiaryAddressTwo());
-        creditLeg.setAcwthInst5(ftCCConfig.getAcwthInst5());
-        creditLeg.setMisDetails(null);
-        settlementAddlDetails.setAmountTag(ftCCConfig.getAmountTag());
-        settlementAddlMain.setOrderingCustomerAddress1(fundTransferRequest.getBeneficiaryAddressOne());
-        settlementAddlMain.setOrderingCustomerAddress2(fundTransferRequest.getBeneficiaryAddressTwo());
-        settlementAddlMain.setOrderingCustomerAddress3(fundTransferRequest.getBeneficiaryAddressThree());
-        settlementAddlMain.setOrderingCustomerAddress4("TEST_CUSTOMER_010626928");
-        settlementAddlMain.setOrderingCustomerAddress5("TEST_CUSTOMER_010626928");
-        settlementAddlMain.setMessageThrough(ftCCConfig.getMessageThrough());
-        settlementAddlMain.setAmountTag(ftCCConfig.getAmountTag());
-        settlementAddlMain.setTransTypeCode(ftCCConfig.getTransTypeCode());
-        settlementAddlDetails.setSettlementAddlMain(settlementAddlMain);*/
-        creditLeg.setSettlementAddlDetails(settlementAddlDetails);
+        buildDebitLeg(fundTransferRequest, requestMetaData, debitLeg);
+        buildCreditLeg(fundTransferRequest, mwSrcMsgId, creditLeg, requestMetaData);
         fundTransferReqType.setDebitLeg(debitLeg);
         fundTransferReqType.setCreditLeg(creditLeg);
         services.getBody().setFundTransferCCReq(fundTransferReqType);
@@ -226,6 +164,77 @@ public class FundTransferCCMWService {
         return services;
     }
 
+    /**
+     * Used to build the credit leg as part of middle ware request
+     * @param fundTransferRequest
+     * @param mwSrcMsgId
+     * @param creditLeg
+     * @param requestMetaData
+     */
+    private void buildCreditLeg(FundTransferRequest fundTransferRequest, String mwSrcMsgId, FundTransferCCReqType.CreditLeg creditLeg, RequestMetaData requestMetaData) {
+        FundTransferCCReqType.CreditLeg.SettlementAddlDetails settlementAddlDetails =
+                new FundTransferCCReqType.CreditLeg.SettlementAddlDetails();
+        FundTransferCCReqType.CreditLeg.SettlementAddlDetails.SettlementAddlMain settlementAddlMain =
+                new FundTransferCCReqType.CreditLeg.SettlementAddlDetails.SettlementAddlMain();
+
+        creditLeg.setExternalReferenceNo(mwSrcMsgId);
+        creditLeg.setProductCode(ftCCConfig.getProductCode());
+        creditLeg.setExchangeRate(convertToString(fundTransferRequest.getExchangeRate()));
+        creditLeg.setRemarks(FUND_TRANSFER_USING_CC);
+        creditLeg.setDebitAccountNo(ftCCConfig.getDebitAccountNo());
+        creditLeg.setDebitAccountBranch(DEBIT_ACCOUNT_BRANCH);
+        creditLeg.setDebitAmount(convertToString(fundTransferRequest.getAmount()));
+        creditLeg.setDebitCurrency(fundTransferRequest.getSourceCurrency());
+        creditLeg.setCreditAmount(convertToString(fundTransferRequest.getAmount()));
+        creditLeg.setCreditCurrency(fundTransferRequest.getDestinationCurrency());
+        creditLeg.setAuthStatus(ftCCConfig.getAuthStatus());
+        creditLeg.setUltimateBeneficiary1(fundTransferRequest.getBeneficiaryFullName());
+        creditLeg.setUltimateBeneficiary2(fundTransferRequest.getBeneficiaryFullName());
+        creditLeg.setUltimateBeneficiary4(fundTransferRequest.getBeneficiaryFullName());
+        creditLeg.setChargeBearer(fundTransferRequest.getChargeBearer());
+        creditLeg.setPaymentDetails1(PAYMENT_DETAIL_PREFIX + fundTransferRequest.getPurposeDesc());
+        creditLeg.setAcwthInst1(fundTransferRequest.getAcwthInst1());
+        creditLeg.setAcwthInst2(fundTransferRequest.getAcwthInst2());
+        creditLeg.setAcwthInst5(fundTransferRequest.getAcwthInst5());
+        creditLeg.setMisDetails(null);
+
+        settlementAddlDetails.setAmountTag(ftCCConfig.getAmountTag());
+        settlementAddlMain.setOrderingCustomerAddress1(fundTransferRequest.getToAccount());
+        settlementAddlMain.setOrderingCustomerAddress2(requestMetaData.getPrimaryCif());
+        settlementAddlMain.setOrderingCustomerAddress3(fundTransferRequest.getBeneficiaryAddressTwo());
+        settlementAddlMain.setOrderingCustomerAddress4(fundTransferRequest.getBeneficiaryAddressTwo());
+        settlementAddlMain.setOrderingCustomerAddress5(fundTransferRequest.getBeneficiaryAddressTwo());
+        settlementAddlMain.setMessageThrough(ftCCConfig.getMessageThrough());
+        settlementAddlMain.setAmountTag(ftCCConfig.getAmountTag());
+        settlementAddlMain.setTransTypeCode(ftCCConfig.getTransTypeCode());
+        settlementAddlDetails.setSettlementAddlMain(settlementAddlMain);
+        creditLeg.setSettlementAddlDetails(settlementAddlDetails);
+    }
+
+    /**
+     * Used to build the debit leg as part of middle ware request
+     * @param fundTransferRequest
+     * @param requestMetaData
+     * @param debitLeg
+     */
+    private void buildDebitLeg(FundTransferRequest fundTransferRequest, RequestMetaData requestMetaData, FundTransferCCReqType.DebitLeg debitLeg) {
+        debitLeg.setCardNumber(fundTransferRequest.getCardNo());
+        debitLeg.setBankRef(ftCCConfig.getBankReferenceNo());
+        debitLeg.setAmountSRCCurrency(convertToString(fundTransferRequest.getAmount()));
+        debitLeg.setSRCISOCurrency(fundTransferRequest.getSourceISOCurrency());
+        debitLeg.setAmountDESTCurrency(convertToString(fundTransferRequest.getAmount()));
+        debitLeg.setDESTISOCurrency(fundTransferRequest.getDestinationISOCurrency());
+        updateExpiryDetails(fundTransferRequest, debitLeg);
+        debitLeg.setMerchantId(ftCCConfig.getMerchantId());
+        debitLeg.setTerminalId(ftCCConfig.getTerminalId());
+        debitLeg.setCIFNo(requestMetaData.getPrimaryCif());
+    }
+
+    /**
+     * Utility which is used to convert from Big decimal to String
+     * @param bigDecimal
+     * @return
+     */
     private String convertToString(BigDecimal bigDecimal){
         String value = null;
         if(bigDecimal != null){
@@ -234,11 +243,16 @@ public class FundTransferCCMWService {
         return value;
     }
 
+    /**
+     * Used to update the expiry month and year from the card expiry date
+     * @param fundTransferRequest
+     * @param debitLeg
+     */
     private void updateExpiryDetails(FundTransferRequest fundTransferRequest, FundTransferCCReqType.DebitLeg debitLeg){
         String expiryDate = fundTransferRequest.getExpiryDate();
         String[] splitValues;
         if(expiryDate != null && expiryDate.trim().length() > 0){
-            splitValues = expiryDate.split("-");
+            splitValues = expiryDate.split(HYPEN_DELIMITER);
             if(splitValues.length == 3){
                 debitLeg.setExpiryYear(splitValues[0]);
                 debitLeg.setExpiryMonth(splitValues[1]);
@@ -246,57 +260,38 @@ public class FundTransferCCMWService {
         }
     }
 
-    private void testDataForDebitLeg(FundTransferCCReqType.DebitLeg debitLeg){
-        debitLeg.setCardNumber("524137******9908");
-        debitLeg.setBankRef("363c5a1abb");
-        debitLeg.setAmountSRCCurrency("10.00");
-        // call other service to get the exact currency
-        debitLeg.setSRCISOCurrency("784");
-        debitLeg.setAmountDESTCurrency("10.00");
-        debitLeg.setDESTISOCurrency("784");
-        debitLeg.setExpiryYear("2021");
-        debitLeg.setExpiryMonth("11");
-        debitLeg.setMerchantId("000008026734");
-        debitLeg.setTerminalId("20091124");
-        debitLeg.setCIFNo("010626928");
+    /**
+     * Log the failure event and throws an exception with proper error code
+     * @param requestMetaData
+     * @param auditEventType
+     * @param errorCodeSet
+     * @param exception
+     * @param mwSrcMsgId
+     * @param remarks
+     */
+    private void logPublishFailureEvent(RequestMetaData requestMetaData , FundTransferEventType auditEventType,
+                                        TransferErrorCode errorCodeSet, Exception exception, String mwSrcMsgId, String remarks){
+        auditEventPublisher.publishFailedEsbEvent(auditEventType, requestMetaData, remarks,mwSrcMsgId,
+                errorCodeSet.name(), errorCodeSet.getErrorMessage(), errorCodeSet.getErrorMessage());
+        if(exception == null){
+            GenericExceptionHandler.handleError(errorCodeSet,errorCodeSet.getErrorMessage());
+        }
+        GenericExceptionHandler.handleError(errorCodeSet,errorCodeSet.getErrorMessage(), exception);
     }
 
-    private void testDataForCreditLeg(FundTransferCCReqType.CreditLeg creditLeg){
-        creditLeg.setExternalReferenceNo("3237gf6666");
-        creditLeg.setProductCode("PACC");
-        creditLeg.setExchangeRate("");
-        creditLeg.setRemarks("Local Transfer using CC");
-        creditLeg.setDebitAccountNo("011099270455");
-        creditLeg.setDebitAccountBranch(DEBIT_ACCOUNT_BRANCH);
-        creditLeg.setDebitAmount("10.00");
-        creditLeg.setDebitCurrency("AED");
-        creditLeg.setCreditAmount("10.00");
-        creditLeg.setCreditCurrency("AED");
-        creditLeg.setAuthStatus("A");
-        creditLeg.setUltimateBeneficiary1("AE140260001014232408901");
-        creditLeg.setUltimateBeneficiary2("Test local");
-        creditLeg.setUltimateBeneficiary4("UNITED ARAB EMIRATES");
-        creditLeg.setChargeBearer("O");
-        creditLeg.setPaymentDetails1("/REF/ Family Support");
-        creditLeg.setAcwthInst1("EBILAEADXXX");
-        creditLeg.setAcwthInst2("EMIRATESNBD BANK PJSC");
-        creditLeg.setAcwthInst5("UNITED ARAB EMIRATES");
-        creditLeg.setMisDetails(null);
-    }
-
-    private void testDataForSettlementAddlMain(FundTransferCCReqType.CreditLeg.SettlementAddlDetails settlementAddlDetails){
-        FundTransferCCReqType.CreditLeg.SettlementAddlDetails.SettlementAddlMain settlementAddlMain =
-                new FundTransferCCReqType.CreditLeg.SettlementAddlDetails.SettlementAddlMain();
-        settlementAddlDetails.setAmountTag("TFR_AMT");
-        settlementAddlMain.setOrderingCustomerAddress1("AE700330000011099270455");
-        settlementAddlMain.setOrderingCustomerAddress2("010626928");
-        settlementAddlMain.setOrderingCustomerAddress3("TEST_CUSTOMER_010626928");
-        settlementAddlMain.setOrderingCustomerAddress4("TEST_CUSTOMER_010626928");
-        settlementAddlMain.setOrderingCustomerAddress5("TEST_CUSTOMER_010626928");
-        settlementAddlMain.setMessageThrough("U");
-        settlementAddlMain.setAmountTag("TFR_AMT");
-        settlementAddlMain.setTransTypeCode("FAM");
-        settlementAddlDetails.setSettlementAddlMain(settlementAddlMain);
+    private String getRemarks(FundTransferRequest request) {
+        return String.format("From Account = %s, To Account = %s, Amount = %s, SrcAmount= %s, Destination Currency = %s, Source Currency = %s," +
+                        " Financial Transaction Number = %s, Beneficiary full name = %s, Swift code= %s, Beneficiary bank branch = %s ",
+                request.getFromAccount(),
+                request.getToAccount(),
+                request.getAmount(),
+                request.getSrcAmount(),
+                request.getDestinationCurrency(),
+                request.getSourceCurrency(),
+                request.getFinTxnNo(),
+                request.getBeneficiaryFullName(),
+                request.getAwInstBICCode(),
+                request.getAwInstName());
     }
 
 }

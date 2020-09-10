@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 @Getter @Setter
 public class FTCCConfig {
 
+    private String productCode;
     private String authStatus;
     private String acwthInst5;
     private String amountTag;
@@ -18,4 +19,6 @@ public class FTCCConfig {
     private String merchantId;
     private String terminalId;
     private String srvCode;
+    private String debitAccountNo;
+    private String bankReferenceNo;
 }

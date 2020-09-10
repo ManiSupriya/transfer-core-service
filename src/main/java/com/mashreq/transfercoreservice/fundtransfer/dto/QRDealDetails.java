@@ -19,7 +19,7 @@ public class QRDealDetails implements Serializable {
 
     private Integer totalLimitAmount;
 
-    private Integer utilizedLimitAmount;
+    private Float utilizedLimitAmount;
 
     private Date eligibilityStartDate;
 

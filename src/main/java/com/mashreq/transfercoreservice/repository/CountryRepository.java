@@ -9,4 +9,6 @@ import java.util.Optional;
 @Repository
 public interface CountryRepository extends JpaRepository<Country, Integer> {
 	Optional<Country> findByLocalCurrencyEqualsIgnoreCase(String localCurrency);
+
+	Optional<Country> findByIsoCode2(String isoCode2);
 }

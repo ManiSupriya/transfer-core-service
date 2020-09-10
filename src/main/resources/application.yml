@@ -110,6 +110,17 @@ app:
     serviceId: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_SERVICEID:91}
     callCenterNo: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_CALL_CENTER_NO:04 424 6666}
     ownAccountTransactionInitiated: ${OWN_ACCOUNT_SMS:Request received through Mashreq Mobile for a Fund Transfer of {0} {1} with {2}. Contact {3} if you did not initiate this.}
+  ftcc:
+    merchantId: ${TFTCC_MERCHANT_ID:000008026734}
+    terminalId: ${TFTCC_TERMINAL_ID:20091124}
+    authStatus: ${TFTCC_AUTH_STATUS:A}
+    amountTag: ${TFTCC_AMOUNT_TAG:TFR_AMT}
+    messageThrough: ${TFTCC_MESSAGE_THROUGH:U}
+    transTypeCode: ${TFTCC_TRANSFER_TYPE_CODE:FAM}
+    srvCode: ${TFTCC_SERVICE_CODE:TFTCC}
+    productCode: ${TFTCC_PRODUCT_CODE:PACC}
+    debitAccountNo: ${TFTCC_DEBIT_ACCOUNT_NO:011099270455}
+    bankReferenceNo: ${TFTCC_BANK_REFERENCE_NO:363c5a1abb}
 
 instarem:
   rules:

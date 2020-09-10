@@ -40,4 +40,7 @@ public class FundTransferRequest {
     private String expiryDate;
     private String sourceISOCurrency;
     private String destinationISOCurrency;
+    private String acwthInst1;
+    private String acwthInst2;
+    private String acwthInst5;
 }
