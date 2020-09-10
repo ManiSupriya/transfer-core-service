@@ -1,7 +1,8 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
 import com.mashreq.esbcore.bindings.customer.mbcdm.RemittancePaymentReqType;
-import com.mashreq.esbcore.bindings.customer.mbcdm.RemittancePaymentReqType.RoutingCode;
+
+import com.mashreq.esbcore.bindings.customer.mbcdm.RoutingCodeType;
 import com.mashreq.esbcore.bindings.customerservices.mbcdm.remittancepayment.EAIServices;
 import com.mashreq.esbcore.bindings.header.mbcdm.ErrorType;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
@@ -88,7 +89,7 @@ public class QuickRemitFundTransferMWService {
         EAIServices services = new EAIServices();
         services.setHeader(headerFactory.getHeader(request.getServiceCode(), request.getChannelTraceId()));
         services.setBody(new EAIServices.Body());
-
+        List<RoutingCodeType> routingCodeTypeList;
         //Setting individual components for IN and PK
         RemittancePaymentReqType remittancePaymentReq = new RemittancePaymentReqType();
         remittancePaymentReq.setPaymentID(request.getFinTxnNo());
@@ -142,7 +143,10 @@ public class QuickRemitFundTransferMWService {
         remittancePaymentReq.setSenderBeneficiaryRelationShip(request.getSenderBeneficiaryRelationship());
         remittancePaymentReq.setSenderSourceOfIncome(request.getSenderSourceOfIncome());
         remittancePaymentReq.setProductCode(request.getProductCode());
-        remittancePaymentReq.setRoutingCode(getRoutingCode(request));
+        routingCodeTypeList = getRoutingCode(request);
+        if(routingCodeTypeList != null) {
+            remittancePaymentReq.getRoutingCode().addAll(routingCodeTypeList);
+        }
         remittancePaymentReq.setPaymentNarration(request.getPaymentNarration());
         remittancePaymentReq.setBCity(request.getBeneficiaryCity());
         remittancePaymentReq.setBPinCode(request.getBeneficiaryPinCode());
@@ -155,14 +159,14 @@ public class QuickRemitFundTransferMWService {
         return services;
     }
 
-    private List<RoutingCode> getRoutingCode(QuickRemitFundTransferRequest request) {
+    private List<RoutingCodeType> getRoutingCode(QuickRemitFundTransferRequest request) {
         return CollectionUtils.isNotEmpty(request.getRoutingCode())
                 ? request.getRoutingCode().stream().map(routingCode -> mapRoutingCode(routingCode)).collect(Collectors.toList())
                 : null;
     }
 
-    private RoutingCode mapRoutingCode(com.mashreq.transfercoreservice.fundtransfer.dto.RoutingCode x) {
-        RoutingCode routingCode = new RoutingCode();
+    private RoutingCodeType mapRoutingCode(com.mashreq.transfercoreservice.fundtransfer.dto.RoutingCode x) {
+        RoutingCodeType routingCode = new RoutingCodeType();
         routingCode.setType(x.getType());
         routingCode.setValue(x.getValue());
         return routingCode;
