@@ -12,6 +12,6 @@ import com.mashreq.webcore.dto.response.Response;
 
 public interface SwiftTrackerService {
 	SWIFTGPITransactionDetailsRes swiftGPITransactionDetails(RequestMetaData metaData, SWIFTGPITransactionDetailsReq swiftGpiTransactionDetailsReq);
-	Response<List<GPITransactionsDetailsRes>> getSwiftMessageDetails(RequestMetaData metaData);
+	Response<List<GPITransactionsDetailsRes>> getSwiftMessageDetails(RequestMetaData metaData, String startDate, String endDate);
 
 }
