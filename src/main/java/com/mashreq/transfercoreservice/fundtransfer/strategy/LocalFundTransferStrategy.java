@@ -269,7 +269,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         // Only if MW request is success, then update the utilized amount
         if(fundTransferResponse.getResponseDto().getMwResponseStatus() == MwResponseStatus.S) {
             // update the utilised amount in the db
-            utilizedAmount = utilizedAmount + requestedAmount.intValue();
+            utilizedAmount = utilizedAmount + requestedAmount.floatValue();
             qrDealsService.updateQRDeals(cif, utilizedAmount);
             log.info("Fund transfer CC updated QR deals utilized amount " + cif);
         }
