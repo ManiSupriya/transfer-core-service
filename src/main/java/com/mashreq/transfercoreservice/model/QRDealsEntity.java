@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Getter @Setter
@@ -22,10 +23,10 @@ public class QRDealsEntity {
     private String eligibleCountries;
 
     @Column(name = "total_limit_amount")
-    private Integer totalLimitAmount;
+    private BigDecimal totalLimitAmount;
 
     @Column(name = "utilized_amount")
-    private Float utilizedLimitAmount;
+    private BigDecimal utilizedLimitAmount;
 
     @Column(name = "eligibility_start_date")
     private Date eligibilityStartDate;
