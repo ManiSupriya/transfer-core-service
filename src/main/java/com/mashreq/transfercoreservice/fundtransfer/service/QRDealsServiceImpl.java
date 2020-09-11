@@ -7,6 +7,8 @@ import com.mashreq.transfercoreservice.repository.QRDealRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 @Service
 public class QRDealsServiceImpl implements  QRDealsService{
 
@@ -28,7 +30,7 @@ public class QRDealsServiceImpl implements  QRDealsService{
 
     // TODO need to confirm whether throw an exception or not.
     @Override
-    public void updateQRDeals(String cif, Float utilizedAmount) {
+    public void updateQRDeals(String cif, BigDecimal utilizedAmount) {
         QRDealsEntity qrDealsEntity = qrDealRepository.findDealsByCif(cif);
         if(qrDealsEntity != null) {
             qrDealsEntity.setUtilizedLimitAmount(utilizedAmount);

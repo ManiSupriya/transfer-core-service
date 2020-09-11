@@ -251,12 +251,11 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
             logAndThrow(FundTransferEventType.FUND_TRANSFER_CC_CALL, TransferErrorCode.FT_CC_NO_DEALS, requestMetaData);
         }
         log.info("Fund transfer CC QR Deals verified "+cif);
-        Integer maximumEligibleAmount = qrDealDetails.getTotalLimitAmount();
-        Float utilizedAmount = qrDealDetails.getUtilizedLimitAmount();
-        Float balancedAmount = maximumEligibleAmount - utilizedAmount;
+        BigDecimal maximumEligibleAmount = qrDealDetails.getTotalLimitAmount();
+        BigDecimal utilizedAmount = qrDealDetails.getUtilizedLimitAmount();
+        BigDecimal balancedAmount = maximumEligibleAmount.min(utilizedAmount);
         BigDecimal requestedAmount  = requestDTO.getAmount();
-        BigDecimal balanceAmount = BigDecimal.valueOf(balancedAmount);
-        int result = balanceAmount.compareTo(requestedAmount);
+        int result = balancedAmount.compareTo(requestedAmount);
         if(result == -1){
             logAndThrow(FundTransferEventType.FUND_TRANSFER_CC_CALL, TransferErrorCode.FT_CC_BALANCE_NOT_SUFFICIENT, requestMetaData);
         }
@@ -269,7 +268,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         // Only if MW request is success, then update the utilized amount
         if(fundTransferResponse.getResponseDto().getMwResponseStatus() == MwResponseStatus.S) {
             // update the utilised amount in the db
-            utilizedAmount = utilizedAmount + requestedAmount.floatValue();
+            utilizedAmount = utilizedAmount.add(requestedAmount);
             qrDealsService.updateQRDeals(cif, utilizedAmount);
             log.info("Fund transfer CC updated QR deals utilized amount " + cif);
         }
