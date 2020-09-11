@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -17,9 +18,9 @@ public class QRDealDetails implements Serializable {
 
     private String eligibleCountries;
 
-    private Integer totalLimitAmount;
+    private BigDecimal totalLimitAmount;
 
-    private Float utilizedLimitAmount;
+    private BigDecimal utilizedLimitAmount;
 
     private Date eligibilityStartDate;
 
