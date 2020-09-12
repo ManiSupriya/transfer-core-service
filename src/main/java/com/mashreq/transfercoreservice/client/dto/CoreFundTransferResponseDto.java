@@ -13,4 +13,5 @@ public class CoreFundTransferResponseDto {
     private String mwReferenceNo;
     private String mwResponseDescription;
     private String externalErrorMessage;
+    private String transactionRefNo;
 }

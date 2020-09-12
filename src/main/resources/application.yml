@@ -43,6 +43,7 @@ esb-service:
   connect-timeout: ${SOAP_SERVICE_CONNECTIONTIMEOUT:15000}
   read-timeout: ${SOAP_SERVICE_READTIMEOUT:30000}
   user-id: ${USER_ID:MOMMUSER}
+  access-token: ${ACCESS_TOKEN:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiJVQlRlc3Q0QG1hc2hyZXFkZXYuY29tIiwiY2hhbm5lbCI6IjJBRUMzNjRGQTg2MUFBMDY3QkYzOTI2QjZBMUQzMTNBIiwiZW1wbG95ZWVJZCI6bnVsbCwiYnJhbmNoIjoiQUQyQTU2QUVCN0FCRjM1QjYwNEZBODI1NzdEMTVCQUEiLCJhdXRob3JpdGllcyI6WyJVYl9Vc2VyIiwiVUJfUE9XRVIiLCJSZXBvcnRpbmdHcm91cCB7ODJkYWU4MDItNmY2Ni00YTBjLTg5ODAtZDA0ZTRhNDE5OWRlfSIsIlJlcG9ydGluZ0dyb3VwIHs4NzQ0YzU2YS01YWI5LTRhODMtOTk2OS0yZWQ1ZjIxMDViYjN9IiwiVUJVQVQiXSwiZW5hYmxlZCI6dHJ1ZSwiY2xpZW50X2lkIjoiYnJhbmNocG9ydGFsIiwiYnJhbmNoQ29kZSI6IkM3MkI0RDU0OTBFNjIwRTg5NUVEQUFDNzBBOEU5NUMzIiwibmJmIjoxNTgyMjA5NjMxLCJzY29wZSI6WyJyZWFkIiwid3JpdGUiLCJpZGVudGl0eSJdLCJuYW1lIjoiNjYxOERGNENCMjhGMjNGMjNGMzI3M0NFQzZGQ0YyMjMiLCJleHAiOjE1ODIyMTY4MzEsImp0aSI6IjAxYTA3YTZjLWQzMDItNDhmMC1iNDQ2LTQwY2I0MTBlY2FhZSIsImVtYWlsIjpudWxsfQ.hnrskgfb8DuP26VVVrrFcNVRXPk3TKSjslzImlw_dtM}
   service-codes:
     fundTransfer: TFT
     ibanSearch: ${ACCUITYIBAN_SERVICE_CODE:QIBANVAL}
@@ -52,6 +53,9 @@ esb-service:
     quickRemitIndia: ${QUICK_REMIT_INDIA:TRTPTIN}
     quickRemitPakistan: ${QUICK_REMIT_INDIA:TRTPTPK}
     quickRemitInstaRem: ${QUICK_REMIT_INDIA:TINSRPMT}
+    searchAccountDetails: ${SEARCH_ACCOUNT_DETAILS:QACCDTL}
+    gpiTransactionDetails: ${GPI_TRANSACTION_DETAILS:QGPITDTL}
+    swiftGpiTransactionDetails: ${SWIFT_GPI_TRANSACTION_DETAILS:QSFGPITDTL}
 
 external:
   error-code:
@@ -72,6 +76,9 @@ external:
           VERIFY_OTP_USSM_102: USER_BLOCKED_STATUS
           VERIFY_OTP_USSM_103: USER_INACTIVE_STATUS
           VERIFY_OTP_USSM_104: FAILED_TO_DECRYPT
+      deal:
+        detailcallErrorMap:
+          ACC-ESB-15280: RECORD_NOT_FOUND
   fees-code:
     mapper:
       fees:
@@ -101,6 +108,22 @@ app:
     mobcustomer: ${MOB_CUSTOMER_SERVICE:http://mob-customer-service:8080}
     beneficiary: ${BENEFICIARY_CORE_SERVICE:http://beneficiary-core-service:8080}
     mobcommon: ${MOB_COMMON_SERVICE:http://mob-common-service:8080}
+  sms:
+    priority: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_PRIORITY:HIGH}
+    serviceId: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_SERVICEID:91}
+    callCenterNo: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_CALL_CENTER_NO:04 424 6666}
+    ownAccountTransactionInitiated: ${OWN_ACCOUNT_SMS:Request received through Mashreq Mobile for a Fund Transfer of {0} {1} with {2}. Contact {3} if you did not initiate this.}
+  ftcc:
+    merchantId: ${TFTCC_MERCHANT_ID:000008026734}
+    terminalId: ${TFTCC_TERMINAL_ID:20091124}
+    authStatus: ${TFTCC_AUTH_STATUS:A}
+    amountTag: ${TFTCC_AMOUNT_TAG:TFR_AMT}
+    messageThrough: ${TFTCC_MESSAGE_THROUGH:U}
+    transTypeCode: ${TFTCC_TRANSFER_TYPE_CODE:FAM}
+    srvCode: ${TFTCC_SERVICE_CODE:TFTCC}
+    productCode: ${TFTCC_PRODUCT_CODE:PACC}
+    debitAccountNo: ${TFTCC_DEBIT_ACCOUNT_NO:011099270455}
+    bankReferenceNo: ${TFTCC_BANK_REFERENCE_NO:363c5a1abb}
 
 instarem:
   rules:
@@ -161,6 +184,14 @@ redis:
   timeout: ${REDIS_TIMEOUT:5000}
   password: ${REDIS_PASSWORD:P@ssword123$}
   ssl: ${REDIS_SSL:false}
+
+async:
+  thread:
+    poolName: TRANSFER-CORE-ASYNC-Pool
+    maxPoolSize: ${ASYNC_THREAD_MAX_POOLSIZE:30}
+    corePoolSize: ${ASYNC_THREAD_CORE_POOLSIZE:20}
+    queueCapacity: ${ASYNC_THREAD_QUEUE_CAPACITY:60}
+    keepAliveSeconds: ${ASYNC_THREAD_KEEP_ALIVE_SECS:60}
 
 #error:
 #  map:

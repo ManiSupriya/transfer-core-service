@@ -63,7 +63,7 @@ public class FlexRuleEngineService {
         final CompletableFuture<SearchAccountDto> searchAccountFut = CompletableFuture.supplyAsync(() ->
                 accountService.getAccountDetailsFromCore(request.getCustomerAccountNo()));
 
-        final BeneficiaryDto beneficiary = beneficiaryService.getById(metadata.getCifId(), Long.valueOf(request.getBeneficiaryId()));
+        final BeneficiaryDto beneficiary = beneficiaryService.getById(metadata.getCifId(), Long.valueOf(request.getBeneficiaryId()), metaData);
 
         final SearchAccountDto searchAccountDto = searchAccountFut.join();
 
@@ -142,7 +142,7 @@ public class FlexRuleEngineService {
                 accountService.getAccountDetailsFromCore(request.getCustomerAccountNo()));
 
         final CompletableFuture<BeneficiaryDto> beneficiaryDtoFut = CompletableFuture.supplyAsync(() ->
-                beneficiaryService.getById(metadata.getCifId(), Long.valueOf(request.getBeneficiaryId())));
+                beneficiaryService.getById(metadata.getCifId(), Long.valueOf(request.getBeneficiaryId()), metaData));
 
         final SearchAccountDto searchAccountDto = searchAccountFut.join();
 

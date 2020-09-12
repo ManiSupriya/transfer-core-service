@@ -16,4 +16,5 @@ public class DigitalUserLimitUsageDTO {
     private BigDecimal paidAmount;
     private String versionUuid;
     private String createdBy;
+    private String transactionRefNo;
 }

@@ -1,5 +1,18 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
+import static com.mashreq.transfercoreservice.middleware.SoapWebserviceClientFactory.soapClient;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
+
+import java.math.BigDecimal;
+import java.security.SecureRandom;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+
 import com.mashreq.esbcore.bindings.account.mbcdm.FundTransferReqType;
 import com.mashreq.esbcore.bindings.account.mbcdm.FundTransferResType;
 import com.mashreq.esbcore.bindings.accountservices.mbcdm.fundtransfer.EAIServices;
@@ -15,19 +28,10 @@ import com.mashreq.transfercoreservice.middleware.HeaderFactory;
 import com.mashreq.transfercoreservice.middleware.SoapClient;
 import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
+import com.mashreq.transfercoreservice.middleware.enums.YesNo;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.security.SecureRandom;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-
-import static com.mashreq.transfercoreservice.middleware.SoapWebserviceClientFactory.soapClient;
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 
 @Slf4j
@@ -70,7 +74,7 @@ public class FundTransferMWService {
             auditEventPublisher.publishSuccessfulEsbEvent(FundTransferEventType.FUND_TRANSFER_MW_CALL, metaData, getRemarks(request), msgId);
             log.info("Fund transferred successfully to account [ {} ]", request.getToAccount());
             final CoreFundTransferResponseDto coreFundTransferResponseDto = constructFTResponseDTO(transfer, exceptionDetails, MwResponseStatus.S);
-            return FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
+            return FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).transactionRefNo(coreFundTransferResponseDto.getHostRefNo()).build();
         }
 
         log.info("Fund transfer failed to account [ {} ]", request.getToAccount());
@@ -113,6 +117,7 @@ public class FundTransferMWService {
         coreFundTransferResponseDto.setMwReferenceNo(transfer.getTransactionRefNo());
         coreFundTransferResponseDto.setMwResponseDescription(exceptionDetails.getErrorDescription());
         coreFundTransferResponseDto.setMwResponseStatus(s);
+        coreFundTransferResponseDto.setTransactionRefNo(transfer.getTransactionRefNo());
         coreFundTransferResponseDto.setMwResponseCode(exceptionDetails.getErrorCode());
                 return coreFundTransferResponseDto;
     }
@@ -187,7 +192,14 @@ public class FundTransferMWService {
         transfer.setCreditLeg(creditLeg);
         transfer.setDebitLeg(debitLeg);
         transferList.add(transfer);
-
+        if (StringUtils.isNotEmpty(request.getDealNumber())) {
+        	fundTransferReqType.setDealReferenceNo(request.getDealNumber());
+        	fundTransferReqType.setDealFlag(YesNo.Y.name());
+            transfer.setDealDate(LocalDate.now().toString());
+            transfer.setRate(request.getDealRate().toPlainString());
+        } else {
+        	fundTransferReqType.setDealFlag(YesNo.N.name());
+        }
         services.getBody().setFundTransferReq(fundTransferReqType);
         log.info("EAI Service request for fund transfer prepared {}", services);
         return services;

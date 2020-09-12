@@ -5,7 +5,6 @@ import java.util.Map;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-
 import lombok.Data;
 
 @Data
@@ -14,6 +13,11 @@ import lombok.Data;
 public class ExternalErrorCodeConfig {
 	private Accounts accounts;
 	private OTP otp;
+	private Deal deal;
+	
+	public Map<String, String> getDealDetailsExternalErrorCodesMap() {
+        return deal.getDetailCallErrorMap();
+    }
 	
 	public Map<String, String> getAccountDetailsExternalErrorCodesMap() {
         return accounts.getDetailCallErrorMap();
@@ -30,6 +34,11 @@ public class ExternalErrorCodeConfig {
 	
 	@Data
     protected static class Accounts {
+        private Map<String, String> detailCallErrorMap;
+    }
+	
+	@Data
+    protected static class Deal {
         private Map<String, String> detailCallErrorMap;
     }
 }

@@ -28,17 +28,24 @@ public enum FundTransferEventType implements EventType {
     CARD_LESS_CASH_BLOCK_REQUEST_FAILED("CARDLESS-CASH", "CARDLESS-CASH block request failed"),
     CARD_LESS_CASH_BALANCE_VALIDATION_SUCCESS("CARDLESS-CASH", "Balance Validation Success"),
     CARD_LESS_CASH_BALANCE_VALIDATION("CARDLESS-CASH", "Balance Validation Failed"),
+    SWIFT_GPI_TRANSACTION_DETAILS("SWIFT-TRANSACTION", "Get Swift Transaction Details"),
+    GET_GPI_TRANSACTION_DETAILS("GPI-TRANSACTION", "Get Swift Message Details"),
 
     CHARITY_ACCOUNT_VALIDATION("FUND_TRANSFER", "Charity Account Validation"),
     ACCOUNT_BELONGS_TO_CIF("FUND_TRANSFER", "Account belongs to cif"),
     BALANCE_VALIDATION("FUND_TRANSFER", "Balance Validation"),
+    DEAL_VALIDATION("FUND_TRANSFER", "Deal Validation"),
     BENEFICIARY_VALIDATION("FUND_TRANSFER", "Beneficiary validation"),
+    FUNDTRANSFER_BENDETAILS("FUND_TRANSFER", "Ben detail retrieval failed"),
     CURRENCY_VALIDATION("FUND_TRANSFER", "Currency Validation"),
     FIN_TRANSACTION_VALIDATION("FUND_TRANSFER", "Financial Transaction Number Validation"),
     IBAN_VALIDATION("FUND_TRANSFER", "Iban Validation"),
+    RESOURCE_NOT_MACTH("FUND_TRANSFER","There is not enough resources in account"),
     PAYMENT_PURPOSE_VALIDATION("FUND_TRANSFER", "Payment Purpose Validation"),
     SAME_ACCOUNT_VALIDATION("FUND_TRANSFER", "Check account credit and deit account should not be same"),
     FUND_TRANSFER_MW_CALL("FUND_TRANSFER", "Call middleware for fund transfer"),
+    FUND_TRANSFER_CC_MW_CALL("FUND_TRANSFER", "Call middleware for fund transfer Credit card as source of fund"),
+    FUND_TRANSFER_CC_CALL("FUND_TRANSFER", "Fund transfer Credit card as source of fund"),
     QR_FUND_TRANSFER_MW_CALL("FUND_TRANSFER", "Call middleware for quick remit fund transfer"),
     LIMIT_VALIDATION("FUND_TRANSFER", "Call mob common to validate the spend limit"),
     MIN_LIMIT_VALIDATION("FUND_TRANSFER", "Call serviceType to get min amount"),
@@ -52,10 +59,13 @@ public enum FundTransferEventType implements EventType {
     CARD_LESS_CASH_ACCOUNT_NUMBER_DOES_NOT_MATCH("CARDLESS-CASH","Account Number is not valid"),
     CARD_LESS_CASH_OTP_DOES_NOT_MATCH("CARDLESS-CASH","OTP is not valid"),
     CARD_LESS_CASH_OTP_VALIDATION("CARDLESS-CASH","OTP validation is success"),
+    FUND_TRANSFER_OTP_DOES_NOT_MATCH("FUND_TRANSFER","OTP is not valid"),
+    FUND_TRANSFER_OTP_VALIDATION("FUND_TRANSFER","OTP validation is success"),
 
     FLEX_GET_EXCHANGE_RATE("FUND_TRANSFER_ENQUIRY", "Get exchange rate for QR"),
     FLEX_GET_CHARGES("FUND_TRANSFER_ENQUIRY", "Get charges for QR"),
-    FLEX_RULE_ENGINE_MW_CALL("FUND_TRANSFER_ENQUIRY","Flex rule engine MW call")
+    FLEX_RULE_ENGINE_MW_CALL("FUND_TRANSFER_ENQUIRY","Flex rule engine MW call"),
+    SMS_NOTIFICATION("SMS_NOTIFICATION","Send Sms for transfer-core")
     ;
 
 

@@ -100,7 +100,7 @@ public class LimitValidator {
         ServiceType serviceType = getServiceType(beneficiaryType);
         BigDecimal minAmount = getMinAmount(serviceType.getMinAmount());
         String remarks = getRemarks(minAmount,userDTO.getCifId(),limitUsageAmount,beneficiaryType,LimitCheckType.MIN_AMOUNT.name());
-        if(minAmount.compareTo(limitUsageAmount) <0){
+        if(limitUsageAmount.compareTo(minAmount) < 0){
             auditEventPublisher.publishFailureEvent(MIN_LIMIT_VALIDATION, metadata, remarks,
                     MIN_AMOUNT_LIMIT_REACHED.getCustomErrorCode(), MIN_AMOUNT_LIMIT_REACHED.getErrorMessage(), null);
             GenericExceptionHandler.handleError(MIN_AMOUNT_LIMIT_REACHED,
@@ -147,41 +147,35 @@ public class LimitValidator {
         limitValidatorResultsDto.setTransactionRefNo(transactionRefNo);
 
         final String remarks = getRemarks(limitValidatorResultsDto, metaData.getPrimaryCif(), String.valueOf(paidAmount), beneficiaryType);
-        if (limitValidatorResultsDto == null) {
-            auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks,
-                    MONTH_AMOUNT_LIMIT_REACHED.getCustomErrorCode(), MONTH_AMOUNT_LIMIT_REACHED.getErrorMessage(), null);
-            GenericExceptionHandler.handleError(LIMIT_PACKAGE_NOT_FOUND,
-                    LIMIT_PACKAGE_NOT_FOUND.getErrorMessage());
-        }
         if (!limitValidatorResultsDto.isValid()) {
-            if (LimitCheckType.MONTHLY_AMOUNT.equals(limitValidatorResultsDto.getAmountRemark())) {
+            if (LimitCheckType.MONTHLY_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, MONTH_AMOUNT_LIMIT_REACHED.getCustomErrorCode(), MONTH_AMOUNT_LIMIT_REACHED.getErrorMessage(), "limit check failed");
                 GenericExceptionHandler.handleError(MONTH_AMOUNT_LIMIT_REACHED,
                         MONTH_AMOUNT_LIMIT_REACHED.getErrorMessage());
-            } else if (LimitCheckType.MONTHLY_COUNT.equals(limitValidatorResultsDto.getCountRemark())) {
+            } else if (LimitCheckType.MONTHLY_COUNT.name().equals(limitValidatorResultsDto.getCountRemark())) {
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, MONTH_COUNT_LIMIT_REACHED.getCustomErrorCode(), MONTH_COUNT_LIMIT_REACHED.getErrorMessage(), "limit check failed");
                 GenericExceptionHandler.handleError(MONTH_COUNT_LIMIT_REACHED,
                         MONTH_COUNT_LIMIT_REACHED.getErrorMessage());
-            } else if (LimitCheckType.DAILY_AMOUNT.equals(limitValidatorResultsDto.getAmountRemark())) {
+            } else if (LimitCheckType.DAILY_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, DAY_AMOUNT_LIMIT_REACHED.getCustomErrorCode(), DAY_AMOUNT_LIMIT_REACHED.getErrorMessage(), "limit check failed");
                 GenericExceptionHandler.handleError(DAY_AMOUNT_LIMIT_REACHED,
                         DAY_AMOUNT_LIMIT_REACHED.getErrorMessage());
-            } else if (LimitCheckType.DAILY_COUNT.equals(limitValidatorResultsDto.getCountRemark())) {
+            } else if (LimitCheckType.DAILY_COUNT.name().equals(limitValidatorResultsDto.getCountRemark())) {
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, DAY_COUNT_LIMIT_REACHED.getCustomErrorCode(), DAY_COUNT_LIMIT_REACHED.getErrorMessage(), "limit check failed");
                 GenericExceptionHandler.handleError(DAY_COUNT_LIMIT_REACHED,
                         DAY_COUNT_LIMIT_REACHED.getErrorMessage());
             }
-            else if (LimitCheckType.COOLING_LIMIT_COUNT.equals(limitValidatorResultsDto.getCountRemark())) {
+            else if (LimitCheckType.COOLING_LIMIT_COUNT.name().equals(limitValidatorResultsDto.getCountRemark())) {
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, COOLING_COUNT_LIMIT_REACHED.getCustomErrorCode(), COOLING_COUNT_LIMIT_REACHED.getErrorMessage(), "limit check failed");
                 GenericExceptionHandler.handleError(COOLING_COUNT_LIMIT_REACHED,
                         COOLING_COUNT_LIMIT_REACHED.getErrorMessage());
             }
-            else if (LimitCheckType.COOLING_LIMIT_AMOUNT.equals(limitValidatorResultsDto.getAmountRemark())) {
+            else if (LimitCheckType.COOLING_LIMIT_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, COOLING_AMOUNT_LIMIT_REACHED.getCustomErrorCode(), COOLING_AMOUNT_LIMIT_REACHED.getErrorMessage(), "limit check failed");
                 GenericExceptionHandler.handleError(COOLING_AMOUNT_LIMIT_REACHED,
                         COOLING_AMOUNT_LIMIT_REACHED.getErrorMessage());
             }
-            else if (LimitCheckType.TXN_AMOUNT.equals(limitValidatorResultsDto.getAmountRemark())) {
+            else if (LimitCheckType.TXN_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, TXN_AMOUNT_LIMIT_REACHED.getCustomErrorCode(), TXN_AMOUNT_LIMIT_REACHED.getErrorMessage(), "limit check failed");
                 GenericExceptionHandler.handleError(TXN_AMOUNT_LIMIT_REACHED,
                         TXN_AMOUNT_LIMIT_REACHED.getErrorMessage());

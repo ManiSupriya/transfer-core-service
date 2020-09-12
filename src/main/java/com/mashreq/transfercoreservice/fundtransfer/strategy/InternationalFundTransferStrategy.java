@@ -1,9 +1,23 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import javax.annotation.PostConstruct;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+
 import com.mashreq.mobcommons.services.http.RequestMetaData;
-import com.mashreq.transfercoreservice.client.dto.*;
+import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
+import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
+import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
+import com.mashreq.transfercoreservice.client.dto.CountryMasterDto;
+import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
-import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
@@ -11,23 +25,20 @@ import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
+import com.mashreq.transfercoreservice.fundtransfer.dto.LimitValidatorResponse;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
-import com.mashreq.transfercoreservice.fundtransfer.validators.*;
+import com.mashreq.transfercoreservice.fundtransfer.validators.AccountBelongsToCifValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.BeneficiaryValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.FinTxnNoValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.PaymentPurposeValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import static java.lang.Long.valueOf;
 
 /**
  *
@@ -49,6 +60,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     private final FundTransferMWService fundTransferMWService;
     private final MaintenanceService maintenanceService;
     private final MobCommonService mobCommonService;
+    private final DealValidator dealValidator;
 
     private final BeneficiaryService beneficiaryService;
     private final LimitValidator limitValidator;
@@ -83,13 +95,18 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 "", INDIVIDUAL_ACCOUNT);
         validationContext.add("purposes", allPurposeCodes);
         responseHandler(paymentPurposeValidator.validate(request, metadata, validationContext));
-
-
-        final BeneficiaryDto beneficiaryDto = beneficiaryService.getById(metadata.getPrimaryCif(), valueOf(request.getBeneficiaryId()));
+        BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
+        if (request.getBeneRequiredFields() != null) {
+            beneficiaryDto = beneficiaryService.getUpdate(request.getBeneRequiredFields(), Long.valueOf(request.getBeneficiaryId()), metadata);
+        } else {
+            beneficiaryDto = beneficiaryService.getById(metadata.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), metadata);
+        }
         validationContext.add("beneficiary-dto", beneficiaryDto);
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
 
-
+        //Deal Validator
+        responseHandler(dealValidator.validate(request, metadata, validationContext));
+        
         //Balance Validation
         final AccountDetailsDTO sourceAccountDetailsDTO = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
         validationContext.add("to-account-currency", beneficiaryDto.getBeneficiaryCurrency());
@@ -104,7 +121,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
 
         //Limit Validation
         final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), sourceAccountDetailsDTO,transferAmountInSrcCurrency);
-        final LimitValidatorResultsDto validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount, metadata);
+        final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metadata, null);
 
 
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, sourceAccountDetailsDTO, beneficiaryDto);
@@ -147,7 +164,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
         currencyRequest.setAccountNumber(sourceAccountDetailsDTO.getNumber());
         currencyRequest.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
-        currencyRequest.setTransactionCurrency(beneficiaryDto.getBeneficiaryCurrency());
+        currencyRequest.setTransactionCurrency(request.getTxnCurrency());
         currencyRequest.setTransactionAmount(request.getAmount());
         CurrencyConversionDto conversionResultInSourceAcctCurrency = maintenanceService.convertBetweenCurrencies(currencyRequest);
         amtToBePaidInSrcCurrency = conversionResultInSourceAcctCurrency.getAccountCurrencyAmount();
@@ -170,11 +187,13 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .sourceCurrency(accountDetails.getCurrency())
                 .sourceBranchCode(accountDetails.getBranchCode())
                 .beneficiaryFullName(beneficiaryDto.getFullName())
-                .destinationCurrency(beneficiaryDto.getBeneficiaryCurrency())
+                .destinationCurrency(request.getTxnCurrency())
                 .beneficiaryAddressOne(beneficiaryDto.getAddressLine1())
                 .beneficiaryAddressTwo(beneficiaryDto.getAddressLine2())
                 .beneficiaryAddressThree(beneficiaryDto.getAddressLine3())
                 .transactionCode("15")
+                .dealNumber(request.getDealNumber())
+                .dealRate(request.getDealRate())
                 .build();
 
         return enrichFundTransferRequestByCountryCode(fundTransferRequest, beneficiaryDto);

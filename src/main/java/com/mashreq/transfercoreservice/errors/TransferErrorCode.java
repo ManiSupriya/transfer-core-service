@@ -19,32 +19,40 @@ public enum TransferErrorCode implements ErrorCode {
     ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF("TN-1006", "Account Number does not belong to CIF"),
     USER_SESSION_CONTEXT_NOT_FOUND("MD-1007", "User Session Context not found"),
     MOBILE_NUMBER_DOES_NOT_MATCH("TN-1008", "Mobile Number is not valid"),
+    INVALID_DEAL_NUMBER("TN-1009", "Invalid Deal Number"),
+    DEAL_NUMBER_EXPIRED("TN-1010", "Deal Number Expired"),
+    DEAL_NUMBER_NOT_APPLICABLE("TN-1011", "Deal Number Not Applicable for this transaction"),
+    MAINTENANCE_SERVICE_CONNECTION_ERROR("TN-1012", "Maintenance external service connection exception"),
+    MAINTENANCE_SERVICE_ERROR("TN-1013", "Something went wrong with maintenance service"),
+    DEAL_NUMBER_NOT_APPLICABLE_WITH_SAME_CRNCY("TN-1014", "Deal Number Not Applicable for same currency transaction"),
 
 
     BALANCE_NOT_SUFFICIENT("TN-1200", "Balance is not sufficient"),
+    DEAL_VALIDATION_FAILED("TN-1201", "Deal Number validation Failed"),
 
-    LIMIT_PACKAGE_NOT_FOUND("TN-1101", "Limit Package not Found"),
-    TRX_LIMIT_REACHED("TN-1102", "Transaction Limit Reached"),
-    DAY_AMOUNT_LIMIT_REACHED("TN-1103", "Day Amount Limit Reached"),
-    DAY_COUNT_LIMIT_REACHED("TN-1104", "Day count Limit Reached"),
-    MONTH_AMOUNT_LIMIT_REACHED("TN-1104", "Month Amount Limit Reached"),
-    MONTH_COUNT_LIMIT_REACHED("TN-1105", "Month Count Limit Reached"),
-    INVALID_BEN_CODE("TN-1106","Invalid ben code"),
-    MIN_AMOUNT_LIMIT_REACHED("TN-1107", "Min Amount Limit Reached"),
-    ERROR_LIMIT_CHECK("TN-1108","Error while fetching limit from db"),
-    COOLING_COUNT_LIMIT_REACHED("TN-1109", "Cooling Count Limit Reached"),
-    COOLING_AMOUNT_LIMIT_REACHED("TN-1110", "Cooling Count Limit Reached"),
-    TXN_AMOUNT_LIMIT_REACHED("TN-1111", "Transaction amount Limit Reached"),
+    LIMIT_PACKAGE_NOT_FOUND("LM-1101", "Limit Package not Found"),
+    TRX_LIMIT_REACHED("LM-1102", "Transaction Limit Reached"),
+    DAY_AMOUNT_LIMIT_REACHED("LM-1103", "Day Amount Limit Reached"),
+    DAY_COUNT_LIMIT_REACHED("LM-1104", "Day count Limit Reached"),
+    MONTH_AMOUNT_LIMIT_REACHED("LM-1104", "Month Amount Limit Reached"),
+    MONTH_COUNT_LIMIT_REACHED("LM-1105", "Month Count Limit Reached"),
+    INVALID_BEN_CODE("LM-1106","Invalid ben code"),
+    MIN_AMOUNT_LIMIT_REACHED("LM-1107", "Min Amount Limit Reached"),
+    ERROR_LIMIT_CHECK("LM-1108","Error while fetching limit from db"),
+    COOLING_COUNT_LIMIT_REACHED("LM-1109", "Cooling Count Limit Reached"),
+    COOLING_AMOUNT_LIMIT_REACHED("LM-1110", "Cooling Count Limit Reached"),
+    TXN_AMOUNT_LIMIT_REACHED("LM-1111", "Transaction amount Limit Reached"),
 
     BENE_NOT_FOUND("TN-4001", "Beneficiary Not Found"),
     BENE_ACC_NOT_MATCH("TN-4002", "Beneficiary Account Number does not match"),
     BENE_CUR_NOT_MATCH("TN-4003", "Beneficiary Currency does not match"),
     BENE_NOT_ACTIVE("TN-4004", "Beneficiary status is not active"),
     BENE_NOT_ACTIVE_OR_COOLING("TN-4004", "Beneficiary status is not active/cooling"),
+    BEN_DETAIL_FAILED("TN-4005", "Failed to fetch ben details"),
+    MISSING_BEN_DETAILS("TN-4006", "Required ben details are missing"),
 
     CURRENCY_CONVERSION_FAIL("TN-4100", "Currency conversion failed."),
-    INVALID_PURPOSE_CODE("TN-4101", "Invalid purpose code"),
-    INVALID_PURPOSE_DESC("TN-4102", "Invalid purpose description"),
+    INVALID_PURPOSE_CODE("TN-4101", "Invalid payment purpose passed "),
 
 
     ACCOUNT_NOT_BELONG_TO_CIF("TN-4200", "Account does not belong to CIF"),
@@ -52,6 +60,7 @@ public enum TransferErrorCode implements ErrorCode {
     CURRENCY_IS_INVALID("TN-4202", "Currency does not match"),
     ACCOUNT_NOT_FOUND("TN-4003", "Account not found"),
     CONNECTED_ACCOUNT_EMPTY("TN-4004", "Connected Account is empty"),
+    ACCOUNT_RESOURCES_MISMATCH("TN-4005", "There was not enough resources in account "),
 
     IBAN_NOT_FOUND("TN-5100", "IBAN not found"),
     ROUTING_CODE_NOT_FOUND("TN-5102", "Routing Code not found"),
@@ -64,6 +73,7 @@ public enum TransferErrorCode implements ErrorCode {
     SWIFT_CODE_EMPTY("TN-5109", "Beneficiary SWIFT code cannot be empty"),
     IFSC_CODE_NOT_FOUND("TN-5110", "IFSC Code not found"),
     INVALID_FLEX_RULE_COUNTRY("TN-5111", "Invalid Country for rule engine"),
+    INVALID_SWIFT_CODE("TN-5112", "Invalid Swift code"),
 
 
     EXTERNAL_SERVICE_ERROR("TN-5000", "Something went wrong with external service"),
@@ -109,6 +119,14 @@ public enum TransferErrorCode implements ErrorCode {
     EXTERNAL_SERVICE_ERROR_MW("TN-8003", "Something went wrong with middleware service"),
     INVALID_EVENT_TYPE_CODE("TN-8004","Invalid event code"),
 
+    SMS_NOTIFICATION_FAILED("SMS_9001","Failed to send sms notification"),
+
+    FT_CC_NOT_BELONG_TO_CIF("TN-8005", "CC does not belong to CIF"),
+    FT_CC_MW_ERROR("TN-8006","Error is occurred while calling middleware for Fund Transfer via CC"),
+    FT_CC_MW_EMPTY_RESPONSE("TN-8007","Null response from middleware for Fund Transfer via CC"),
+    FT_CC_MW_ERROR_RESPONSE("TN-8008","Error response from middleware for Fund Transfer via CC"),
+    FT_CC_NO_DEALS("TN-8008","No credit cards deals are available for the given cif"),
+    FT_CC_BALANCE_NOT_SUFFICIENT("TN-8009","No available balance on the given credit card"),
 
     ;
 

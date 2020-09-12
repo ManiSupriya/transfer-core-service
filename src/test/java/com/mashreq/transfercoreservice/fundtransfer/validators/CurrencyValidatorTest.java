@@ -37,7 +37,7 @@ public class CurrencyValidatorTest {
         		accountDetailsDTO.setCurrency("AED");
         ValidationContext mockValidationContext = new ValidationContext();
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
-        requestDTO.setServiceType(ServiceType.WITHIN_MASHREQ.getName());
+        requestDTO.setServiceType(ServiceType.WAMA.getName());
         requestDTO.setCurrency("AED");
 
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
@@ -214,7 +214,7 @@ public class CurrencyValidatorTest {
         fromAccount.setCurrency("GBP");
         ValidationContext mockValidationContext = new ValidationContext();
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
-        requestDTO.setServiceType(ServiceType.OWN_ACCOUNT.getName());
+        requestDTO.setServiceType(ServiceType.WYMA.getName());
         requestDTO.setCurrency("AED");
 
 
@@ -240,7 +240,7 @@ public class CurrencyValidatorTest {
          accountDetailsDTO.setCurrency("AED");
         ValidationContext mockValidationContext = new ValidationContext();
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
-        requestDTO.setServiceType(ServiceType.WITHIN_MASHREQ.getName());
+        requestDTO.setServiceType(ServiceType.WAMA.getName());
         requestDTO.setCurrency("USD");
 
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
@@ -272,7 +272,7 @@ public class CurrencyValidatorTest {
         fromAccount.setCurrency("GBP");
         ValidationContext mockValidationContext = new ValidationContext();
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
-        requestDTO.setServiceType(ServiceType.OWN_ACCOUNT.getName());
+        requestDTO.setServiceType(ServiceType.WYMA.getName());
         requestDTO.setCurrency("GBP");
 
 
@@ -298,7 +298,7 @@ public class CurrencyValidatorTest {
     	accountDetailsDTO.setCurrency("AED");
         ValidationContext mockValidationContext = new ValidationContext();
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
-        requestDTO.setServiceType(ServiceType.WITHIN_MASHREQ.getName());
+        requestDTO.setServiceType(ServiceType.WAMA.getName());
         requestDTO.setCurrency("GBP");
 
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
@@ -331,7 +331,7 @@ public class CurrencyValidatorTest {
         fromAccount.setCurrency("GBP");
         ValidationContext mockValidationContext = new ValidationContext();
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
-        requestDTO.setServiceType(ServiceType.OWN_ACCOUNT.getName());
+        requestDTO.setServiceType(ServiceType.WYMA.getName());
         requestDTO.setCurrency("USD");
 
 
@@ -354,7 +354,7 @@ public class CurrencyValidatorTest {
 
         //given
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
-        requestDTO.setServiceType(ServiceType.WITHIN_MASHREQ.getName());
+        requestDTO.setServiceType(ServiceType.WAMA.getName());
         requestDTO.setCurrency("USD");
 
 

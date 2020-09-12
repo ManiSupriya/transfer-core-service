@@ -15,6 +15,7 @@ public class SoapServiceProperties {
     private Integer connectTimeout;
     private ServiceCodes serviceCodes;
     private String url;
+    private String accessToken;
 
 
     @Data
@@ -27,5 +28,8 @@ public class SoapServiceProperties {
         private String quickRemitIndia;
         private String quickRemitPakistan;
         private String quickRemitInstaRem;
+        private String searchAccountDetails;
+        private String gpiTransactionDetails;
+        private String swiftGpiTransactionDetails;
     }
 }
