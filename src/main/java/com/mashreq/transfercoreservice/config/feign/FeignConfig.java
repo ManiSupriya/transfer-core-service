@@ -1,9 +1,9 @@
 package com.mashreq.transfercoreservice.config.feign;
 
-import feign.codec.ErrorDecoder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.client.RestTemplate;
+
+import feign.codec.ErrorDecoder;
 
 /**
  * @author shahbazkh
