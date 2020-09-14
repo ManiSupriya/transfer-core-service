@@ -318,9 +318,6 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         Optional<Country> countryOptional = countryRepository.findByIsoCode2(beneficiaryDto.getBankCountry());
         if(countryOptional.isPresent()){
             fundTransferRequest.setAcwthInst5(countryOptional.get().getName());
-        } else {
-            // TODO need to confirm with SOMA
-            // throw exception
         }
         fundTransferRequest.setCardNo(encryptionService.decrypt(cardDetailsDTO.getEncryptedCardNumber()));
         fundTransferRequest.setFromAccount(requestDTO.getCardNo());
