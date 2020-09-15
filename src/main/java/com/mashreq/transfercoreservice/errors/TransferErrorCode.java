@@ -25,6 +25,11 @@ public enum TransferErrorCode implements ErrorCode {
     MAINTENANCE_SERVICE_CONNECTION_ERROR("TN-1012", "Maintenance external service connection exception"),
     MAINTENANCE_SERVICE_ERROR("TN-1013", "Something went wrong with maintenance service"),
     DEAL_NUMBER_NOT_APPLICABLE_WITH_SAME_CRNCY("TN-1014", "Deal Number Not Applicable for same currency transaction"),
+    INVALID_SESSION_ID("TN-1015", "Session Id is invalid"),
+    EXPIRED_SESSION_ID("TN-1016", "Session Id is expired"),
+    NOT_MATCHING_CARD_DETAILS("TN-1017", "Card details not found"),
+    NOT_VALID_DATE_GPI_TRACKER("TN-1018", "Not a Valid date, startDate should Not be 6 months old"),
+    NOT_VALID_END_DATE_GPI_TRACKER("TN-1019", "Not a Valid date, end date should be always greter than start date"),
 
 
     BALANCE_NOT_SUFFICIENT("TN-1200", "Balance is not sufficient"),

@@ -1,4 +1,4 @@
-package com.mashreq.transfercoreservice.loyalty.common;
+package com.mashreq.transfercoreservice.loyaltysmilecard.common;
 
 public interface CommonConstants {
 

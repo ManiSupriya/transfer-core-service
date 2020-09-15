@@ -73,6 +73,9 @@ app:
       length: 23
   bank:
     code: '033'
+  loyalty:
+    timeInterval: 1
+    smilesProductBin: 524179
   services:
     maintenance: ${MAINTENANCE_SERVICE_URL:http://digital-dev.mashreq.com/api/maintenance-service}
     customers: ${CUSTOMER_SERVICE_URL:http://localhost:8083}
