@@ -17,6 +17,7 @@ import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.banksearch.BankDetailRequestDto;
 import com.mashreq.transfercoreservice.banksearch.BankDetailService;
 import com.mashreq.transfercoreservice.banksearch.SwiftBankDetailRequestDto;
+import com.mashreq.transfercoreservice.client.AccountClient;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
 
@@ -35,21 +36,16 @@ import lombok.extern.slf4j.Slf4j;
 public class BankDetailController {
 
     private final BankDetailService bankDetailService;
+    private final AccountClient accountClient;
 
     
     @PostMapping("/dblink")
-    public Response getSwiftBankDetails(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData metaData,
+    public Response getSwiftBankDetails(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData requestMetadata,
                                    @Valid @RequestBody SwiftBankDetailRequestDto bankDetailRequest) {
         log.info("Received request to search bank detail for swift code {} ", htmlEscape(bankDetailRequest.getSwiftCode()));
-        
-        //TODO:- remove after middleware is finalised
-        BankDetailRequestDto bankDetailRequestDto = new BankDetailRequestDto();
-        bankDetailRequestDto.setType("swift");
-        bankDetailRequestDto.setValue(bankDetailRequest.getSwiftCode());
-        bankDetailRequestDto.setCountryCode("IN");
         return Response.builder()
                 .status(ResponseStatus.SUCCESS)
-                .data(bankDetailService.getBankDetails(metaData.getChannelTraceId(), bankDetailRequestDto, metaData).get(0)).build();
+                .data(bankDetailService.getBankDetails(bankDetailRequest.getSwiftCode(), requestMetadata)).build();
     }
     
     @PostMapping

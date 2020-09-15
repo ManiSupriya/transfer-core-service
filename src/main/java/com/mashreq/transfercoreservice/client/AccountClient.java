@@ -1,6 +1,5 @@
 package com.mashreq.transfercoreservice.client;
 
-import java.math.BigInteger;
 import java.util.List;
 
 import org.springframework.cloud.openfeign.FeignClient;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashBlockRequest;
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashGenReq;
-import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashGenerationRequest;
 import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashBlockResponse;
 import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashGenerationResponse;
 import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashQueryResponse;
