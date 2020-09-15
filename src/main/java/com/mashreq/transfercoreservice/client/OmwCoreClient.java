@@ -6,9 +6,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 
 import com.mashreq.transfercoreservice.client.dto.CoreBankDetails;
+import com.mashreq.transfercoreservice.config.feign.OmwFeignConfig;
 import com.mashreq.transfercoreservice.config.feign.OmwHeaders;
 
-@FeignClient(name = "omw-core", url = "${app.services.omw-core}")
+@FeignClient(name = "omw-core", url = "${app.services.omw-core}", configuration = OmwFeignConfig.class)
 public interface OmwCoreClient {
 
     @GetMapping(value = "/swift/bicinfo/{bicInfo}")
