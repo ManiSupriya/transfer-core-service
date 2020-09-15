@@ -1,7 +1,17 @@
 package com.mashreq.transfercoreservice.middleware.enums;
 
 public enum MwResponseStatus {
-    S, // Success
-    F, // Failure
-    P  // Processin
+    S("SUCCESS"), // Success
+    F("FAIL"), // Failure
+    P("PROCESSING");  // Processin
+    
+    private final String name;
+	
+	MwResponseStatus(String name) {
+        this.name =  name;
+    }
+	
+	public String getName() {
+        return name;
+    }
 }

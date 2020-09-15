@@ -18,6 +18,5 @@ public class FundTransferResponseDTO {
     private String mwReferenceNo;
     private String mwResponseDescription;
     private String mwResponseCode;
-    private String financialTransactionNo;
     private String transactionRefNo;
 }
