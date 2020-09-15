@@ -95,6 +95,9 @@ app:
       length: 23
   bank:
     code: '033'
+  loyalty:
+    timeInterval: 1
+    smilesProductBin: 524179
   services:
     maintenance: ${MAINTENANCE_SERVICE_URL:http://maintenance-service:8080}
     customers: ${CUSTOMER_SERVICE_URL:http://customers-service:8080}

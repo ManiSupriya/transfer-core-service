@@ -30,6 +30,9 @@ public enum FundTransferEventType implements EventType {
     CARD_LESS_CASH_BALANCE_VALIDATION("CARDLESS-CASH", "Balance Validation Failed"),
     SWIFT_GPI_TRANSACTION_DETAILS("SWIFT-TRANSACTION", "Get Swift Transaction Details"),
     GET_GPI_TRANSACTION_DETAILS("GPI-TRANSACTION", "Get Swift Message Details"),
+    LOYALTY_SMILE_CARD_GEN_DETAILS("LOYALTY-SMILE-CARD", "Loyalty smile-card Generation Reedem Message Details"),
+    LOYALTY_SMILE_CARD_VAL_DETAILS("LOYALTY-SMILE-CARD", "Loyalty smile-card Validate Redeem Message Details"),
+    LOYALTY_SMILE_CARD_ERROR("LOYALTY-SMILE-CARD", "Loyalty smile-card Validation failed"),
 
     CHARITY_ACCOUNT_VALIDATION("FUND_TRANSFER", "Charity Account Validation"),
     ACCOUNT_BELONGS_TO_CIF("FUND_TRANSFER", "Account belongs to cif"),

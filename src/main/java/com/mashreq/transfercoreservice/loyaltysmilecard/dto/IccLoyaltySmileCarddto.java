@@ -1,4 +1,4 @@
-package com.mashreq.transfercoreservice.loyalty.dto;
+package com.mashreq.transfercoreservice.loyaltysmilecard.dto;
 
 import java.time.LocalDateTime;
 
@@ -9,14 +9,14 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "icc_loyalty_ms")
 @Data
-@Builder
-public class IccLoyaltydto {
+@NoArgsConstructor
+public class IccLoyaltySmileCarddto {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
