@@ -1,7 +1,8 @@
 package com.mashreq.transfercoreservice.config.feign;
 
-import javax.net.ssl.SSLContext;
-
+import feign.Client;
+import feign.Logger;
+import feign.httpclient.ApacheHttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
@@ -11,19 +12,16 @@ import org.apache.http.ssl.SSLContextBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import feign.Client;
-import feign.codec.ErrorDecoder;
-import feign.httpclient.ApacheHttpClient;
-
-/**
- * @author shahbazkh
- * @date 3/8/20
- */
+import javax.net.ssl.SSLContext;
 
 @Configuration
-public class OmwFeignConfig {
+public class GlobalFeignConfig {
+    @Bean
+    Logger.Level feignLoggerLevel() {
+        return Logger.Level.FULL;
+    }
 
-	@Bean
+    @Bean
     public Client feignClient() {
 
         return new ApacheHttpClient(getHttpClient());
@@ -44,6 +42,4 @@ public class OmwFeignConfig {
             throw new RuntimeException(e);
         }
     }
-
-
 }
