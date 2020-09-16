@@ -46,6 +46,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     private final CurrencyValidator currencyValidator;
     private final LimitValidator limitValidator;
     private final AccountService accountService;
+    private final DealValidator dealValidator;
     private final MaintenanceService maintenanceService;
     private final FundTransferMWService fundTransferMWService;
     private final BalanceValidator balanceValidator;
@@ -86,6 +87,9 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         final BigDecimal transferAmountInSrcCurrency = request.getAmount()!=null && !isCurrencySame(toAccount, fromAccount)
             ? conversionResult.getAccountCurrencyAmount()
             : transactionAmount;
+            
+         //Deal Validator
+         responseHandler(dealValidator.validate(request, metadata, validateAccountContext));   
 
         validateAccountContext.add("transfer-amount-in-source-currency", transferAmountInSrcCurrency);
         responseHandler(balanceValidator.validate(request, metadata, validateAccountContext));
