@@ -98,6 +98,9 @@ app:
       length: 23
   bank:
     code: '033'
+  loyalty:
+    timeInterval: 1
+    smilesProductBin: 524179
   services:
     maintenance: ${MAINTENANCE_SERVICE_URL:http://maintenance-service:8080}
     customers: ${CUSTOMER_SERVICE_URL:http://customers-service:8080}
@@ -108,6 +111,7 @@ app:
     mobcustomer: ${MOB_CUSTOMER_SERVICE:http://mob-customer-service:8080}
     beneficiary: ${BENEFICIARY_CORE_SERVICE:http://beneficiary-core-service:8080}
     mobcommon: ${MOB_COMMON_SERVICE:http://mob-common-service:8080}
+    omw-core: ${OMW_CORE:https://172.24.70.29:7805/omw/core}
   sms:
     priority: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_PRIORITY:HIGH}
     serviceId: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_SERVICEID:91}

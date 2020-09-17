@@ -63,6 +63,7 @@ public class CardService {
     	cardDetailsDTO.setSegment("conventional");
     	cardDetailsDTO.setEncryptedCardNumber(coreCard.getEncryptedCardNumber());
     	cardDetailsDTO.setExpiryDate(coreCard.getExpiryDate());
+    	cardDetailsDTO.setCardAccountNumber(coreCard.getCardAccountNumber());
         return cardDetailsDTO;
     }
 

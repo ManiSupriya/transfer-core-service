@@ -192,7 +192,7 @@ public class FundTransferMWService {
         transfer.setCreditLeg(creditLeg);
         transfer.setDebitLeg(debitLeg);
         transferList.add(transfer);
-        if (StringUtils.isNotEmpty(request.getDealNumber())) {
+        if (StringUtils.isNotEmpty(request.getDealNumber()) && StringUtils.isNotEmpty(request.getDealRate().toPlainString())) {
         	fundTransferReqType.setDealReferenceNo(request.getDealNumber());
         	fundTransferReqType.setDealFlag(YesNo.Y.name());
             transfer.setDealDate(LocalDate.now().toString());

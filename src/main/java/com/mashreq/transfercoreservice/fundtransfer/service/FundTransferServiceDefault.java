@@ -147,7 +147,7 @@ public class FundTransferServiceDefault implements FundTransferService {
                      TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SAME_CRNCY.getErrorMessage(),
                      TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SAME_CRNCY.getErrorMessage());
         	 GenericExceptionHandler.handleError(TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SAME_CRNCY,
-        			  TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SAME_CRNCY.getErrorMessage());
+        			  TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SAME_CRNCY.getErrorMessage(), TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SAME_CRNCY.getErrorMessage());
         }
         
         FundTransferStrategy strategy = fundTransferStrategies.get(getServiceByType(request.getServiceType()));
@@ -183,7 +183,6 @@ public class FundTransferServiceDefault implements FundTransferService {
                 .mwReferenceNo(transactionHistory.getBillRefNo())
                 .mwResponseCode(transactionHistory.getMwResponseCode())
                 .mwResponseDescription(transactionHistory.getMwResponseDescription())
-                .financialTransactionNo(request.getFinTxnNo())
                 .transactionRefNo(response.getTransactionRefNo())
                 .build();
     }
@@ -267,7 +266,7 @@ public class FundTransferServiceDefault implements FundTransferService {
                 .paidAmount(request.getAmount() == null ? request.getSrcAmount() : request.getAmount())
                 .fromCurrency(request.getCurrency())
                 .toCurrency(request.getTxnCurrency())
-                .status(fundTransferResponse.getResponseDto().getMwResponseStatus().name())
+                .status(fundTransferResponse.getResponseDto().getMwResponseStatus().getName())
                 .mwResponseCode(fundTransferResponse.getResponseDto().getMwResponseCode())
                 .mwResponseDescription(fundTransferResponse.getResponseDto().getMwResponseDescription())
                 .accountFrom(request.getFromAccount())

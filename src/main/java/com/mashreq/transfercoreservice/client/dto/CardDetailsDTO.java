@@ -35,6 +35,9 @@ public class CardDetailsDTO {
 
     @JsonProperty("currentBalance")
     private BigDecimal currentBalance;
+    
+    @JsonProperty("cardAccountNumber")
+    private String cardAccountNumber;
 
     @JsonProperty("availableCreditLimit")
     private BigDecimal availableCreditLimit;

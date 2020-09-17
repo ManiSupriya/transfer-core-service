@@ -85,7 +85,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, RequestMetaData requestMetaData, UserDTO userDTO) {
         FundTransferResponse fundTransferResponse;
-        if(request.getCardNo() == null && request.getCardNo().trim().length() == 0){
+        if(StringUtils.isBlank(request.getCardNo())){
             fundTransferResponse = executeNonCreditCard(request, requestMetaData, userDTO);
         } else {
             fundTransferResponse = executeCC(request, requestMetaData, userDTO);
@@ -318,9 +318,6 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         Optional<Country> countryOptional = countryRepository.findByIsoCode2(beneficiaryDto.getBankCountry());
         if(countryOptional.isPresent()){
             fundTransferRequest.setAcwthInst5(countryOptional.get().getName());
-        } else {
-            // TODO need to confirm with SOMA
-            // throw exception
         }
         fundTransferRequest.setCardNo(encryptionService.decrypt(cardDetailsDTO.getEncryptedCardNumber()));
         fundTransferRequest.setFromAccount(requestDTO.getCardNo());
