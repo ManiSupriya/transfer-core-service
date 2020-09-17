@@ -151,7 +151,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
                 .sourceCurrency(sourceAccount.getCurrency())
                 .sourceBranchCode(sourceAccount.getBranchCode())
                 .beneficiaryFullName(destinationAccount.getCustomerName())
-                .destinationCurrency(request.getTxnCurrency())
+                .destinationCurrency(destinationAccount.getCurrency())
                 .transactionCode(OWN_ACCOUNT_TRANSACTION_CODE)
                 .internalAccFlag(INTERNAL_ACCOUNT_FLAG)
                 .dealNumber(request.getDealNumber())
