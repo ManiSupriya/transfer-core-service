@@ -36,13 +36,7 @@ public class FundTransferController {
             @ApiResponse(code = 500, message = "Something went wrong")
     })
     @PostMapping
-    public Response transferFunds(
-                                  @RequestAttribute("X-REQUEST-METADATA") RequestMetaData metaData,
-                                  @RequestHeader(HeaderNames.CHANNEL_TYPE_HEADER_NAME) String channelName,
-                                  @RequestHeader(HeaderNames.CIF_HEADER_NAME) final String cifId,
-                                  @RequestHeader(HeaderNames.X_USSM_USER_REDIS_KEY) final String userCacheKey,
-                                  @RequestHeader(HeaderNames.X_CORRELATION_ID) final String correlationId,
-                                  @RequestHeader(HeaderNames.X_USSM_USER_NAME) final String userId,
+    public Response transferFunds(@RequestAttribute("X-REQUEST-METADATA") RequestMetaData metaData,
                                   @Valid @RequestBody FundTransferRequestDTO request) {
 
         log.info("{} Fund transfer for request received ", htmlEscape(request.getServiceType()));

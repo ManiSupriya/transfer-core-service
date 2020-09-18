@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -40,14 +41,6 @@ public class DealValidator implements Validator {
 	@Override
 	public ValidationResult validate(FundTransferRequestDTO request, RequestMetaData metadata,
 			ValidationContext context) {
-		log.info("Deal Validation Started");
-		 if(request.getDealNumber()!=null && request.getDealNumber().isEmpty()) {
-			 auditEventPublisher.publishFailureEvent(FundTransferEventType.DEAL_VALIDATION, metadata,
-							CommonConstants.DEAL_VALIDATION, TransferErrorCode.INVALID_DEAL_NUMBER.toString(),
-							TransferErrorCode.INVALID_DEAL_NUMBER.getErrorMessage(),
-							TransferErrorCode.INVALID_DEAL_NUMBER.getErrorMessage());
-	        		GenericExceptionHandler.handleError(TransferErrorCode.INVALID_DEAL_NUMBER, TransferErrorCode.INVALID_DEAL_NUMBER.getErrorMessage(), TransferErrorCode.INVALID_DEAL_NUMBER.getErrorMessage());
-	        	}
 		DealEnquiryDto dealEnquiryDto = null ;
 		try {
 			if (request.getDealNumber() != null) {
@@ -75,10 +68,31 @@ public class DealValidator implements Validator {
 								TransferErrorCode.DEAL_NUMBER_EXPIRED.getErrorMessage(),
 								TransferErrorCode.DEAL_NUMBER_EXPIRED.getErrorMessage());
 					}
+					if (!StringUtils.equalsIgnoreCase(dealEnquiryDetailsDto.getSellCurrency(), request.getCurrency())) {
+						log.info("Deal Validation failed");
+					auditEventPublisher.publishFailureEvent(FundTransferEventType.DEAL_VALIDATION, metadata,
+							CommonConstants.DEAL_VALIDATION, TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY.toString(),
+							TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY.getErrorMessage(),
+							TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY.getErrorMessage());
+						GenericExceptionHandler.handleError(TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY,
+								TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY.getErrorMessage(),
+								TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY.getErrorMessage());
+					}
+
+					if (!StringUtils.equalsIgnoreCase(dealEnquiryDetailsDto.getBuyCurrency(),
+							request.getTxnCurrency())) {log.info("Deal Validation failed");
+							auditEventPublisher.publishFailureEvent(FundTransferEventType.DEAL_VALIDATION, metadata,
+									CommonConstants.DEAL_VALIDATION, TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_TXN_CRNCY.toString(),
+									TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_TXN_CRNCY.getErrorMessage(),
+									TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_TXN_CRNCY.getErrorMessage());
+						GenericExceptionHandler.handleError(TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_TXN_CRNCY,
+								TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_TXN_CRNCY.getErrorMessage(),
+								TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_TXN_CRNCY.getErrorMessage());
+					}
 					request.setDealRate(dealEnquiryDetailsDto.getDealRate());
 				}
 			}
-		} catch (Exception e) {
+		} catch (GenericException e) {
 			handleErrorResponse(e);
 		}
 
@@ -89,6 +103,9 @@ public class DealValidator implements Validator {
 	}
 	private TransferErrorCode assignFeignConnectionErrorCode() {
 		 return TransferErrorCode.MAINTENANCE_SERVICE_CONNECTION_ERROR;
+	}
+	public void assignCustomErrorCode(String errorDetail, TransferErrorCode errorCode) {
+		GenericExceptionHandler.handleError(errorCode, errorCode.getErrorMessage());
 	}
 	
 	 private ResponseEntity<Response<DealEnquiryDto>> handleErrorResponse(Throwable throwable) {
@@ -109,11 +126,18 @@ public class DealValidator implements Validator {
 	                    GenericExceptionHandler.handleError(errorCode, errorCode.getErrorMessage(), errorDetails);
 	                }
 	            }
+	            if(StringUtils.equalsAnyIgnoreCase(genericException.getErrorCode(), TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE.getCustomErrorCode()))
+	            	GenericExceptionHandler.handleError(TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE,TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE.getErrorMessage());
+	            if(StringUtils.equalsAnyIgnoreCase(genericException.getErrorCode(), TransferErrorCode.DEAL_NUMBER_EXPIRED.getCustomErrorCode()))
+	            	GenericExceptionHandler.handleError(TransferErrorCode.DEAL_NUMBER_EXPIRED, TransferErrorCode.DEAL_NUMBER_EXPIRED.getErrorMessage());
+	            if(StringUtils.equalsAnyIgnoreCase(genericException.getErrorCode(), TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY.getCustomErrorCode()))
+	            	GenericExceptionHandler.handleError(TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY, TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY.getErrorMessage());
+	            if(StringUtils.equalsAnyIgnoreCase(genericException.getErrorCode(), TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_TXN_CRNCY.getCustomErrorCode()))
+	            	GenericExceptionHandler.handleError(TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_TXN_CRNCY, TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_TXN_CRNCY.getErrorMessage());
 	        }
 	        if(throwable instanceof RetryableException) {
          	GenericExceptionHandler.handleError(assignFeignConnectionErrorCode(), assignFeignConnectionErrorCode().getErrorMessage(), assignFeignConnectionErrorCode().getErrorMessage());
          } 
-	        throwable.printStackTrace();
 	        GenericExceptionHandler.handleError(TransferErrorCode.MAINTENANCE_SERVICE_ERROR, TransferErrorCode.MAINTENANCE_SERVICE_ERROR.getErrorMessage(), TransferErrorCode.MAINTENANCE_SERVICE_ERROR.getErrorMessage());
 			return null;
 	    }
