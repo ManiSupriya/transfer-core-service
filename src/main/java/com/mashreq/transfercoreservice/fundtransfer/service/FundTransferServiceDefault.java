@@ -22,6 +22,7 @@ import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.logcore.annotations.TrackExec;
@@ -140,7 +141,7 @@ public class FundTransferServiceDefault implements FundTransferService {
         UserDTO userDTO = createUserDTO(metadata, digitalUser);
 
         //deal number not applicable if both currencies are same
-        if(request.getCurrency().equalsIgnoreCase(request.getTxnCurrency()) && (request.getDealNumber()!=null && !request.getDealNumber().isEmpty())) {
+        if(StringUtils.isNotBlank(request.getTxnCurrency()) && request.getCurrency().equalsIgnoreCase(request.getTxnCurrency()) && (request.getDealNumber()!=null && !request.getDealNumber().isEmpty())) {
         	 auditEventPublisher.publishFailedEsbEvent(FundTransferEventType.DEAL_VALIDATION,
                      metadata, CommonConstants.FUND_TRANSFER, metadata.getChannelTraceId(),
                      TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SAME_CRNCY.toString(),

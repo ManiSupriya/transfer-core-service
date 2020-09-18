@@ -9,6 +9,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
@@ -94,7 +95,10 @@ public class CharityStrategyDefault implements FundTransferStrategy {
         //TODO
         
         //Deal Validator
-        responseHandler(dealValidator.validate(request, metadata, validateContext));
+        log.info("Deal Validation Started");
+        if (StringUtils.isNotBlank(request.getDealNumber()) && !request.getDealNumber().isEmpty()) {
+            responseHandler(dealValidator.validate(request, metadata, validateContext));
+   		 }
 
         //Balance Validation
         validateContext.add("transfer-amount-in-source-currency", request.getAmount());
