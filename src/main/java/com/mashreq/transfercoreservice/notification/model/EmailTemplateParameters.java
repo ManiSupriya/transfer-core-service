@@ -1,11 +1,13 @@
 package com.mashreq.transfercoreservice.notification.model;
 
+import com.mashreq.transfercoreservice.model.ChannelDetails;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Map;
 
-@Data
+@Getter @Setter
 @Builder
 public class EmailTemplateParameters {
 

@@ -1,14 +1,13 @@
 package com.mashreq.transfercoreservice.notification.model;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
- * Parameters to sent in send email request
+ * Parameters to send email request.
  *
- * @author pallaviG
  */
-
-@Data
+@Getter @Setter
 public class EmailRequest {
 
     private String fromEmailName;

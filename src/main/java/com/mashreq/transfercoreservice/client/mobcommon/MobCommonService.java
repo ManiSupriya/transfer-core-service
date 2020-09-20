@@ -6,7 +6,7 @@ import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
-import com.mashreq.transfercoreservice.model.ApplicationSetting;
+import com.mashreq.transfercoreservice.model.ApplicationSettingDto;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
 import lombok.RequiredArgsConstructor;
@@ -95,15 +95,15 @@ public class MobCommonService {
 
     }
 
-    public List<ApplicationSetting> getApplicationSettings(String group) {
+    public List<ApplicationSettingDto> getApplicationSettings(String group) {
         log.info("[MobCommonService] Calling MobCommonService to get application settings for group = {}", group);
         Instant startTime = now();
-        Response<List<ApplicationSetting>> response = mobCommonClient.getApplicationSettings(group);
+        Response<List<ApplicationSettingDto>>  response = mobCommonClient.getApplicationSettings(group);
         if (Objects.isNull(response.getData()) || ResponseStatus.ERROR == response.getStatus()) {
             log.error("Error while fetching application settings. Group = {} ", group);
             GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR, EXTERNAL_SERVICE_ERROR.getErrorMessage(), getErrorDetails(response));
         }
+        log.info("[MobCommonService] MobCommonService response success in nanoseconds {} ", Duration.between(startTime, now()));
         return response.getData();
     }
-
 }

@@ -59,4 +59,8 @@ public class CardDetailsDTO {
     public String getCardNo() {
         return StringUtils.isBlank(cardNo) ? null : cardNo.substring(cardNo.length() - 4);
     }
+
+    public String getCardNoWithMasked(){
+        return cardNo;
+    }
 }

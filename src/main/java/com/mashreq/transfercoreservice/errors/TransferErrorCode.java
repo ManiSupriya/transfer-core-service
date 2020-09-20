@@ -135,6 +135,9 @@ public enum TransferErrorCode implements ErrorCode {
     FT_CC_BALANCE_NOT_SUFFICIENT("TN-8009","No available balance on the given credit card"),
     SMS_NOTIFICATION_FAILED("TN-9001","Failed to send sms notification"),
     APPLICATION_KEY_NOT_FOUND("TN-9002","Application setting key not found"),
+    ACCOUNT_NO_NOT_MASKED("TN-8010","Account no masked is failed due to length"),
+
+    EMAIL_NOTIFICATION_FAILED("EMAIL_9001","Failed to send email notification"),
 
     ;
 

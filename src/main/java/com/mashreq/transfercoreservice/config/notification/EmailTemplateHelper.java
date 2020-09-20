@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * Loads email template based on the template name
  *
- * @author Kalim
+ * @author Thangiachalam P
  */
 @Slf4j
 @Component

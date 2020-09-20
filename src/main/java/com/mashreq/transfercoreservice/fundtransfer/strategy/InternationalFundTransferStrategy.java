@@ -1,44 +1,29 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.annotation.PostConstruct;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-
 import com.mashreq.mobcommons.services.http.RequestMetaData;
-import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
-import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
-import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
-import com.mashreq.transfercoreservice.client.dto.CountryMasterDto;
-import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
+import com.mashreq.transfercoreservice.client.dto.*;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
-import com.mashreq.transfercoreservice.fundtransfer.dto.LimitValidatorResponse;
-import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
-import com.mashreq.transfercoreservice.fundtransfer.validators.AccountBelongsToCifValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.BeneficiaryValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.FinTxnNoValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.PaymentPurposeValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
-
+import com.mashreq.transfercoreservice.fundtransfer.validators.*;
+import com.mashreq.transfercoreservice.notification.service.PostTransactionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  *
@@ -66,6 +51,9 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     private final LimitValidator limitValidator;
 
     private final HashMap<String, String> countryToCurrencyMap = new HashMap<>();
+
+    @Autowired
+    private PostTransactionService postTransactionService;
 
 //    @Value("${app.local.transaction.code:015}")
 //    private String transactionCode;
@@ -131,6 +119,10 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         log.info("International Fund transfer initiated.......");
         final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata);
 
+        fundTransferRequest.setSourceOfFund(PostTransactionService.SOURCE_OF_FUND_ACCOUNT);
+        fundTransferRequest.setTransferType(ServiceType.INFT.getName());
+        fundTransferRequest.setStatus(fundTransferResponse.getResponseDto().getMwResponseStatus().getName());
+        postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest);
 
         return fundTransferResponse.toBuilder()
                 .limitUsageAmount(limitUsageAmount)

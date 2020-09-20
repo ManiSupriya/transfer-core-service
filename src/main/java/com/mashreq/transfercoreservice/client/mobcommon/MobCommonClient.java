@@ -7,7 +7,7 @@ import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
 import com.mashreq.transfercoreservice.config.feign.FeignConfig;
-import com.mashreq.transfercoreservice.model.ApplicationSetting;
+import com.mashreq.transfercoreservice.model.ApplicationSettingDto;
 import com.mashreq.webcore.dto.response.Response;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
@@ -40,7 +40,6 @@ public interface MobCommonClient {
     Response<CustomerDetailsDto> getCustomerDetails(@RequestHeader(HeaderNames.CIF_HEADER_NAME) String cifId);
 
     @GetMapping(value = "/v1/settings")
-    Response<List<ApplicationSetting>> getApplicationSettings(@RequestParam(value = "group", required = false) final String group);
-
+    Response<List<ApplicationSettingDto>> getApplicationSettings(@RequestParam(value = "group", required = false) final String group);
 
 }

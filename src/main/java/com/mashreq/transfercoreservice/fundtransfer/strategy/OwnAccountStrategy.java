@@ -17,8 +17,20 @@ import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWServic
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
 import com.mashreq.transfercoreservice.notification.service.NotificationService;
+import com.mashreq.transfercoreservice.notification.service.PostTransactionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.List;
+
+import static java.time.Duration.between;
+import static java.time.Instant.now;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -135,7 +147,10 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata);
 
         log.info("Total time taken for {} strategy {} milli seconds ", htmlEscape(request.getServiceType()), htmlEscape(Long.toString(between(start, now()).toMillis())));
-
+        fundTransferRequest.setSourceOfFund(PostTransactionService.SOURCE_OF_FUND_ACCOUNT);
+        fundTransferRequest.setTransferType(ServiceType.LOCAL.getName());
+        fundTransferRequest.setStatus(fundTransferResponse.getResponseDto().getMwResponseStatus().getName());
+        postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest);
         return fundTransferResponse.toBuilder()
                 .limitUsageAmount(limitUsageAmount)
                 .limitVersionUuid(validationResult.getLimitVersionUuid())
@@ -165,10 +180,10 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 
     private String getBeneficiaryCode(FundTransferRequestDTO request) {
         if(GOLD.equalsIgnoreCase(request.getCurrency())){
-            return ServiceType.XAU.name();
+            return ServiceType.XAU.getName();
         }
         else if(SILVER.equalsIgnoreCase(request.getCurrency())){
-            return ServiceType.XAG.name();
+            return ServiceType.XAG.getName();
         }
         else return request.getServiceType();
     }
