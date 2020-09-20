@@ -135,8 +135,10 @@ public enum TransferErrorCode implements ErrorCode {
     FT_CC_MW_ERROR_RESPONSE("TN-8008","Error response from middleware for Fund Transfer via CC"),
     FT_CC_NO_DEALS("TN-8008","No credit cards deals are available for the given cif"),
     FT_CC_BALANCE_NOT_SUFFICIENT("TN-8009","No available balance on the given credit card"),
+    ACCOUNT_NO_NOT_MASKED("TN-8010","Account no masked is failed due to length"),
 
     EMAIL_NOTIFICATION_FAILED("EMAIL_9001","Failed to send email notification"),
+
     ;
 
 

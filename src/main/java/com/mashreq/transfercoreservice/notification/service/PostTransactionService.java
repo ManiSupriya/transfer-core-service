@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
+import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
 import com.mashreq.transfercoreservice.config.notification.EmailConfig;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
@@ -105,7 +106,7 @@ public class PostTransactionService {
     }
 
     private PostTransactionActivityContext<SendEmailRequest> getEmailPostTransactionActivityContext(RequestMetaData requestMetaData,
-                                                                                                    FundTransferRequest fundTransferRequest) throws JsonProcessingException {
+                                                                                                    FundTransferRequest fundTransferRequest) throws Exception {
         SendEmailRequest emailRequest = SendEmailRequest.builder().isEmailPresent(false).build();
         if (StringUtils.isNotBlank(requestMetaData.getEmail())) {
             final EmailParameters emailParameters = emailConfig.getEmail().get(requestMetaData.getCountry());
@@ -128,7 +129,7 @@ public class PostTransactionService {
             templateValues.put(CUSTOMER_NAME, StringUtils.defaultIfBlank(requestMetaData.getUsername(), CUSTOMER));
             templateValues.put(TRANSFER_TYPE, StringUtils.defaultIfBlank(fundTransferRequest.getTransferType(), DEFAULT_STR));
             templateValues.put(SOURCE_OF_FUND, StringUtils.defaultIfBlank(fundTransferRequest.getSourceOfFund(), DEFAULT_STR));
-            templateValues.put(MASKED_ACCOUNT, StringUtils.defaultIfBlank(fundTransferRequest.getFromAccount(), DEFAULT_STR));
+            templateValues.put(MASKED_ACCOUNT, StringUtils.defaultIfBlank(doMask(fundTransferRequest.getFromAccount()), DEFAULT_STR));
             templateValues.put(TO_ACCOUNT_NO, StringUtils.defaultIfBlank(fundTransferRequest.getToAccount(), DEFAULT_STR));
             templateValues.put(BENEFICIARY_NICK_NAME, StringUtils.defaultIfBlank(fundTransferRequest.getBeneficiaryFullName(), DEFAULT_STR));
             templateValues.put(CURRENCY, StringUtils.defaultIfBlank(fundTransferRequest.getSourceCurrency(), DEFAULT_STR) );
@@ -234,6 +235,22 @@ public class PostTransactionService {
         if (!jsonConfigOpt.isPresent()) {
             log.error("Exception while parsing the settings value json string from application settings. ", FundTransferEventType.APPLICATION_SETTING_KEY_NOT_FOUND);
         }
+    }
+
+    public String doMask(String strText) throws Exception {
+        int total = strText.length();
+        int endLength = 4;
+        int maskLength = total - endLength;
+        if (maskLength <= 0) {
+            GenericExceptionHandler.handleError(TransferErrorCode.ACCOUNT_NO_NOT_MASKED,
+                    TransferErrorCode.ACCOUNT_NO_NOT_MASKED.getErrorMessage());
+        }
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < maskLength; i++) {
+            builder.append('X');
+        }
+        String masked = builder.append(strText, maskLength, total).toString();
+        return masked;
     }
 
 }
