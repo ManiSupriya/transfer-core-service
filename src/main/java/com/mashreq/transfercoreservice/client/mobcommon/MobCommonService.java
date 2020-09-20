@@ -1,23 +1,22 @@
 package com.mashreq.transfercoreservice.client.mobcommon;
 
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
-import com.mashreq.transfercoreservice.client.ErrorUtils;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
 import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
-import com.mashreq.transfercoreservice.errors.TransferErrorCode;
+import com.mashreq.transfercoreservice.model.ApplicationSettingDto;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -94,5 +93,17 @@ public class MobCommonService {
         }
         return mobCommonClient.getCustomerDetails(cif).getData();
 
+    }
+
+    public List<ApplicationSettingDto> getApplicationSettings(String group) {
+        log.info("[MobCommonService] Calling MobCommonService to get application settings for group = {}", group);
+        Instant startTime = now();
+        Response<List<ApplicationSettingDto>>  response = mobCommonClient.getApplicationSettings(group);
+        if (Objects.isNull(response.getData()) || ResponseStatus.ERROR == response.getStatus()) {
+            log.error("Error while fetching application settings. Group = {} ", group);
+            GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR, EXTERNAL_SERVICE_ERROR.getErrorMessage(), getErrorDetails(response));
+        }
+        log.info("[MobCommonService] MobCommonService response success in nanoseconds {} ", Duration.between(startTime, now()));
+        return response.getData();
     }
 }
