@@ -11,6 +11,7 @@ import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.CardService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
+import com.mashreq.transfercoreservice.common.CommonConstants;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
@@ -136,7 +137,23 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         responseHandler(ibanValidator.validate(request, metadata, validationContext));
 
         //Deal Validator
-        responseHandler(dealValidator.validate(request, metadata, validationContext));
+        log.info("Deal Validation Started");
+        if (StringUtils.isNotBlank(request.getDealNumber()) && !request.getDealNumber().isEmpty()) {
+        	String trxCurrency = StringUtils.isBlank(request.getTxnCurrency()) ? localCurrency
+					: request.getTxnCurrency();
+			if (StringUtils.equalsIgnoreCase(trxCurrency, request.getCurrency())) {
+				auditEventPublisher.publishFailedEsbEvent(FundTransferEventType.DEAL_VALIDATION, metadata,
+						CommonConstants.FUND_TRANSFER, metadata.getChannelTraceId(),
+						TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SAME_CRNCY.toString(),
+						TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SAME_CRNCY.getErrorMessage(),
+						TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SAME_CRNCY.getErrorMessage());
+				GenericExceptionHandler.handleError(TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SAME_CRNCY,
+						TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SAME_CRNCY.getErrorMessage(),
+						TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SAME_CRNCY.getErrorMessage());
+			}
+			request.setTxnCurrency(trxCurrency);
+            responseHandler(dealValidator.validate(request, metadata, validationContext));
+   		 }
 
         //Balance Validation
         final BigDecimal transferAmountInSrcCurrency = isCurrencySame(beneficiaryDto, fromAccountDetails.getCurrency())

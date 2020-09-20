@@ -9,6 +9,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
@@ -27,6 +28,7 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.AccountBelongsToC
 import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.CharityValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.CurrencyValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.FinTxnNoValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.SameAccountValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
@@ -53,6 +55,7 @@ public class CharityStrategyDefault implements FundTransferStrategy {
     private final BeneficiaryClient beneficiaryClient;
     private final CharityValidator charityValidator;
     private final CurrencyValidator currencyValidator;
+    private final DealValidator dealValidator;
     private final LimitValidator limitValidator;
     private final FundTransferMWService fundTransferMWService;
     private final BalanceValidator balanceValidator;
@@ -90,6 +93,12 @@ public class CharityStrategyDefault implements FundTransferStrategy {
         responseHandler(currencyValidator.validate(request, metadata, validateContext));
 
         //TODO
+        
+        //Deal Validator
+        log.info("Deal Validation Started");
+        if (StringUtils.isNotBlank(request.getDealNumber()) && !request.getDealNumber().isEmpty()) {
+            responseHandler(dealValidator.validate(request, metadata, validateContext));
+   		 }
 
         //Balance Validation
         validateContext.add("transfer-amount-in-source-currency", request.getAmount());

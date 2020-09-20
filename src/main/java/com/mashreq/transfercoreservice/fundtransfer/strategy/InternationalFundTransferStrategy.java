@@ -93,7 +93,10 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
 
         //Deal Validator
-        responseHandler(dealValidator.validate(request, metadata, validationContext));
+        log.info("Deal Validation Started");
+        if (StringUtils.isNotBlank(request.getDealNumber()) && !request.getDealNumber().isEmpty()) {
+            responseHandler(dealValidator.validate(request, metadata, validationContext));
+   		 }
         
         //Balance Validation
         final AccountDetailsDTO sourceAccountDetailsDTO = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
