@@ -11,9 +11,11 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
+import com.mashreq.transfercoreservice.notification.service.PostTransactionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -50,8 +52,8 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
 
     private final HashMap<String, String> countryToCurrencyMap = new HashMap<>();
 
-    /*@Autowired
-    private PostTransactionService postTransactionService;*/
+    @Autowired
+    private PostTransactionService postTransactionService;
 
 //    @Value("${app.local.transaction.code:015}")
 //    private String transactionCode;
@@ -114,10 +116,10 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         log.info("International Fund transfer initiated.......");
         final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata);
 
-       /* fundTransferRequest.setSourceOfFund(PostTransactionService.SOURCE_OF_FUND_ACCOUNT);
+        fundTransferRequest.setSourceOfFund(PostTransactionService.SOURCE_OF_FUND_ACCOUNT);
         fundTransferRequest.setTransferType(ServiceType.INFT.getName());
         fundTransferRequest.setStatus(fundTransferResponse.getResponseDto().getMwResponseStatus().getName());
-        postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest);*/
+        postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest);
 
         return fundTransferResponse.toBuilder()
                 .limitUsageAmount(limitUsageAmount)
