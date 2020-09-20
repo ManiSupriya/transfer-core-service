@@ -2,7 +2,7 @@ package com.mashreq.transfercoreservice.notification.service;
 
 import com.mashreq.logcore.annotations.TrackExecTimeAndResult;
 import com.mashreq.transfercoreservice.client.NotificationClient;
-import com.mashreq.transfercoreservice.config.SMSConfig;
+import com.mashreq.transfercoreservice.config.notification.SMSConfig;
 import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
 import com.mashreq.transfercoreservice.notification.model.SMSObject;
 import com.mashreq.transfercoreservice.notification.model.SMSResponse;

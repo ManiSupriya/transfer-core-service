@@ -1,4 +1,4 @@
-package com.mashreq.transfercoreservice.config;
+package com.mashreq.transfercoreservice.config.notification;
 
 import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
 import lombok.Data;

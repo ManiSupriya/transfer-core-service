@@ -7,12 +7,14 @@ import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
 import com.mashreq.transfercoreservice.config.feign.FeignConfig;
+import com.mashreq.transfercoreservice.model.ApplicationSetting;
 import com.mashreq.webcore.dto.response.Response;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Set;
 
 @FeignClient(name = "mobcommon", url = "${app.services.mobcommon}", configuration = FeignConfig.class)
@@ -36,6 +38,9 @@ public interface MobCommonClient {
 
     @GetMapping("/v1/customer")
     Response<CustomerDetailsDto> getCustomerDetails(@RequestHeader(HeaderNames.CIF_HEADER_NAME) String cifId);
+
+    @GetMapping(value = "/v1/settings")
+    Response<List<ApplicationSetting>> getApplicationSettings(@RequestParam(value = "group", required = false) final String group);
 
 
 }
