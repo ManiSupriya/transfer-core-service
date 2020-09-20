@@ -51,6 +51,9 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     private final BalanceValidator balanceValidator;
     private final NotificationService notificationService;
 
+    /*@Autowired
+    private PostTransactionService postTransactionService;*/
+
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, RequestMetaData metadata, UserDTO userDTO) {
 
@@ -107,7 +110,10 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata);
 
         log.info("Total time taken for {} strategy {} milli seconds ", htmlEscape(request.getServiceType()), htmlEscape(Long.toString(between(start, now()).toMillis())));
-
+        /*fundTransferRequest.setSourceOfFund(PostTransactionService.SOURCE_OF_FUND_ACCOUNT);
+        fundTransferRequest.setTransferType(ServiceType.LOCAL.getName());
+        fundTransferRequest.setStatus(fundTransferResponse.getResponseDto().getMwResponseStatus().getName());
+        postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest);*/
         return fundTransferResponse.toBuilder()
                 .limitUsageAmount(limitUsageAmount)
                 .limitVersionUuid(validationResult.getLimitVersionUuid())

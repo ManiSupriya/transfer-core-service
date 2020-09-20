@@ -21,6 +21,7 @@ import com.mashreq.transfercoreservice.fundtransfer.service.QRDealsService;
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.model.Country;
+import com.mashreq.transfercoreservice.notification.service.PostTransactionService;
 import com.mashreq.transfercoreservice.repository.CountryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,6 +47,8 @@ import static java.lang.Long.valueOf;
 public class LocalFundTransferStrategy implements FundTransferStrategy {
 
     private static final String INDIVIDUAL_ACCOUNT = "I";
+    private static final String SOURCE_OF_FUND_CC = "Credit Card";
+
 
     private static final int LOCAL_IBAN_LENGTH = 23;
     private static final String LOCAL_PRODUCT_ID = "DBLC";
@@ -81,6 +84,9 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
     @Autowired
     private CardService cardService;
+
+    @Autowired
+    private PostTransactionService postTransactionService;
 
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, RequestMetaData requestMetaData, UserDTO userDTO) {
@@ -149,7 +155,10 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
         final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata);
 
-
+        fundTransferRequest.setSourceOfFund(PostTransactionService.SOURCE_OF_FUND_ACCOUNT);
+        fundTransferRequest.setTransferType(ServiceType.LOCAL.getName());
+        fundTransferRequest.setStatus(fundTransferResponse.getResponseDto().getMwResponseStatus().getName());
+        postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest);
         return fundTransferResponse.toBuilder()
                 .limitUsageAmount(limitUsageAmount)
                 .limitVersionUuid(validationResult.getLimitVersionUuid()).build();
@@ -276,6 +285,11 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
             qrDealsService.updateQRDeals(cif, utilizedAmount);
             log.info("Fund transfer CC updated QR deals utilized amount " + cif);
         }
+        fundTransferRequest.setSourceOfFund(SOURCE_OF_FUND_CC);
+        fundTransferRequest.setTransferType(ServiceType.LOCAL.getName());
+        fundTransferRequest.setFromAccount(cardDetailsDTO.getCardNoWithMasked());
+        fundTransferRequest.setStatus(mwResponseStatus.getName());
+        postTransactionService.performPostTransactionActivities(requestMetaData, fundTransferRequest);
         return fundTransferResponse;
     }
 

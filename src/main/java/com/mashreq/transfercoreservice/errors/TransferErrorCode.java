@@ -134,6 +134,7 @@ public enum TransferErrorCode implements ErrorCode {
     FT_CC_NO_DEALS("TN-8008","No credit cards deals are available for the given cif"),
     FT_CC_BALANCE_NOT_SUFFICIENT("TN-8009","No available balance on the given credit card"),
 
+    EMAIL_NOTIFICATION_FAILED("EMAIL_9001","Failed to send email notification"),
     ;
 
 
