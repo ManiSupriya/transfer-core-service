@@ -21,17 +21,6 @@ import com.mashreq.transfercoreservice.notification.service.PostTransactionServi
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.List;
-
-import static java.time.Duration.between;
-import static java.time.Instant.now;
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -141,7 +130,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccount, toAccount,conversionResult.getExchangeRate(),validationResult);
 
-        final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request,transactionAmount,fundTransferRequest);
+        final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request,transactionAmount,fundTransferRequest,conversionResult);
         notificationService.sendNotifications(customerNotification,OWN_ACCOUNT_TRANSACTION,metadata);
 
         final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata);
@@ -160,7 +149,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 
     }
 
-    private CustomerNotification populateCustomerNotification(String transactionRefNo, FundTransferRequestDTO requestDTO, BigDecimal amount, FundTransferRequest fundTransferRequest) {
+    private CustomerNotification populateCustomerNotification(String transactionRefNo, FundTransferRequestDTO requestDTO, BigDecimal amount, FundTransferRequest fundTransferRequest, CurrencyConversionDto conversionResult) {
         CustomerNotification customerNotification =new CustomerNotification();
         customerNotification.setAmount(String.valueOf(amount));
         customerNotification.setCurrency(requestDTO.getCurrency());
@@ -169,11 +158,20 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         if(requestDTO.getSrcAmount()!=null){
             customerNotification.setBuy_sell("SELL");
             customerNotification.setCreditAccount(requestDTO.getToAccount());
-            customerNotification.setCreditAmount();
-            customerNotification.setCreditAmount();
+            customerNotification.setCreditAmount(String.valueOf(conversionResult.getTransactionAmount()));
+            customerNotification.setCreditCurrency(fundTransferRequest.getDestinationCurrency());
         }
         else{
             customerNotification.setBuy_sell("BUY");
+            customerNotification.setDebitAccount(requestDTO.getFromAccount());
+            customerNotification.setDebitAmount(String.valueOf(conversionResult.getTransactionAmount()));
+            customerNotification.setDebitCurrency(fundTransferRequest.getSourceCurrency());
+        }
+        if(GOLD.equals(requestDTO.getCurrency())){
+            customerNotification.setTransferType(ServiceType.XAU.getName());
+        }
+        else if(SILVER.equals(requestDTO.getCurrency())){
+            customerNotification.setTransferType(ServiceType.XAG.getName());
         }
         return customerNotification;
     }
