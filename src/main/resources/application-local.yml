@@ -109,10 +109,10 @@ app:
   notification:
     email:
       AE:
-        emailSubject: ${NOTIFICATION_EMAIL_SEGMENT_CUSTOMER_EMAIL_SUBJECT:%s request via %s}
-        fromEmailName: ${NOTIFICATION_EMAIL_SEGMENT_CUSTOMER_EMAIL_FROM_EMAIL_NAME:MashreqDigital}
-        fromEmailAddress: ${NOTIFICATION_EMAIL_SEGMENT_CUSTOMER_EMAIL_FROM_EMAIL_ADDRESS:MashreqDigital@mashreqbank.com}
-        callCenterNo: ${NOTIFICATION_EMAIL_SEGMENT_CUSTOMER_EMAIL_CALL_CENTER_NO:04 424 6666}
+        emailSubject: ${NOTIFICATION_EMAIL_SUBJECT:%s request via %s}
+        fromEmailName: ${NOTIFICATION_FROM_EMAIL_NAME:MashreqDigital}
+        fromEmailAddress: ${NOTIFICATION_FROM_EMAIL_ADDRESS:MashreqDigital@mashreqbank.com}
+        callCenterNo: ${NOTIFICATION_EMAIL_CALL_CENTER_NO:04 424 6666}
         localFundTransfer: mt-within-own-accounts.ftl
         otherFundTransfer: mt-other-accounts.ftl
 redis:
