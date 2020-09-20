@@ -10,11 +10,12 @@ public class CustomerNotification {
     String txnRef;
     String exchangeRate;
     String transferType;
-    String fromAccount;
-    String fromCurrency;
-    String fromAmount;
-    String toAccount;
-    String toAmount;
-    String toCurrency;
+    String debitAccount;
+    String debitCurrency;
+    String debitAmount;
+    String creditAccount;
+    String creditAmount;
+    String creditCurrency;
+    String buy_sell;
 
 }

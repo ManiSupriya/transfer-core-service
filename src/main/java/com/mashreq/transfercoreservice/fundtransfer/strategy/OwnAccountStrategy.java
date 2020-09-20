@@ -1,16 +1,5 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
-import static java.time.Duration.between;
-import static java.time.Instant.now;
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Service;
-
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
@@ -22,26 +11,24 @@ import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.common.CommonConstants;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
-import com.mashreq.transfercoreservice.fundtransfer.dto.LimitValidatorResponse;
-import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
-import com.mashreq.transfercoreservice.fundtransfer.validators.AccountBelongsToCifValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.CurrencyValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.FinTxnNoValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.SameAccountValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
+import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
 import com.mashreq.transfercoreservice.notification.service.NotificationService;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.List;
+
+import static java.time.Duration.between;
+import static java.time.Instant.now;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 /**
  * @author shahbazkh
@@ -99,10 +86,11 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 
         BigDecimal transactionAmount = request.getAmount() == null ? request.getSrcAmount() : request.getAmount();
 
-        CurrencyConversionDto conversionResult = request.getAmount()!=null && !isCurrencySame(toAccount, fromAccount)
+        //
+        CurrencyConversionDto conversionResult = !isCurrencySame(toAccount, fromAccount)
                 ? getCurrencyExchangeObject(transactionAmount,toAccount,fromAccount)
-                : getCurrencyExchangeObject(transactionAmount,fromAccount,toAccount);
-
+                :CurrencyConversionDto.builder().accountCurrencyAmount(transactionAmount).exchangeRate(new BigDecimal(1)).transactionAmount(transactionAmount).build();
+        //if srcCurrency =xau/xag - multiply
 
         final BigDecimal transferAmountInSrcCurrency = request.getAmount()!=null && !isCurrencySame(toAccount, fromAccount)
             ? conversionResult.getAccountCurrencyAmount()
@@ -141,7 +129,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccount, toAccount,conversionResult.getExchangeRate(),validationResult);
 
-        final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getCurrency(),transactionAmount);
+        final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request,transactionAmount,fundTransferRequest);
         notificationService.sendNotifications(customerNotification,OWN_ACCOUNT_TRANSACTION,metadata);
 
         final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata);
@@ -152,24 +140,35 @@ public class OwnAccountStrategy implements FundTransferStrategy {
                 .limitUsageAmount(limitUsageAmount)
                 .limitVersionUuid(validationResult.getLimitVersionUuid())
                 .transactionRefNo(validationResult.getTransactionRefNo())
+                .customerNotification(customerNotification)
                 .build();
 
     }
 
-    private CustomerNotification populateCustomerNotification(String transactionRefNo, String currency, BigDecimal amount) {
+    private CustomerNotification populateCustomerNotification(String transactionRefNo, FundTransferRequestDTO requestDTO, BigDecimal amount, FundTransferRequest fundTransferRequest) {
         CustomerNotification customerNotification =new CustomerNotification();
         customerNotification.setAmount(String.valueOf(amount));
-        customerNotification.setCurrency(currency);
+        customerNotification.setCurrency(requestDTO.getCurrency());
         customerNotification.setTxnRef(transactionRefNo);
+        customerNotification.setExchangeRate(String.valueOf(fundTransferRequest.getExchangeRate()));
+        if(requestDTO.getSrcAmount()!=null){
+            customerNotification.setBuy_sell("SELL");
+            customerNotification.setCreditAccount(requestDTO.getToAccount());
+            customerNotification.setCreditAmount();
+            customerNotification.setCreditAmount();
+        }
+        else{
+            customerNotification.setBuy_sell("BUY");
+        }
         return customerNotification;
     }
 
     private String getBeneficiaryCode(FundTransferRequestDTO request) {
         if(GOLD.equalsIgnoreCase(request.getCurrency())){
-            return ServiceType.XAU.getName();
+            return ServiceType.XAU.name();
         }
         else if(SILVER.equalsIgnoreCase(request.getCurrency())){
-            return ServiceType.XAG.getName();
+            return ServiceType.XAG.name();
         }
         else return request.getServiceType();
     }

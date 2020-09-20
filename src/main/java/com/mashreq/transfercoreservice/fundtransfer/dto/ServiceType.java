@@ -23,8 +23,8 @@ public enum ServiceType implements ValidEnum {
     BAIT_AL_KHAIR("BALKH","BAIT_AL_KHAIR","BA"),
     DUBAI_CARE("DCARE","DUBAI_CARE","DC"),
     QRT("QRT","QUICK_REMIT","QR"),
-    XAU("XAU","GOLD_TRANSFER","GL"),
-    XAG("XAG","SILVER_TRANSFER","SL"),
+    XAU("GOLD","GOLD_TRANSFER","GL"),
+    XAG("SILVER","SILVER_TRANSFER","SL"),
     CLC("cardless-cash","CARDLESS_CASH","cardless-cash")
     ;
 
