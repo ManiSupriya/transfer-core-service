@@ -243,6 +243,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     private FundTransferResponse processCreditCardTransfer(FundTransferRequestDTO requestDTO, RequestMetaData requestMetaData,
                                            CardDetailsDTO cardDetailsDTO, BeneficiaryDto beneficiaryDto){
         // validate the limit on the db
+        MwResponseStatus mwResponseStatus;
         String cif = requestMetaData.getPrimaryCif();
         FundTransferRequest fundTransferRequest;
         FundTransferResponse fundTransferResponse;
@@ -253,7 +254,10 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         log.info("Fund transfer CC QR Deals verified "+cif);
         BigDecimal maximumEligibleAmount = qrDealDetails.getTotalLimitAmount();
         BigDecimal utilizedAmount = qrDealDetails.getUtilizedLimitAmount();
-        BigDecimal balancedAmount = maximumEligibleAmount.min(utilizedAmount);
+        if(utilizedAmount == null){
+            utilizedAmount = new BigDecimal("0");
+        }
+        BigDecimal balancedAmount = maximumEligibleAmount.subtract(utilizedAmount);
         BigDecimal requestedAmount  = requestDTO.getAmount();
         int result = balancedAmount.compareTo(requestedAmount);
         if(result == -1){
@@ -266,8 +270,8 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         log.info("Fund transfer CC calling MW "+cif);
         fundTransferResponse = fundTransferCCMWService.transfer(fundTransferRequest, requestMetaData);
         // Only if MW request is success, then update the utilized amount
-        if(fundTransferResponse.getResponseDto().getMwResponseStatus() == MwResponseStatus.S) {
-            // update the utilised amount in the db
+        mwResponseStatus = fundTransferResponse.getResponseDto().getMwResponseStatus();
+        if(mwResponseStatus.getName().equalsIgnoreCase(MwResponseStatus.S.getName())) {
             utilizedAmount = utilizedAmount.add(requestedAmount);
             qrDealsService.updateQRDeals(cif, utilizedAmount);
             log.info("Fund transfer CC updated QR deals utilized amount " + cif);
