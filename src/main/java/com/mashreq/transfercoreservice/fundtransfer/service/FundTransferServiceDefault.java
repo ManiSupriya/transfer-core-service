@@ -1,30 +1,5 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.FUND_TRANSFER_FAILED;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.BAIT_AL_KHAIR;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.DAR_AL_BER;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.DUBAI_CARE;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.INFT;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.LOCAL;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.QRT;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WAMA;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WYMA;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.getServiceByType;
-import static java.time.Duration.between;
-import static java.time.Instant.now;
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.EnumMap;
-import java.util.Optional;
-
-import javax.annotation.PostConstruct;
-
-import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Service;
-
 import com.mashreq.logcore.annotations.TrackExec;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
@@ -53,6 +28,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.EnumMap;
 import java.util.Optional;
 
@@ -279,7 +255,7 @@ public class FundTransferServiceDefault implements FundTransferService {
                 .accountFrom(request.getFromAccount())
                 .financialTransactionNo(request.getFinTxnNo())
                 .transactionRefNo(fundTransferResponse.getTransactionRefNo())
-                .valueDate(LocalDateTime.now().toString())
+                .valueDate(LocalDateTime.now())
                 .build();
 
     }

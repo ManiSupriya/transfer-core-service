@@ -110,7 +110,7 @@ public enum TransferErrorCode implements ErrorCode {
     ACC_SERVICE_EXCEED_WITHDRAWL_ERROR("TN-5015", "Account external service exceeds withdrawal frequency exception"),
     ACC_SERVICE_EXCEED_WITHDRAWL_LIMIT_ERROR("TN-5016", "Account external service exceeds withdrawal limit exception"),
     OTP_EXTERNAL_SERVICE_ERROR("TN-5016", "Something went wrong with OTP external service"),
-    OTP_SERVICE_CONNECTION_ERROR("TN-5017", "OTP external service connection exception"),    
+    OTP_SERVICE_CONNECTION_ERROR("TN-5017", "OTP external service connection exception"),
     OTP_VERIFY_INVALID_SESSION_TOKEN("VERIFY_OTP_4003", "OTP external service Invalid session token exception"),
     OTP_VERIFY_OTP_FAILED("VERIFY_OTP_10020", "OTP external service Otp verification failed exception"),
     OTP_VERIFY_ATTEMPTS_EXCEEDED("VERIFY_OTP_10200", "otp verification attempts exceeded exception"),
@@ -136,11 +136,8 @@ public enum TransferErrorCode implements ErrorCode {
     SMS_NOTIFICATION_FAILED("TN-9001","Failed to send sms notification"),
     APPLICATION_KEY_NOT_FOUND("TN-9002","Application setting key not found"),
     PUSH_NOTIFICATION_FAILED("TN-9003","Failed to send push notification"),
-
     ACCOUNT_NO_NOT_MASKED("TN-8010","Account no masked is failed due to length"),
-
     EMAIL_NOTIFICATION_FAILED("EMAIL_9001","Failed to send email notification"),
-
     ;
 
 
