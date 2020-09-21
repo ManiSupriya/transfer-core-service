@@ -37,7 +37,7 @@ import java.util.Set;
 public class InternationalFundTransferStrategy implements FundTransferStrategy {
 
     private static final String INTERNATIONAL_PRODUCT_ID = "DBFC";
-    private static final String LIMIT_CHECK_PAYMENT_GATEWAY_TXN_TYPE = "MT";//MONEY TRANSFER
+    private static final String LIMIT_CHECK_MNY_TRNSFR_TXN_TYPE = "MT";//MONEY TRANSFER
     private static final String INDIVIDUAL_ACCOUNT = "I";
     private static final String ROUTING_CODE_PREFIX = "//";
     private final FinTxnNoValidator finTxnNoValidator;
@@ -126,7 +126,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
 
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, sourceAccountDetailsDTO, beneficiaryDto, validationResult);
         log.info("International Fund transfer initiated.......");
-        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata);
+        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata, txnRefNo);
 
         fundTransferRequest.setSourceOfFund(PostTransactionService.SOURCE_OF_FUND_ACCOUNT);
         fundTransferRequest.setTransferType(ServiceType.INFT.getName());
@@ -174,7 +174,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
 
         return new StringBuilder()
                 .append(requestMetaData.getChannel().charAt(0))
-                .append(LIMIT_CHECK_PAYMENT_GATEWAY_TXN_TYPE)
+                .append(LIMIT_CHECK_MNY_TRNSFR_TXN_TYPE)
                 .append(channelTxnNo)
                 .toString();
     }

@@ -50,7 +50,7 @@ import lombok.extern.slf4j.Slf4j;
 public class CharityStrategyDefault implements FundTransferStrategy {
 
     private static final String INTERNAL_ACCOUNT_FLAG = "N";
-    private static final String LIMIT_CHECK_PAYMENT_GATEWAY_TXN_TYPE = "MT";//MONEY TRANSFER
+    private static final String LIMIT_CHECK_MNY_TRNSFR_TXN_TYPE = "MT";//MONEY TRANSFER
 
     private final SameAccountValidator sameAccountValidator;
     private final FinTxnNoValidator finTxnNoValidator;
@@ -125,7 +125,7 @@ public class CharityStrategyDefault implements FundTransferStrategy {
         final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getCurrency(),request.getAmount());
         notificationService.sendNotifications(customerNotification,OTHER_ACCOUNT_TRANSACTION,metadata);
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountOpt.get(), charityBeneficiaryDto, validationResult);
-        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata);
+        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata, txnRefNo);
 
 
         //final FundTransferResponse fundTransferResponse = coreTransferService.transferFundsBetweenAccounts(request);
@@ -151,7 +151,7 @@ public class CharityStrategyDefault implements FundTransferStrategy {
 
         return new StringBuilder()
                 .append(requestMetaData.getChannel().charAt(0))
-                .append(LIMIT_CHECK_PAYMENT_GATEWAY_TXN_TYPE)
+                .append(LIMIT_CHECK_MNY_TRNSFR_TXN_TYPE)
                 .append(channelTxnNo)
                 .toString();
     }

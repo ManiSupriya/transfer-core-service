@@ -77,7 +77,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     private final AsyncUserEventPublisher auditEventPublisher;
     private final EncryptionService encryptionService = new EncryptionService();
     private final NotificationService notificationService;
-    private static final String LIMIT_CHECK_PAYMENT_GATEWAY_TXN_TYPE = "MT";//MONEY TRANSFER
+    private static final String LIMIT_CHECK_MNY_TRNSFR_TXN_TYPE = "MT";//MONEY TRANSFER
 
     @Value("${app.local.currency}")
     private String localCurrency;
@@ -179,7 +179,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getCurrency(),request.getAmount());
         notificationService.sendNotifications(customerNotification,OTHER_ACCOUNT_TRANSACTION,metadata);
         
-        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata);
+        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata, txnRefNo);
         
         fundTransferRequest.setSourceOfFund(PostTransactionService.SOURCE_OF_FUND_ACCOUNT);
         fundTransferRequest.setTransferType(ServiceType.LOCAL.getName());
@@ -275,7 +275,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
         return new StringBuilder()
                 .append(requestMetaData.getChannel().charAt(0))
-                .append(LIMIT_CHECK_PAYMENT_GATEWAY_TXN_TYPE)
+                .append(LIMIT_CHECK_MNY_TRNSFR_TXN_TYPE)
                 .append(channelTxnNo)
                 .toString();
     }

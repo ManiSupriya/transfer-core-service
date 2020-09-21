@@ -47,7 +47,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     public static final String GOLD = "XAU";
     public static final String SILVER = "XAG";
     private static final String  OWN_ACCOUNT_TRANSACTION = "OWN_ACCOUNT_TRANSACTION";
-    private static final String LIMIT_CHECK_PAYMENT_GATEWAY_TXN_TYPE = "MT";//MONEY TRANSFER
+    private static final String LIMIT_CHECK_MNY_TRNSFR_TXN_TYPE = "MT";//MONEY TRANSFER
 
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
     private final SameAccountValidator sameAccountValidator;
@@ -139,7 +139,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getCurrency(),transactionAmount);
         notificationService.sendNotifications(customerNotification,OWN_ACCOUNT_TRANSACTION,metadata);
         
-        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata);
+        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata, txnRefNo);
 
         log.info("Total time taken for {} strategy {} milli seconds ", htmlEscape(request.getServiceType()), htmlEscape(Long.toString(between(start, now()).toMillis())));
         fundTransferRequest.setSourceOfFund(PostTransactionService.SOURCE_OF_FUND_ACCOUNT);
@@ -236,7 +236,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 
         return new StringBuilder()
                 .append(requestMetaData.getChannel().charAt(0))
-                .append(LIMIT_CHECK_PAYMENT_GATEWAY_TXN_TYPE)
+                .append(LIMIT_CHECK_MNY_TRNSFR_TXN_TYPE)
                 .append(channelTxnNo)
                 .toString();
     }

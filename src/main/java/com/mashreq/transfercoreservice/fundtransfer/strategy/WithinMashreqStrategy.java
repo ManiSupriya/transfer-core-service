@@ -61,7 +61,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     private static final String INTERNAL_ACCOUNT_FLAG = "N";
     public static final String WITHIN_MASHREQ_TRANSACTION_CODE = "096";
     public static final String LOCAL_CURRENCY = "AED";
-    private static final String LIMIT_CHECK_PAYMENT_GATEWAY_TXN_TYPE = "MT";//MONEY TRANSFER
+    private static final String LIMIT_CHECK_MNY_TRNSFR_TXN_TYPE = "MT";//MONEY TRANSFER
 
     private final SameAccountValidator sameAccountValidator;
     private final FinTxnNoValidator finTxnNoValidator;
@@ -149,7 +149,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
 
 
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountOpt.get(), beneficiaryDto, validationResult);
-        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata);
+        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata, txnRefNo);
         
         return fundTransferResponse.toBuilder()
                 .limitUsageAmount(limitUsageAmount)
@@ -164,7 +164,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
 
         return new StringBuilder()
                 .append(requestMetaData.getChannel().charAt(0))
-                .append(LIMIT_CHECK_PAYMENT_GATEWAY_TXN_TYPE)
+                .append(LIMIT_CHECK_MNY_TRNSFR_TXN_TYPE)
                 .append(channelTxnNo)
                 .toString();
     }

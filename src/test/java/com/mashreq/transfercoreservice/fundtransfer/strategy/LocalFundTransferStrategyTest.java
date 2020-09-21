@@ -160,7 +160,7 @@ public class LocalFundTransferStrategyTest {
         .thenReturn(limitValidatorResponse);
         when(dealValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
 
-        when(fundTransferMWService.transfer(fundTransferRequest.capture(),eq(metadata)))
+        when(fundTransferMWService.transfer(fundTransferRequest.capture(),eq(metadata),anyString()))
                 .thenReturn(FundTransferResponse.builder().limitUsageAmount(limitUsageAmount).limitVersionUuid(limitVersionUuid).build());
 
         final FundTransferResponse response = localFundTransferStrategy.execute(requestDTO, metadata, userDTO);
@@ -290,7 +290,7 @@ public class LocalFundTransferStrategyTest {
                 .thenReturn(limitValidatorResponse);
         when(dealValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
 
-        when(fundTransferMWService.transfer(fundTransferRequest.capture(),eq(metadata)))
+        when(fundTransferMWService.transfer(fundTransferRequest.capture(),eq(metadata),anyString()))
                 .thenReturn(FundTransferResponse.builder().limitUsageAmount(paidAmt).limitVersionUuid(limitVersionUuid).build());
 
         final FundTransferResponse response = localFundTransferStrategy.execute(requestDTO, metadata, userDTO);
