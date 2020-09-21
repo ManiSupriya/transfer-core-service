@@ -41,7 +41,6 @@ public enum TransferErrorCode implements ErrorCode {
     TRX_LIMIT_REACHED("LM-1102", "Transaction Limit Reached"),
     DAY_AMOUNT_LIMIT_REACHED("LM-1103", "Day Amount Limit Reached"),
     DAY_COUNT_LIMIT_REACHED("LM-1104", "Day count Limit Reached"),
-    MONTH_AMOUNT_LIMIT_REACHED("LM-1104", "Month Amount Limit Reached"),
     MONTH_COUNT_LIMIT_REACHED("LM-1105", "Month Count Limit Reached"),
     INVALID_BEN_CODE("LM-1106","Invalid ben code"),
     MIN_AMOUNT_LIMIT_REACHED("LM-1107", "Min Amount Limit Reached"),
@@ -49,6 +48,7 @@ public enum TransferErrorCode implements ErrorCode {
     COOLING_COUNT_LIMIT_REACHED("LM-1109", "Cooling Count Limit Reached"),
     COOLING_AMOUNT_LIMIT_REACHED("LM-1110", "Cooling Count Limit Reached"),
     TXN_AMOUNT_LIMIT_REACHED("LM-1111", "Transaction amount Limit Reached"),
+    MONTH_AMOUNT_LIMIT_REACHED("LM-1112", "Month Amount Limit Reached"),
 
     BENE_NOT_FOUND("TN-4001", "Beneficiary Not Found"),
     BENE_ACC_NOT_MATCH("TN-4002", "Beneficiary Account Number does not match"),

@@ -17,6 +17,7 @@ import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.EnumMap;
 import java.util.Optional;
 
@@ -273,6 +274,7 @@ public class FundTransferServiceDefault implements FundTransferService {
                 .accountFrom(request.getFromAccount())
                 .financialTransactionNo(request.getFinTxnNo())
                 .transactionRefNo(fundTransferResponse.getTransactionRefNo())
+                .valueDate(LocalDateTime.now().toString())
                 .build();
 
     }
