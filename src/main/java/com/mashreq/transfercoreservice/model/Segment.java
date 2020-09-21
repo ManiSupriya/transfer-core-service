@@ -23,6 +23,8 @@ public class Segment extends AbstractAuditingEntity {
     private Long id;
     @Column(unique = true, nullable = false)
     private String name;
+    private String customerCareNumber;
+    private String customerCareEmail;
     // TODO
 //    private List<UserGroups> userGroups;
 }

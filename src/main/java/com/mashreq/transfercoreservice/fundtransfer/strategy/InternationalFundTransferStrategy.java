@@ -119,7 +119,6 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         log.info("International Fund transfer initiated.......");
         final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata);
 
-        fundTransferRequest.setSourceOfFund(PostTransactionService.SOURCE_OF_FUND_ACCOUNT);
         fundTransferRequest.setTransferType(ServiceType.INFT.getName());
         fundTransferRequest.setStatus(fundTransferResponse.getResponseDto().getMwResponseStatus().getName());
         postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest);

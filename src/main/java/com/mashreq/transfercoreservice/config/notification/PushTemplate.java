@@ -1,31 +1,26 @@
 package com.mashreq.transfercoreservice.config.notification;
 
-import com.mashreq.transfer.m2m.model.CustomerNotification;
+
+import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import java.text.MessageFormat;
 
-import static com.mashreq.transfer.m2m.constants.NotificationType.*;
+import static com.mashreq.transfercoreservice.notification.model.NotificationType.OWN_ACCOUNT_TRANSACTION;
+
 
 @Data
 @Component
 @ConfigurationProperties(prefix = "app.notification.push")
 public class PushTemplate {
 
-    private String successTransferPushTmpl;
-    private String failedTransferPushTmpl;
-    private String registerAccountPushTmpl;
-    private String validity;
+    private String ownAccountTransactionInitiated;
 
     public String getPushTemplate(String type, CustomerNotification customerNotification) {
-        if (type.equalsIgnoreCase(TRANSFER_SUCCESS_SEND)) {
-            return MessageFormat.format(successTransferPushTmpl, customerNotification.getSendCurrency(), customerNotification.getAmount(), customerNotification.getBenMobile());
-        } else if (type.equalsIgnoreCase(REGISTER_SEND)) {
-            return MessageFormat.format(registerAccountPushTmpl, customerNotification.getSendCurrency(), customerNotification.getAmount(), customerNotification.getBenMobile(), validity);
-        } else if (type.equals(TRANSFER_FAILED_SEND)) {
-            return MessageFormat.format(failedTransferPushTmpl, customerNotification.getSendCurrency(), customerNotification.getAmount(), customerNotification.getBenMobile());
+        if(type.equals(OWN_ACCOUNT_TRANSACTION)){
+            return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getCurrency(),customerNotification.getAmount(),customerNotification.getTxnRef(),customerNotification.getSegment().getCustomerCareNumber());
         }
         return "";
     }

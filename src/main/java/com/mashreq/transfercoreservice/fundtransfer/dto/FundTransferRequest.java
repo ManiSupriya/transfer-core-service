@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 
 @Data
 @Builder(toBuilder = true)
-
 public class FundTransferRequest {
 
     private String channel;
@@ -47,4 +46,5 @@ public class FundTransferRequest {
     private String transferType;
     private String sourceOfFund;
     private String status;
+    private String NotificationType;
 }

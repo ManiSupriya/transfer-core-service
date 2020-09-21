@@ -4,6 +4,7 @@ import com.mashreq.logcore.annotations.TrackExecTimeAndResult;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
+import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
 import com.mashreq.transfercoreservice.notification.model.NotificationType;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +14,9 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import static com.mashreq.mobcommons.services.CustomHtmlEscapeUtil.htmlEscape;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.PUSH_NOTIFICATION_FAILED;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.SMS_NOTIFICATION_FAILED;
+import static com.mashreq.transfercoreservice.event.FundTransferEventType.PUSH_NOTIFICATION;
 import static com.mashreq.transfercoreservice.event.FundTransferEventType.SMS_NOTIFICATION;
 
 
@@ -30,23 +33,20 @@ public class NotificationService {
     private SMSService smsService;
 
     @Autowired
-    private EmailService emailService;
+    private PushNotificationImpl pushNotification;
 
     @Autowired
     private AsyncUserEventPublisher userEventPublisher;
 
     @Async("GenericAsyncExecutor")
     @TrackExecTimeAndResult
-    public void sendNotifications(CustomerNotification customer, String type, RequestMetaData metaData) {
+    public void sendNotifications(CustomerNotification customer, String type, RequestMetaData metaData, UserDTO userDTO) {
 
         String phoneNo = metaData.getMobileNUmber();
         if (!StringUtils.isEmpty(phoneNo)) {
             sendSms(customer, type, metaData, phoneNo);
         }
-
-        sendEmail(customer, type, metaData);
-
-       userEventPublisher.publishSuccessEvent(SMS_NOTIFICATION, metaData, customer.getTxnRef() + " smsSent");
+        sendPushNotification(customer,type,metaData,phoneNo,userDTO);
     }
 
     /**
@@ -71,45 +71,26 @@ public class NotificationService {
             }
             log.info("{}, type={}, hasSmsSent={}, phoneNumber={}, retryCount={}, Status of sms sent",
                     htmlEscape(metaData.getPrimaryCif()), htmlEscape(type), htmlEscape(String.valueOf(smsSent)), htmlEscape(phoneNo), htmlEscape(String.valueOf(smsRetryCount)));
+            userEventPublisher.publishSuccessEvent(SMS_NOTIFICATION, metaData, customer.getTxnRef() + " smsSent");
         }
     }
 
-    private void sendEmail(CustomerNotification customer, String type, RequestMetaData metaData) {
-        if (NotificationType.TRANSFER_SUCCESS_SEND.equals(type) && !StringUtils.isEmpty(metaData.getEmail())) {
-
-            boolean emailSent = false;
-
-            int emailRetryCount = 0;
-
-            for (int i = 0; i < 3; i++) {
-                try {
-                    emailSent = emailService.sendEmail(customer, type, metaData, emailRetryCount);
-                    if (emailSent) {
-                        break;
-                    }
-                } catch (Exception e) {
-//                    userEventPublisher.publishFailureEvent(AuditEventType.M2M_NOTIFICATION, metaData, "sending email notification failed", ErrorCodeSet.M2M1004.name(), ErrorCodeSet.M2M1004.getErrorDesc(), e.getMessage());
-//                    GenericExceptionHandler.logOnly(e, "ErrorCode=" + ErrorCodeSet.M2M1004.name() + ",ErrorMessage=" + ErrorCodeSet.M2M1004.getErrorDesc() + ", " + ",type =" + type + ",Error in sendEmail() ," + metaData.getPrimaryCif() + ", ExceptionMessage=" + e.getMessage());
-                    emailRetryCount++;
+    private void sendPushNotification(CustomerNotification customer, String type, RequestMetaData metaData, String phoneNo, UserDTO userDTO) {
+        if (NotificationType.OWN_ACCOUNT_TRANSACTION.equals(type)) {
+            try {
+                if(pushNotification.sendPushNotification(customer, type, metaData, userDTO)){
+                    userEventPublisher.publishSuccessEvent(PUSH_NOTIFICATION, metaData, customer.getTxnRef() + " pushSent");
                 }
+                else{
+                    userEventPublisher.publishFailureEvent(PUSH_NOTIFICATION, metaData, "sending push notification failed", PUSH_NOTIFICATION_FAILED.getCustomErrorCode(), PUSH_NOTIFICATION_FAILED.getErrorMessage(), "push notification failed");
+                }
+            } catch (Exception e) {
+                userEventPublisher.publishFailureEvent(PUSH_NOTIFICATION, metaData, "sending push notification failed", PUSH_NOTIFICATION_FAILED.getCustomErrorCode(), PUSH_NOTIFICATION_FAILED.getErrorMessage(), e.getMessage());
+                GenericExceptionHandler.logOnly(e, "ErrorCode=" + PUSH_NOTIFICATION_FAILED.getCustomErrorCode() + ",ErrorMessage=" + PUSH_NOTIFICATION_FAILED.getErrorMessage() + ", " + ",type =" + type + ",Error in pushNotification() ," + metaData.getPrimaryCif() + ", ExceptionMessage=" + e.getMessage());
             }
-            log.info("{}, type={}, hasEmailSent={}, email={}, retryCount={}, Status of email sent",
-                    htmlEscape(metaData.getPrimaryCif()), htmlEscape(type), htmlEscape(String.valueOf(emailSent)), htmlEscape(metaData.getEmail()), htmlEscape(String.valueOf(emailRetryCount)));
+
         }
     }
-
-//    private void sendPushNotification(CustomerNotification customer, String type, RequestMetaData metaData, String phoneNo, DigitalUser digitalUser) {
-//        if (NotificationType.REGISTER_SEND.equals(type) || NotificationType.TRANSFER_SUCCESS_SEND.equals(type) ||
-//                NotificationType.TRANSFER_FAILED_SEND.equals(type)) {
-//            try {
-//                boolean pushMsgSent = pushNotification.sendPushNotification(customer, type, metaData, phoneNo, digitalUser);
-//                customer.setSentPushNotification(pushMsgSent);
-//            } catch (Exception e) {
-//                userEventPublisher.publishFailureEvent(AuditEventType.M2M_NOTIFICATION, metaData, "sending push notification failed", ErrorCodeSet.M2M1004.name(), ErrorCodeSet.M2M1004.getErrorDesc(), e.getMessage());
-//                GenericExceptionHandler.logOnly(e, "ErrorCode=" + ErrorCodeSet.M2M1004.name() + ",ErrorMessage=" + ErrorCodeSet.M2M1004.getErrorDesc() + ", " + ",type =" + type + ",Error in pushNotification() ," + metaData.getPrimaryCif() + ", ExceptionMessage=" + e.getMessage());
-//            }
-//        }
-//    }
 
 
 }

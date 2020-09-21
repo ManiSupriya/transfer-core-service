@@ -1,6 +1,5 @@
 package com.mashreq.transfercoreservice.notification.model;
 
-import com.mashreq.transfercoreservice.model.ChannelDetails;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

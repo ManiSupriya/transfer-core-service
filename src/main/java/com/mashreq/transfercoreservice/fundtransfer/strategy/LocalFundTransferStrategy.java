@@ -172,7 +172,6 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
         final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata);
 
-        fundTransferRequest.setSourceOfFund(PostTransactionService.SOURCE_OF_FUND_ACCOUNT);
         fundTransferRequest.setTransferType(ServiceType.LOCAL.getName());
         fundTransferRequest.setStatus(fundTransferResponse.getResponseDto().getMwResponseStatus().getName());
         postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest);

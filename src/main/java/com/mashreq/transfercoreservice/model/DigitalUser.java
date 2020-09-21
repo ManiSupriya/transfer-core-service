@@ -34,9 +34,12 @@ public class DigitalUser extends AbstractAuditingEntity {
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "digital_user_group_id")
     private DigitalUserGroup digitalUserGroup;
+    String deviceidRegisteredForPushnotify;
+    String deviceInfo;
 
     public String fullName() {
         return firstName + " " + lastName;
     }
+
 
 }

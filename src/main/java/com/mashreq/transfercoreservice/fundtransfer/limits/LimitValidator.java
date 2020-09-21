@@ -147,40 +147,40 @@ public class LimitValidator {
         limitValidatorResultsDto.setTransactionRefNo(transactionRefNo);
 
         final String remarks = getRemarks(limitValidatorResultsDto, metaData.getPrimaryCif(), String.valueOf(paidAmount), beneficiaryType);
-        if (!limitValidatorResultsDto.isValid()) {
-            if (LimitCheckType.MONTHLY_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
-                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, MONTH_AMOUNT_LIMIT_REACHED.getCustomErrorCode(), MONTH_AMOUNT_LIMIT_REACHED.getErrorMessage(), "limit check failed");
-                GenericExceptionHandler.handleError(MONTH_AMOUNT_LIMIT_REACHED,
-                        MONTH_AMOUNT_LIMIT_REACHED.getErrorMessage());
-            } else if (LimitCheckType.MONTHLY_COUNT.name().equals(limitValidatorResultsDto.getCountRemark())) {
-                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, MONTH_COUNT_LIMIT_REACHED.getCustomErrorCode(), MONTH_COUNT_LIMIT_REACHED.getErrorMessage(), "limit check failed");
-                GenericExceptionHandler.handleError(MONTH_COUNT_LIMIT_REACHED,
-                        MONTH_COUNT_LIMIT_REACHED.getErrorMessage());
-            } else if (LimitCheckType.DAILY_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
-                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, DAY_AMOUNT_LIMIT_REACHED.getCustomErrorCode(), DAY_AMOUNT_LIMIT_REACHED.getErrorMessage(), "limit check failed");
-                GenericExceptionHandler.handleError(DAY_AMOUNT_LIMIT_REACHED,
-                        DAY_AMOUNT_LIMIT_REACHED.getErrorMessage());
-            } else if (LimitCheckType.DAILY_COUNT.name().equals(limitValidatorResultsDto.getCountRemark())) {
-                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, DAY_COUNT_LIMIT_REACHED.getCustomErrorCode(), DAY_COUNT_LIMIT_REACHED.getErrorMessage(), "limit check failed");
-                GenericExceptionHandler.handleError(DAY_COUNT_LIMIT_REACHED,
-                        DAY_COUNT_LIMIT_REACHED.getErrorMessage());
-            }
-            else if (LimitCheckType.COOLING_LIMIT_COUNT.name().equals(limitValidatorResultsDto.getCountRemark())) {
-                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, COOLING_COUNT_LIMIT_REACHED.getCustomErrorCode(), COOLING_COUNT_LIMIT_REACHED.getErrorMessage(), "limit check failed");
-                GenericExceptionHandler.handleError(COOLING_COUNT_LIMIT_REACHED,
-                        COOLING_COUNT_LIMIT_REACHED.getErrorMessage());
-            }
-            else if (LimitCheckType.COOLING_LIMIT_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
-                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, COOLING_AMOUNT_LIMIT_REACHED.getCustomErrorCode(), COOLING_AMOUNT_LIMIT_REACHED.getErrorMessage(), "limit check failed");
-                GenericExceptionHandler.handleError(COOLING_AMOUNT_LIMIT_REACHED,
-                        COOLING_AMOUNT_LIMIT_REACHED.getErrorMessage());
-            }
-            else if (LimitCheckType.TXN_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
-                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, TXN_AMOUNT_LIMIT_REACHED.getCustomErrorCode(), TXN_AMOUNT_LIMIT_REACHED.getErrorMessage(), "limit check failed");
-                GenericExceptionHandler.handleError(TXN_AMOUNT_LIMIT_REACHED,
-                        TXN_AMOUNT_LIMIT_REACHED.getErrorMessage());
-            }
-        }
+//        if (!limitValidatorResultsDto.isValid()) {
+//            if (LimitCheckType.MONTHLY_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
+//                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, MONTH_AMOUNT_LIMIT_REACHED.getCustomErrorCode(), MONTH_AMOUNT_LIMIT_REACHED.getErrorMessage(), "limit check failed");
+//                GenericExceptionHandler.handleError(MONTH_AMOUNT_LIMIT_REACHED,
+//                        MONTH_AMOUNT_LIMIT_REACHED.getErrorMessage());
+//            } else if (LimitCheckType.MONTHLY_COUNT.name().equals(limitValidatorResultsDto.getCountRemark())) {
+//                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, MONTH_COUNT_LIMIT_REACHED.getCustomErrorCode(), MONTH_COUNT_LIMIT_REACHED.getErrorMessage(), "limit check failed");
+//                GenericExceptionHandler.handleError(MONTH_COUNT_LIMIT_REACHED,
+//                        MONTH_COUNT_LIMIT_REACHED.getErrorMessage());
+//            } else if (LimitCheckType.DAILY_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
+//                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, DAY_AMOUNT_LIMIT_REACHED.getCustomErrorCode(), DAY_AMOUNT_LIMIT_REACHED.getErrorMessage(), "limit check failed");
+//                GenericExceptionHandler.handleError(DAY_AMOUNT_LIMIT_REACHED,
+//                        DAY_AMOUNT_LIMIT_REACHED.getErrorMessage());
+//            } else if (LimitCheckType.DAILY_COUNT.name().equals(limitValidatorResultsDto.getCountRemark())) {
+//                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, DAY_COUNT_LIMIT_REACHED.getCustomErrorCode(), DAY_COUNT_LIMIT_REACHED.getErrorMessage(), "limit check failed");
+//                GenericExceptionHandler.handleError(DAY_COUNT_LIMIT_REACHED,
+//                        DAY_COUNT_LIMIT_REACHED.getErrorMessage());
+//            }
+//            else if (LimitCheckType.COOLING_LIMIT_COUNT.name().equals(limitValidatorResultsDto.getCountRemark())) {
+//                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, COOLING_COUNT_LIMIT_REACHED.getCustomErrorCode(), COOLING_COUNT_LIMIT_REACHED.getErrorMessage(), "limit check failed");
+//                GenericExceptionHandler.handleError(COOLING_COUNT_LIMIT_REACHED,
+//                        COOLING_COUNT_LIMIT_REACHED.getErrorMessage());
+//            }
+//            else if (LimitCheckType.COOLING_LIMIT_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
+//                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, COOLING_AMOUNT_LIMIT_REACHED.getCustomErrorCode(), COOLING_AMOUNT_LIMIT_REACHED.getErrorMessage(), "limit check failed");
+//                GenericExceptionHandler.handleError(COOLING_AMOUNT_LIMIT_REACHED,
+//                        COOLING_AMOUNT_LIMIT_REACHED.getErrorMessage());
+//            }
+//            else if (LimitCheckType.TRX_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
+//                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, TXN_AMOUNT_LIMIT_REACHED.getCustomErrorCode(), TXN_AMOUNT_LIMIT_REACHED.getErrorMessage(), "limit check failed");
+//                GenericExceptionHandler.handleError(TXN_AMOUNT_LIMIT_REACHED,
+//                        TXN_AMOUNT_LIMIT_REACHED.getErrorMessage());
+//            }
+//        }
         auditEventPublisher.publishSuccessEvent(LIMIT_VALIDATION, metaData, remarks);
         log.info("Limit validation successful");
         return limitValidatorResultsDto;
