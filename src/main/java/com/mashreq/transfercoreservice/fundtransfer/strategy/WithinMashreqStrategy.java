@@ -1,18 +1,5 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
-import static java.time.Duration.between;
-import static java.time.Instant.now;
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-
-import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
@@ -26,27 +13,27 @@ import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.common.CommonConstants;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
-import com.mashreq.transfercoreservice.fundtransfer.dto.LimitValidatorResponse;
-import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
-import com.mashreq.transfercoreservice.fundtransfer.validators.AccountBelongsToCifValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.BeneficiaryValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.CurrencyValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.FinTxnNoValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.SameAccountValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
+import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
 import com.mashreq.transfercoreservice.notification.service.NotificationService;
-import static com.mashreq.transfercoreservice.notification.model.NotificationType.OTHER_ACCOUNT_TRANSACTION;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+
+import static com.mashreq.transfercoreservice.notification.model.NotificationType.OTHER_ACCOUNT_TRANSACTION;
+import static java.time.Duration.between;
+import static java.time.Instant.now;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 /**
  * @author shahbazkh
@@ -140,7 +127,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
    		 }
 
         final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getCurrency(),request.getAmount());
-        notificationService.sendNotifications(customerNotification,OTHER_ACCOUNT_TRANSACTION,metadata);
+        notificationService.sendNotifications(customerNotification,OTHER_ACCOUNT_TRANSACTION,metadata,userDTO);
 
         log.info("Total time taken for {} strategy {} milli seconds ", htmlEscape(request.getServiceType()), htmlEscape(Long.toString(between(start, now()).toMillis())));
 

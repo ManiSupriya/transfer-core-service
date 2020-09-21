@@ -15,7 +15,10 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
+import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
+import com.mashreq.transfercoreservice.notification.model.NotificationType;
+import com.mashreq.transfercoreservice.notification.service.DigitalUserSegment;
 import com.mashreq.transfercoreservice.notification.service.NotificationService;
 import com.mashreq.transfercoreservice.notification.service.PostTransactionService;
 import lombok.RequiredArgsConstructor;
@@ -44,8 +47,6 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     private static final String INTERNAL_ACCOUNT_FLAG = "N";
     public static final String OWN_ACCOUNT_TRANSACTION_CODE = "096";
     public static final String LOCAL_CURRENCY = "AED";
-    public static final String GOLD = "XAU";
-    public static final String SILVER = "XAG";
     private static final String  OWN_ACCOUNT_TRANSACTION = "OWN_ACCOUNT_TRANSACTION";
 
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
@@ -60,6 +61,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     private final BalanceValidator balanceValidator;
     private final NotificationService notificationService;
     private final AsyncUserEventPublisher auditEventPublisher;
+    private final DigitalUserSegment digitalUserSegment;
 
     @Autowired
     private PostTransactionService postTransactionService;
@@ -91,9 +93,10 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 
         BigDecimal transactionAmount = request.getAmount() == null ? request.getSrcAmount() : request.getAmount();
 
+        //added this condition for sell gold since we have amount in srcCurrency
         CurrencyConversionDto conversionResult = request.getAmount()!=null && !isCurrencySame(toAccount, fromAccount)
-                ? getCurrencyExchangeObject(transactionAmount,toAccount,fromAccount)
-                : getCurrencyExchangeObject(transactionAmount,fromAccount,toAccount);
+                    ? getCurrencyExchangeObject(transactionAmount,toAccount,fromAccount):
+                    getExchangeObjectForSrcAmount(transactionAmount,toAccount,fromAccount);
 
 
         final BigDecimal transferAmountInSrcCurrency = request.getAmount()!=null && !isCurrencySame(toAccount, fromAccount)
@@ -126,44 +129,60 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         //Limit Validation
         final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), fromAccount,transferAmountInSrcCurrency);
         request.setServiceType(getBeneficiaryCode(request));
-        if(GOLD.equalsIgnoreCase(request.getCurrency())|| SILVER.equalsIgnoreCase(request.getCurrency())){
+        if(goldSilverTransfer(request)){
             limitValidator.validateMin(userDTO, request.getServiceType(), transactionAmount, metadata);
         }
         final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metadata,null);
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccount, toAccount,conversionResult.getExchangeRate(),validationResult);
 
-        final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getCurrency(),transactionAmount);
-        notificationService.sendNotifications(customerNotification,OWN_ACCOUNT_TRANSACTION,metadata);
-        
-        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata, validationResult.getTransactionRefNo());
+        final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request,transactionAmount,metadata);
+        notificationService.sendNotifications(customerNotification,OWN_ACCOUNT_TRANSACTION,metadata,userDTO);
+
+        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata,validationResult.getTransactionRefNo());
 
         log.info("Total time taken for {} strategy {} milli seconds ", htmlEscape(request.getServiceType()), htmlEscape(Long.toString(between(start, now()).toMillis())));
-        fundTransferRequest.setSourceOfFund(PostTransactionService.SOURCE_OF_FUND_ACCOUNT);
-        fundTransferRequest.setTransferType(ServiceType.LOCAL.getName());
-        fundTransferRequest.setStatus(fundTransferResponse.getResponseDto().getMwResponseStatus().getName());
-        postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest);
+        prepareAndCallPostTransactionActivity(metadata,fundTransferRequest,request,fundTransferResponse,conversionResult);
         return fundTransferResponse.toBuilder()
                 .limitUsageAmount(limitUsageAmount)
                 .limitVersionUuid(validationResult.getLimitVersionUuid())
                 .transactionRefNo(validationResult.getTransactionRefNo())
                 .build();
-
     }
 
-    private CustomerNotification populateCustomerNotification(String transactionRefNo, String currency, BigDecimal amount) {
+    private void prepareAndCallPostTransactionActivity(RequestMetaData metadata, FundTransferRequest fundTransferRequest, FundTransferRequestDTO request, FundTransferResponse fundTransferResponse, CurrencyConversionDto conversionResult) {
+        if(goldSilverTransfer(request) && MwResponseStatus.S.equals(fundTransferResponse.getResponseDto().getMwResponseStatus())){
+            if(buyRequest(request)){
+                fundTransferRequest.setNotificationType(NotificationType.GOLD_SILVER_BUY_SUCCESS);
+                fundTransferRequest.setSrcAmount(conversionResult.getAccountCurrencyAmount());
+                fundTransferRequest.setTransferType(getTransferType(fundTransferRequest.getDestinationCurrency()));
+            }
+            else{
+                fundTransferRequest.setNotificationType(NotificationType.GOLD_SILVER_SELL_SUCCESS);
+                fundTransferRequest.setAmount(conversionResult.getTransactionAmount());
+                fundTransferRequest.setTransferType(getTransferType(fundTransferRequest.getSourceCurrency()));
+            }
+            postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest);
+        }
+        else if(!goldSilverTransfer(request)){
+            fundTransferRequest.setTransferType(ServiceType.LOCAL.getName());
+            fundTransferRequest.setNotificationType(NotificationType.LOCAL);
+            fundTransferRequest.setStatus(fundTransferResponse.getResponseDto().getMwResponseStatus().getName());
+            postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest);
+        }
+    }
+
+    private CustomerNotification populateCustomerNotification(String transactionRefNo, FundTransferRequestDTO requestDTO, BigDecimal amount, RequestMetaData metadata) {
         CustomerNotification customerNotification =new CustomerNotification();
         customerNotification.setAmount(String.valueOf(amount));
-        customerNotification.setCurrency(currency);
+        customerNotification.setCurrency(requestDTO.getCurrency());
         customerNotification.setTxnRef(transactionRefNo);
+        customerNotification.setSegment(digitalUserSegment.getCustomerCareInfo(metadata.getSegment()));
         return customerNotification;
     }
 
     private String getBeneficiaryCode(FundTransferRequestDTO request) {
-        if(GOLD.equalsIgnoreCase(request.getCurrency())){
-            return ServiceType.XAU.getName();
-        }
-        else if(SILVER.equalsIgnoreCase(request.getCurrency())){
-            return ServiceType.XAG.getName();
+        if(goldSilverTransfer(request)){
+            return request.getCurrency();
         }
         else return request.getServiceType();
     }
@@ -228,4 +247,31 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 
     }
 
+    private boolean goldSilverTransfer(FundTransferRequestDTO request){
+        return (ServiceType.XAU.getName().equals(request.getCurrency()) || ServiceType.XAG.getName().equals(request.getCurrency()));
+    }
+
+    private boolean buyRequest(FundTransferRequestDTO request){
+        return request.getSrcAmount() == null;
+    }
+
+    //convert to sourceAccount from destAccount where amount is in src currency
+    private CurrencyConversionDto getExchangeObjectForSrcAmount(BigDecimal transactionAmount, AccountDetailsDTO destAccount, AccountDetailsDTO sourceAccount) {
+        final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
+        currencyRequest.setAccountNumber(sourceAccount.getNumber());
+        currencyRequest.setAccountCurrency(sourceAccount.getCurrency());
+        currencyRequest.setAccountCurrencyAmount(transactionAmount);
+        currencyRequest.setTransactionCurrency(destAccount.getCurrency());
+        return maintenanceService.convertBetweenCurrencies(currencyRequest);
+    }
+
+    private String getTransferType(String currency){
+        if(ServiceType.XAU.getName().equals(currency)){
+            return "Gold";
+        }
+        else if( ServiceType.XAG.getName().equals(currency)){
+            return "Silver";
+        }
+        return null;
+    }
 }

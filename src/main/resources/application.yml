@@ -109,11 +109,6 @@ app:
     beneficiary: ${BENEFICIARY_CORE_SERVICE:http://beneficiary-core-service:8080}
     mobcommon: ${MOB_COMMON_SERVICE:http://mob-common-service:8080}
     omw-core: ${OMW_CORE:https://172.24.70.29:7805/omw/core}
-  sms:
-    priority: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_PRIORITY:HIGH}
-    serviceId: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_SERVICEID:91}
-    callCenterNo: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_CALL_CENTER_NO:04 424 6666}
-    ownAccountTransactionInitiated: ${OWN_ACCOUNT_SMS:Request received through Mashreq Mobile for a Fund Transfer of {0} {1} with {2}. Contact {3} if you did not initiate this.}
   ftcc:
     merchantId: ${TFTCC_MERCHANT_ID:000008026734}
     terminalId: ${TFTCC_TERMINAL_ID:20091124}
@@ -129,11 +124,22 @@ app:
     email:
       AE:
         emailSubject: ${NOTIFICATION_EMAIL_SUBJECT:%s request via %s}
+        sellGoldSilverSubject: ${NOTIFICATION_EMAIL_SELL_SUBJECT:You sold from %s Edge account via %s}
+        buyGoldSilverSubject: ${NOTIFICATION_EMAIL_BUY_SUBJECT:Your recent investment in %s Edge account via %s}
         fromEmailName: ${NOTIFICATION_FROM_EMAIL_NAME:MashreqDigital}
         fromEmailAddress: ${NOTIFICATION_FROM_EMAIL_ADDRESS:MashreqDigital@mashreqbank.com}
         callCenterNo: ${NOTIFICATION_EMAIL_CALL_CENTER_NO:04 424 6666}
         localFundTransfer: mt-within-own-accounts.ftl
         otherFundTransfer: mt-other-accounts.ftl
+        goldSilverBuySuccess: buy-goldsilver-success.ftl
+        goldSilverSellSuccess: sell-goldsilver-success.ftl
+    sms:
+      priority: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_PRIORITY:HIGH}
+      serviceId: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_SERVICEID:91}
+      callCenterNo: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_CALL_CENTER_NO:04 424 6666}
+      ownAccountTransactionInitiated: ${OWN_ACCOUNT_SMS:Request received through Mashreq Mobile for a Fund Transfer of {0} {1} with {2}. Contact {3} if you did not initiate this.}
+    push:
+      ownAccountTransactionInitiated: ${OWN_ACCOUNT_PUSH:Request received through Mashreq Mobile for a Fund Transfer of {0} {1} with {2}. Contact {3} if you did not initiate this.}
 
 instarem:
   rules:

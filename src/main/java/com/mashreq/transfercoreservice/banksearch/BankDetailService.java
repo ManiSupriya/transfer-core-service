@@ -1,25 +1,19 @@
 package com.mashreq.transfercoreservice.banksearch;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
-import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.OmwCoreClient;
 import com.mashreq.transfercoreservice.client.dto.CoreBankDetails;
-import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
-import org.springframework.ws.wsdl.wsdl11.provider.SoapProvider;
-
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_COUNTRY_CODE;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_SWIFT_CODE;
 
 import java.util.List;
+
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_SWIFT_CODE;
 
 /**
  * @author shahbazkh

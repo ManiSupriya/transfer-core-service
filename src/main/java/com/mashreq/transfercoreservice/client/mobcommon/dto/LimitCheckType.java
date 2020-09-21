@@ -6,7 +6,7 @@ public enum LimitCheckType {
     DAILY_COUNT,
     MONTHLY_COUNT,
     MIN_AMOUNT,
-    TXN_AMOUNT,
+    TRX_AMOUNT,
     COOLING_LIMIT_AMOUNT,
     COOLING_LIMIT_COUNT
 }

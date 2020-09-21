@@ -175,10 +175,15 @@ public class LimitValidator {
                 GenericExceptionHandler.handleError(COOLING_AMOUNT_LIMIT_REACHED,
                         COOLING_AMOUNT_LIMIT_REACHED.getErrorMessage());
             }
-            else if (LimitCheckType.TXN_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
+            else if (LimitCheckType.TRX_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, TXN_AMOUNT_LIMIT_REACHED.getCustomErrorCode(), TXN_AMOUNT_LIMIT_REACHED.getErrorMessage(), "limit check failed");
                 GenericExceptionHandler.handleError(TXN_AMOUNT_LIMIT_REACHED,
                         TXN_AMOUNT_LIMIT_REACHED.getErrorMessage());
+            }
+            else {
+                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, TXN_AMOUNT_LIMIT_REACHED.getCustomErrorCode(), TXN_AMOUNT_LIMIT_REACHED.getErrorMessage(), "limit check failed");
+                GenericExceptionHandler.handleError(LIMIT_PACKAGE_NOT_FOUND,
+                        LIMIT_PACKAGE_NOT_FOUND.getErrorMessage());
             }
         }
         auditEventPublisher.publishSuccessEvent(LIMIT_VALIDATION, metaData, remarks);

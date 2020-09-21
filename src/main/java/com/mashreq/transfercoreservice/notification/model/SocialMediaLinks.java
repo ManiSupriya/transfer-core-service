@@ -1,4 +1,4 @@
-package com.mashreq.transfercoreservice.model;
+package com.mashreq.transfercoreservice.notification.model;
 
 import lombok.*;
 

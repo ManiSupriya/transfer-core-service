@@ -175,11 +175,10 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         log.info("Local Fund transfer initiated.......");
 
         final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getCurrency(),request.getAmount());
-        notificationService.sendNotifications(customerNotification,OTHER_ACCOUNT_TRANSACTION,metadata);
-        
+        notificationService.sendNotifications(customerNotification,OTHER_ACCOUNT_TRANSACTION,metadata,userDTO);
+
         final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata, txnRefNo);
-        
-        fundTransferRequest.setSourceOfFund(PostTransactionService.SOURCE_OF_FUND_ACCOUNT);
+
         fundTransferRequest.setTransferType(ServiceType.LOCAL.getName());
         fundTransferRequest.setStatus(fundTransferResponse.getResponseDto().getMwResponseStatus().getName());
         postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest);
@@ -231,7 +230,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
          final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, requestMetaData, null);
          String txnRefNo = validationResult.getTransactionRefNo();
          final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getCurrency(),request.getAmount());
-         notificationService.sendNotifications(customerNotification,OTHER_ACCOUNT_TRANSACTION,requestMetaData);
+         notificationService.sendNotifications(customerNotification,OTHER_ACCOUNT_TRANSACTION,requestMetaData,userDTO);
          fundTransferResponse = processCreditCardTransfer(request, requestMetaData, selectedCreditCard, beneficiaryDto, validationResult);
 
         return fundTransferResponse.toBuilder()
@@ -349,7 +348,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         }
         return isoCurrency;
     }
-    
+
     private CustomerNotification populateCustomerNotification(String transactionRefNo, String currency, BigDecimal amount) {
         CustomerNotification customerNotification =new CustomerNotification();
         customerNotification.setAmount(String.valueOf(amount));
