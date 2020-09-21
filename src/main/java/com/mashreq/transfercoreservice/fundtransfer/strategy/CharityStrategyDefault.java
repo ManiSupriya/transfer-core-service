@@ -50,7 +50,6 @@ import lombok.extern.slf4j.Slf4j;
 public class CharityStrategyDefault implements FundTransferStrategy {
 
     private static final String INTERNAL_ACCOUNT_FLAG = "N";
-    private static final String LIMIT_CHECK_MNY_TRNSFR_TXN_TYPE = "MT";//MONEY TRANSFER
 
     private final SameAccountValidator sameAccountValidator;
     private final FinTxnNoValidator finTxnNoValidator;
@@ -119,8 +118,7 @@ public class CharityStrategyDefault implements FundTransferStrategy {
         BigDecimal limitUsageAmount = request.getAmount();
         final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metadata,null);
         log.info("Limit Validation successful");
-        String txnRefNo = getMoneyTransferTxnRefNo(metadata,
-        		validationResult.getTransactionRefNo());
+        String txnRefNo = validationResult.getTransactionRefNo();
 
         final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getCurrency(),request.getAmount());
         notificationService.sendNotifications(customerNotification,OTHER_ACCOUNT_TRANSACTION,metadata);
@@ -145,15 +143,6 @@ public class CharityStrategyDefault implements FundTransferStrategy {
         customerNotification.setCurrency(currency);
         customerNotification.setTxnRef(transactionRefNo);
         return customerNotification;
-    }
-    
-    private String getMoneyTransferTxnRefNo(RequestMetaData requestMetaData, String channelTxnNo) {
-
-        return new StringBuilder()
-                .append(requestMetaData.getChannel().charAt(0))
-                .append(LIMIT_CHECK_MNY_TRNSFR_TXN_TYPE)
-                .append(channelTxnNo)
-                .toString();
     }
 
     private FundTransferRequest prepareFundTransferRequestPayload(RequestMetaData metadata, FundTransferRequestDTO request,

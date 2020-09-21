@@ -37,7 +37,6 @@ import java.util.Set;
 public class InternationalFundTransferStrategy implements FundTransferStrategy {
 
     private static final String INTERNATIONAL_PRODUCT_ID = "DBFC";
-    private static final String LIMIT_CHECK_MNY_TRNSFR_TXN_TYPE = "MT";//MONEY TRANSFER
     private static final String INDIVIDUAL_ACCOUNT = "I";
     private static final String ROUTING_CODE_PREFIX = "//";
     private final FinTxnNoValidator finTxnNoValidator;
@@ -118,8 +117,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         //Limit Validation
         final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), sourceAccountDetailsDTO,transferAmountInSrcCurrency);
         final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metadata, null);
-        String txnRefNo = getMoneyTransferTxnRefNo(metadata,
-        		validationResult.getTransactionRefNo());        
+        String txnRefNo = validationResult.getTransactionRefNo();        
 
         final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getCurrency(),request.getAmount());
         notificationService.sendNotifications(customerNotification,OTHER_ACCOUNT_TRANSACTION,metadata);
@@ -168,15 +166,6 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         return "AED".equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
                 ? transferAmountInSrcCurrency
                 : convertAmountInLocalCurrency(dealNumber, sourceAccountDetailsDTO, transferAmountInSrcCurrency);
-    }
-    
-    private String getMoneyTransferTxnRefNo(RequestMetaData requestMetaData, String channelTxnNo) {
-
-        return new StringBuilder()
-                .append(requestMetaData.getChannel().charAt(0))
-                .append(LIMIT_CHECK_MNY_TRNSFR_TXN_TYPE)
-                .append(channelTxnNo)
-                .toString();
     }
 
     private BigDecimal getAmountInSrcCurrency(FundTransferRequestDTO request, BeneficiaryDto beneficiaryDto,

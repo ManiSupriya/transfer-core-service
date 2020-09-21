@@ -47,7 +47,6 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     public static final String GOLD = "XAU";
     public static final String SILVER = "XAG";
     private static final String  OWN_ACCOUNT_TRANSACTION = "OWN_ACCOUNT_TRANSACTION";
-    private static final String LIMIT_CHECK_MNY_TRNSFR_TXN_TYPE = "MT";//MONEY TRANSFER
 
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
     private final SameAccountValidator sameAccountValidator;
@@ -131,15 +130,12 @@ public class OwnAccountStrategy implements FundTransferStrategy {
             limitValidator.validateMin(userDTO, request.getServiceType(), transactionAmount, metadata);
         }
         final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metadata,null);
-        String txnRefNo = getMoneyTransferTxnRefNo(metadata,
-        		validationResult.getTransactionRefNo());
-        
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccount, toAccount,conversionResult.getExchangeRate(),validationResult);
 
         final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getCurrency(),transactionAmount);
         notificationService.sendNotifications(customerNotification,OWN_ACCOUNT_TRANSACTION,metadata);
         
-        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata, txnRefNo);
+        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata, validationResult.getTransactionRefNo());
 
         log.info("Total time taken for {} strategy {} milli seconds ", htmlEscape(request.getServiceType()), htmlEscape(Long.toString(between(start, now()).toMillis())));
         fundTransferRequest.setSourceOfFund(PostTransactionService.SOURCE_OF_FUND_ACCOUNT);
@@ -149,7 +145,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         return fundTransferResponse.toBuilder()
                 .limitUsageAmount(limitUsageAmount)
                 .limitVersionUuid(validationResult.getLimitVersionUuid())
-                .transactionRefNo(txnRefNo)
+                .transactionRefNo(validationResult.getTransactionRefNo())
                 .build();
 
     }
@@ -230,15 +226,6 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         currencyRequest.setTransactionAmount(transactionAmount);
         return maintenanceService.convertBetweenCurrencies(currencyRequest);
 
-    }
-    
-    private String getMoneyTransferTxnRefNo(RequestMetaData requestMetaData, String channelTxnNo) {
-
-        return new StringBuilder()
-                .append(requestMetaData.getChannel().charAt(0))
-                .append(LIMIT_CHECK_MNY_TRNSFR_TXN_TYPE)
-                .append(channelTxnNo)
-                .toString();
     }
 
 }

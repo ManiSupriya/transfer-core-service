@@ -61,7 +61,6 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     private static final String INTERNAL_ACCOUNT_FLAG = "N";
     public static final String WITHIN_MASHREQ_TRANSACTION_CODE = "096";
     public static final String LOCAL_CURRENCY = "AED";
-    private static final String LIMIT_CHECK_MNY_TRNSFR_TXN_TYPE = "MT";//MONEY TRANSFER
 
     private final SameAccountValidator sameAccountValidator;
     private final FinTxnNoValidator finTxnNoValidator;
@@ -119,9 +118,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         //Limit Validation
         final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), fromAccountOpt.get(),transferAmountInSrcCurrency);
         final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metadata, null);
-
-        String txnRefNo = getMoneyTransferTxnRefNo(metadata,
-        		validationResult.getTransactionRefNo());
+        String txnRefNo = validationResult.getTransactionRefNo();
 
         //Deal Validator
         log.info("Deal Validation Started");
@@ -160,15 +157,6 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     private boolean isCurrencySame(FundTransferRequestDTO request) {
         return request.getCurrency().equalsIgnoreCase(request.getTxnCurrency());
     }
-    private String getMoneyTransferTxnRefNo(RequestMetaData requestMetaData, String channelTxnNo) {
-
-        return new StringBuilder()
-                .append(requestMetaData.getChannel().charAt(0))
-                .append(LIMIT_CHECK_MNY_TRNSFR_TXN_TYPE)
-                .append(channelTxnNo)
-                .toString();
-    }
-    
     private CustomerNotification populateCustomerNotification(String transactionRefNo, String currency, BigDecimal amount) {
         CustomerNotification customerNotification =new CustomerNotification();
         customerNotification.setAmount(String.valueOf(amount));

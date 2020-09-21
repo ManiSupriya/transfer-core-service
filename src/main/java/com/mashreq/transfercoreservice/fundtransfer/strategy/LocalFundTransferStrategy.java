@@ -77,7 +77,6 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     private final AsyncUserEventPublisher auditEventPublisher;
     private final EncryptionService encryptionService = new EncryptionService();
     private final NotificationService notificationService;
-    private static final String LIMIT_CHECK_MNY_TRNSFR_TXN_TYPE = "MT";//MONEY TRANSFER
 
     @Value("${app.local.currency}")
     private String localCurrency;
@@ -171,8 +170,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         //Limit Validation
         final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), fromAccountDetails, transferAmountInSrcCurrency);
         final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metadata, null);
-        String txnRefNo = getMoneyTransferTxnRefNo(metadata,
-         		validationResult.getTransactionRefNo());
+        String txnRefNo = validationResult.getTransactionRefNo();
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountDetails.getCurrency(), fromAccountDetails.getBranchCode(), beneficiaryDto, validationResult);
         log.info("Local Fund transfer initiated.......");
 
@@ -231,8 +229,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
         final BigDecimal limitUsageAmount = transferAmountInSrcCurrency;
          final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, requestMetaData, null);
-         String txnRefNo = getMoneyTransferTxnRefNo(requestMetaData,
-         		validationResult.getTransactionRefNo());
+         String txnRefNo = validationResult.getTransactionRefNo();
          final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getCurrency(),request.getAmount());
          notificationService.sendNotifications(customerNotification,OTHER_ACCOUNT_TRANSACTION,requestMetaData);
          fundTransferResponse = processCreditCardTransfer(request, requestMetaData, selectedCreditCard, beneficiaryDto, validationResult);
@@ -269,15 +266,6 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         //Deal Validator
         responseHandler(dealValidator.validate(request, requestMetaData, validationContext));
         return beneficiaryDto;
-    }
-    
-    private String getMoneyTransferTxnRefNo(RequestMetaData requestMetaData, String channelTxnNo) {
-
-        return new StringBuilder()
-                .append(requestMetaData.getChannel().charAt(0))
-                .append(LIMIT_CHECK_MNY_TRNSFR_TXN_TYPE)
-                .append(channelTxnNo)
-                .toString();
     }
 
     /**
