@@ -30,8 +30,8 @@ public enum TransferErrorCode implements ErrorCode {
     NOT_MATCHING_CARD_DETAILS("TN-1017", "Card details not found"),
     NOT_VALID_DATE_GPI_TRACKER("TN-1018", "Not a Valid date, startDate should Not be 6 months old"),
     NOT_VALID_END_DATE_GPI_TRACKER("TN-1019", "Not a Valid date, end date should be always greter than start date"),
-    DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY("TN-1020", "Deal Number Not Applicable, sell currency transaction not matching with account currency"),
-    DEAL_NUMBER_NOT_APPLICABLE_WITH_TXN_CRNCY("TN-1021", "Deal Number Not Applicable, buy currency transaction not matching with trxn currency"),
+    DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY("TN-1020", "Deal Number Not Applicable, sell currency not matching with account currency"),
+    DEAL_NUMBER_NOT_APPLICABLE_WITH_TXN_CRNCY("TN-1021", "Deal Number Not Applicable, buy currency not matching with trxn currency"),
 
 
     BALANCE_NOT_SUFFICIENT("TN-1200", "Balance is not sufficient"),
@@ -41,7 +41,6 @@ public enum TransferErrorCode implements ErrorCode {
     TRX_LIMIT_REACHED("LM-1102", "Transaction Limit Reached"),
     DAY_AMOUNT_LIMIT_REACHED("LM-1103", "Day Amount Limit Reached"),
     DAY_COUNT_LIMIT_REACHED("LM-1104", "Day count Limit Reached"),
-    MONTH_AMOUNT_LIMIT_REACHED("LM-1104", "Month Amount Limit Reached"),
     MONTH_COUNT_LIMIT_REACHED("LM-1105", "Month Count Limit Reached"),
     INVALID_BEN_CODE("LM-1106","Invalid ben code"),
     MIN_AMOUNT_LIMIT_REACHED("LM-1107", "Min Amount Limit Reached"),
@@ -49,6 +48,7 @@ public enum TransferErrorCode implements ErrorCode {
     COOLING_COUNT_LIMIT_REACHED("LM-1109", "Cooling Count Limit Reached"),
     COOLING_AMOUNT_LIMIT_REACHED("LM-1110", "Cooling Count Limit Reached"),
     TXN_AMOUNT_LIMIT_REACHED("LM-1111", "Transaction amount Limit Reached"),
+    MONTH_AMOUNT_LIMIT_REACHED("LM-1112", "Month Amount Limit Reached"),
 
     BENE_NOT_FOUND("TN-4001", "Beneficiary Not Found"),
     BENE_ACC_NOT_MATCH("TN-4002", "Beneficiary Account Number does not match"),

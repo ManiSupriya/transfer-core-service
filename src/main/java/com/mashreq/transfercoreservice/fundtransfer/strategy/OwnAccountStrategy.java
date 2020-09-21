@@ -15,10 +15,7 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
-import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
-import com.mashreq.transfercoreservice.notification.model.NotificationType;
-import com.mashreq.transfercoreservice.notification.service.DigitalUserSegment;
 import com.mashreq.transfercoreservice.notification.service.NotificationService;
 import com.mashreq.transfercoreservice.notification.service.PostTransactionService;
 import lombok.RequiredArgsConstructor;
@@ -133,7 +130,6 @@ public class OwnAccountStrategy implements FundTransferStrategy {
             limitValidator.validateMin(userDTO, request.getServiceType(), transactionAmount, metadata);
         }
         final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metadata,null);
-
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccount, toAccount,conversionResult.getExchangeRate(),validationResult);
 
         final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request,transactionAmount,metadata);
@@ -209,6 +205,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
                 .exchangeRate(exchangeRate)
                 .limitTransactionRefNo(validationResult.getTransactionRefNo())
                 .build();
+
     }
 
 
@@ -227,6 +224,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         currencyConversionRequestDto.setAccountCurrencyAmount(transferAmountInSrcCurrency);
         currencyConversionRequestDto.setDealNumber(dealNumber);
         currencyConversionRequestDto.setTransactionCurrency(LOCAL_CURRENCY);
+
         CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(currencyConversionRequestDto);
         return currencyConversionDto.getTransactionAmount();
     }
