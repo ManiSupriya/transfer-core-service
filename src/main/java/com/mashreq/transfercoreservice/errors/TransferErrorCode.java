@@ -30,8 +30,8 @@ public enum TransferErrorCode implements ErrorCode {
     NOT_MATCHING_CARD_DETAILS("TN-1017", "Card details not found"),
     NOT_VALID_DATE_GPI_TRACKER("TN-1018", "Not a Valid date, startDate should Not be 6 months old"),
     NOT_VALID_END_DATE_GPI_TRACKER("TN-1019", "Not a Valid date, end date should be always greter than start date"),
-    DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY("TN-1020", "Deal Number Not Applicable, sell currency transaction not matching with account currency"),
-    DEAL_NUMBER_NOT_APPLICABLE_WITH_TXN_CRNCY("TN-1021", "Deal Number Not Applicable, buy currency transaction not matching with trxn currency"),
+    DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY("TN-1020", "Deal Number Not Applicable, sell currency not matching with account currency"),
+    DEAL_NUMBER_NOT_APPLICABLE_WITH_TXN_CRNCY("TN-1021", "Deal Number Not Applicable, buy currency not matching with trxn currency"),
 
 
     BALANCE_NOT_SUFFICIENT("TN-1200", "Balance is not sufficient"),
