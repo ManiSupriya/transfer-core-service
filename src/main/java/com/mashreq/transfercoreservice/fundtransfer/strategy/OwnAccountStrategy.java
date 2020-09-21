@@ -147,7 +147,6 @@ public class OwnAccountStrategy implements FundTransferStrategy {
                 .limitUsageAmount(limitUsageAmount)
                 .limitVersionUuid(validationResult.getLimitVersionUuid())
                 .transactionRefNo(validationResult.getTransactionRefNo())
-                .customerNotification(customerNotification)
                 .build();
     }
 
@@ -228,7 +227,6 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         currencyConversionRequestDto.setAccountCurrencyAmount(transferAmountInSrcCurrency);
         currencyConversionRequestDto.setDealNumber(dealNumber);
         currencyConversionRequestDto.setTransactionCurrency(LOCAL_CURRENCY);
-
         CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(currencyConversionRequestDto);
         return currencyConversionDto.getTransactionAmount();
     }
