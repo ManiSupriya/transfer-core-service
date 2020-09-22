@@ -33,22 +33,23 @@ public enum TransferErrorCode implements ErrorCode {
     DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY("TN-1020", "Deal Number Not Applicable, sell currency not matching with account currency"),
     DEAL_NUMBER_NOT_APPLICABLE_WITH_TXN_CRNCY("TN-1021", "Deal Number Not Applicable, buy currency not matching with trxn currency"),
 
-
-    BALANCE_NOT_SUFFICIENT("TN-1200", "Balance is not sufficient"),
-    DEAL_VALIDATION_FAILED("TN-1201", "Deal Number validation Failed"),
-
-    LIMIT_PACKAGE_NOT_FOUND("LM-1101", "Limit Package not Found"),
-    TRX_LIMIT_REACHED("LM-1102", "Transaction Limit Reached"),
-    DAY_AMOUNT_LIMIT_REACHED("LM-1103", "Day Amount Limit Reached"),
-    DAY_COUNT_LIMIT_REACHED("LM-1104", "Day count Limit Reached"),
-    MONTH_COUNT_LIMIT_REACHED("LM-1105", "Month Count Limit Reached"),
     INVALID_BEN_CODE("LM-1106","Invalid ben code"),
-    MIN_AMOUNT_LIMIT_REACHED("LM-1107", "Min Amount Limit Reached"),
-    ERROR_LIMIT_CHECK("LM-1108","Error while fetching limit from db"),
-    COOLING_COUNT_LIMIT_REACHED("LM-1109", "Cooling Count Limit Reached"),
-    COOLING_AMOUNT_LIMIT_REACHED("LM-1110", "Cooling Count Limit Reached"),
-    TXN_AMOUNT_LIMIT_REACHED("LM-1111", "Transaction amount Limit Reached"),
-    MONTH_AMOUNT_LIMIT_REACHED("LM-1112", "Month Amount Limit Reached"),
+
+    DEAL_VALIDATION_FAILED("TN-1201", "Deal Number validation Failed"),
+    INSUFFICIENT_BALANCE("PM-1007", "Insufficient balance to pay the amount"),
+    ERROR_LIMIT_CHECK("LM-2007", "Error during limit procedure call"),
+    LIMIT_PACKAGE_NOT_DEFINED("LM-2008", "Limit Package not Found"),
+    DAILY_COUNT_REACHED("LM-2018", "Daily usage count exceeded"),
+    MONTHLY_COUNT_REACHED("LM-2009", "Monthly usage count exceeded"),
+    COOLING_LIMIT_COUNT_REACHED("LM-2010", "Cooling period transaction count exceeded"),
+    DAILY_AMOUNT_REACHED("LM-2011", "Daily usage amount exceeded"),
+    MONTHLY_AMOUNT_REACHED("LM-2012", "Monthly usage amount exceeded"),
+    TRX_AMOUNT_REACHED("LM-2013", "Transaction amount is greater than transaction max amount limit"),
+    COOLING_LIMIT_AMOUNT_REACHED("LM-2014", "Cooling period transaction amount exceeded"),
+    MIN_AMOUNT_LIMIT_REACHED("LM-2015", "Min Amount Limit Reached"),
+
+    MONTH_AMOUNT_LIMIT_REACHED("PM-1104", "Month Amount Limit Reached"),
+    DAY_AMOUNT_LIMIT_REACHED("PM-1103", "Day Amount Limit Reached"),
 
     BENE_NOT_FOUND("TN-4001", "Beneficiary Not Found"),
     BENE_ACC_NOT_MATCH("TN-4002", "Beneficiary Account Number does not match"),
