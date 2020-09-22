@@ -36,7 +36,7 @@ public enum TransferErrorCode implements ErrorCode {
     INVALID_BEN_CODE("LM-1106","Invalid ben code"),
 
     DEAL_VALIDATION_FAILED("TN-1201", "Deal Number validation Failed"),
-    INSUFFICIENT_BALANCE("PM-1007", "Insufficient balance to pay the amount"),
+    BALANCE_NOT_SUFFICIENT("TN-1200", "Balance is not sufficient"),
     ERROR_LIMIT_CHECK("LM-2007", "Error during limit procedure call"),
     LIMIT_PACKAGE_NOT_DEFINED("LM-2008", "Limit Package not Found"),
     DAILY_COUNT_REACHED("LM-2018", "Daily usage count exceeded"),
