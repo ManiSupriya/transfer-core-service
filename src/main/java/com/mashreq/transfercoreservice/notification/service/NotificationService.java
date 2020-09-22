@@ -6,7 +6,6 @@ import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
-import com.mashreq.transfercoreservice.notification.model.NotificationType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,8 +51,8 @@ public class NotificationService {
     /**
      * sends sms to given phoneNumber using sms service
      */
+    //can add conditions on type if sms is not required to be sent for the type
     private void sendSms(CustomerNotification customer, String type, RequestMetaData metaData, String phoneNo) {
-        if (NotificationType.OWN_ACCOUNT_TRANSACTION.equals(type)) {
             boolean smsSent = false;
             int smsRetryCount = 0;
 
@@ -72,11 +71,9 @@ public class NotificationService {
             log.info("{}, type={}, hasSmsSent={}, phoneNumber={}, retryCount={}, Status of sms sent",
                     htmlEscape(metaData.getPrimaryCif()), htmlEscape(type), htmlEscape(String.valueOf(smsSent)), htmlEscape(phoneNo), htmlEscape(String.valueOf(smsRetryCount)));
             userEventPublisher.publishSuccessEvent(SMS_NOTIFICATION, metaData, customer.getTxnRef() + " smsSent");
-        }
     }
 
     private void sendPushNotification(CustomerNotification customer, String type, RequestMetaData metaData, String phoneNo, UserDTO userDTO) {
-        if (NotificationType.OWN_ACCOUNT_TRANSACTION.equals(type)) {
             try {
                 if(pushNotification.sendPushNotification(customer, type, metaData, userDTO)){
                     userEventPublisher.publishSuccessEvent(PUSH_NOTIFICATION, metaData, customer.getTxnRef() + " pushSent");
@@ -88,8 +85,6 @@ public class NotificationService {
                 userEventPublisher.publishFailureEvent(PUSH_NOTIFICATION, metaData, "sending push notification failed", PUSH_NOTIFICATION_FAILED.getCustomErrorCode(), PUSH_NOTIFICATION_FAILED.getErrorMessage(), e.getMessage());
                 GenericExceptionHandler.logOnly(e, "ErrorCode=" + PUSH_NOTIFICATION_FAILED.getCustomErrorCode() + ",ErrorMessage=" + PUSH_NOTIFICATION_FAILED.getErrorMessage() + ", " + ",type =" + type + ",Error in pushNotification() ," + metaData.getPrimaryCif() + ", ExceptionMessage=" + e.getMessage());
             }
-
-        }
     }
 
 
