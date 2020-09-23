@@ -11,6 +11,7 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
+import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
 import com.mashreq.transfercoreservice.notification.service.NotificationService;
 import com.mashreq.transfercoreservice.notification.service.PostTransactionService;
@@ -120,12 +121,14 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metadata, null);
         String txnRefNo = validationResult.getTransactionRefNo();        
 
-        final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getCurrency(),request.getAmount());
-        notificationService.sendNotifications(customerNotification,OTHER_ACCOUNT_TRANSACTION,metadata,userDTO);
-
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, sourceAccountDetailsDTO, beneficiaryDto, validationResult);
         log.info("International Fund transfer initiated.......");
         final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata, txnRefNo);
+
+        if(isSuccessOrProcessing(fundTransferResponse)){
+        final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getCurrency(),request.getAmount());
+        notificationService.sendNotifications(customerNotification,OTHER_ACCOUNT_TRANSACTION,metadata,userDTO);
+        }
 
         fundTransferRequest.setTransferType(ServiceType.INFT.getName());
         fundTransferRequest.setStatus(fundTransferResponse.getResponseDto().getMwResponseStatus().getName());
@@ -230,6 +233,11 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .awInstBICCode(beneficiaryDto.getSwiftCode())
                 .awInstName(beneficiaryDto.getBankName())
                 .build();
+    }
+    
+    private boolean isSuccessOrProcessing(FundTransferResponse response) {
+        return response.getResponseDto().getMwResponseStatus().equals(MwResponseStatus.S) ||
+                response.getResponseDto().getMwResponseStatus().equals(MwResponseStatus.P);
     }
 
 

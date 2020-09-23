@@ -6,6 +6,7 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_C
 import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -132,6 +133,7 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 				.accountFrom(cardLessCashGenerationRequest.getAccountNo())
 				.accountTo(cardLessCashGenerationRequest.getAccountNo())
 				.billRefNo(coreResponse.getData().getReferenceNumber())
+				.valueDate(LocalDateTime.now())
 				.financialTransactionNo(coreResponse.getData().getReferenceNumber()).build();
 		log.info("Inserting into Transaction History table {} ", transactionHistory);
 		transactionRepository.save(transactionHistory);

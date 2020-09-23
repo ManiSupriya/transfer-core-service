@@ -68,7 +68,7 @@ public class DealValidator implements Validator {
 								TransferErrorCode.DEAL_NUMBER_EXPIRED.getErrorMessage(),
 								TransferErrorCode.DEAL_NUMBER_EXPIRED.getErrorMessage());
 					}
-					if (!StringUtils.equalsIgnoreCase(dealEnquiryDetailsDto.getSellCurrency(), request.getCurrency())) {
+					if (!StringUtils.equalsIgnoreCase(dealEnquiryDetailsDto.getBuyCurrency(), request.getCurrency())) {
 						log.info("Deal Validation failed");
 					auditEventPublisher.publishFailureEvent(FundTransferEventType.DEAL_VALIDATION, metadata,
 							CommonConstants.DEAL_VALIDATION, TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY.toString(),
@@ -79,7 +79,7 @@ public class DealValidator implements Validator {
 								TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY.getErrorMessage());
 					}
 
-					if (!StringUtils.equalsIgnoreCase(dealEnquiryDetailsDto.getBuyCurrency(),
+					if (!StringUtils.equalsIgnoreCase(dealEnquiryDetailsDto.getSellCurrency(),
 							request.getTxnCurrency())) {log.info("Deal Validation failed");
 							auditEventPublisher.publishFailureEvent(FundTransferEventType.DEAL_VALIDATION, metadata,
 									CommonConstants.DEAL_VALIDATION, TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_TXN_CRNCY.toString(),
