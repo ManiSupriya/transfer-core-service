@@ -71,7 +71,7 @@ public class PostTransactionService {
         if (StringUtils.isNotBlank(requestMetaData.getEmail())) {
             final EmailParameters emailParameters = emailConfig.getEmail().get(requestMetaData.getCountry());
             final EmailTemplateParameters emailTemplateParameters = emailUtil.getEmailTemplateParameters(requestMetaData.getChannel(), requestMetaData.getSegment());
-            boolean isMobile =  requestMetaData.getChannel().contains(MOBILE) ? true: false;
+            boolean isMobile = requestMetaData.getChannel().contains(MOBILE);
             String channelType = isMobile ? MOBILE_BANKING : ONLINE_BANKING;
             Map<String, String> templateValues = new HashMap<>();
             final String subject = emailParameters.getEmailSubject(fundTransferRequest.getNotificationType(),fundTransferRequest.getTransferType(),channelType);
