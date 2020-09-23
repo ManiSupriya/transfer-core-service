@@ -12,8 +12,10 @@ public class EmailParameters {
 
     private String callCenterNo;
     private String emailSubject;
-    private String fromEmailName;
-    private String fromEmailAddress;
+    private String fromEmailNameMob;
+    private String fromEmailNameWeb;
+    private String fromEmailAddressWeb;
+    private String fromEmailAddressMob;
     private String localFundTransfer;
     private String otherFundTransfer;
     private String goldSilverBuySuccess;

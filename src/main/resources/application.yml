@@ -126,8 +126,10 @@ app:
         emailSubject: ${NOTIFICATION_EMAIL_SUBJECT:%s request via %s}
         sellGoldSilverSubject: ${NOTIFICATION_EMAIL_SELL_SUBJECT:You sold from %s Edge account via %s}
         buyGoldSilverSubject: ${NOTIFICATION_EMAIL_BUY_SUBJECT:Your recent investment in %s Edge account via %s}
-        fromEmailName: ${NOTIFICATION_FROM_EMAIL_NAME:MashreqDigital}
-        fromEmailAddress: ${NOTIFICATION_FROM_EMAIL_ADDRESS:MashreqDigital@mashreqbank.com}
+        fromEmailNameMob: ${EMAIL_FROM_NAME_MOB:MashreqMobile}
+        fromEmailNameWeb: ${EMAIL_FROM_NAME_WEB:MashreqOnline}
+        fromEmailAddressMob: ${EMAIL_FROM_ADD_MOB:MashreqMobile@mashreq.com}
+        fromEmailAddressWeb: ${EMAIL_FROM_ADD_WEB:MashreqOnline@mashreq.com}
         callCenterNo: ${NOTIFICATION_EMAIL_CALL_CENTER_NO:04 424 6666}
         localFundTransfer: mt-within-own-accounts.ftl
         otherFundTransfer: mt-other-accounts.ftl
