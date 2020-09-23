@@ -70,10 +70,7 @@ public interface CoreEnquiryService<R, P> {
 					assignCustomErrorCode(response.getErrorCode(), OTP_VERIFY_USER_INACTIVE_STATUS);
 				} else if (FAILED_TO_DECRYPT.equals(errorHandlingStrategy)) {
 					assignCustomErrorCode(response.getErrorCode(), OTP_VERIFY_USER_FAILED_TO_DECRYPT);
-				} else {
-                    TransferErrorCode errorCode = TransferErrorCode.valueOf(errorHandlingStrategy);
-                    GenericExceptionHandler.handleError(errorCode, errorCode.getErrorMessage(), getErrorDetails(response));
-                }
+				}
             } else {
                 GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR, EXTERNAL_SERVICE_ERROR.getErrorMessage(), getErrorDetails(response));
             }
@@ -91,9 +88,6 @@ public interface CoreEnquiryService<R, P> {
             GenericException genericException = (GenericException) throwable;
             final String[] errorCodes = getAllErrorCodesFromGenericException(genericException);
             final String errorDetails = genericException.getErrorDetails();
-            if(((GenericException) throwable).getErrorCode().equals("TN-5000")){
-                GenericExceptionHandler.handleError(assignDefaultErrorCode(), assignDefaultErrorCode().getErrorMessage(), ((GenericException) throwable).getErrorDetails());
-            }
             final Optional<String> errorHandlingStrategyOptional = getErrorHandlingStrategy(errorMap(), errorCodes);
             final String errorHandlingStrategy = errorHandlingStrategyOptional.get();
 
@@ -137,8 +131,7 @@ public interface CoreEnquiryService<R, P> {
 					GenericExceptionHandler.handleError(TransferErrorCode.ACC_SERVICE_EXCEED_WITHDRAWL_LIMIT_ERROR,
 							TransferErrorCode.ACC_SERVICE_EXCEED_WITHDRAWL_LIMIT_ERROR.getErrorMessage(), errorDetails);
 				}else {
-                    TransferErrorCode errorCode = TransferErrorCode.valueOf(errorHandlingStrategy);
-                    GenericExceptionHandler.handleError(errorCode, errorCode.getErrorMessage(), errorDetails);
+                    GenericExceptionHandler.handleError(assignDefaultErrorCode(), assignDefaultErrorCode().getErrorMessage(), ((GenericException) throwable).getErrorDetails());
                 }
             }
            /**
