@@ -32,6 +32,9 @@ public enum TransferErrorCode implements ErrorCode {
     NOT_VALID_END_DATE_GPI_TRACKER("TN-1019", "Not a Valid date, end date should be always greter than start date"),
     DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY("TN-1020", "Deal Number Not Applicable, buy currency not matching with account currency"),
     DEAL_NUMBER_NOT_APPLICABLE_WITH_TXN_CRNCY("TN-1021", "Deal Number Not Applicable, sell currency not matching with trxn currency"),
+    DEAL_NUMBER_NOT_AUTHORIRED("TN-1022", "Deal Number Not Authorised"),
+    DEAL_NUMBER_NOT_VALID_STATE("TN-1023", "Deal Number Not in Valid State"),
+    FX_CONTENET_ERROR("TN-1024","Content not found "),
 
     INVALID_BEN_CODE("LM-1106","Invalid ben code"),
 

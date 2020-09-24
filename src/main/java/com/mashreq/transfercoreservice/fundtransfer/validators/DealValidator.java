@@ -37,6 +37,9 @@ public class DealValidator implements Validator {
 	private final AsyncUserEventPublisher auditEventPublisher;
 	private final MaintenanceService maintenanceService;
 	private final ExternalErrorCodeConfig errorCodeConfig;
+    private static String ACTIVE_STATUS= "A";
+    private static String TXN_STATUS = "O";
+    private static String AUTH_STATUS= "A";
 
 	@Override
 	public ValidationResult validate(FundTransferRequestDTO request, RequestMetaData metadata,
@@ -46,7 +49,6 @@ public class DealValidator implements Validator {
 			if (request.getDealNumber() != null) {
 				dealEnquiryDto = maintenanceService.getFXDealInformation(request.getDealNumber());
 				for (DealEnquiryDetailsDto dealEnquiryDetailsDto : dealEnquiryDto.getDetailsDtoList()) {
-					LocalDate localDate = LocalDate.parse(dealEnquiryDetailsDto.getDealExpiryDate());
 					if (dealEnquiryDetailsDto.getDealAmount().compareTo(request.getAmount()) == -1) {
 						log.info("Deal Validation failed");
 						auditEventPublisher.publishFailureEvent(FundTransferEventType.DEAL_VALIDATION, metadata,
@@ -58,44 +60,14 @@ public class DealValidator implements Validator {
 								TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE.getErrorMessage(),
 								TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE.getErrorMessage());
 					}
-					if (localDate.isBefore(LocalDate.now())) {
-						log.info("Deal Validation failed");
-						auditEventPublisher.publishFailureEvent(FundTransferEventType.DEAL_VALIDATION, metadata,
-								CommonConstants.DEAL_VALIDATION, TransferErrorCode.DEAL_NUMBER_EXPIRED.toString(),
-								TransferErrorCode.DEAL_NUMBER_EXPIRED.getErrorMessage(),
-								TransferErrorCode.DEAL_NUMBER_EXPIRED.getErrorMessage());
-						GenericExceptionHandler.handleError(TransferErrorCode.DEAL_NUMBER_EXPIRED,
-								TransferErrorCode.DEAL_NUMBER_EXPIRED.getErrorMessage(),
-								TransferErrorCode.DEAL_NUMBER_EXPIRED.getErrorMessage());
-					}
-					if (!StringUtils.equalsIgnoreCase(dealEnquiryDetailsDto.getBuyCurrency(), request.getCurrency())) {
-						log.info("Deal Validation failed");
-					auditEventPublisher.publishFailureEvent(FundTransferEventType.DEAL_VALIDATION, metadata,
-							CommonConstants.DEAL_VALIDATION, TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY.toString(),
-							TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY.getErrorMessage(),
-							TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY.getErrorMessage());
-						GenericExceptionHandler.handleError(TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY,
-								TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY.getErrorMessage(),
-								TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY.getErrorMessage());
-					}
-
-					if (!StringUtils.equalsIgnoreCase(dealEnquiryDetailsDto.getSellCurrency(),
-							request.getTxnCurrency())) {log.info("Deal Validation failed");
-							auditEventPublisher.publishFailureEvent(FundTransferEventType.DEAL_VALIDATION, metadata,
-									CommonConstants.DEAL_VALIDATION, TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_TXN_CRNCY.toString(),
-									TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_TXN_CRNCY.getErrorMessage(),
-									TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_TXN_CRNCY.getErrorMessage());
-						GenericExceptionHandler.handleError(TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_TXN_CRNCY,
-								TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_TXN_CRNCY.getErrorMessage(),
-								TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_TXN_CRNCY.getErrorMessage());
-					}
 					request.setDealRate(dealEnquiryDetailsDto.getDealRate());
 				}
 			}
 		} catch (GenericException e) {
 			handleErrorResponse(e);
 		}
-
+		if(dealEnquiryDto!=null)
+		validateData(dealEnquiryDto.getDetailsDtoList().iterator().next(),request, metadata);
 		return ValidationResult.builder().success(true).build();
 	}
 	private Map<String, String> errorMap() {
@@ -107,6 +79,65 @@ public class DealValidator implements Validator {
 	public void assignCustomErrorCode(String errorDetail, TransferErrorCode errorCode) {
 		GenericExceptionHandler.handleError(errorCode, errorCode.getErrorMessage());
 	}
+	
+	private void validateData(DealEnquiryDetailsDto response, FundTransferRequestDTO request, RequestMetaData requestMetaData ) {
+        if (null == response) {
+            GenericExceptionHandler.handleError(TransferErrorCode.FX_CONTENET_ERROR, TransferErrorCode.FX_CONTENET_ERROR.getErrorMessage());
+        }
+        log.debug("the response for fxdeal enquiry request:{} is {}", request,
+                response);
+
+		if (LocalDate.parse(response.getDealExpiryDate()).isBefore(LocalDate.now())) {
+			log.info("Deal Validation failed");
+			auditEventPublisher.publishFailureEvent(FundTransferEventType.DEAL_VALIDATION, requestMetaData,
+					CommonConstants.DEAL_VALIDATION, TransferErrorCode.DEAL_NUMBER_EXPIRED.toString(),
+					TransferErrorCode.DEAL_NUMBER_EXPIRED.getErrorMessage(),
+					TransferErrorCode.DEAL_NUMBER_EXPIRED.getErrorMessage());
+			GenericExceptionHandler.handleError(TransferErrorCode.DEAL_NUMBER_EXPIRED,
+					TransferErrorCode.DEAL_NUMBER_EXPIRED.getErrorMessage(),
+					TransferErrorCode.DEAL_NUMBER_EXPIRED.getErrorMessage());
+		}
+
+        if (!StringUtils.equalsIgnoreCase(response.getBuyCurrency(), request.getCurrency())) {
+        	auditEventPublisher.publishFailureEvent(FundTransferEventType.DEAL_VALIDATION, requestMetaData,
+					CommonConstants.DEAL_VALIDATION, TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY.toString(),
+					TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY.getErrorMessage(),
+					TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY.getErrorMessage());
+            GenericExceptionHandler.handleError(TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY, TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY.getErrorMessage(),TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY.getErrorMessage());
+        }
+        
+        if (!StringUtils.equalsIgnoreCase(response.getDealAuthStatus(),AUTH_STATUS)) {
+        	auditEventPublisher.publishFailureEvent(FundTransferEventType.DEAL_VALIDATION, requestMetaData,
+					CommonConstants.DEAL_VALIDATION, TransferErrorCode.DEAL_NUMBER_NOT_AUTHORIRED.toString(),
+					TransferErrorCode.DEAL_NUMBER_NOT_AUTHORIRED.getErrorMessage(),
+					TransferErrorCode.DEAL_NUMBER_NOT_AUTHORIRED.getErrorMessage());
+            GenericExceptionHandler.handleError(TransferErrorCode.DEAL_NUMBER_NOT_AUTHORIRED, TransferErrorCode.DEAL_NUMBER_NOT_AUTHORIRED.getErrorMessage(),TransferErrorCode.DEAL_NUMBER_NOT_AUTHORIRED.getErrorMessage());
+        }
+        
+        if (!StringUtils.equalsIgnoreCase(response.getDealTxnStatus(),TXN_STATUS)) {
+        	auditEventPublisher.publishFailureEvent(FundTransferEventType.DEAL_VALIDATION, requestMetaData,
+					CommonConstants.DEAL_VALIDATION, TransferErrorCode.DEAL_NUMBER_NOT_VALID_STATE.toString(),
+					TransferErrorCode.DEAL_NUMBER_NOT_VALID_STATE.getErrorMessage(),
+					TransferErrorCode.DEAL_NUMBER_NOT_VALID_STATE.getErrorMessage());
+            GenericExceptionHandler.handleError(TransferErrorCode.DEAL_NUMBER_NOT_VALID_STATE, TransferErrorCode.DEAL_NUMBER_NOT_VALID_STATE.getErrorMessage(),TransferErrorCode.DEAL_NUMBER_NOT_VALID_STATE.getErrorMessage());
+        }
+        
+        if (!StringUtils.equalsIgnoreCase(response.getDealStatus(),ACTIVE_STATUS)) {
+        	auditEventPublisher.publishFailureEvent(FundTransferEventType.DEAL_VALIDATION, requestMetaData,
+					CommonConstants.DEAL_VALIDATION, TransferErrorCode.DEAL_NUMBER_NOT_VALID_STATE.toString(),
+					TransferErrorCode.DEAL_NUMBER_NOT_VALID_STATE.getErrorMessage(),
+					TransferErrorCode.DEAL_NUMBER_NOT_VALID_STATE.getErrorMessage());
+            GenericExceptionHandler.handleError(TransferErrorCode.DEAL_NUMBER_NOT_VALID_STATE, TransferErrorCode.DEAL_NUMBER_NOT_VALID_STATE.getErrorMessage(),TransferErrorCode.DEAL_NUMBER_NOT_VALID_STATE.getErrorMessage());
+        }
+
+        if (!StringUtils.equalsIgnoreCase(response.getSellCurrency(), request.getTxnCurrency())) {
+        	auditEventPublisher.publishFailureEvent(FundTransferEventType.DEAL_VALIDATION, requestMetaData,
+					CommonConstants.DEAL_VALIDATION, TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_TXN_CRNCY.toString(),
+					TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_TXN_CRNCY.getErrorMessage(),
+					TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_TXN_CRNCY.getErrorMessage());
+            GenericExceptionHandler.handleError(TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_TXN_CRNCY, TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_TXN_CRNCY.getErrorMessage(), TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_TXN_CRNCY.getErrorMessage());
+        }
+    }
 	
 	 private ResponseEntity<Response<DealEnquiryDto>> handleErrorResponse(Throwable throwable) {
 	        if (throwable instanceof GenericException) {
@@ -121,19 +152,10 @@ public class DealValidator implements Validator {
 	                	if (INVALID_DEAL_NUMBER.equals(errorHandlingStrategy)) {
 	                    	GenericExceptionHandler.handleError(TransferErrorCode.INVALID_DEAL_NUMBER, TransferErrorCode.INVALID_DEAL_NUMBER.getErrorMessage(), TransferErrorCode.INVALID_DEAL_NUMBER.getErrorMessage());
 	                    }
-	                } else {
-	                	TransferErrorCode errorCode = TransferErrorCode.valueOf(errorHandlingStrategy);
-	                    GenericExceptionHandler.handleError(errorCode, errorCode.getErrorMessage(), errorDetails);
+	                }else {
+	                	GenericExceptionHandler.handleError(TransferErrorCode.MAINTENANCE_SERVICE_ERROR, TransferErrorCode.MAINTENANCE_SERVICE_ERROR.getErrorMessage(), errorDetails);
 	                }
 	            }
-	            if(StringUtils.equalsAnyIgnoreCase(genericException.getErrorCode(), TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE.getCustomErrorCode()))
-	            	GenericExceptionHandler.handleError(TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE,TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE.getErrorMessage());
-	            if(StringUtils.equalsAnyIgnoreCase(genericException.getErrorCode(), TransferErrorCode.DEAL_NUMBER_EXPIRED.getCustomErrorCode()))
-	            	GenericExceptionHandler.handleError(TransferErrorCode.DEAL_NUMBER_EXPIRED, TransferErrorCode.DEAL_NUMBER_EXPIRED.getErrorMessage());
-	            if(StringUtils.equalsAnyIgnoreCase(genericException.getErrorCode(), TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY.getCustomErrorCode()))
-	            	GenericExceptionHandler.handleError(TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY, TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY.getErrorMessage());
-	            if(StringUtils.equalsAnyIgnoreCase(genericException.getErrorCode(), TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_TXN_CRNCY.getCustomErrorCode()))
-	            	GenericExceptionHandler.handleError(TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_TXN_CRNCY, TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_TXN_CRNCY.getErrorMessage());
 	        }
 	        if(throwable instanceof RetryableException) {
          	GenericExceptionHandler.handleError(assignFeignConnectionErrorCode(), assignFeignConnectionErrorCode().getErrorMessage(), assignFeignConnectionErrorCode().getErrorMessage());
