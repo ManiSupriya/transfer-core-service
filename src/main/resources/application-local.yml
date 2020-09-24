@@ -82,7 +82,7 @@ app:
     accounts: ${ACCOUNT_SERVICE_URL:http://digital-dev.mashreq.com/api/accounts-service}
     otp: http://digital-dev.mashreq.com/api/ms-security-iam/
     cards: ${CARD_SERVICE_URL:http://digital-dev.mashreq.com/api/cards-service}
-    notification: ${NOTIFICATION_SERVICE:http://digital-dev.mashreq.com/api/notification-service/common/notification}
+    notification: ${NOTIFICATION_SERVICE:http://digital-dev.mashreq.com/api/notification-service}
     mobcustomer: ${MOB_CUSTOMER_SERVICE:http://localhost:8088}
     beneficiary: ${BENEFICIARY_CORE_SERVICE:http://digital-dev.mashreq.com/api/beneficiary-core-service}
     mobcommon: ${MOB_COMMON_SERVICE:http://digital-dev.mashreq.com/api/mob-common-service}
@@ -106,8 +106,15 @@ app:
     productCode: ${TFTCC_PRODUCT_CODE:PACC}
     debitAccountNo: ${TFTCC_DEBIT_ACCOUNT_NO:011099270455}
     bankReferenceNo: ${TFTCC_BANK_REFERENCE_NO:363c5a1abb}
-
-
+  notification:
+    email:
+      AE:
+        emailSubject: ${NOTIFICATION_EMAIL_SUBJECT:%s request via %s}
+        fromEmailName: ${NOTIFICATION_FROM_EMAIL_NAME:MashreqDigital}
+        fromEmailAddress: ${NOTIFICATION_FROM_EMAIL_ADDRESS:MashreqDigital@mashreqbank.com}
+        callCenterNo: ${NOTIFICATION_EMAIL_CALL_CENTER_NO:04 424 6666}
+        localFundTransfer: mt-within-own-accounts.ftl
+        otherFundTransfer: mt-other-accounts.ftl
 redis:
   enable: true
   write.ttl: 60

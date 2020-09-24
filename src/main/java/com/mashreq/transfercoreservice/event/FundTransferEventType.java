@@ -68,7 +68,10 @@ public enum FundTransferEventType implements EventType {
     FLEX_GET_EXCHANGE_RATE("FUND_TRANSFER_ENQUIRY", "Get exchange rate for QR"),
     FLEX_GET_CHARGES("FUND_TRANSFER_ENQUIRY", "Get charges for QR"),
     FLEX_RULE_ENGINE_MW_CALL("FUND_TRANSFER_ENQUIRY","Flex rule engine MW call"),
-    SMS_NOTIFICATION("SMS_NOTIFICATION","Send Sms for transfer-core")
+    SMS_NOTIFICATION("SMS_NOTIFICATION","Send Sms for transfer-core"),
+    PUSH_NOTIFICATION("PUSH_NOTIFICATION","Send push for transfer-core"),
+    EMAIL_NOTIFICATION("EMAIL_NOTIFICATION","Send Email for transfer-core"),
+    APPLICATION_SETTING_KEY_NOT_FOUND("APPLICATION_SETTING_KEY_NOT_FOUND","Application setting key is not found"),
     ;
 
 

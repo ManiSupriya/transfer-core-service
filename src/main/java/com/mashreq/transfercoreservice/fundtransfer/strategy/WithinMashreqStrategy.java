@@ -1,18 +1,5 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
-import static java.time.Duration.between;
-import static java.time.Instant.now;
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-
-import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
@@ -26,24 +13,28 @@ import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.common.CommonConstants;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
-import com.mashreq.transfercoreservice.fundtransfer.dto.LimitValidatorResponse;
-import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
-import com.mashreq.transfercoreservice.fundtransfer.validators.AccountBelongsToCifValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.BeneficiaryValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.CurrencyValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.FinTxnNoValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.SameAccountValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
-
+import com.mashreq.transfercoreservice.fundtransfer.validators.*;
+import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
+import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
+import com.mashreq.transfercoreservice.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+
+import static com.mashreq.transfercoreservice.notification.model.NotificationType.OTHER_ACCOUNT_TRANSACTION;
+import static java.time.Duration.between;
+import static java.time.Instant.now;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 /**
  * @author shahbazkh
@@ -72,6 +63,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     private final BalanceValidator balanceValidator;
     private final DealValidator dealValidator;
     private final AsyncUserEventPublisher auditEventPublisher;
+    private final NotificationService notificationService;
 
     @Value("${app.uae.transaction.code:096}")
     private String transactionCode;
@@ -114,8 +106,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         //Limit Validation
         final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), fromAccountOpt.get(),transferAmountInSrcCurrency);
         final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metadata, null);
-
-
+        String txnRefNo = validationResult.getTransactionRefNo();
 
         //Deal Validator
         log.info("Deal Validation Started");
@@ -136,22 +127,31 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
          responseHandler(dealValidator.validate(request, metadata, validationContext));   
    		 }
 
-
-
         log.info("Total time taken for {} strategy {} milli seconds ", htmlEscape(request.getServiceType()), htmlEscape(Long.toString(between(start, now()).toMillis())));
 
 
-        final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountOpt.get(), beneficiaryDto);
-        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata);
-
+        final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountOpt.get(), beneficiaryDto, validationResult);
+        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata, txnRefNo);
+        if(isSuccessOrProcessing(fundTransferResponse)) {
+        	 final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getCurrency(),request.getAmount());
+             notificationService.sendNotifications(customerNotification,OTHER_ACCOUNT_TRANSACTION,metadata,userDTO);
+        }
+        
         return fundTransferResponse.toBuilder()
                 .limitUsageAmount(limitUsageAmount)
-                .limitVersionUuid(validationResult.getLimitVersionUuid()).build();
+                .limitVersionUuid(validationResult.getLimitVersionUuid()).transactionRefNo(txnRefNo).build();
 
     }
 
     private boolean isCurrencySame(FundTransferRequestDTO request) {
         return request.getCurrency().equalsIgnoreCase(request.getTxnCurrency());
+    }
+    private CustomerNotification populateCustomerNotification(String transactionRefNo, String currency, BigDecimal amount) {
+        CustomerNotification customerNotification =new CustomerNotification();
+        customerNotification.setAmount(String.valueOf(amount));
+        customerNotification.setCurrency(currency);
+        customerNotification.setTxnRef(transactionRefNo);
+        return customerNotification;
     }
 
     private BigDecimal getAmountInSrcCurrency(FundTransferRequestDTO request, BeneficiaryDto beneficiaryDto,
@@ -188,7 +188,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         return currencyConversionDto.getTransactionAmount();
     }
     private FundTransferRequest prepareFundTransferRequestPayload(RequestMetaData metadata, FundTransferRequestDTO request,
-                                                                  AccountDetailsDTO sourceAccount, BeneficiaryDto beneficiaryDto) {
+                                                                  AccountDetailsDTO sourceAccount, BeneficiaryDto beneficiaryDto, LimitValidatorResponse validationResult) {
         return FundTransferRequest.builder()
                 .amount(request.getAmount())
                 .channel(metadata.getChannel())
@@ -204,7 +204,14 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
                 .internalAccFlag(INTERNAL_ACCOUNT_FLAG)
                 .dealNumber(request.getDealNumber())
                 .dealRate(request.getDealRate())
+                .limitTransactionRefNo(validationResult.getTransactionRefNo())
                 .build();
 
+    }
+
+    
+    private boolean isSuccessOrProcessing(FundTransferResponse response) {
+        return response.getResponseDto().getMwResponseStatus().equals(MwResponseStatus.S) ||
+                response.getResponseDto().getMwResponseStatus().equals(MwResponseStatus.P);
     }
 }

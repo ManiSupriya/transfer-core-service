@@ -30,25 +30,29 @@ public enum TransferErrorCode implements ErrorCode {
     NOT_MATCHING_CARD_DETAILS("TN-1017", "Card details not found"),
     NOT_VALID_DATE_GPI_TRACKER("TN-1018", "Not a Valid date, startDate should Not be 6 months old"),
     NOT_VALID_END_DATE_GPI_TRACKER("TN-1019", "Not a Valid date, end date should be always greter than start date"),
-    DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY("TN-1020", "Deal Number Not Applicable, sell currency transaction not matching with account currency"),
-    DEAL_NUMBER_NOT_APPLICABLE_WITH_TXN_CRNCY("TN-1021", "Deal Number Not Applicable, buy currency transaction not matching with trxn currency"),
+    DEAL_NUMBER_NOT_APPLICABLE_WITH_SRC_CRNCY("TN-1020", "Deal Number Not Applicable, buy currency not matching with account currency"),
+    DEAL_NUMBER_NOT_APPLICABLE_WITH_TXN_CRNCY("TN-1021", "Deal Number Not Applicable, sell currency not matching with trxn currency"),
+    DEAL_NUMBER_NOT_AUTHORIRED("TN-1022", "Deal Number Not Authorised"),
+    DEAL_NUMBER_NOT_VALID_STATE("TN-1023", "Deal Number Not in Valid State"),
+    FX_CONTENET_ERROR("TN-1024","Content not found "),
 
-
-    BALANCE_NOT_SUFFICIENT("TN-1200", "Balance is not sufficient"),
-    DEAL_VALIDATION_FAILED("TN-1201", "Deal Number validation Failed"),
-
-    LIMIT_PACKAGE_NOT_FOUND("LM-1101", "Limit Package not Found"),
-    TRX_LIMIT_REACHED("LM-1102", "Transaction Limit Reached"),
-    DAY_AMOUNT_LIMIT_REACHED("LM-1103", "Day Amount Limit Reached"),
-    DAY_COUNT_LIMIT_REACHED("LM-1104", "Day count Limit Reached"),
-    MONTH_AMOUNT_LIMIT_REACHED("LM-1104", "Month Amount Limit Reached"),
-    MONTH_COUNT_LIMIT_REACHED("LM-1105", "Month Count Limit Reached"),
     INVALID_BEN_CODE("LM-1106","Invalid ben code"),
-    MIN_AMOUNT_LIMIT_REACHED("LM-1107", "Min Amount Limit Reached"),
-    ERROR_LIMIT_CHECK("LM-1108","Error while fetching limit from db"),
-    COOLING_COUNT_LIMIT_REACHED("LM-1109", "Cooling Count Limit Reached"),
-    COOLING_AMOUNT_LIMIT_REACHED("LM-1110", "Cooling Count Limit Reached"),
-    TXN_AMOUNT_LIMIT_REACHED("LM-1111", "Transaction amount Limit Reached"),
+
+    DEAL_VALIDATION_FAILED("TN-1201", "Deal Number validation Failed"),
+    BALANCE_NOT_SUFFICIENT("TN-1200", "Balance is not sufficient"),
+    ERROR_LIMIT_CHECK("LM-2007", "Error during limit procedure call"),
+    LIMIT_PACKAGE_NOT_DEFINED("LM-2008", "Limit Package not Found"),
+    DAILY_COUNT_REACHED("LM-2018", "Daily usage count exceeded"),
+    MONTHLY_COUNT_REACHED("LM-2009", "Monthly usage count exceeded"),
+    COOLING_LIMIT_COUNT_REACHED("LM-2010", "Cooling period transaction count exceeded"),
+    DAILY_AMOUNT_REACHED("LM-2011", "Daily usage amount exceeded"),
+    MONTHLY_AMOUNT_REACHED("LM-2012", "Monthly usage amount exceeded"),
+    TRX_AMOUNT_REACHED("LM-2013", "Transaction amount is greater than transaction max amount limit"),
+    COOLING_LIMIT_AMOUNT_REACHED("LM-2014", "Cooling period transaction amount exceeded"),
+    MIN_AMOUNT_LIMIT_REACHED("LM-2015", "Min Amount Limit Reached"),
+
+    MONTH_AMOUNT_LIMIT_REACHED("PM-1104", "Month Amount Limit Reached"),
+    DAY_AMOUNT_LIMIT_REACHED("PM-1103", "Day Amount Limit Reached"),
 
     BENE_NOT_FOUND("TN-4001", "Beneficiary Not Found"),
     BENE_ACC_NOT_MATCH("TN-4002", "Beneficiary Account Number does not match"),
@@ -109,7 +113,7 @@ public enum TransferErrorCode implements ErrorCode {
     ACC_SERVICE_EXCEED_WITHDRAWL_ERROR("TN-5015", "Account external service exceeds withdrawal frequency exception"),
     ACC_SERVICE_EXCEED_WITHDRAWL_LIMIT_ERROR("TN-5016", "Account external service exceeds withdrawal limit exception"),
     OTP_EXTERNAL_SERVICE_ERROR("TN-5016", "Something went wrong with OTP external service"),
-    OTP_SERVICE_CONNECTION_ERROR("TN-5017", "OTP external service connection exception"),    
+    OTP_SERVICE_CONNECTION_ERROR("TN-5017", "OTP external service connection exception"),
     OTP_VERIFY_INVALID_SESSION_TOKEN("VERIFY_OTP_4003", "OTP external service Invalid session token exception"),
     OTP_VERIFY_OTP_FAILED("VERIFY_OTP_10020", "OTP external service Otp verification failed exception"),
     OTP_VERIFY_ATTEMPTS_EXCEEDED("VERIFY_OTP_10200", "otp verification attempts exceeded exception"),
@@ -126,15 +130,17 @@ public enum TransferErrorCode implements ErrorCode {
     EXTERNAL_SERVICE_ERROR_MW("TN-8003", "Something went wrong with middleware service"),
     INVALID_EVENT_TYPE_CODE("TN-8004","Invalid event code"),
 
-    SMS_NOTIFICATION_FAILED("SMS_9001","Failed to send sms notification"),
-
     FT_CC_NOT_BELONG_TO_CIF("TN-8005", "CC does not belong to CIF"),
     FT_CC_MW_ERROR("TN-8006","Error is occurred while calling middleware for Fund Transfer via CC"),
     FT_CC_MW_EMPTY_RESPONSE("TN-8007","Null response from middleware for Fund Transfer via CC"),
     FT_CC_MW_ERROR_RESPONSE("TN-8008","Error response from middleware for Fund Transfer via CC"),
     FT_CC_NO_DEALS("TN-8008","No credit cards deals are available for the given cif"),
     FT_CC_BALANCE_NOT_SUFFICIENT("TN-8009","No available balance on the given credit card"),
-
+    SMS_NOTIFICATION_FAILED("TN-9001","Failed to send sms notification"),
+    APPLICATION_KEY_NOT_FOUND("TN-9002","Application setting key not found"),
+    PUSH_NOTIFICATION_FAILED("TN-9003","Failed to send push notification"),
+    ACCOUNT_NO_NOT_MASKED("TN-8010","Account no masked is failed due to length"),
+    EMAIL_NOTIFICATION_FAILED("EMAIL_9001","Failed to send email notification"),
     ;
 
 
