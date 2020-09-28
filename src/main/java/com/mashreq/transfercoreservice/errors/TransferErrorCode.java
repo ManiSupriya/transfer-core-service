@@ -35,6 +35,8 @@ public enum TransferErrorCode implements ErrorCode {
     DEAL_NUMBER_NOT_AUTHORIRED("TN-1022", "Deal Number Not Authorised"),
     DEAL_NUMBER_NOT_VALID_STATE("TN-1023", "Deal Number Not in Valid State"),
     FX_CONTENET_ERROR("TN-1024","Content not found "),
+    TRNS_CORE_400("TRNS-CORE-400", "Please validate your request body"),
+    TRNS_CORE_406("TRNS-CORE-406", "Request parameter is missing"),
 
     INVALID_BEN_CODE("LM-1106","Invalid ben code"),
 
