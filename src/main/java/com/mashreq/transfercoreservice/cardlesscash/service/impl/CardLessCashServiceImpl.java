@@ -134,6 +134,7 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 				.accountTo(cardLessCashGenerationRequest.getAccountNo())
 				.billRefNo(coreResponse.getData().getReferenceNumber())
 				.valueDate(LocalDateTime.now())
+				.transactionRefNo(coreResponse.getData().getReferenceNumber())
 				.financialTransactionNo(coreResponse.getData().getReferenceNumber()).build();
 		log.info("Inserting into Transaction History table {} ", transactionHistory);
 		transactionRepository.save(transactionHistory);
