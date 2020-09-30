@@ -10,7 +10,7 @@ RUN mkdir -p /opt/appdynamics && \
 
 RUN \
     cd $JAVA_HOME/jre/lib/security \
-    && keytool -keystore cacerts -storepass changeit -noprompt -trustcacerts -importcert -alias efmuat.mashreqbank.com -file JSONUATCert.crt
+    && keytool -keystore cacerts -storepass changeit -noprompt -trustcacerts -importcert -alias efmuat.mashreqbank.com -file JSONUATCert.cer
 
 RUN \
     cd $JAVA_HOME/jre/lib/security \
