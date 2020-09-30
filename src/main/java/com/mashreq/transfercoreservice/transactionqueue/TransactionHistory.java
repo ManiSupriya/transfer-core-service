@@ -1,15 +1,11 @@
 package com.mashreq.transfercoreservice.transactionqueue;
 
-import java.math.BigDecimal;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
 import lombok.Builder;
 import lombok.Data;
+
+import javax.persistence.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -41,7 +37,7 @@ public class TransactionHistory {
     private String financialTransactionNo;
     private String hostReferenceNo;
     private String dealNumber;
-    private String valueDate;
+    private LocalDateTime valueDate;
     private String countryCode;
     private String transferPurpose;
     private String rejectedReason;

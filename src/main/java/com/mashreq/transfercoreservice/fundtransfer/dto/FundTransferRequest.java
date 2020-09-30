@@ -43,4 +43,8 @@ public class FundTransferRequest {
     private String acwthInst1;
     private String acwthInst2;
     private String acwthInst5;
+    private String transferType;
+    private String sourceOfFund;
+    private String status;
+    private String NotificationType;
 }

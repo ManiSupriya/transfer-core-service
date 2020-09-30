@@ -11,7 +11,10 @@ import static org.springframework.web.util.HtmlUtils.htmlEscape;
 import java.util.List;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
@@ -42,6 +45,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping(GPI_TRACKER_URL)
 @Api(value = GPI_TRANSACTIONS)
 @RequiredArgsConstructor
+@Validated
 public class SwiftTrackerController {
 	private final SwiftTrackerService swiftTrackerService;
 	private final AsyncUserEventPublisher asyncUserEventPublisher;
@@ -61,7 +65,10 @@ public class SwiftTrackerController {
 			@ApiResponse(code = 401, message = "You are not authorized to view the resource"),
 			@ApiResponse(code = 500, message = "Something went wrong") })
 	@GetMapping
-	public Response<List<GPITransactionsDetailsRes>> getSwiftMessageDetails(@RequestAttribute(REQ_METADATA) RequestMetaData metaData, @RequestParam(required=false) String startDate, @RequestParam(required=false) String endDate) {
+	public Response<List<GPITransactionsDetailsRes>> getSwiftMessageDetails(
+			@RequestAttribute(REQ_METADATA) RequestMetaData metaData,
+			@RequestParam(required = true) @NotNull @Pattern(regexp = "^\\d{4}\\-(0?[1-9]|1[012])\\-(0?[1-9]|[12][0-9]|3[01])$", message = "Please use yyyy-mm-dd ") String startDate,
+			@RequestParam(required = true) @NotNull @Pattern(regexp = "^\\d{4}\\-(0?[1-9]|1[012])\\-(0?[1-9]|[12][0-9]|3[01])$", message = "Please use yyyy-mm-dd ") String endDate) {
 		log.info("GPI Transaction Details for cif {} ", htmlEscape(metaData.getPrimaryCif()));
 		return asyncUserEventPublisher.publishEvent(() ->swiftTrackerService.getSwiftMessageDetails(metaData, startDate, endDate), FundTransferEventType.GET_GPI_TRANSACTION_DETAILS, metaData, FundTransferEventType.GET_GPI_TRANSACTION_DETAILS.getDescription());
 

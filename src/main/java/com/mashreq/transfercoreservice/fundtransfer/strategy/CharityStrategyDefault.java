@@ -1,38 +1,31 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
-import static java.time.Duration.between;
-import static java.time.Instant.now;
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
+import com.mashreq.mobcommons.services.http.RequestMetaData;
+import com.mashreq.transfercoreservice.client.BeneficiaryClient;
+import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
+import com.mashreq.transfercoreservice.client.dto.CharityBeneficiaryDto;
+import com.mashreq.transfercoreservice.client.service.AccountService;
+import com.mashreq.transfercoreservice.fundtransfer.dto.*;
+import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
+import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
+import com.mashreq.transfercoreservice.fundtransfer.validators.*;
+import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
+import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
+import com.mashreq.transfercoreservice.notification.service.NotificationService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.stereotype.Component;
-
-import com.mashreq.mobcommons.services.http.RequestMetaData;
-import com.mashreq.transfercoreservice.client.BeneficiaryClient;
-import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
-import com.mashreq.transfercoreservice.client.dto.CharityBeneficiaryDto;
-import com.mashreq.transfercoreservice.client.service.AccountService;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
-import com.mashreq.transfercoreservice.fundtransfer.dto.LimitValidatorResponse;
-import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
-import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
-import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
-import com.mashreq.transfercoreservice.fundtransfer.validators.AccountBelongsToCifValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.CharityValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.CurrencyValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.FinTxnNoValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.SameAccountValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import static com.mashreq.transfercoreservice.notification.model.NotificationType.OTHER_ACCOUNT_TRANSACTION;
+import static java.time.Duration.between;
+import static java.time.Instant.now;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 /**
  * @author shahbazkh
@@ -53,9 +46,11 @@ public class CharityStrategyDefault implements FundTransferStrategy {
     private final BeneficiaryClient beneficiaryClient;
     private final CharityValidator charityValidator;
     private final CurrencyValidator currencyValidator;
+    private final DealValidator dealValidator;
     private final LimitValidator limitValidator;
     private final FundTransferMWService fundTransferMWService;
     private final BalanceValidator balanceValidator;
+    private final NotificationService notificationService;
 
 
 
@@ -90,6 +85,12 @@ public class CharityStrategyDefault implements FundTransferStrategy {
         responseHandler(currencyValidator.validate(request, metadata, validateContext));
 
         //TODO
+        
+        //Deal Validator
+        log.info("Deal Validation Started");
+        if (StringUtils.isNotBlank(request.getDealNumber()) && !request.getDealNumber().isEmpty()) {
+            responseHandler(dealValidator.validate(request, metadata, validateContext));
+   		 }
 
         //Balance Validation
         validateContext.add("transfer-amount-in-source-currency", request.getAmount());
@@ -105,24 +106,37 @@ public class CharityStrategyDefault implements FundTransferStrategy {
         BigDecimal limitUsageAmount = request.getAmount();
         final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metadata,null);
         log.info("Limit Validation successful");
+        String txnRefNo = validationResult.getTransactionRefNo();
 
-        final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountOpt.get(), charityBeneficiaryDto);
-        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata);
-
+       final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountOpt.get(), charityBeneficiaryDto, validationResult);
+        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata, txnRefNo);
+		if (isSuccessOrProcessing(fundTransferResponse)) {
+			final CustomerNotification customerNotification = populateCustomerNotification(
+					validationResult.getTransactionRefNo(), request.getCurrency(), request.getAmount());
+			notificationService.sendNotifications(customerNotification, OTHER_ACCOUNT_TRANSACTION, metadata, userDTO);
+		}
 
         //final FundTransferResponse fundTransferResponse = coreTransferService.transferFundsBetweenAccounts(request);
-
 
         log.info("Total time taken for {} strategy {} milli seconds ", htmlEscape(request.getServiceType()), htmlEscape(Long.toString(between(start, now()).toMillis())));
 
         return fundTransferResponse.toBuilder()
                 .limitUsageAmount(limitUsageAmount)
-                .limitVersionUuid(validationResult.getLimitVersionUuid()).build();
+                .limitVersionUuid(validationResult.getLimitVersionUuid())
+                .transactionRefNo(txnRefNo).build();
 
+    }
+    
+    private CustomerNotification populateCustomerNotification(String transactionRefNo, String currency, BigDecimal amount) {
+        CustomerNotification customerNotification =new CustomerNotification();
+        customerNotification.setAmount(String.valueOf(amount));
+        customerNotification.setCurrency(currency);
+        customerNotification.setTxnRef(transactionRefNo);
+        return customerNotification;
     }
 
     private FundTransferRequest prepareFundTransferRequestPayload(RequestMetaData metadata, FundTransferRequestDTO request,
-                                                                  AccountDetailsDTO sourceAccount, CharityBeneficiaryDto charityBeneficiaryDto) {
+                                                                  AccountDetailsDTO sourceAccount, CharityBeneficiaryDto charityBeneficiaryDto, LimitValidatorResponse validationResult) {
         return FundTransferRequest.builder()
                 .amount(request.getAmount())
                 .channel(metadata.getChannel())
@@ -136,7 +150,15 @@ public class CharityStrategyDefault implements FundTransferStrategy {
                 .destinationCurrency(charityBeneficiaryDto.getCurrencyCode())
                 .transactionCode("096")
                 .internalAccFlag(INTERNAL_ACCOUNT_FLAG)
+                .dealNumber(request.getDealNumber())
+                .dealRate(request.getDealRate())
+                .limitTransactionRefNo(validationResult.getTransactionRefNo())
                 .build();
 
+    }
+    
+    private boolean isSuccessOrProcessing(FundTransferResponse response) {
+        return response.getResponseDto().getMwResponseStatus().equals(MwResponseStatus.S) ||
+                response.getResponseDto().getMwResponseStatus().equals(MwResponseStatus.P);
     }
 }

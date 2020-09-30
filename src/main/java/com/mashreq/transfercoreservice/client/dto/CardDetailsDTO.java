@@ -35,6 +35,9 @@ public class CardDetailsDTO {
 
     @JsonProperty("currentBalance")
     private BigDecimal currentBalance;
+    
+    @JsonProperty("cardAccountNumber")
+    private String cardAccountNumber;
 
     @JsonProperty("availableCreditLimit")
     private BigDecimal availableCreditLimit;
@@ -55,5 +58,9 @@ public class CardDetailsDTO {
 
     public String getCardNo() {
         return StringUtils.isBlank(cardNo) ? null : cardNo.substring(cardNo.length() - 4);
+    }
+
+    public String getCardNoWithMasked(){
+        return cardNo;
     }
 }

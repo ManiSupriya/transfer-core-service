@@ -10,6 +10,8 @@ public interface CommonConstants {
 	String EXCEEDS_WITHDRAWL_LIMIT = "EXCEEDS_WITHDRAWL_LIMIT";
 	String MOB_CHANNEL = "MOBILE";
 	String CARD_LESS_CASH = "cardless-cash";
+	String SMILE_CARD_LOYALTY = "loyalty-simle-card";
+	String SWIFT_GPI_TRANSACTION_DETAILS = "SWIFT-GPI-TRANSACTION-DETAILS";
 	String VERSION_ID = "DEF-1";
 	String CHANNEL_TRACE_ID = "X-CHANNEL-TRACE-ID";
 	String X_REQUEST_METADATA = "X-REQUEST-METADATA";
@@ -28,4 +30,11 @@ public interface CommonConstants {
 	String SEARCH_ACCOUNT_DETAILS = "searchAccountDetails";
 	String DEAL_VALIDATION = "DEAL_VALIDATION";
 	String INVALID_DEAL_NUMBER = "RECORD_NOT_FOUND";
+	String BASE_PACKAGE = "com.mashreq.transfercoreservice";
+	String TITLE = "Transfer Core Service";
+	String MS_SQUAD = "MS-Squad";
+	String MAIL = "MicroservicesSquad@mashreq.com";
+	String LICENCE_URL = "http://www.apache.org/licenses/LICENSE-2.0.html";
+	String VERSION = "1.0.0";
+	String LICENCE_TEXT = "Apache 2.0";
 }

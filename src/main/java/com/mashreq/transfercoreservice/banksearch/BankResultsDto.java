@@ -4,13 +4,18 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.mashreq.esbcore.bindings.account.mbcdm.IBANDetailsResType;
 import com.mashreq.esbcore.bindings.customer.mbcdm.AccuityDetailsTypes;
 import com.mashreq.esbcore.bindings.customer.mbcdm.AxisRemittanceIFSCDetailsResType;
+
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author shahbazkh
  * @date 2/15/20
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class BankResultsDto {
     private String bankName;

@@ -1,18 +1,5 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
-import static com.mashreq.transfercoreservice.middleware.SoapWebserviceClientFactory.soapClient;
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
-
-import java.math.BigDecimal;
-import java.security.SecureRandom;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-
 import com.mashreq.esbcore.bindings.account.mbcdm.FundTransferReqType;
 import com.mashreq.esbcore.bindings.account.mbcdm.FundTransferResType;
 import com.mashreq.esbcore.bindings.accountservices.mbcdm.fundtransfer.EAIServices;
@@ -29,9 +16,18 @@ import com.mashreq.transfercoreservice.middleware.SoapClient;
 import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.middleware.enums.YesNo;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.security.SecureRandom;
+import java.time.LocalDate;
+import java.util.List;
+
+import static com.mashreq.transfercoreservice.middleware.SoapWebserviceClientFactory.soapClient;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 
 @Slf4j
@@ -51,11 +47,8 @@ public class FundTransferMWService {
     private static final String SILVER = "XAG";
 
 
-    public FundTransferResponse transfer(FundTransferRequest request, RequestMetaData metaData) {
+    public FundTransferResponse transfer(FundTransferRequest request, RequestMetaData metaData, String msgId) {
         log.info("Fund transfer initiated from account [ {} ]", htmlEscape(request.getFromAccount()));
-
-        //todo - remove this and use transactionid only fro request once  everyone starts using limit validation proc
-        String msgId = getUniqueIdForRequest(request);
 
         SoapClient soapClient = soapClient(soapServiceProperties,
                 new Class[]{
@@ -74,7 +67,7 @@ public class FundTransferMWService {
             auditEventPublisher.publishSuccessfulEsbEvent(FundTransferEventType.FUND_TRANSFER_MW_CALL, metaData, getRemarks(request), msgId);
             log.info("Fund transferred successfully to account [ {} ]", request.getToAccount());
             final CoreFundTransferResponseDto coreFundTransferResponseDto = constructFTResponseDTO(transfer, exceptionDetails, MwResponseStatus.S);
-            return FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).transactionRefNo(coreFundTransferResponseDto.getHostRefNo()).build();
+            return FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
         }
 
         log.info("Fund transfer failed to account [ {} ]", request.getToAccount());
@@ -83,18 +76,7 @@ public class FundTransferMWService {
                 coreFundTransferResponseDto.getMwResponseCode(), coreFundTransferResponseDto.getMwResponseDescription(), coreFundTransferResponseDto.getExternalErrorMessage());
         return FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
     }
-
-    private String getUniqueIdForRequest(FundTransferRequest request) {
-        if(!StringUtils.isEmpty(request.getLimitTransactionRefNo())){
-            log.info("returning refNo");
-            return request.getLimitTransactionRefNo();
-        }
-        else if(request.getChannelTraceId().length() >16){
-            return DateTimeFormatter.ofPattern("yyMMddHHmmssSSS").format(LocalDateTime.now());
-        }
-        else return request.getChannelTraceId();
-    }
-
+    
     private String getRemarks(FundTransferRequest request) {
         return String.format("From Account = %s, To Account = %s, Amount = %s, SrcAmount= %s, Destination Currency = %s, Source Currency = %s," +
                         " Financial Transaction Number = %s, Beneficiary full name = %s, Swift code= %s, Beneficiary bank branch = %s ",
@@ -192,7 +174,7 @@ public class FundTransferMWService {
         transfer.setCreditLeg(creditLeg);
         transfer.setDebitLeg(debitLeg);
         transferList.add(transfer);
-        if (StringUtils.isNotEmpty(request.getDealNumber())) {
+        if (StringUtils.isNotEmpty(request.getDealNumber()) && StringUtils.isNotEmpty(request.getDealRate().toPlainString())) {
         	fundTransferReqType.setDealReferenceNo(request.getDealNumber());
         	fundTransferReqType.setDealFlag(YesNo.Y.name());
             transfer.setDealDate(LocalDate.now().toString());

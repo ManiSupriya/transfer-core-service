@@ -18,4 +18,6 @@ public class DealEnquiryDetailsDto {
     private BigDecimal dealRate;
     private BigDecimal dealAmount;
     private String dealExpiryDate;
+    private String dealAuthStatus;
+    private String dealTxnStatus;
 }

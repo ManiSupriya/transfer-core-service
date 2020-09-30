@@ -9,4 +9,7 @@ public class UserDTO {
     private Long segmentId;
     private Long countryId;
     private String localCurrency;
+    String deviceRegisteredForPush;
+    String deviceInfo;
+
 }
