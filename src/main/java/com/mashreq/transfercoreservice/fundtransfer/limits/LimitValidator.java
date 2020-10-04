@@ -104,7 +104,7 @@ public class LimitValidator {
             auditEventPublisher.publishFailureEvent(MIN_LIMIT_VALIDATION, metadata, remarks,
                     MIN_AMOUNT_LIMIT_REACHED.getCustomErrorCode(), MIN_AMOUNT_LIMIT_REACHED.getErrorMessage(), null);
             GenericExceptionHandler.handleError(MIN_AMOUNT_LIMIT_REACHED,
-                    MIN_AMOUNT_LIMIT_REACHED.getErrorMessage());
+                    MIN_AMOUNT_LIMIT_REACHED.getErrorMessage(), MIN_AMOUNT_LIMIT_REACHED.getErrorMessage());
         }
         auditEventPublisher.publishSuccessEvent(MIN_LIMIT_VALIDATION, metadata, remarks);
         log.info("Min Limit validation successful");
