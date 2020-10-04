@@ -46,5 +46,6 @@ public class FundTransferRequest {
     private String transferType;
     private String sourceOfFund;
     private String status;
+    private String txnCurrency;
     private String NotificationType;
 }
