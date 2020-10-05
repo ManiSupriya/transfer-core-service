@@ -62,7 +62,7 @@ public class BeneficiaryValidator implements Validator {
     }
 
     private ValidationResult validateBeneficiaryStatus(List<String> validStatus, String beneficiaryStatus, TransferErrorCode errorCode, RequestMetaData metadata) {
-        if (validStatus.contains(beneficiaryStatus)) {
+        if (validStatus.stream().anyMatch(status -> status.equalsIgnoreCase(beneficiaryStatus))) {
             auditEventPublisher.publishSuccessEvent(FundTransferEventType.BENEFICIARY_VALIDATION, metadata, null);
             return ValidationResult.builder().success(true).build();
         } else {
