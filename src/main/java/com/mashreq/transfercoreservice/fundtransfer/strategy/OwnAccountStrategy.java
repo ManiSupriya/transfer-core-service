@@ -208,6 +208,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
                 .dealNumber(request.getDealNumber())
                 .dealRate(request.getDealRate())
                 .exchangeRate(exchangeRate)
+                .txnCurrency(request.getTxnCurrency())
                 .limitTransactionRefNo(validationResult.getTransactionRefNo())
                 .build();
 

@@ -204,6 +204,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
                 .internalAccFlag(INTERNAL_ACCOUNT_FLAG)
                 .dealNumber(request.getDealNumber())
                 .dealRate(request.getDealRate())
+                .txnCurrency(request.getTxnCurrency())
                 .limitTransactionRefNo(validationResult.getTransactionRefNo())
                 .build();
 
