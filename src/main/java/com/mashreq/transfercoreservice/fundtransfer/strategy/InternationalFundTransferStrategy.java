@@ -29,6 +29,8 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.mashreq.transfercoreservice.notification.model.NotificationType.OTHER_ACCOUNT_TRANSACTION;
+import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
+
 
 /**
  *
@@ -90,7 +92,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         validationContext.add("purposes", allPurposeCodes);
         responseHandler(paymentPurposeValidator.validate(request, metadata, validationContext));
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
-        if (request.getBeneRequiredFields() != null ) {
+        if (isNotEmpty(request.getBeneRequiredFields())){
             log.info("Update missing beneficiary details");
             beneficiaryDto = beneficiaryService.getUpdate(request.getBeneRequiredFields(), Long.valueOf(request.getBeneficiaryId()), metadata);
         } else {
