@@ -22,7 +22,7 @@ public interface BeneficiaryClient {
     @GetMapping("/v1/beneficiary/{id}")
     Response<BeneficiaryDto> getById(@RequestHeader(HeaderNames.CIF_HEADER_NAME) String cifId, @NotNull @PathVariable Long id);
 
-    @PutMapping("/v1/beneficiary/internal/{id}")
+    @PutMapping("/v1/international/beneficiary/internal/{id}")
     Response<BeneficiaryDto> update(@RequestBody AdditionalFields additionalFields, @PathVariable Long benId);
     
     @GetMapping("/v1/charity-beneficiary/{id}")
