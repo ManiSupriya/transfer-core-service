@@ -76,6 +76,9 @@ external:
       deal:
         detailcallErrorMap:
           ACC-ESB-15280: RECORD_NOT_FOUND
+      middleware:
+        detailCallErrorMap:
+          EAI-FCI-BRK-21038: TN-5006
   fees-code:
     mapper:
       fees:
