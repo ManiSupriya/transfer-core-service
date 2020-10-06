@@ -30,6 +30,9 @@ external:
           ACC-ESB-001: SEND_EMPTY_RESPONSE
           ACC-ESB-65: EXCEEDS_WITHDRAWL_FREEQUENCY
           ACC-ESB-61: EXCEEDS_WITHDRAWL_LIMIT
+      middleware:
+        detailCallErrorMap:
+          EAI-FCI-BRK-21038: TN-5006
       otp:
         detailcallErrorMap:
           VERIFY_OTP_4003: INVALID_SESSION_TOKEN
@@ -95,6 +98,7 @@ app:
     passPhrase: lkoiuytreaghjknvgtsfgdhelaopghen
     narration: Transfer Core Banking
     srvCode: TFT
+
   ftcc:
     merchantId: ${TFTCC_MERCHANT_ID:000008026734}
     terminalId: ${TFTCC_TERMINAL_ID:20091124}

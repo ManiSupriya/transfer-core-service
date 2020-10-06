@@ -93,6 +93,7 @@ public enum TransferErrorCode implements ErrorCode {
     EXTERNAL_SERVICE_ERROR("TN-5000", "Something went wrong with external service"),
     FUND_TRANSFER_FAILED("TN-5001", "Fund transfer failed"),
     FUND_TRANSFER_PROCESSING("TN-5004", "Fund transfer is in processing"),
+    TRANSFER_AMOUNT_IN_NAGATIVE("TN-5006", "Transfer amount will be in negative"),
 
     FLEX_RULE_ENGINE_FAILED("TN-6000", "Flex Rule Engine Failed"),
     FLEX_RULE_EITHER_DEBIT_OR_CREDIT_AMT_REQUIRED("TN-6001", "Either Debit or Credit Amount Required"),
@@ -138,7 +139,7 @@ public enum TransferErrorCode implements ErrorCode {
     FT_CC_MW_EMPTY_RESPONSE("TN-8007","Null response from middleware for Fund Transfer via CC"),
     FT_CC_MW_ERROR_RESPONSE("TN-8008","Error response from middleware for Fund Transfer via CC"),
     FT_CC_NO_DEALS("TN-8008","No credit cards deals are available for the given cif"),
-    FT_CC_BALANCE_NOT_SUFFICIENT("TN-8009","No available balance on the given credit card"),
+    FT_CC_BALANCE_NOT_SUFFICIENT("TN-8009","Limit exceeds for CC fund transfer"),
     SMS_NOTIFICATION_FAILED("TN-9001","Failed to send sms notification"),
     APPLICATION_KEY_NOT_FOUND("TN-9002","Application setting key not found"),
     PUSH_NOTIFICATION_FAILED("TN-9003","Failed to send push notification"),
