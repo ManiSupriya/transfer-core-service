@@ -41,6 +41,7 @@ import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 public class InternationalFundTransferStrategy implements FundTransferStrategy {
 
     private static final String INTERNATIONAL_PRODUCT_ID = "DBFC";
+    private static final String INTERNATIONAL_VALIDATION_TYPE = "international";
     private static final String INDIVIDUAL_ACCOUNT = "I";
     private static final String ROUTING_CODE_PREFIX = "//";
     private final FinTxnNoValidator finTxnNoValidator;
@@ -94,7 +95,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
         if (isNotEmpty(request.getBeneRequiredFields())){
             log.info("Update missing beneficiary details");
-            beneficiaryDto = beneficiaryService.getUpdate(request.getBeneRequiredFields(), Long.valueOf(request.getBeneficiaryId()), metadata);
+            beneficiaryDto = beneficiaryService.getUpdate(request.getBeneRequiredFields(), Long.valueOf(request.getBeneficiaryId()), metadata, INTERNATIONAL_VALIDATION_TYPE);
         } else {
             beneficiaryDto = beneficiaryService.getById(metadata.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), metadata);
         }
