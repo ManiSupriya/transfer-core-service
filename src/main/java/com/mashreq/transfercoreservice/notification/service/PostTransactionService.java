@@ -2,6 +2,7 @@ package com.mashreq.transfercoreservice.notification.service;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
+import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.config.notification.EmailConfig;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
@@ -59,6 +60,7 @@ public class PostTransactionService {
             postTransactionActivityService.execute(Arrays.asList(emailPostTransactionActivityContext));
             userEventPublisher.publishSuccessEvent(eventType, requestMetaData, eventType.getDescription());
         }catch (Exception exception){
+            GenericExceptionHandler.logOnly(exception, transferErrorCode.getErrorMessage());
             userEventPublisher.publishFailureEvent(eventType, requestMetaData, eventType.getDescription(),
                     transferErrorCode.getCustomErrorCode(), transferErrorCode.getErrorMessage(), transferErrorCode.getErrorMessage());
         }
@@ -78,7 +80,7 @@ public class PostTransactionService {
             templateValues.put(TRANSFER_TYPE, StringUtils.defaultIfBlank(fundTransferRequest.getTransferType(), DEFAULT_STR));
             templateValues.put(SEGMENT, StringUtils.defaultIfBlank(requestMetaData.getSegment(), DEFAULT_STR));
             templateValues.put(CUSTOMER_NAME, StringUtils.defaultIfBlank(emailUtil.capitalizeFully(requestMetaData.getUsername()), CUSTOMER));
-            templateValues.put(SOURCE_OF_FUND, SOURCE_OF_FUND_ACCOUNT);
+            templateValues.put(SOURCE_OF_FUND, fundTransferRequest.getSourceOfFund() == null ? SOURCE_OF_FUND_ACCOUNT: fundTransferRequest.getSourceOfFund());
             templateValues.put(BANK_NAME, StringUtils.defaultIfBlank(emailTemplateParameters.getChannelIdentifier().getChannelName(), DEFAULT_STR) );
             templateValues.put(CHANNEL_TYPE, StringUtils.defaultIfBlank(channelType, DEFAULT_STR));
             templateValues.put(CONTACT_HTML_BODY_KEY, StringUtils.defaultIfBlank(emailTemplateParameters.getHtmlContactContents().getHtmlContent(),DEFAULT_STR));
@@ -133,9 +135,9 @@ public class PostTransactionService {
 
     private void getTemplateValuesForFundTransfer(Map<String, String> templateValues, FundTransferRequest fundTransferRequest) throws Exception {
         templateValues.put(MASKED_ACCOUNT, StringUtils.defaultIfBlank(emailUtil.doMask(fundTransferRequest.getFromAccount()), DEFAULT_STR));
-        templateValues.put(TO_ACCOUNT_NO, StringUtils.defaultIfBlank(fundTransferRequest.getToAccount(), DEFAULT_STR));
+        templateValues.put(TO_ACCOUNT_NO, StringUtils.defaultIfBlank(emailUtil.doMask(fundTransferRequest.getToAccount()), DEFAULT_STR));
         templateValues.put(BENEFICIARY_NICK_NAME, StringUtils.defaultIfBlank(fundTransferRequest.getBeneficiaryFullName(), DEFAULT_STR));
-        templateValues.put(CURRENCY, StringUtils.defaultIfBlank(fundTransferRequest.getSourceCurrency(), DEFAULT_STR) );
+        templateValues.put(CURRENCY, StringUtils.defaultIfBlank(fundTransferRequest.getTxnCurrency(), DEFAULT_STR) );
         templateValues.put(AMOUNT, StringUtils.defaultIfBlank(String.valueOf(fundTransferRequest.getAmount()), DEFAULT_STR));
         templateValues.put(STATUS, StringUtils.defaultIfBlank(fundTransferRequest.getStatus(), DEFAULT_STR));
     }

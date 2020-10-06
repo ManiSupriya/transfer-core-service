@@ -113,7 +113,7 @@ app:
   notification:
     email:
       AE:
-        emailSubject: ${NOTIFICATION_EMAIL_SUBJECT:%s request via %s}
+        emailSubject: ${NOTIFICATION_EMAIL_SUBJECT:%s Transfer request via %s}
         fromEmailName: ${NOTIFICATION_FROM_EMAIL_NAME:MashreqDigital}
         fromEmailAddress: ${NOTIFICATION_FROM_EMAIL_ADDRESS:MashreqDigital@mashreqbank.com}
         callCenterNo: ${NOTIFICATION_EMAIL_CALL_CENTER_NO:04 424 6666}
