@@ -161,7 +161,4 @@ public enum TransferErrorCode implements ErrorCode {
         return customErrorCode;
     }
 
-    public Enum getEnumByCode(String errorCode){
-        return
-    }
 }
