@@ -48,6 +48,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     public static final String OWN_ACCOUNT_TRANSACTION_CODE = "096";
     public static final String LOCAL_CURRENCY = "AED";
     private static final String  OWN_ACCOUNT_TRANSACTION = "OWN_ACCOUNT_TRANSACTION";
+    public static final String OWN_ACCOUNT = "Own Account";
 
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
     private final SameAccountValidator sameAccountValidator;
@@ -136,7 +137,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccount, toAccount,conversionResult.getExchangeRate(),validationResult);
 
        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata,validationResult.getTransactionRefNo());
-       
+
        if(isSuccessOrProcessing(fundTransferResponse)){
        final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request,transactionAmount,metadata);
        notificationService.sendNotifications(customerNotification,OWN_ACCOUNT_TRANSACTION,metadata,userDTO);
@@ -152,7 +153,8 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     }
 
     private void prepareAndCallPostTransactionActivity(RequestMetaData metadata, FundTransferRequest fundTransferRequest, FundTransferRequestDTO request, FundTransferResponse fundTransferResponse, CurrencyConversionDto conversionResult) {
-        if(goldSilverTransfer(request) && MwResponseStatus.S.equals(fundTransferResponse.getResponseDto().getMwResponseStatus())){
+        boolean isSuccess = MwResponseStatus.S.equals(fundTransferResponse.getResponseDto().getMwResponseStatus());
+        if(goldSilverTransfer(request) && isSuccess){
             if(buyRequest(request)){
                 fundTransferRequest.setNotificationType(NotificationType.GOLD_SILVER_BUY_SUCCESS);
                 fundTransferRequest.setSrcAmount(conversionResult.getAccountCurrencyAmount());
@@ -165,10 +167,10 @@ public class OwnAccountStrategy implements FundTransferStrategy {
             }
             postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest);
         }
-        else if(!goldSilverTransfer(request)){
-            fundTransferRequest.setTransferType(ServiceType.LOCAL.getName());
+        else if(isSuccess){
+            fundTransferRequest.setTransferType(OWN_ACCOUNT);
             fundTransferRequest.setNotificationType(NotificationType.LOCAL);
-            fundTransferRequest.setStatus(fundTransferResponse.getResponseDto().getMwResponseStatus().getName());
+            fundTransferRequest.setStatus(MwResponseStatus.S.getName());
             postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest);
         }
     }

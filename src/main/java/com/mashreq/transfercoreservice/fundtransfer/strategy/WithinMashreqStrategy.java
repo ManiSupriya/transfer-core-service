@@ -19,10 +19,13 @@ import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWServic
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
+import com.mashreq.transfercoreservice.notification.model.NotificationType;
 import com.mashreq.transfercoreservice.notification.service.NotificationService;
+import com.mashreq.transfercoreservice.notification.service.PostTransactionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +34,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-import static com.mashreq.transfercoreservice.notification.model.NotificationType.OTHER_ACCOUNT_TRANSACTION;
 import static java.time.Duration.between;
 import static java.time.Instant.now;
 import static org.springframework.web.util.HtmlUtils.htmlEscape;
@@ -64,9 +66,12 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     private final DealValidator dealValidator;
     private final AsyncUserEventPublisher auditEventPublisher;
     private final NotificationService notificationService;
+    @Autowired
+    private PostTransactionService postTransactionService;
 
     @Value("${app.uae.transaction.code:096}")
     private String transactionCode;
+    private final String MASHREQ = "Mashreq";
 
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, RequestMetaData metadata, UserDTO userDTO) {
@@ -133,8 +138,12 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountOpt.get(), beneficiaryDto, validationResult);
         final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata, txnRefNo);
         if(isSuccessOrProcessing(fundTransferResponse)) {
-        	 final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getCurrency(),request.getAmount());
-             notificationService.sendNotifications(customerNotification,OTHER_ACCOUNT_TRANSACTION,metadata,userDTO);
+        	final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getCurrency(),request.getAmount());
+            notificationService.sendNotifications(customerNotification,NotificationType.OTHER_ACCOUNT_TRANSACTION,metadata,userDTO);
+            fundTransferRequest.setTransferType(MASHREQ);
+            fundTransferRequest.setNotificationType(NotificationType.LOCAL);
+            fundTransferRequest.setStatus(MwResponseStatus.S.getName());
+            postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest);
         }
         
         return fundTransferResponse.toBuilder()
