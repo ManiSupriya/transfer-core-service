@@ -78,7 +78,7 @@ external:
           ACC-ESB-15280: RECORD_NOT_FOUND
       middleware:
         detailCallErrorMap:
-          EAI-FCI-BRK-21038: TN-5006
+          EAI-FCI-BRK-21038: TRANSFER_AMOUNT_IN_NAGATIVE
   fees-code:
     mapper:
       fees:

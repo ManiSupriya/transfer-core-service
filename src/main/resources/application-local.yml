@@ -32,7 +32,7 @@ external:
           ACC-ESB-61: EXCEEDS_WITHDRAWL_LIMIT
       middleware:
         detailCallErrorMap:
-          EAI-FCI-BRK-21038: TN-5006
+          EAI-FCI-BRK-21038: TRANSFER_AMOUNT_IN_NAGATIVE
       otp:
         detailcallErrorMap:
           VERIFY_OTP_4003: INVALID_SESSION_TOKEN
