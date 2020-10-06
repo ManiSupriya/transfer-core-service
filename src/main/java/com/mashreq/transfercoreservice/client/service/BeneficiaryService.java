@@ -55,9 +55,9 @@ public class BeneficiaryService {
         return beneficiaryDto;
     }
 
-    public BeneficiaryDto getUpdate(AdditionalFields additionalFields, Long id, RequestMetaData metaData) {
+    public BeneficiaryDto getUpdate(AdditionalFields additionalFields, Long id, RequestMetaData metaData, String validationType) {
         log.info("Fetching Beneficiary Update for id = {}", id);
-        Response<BeneficiaryDto> response = beneficiaryClient.update(additionalFields, id);
+        Response<BeneficiaryDto> response = beneficiaryClient.update(additionalFields, id, validationType);
 
         if (ResponseStatus.ERROR == response.getStatus() || isNull(response.getData())) {
             GenericExceptionHandler.handleError(BENE_EXTERNAL_SERVICE_ERROR, BENE_EXTERNAL_SERVICE_ERROR.getErrorMessage(),
