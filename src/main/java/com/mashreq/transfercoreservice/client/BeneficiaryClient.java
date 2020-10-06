@@ -22,8 +22,8 @@ public interface BeneficiaryClient {
     @GetMapping("/v1/beneficiary/{id}")
     Response<BeneficiaryDto> getById(@RequestHeader(HeaderNames.CIF_HEADER_NAME) String cifId, @NotNull @PathVariable Long id);
 
-    @PutMapping("/v1/international/beneficiary/internal/{id}")
-    Response<BeneficiaryDto> update(@RequestBody AdditionalFields additionalFields, @PathVariable Long benId);
+    @PutMapping("/v1/beneficiary/{validationType}/internal/{benId}")
+    Response<BeneficiaryDto> update(@RequestBody AdditionalFields additionalFields, @PathVariable Long benId, @PathVariable String validationType);
     
     @GetMapping("/v1/charity-beneficiary/{id}")
     Response<CharityBeneficiaryDto> getCharity(@NotNull @PathVariable String id);
