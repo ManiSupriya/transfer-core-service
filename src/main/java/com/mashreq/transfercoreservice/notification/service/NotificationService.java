@@ -37,11 +37,18 @@ public class NotificationService {
     @Autowired
     private AsyncUserEventPublisher userEventPublisher;
 
+    public static final String MOBILE = "MOBILE";
+    public static final String MOBILE_BANKING = "Mobile Banking";
+    public static final String ONLINE_BANKING = "Online Banking";
+
     @Async("GenericAsyncExecutor")
     @TrackExecTimeAndResult
     public void sendNotifications(CustomerNotification customer, String type, RequestMetaData metaData, UserDTO userDTO) {
 
         String phoneNo = metaData.getMobileNUmber();
+        boolean isMobile = metaData.getChannel().contains(MOBILE);
+        String channel = isMobile ? MOBILE_BANKING : ONLINE_BANKING;
+        customer.setChannel(channel);
         if (!StringUtils.isEmpty(phoneNo)) {
             sendSms(customer, type, metaData, phoneNo);
         }

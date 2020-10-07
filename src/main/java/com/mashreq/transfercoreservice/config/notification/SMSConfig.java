@@ -7,9 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.text.MessageFormat;
 
-import static com.mashreq.transfercoreservice.notification.model.NotificationType.OWN_ACCOUNT_TRANSACTION;
-import static com.mashreq.transfercoreservice.notification.model.NotificationType.LOCAL_ACCOUNT_TRANSACTION;
-import static com.mashreq.transfercoreservice.notification.model.NotificationType.OTHER_ACCOUNT_TRANSACTION;
+import static com.mashreq.transfercoreservice.notification.model.NotificationType.*;
 
 @Component
 @ConfigurationProperties(prefix = "app.notification.sms")
@@ -22,13 +20,13 @@ public class SMSConfig {
 
     public String getSMSTemplate(String type, CustomerNotification customerNotification) {
         if(type.equals(OWN_ACCOUNT_TRANSACTION)){
-            return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getCurrency(),customerNotification.getAmount(),customerNotification.getTxnRef(),customerNotification.getSegment().getCustomerCareNumber());
+            return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getChannel(),customerNotification.getCurrency(),customerNotification.getAmount(),customerNotification.getTxnRef(),customerNotification.getSegment().getCustomerCareNumber());
         }
         if(type.equals(LOCAL_ACCOUNT_TRANSACTION)){
-            return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getCurrency(),customerNotification.getAmount(),customerNotification.getTxnRef(),callCenterNo);
+            return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getChannel(),customerNotification.getCurrency(),customerNotification.getAmount(),customerNotification.getTxnRef(),callCenterNo);
         }
         if(type.equals(OTHER_ACCOUNT_TRANSACTION)){
-            return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getCurrency(),customerNotification.getAmount(),customerNotification.getTxnRef(),callCenterNo);
+            return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getChannel(),customerNotification.getCurrency(),customerNotification.getAmount(),customerNotification.getTxnRef(),callCenterNo);
         }
         return "";
     }

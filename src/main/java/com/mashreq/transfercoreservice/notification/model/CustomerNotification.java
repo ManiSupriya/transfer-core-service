@@ -19,5 +19,6 @@ public class CustomerNotification {
     String creditCurrency;
     String buy_sell;
     Segment segment;
+    String channel;
 
 }
