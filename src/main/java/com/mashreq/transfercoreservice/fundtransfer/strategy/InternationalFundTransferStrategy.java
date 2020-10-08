@@ -29,6 +29,8 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.mashreq.transfercoreservice.notification.model.NotificationType.OTHER_ACCOUNT_TRANSACTION;
+import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
+
 
 /**
  *
@@ -39,6 +41,7 @@ import static com.mashreq.transfercoreservice.notification.model.NotificationTyp
 public class InternationalFundTransferStrategy implements FundTransferStrategy {
 
     private static final String INTERNATIONAL_PRODUCT_ID = "DBFC";
+    private static final String INTERNATIONAL_VALIDATION_TYPE = "international";
     private static final String INDIVIDUAL_ACCOUNT = "I";
     private static final String ROUTING_CODE_PREFIX = "//";
     private final FinTxnNoValidator finTxnNoValidator;
@@ -90,8 +93,9 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         validationContext.add("purposes", allPurposeCodes);
         responseHandler(paymentPurposeValidator.validate(request, metadata, validationContext));
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
-        if (request.getBeneRequiredFields() != null) {
-            beneficiaryDto = beneficiaryService.getUpdate(request.getBeneRequiredFields(), Long.valueOf(request.getBeneficiaryId()), metadata);
+        if (isNotEmpty(request.getBeneRequiredFields())){
+            log.info("Update missing beneficiary details");
+            beneficiaryDto = beneficiaryService.getUpdate(request.getBeneRequiredFields(), Long.valueOf(request.getBeneficiaryId()), metadata, INTERNATIONAL_VALIDATION_TYPE);
         } else {
             beneficiaryDto = beneficiaryService.getById(metadata.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), metadata);
         }

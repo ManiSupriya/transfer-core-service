@@ -5,10 +5,12 @@ RUN mkdir -p /opt/appdynamics && \
     mkdir -p /usr/images/transfer-core-service && \
     chown -R appuser:appgroup /opt && \
     chown -R appuser:appgroup /usr/images/transfer-core-service
-COPY /src/main/resources/JSONUATCert.crt $JAVA_HOME/jre/lib/security
+
+# COPY /src/main/resources/JSONUATCert.crt $JAVA_HOME/jre/lib/security
+
 RUN \
     cd $JAVA_HOME/jre/lib/security \
-    && keytool -keystore cacerts -storepass changeit -noprompt -trustcacerts -importcert -alias efmuat.mashreqbank.com -file JSONUATCert.crt
+    && keytool -keystore cacerts -storepass changeit -noprompt -trustcacerts -importcert -alias efmuat.mashreqbank.com -file JSONUATCert.cer
 
 RUN \
     cd $JAVA_HOME/jre/lib/security \

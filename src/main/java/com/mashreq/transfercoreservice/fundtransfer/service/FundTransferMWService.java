@@ -163,9 +163,14 @@ public class FundTransferMWService {
         if(request.getAmount() == null) {
             debitLeg.setAmount(request.getSrcAmount());
         }
-        else {
-            creditLeg.setAmount(request.getAmount());
-        }
+		else {
+			if (StringUtils.isNotBlank(request.getTxnCurrency())
+					&& request.getTxnCurrency().equalsIgnoreCase(request.getSourceCurrency())) {
+				debitLeg.setAmount(request.getAmount());
+			} else {
+				creditLeg.setAmount(request.getAmount());
+			}
+		}
         if(isInvestment(request)){
             debitLeg.setNarration1(generateNarrationForInvestment(request.getChannel(),request.getExchangeRate()));
         }
