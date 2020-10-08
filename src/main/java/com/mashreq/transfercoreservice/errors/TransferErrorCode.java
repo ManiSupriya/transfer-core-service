@@ -94,6 +94,8 @@ public enum TransferErrorCode implements ErrorCode {
     FUND_TRANSFER_FAILED("TN-5001", "Fund transfer failed"),
     FUND_TRANSFER_PROCESSING("TN-5004", "Fund transfer is in processing"),
     TRANSFER_AMOUNT_IN_NAGATIVE("TN-5006", "Transfer amount will be in negative"),
+    FUND_TRANSFER_FREEZED("TN-5007", "Transfer Failed You cannot transfer funds from this account due to restrictions"),
+
 
     FLEX_RULE_ENGINE_FAILED("TN-6000", "Flex Rule Engine Failed"),
     FLEX_RULE_EITHER_DEBIT_OR_CREDIT_AMT_REQUIRED("TN-6001", "Either Debit or Credit Amount Required"),

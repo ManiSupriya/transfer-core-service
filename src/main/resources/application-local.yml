@@ -33,6 +33,7 @@ external:
       middleware:
         detailCallErrorMap:
           EAI-FCI-BRK-21038: TRANSFER_AMOUNT_IN_NAGATIVE
+          EAI-FCI-BRK-2463: FUND_TRANSFER_FREEZED
       otp:
         detailcallErrorMap:
           VERIFY_OTP_4003: INVALID_SESSION_TOKEN
