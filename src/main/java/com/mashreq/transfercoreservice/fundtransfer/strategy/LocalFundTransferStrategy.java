@@ -57,6 +57,8 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     private static final int LOCAL_IBAN_LENGTH = 23;
     private static final String LOCAL_PRODUCT_ID = "DBLC";
     public static final String LOCAL_TRANSACTION_CODE = "15";
+    public static final String AED = "AED";
+    public static final String NON_AED = "non-AED";
     private final IBANValidator ibanValidator;
     private final FinTxnNoValidator finTxnNoValidator;
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
@@ -175,15 +177,16 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         log.info("Local Fund transfer initiated.......");
 
         final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata, txnRefNo);
-        
+
         if(isSuccessOrProcessing(fundTransferResponse)){
             final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getCurrency(),request.getAmount());
             notificationService.sendNotifications(customerNotification,OTHER_ACCOUNT_TRANSACTION,metadata,userDTO);
-            }
+            fundTransferRequest.setTransferType(getTransferType(fundTransferRequest.getTxnCurrency()));
+            fundTransferRequest.setNotificationType(OTHER_ACCOUNT_TRANSACTION);
+            fundTransferRequest.setStatus(fundTransferResponse.getResponseDto().getMwResponseStatus().getName());
+            postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest);
+        }
 
-        fundTransferRequest.setTransferType(ServiceType.LOCAL.getName());
-        fundTransferRequest.setStatus(fundTransferResponse.getResponseDto().getMwResponseStatus().getName());
-        postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest);
         return fundTransferResponse.toBuilder()
                 .limitUsageAmount(limitUsageAmount)
                 .limitVersionUuid(validationResult.getLimitVersionUuid()).transactionRefNo(txnRefNo).build();
@@ -309,18 +312,20 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         updateFundTransferRequest(beneficiaryDto, fundTransferRequest, requestDTO, cardDetailsDTO);
         log.info("Fund transfer CC calling MW "+cif);
         fundTransferResponse = fundTransferCCMWService.transfer(fundTransferRequest, requestMetaData);
+
         // Only if MW request is success, then update the utilized amount
         mwResponseStatus = fundTransferResponse.getResponseDto().getMwResponseStatus();
-        if(mwResponseStatus.getName().equalsIgnoreCase(MwResponseStatus.S.getName())) {
+        if(isSuccessOrProcessing(fundTransferResponse)){
             utilizedAmount = utilizedAmount.add(requestedAmount);
             qrDealsService.updateQRDeals(cif, utilizedAmount);
             log.info("Fund transfer CC updated QR deals utilized amount " + cif);
+            fundTransferRequest.setSourceOfFund(SOURCE_OF_FUND_CC);
+            fundTransferRequest.setTransferType(getTransferType(fundTransferRequest.getTxnCurrency()));
+            fundTransferRequest.setNotificationType(OTHER_ACCOUNT_TRANSACTION);
+            fundTransferRequest.setFromAccount(cardDetailsDTO.getCardNoWithMasked());
+            fundTransferRequest.setStatus(mwResponseStatus.getName());
+            postTransactionService.performPostTransactionActivities(requestMetaData, fundTransferRequest);
         }
-        fundTransferRequest.setSourceOfFund(SOURCE_OF_FUND_CC);
-        fundTransferRequest.setTransferType(ServiceType.LOCAL.getName());
-        fundTransferRequest.setFromAccount(cardDetailsDTO.getCardNoWithMasked());
-        fundTransferRequest.setStatus(mwResponseStatus.getName());
-        postTransactionService.performPostTransactionActivities(requestMetaData, fundTransferRequest);
         return fundTransferResponse;
     }
 
@@ -441,6 +446,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
                 .transactionCode(LOCAL_TRANSACTION_CODE)
                 .dealNumber(request.getDealNumber())
                 .dealRate(request.getDealRate())
+                .txnCurrency(request.getTxnCurrency())
                 .limitTransactionRefNo(validationResult.getTransactionRefNo())
                 .build();
 
@@ -468,4 +474,14 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     }
 
 
+    private String getTransferType(String txnCurrency){
+        StringBuilder stringBuilder = new StringBuilder("Local ");
+        if(AED.equalsIgnoreCase(txnCurrency) || txnCurrency == null){
+            stringBuilder.append(AED);
+        } else {
+            stringBuilder.append(NON_AED);
+        }
+        return stringBuilder.toString();
+
+    }
 }

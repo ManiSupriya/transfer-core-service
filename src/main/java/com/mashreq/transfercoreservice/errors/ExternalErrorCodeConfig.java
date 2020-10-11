@@ -12,6 +12,7 @@ import lombok.Data;
 @ConfigurationProperties(prefix = "external.error-code.mapper")
 public class ExternalErrorCodeConfig {
 	private Accounts accounts;
+    private Middleware middleware;
 	private OTP otp;
 	private Deal deal;
 	
@@ -22,7 +23,11 @@ public class ExternalErrorCodeConfig {
 	public Map<String, String> getAccountDetailsExternalErrorCodesMap() {
         return accounts.getDetailCallErrorMap();
     }
-	
+
+    public Map<String, String> getMiddlewareExternalErrorCodesMap() {
+        return middleware.getDetailCallErrorMap();
+    }
+
 	public Map<String, String> getOTPDetailsExternalErrorCodesMap() {
         return otp.getDetailCallErrorMap();
     }
@@ -34,6 +39,11 @@ public class ExternalErrorCodeConfig {
 	
 	@Data
     protected static class Accounts {
+        private Map<String, String> detailCallErrorMap;
+    }
+
+    @Data
+    protected static class Middleware {
         private Map<String, String> detailCallErrorMap;
     }
 	
