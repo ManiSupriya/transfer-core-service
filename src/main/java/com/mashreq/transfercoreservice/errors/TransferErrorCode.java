@@ -129,6 +129,9 @@ public enum TransferErrorCode implements ErrorCode {
     OTP_VERIFY_USER_BLOCKED_STATUS("VERIFY_OTP_USSM_102", "User is in blocked status in database. Operation not allowed"),
     OTP_VERIFY_USER_INACTIVE_STATUS("VERIFY_OTP_USSM_103", "User is in inactive status in database. Operation not allowed"),
     OTP_VERIFY_USER_FAILED_TO_DECRYPT("VERIFY_OTP_USSM_104", "Failed to decrypt OTP exception."),
+    DENIED_BY_POLICY_OTP_REUSE_NOT_ALLOWED_STAUS("VERIFY_OTP_10402", "Denied by policy otp reuse not allowed"),
+    OBJ_TOKENSTORE_ID_NOT_FOUND_STATUS("VERIFY_OTP_30001", "Object TokenStore id not found"),
+    USER_SESSION_ALREADY_INVALIDATED_STATUS("LOGOUT_4004", "User session already invalidated in IAM"),
 
     //Middleware error codes
     CONNECTION_TIMEOUT_MW("TN-8002", "Middleware Connection Timeout"),
