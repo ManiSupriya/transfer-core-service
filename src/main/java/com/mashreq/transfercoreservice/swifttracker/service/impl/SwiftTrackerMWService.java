@@ -76,7 +76,6 @@ public class SwiftTrackerMWService {
 
 		SWIFTGPITransactionDetailsResType responseDTO = response.getBody().getSWIFTGPITransactionDetailsRes();
 
-		log.info("Transaction Status {}" + responseDTO);
 		return SWIFTGPITransactionDetailsRes.builder().initiationTime(responseDTO.getInitiationTime())
 				.totalProcessingTime(computeDiff(responseDTO.getInitiationTime(), responseDTO.getLastUpdateTime()))
 				.completionTime(computeDiff(responseDTO.getPaymentEventDetails().get(1).getSenderAckReceipt(),
@@ -164,9 +163,6 @@ public class SwiftTrackerMWService {
 	}
 	
 	private String computeDiff(String strDate1, String strDate2) {
-		if(StringUtils.isBlank(strDate1)&&StringUtils.isBlank(strDate2)) {
-			return null;
-		}
 		ZonedDateTime dt1 = ZonedDateTime.parse(strDate1);
 		ZonedDateTime dt2 = ZonedDateTime.parse(strDate2);
 		Duration d = Duration.between( dt1 , dt2 );
