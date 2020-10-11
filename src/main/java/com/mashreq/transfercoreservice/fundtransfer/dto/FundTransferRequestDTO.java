@@ -25,7 +25,7 @@ public class FundTransferRequestDTO {
     @Account
     private String fromAccount;
 
-    @Account
+    @NotBlank(message = "Account Number cannot be empty")
     private String toAccount;
 
     @TransactionAmount
