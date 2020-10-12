@@ -4,7 +4,8 @@ import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.service.PaymentHistoryService;
+import com.mashreq.transfercoreservice.transactionqueue.TransactionHistoryService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -22,14 +23,14 @@ import static org.springframework.web.util.HtmlUtils.htmlEscape;
 @RequiredArgsConstructor
 public class FinTxnNoValidator implements Validator {
 
-    private final PaymentHistoryService paymentHistoryService;
+    private final TransactionHistoryService transactionHistoryService;
     private final AsyncUserEventPublisher auditEventPublisher;
 
     @Override
     public ValidationResult validate(final FundTransferRequestDTO request, final RequestMetaData metadata, final ValidationContext context) {
         log.info("Validating fin-txn-no {} for service type [ {} ] ", htmlEscape(request.getFinTxnNo()), htmlEscape(request.getServiceType()));
 
-        if (paymentHistoryService.isFinancialTransactionPresent(request.getFinTxnNo())) {
+        if (transactionHistoryService.isFinancialTransactionPresent(request.getFinTxnNo())) {
             log.warn("Duplicate fin-txn-no {} found for service type [ {} ] ", htmlEscape(request.getFinTxnNo()), htmlEscape(request.getServiceType()));
             auditEventPublisher.publishFailureEvent(FIN_TRANSACTION_VALIDATION, metadata, null,
                     TransferErrorCode.DUPLICATION_FUND_TRANSFER_REQUEST.getCustomErrorCode(),  TransferErrorCode.DUPLICATION_FUND_TRANSFER_REQUEST.getErrorMessage(), null);
