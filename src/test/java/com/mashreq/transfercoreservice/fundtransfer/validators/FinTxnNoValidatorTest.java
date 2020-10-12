@@ -3,7 +3,8 @@ package com.mashreq.transfercoreservice.fundtransfer.validators;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.service.PaymentHistoryService;
+import com.mashreq.transfercoreservice.transactionqueue.TransactionHistoryService;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,7 +20,7 @@ public class FinTxnNoValidatorTest {
     private FinTxnNoValidator finTxnNoValidator;
 
     @Mock
-    private PaymentHistoryService paymentHistoryService;
+    private TransactionHistoryService transactionHistoryService;
 
     @Mock
     private AsyncUserEventPublisher auditEventPublisher;
@@ -32,7 +33,7 @@ public class FinTxnNoValidatorTest {
         requestDTO.setServiceType("test");
 
         //when
-        Mockito.when(paymentHistoryService.isFinancialTransactionPresent(Mockito.eq("1234"))).thenReturn(Boolean.TRUE);
+        Mockito.when(transactionHistoryService.isFinancialTransactionPresent(Mockito.eq("1234"))).thenReturn(Boolean.TRUE);
         final ValidationResult result = finTxnNoValidator.validate(requestDTO, null, null);
         //then
         Assert.assertEquals(false,result.isSuccess());
@@ -48,7 +49,7 @@ public class FinTxnNoValidatorTest {
         requestDTO.setServiceType("test");
 
         //when
-        Mockito.when(paymentHistoryService.isFinancialTransactionPresent(Mockito.eq("1234"))).thenReturn(Boolean.FALSE);
+        Mockito.when(transactionHistoryService.isFinancialTransactionPresent(Mockito.eq("1234"))).thenReturn(Boolean.FALSE);
         final ValidationResult result = finTxnNoValidator.validate(requestDTO, null, null);
         //then
         Assert.assertEquals(true,result.isSuccess());
@@ -62,7 +63,7 @@ public class FinTxnNoValidatorTest {
         requestDTO.setServiceType("test");
 
         //when
-        Mockito.when(paymentHistoryService.isFinancialTransactionPresent(Mockito.eq("1234"))).thenThrow(new RuntimeException());
+        Mockito.when(transactionHistoryService.isFinancialTransactionPresent(Mockito.eq("1234"))).thenThrow(new RuntimeException());
         final ValidationResult result = finTxnNoValidator.validate(requestDTO, null, null);
         //then
 

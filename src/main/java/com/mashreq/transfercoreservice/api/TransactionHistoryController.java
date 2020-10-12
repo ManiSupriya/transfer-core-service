@@ -4,7 +4,7 @@ package com.mashreq.transfercoreservice.api;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.commons.cache.HeaderNames;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.paymenthistory.PaymentHistoryService;
+import com.mashreq.transfercoreservice.transactionqueue.TransactionHistoryService;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
 import io.swagger.annotations.Api;
@@ -13,7 +13,6 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.regexp.RE;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
@@ -23,9 +22,9 @@ import javax.validation.constraints.NotNull;
 @RequestMapping("/v1/payment-history")
 @Api(value = "Fund Transfer")
 @RequiredArgsConstructor
-public class PaymentHistoryController {
+public class TransactionHistoryController {
 
-    private final PaymentHistoryService paymentHistoryService;
+    private final TransactionHistoryService transactionHistoryService;
 
     @ApiOperation(value = "Processes to start payment", response = FundTransferRequestDTO.class)
     @ApiResponses(value = {
@@ -39,7 +38,7 @@ public class PaymentHistoryController {
 
         return Response.builder()
                 .status(ResponseStatus.SUCCESS)
-                .data(paymentHistoryService.getCharityPaid(cifId, serviceType))
+                .data(transactionHistoryService.getCharityPaid(cifId, serviceType))
                 .build();
     }
 }
