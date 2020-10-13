@@ -89,9 +89,9 @@ public interface CoreEnquiryService<R, P> {
             final String[] errorCodes = getAllErrorCodesFromGenericException(genericException);
             final String errorDetails = genericException.getErrorDetails();
             final Optional<String> errorHandlingStrategyOptional = getErrorHandlingStrategy(errorMap(), errorCodes);
-            final String errorHandlingStrategy = errorHandlingStrategyOptional.get();
 
             if (errorHandlingStrategyOptional.isPresent()) {
+                final String errorHandlingStrategy = errorHandlingStrategyOptional.get();
                 if (SEND_EMPTY_ERROR_RESPONSE.equals(errorHandlingStrategy)) {
                     return defaultSuccessResponse();
                 } 

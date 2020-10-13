@@ -33,7 +33,6 @@ import java.time.LocalDateTime;
 import java.util.EnumMap;
 import java.util.Optional;
 
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.FUND_TRANSFER_FAILED;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.*;
 import static java.time.Duration.between;
