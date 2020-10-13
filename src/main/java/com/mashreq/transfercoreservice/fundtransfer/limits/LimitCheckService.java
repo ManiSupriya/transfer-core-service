@@ -36,6 +36,7 @@ public class LimitCheckService {
     public LimitValidatorResponse validateLimit(String cifId, String beneficiaryTypeCode, String country,String segment,Long beneId,BigDecimal amount) {
         LimitValidatorResponse limitValidatorResponse = null;
         try {
+        	log.info("Segment: {}, Cif: {}, BeneType: {}, country: {}, beneId: {}, amount {} ", segment, cifId, beneficiaryTypeCode, country, beneId, amount);
             JdbcTemplate template = new JdbcTemplate(dataSource);
             SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(template).withProcedureName("USP_VALIDATE_LIMIT");
             MapSqlParameterSource input = new MapSqlParameterSource();
