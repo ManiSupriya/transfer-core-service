@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -63,6 +64,8 @@ public class EmailUtil {
     public static final String DEFAULT_STR = "";
     public static final String TXN_AMOUNT="txn_amount";
     public static final String STATUS_SUCCESS="Success";
+    public static final String COMMA_SEPARATOR = ",";
+    public static final String DECIMAL_POS = "%.2f";
 
 
     @Autowired
@@ -137,7 +140,7 @@ public class EmailUtil {
         }
     }
 
-    public String doMask(String strText) throws Exception {
+    public String doMask(String strText)  {
         int total = strText.length();
         int endLength = 4;
         int maskLength = total - endLength;
@@ -147,7 +150,7 @@ public class EmailUtil {
         }
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < maskLength; i++) {
-            builder.append('X');
+            builder.append('*');
         }
         String masked = builder.append(strText, maskLength, total).toString();
         return masked;
@@ -168,4 +171,35 @@ public class EmailUtil {
         return s.toString().trim();
     }
 
+    public static String formattedAmount(BigDecimal bigDecimal){
+        int firstCount = 0;
+        int nextCount = 0;
+        boolean isFirst = false;
+        String decimalValue = String.format(DECIMAL_POS, bigDecimal);
+        String[] values = decimalValue.split("\\.");
+        StringBuilder builder = new StringBuilder();
+        char[] charArray = values[0].toCharArray();
+        int count = charArray.length-1;
+        while (count >= 0){
+            if(isFirst){
+                if(nextCount == 1){
+                    builder.append(COMMA_SEPARATOR);
+                    nextCount = 0;
+                } else {
+                    nextCount++;
+                }
+            } else {
+                if(firstCount == 3){
+                    builder.append(COMMA_SEPARATOR);
+                    isFirst = true;
+                } else {
+                    firstCount++;
+                }
+            }
+            builder.append(charArray[count]);
+            count--;
+        }
+        builder.reverse().append(".").append(values[1]);
+        return builder.toString();
+    }
 }
