@@ -255,6 +255,7 @@ public class FundTransferServiceDefault implements FundTransferService {
                 .accountFrom(request.getFromAccount())
                 .financialTransactionNo(request.getFinTxnNo())
                 .transactionRefNo(fundTransferResponse.getTransactionRefNo())
+                .hostReferenceNo(fundTransferResponse.getResponseDto().getHostRefNo())
                 .valueDate(LocalDateTime.now())
                 .build();
 
