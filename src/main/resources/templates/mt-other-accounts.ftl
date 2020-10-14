@@ -518,7 +518,7 @@
                         <p><span style="min-width: 200px;display: inline-block;">Transfer type</span><span style="margin-left: 20px; font-weight: bold;">${transferType}</span></p>
                       </li>
                       <li style="margin-bottom: 16px">
-                        <p><span style="min-width: 200px;display: inline-block;">From (${sourceOfFund})</span><span style="margin-left: 20px; font-weight: bold;">${maskedAccount}</span></p>
+                        <p><span style="min-width: 200px;display: inline-block;">From ${sourceOfFund}</span><span style="margin-left: 20px; font-weight: bold;">${maskedAccount}</span></p>
                       </li>
                       <li style="margin-bottom: 16px" >
                         <p>

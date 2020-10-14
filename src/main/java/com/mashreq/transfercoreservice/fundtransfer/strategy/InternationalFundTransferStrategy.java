@@ -211,6 +211,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .beneficiaryAddressThree(beneficiaryDto.getAddressLine3())
                 .transactionCode("15")
                 .dealNumber(request.getDealNumber())
+                .txnCurrency(request.getTxnCurrency())
                 .dealRate(request.getDealRate())
                 .limitTransactionRefNo(validationResult.getTransactionRefNo())
                 .build();

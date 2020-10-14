@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -138,7 +139,12 @@ public class PostTransactionService {
         templateValues.put(TO_ACCOUNT_NO, StringUtils.defaultIfBlank(emailUtil.doMask(fundTransferRequest.getToAccount()), DEFAULT_STR));
         templateValues.put(BENEFICIARY_NICK_NAME, StringUtils.defaultIfBlank(fundTransferRequest.getBeneficiaryFullName(), DEFAULT_STR));
         templateValues.put(CURRENCY, StringUtils.defaultIfBlank(fundTransferRequest.getTxnCurrency(), DEFAULT_STR) );
-        templateValues.put(AMOUNT, StringUtils.defaultIfBlank(String.valueOf(fundTransferRequest.getAmount()), DEFAULT_STR));
-        templateValues.put(STATUS, StringUtils.defaultIfBlank(fundTransferRequest.getStatus(), DEFAULT_STR));
+        BigDecimal amount = fundTransferRequest.getAmount();
+        if(amount != null) {
+            templateValues.put(AMOUNT, EmailUtil.formattedAmount(amount));
+        } else {
+            templateValues.put(AMOUNT, DEFAULT_STR);
+        }
+        templateValues.put(STATUS, STATUS_SUCCESS);
     }
 }
