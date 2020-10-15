@@ -569,7 +569,7 @@
                   <td>
                     <p style="margin-bottom: 16px">
                       Best Regards,<br />
-                      Customer Service, ${bankName}
+                      ${segmentSignOffCompanyName} Team.
                     </p>
                     <p
                       style="
