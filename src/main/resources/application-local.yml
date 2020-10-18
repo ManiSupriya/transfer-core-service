@@ -14,9 +14,9 @@ spring:
   profiles.active: local
   main.lazy-initialization: false
   datasource:
-    url: ${MSSQL_DEV_URL:jdbc:sqlserver://localhost:1433;databaseName=MOB-LOCAL}
-    username: ${MSSQL_DEV_USERNAME:SA}
-    password: ${MSSQL_DB_KEY:Asdasdasd123}
+    url: ${MSSQL_DEV_URL:jdbc:sqlserver://10.196.3.22:1433;databaseName=MOB-DEV}
+    username: ${MSSQL_DEV_USERNAME:Mobdbuser}
+    password: ${MSSQL_DB_KEY:Mobdbuser}
   jpa:
     show-sql: true
     hibernate:
@@ -135,9 +135,9 @@ redis:
 mob-common:
   commonUserEventDataSource:
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
-    jdbcUrl: ${MSSQL_EVENT_DEV_URL:jdbc:sqlserver://localhost:1433;databaseName=MOB-LOCAL}
-    username: ${MSSQL_EVENT_DEV_USERNAME:SA}
-    password: ${MSSQL_EVENT_DB_KEY:Asdasdasd123}
+    jdbcUrl: ${MSSQL_EVENT_DEV_URL:jdbc:sqlserver://10.196.3.22:1433;databaseName=MOB-DEV}
+    username: ${MSSQL_EVENT_DEV_USERNAME:Mobdbuser}
+    password: ${MSSQL_EVENT_DB_KEY:Mobdbuser}
     maxPoolSize: 40
     poolName: hikari-user-events-life-pool
     minimumidletime: 600000

@@ -8,6 +8,7 @@ import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.model.ApplicationSettingDto;
+import com.mashreq.transfercoreservice.model.Segment;
 import com.mashreq.transfercoreservice.notification.model.ChannelDetails;
 import com.mashreq.transfercoreservice.notification.model.EmailTemplateContactWebsiteContent;
 import com.mashreq.transfercoreservice.notification.model.EmailTemplateParameters;
@@ -66,19 +67,27 @@ public class EmailUtil {
     public static final String STATUS_SUCCESS="Success";
     public static final String COMMA_SEPARATOR = ",";
     public static final String DECIMAL_POS = "%.2f";
+    public static final String SEGMENT_SIGN_OFF_COMPANY_NAME="segmentSignOffCompanyName";
+
 
 
     @Autowired
     private MobCommonService mobCommonService;
+
+    @Autowired
+    private DigitalUserSegment digitalUserSegment;
 
     public EmailTemplateParameters getEmailTemplateParameters (String channel, String segment) throws JsonProcessingException {
         final List<ApplicationSettingDto> applicationSettingDtos = mobCommonService.getApplicationSettings(APPLICATION_SETTINGS_GROUP);
         ChannelDetails channelDetails = getChannelDetails(APPLICATION_SETTINGS_CHANNEL_LOOKUP, channel, applicationSettingDtos);
         Map<String, String> socialMedia = getSocialMediaLinks(APPLICATION_SETTINGS_SOCIAL_MEDIA_LINKS, channelDetails, applicationSettingDtos);
         EmailTemplateContactWebsiteContent htmlContent = getEmailTemplateContactWebsiteContent(APPLICATION_SETTINGS_CONTACT_US_HTML,segment, applicationSettingDtos);
-
-        return EmailTemplateParameters.builder().channelIdentifier(channelDetails).htmlContactContents(htmlContent).socialMediaLinks(socialMedia).build();
+        Segment segmentObj = digitalUserSegment.getCustomerCareInfo(segment);
+        return EmailTemplateParameters.builder().channelIdentifier(channelDetails).htmlContactContents(htmlContent)
+                .socialMediaLinks(socialMedia).segment(segmentObj).build();
     }
+
+
 
     private   EmailTemplateContactWebsiteContent getEmailTemplateContactWebsiteContent(String contactUsHtmlKey, String segment, List<ApplicationSettingDto> applicationSettingDtos) throws JsonProcessingException {
         Optional<String> contactUsHtmlContentString = getValueFromApplicationSettingDto(applicationSettingDtos, contactUsHtmlKey);

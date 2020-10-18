@@ -4,6 +4,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Nationalized;
 
 import javax.persistence.*;
 
@@ -25,6 +26,10 @@ public class Segment extends AbstractAuditingEntity {
     private String name;
     private String customerCareNumber;
     private String customerCareEmail;
+    @Nationalized
+    private String emailContactUsHtmlContent;
+    private String emailContactUsLinkText;
+    private String emailSignOffCompany;
     // TODO
 //    private List<UserGroups> userGroups;
 }
