@@ -7,6 +7,7 @@ import com.mashreq.transfercoreservice.config.notification.EmailConfig;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
+import com.mashreq.transfercoreservice.model.Segment;
 import com.mashreq.transfercoreservice.notification.model.EmailParameters;
 import com.mashreq.transfercoreservice.notification.model.EmailTemplateParameters;
 import com.mashreq.transfercoreservice.notification.model.NotificationType;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -70,12 +72,15 @@ public class PostTransactionService {
     private PostTransactionActivityContext<SendEmailRequest> getEmailPostTransactionActivityContext(RequestMetaData requestMetaData,
                                                                                                     FundTransferRequest fundTransferRequest) throws Exception {
         SendEmailRequest emailRequest = SendEmailRequest.builder().isEmailPresent(false).build();
+        String contactLinkText;
+        String htmlContent;
         if (StringUtils.isNotBlank(requestMetaData.getEmail())) {
             final EmailParameters emailParameters = emailConfig.getEmail().get(requestMetaData.getCountry());
             final EmailTemplateParameters emailTemplateParameters = emailUtil.getEmailTemplateParameters(requestMetaData.getChannel(), requestMetaData.getSegment());
             boolean isMobile = requestMetaData.getChannel().contains(MOBILE);
             String channelType = isMobile ? MOBILE_BANKING : ONLINE_BANKING;
             Map<String, String> templateValues = new HashMap<>();
+            Segment segment = emailTemplateParameters.getSegment();
             final String subject = emailParameters.getEmailSubject(fundTransferRequest.getNotificationType(),fundTransferRequest.getTransferType(),channelType);
             templateValues.put(TRANSFER_TYPE, StringUtils.defaultIfBlank(fundTransferRequest.getTransferType(), DEFAULT_STR));
             templateValues.put(SEGMENT, StringUtils.defaultIfBlank(requestMetaData.getSegment(), DEFAULT_STR));
@@ -83,13 +88,26 @@ public class PostTransactionService {
             templateValues.put(SOURCE_OF_FUND, fundTransferRequest.getSourceOfFund() == null ? SOURCE_OF_FUND_ACCOUNT: fundTransferRequest.getSourceOfFund());
             templateValues.put(BANK_NAME, StringUtils.defaultIfBlank(emailTemplateParameters.getChannelIdentifier().getChannelName(), DEFAULT_STR) );
             templateValues.put(CHANNEL_TYPE, StringUtils.defaultIfBlank(channelType, DEFAULT_STR));
-            templateValues.put(CONTACT_HTML_BODY_KEY, StringUtils.defaultIfBlank(emailTemplateParameters.getHtmlContactContents().getHtmlContent(),DEFAULT_STR));
             templateValues.put(FACEBOOK_LINK, StringUtils.defaultIfBlank(emailTemplateParameters.getSocialMediaLinks().get(FACEBOOK), DEFAULT_STR));
             templateValues.put(INSTAGRAM_LINK, StringUtils.defaultIfBlank(emailTemplateParameters.getSocialMediaLinks().get(INSTAGRAM), DEFAULT_STR));
             templateValues.put(TWITTER_LINK, StringUtils.defaultIfBlank(emailTemplateParameters.getSocialMediaLinks().get(TWITTER), DEFAULT_STR));
             templateValues.put(LINKED_IN_KEY, StringUtils.defaultIfBlank(emailTemplateParameters.getSocialMediaLinks().get(LINKED_IN), DEFAULT_STR));
             templateValues.put(YOUTUBE_LINK, StringUtils.defaultIfBlank(emailTemplateParameters.getSocialMediaLinks().get(YOUTUBE), DEFAULT_STR));
-
+            if(segment != null) {
+                contactLinkText = StringUtils.defaultIfBlank(segment.getEmailContactUsLinkText(), DEFAULT_STR);
+                htmlContent = segment.getEmailContactUsHtmlContent();
+                if(StringUtils.isNotEmpty(htmlContent)) {
+                    htmlContent = htmlContent.replaceAll("\\{contactUsLinkText}", contactLinkText);
+                    htmlContent = htmlContent.replaceAll("\\$", DEFAULT_STR);
+                } else {
+                    htmlContent = DEFAULT_STR;
+                }
+                templateValues.put(CONTACT_HTML_BODY_KEY, htmlContent);
+                templateValues.put(SEGMENT_SIGN_OFF_COMPANY_NAME, StringUtils.defaultIfBlank(segment.getEmailSignOffCompany(), DEFAULT_STR));
+            } else {
+                templateValues.put(CONTACT_HTML_BODY_KEY, DEFAULT_STR);
+                templateValues.put(SEGMENT_SIGN_OFF_COMPANY_NAME, DEFAULT_STR);
+            }
             if(fundTransferRequest.getNotificationType().matches(NotificationType.GOLD_SILVER_BUY_SUCCESS)){
                 getTemplateValuesForBuyGoldSilver(templateValues,fundTransferRequest);
             }
@@ -102,10 +120,10 @@ public class PostTransactionService {
 
 
             emailRequest = SendEmailRequest.builder()
-                    .fromEmailAddress(isMobile ?emailParameters.getFromEmailAddressMob():emailParameters.getFromEmailAddressWeb())
+                    .fromEmailAddress(emailParameters.getFromEmailAddress())
                     .toEmailAddress(requestMetaData.getEmail())
                     .subject(subject)
-                    .fromEmailName( isMobile ?emailParameters.getFromEmailNameMob():emailParameters.getFromEmailNameWeb())
+                    .fromEmailName(emailParameters.getFromEmailName())
                     .templateName(emailParameters.getEmailTemplate(fundTransferRequest.getNotificationType()))
                     .templateKeyValues(templateValues)
                     .isEmailPresent(true)
@@ -138,7 +156,28 @@ public class PostTransactionService {
         templateValues.put(TO_ACCOUNT_NO, StringUtils.defaultIfBlank(emailUtil.doMask(fundTransferRequest.getToAccount()), DEFAULT_STR));
         templateValues.put(BENEFICIARY_NICK_NAME, StringUtils.defaultIfBlank(fundTransferRequest.getBeneficiaryFullName(), DEFAULT_STR));
         templateValues.put(CURRENCY, StringUtils.defaultIfBlank(fundTransferRequest.getTxnCurrency(), DEFAULT_STR) );
-        templateValues.put(AMOUNT, StringUtils.defaultIfBlank(String.valueOf(fundTransferRequest.getAmount()), DEFAULT_STR));
-        templateValues.put(STATUS, StringUtils.defaultIfBlank(fundTransferRequest.getStatus(), DEFAULT_STR));
+        BigDecimal amount = fundTransferRequest.getAmount();
+        if(amount != null) {
+            templateValues.put(AMOUNT, EmailUtil.formattedAmount(amount));
+        } else {
+            templateValues.put(AMOUNT, DEFAULT_STR);
+        }
+        templateValues.put(STATUS, STATUS_SUCCESS);
     }
+
+    // Below code is used for testing
+    /*private FundTransferRequest buildTestData(){
+        FundTransferRequest fundTransferRequest = FundTransferRequest.builder()
+                .sourceOfFund(SOURCE_OF_FUND_ACCOUNT)
+                .amount(new BigDecimal("10.11"))
+                .transferType("Own Account")
+                .NotificationType(NotificationType.OTHER_ACCOUNT_TRANSACTION)
+                .fromAccount("019100341109")
+                .toAccount("019100341109")
+                .beneficiaryFullName("XYZ")
+                .txnCurrency("AED")
+                .build();
+
+        return fundTransferRequest;
+    }*/
 }
