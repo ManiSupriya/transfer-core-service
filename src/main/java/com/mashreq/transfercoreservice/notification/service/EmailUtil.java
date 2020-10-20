@@ -68,6 +68,7 @@ public class EmailUtil {
     public static final String COMMA_SEPARATOR = ",";
     public static final String DECIMAL_POS = "%.2f";
     public static final String SEGMENT_SIGN_OFF_COMPANY_NAME="segmentSignOffCompanyName";
+    public static final String EMAIL_TEMPLATE_COPYRIGHT_YEAR_KEY = "copyrightYear";
 
 
 
@@ -86,8 +87,6 @@ public class EmailUtil {
         return EmailTemplateParameters.builder().channelIdentifier(channelDetails).htmlContactContents(htmlContent)
                 .socialMediaLinks(socialMedia).segment(segmentObj).build();
     }
-
-
 
     private   EmailTemplateContactWebsiteContent getEmailTemplateContactWebsiteContent(String contactUsHtmlKey, String segment, List<ApplicationSettingDto> applicationSettingDtos) throws JsonProcessingException {
         Optional<String> contactUsHtmlContentString = getValueFromApplicationSettingDto(applicationSettingDtos, contactUsHtmlKey);
@@ -191,7 +190,7 @@ public class EmailUtil {
         int count = charArray.length-1;
         while (count >= 0){
             if(isFirst){
-                if(nextCount == 1){
+                if(nextCount == 2){
                     builder.append(COMMA_SEPARATOR);
                     nextCount = 0;
                 } else {
