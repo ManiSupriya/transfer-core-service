@@ -570,7 +570,7 @@
                                     <td>
                                         <p style="margin-bottom: 16px">
                                             Best Regards,<br />
-                                            Customer Service, ${bankName}
+                                            ${segmentSignOffCompanyName} Team
                                         </p>
                                         <p
                                                 style="
@@ -579,7 +579,7 @@
                         margin-bottom: 40px;
                       "
                                         >
-                                            Disclaimer: This is a system generated email message.
+                                            Disclaimer: Do not reply to this email, this is a system generated email message.
                                             <br />
                                             For any queries, please contact the Bank.
                                         </p>
@@ -604,7 +604,7 @@
                       font-size: 12px;
                       display: inline-block;
                     "
-                                    >Copyright &#169; 2020 ${bankName}</span
+                                    >Copyright &#169; ${copyrightYear} ${bankName}</span
                                     >
                                 </td>
                                 <td style="text-align: right">
