@@ -19,6 +19,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -93,6 +94,7 @@ public class PostTransactionService {
             templateValues.put(TWITTER_LINK, StringUtils.defaultIfBlank(emailTemplateParameters.getSocialMediaLinks().get(TWITTER), DEFAULT_STR));
             templateValues.put(LINKED_IN_KEY, StringUtils.defaultIfBlank(emailTemplateParameters.getSocialMediaLinks().get(LINKED_IN), DEFAULT_STR));
             templateValues.put(YOUTUBE_LINK, StringUtils.defaultIfBlank(emailTemplateParameters.getSocialMediaLinks().get(YOUTUBE), DEFAULT_STR));
+            templateValues.put(EMAIL_TEMPLATE_COPYRIGHT_YEAR_KEY, String.valueOf(LocalDateTime.now().getYear()));
             if(segment != null) {
                 contactLinkText = StringUtils.defaultIfBlank(segment.getEmailContactUsLinkText(), DEFAULT_STR);
                 htmlContent = segment.getEmailContactUsHtmlContent();
@@ -135,9 +137,9 @@ public class PostTransactionService {
     private void getTemplateValuesForBuyGoldSilver(Map<String, String> templateValues, FundTransferRequest fundTransferRequest) throws Exception {
         templateValues.put(MASKED_ACCOUNT, StringUtils.defaultIfBlank(emailUtil.doMask(fundTransferRequest.getFromAccount()), DEFAULT_STR));
         templateValues.put(TO_ACCOUNT_NO, StringUtils.defaultIfBlank(emailUtil.doMask(fundTransferRequest.getToAccount()), DEFAULT_STR));
-        templateValues.put(TXN_AMOUNT, StringUtils.defaultIfBlank(String.valueOf(fundTransferRequest.getAmount()), DEFAULT_STR));
+        templateValues.put(TXN_AMOUNT, fundTransferRequest.getAmount()!=null?EmailUtil.formattedAmount(fundTransferRequest.getAmount()) : DEFAULT_STR);
         templateValues.put(CURRENCY, StringUtils.defaultIfBlank(fundTransferRequest.getSourceCurrency(), DEFAULT_STR) );
-        templateValues.put(AMOUNT, StringUtils.defaultIfBlank(String.valueOf(fundTransferRequest.getSrcAmount()), DEFAULT_STR));
+        templateValues.put(AMOUNT, fundTransferRequest.getSrcAmount()!=null? EmailUtil.formattedAmount(fundTransferRequest.getSrcAmount()): DEFAULT_STR);
         templateValues.put(STATUS, STATUS_SUCCESS);
 
     }
@@ -145,9 +147,9 @@ public class PostTransactionService {
     private void getTemplateValuesForSellGoldSilver(Map<String, String> templateValues, FundTransferRequest fundTransferRequest) throws Exception {
         templateValues.put(MASKED_ACCOUNT, StringUtils.defaultIfBlank(emailUtil.doMask(fundTransferRequest.getFromAccount()), DEFAULT_STR));
         templateValues.put(TO_ACCOUNT_NO, StringUtils.defaultIfBlank(emailUtil.doMask(fundTransferRequest.getToAccount()), DEFAULT_STR));
-        templateValues.put(TXN_AMOUNT, StringUtils.defaultIfBlank(String.valueOf(fundTransferRequest.getSrcAmount()), DEFAULT_STR));
+        templateValues.put(TXN_AMOUNT, fundTransferRequest.getSrcAmount()!=null? EmailUtil.formattedAmount(fundTransferRequest.getSrcAmount()) : DEFAULT_STR);
         templateValues.put(CURRENCY, StringUtils.defaultIfBlank(fundTransferRequest.getDestinationCurrency(), DEFAULT_STR) );
-        templateValues.put(AMOUNT, StringUtils.defaultIfBlank(String.valueOf(fundTransferRequest.getAmount()), DEFAULT_STR));
+        templateValues.put(AMOUNT, fundTransferRequest.getAmount() !=null? EmailUtil.formattedAmount(fundTransferRequest.getAmount()) : DEFAULT_STR);
         templateValues.put(STATUS, STATUS_SUCCESS);
     }
 
