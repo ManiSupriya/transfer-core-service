@@ -139,7 +139,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata,validationResult.getTransactionRefNo());
 
        if(isSuccessOrProcessing(fundTransferResponse)){
-       final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request,transactionAmount,metadata);
+       final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request,transferAmountInSrcCurrency,metadata);
        notificationService.sendNotifications(customerNotification,OWN_ACCOUNT_TRANSACTION,metadata,userDTO);
        }
        
