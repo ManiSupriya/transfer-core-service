@@ -25,7 +25,7 @@ public class HeaderFactory {
         HeaderType header = new HeaderType();
         header.setSrcAppId(soapServiceProperties.getAppId());
         header.setOrgId(soapServiceProperties.getOriginId());
-        header.setUserId("MOBANKUSER");
+        header.setUserId(soapServiceProperties.getUserId());
         header.setSrcMsgId(msgId);
         header.setSrcAppTimestamp(getCurrentTimeStamp());
         header.setSrvCode(service);

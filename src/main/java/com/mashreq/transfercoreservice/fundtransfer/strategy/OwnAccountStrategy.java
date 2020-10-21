@@ -178,7 +178,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     private CustomerNotification populateCustomerNotification(String transactionRefNo, FundTransferRequestDTO requestDTO, BigDecimal amount, RequestMetaData metadata) {
         CustomerNotification customerNotification =new CustomerNotification();
         customerNotification.setAmount(String.valueOf(amount));
-        customerNotification.setCurrency(requestDTO.getCurrency());
+        customerNotification.setCurrency(requestDTO.getTxnCurrency());
         customerNotification.setTxnRef(transactionRefNo);
         customerNotification.setSegment(digitalUserSegment.getCustomerCareInfo(metadata.getSegment()));
         return customerNotification;
