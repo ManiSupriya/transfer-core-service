@@ -179,7 +179,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata, txnRefNo);
 
         if(isSuccessOrProcessing(fundTransferResponse)){
-            final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getCurrency(),request.getAmount());
+            final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getCurrency(),transferAmountInSrcCurrency);
             notificationService.sendNotifications(customerNotification,OTHER_ACCOUNT_TRANSACTION,metadata,userDTO);
             fundTransferRequest.setTransferType(getTransferType(fundTransferRequest.getTxnCurrency()));
             fundTransferRequest.setNotificationType(OTHER_ACCOUNT_TRANSACTION);
