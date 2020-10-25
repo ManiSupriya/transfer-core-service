@@ -165,8 +165,11 @@ public class FundTransferMWService {
         }
 		else {
 			if (StringUtils.isNotBlank(request.getTxnCurrency())
-					&& request.getTxnCurrency().equalsIgnoreCase(request.getSourceCurrency()) && !request.getBeneficiaryAddressTwo().equalsIgnoreCase(UAE_COUNTRY)) {
-				debitLeg.setAmount(request.getAmount());
+					&& request.getTxnCurrency().equalsIgnoreCase(request.getSourceCurrency())) {
+			    if( StringUtils.isNotBlank(request.getBeneficiaryAddressTwo()) && request.getBeneficiaryAddressTwo().equalsIgnoreCase(UAE_COUNTRY))
+                    creditLeg.setAmount(request.getAmount());
+			    else
+                    debitLeg.setAmount(request.getAmount());
 			} else {
 				creditLeg.setAmount(request.getAmount());
 			}
