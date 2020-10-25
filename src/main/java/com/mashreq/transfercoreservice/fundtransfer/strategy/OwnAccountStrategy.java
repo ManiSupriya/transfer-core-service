@@ -6,6 +6,7 @@ import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
 import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
+import com.mashreq.transfercoreservice.client.dto.SearchAccountDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.common.CommonConstants;
@@ -30,6 +31,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import static java.time.Duration.between;
 import static java.time.Instant.now;
@@ -49,6 +51,8 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     public static final String LOCAL_CURRENCY = "AED";
     private static final String  OWN_ACCOUNT_TRANSACTION = "OWN_ACCOUNT_TRANSACTION";
     public static final String OWN_ACCOUNT = "Own Account";
+    private static final String MB_META = "MBMETA";
+    private static final String MB_META_PROD_ID = "MT5I";
 
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
     private final SameAccountValidator sameAccountValidator;
@@ -136,6 +140,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metadata,null);
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccount, toAccount,conversionResult.getExchangeRate(),validationResult);
 
+        fundTransferRequest.setProductId(isMT5AccountProdID(fundTransferRequest));
        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata,validationResult.getTransactionRefNo());
 
        if(isSuccessOrProcessing(fundTransferResponse)){
@@ -283,4 +288,14 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         return response.getResponseDto().getMwResponseStatus().equals(MwResponseStatus.S) ||
                 response.getResponseDto().getMwResponseStatus().equals(MwResponseStatus.P);
     }
+    
+    private String isMT5AccountProdID(FundTransferRequest request) {
+   	 final CompletableFuture<SearchAccountDto> searchAccountFut = CompletableFuture.supplyAsync(() ->
+        accountService.getAccountDetailsFromCore(request.getToAccount()));
+   	 final SearchAccountDto searchAccountDto = searchAccountFut.join();
+   	if(MB_META.equalsIgnoreCase(searchAccountDto.getAccountType().getAccountType())) {
+   		return MB_META_PROD_ID;
+   	}
+   	return request.getProductId();
+   }
 }
