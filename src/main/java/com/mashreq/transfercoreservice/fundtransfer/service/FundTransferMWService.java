@@ -160,13 +160,16 @@ public class FundTransferMWService {
         creditLeg.setBenAddr3(request.getBeneficiaryAddressThree());
         creditLeg.setAWInstAddr2(request.getBeneficiaryAddressTwo());
 
-        if(request!= null && request.getAmount() == null) {
+        if(request.getAmount() == null) {
             debitLeg.setAmount(request.getSrcAmount());
         }
 		else {
-			if (request!= null && StringUtils.isNotBlank(request.getTxnCurrency())
-					&& request.getTxnCurrency().equalsIgnoreCase(request.getSourceCurrency()) && StringUtils.isNotBlank(request.getBeneficiaryAddressTwo()) && !request.getBeneficiaryAddressTwo().equalsIgnoreCase(UAE_COUNTRY)) {
-				debitLeg.setAmount(request.getAmount());
+			if (StringUtils.isNotBlank(request.getTxnCurrency())
+					&& request.getTxnCurrency().equalsIgnoreCase(request.getSourceCurrency())) {
+			    if( StringUtils.isNotBlank(request.getBeneficiaryAddressTwo()) && request.getBeneficiaryAddressTwo().equalsIgnoreCase(UAE_COUNTRY))
+                    creditLeg.setAmount(request.getAmount());
+			    else
+                    debitLeg.setAmount(request.getAmount());
 			} else {
 				creditLeg.setAmount(request.getAmount());
 			}
