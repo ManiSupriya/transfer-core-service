@@ -89,9 +89,9 @@ public interface CoreEnquiryService<R, P> {
             final String[] errorCodes = getAllErrorCodesFromGenericException(genericException);
             final String errorDetails = genericException.getErrorDetails();
             final Optional<String> errorHandlingStrategyOptional = getErrorHandlingStrategy(errorMap(), errorCodes);
-            final String errorHandlingStrategy = errorHandlingStrategyOptional.get();
 
             if (errorHandlingStrategyOptional.isPresent()) {
+                final String errorHandlingStrategy = errorHandlingStrategyOptional.get();
                 if (SEND_EMPTY_ERROR_RESPONSE.equals(errorHandlingStrategy)) {
                     return defaultSuccessResponse();
                 } 
@@ -130,14 +130,24 @@ public interface CoreEnquiryService<R, P> {
 				} else if (EXCEEDS_WITHDRAWL_LIMIT.equals(errorHandlingStrategy)) {
 					GenericExceptionHandler.handleError(TransferErrorCode.ACC_SERVICE_EXCEED_WITHDRAWL_LIMIT_ERROR,
 							TransferErrorCode.ACC_SERVICE_EXCEED_WITHDRAWL_LIMIT_ERROR.getErrorMessage(), errorDetails);
+				} else if (DENIED_BY_POLICY_OTP_REUSE_NOT_ALLOWED.equals(errorHandlingStrategy)) {
+					GenericExceptionHandler.handleError(TransferErrorCode.DENIED_BY_POLICY_OTP_REUSE_NOT_ALLOWED_STAUS,
+							TransferErrorCode.DENIED_BY_POLICY_OTP_REUSE_NOT_ALLOWED_STAUS.getErrorMessage(), errorDetails);
+				} else if (OBJ_TOKENSTORE_ID_NOT_FOUND.equals(errorHandlingStrategy)) {
+					GenericExceptionHandler.handleError(TransferErrorCode.OBJ_TOKENSTORE_ID_NOT_FOUND_STATUS,
+							TransferErrorCode.OBJ_TOKENSTORE_ID_NOT_FOUND_STATUS.getErrorMessage(), errorDetails);
+				} else if (USER_SESSION_ALREADY_INVALIDATED.equals(errorHandlingStrategy)) {
+					GenericExceptionHandler.handleError(TransferErrorCode.USER_SESSION_ALREADY_INVALIDATED_STATUS,
+							TransferErrorCode.USER_SESSION_ALREADY_INVALIDATED_STATUS.getErrorMessage(), errorDetails);
 				}else {
                     GenericExceptionHandler.handleError(assignDefaultErrorCode(), assignDefaultErrorCode().getErrorMessage(), ((GenericException) throwable).getErrorDetails());
                 }
-            }
+            }else {
            /**
             * when no mapping present send
             */
-            GenericExceptionHandler.handleError(assignDefaultErrorCode(), assignDefaultErrorCode().getErrorMessage(), errorDetails);
+            GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR, EXTERNAL_SERVICE_ERROR.getErrorMessage(), errorDetails);
+            }
         }
       /**
        * when connection failed for external service

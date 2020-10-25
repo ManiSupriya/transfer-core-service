@@ -8,6 +8,7 @@ import com.mashreq.transfercoreservice.client.dto.VerifyOTPRequestDTO;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPResponseDTO;
 import com.mashreq.transfercoreservice.client.service.OTPService;
 import com.mashreq.transfercoreservice.common.CommonConstants;
+import com.mashreq.transfercoreservice.errors.ExternalErrorCodeConfig;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
@@ -32,7 +33,6 @@ import java.time.LocalDateTime;
 import java.util.EnumMap;
 import java.util.Optional;
 
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.FUND_TRANSFER_FAILED;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.*;
 import static java.time.Duration.between;
@@ -58,7 +58,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final AsyncUserEventPublisher auditEventPublisher;
     private EnumMap<ServiceType, FundTransferStrategy> fundTransferStrategies;
     private final OTPService otpService;
-
+    private final ExternalErrorCodeConfig errorCodeConfig;
 
     @PostConstruct
     public void init() {
@@ -151,8 +151,8 @@ public class FundTransferServiceDefault implements FundTransferService {
         log.info("Total time taken for {} Fund Transfer {} milli seconds ", htmlEscape(request.getServiceType()), htmlEscape(Long.toString(between(start, now()).toMillis())));
 
         if (isFailure(response)) {
-            GenericExceptionHandler.handleError(FUND_TRANSFER_FAILED,
-                    getFailureMessage(FUND_TRANSFER_FAILED, request, response),
+            GenericExceptionHandler.handleError(TransferErrorCode.valueOf(errorCodeConfig.getMiddlewareExternalErrorCodesMap().getOrDefault(response.getResponseDto().getMwResponseCode(),"FUND_TRANSFER_FAILED")),
+                    getFailureMessage(TransferErrorCode.valueOf(errorCodeConfig.getMiddlewareExternalErrorCodesMap().getOrDefault(response.getResponseDto().getMwResponseCode(),"FUND_TRANSFER_FAILED")), request, response),
                     response.getResponseDto().getMwResponseCode()+"-"+ response.getResponseDto().getMwResponseDescription());
         }
 
@@ -255,6 +255,7 @@ public class FundTransferServiceDefault implements FundTransferService {
                 .accountFrom(request.getFromAccount())
                 .financialTransactionNo(request.getFinTxnNo())
                 .transactionRefNo(fundTransferResponse.getTransactionRefNo())
+                .hostReferenceNo(fundTransferResponse.getResponseDto().getHostRefNo())
                 .valueDate(LocalDateTime.now())
                 .build();
 

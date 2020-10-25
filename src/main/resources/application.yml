@@ -76,9 +76,16 @@ external:
           VERIFY_OTP_USSM_102: USER_BLOCKED_STATUS
           VERIFY_OTP_USSM_103: USER_INACTIVE_STATUS
           VERIFY_OTP_USSM_104: FAILED_TO_DECRYPT
+          VERIFY_OTP_10402: DENIED_BY_POLICY_OTP_REUSE_NOT_ALLOWED
+          VERIFY_OTP_30001: OBJ_TOKENSTORE_ID_NOT_FOUND
+          LOGOUT_4004: USER_SESSION_ALREADY_INVALIDATED
       deal:
         detailcallErrorMap:
           ACC-ESB-15280: RECORD_NOT_FOUND
+      middleware:
+        detailCallErrorMap:
+          EAI-FCI-BRK-21038: TRANSFER_AMOUNT_IN_NAGATIVE
+          EAI-FCI-BRK-2463: FUND_TRANSFER_FREEZED
   fees-code:
     mapper:
       fees:
@@ -126,13 +133,11 @@ app:
   notification:
     email:
       AE:
-        emailSubject: ${NOTIFICATION_EMAIL_SUBJECT:%s request via %s}
+        emailSubject: ${NOTIFICATION_EMAIL_SUBJECT:%s Transfer request via %s}
         sellGoldSilverSubject: ${NOTIFICATION_EMAIL_SELL_SUBJECT:You sold from %s Edge account via %s}
         buyGoldSilverSubject: ${NOTIFICATION_EMAIL_BUY_SUBJECT:Your recent investment in %s Edge account via %s}
-        fromEmailNameMob: ${EMAIL_FROM_NAME_MOB:MashreqMobile}
-        fromEmailNameWeb: ${EMAIL_FROM_NAME_WEB:MashreqOnline}
-        fromEmailAddressMob: ${EMAIL_FROM_ADD_MOB:MashreqMobile@mashreq.com}
-        fromEmailAddressWeb: ${EMAIL_FROM_ADD_WEB:MashreqOnline@mashreq.com}
+        fromEmailName: ${EMAIL_FROM_NAME_MOB:MashreqDigital}
+        fromEmailAddress: ${EMAIL_FROM_ADD_MOB:MashreqDigital@mashreq.com}
         callCenterNo: ${NOTIFICATION_EMAIL_CALL_CENTER_NO:04 424 6666}
         localFundTransfer: mt-within-own-accounts.ftl
         otherFundTransfer: mt-other-accounts.ftl
@@ -142,9 +147,9 @@ app:
       priority: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_PRIORITY:HIGH}
       serviceId: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_SERVICEID:91}
       callCenterNo: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_CALL_CENTER_NO:04 424 6666}
-      ownAccountTransactionInitiated: ${OWN_ACCOUNT_SMS:Request received through Mashreq Mobile for a Fund Transfer of {0} {1} with {2}. Contact {3} if you did not initiate this.}
+      ownAccountTransactionInitiated: ${OWN_ACCOUNT_SMS:Request received through {0} for a Fund Transfer of {1} {2} with {3}. Contact {4} if you did not initiate this.}
     push:
-      ownAccountTransactionInitiated: ${OWN_ACCOUNT_PUSH:Request received through Mashreq Mobile for a Fund Transfer of {0} {1} with {2}. Contact {3} if you did not initiate this.}
+      ownAccountTransactionInitiated: ${OWN_ACCOUNT_PUSH:Request received through {0} for a Fund Transfer of {1} {2} with {3}. Contact {4} if you did not initiate this.}
 
 instarem:
   rules:

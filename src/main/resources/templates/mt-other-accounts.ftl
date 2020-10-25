@@ -504,21 +504,21 @@
                 <tr>
                   <td>
                     <h1 style="margin-bottom: 32px">
-                      Your money transfer was initiated
+                      Your money transfer request was processed successfully
                     </h1>
                     <h3 style="margin-bottom: 24px">
                       <span style="font-weight: normal">Dear</span>
                       ${customerName},
                     </h3>
                     <p style="margin-bottom: 24px">
-                        We would like to inform you of a money transfer that has been initiated.
+                        We would like to inform you of a money transfer request that has been processed successfully.
                     </p>
                     <ul style="list-style: circle; padding: 0px 19px;">
                       <li style="margin-bottom: 16px">
                         <p><span style="min-width: 200px;display: inline-block;">Transfer type</span><span style="margin-left: 20px; font-weight: bold;">${transferType}</span></p>
                       </li>
                       <li style="margin-bottom: 16px">
-                        <p><span style="min-width: 200px;display: inline-block;">From (${sourceOfFund})</span><span style="margin-left: 20px; font-weight: bold;">${maskedAccount}</span></p>
+                        <p><span style="min-width: 200px;display: inline-block;">From ${sourceOfFund}</span><span style="margin-left: 20px; font-weight: bold;">${maskedAccount}</span></p>
                       </li>
                       <li style="margin-bottom: 16px" >
                         <p>
@@ -569,7 +569,7 @@
                   <td>
                     <p style="margin-bottom: 16px">
                       Best Regards,<br />
-                      Customer Service, ${bankName}
+                      ${segmentSignOffCompanyName} Team
                     </p>
                     <p
                       style="
@@ -603,7 +603,7 @@
                       font-size: 12px;
                       display: inline-block;
                     "
-                    >Copyright © 2020 ${bankName}</span
+                    >Copyright &#169; ${copyrightYear} ${bankName}</span
                   >
                 </td>
                 <td style="text-align: right">

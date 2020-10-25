@@ -8,6 +8,7 @@ import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.model.ApplicationSettingDto;
+import com.mashreq.transfercoreservice.model.Segment;
 import com.mashreq.transfercoreservice.notification.model.ChannelDetails;
 import com.mashreq.transfercoreservice.notification.model.EmailTemplateContactWebsiteContent;
 import com.mashreq.transfercoreservice.notification.model.EmailTemplateParameters;
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -63,18 +65,27 @@ public class EmailUtil {
     public static final String DEFAULT_STR = "";
     public static final String TXN_AMOUNT="txn_amount";
     public static final String STATUS_SUCCESS="Success";
+    public static final String COMMA_SEPARATOR = ",";
+    public static final String DECIMAL_POS = "%.2f";
+    public static final String SEGMENT_SIGN_OFF_COMPANY_NAME="segmentSignOffCompanyName";
+    public static final String EMAIL_TEMPLATE_COPYRIGHT_YEAR_KEY = "copyrightYear";
+
 
 
     @Autowired
     private MobCommonService mobCommonService;
+
+    @Autowired
+    private DigitalUserSegment digitalUserSegment;
 
     public EmailTemplateParameters getEmailTemplateParameters (String channel, String segment) throws JsonProcessingException {
         final List<ApplicationSettingDto> applicationSettingDtos = mobCommonService.getApplicationSettings(APPLICATION_SETTINGS_GROUP);
         ChannelDetails channelDetails = getChannelDetails(APPLICATION_SETTINGS_CHANNEL_LOOKUP, channel, applicationSettingDtos);
         Map<String, String> socialMedia = getSocialMediaLinks(APPLICATION_SETTINGS_SOCIAL_MEDIA_LINKS, channelDetails, applicationSettingDtos);
         EmailTemplateContactWebsiteContent htmlContent = getEmailTemplateContactWebsiteContent(APPLICATION_SETTINGS_CONTACT_US_HTML,segment, applicationSettingDtos);
-
-        return EmailTemplateParameters.builder().channelIdentifier(channelDetails).htmlContactContents(htmlContent).socialMediaLinks(socialMedia).build();
+        Segment segmentObj = digitalUserSegment.getCustomerCareInfo(segment);
+        return EmailTemplateParameters.builder().channelIdentifier(channelDetails).htmlContactContents(htmlContent)
+                .socialMediaLinks(socialMedia).segment(segmentObj).build();
     }
 
     private   EmailTemplateContactWebsiteContent getEmailTemplateContactWebsiteContent(String contactUsHtmlKey, String segment, List<ApplicationSettingDto> applicationSettingDtos) throws JsonProcessingException {
@@ -137,7 +148,7 @@ public class EmailUtil {
         }
     }
 
-    public String doMask(String strText) throws Exception {
+    public String doMask(String strText)  {
         int total = strText.length();
         int endLength = 4;
         int maskLength = total - endLength;
@@ -147,7 +158,7 @@ public class EmailUtil {
         }
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < maskLength; i++) {
-            builder.append('X');
+            builder.append('*');
         }
         String masked = builder.append(strText, maskLength, total).toString();
         return masked;
@@ -168,4 +179,35 @@ public class EmailUtil {
         return s.toString().trim();
     }
 
+    public static String formattedAmount(BigDecimal bigDecimal){
+        int firstCount = 0;
+        int nextCount = 0;
+        boolean isFirst = false;
+        String decimalValue = String.format(DECIMAL_POS, bigDecimal);
+        String[] values = decimalValue.split("\\.");
+        StringBuilder builder = new StringBuilder();
+        char[] charArray = values[0].toCharArray();
+        int count = charArray.length-1;
+        while (count >= 0){
+            if(isFirst){
+                if(nextCount == 2){
+                    builder.append(COMMA_SEPARATOR);
+                    nextCount = 0;
+                } else {
+                    nextCount++;
+                }
+            } else {
+                if(firstCount == 3){
+                    builder.append(COMMA_SEPARATOR);
+                    isFirst = true;
+                } else {
+                    firstCount++;
+                }
+            }
+            builder.append(charArray[count]);
+            count--;
+        }
+        builder.reverse().append(".").append(values[1]);
+        return builder.toString();
+    }
 }

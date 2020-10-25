@@ -35,6 +35,7 @@ public enum TransferErrorCode implements ErrorCode {
     DEAL_NUMBER_NOT_AUTHORIRED("TN-1022", "Deal Number Not Authorised"),
     DEAL_NUMBER_NOT_VALID_STATE("TN-1023", "Deal Number Not in Valid State"),
     FX_CONTENET_ERROR("TN-1024","Content not found "),
+    NOT_ABLE_TO_FETCH_GPI_TRACKER("TN-1025", "Not able to fetch the details from core"),
     TRNS_CORE_400("TRNS-CORE-400", "Please validate your request body"),
     TRNS_CORE_406("TRNS-CORE-406", "Request parameter is missing"),
 
@@ -92,6 +93,9 @@ public enum TransferErrorCode implements ErrorCode {
     EXTERNAL_SERVICE_ERROR("TN-5000", "Something went wrong with external service"),
     FUND_TRANSFER_FAILED("TN-5001", "Fund transfer failed"),
     FUND_TRANSFER_PROCESSING("TN-5004", "Fund transfer is in processing"),
+    TRANSFER_AMOUNT_IN_NAGATIVE("TN-5006", "Transfer amount will be in negative"),
+    FUND_TRANSFER_FREEZED("TN-5007", "Transfer Failed You cannot transfer funds from this account due to restrictions"),
+
 
     FLEX_RULE_ENGINE_FAILED("TN-6000", "Flex Rule Engine Failed"),
     FLEX_RULE_EITHER_DEBIT_OR_CREDIT_AMT_REQUIRED("TN-6001", "Either Debit or Credit Amount Required"),
@@ -125,6 +129,9 @@ public enum TransferErrorCode implements ErrorCode {
     OTP_VERIFY_USER_BLOCKED_STATUS("VERIFY_OTP_USSM_102", "User is in blocked status in database. Operation not allowed"),
     OTP_VERIFY_USER_INACTIVE_STATUS("VERIFY_OTP_USSM_103", "User is in inactive status in database. Operation not allowed"),
     OTP_VERIFY_USER_FAILED_TO_DECRYPT("VERIFY_OTP_USSM_104", "Failed to decrypt OTP exception."),
+    DENIED_BY_POLICY_OTP_REUSE_NOT_ALLOWED_STAUS("VERIFY_OTP_10402", "Denied by policy otp reuse not allowed"),
+    OBJ_TOKENSTORE_ID_NOT_FOUND_STATUS("VERIFY_OTP_30001", "Object TokenStore id not found"),
+    USER_SESSION_ALREADY_INVALIDATED_STATUS("LOGOUT_4004", "User session already invalidated in IAM"),
 
     //Middleware error codes
     CONNECTION_TIMEOUT_MW("TN-8002", "Middleware Connection Timeout"),
@@ -137,7 +144,7 @@ public enum TransferErrorCode implements ErrorCode {
     FT_CC_MW_EMPTY_RESPONSE("TN-8007","Null response from middleware for Fund Transfer via CC"),
     FT_CC_MW_ERROR_RESPONSE("TN-8008","Error response from middleware for Fund Transfer via CC"),
     FT_CC_NO_DEALS("TN-8008","No credit cards deals are available for the given cif"),
-    FT_CC_BALANCE_NOT_SUFFICIENT("TN-8009","No available balance on the given credit card"),
+    FT_CC_BALANCE_NOT_SUFFICIENT("TN-8009","Limit exceeds for CC fund transfer"),
     SMS_NOTIFICATION_FAILED("TN-9001","Failed to send sms notification"),
     APPLICATION_KEY_NOT_FOUND("TN-9002","Application setting key not found"),
     PUSH_NOTIFICATION_FAILED("TN-9003","Failed to send push notification"),
@@ -158,4 +165,5 @@ public enum TransferErrorCode implements ErrorCode {
     public String customErrorCode() {
         return customErrorCode;
     }
+
 }

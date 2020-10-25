@@ -1,5 +1,7 @@
 package com.mashreq.transfercoreservice.cardlesscash.controller;
 
+import static org.junit.Assert.assertEquals;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,6 +18,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
+import com.mashreq.ms.exceptions.GenericException;
+import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.cache.UserSessionCacheService;
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashBlockRequest;
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashGenerationRequest;
@@ -24,6 +28,7 @@ import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashBlo
 import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashGenerationResponse;
 import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashQueryResponse;
 import com.mashreq.transfercoreservice.cardlesscash.service.CardLessCashService;
+import com.mashreq.transfercoreservice.infrastructure.web.GlobalExceptionHandler;
 import com.mashreq.webcore.dto.response.Response;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -120,4 +125,55 @@ public class CardLessCashControllerTest {
 		Assert.assertNotNull(cardLessCashQueryRes);
 
 	}
+    
+    @Test
+	public void generateCardLessCashRequestMobileTest() {
+
+		try {
+			String accountNumber = "019100064328";
+			BigDecimal amount = new BigDecimal("1000");
+			String mobileNo = "191064328";
+			String userId = "12345";
+			CardLessCashGenerationRequest cardLessCashGenerationRequest = CardLessCashGenerationRequest.builder()
+					.accountNo(accountNumber).amount(amount).build();
+			CardLessCashGenerationResponse cardLessCashGenerationRes = new CardLessCashGenerationResponse();
+			cardLessCashGenerationRes.setExpiryDateTime(LocalDateTime.now());
+			cardLessCashGenerationRes.setReferenceNumber("test");
+			Mockito.doNothing().when(asyncUserEventPublisher).publishFailedEsbEvent(Mockito.any(), Mockito.any(),
+					Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+			Response<CardLessCashGenerationResponse> cardLessCashGenerationResponse = cardLessCashController
+					.cardLessCashRemitGenerationRequest(userId, mobileNo, metaData, cardLessCashGenerationRequest);
+			Assert.assertNotNull(cardLessCashGenerationResponse);
+		} catch (Throwable throwable) {
+			GenericException genericException = (GenericException) throwable;
+			assertEquals("TN-1008", genericException.getErrorCode());
+		}
+
+	}
+    
+    @Test
+	public void generateCardLessCashRequestAccountTest() {
+
+		try {
+			String accountNumber = "019064328";
+			BigDecimal amount = new BigDecimal("1000");
+			String mobileNo = "1910064328";
+			String userId = "12345";
+			CardLessCashGenerationRequest cardLessCashGenerationRequest = CardLessCashGenerationRequest.builder()
+					.accountNo(accountNumber).amount(amount).build();
+			CardLessCashGenerationResponse cardLessCashGenerationRes = new CardLessCashGenerationResponse();
+			cardLessCashGenerationRes.setExpiryDateTime(LocalDateTime.now());
+			cardLessCashGenerationRes.setReferenceNumber("test");
+			Mockito.doNothing().when(asyncUserEventPublisher).publishFailedEsbEvent(Mockito.any(), Mockito.any(),
+					Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+			Response<CardLessCashGenerationResponse> cardLessCashGenerationResponse = cardLessCashController
+					.cardLessCashRemitGenerationRequest(userId, mobileNo, metaData, cardLessCashGenerationRequest);
+			Assert.assertNotNull(cardLessCashGenerationResponse);
+		} catch (Throwable throwable) {
+			GenericException genericException = (GenericException) throwable;
+			assertEquals("TN-1006", genericException.getErrorCode());
+		}
+
+	}
+    
 }

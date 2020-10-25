@@ -44,6 +44,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     private static final String INTERNATIONAL_VALIDATION_TYPE = "international";
     private static final String INDIVIDUAL_ACCOUNT = "I";
     private static final String ROUTING_CODE_PREFIX = "//";
+    public static final String INTERNATIONAL = "International";
     private final FinTxnNoValidator finTxnNoValidator;
     private final AccountService accountService;
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
@@ -130,14 +131,14 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata, txnRefNo);
 
         if(isSuccessOrProcessing(fundTransferResponse)){
-        final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getCurrency(),request.getAmount());
+        final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getTxnCurrency(),request.getAmount());
         notificationService.sendNotifications(customerNotification,OTHER_ACCOUNT_TRANSACTION,metadata,userDTO);
-        }
-
-        fundTransferRequest.setTransferType(ServiceType.INFT.getName());
+        fundTransferRequest.setTransferType(INTERNATIONAL);
+        fundTransferRequest.setNotificationType(OTHER_ACCOUNT_TRANSACTION);
         fundTransferRequest.setStatus(fundTransferResponse.getResponseDto().getMwResponseStatus().getName());
         postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest);
-                
+        }
+
         return fundTransferResponse.toBuilder()
                 .limitUsageAmount(limitUsageAmount)
                 .limitVersionUuid(validationResult.getLimitVersionUuid()).transactionRefNo(txnRefNo).build();
@@ -210,6 +211,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .beneficiaryAddressThree(beneficiaryDto.getAddressLine3())
                 .transactionCode("15")
                 .dealNumber(request.getDealNumber())
+                .txnCurrency(request.getTxnCurrency())
                 .dealRate(request.getDealRate())
                 .limitTransactionRefNo(validationResult.getTransactionRefNo())
                 .build();

@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.notification.model;
 
+import com.mashreq.transfercoreservice.model.Segment;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,5 +14,6 @@ public class EmailTemplateParameters {
     private ChannelDetails channelIdentifier;
     private Map<String, String> socialMediaLinks;
     private EmailTemplateContactWebsiteContent htmlContactContents;
+    private Segment segment;
 
 }
