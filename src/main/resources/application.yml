@@ -1,10 +1,11 @@
-management.endpoints:
+management:
   health:
     ldap:
       enabled: false
-  web:
-    base-path: /api/actuator
-    exposure.include: info
+  endpoints:
+    web:
+      base-path: /api/actuator
+      exposure.include: health
 
 springdoc:
   api-docs:

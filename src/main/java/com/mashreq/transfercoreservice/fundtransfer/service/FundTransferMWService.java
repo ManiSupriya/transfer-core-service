@@ -45,6 +45,7 @@ public class FundTransferMWService {
     private final AsyncUserEventPublisher auditEventPublisher;
     private static final String GOLD = "XAU";
     private static final String SILVER = "XAG";
+    private static final String UAE_COUNTRY= "UNITED ARAB EMIRATES";
 
 
     public FundTransferResponse transfer(FundTransferRequest request, RequestMetaData metaData, String msgId) {
@@ -132,7 +133,6 @@ public class FundTransferMWService {
 
         //TODO Change this to proper batch id
         fundTransferReqType.setBatchTransactionId(batchTransIdTemporary + "");
-
         fundTransferReqType.setProductId(request.getProductId());
         fundTransferReqType.setTransTypeCode(request.getPurposeCode());
 
@@ -166,7 +166,10 @@ public class FundTransferMWService {
 		else {
 			if (StringUtils.isNotBlank(request.getTxnCurrency())
 					&& request.getTxnCurrency().equalsIgnoreCase(request.getSourceCurrency())) {
-				debitLeg.setAmount(request.getAmount());
+			    if( StringUtils.isNotBlank(request.getBeneficiaryAddressTwo()) && request.getBeneficiaryAddressTwo().equalsIgnoreCase(UAE_COUNTRY))
+                    creditLeg.setAmount(request.getAmount());
+			    else
+                    debitLeg.setAmount(request.getAmount());
 			} else {
 				creditLeg.setAmount(request.getAmount());
 			}
