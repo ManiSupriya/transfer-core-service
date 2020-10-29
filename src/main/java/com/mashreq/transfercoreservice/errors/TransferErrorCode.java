@@ -21,7 +21,7 @@ public enum TransferErrorCode implements ErrorCode {
     MOBILE_NUMBER_DOES_NOT_MATCH("TN-1008", "Mobile Number is not valid"),
     INVALID_DEAL_NUMBER("TN-1009", "Invalid Deal Number"),
     DEAL_NUMBER_EXPIRED("TN-1010", "Deal Number Expired"),
-    DEAL_NUMBER_NOT_APPLICABLE("TN-1011", "Deal Number Not Applicable for this transaction"),
+    DEAL_NUMBER_NOT_APPLICABLE("TN-1011", "Invalid Transaction, txn amount is greater than available deal amount"),
     MAINTENANCE_SERVICE_CONNECTION_ERROR("TN-1012", "Maintenance external service connection exception"),
     MAINTENANCE_SERVICE_ERROR("TN-1013", "Something went wrong with maintenance service"),
     DEAL_NUMBER_NOT_APPLICABLE_WITH_SAME_CRNCY("TN-1014", "Deal Number Not Applicable for same currency transaction"),
@@ -36,6 +36,7 @@ public enum TransferErrorCode implements ErrorCode {
     DEAL_NUMBER_NOT_VALID_STATE("TN-1023", "Deal Number Not in Valid State"),
     FX_CONTENET_ERROR("TN-1024","Content not found "),
     NOT_ABLE_TO_FETCH_GPI_TRACKER("TN-1025", "Not able to fetch the details from core"),
+    DEAL_NUMBER_TOTALLY_UTILIZED("TN-1026", "The deal number completely utilized"),
     TRNS_CORE_400("TRNS-CORE-400", "Please validate your request body"),
     TRNS_CORE_406("TRNS-CORE-406", "Request parameter is missing"),
 

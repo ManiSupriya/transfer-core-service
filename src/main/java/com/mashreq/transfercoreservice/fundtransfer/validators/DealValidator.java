@@ -2,6 +2,7 @@ package com.mashreq.transfercoreservice.fundtransfer.validators;
 
 import static com.mashreq.transfercoreservice.common.CommonConstants.INVALID_DEAL_NUMBER;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
@@ -40,6 +41,7 @@ public class DealValidator implements Validator {
     private static String ACTIVE_STATUS= "A";
     private static String TXN_STATUS = "O";
     private static String AUTH_STATUS= "A";
+    private static BigDecimal ZERO = new BigDecimal(0);
 
 	@Override
 	public ValidationResult validate(FundTransferRequestDTO request, RequestMetaData metadata,
@@ -49,7 +51,21 @@ public class DealValidator implements Validator {
 			if (request.getDealNumber() != null) {
 				dealEnquiryDto = maintenanceService.getFXDealInformation(request.getDealNumber());
 				for (DealEnquiryDetailsDto dealEnquiryDetailsDto : dealEnquiryDto.getDetailsDtoList()) {
-					if (dealEnquiryDetailsDto.getDealAmount().compareTo(request.getAmount()) == -1) {
+					BigDecimal availableDealAmount = dealEnquiryDetailsDto.getDealAmount().subtract(new BigDecimal(dealEnquiryDetailsDto.getTotalUtilizedAmount())) ;
+			        log.info("availableDealAmount {}",availableDealAmount);
+			        if(availableDealAmount.compareTo(ZERO) == 0) {
+			        	log.info("Deal Validation failed");
+			        	auditEventPublisher.publishFailureEvent(FundTransferEventType.DEAL_VALIDATION, metadata,
+								CommonConstants.DEAL_VALIDATION,
+								TransferErrorCode.DEAL_NUMBER_TOTALLY_UTILIZED.toString(),
+								TransferErrorCode.DEAL_NUMBER_TOTALLY_UTILIZED.getErrorMessage(),
+								TransferErrorCode.DEAL_NUMBER_TOTALLY_UTILIZED.getErrorMessage());
+						GenericExceptionHandler.handleError(TransferErrorCode.DEAL_NUMBER_TOTALLY_UTILIZED,
+								TransferErrorCode.DEAL_NUMBER_TOTALLY_UTILIZED.getErrorMessage(),
+								TransferErrorCode.DEAL_NUMBER_TOTALLY_UTILIZED.getErrorMessage());
+			        }
+			        
+			        if (availableDealAmount.compareTo(request.getAmount()) < 0) {
 						log.info("Deal Validation failed");
 						auditEventPublisher.publishFailureEvent(FundTransferEventType.DEAL_VALIDATION, metadata,
 								CommonConstants.DEAL_VALIDATION,
