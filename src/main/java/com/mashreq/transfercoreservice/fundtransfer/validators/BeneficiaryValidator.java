@@ -28,6 +28,7 @@ import static org.springframework.web.util.HtmlUtils.htmlEscape;
 public class BeneficiaryValidator implements Validator {
 
     private static final String QUICK_REMIT = "quick-remit";
+    private static final String INFT = "INFT";
     private final AsyncUserEventPublisher auditEventPublisher;
 
 
@@ -52,7 +53,7 @@ public class BeneficiaryValidator implements Validator {
                     .build();
         }
 
-        if (QUICK_REMIT.equals(request.getServiceType())) {
+        if (QUICK_REMIT.equals(request.getServiceType()) || INFT.equals(request.getServiceType())) {
             return validateBeneficiaryStatus(Arrays.asList(ACTIVE.name(), IN_COOLING_PERIOD.name()),
                     beneficiaryDto.getStatus(), BENE_NOT_ACTIVE_OR_COOLING,metadata);
         }
