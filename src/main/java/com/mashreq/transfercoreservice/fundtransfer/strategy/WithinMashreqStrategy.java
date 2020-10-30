@@ -86,7 +86,6 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         validationContext.add("account-details", accountsFromCore);
         validationContext.add("validate-from-account", Boolean.TRUE);
         responseHandler(accountBelongsToCifValidator.validate(request, metadata, validationContext));
-
         Optional<AccountDetailsDTO> fromAccountOpt = accountsFromCore.stream()
                 .filter(x -> request.getFromAccount().equals(x.getNumber()))
                 .findFirst();
@@ -99,7 +98,6 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         validationContext.add("beneficiary-dto", beneficiaryDto);
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
         responseHandler(currencyValidator.validate(request, metadata, validationContext));
-
         final BigDecimal transferAmountInSrcCurrency = isCurrencySame(request)
                 ? request.getAmount()
                 : getAmountInSrcCurrency(request, beneficiaryDto, fromAccountOpt.get());
@@ -208,7 +206,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
                 .sourceCurrency(sourceAccount.getCurrency())
                 .sourceBranchCode(sourceAccount.getBranchCode())
                 .beneficiaryFullName(beneficiaryDto.getFullName())
-                .destinationCurrency(request.getTxnCurrency())
+                .destinationCurrency(beneficiaryDto.getBeneficiaryCurrency())
                 .transactionCode(WITHIN_MASHREQ_TRANSACTION_CODE)
                 .internalAccFlag(INTERNAL_ACCOUNT_FLAG)
                 .dealNumber(request.getDealNumber())
