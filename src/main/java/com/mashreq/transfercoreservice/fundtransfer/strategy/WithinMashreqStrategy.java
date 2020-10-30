@@ -99,7 +99,6 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         validationContext.add("beneficiary-dto", beneficiaryDto);
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
         responseHandler(currencyValidator.validate(request, metadata, validationContext));
-
         final BigDecimal transferAmountInSrcCurrency = isCurrencySame(request)
                 ? request.getAmount()
                 : getAmountInSrcCurrency(request, beneficiaryDto, fromAccountOpt.get());
@@ -208,7 +207,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
                 .sourceCurrency(sourceAccount.getCurrency())
                 .sourceBranchCode(sourceAccount.getBranchCode())
                 .beneficiaryFullName(beneficiaryDto.getFullName())
-                .destinationCurrency(destinationAccount.getCurrency())
+                .destinationCurrency(destinationAccount!=null && StringUtils.isNotBlank(destinationAccount.getCurrency())?destinationAccount.getCurrency():beneficiaryDto.getBeneficiaryCurrency())
                 .transactionCode(WITHIN_MASHREQ_TRANSACTION_CODE)
                 .internalAccFlag(INTERNAL_ACCOUNT_FLAG)
                 .dealNumber(request.getDealNumber())
