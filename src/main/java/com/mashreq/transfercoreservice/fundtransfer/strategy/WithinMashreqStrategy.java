@@ -86,7 +86,6 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         validationContext.add("account-details", accountsFromCore);
         validationContext.add("validate-from-account", Boolean.TRUE);
         responseHandler(accountBelongsToCifValidator.validate(request, metadata, validationContext));
-        final AccountDetailsDTO toAccount = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getToAccount());
         Optional<AccountDetailsDTO> fromAccountOpt = accountsFromCore.stream()
                 .filter(x -> request.getFromAccount().equals(x.getNumber()))
                 .findFirst();
@@ -134,7 +133,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         log.info("Total time taken for {} strategy {} milli seconds ", htmlEscape(request.getServiceType()), htmlEscape(Long.toString(between(start, now()).toMillis())));
 
 
-        final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountOpt.get(), toAccount, beneficiaryDto, validationResult);
+        final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountOpt.get(), beneficiaryDto, validationResult);
         final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata, txnRefNo);
         if(isSuccessOrProcessing(fundTransferResponse)) {
         	final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getTxnCurrency(),request.getAmount());
@@ -196,7 +195,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         return currencyConversionDto.getTransactionAmount();
     }
     private FundTransferRequest prepareFundTransferRequestPayload(RequestMetaData metadata, FundTransferRequestDTO request,
-                                                                  AccountDetailsDTO sourceAccount, AccountDetailsDTO destinationAccount, BeneficiaryDto beneficiaryDto, LimitValidatorResponse validationResult) {
+                                                                  AccountDetailsDTO sourceAccount, BeneficiaryDto beneficiaryDto, LimitValidatorResponse validationResult) {
         return FundTransferRequest.builder()
                 .amount(request.getAmount())
                 .channel(metadata.getChannel())
@@ -207,7 +206,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
                 .sourceCurrency(sourceAccount.getCurrency())
                 .sourceBranchCode(sourceAccount.getBranchCode())
                 .beneficiaryFullName(beneficiaryDto.getFullName())
-                .destinationCurrency(destinationAccount!=null && StringUtils.isNotBlank(destinationAccount.getCurrency())?destinationAccount.getCurrency():beneficiaryDto.getBeneficiaryCurrency())
+                .destinationCurrency(beneficiaryDto.getBeneficiaryCurrency())
                 .transactionCode(WITHIN_MASHREQ_TRANSACTION_CODE)
                 .internalAccFlag(INTERNAL_ACCOUNT_FLAG)
                 .dealNumber(request.getDealNumber())
