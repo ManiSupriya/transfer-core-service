@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.swifttracker.service.impl;
 
+import static com.mashreq.transfercoreservice.middleware.SoapWebserviceClientFactory.soapClient;
 import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 import java.time.LocalDate;
@@ -8,14 +9,17 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.mashreq.esbcore.bindings.account.mbcdm.FundTransferReqType;
+import com.mashreq.esbcore.bindings.account.mbcdm.FundTransferResType;
 import com.mashreq.esbcore.bindings.account.mbcdm.GPITransactionsDetailsReqType;
 import com.mashreq.esbcore.bindings.account.mbcdm.GPITransactionsDetailsType;
 import com.mashreq.esbcore.bindings.accountservices.mbcdm.gpitransactionsdetails.EAIServices;
+import com.mashreq.esbcore.bindings.header.mbcdm.ErrorType;
 import com.mashreq.esbcore.bindings.header.mbcdm.HeaderType;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.middleware.HeaderFactory;
+import com.mashreq.transfercoreservice.middleware.SoapClient;
 import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
-import com.mashreq.transfercoreservice.middleware.WebServiceClient;
 import com.mashreq.transfercoreservice.swifttracker.dto.GPITransactionsDetailsRes;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
@@ -27,14 +31,21 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class SwiftMessageMWService {
 	
-	private final WebServiceClient webServiceClient;
 	private final HeaderFactory headerFactory;
 	private final SoapServiceProperties soapServiceProperties;
 
 	public Response<Object> getSwiftMessageDetails(RequestMetaData metaData, String startDate, String endDate){
 		log.info("GPI Transaction Details call initiated [ {} ]", htmlEscape(metaData.getPrimaryCif()));
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        EAIServices response = (EAIServices) webServiceClient.exchange(generateSwiftMessageEaiServices(metaData));
+		 SoapClient soapClient = soapClient(soapServiceProperties,
+	                new Class[]{
+	                        HeaderType.class ,
+	                        EAIServices.class,
+	                        FundTransferReqType.class,
+	                        FundTransferResType.class,
+	                        ErrorType.class,
+	                });
+        EAIServices response = (EAIServices) soapClient.exchange(generateSwiftMessageEaiServices(metaData));
 		return Response.builder()
                 .status(ResponseStatus.SUCCESS)
                 .data(response.getBody().getGPITransactionsDetailsRes().getGPITransactionsDetails()

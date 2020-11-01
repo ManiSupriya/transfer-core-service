@@ -231,7 +231,7 @@ public class FundTransferServiceDefault implements FundTransferService {
                 .versionUuid(versionUuid)
                 .createdBy(String.valueOf(userDTO.getUserId()))
                 .transactionRefNo(transactionRefNo)
-                .beneId(benId)
+                .beneficiaryId(benId)
                 .build();
 
     }

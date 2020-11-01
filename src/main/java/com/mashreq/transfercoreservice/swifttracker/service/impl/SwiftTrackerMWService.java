@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.swifttracker.service.impl;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.NOT_ABLE_TO_FETCH_GPI_TRACKER;
+import static com.mashreq.transfercoreservice.middleware.SoapWebserviceClientFactory.soapClient;
 import static com.mashreq.transfercoreservice.swifttracker.commonconstants.SwiftTransferConstants.CRDT_STATUS;
 import static com.mashreq.transfercoreservice.swifttracker.commonconstants.SwiftTransferConstants.CREDITED;
 import static com.mashreq.transfercoreservice.swifttracker.commonconstants.SwiftTransferConstants.PNDG_STATUS;
@@ -33,16 +34,19 @@ import org.apache.commons.lang.StringUtils;
  */
 import org.springframework.stereotype.Service;
 
+import com.mashreq.esbcore.bindings.account.mbcdm.FundTransferReqType;
+import com.mashreq.esbcore.bindings.account.mbcdm.FundTransferResType;
 import com.mashreq.esbcore.bindings.account.mbcdm.SWIFTGPITransactionDetailsReqType;
 import com.mashreq.esbcore.bindings.account.mbcdm.SWIFTGPITransactionDetailsResType;
 import com.mashreq.esbcore.bindings.account.mbcdm.TransactionStatusType;
 import com.mashreq.esbcore.bindings.accountservices.mbcdm.swiftgpitransactiondetails.EAIServices;
+import com.mashreq.esbcore.bindings.header.mbcdm.ErrorType;
 import com.mashreq.esbcore.bindings.header.mbcdm.HeaderType;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.middleware.HeaderFactory;
+import com.mashreq.transfercoreservice.middleware.SoapClient;
 import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
-import com.mashreq.transfercoreservice.middleware.WebServiceClient;
 import com.mashreq.transfercoreservice.swifttracker.dto.ForeignExchangeDetails;
 import com.mashreq.transfercoreservice.swifttracker.dto.PaymentEventDetailsType;
 import com.mashreq.transfercoreservice.swifttracker.dto.SWIFTGPITransactionDetailsReq;
@@ -56,7 +60,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class SwiftTrackerMWService {
 	
-	private final WebServiceClient webServiceClient;
 	private final HeaderFactory headerFactory;
 	private final SoapServiceProperties soapServiceProperties;
     private static final String SUCCESS = "S";
@@ -65,8 +68,15 @@ public class SwiftTrackerMWService {
 	public SWIFTGPITransactionDetailsRes swiftGPITransactionDetails(
 			SWIFTGPITransactionDetailsReq swiftGpiTransactionDetailsReq, RequestMetaData metaData) {
 		log.info("Swift GPI Transaction Details call initiated [ {} ]", swiftGpiTransactionDetailsReq);
-
-		EAIServices response = (EAIServices) webServiceClient
+		SoapClient soapClient = soapClient(soapServiceProperties,
+                new Class[]{
+                        HeaderType.class ,
+                        EAIServices.class,
+                        FundTransferReqType.class,
+                        FundTransferResType.class,
+                        ErrorType.class,
+                });
+		EAIServices response = (EAIServices) soapClient
 				.exchange(generateSwiftTrackerEaiServices(swiftGpiTransactionDetailsReq, metaData));
 
 		if (!(StringUtils.endsWith(response.getBody().getExceptionDetails().getErrorCode(), SUCCESS_CODE_ENDS_WITH)
