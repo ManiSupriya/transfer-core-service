@@ -207,7 +207,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .beneficiaryFullName(beneficiaryDto.getFullName())
                 .destinationCurrency(request.getTxnCurrency())
                 .beneficiaryAddressOne(beneficiaryDto.getAddressLine1())
-                .beneficiaryAddressTwo(beneficiaryDto.getAddressLine2())
+                .beneficiaryAddressTwo(StringUtils.isBlank(beneficiaryDto.getAddressLine2())?beneficiaryDto.getBankCountry():beneficiaryDto.getAddressLine2())
                 .beneficiaryAddressThree(beneficiaryDto.getAddressLine3())
                 .transactionCode("15")
                 .dealNumber(request.getDealNumber())
