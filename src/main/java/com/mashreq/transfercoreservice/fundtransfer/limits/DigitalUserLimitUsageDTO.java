@@ -17,4 +17,5 @@ public class DigitalUserLimitUsageDTO {
     private String versionUuid;
     private String createdBy;
     private String transactionRefNo;
+    private Long beneId;
 }

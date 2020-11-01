@@ -170,8 +170,9 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
 
         //Limit Validation
+        Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
         final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), fromAccountDetails, transferAmountInSrcCurrency);
-        final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metadata, null);
+        final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metadata, bendId);
         String txnRefNo = validationResult.getTransactionRefNo();
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountDetails.getCurrency(), fromAccountDetails.getBranchCode(), beneficiaryDto, validationResult);
         log.info("Local Fund transfer initiated.......");

@@ -136,8 +136,9 @@ public class FundTransferServiceDefault implements FundTransferService {
 
 
         if (isSuccessOrProcessing(response)) {
+        	Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
             DigitalUserLimitUsageDTO digitalUserLimitUsageDTO = generateUserLimitUsage(
-                    request.getServiceType(), response.getLimitUsageAmount(), userDTO, metadata, response.getLimitVersionUuid(),response.getTransactionRefNo());
+                    request.getServiceType(), response.getLimitUsageAmount(), userDTO, metadata, response.getLimitVersionUuid(),response.getTransactionRefNo(), bendId );
             log.info("Inserting into limits table {} ", digitalUserLimitUsageDTO);
             digitalUserLimitUsageService.insert(digitalUserLimitUsageDTO);
         }
@@ -220,7 +221,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     }
 
     private DigitalUserLimitUsageDTO generateUserLimitUsage(String serviceType, BigDecimal usageAmount, UserDTO userDTO,
-                                                            RequestMetaData fundTransferMetadata, String versionUuid,String transactionRefNo) {
+                                                            RequestMetaData fundTransferMetadata, String versionUuid,String transactionRefNo, Long benId) {
         return DigitalUserLimitUsageDTO.builder()
                 .digitalUserId(userDTO.getUserId())
                 .cif(fundTransferMetadata.getPrimaryCif())
@@ -230,6 +231,7 @@ public class FundTransferServiceDefault implements FundTransferService {
                 .versionUuid(versionUuid)
                 .createdBy(String.valueOf(userDTO.getUserId()))
                 .transactionRefNo(transactionRefNo)
+                .beneId(benId)
                 .build();
 
     }
