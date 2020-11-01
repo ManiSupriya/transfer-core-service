@@ -48,4 +48,5 @@ public class 	DigitalUserLimitUsage {
 	private String versionUuid;
 
 	private String transactionRefNo;
+	private Long beneficiaryId;
 }
