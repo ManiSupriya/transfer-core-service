@@ -88,8 +88,8 @@ public class SwiftTrackerMWService {
 
 		return SWIFTGPITransactionDetailsRes.builder().initiationTime(responseDTO.getInitiationTime())
 				.totalProcessingTime(computeDiff(responseDTO.getInitiationTime(), responseDTO.getLastUpdateTime()))
-				.completionTime(computeDiff(responseDTO.getPaymentEventDetails().get(1).getSenderAckReceipt(),
-						responseDTO.getPaymentEventDetails().get(0).getSenderAckReceipt()))
+				.completionTime(responseDTO.getPaymentEventDetails().size()>1?computeDiff(responseDTO.getPaymentEventDetails().get(1).getSenderAckReceipt(),
+						responseDTO.getPaymentEventDetails().get(0).getSenderAckReceipt()):computeDiff(responseDTO.getInitiationTime(), responseDTO.getLastUpdateTime()))
 				.lastUpdateTime(responseDTO.getLastUpdateTime())
 				.paymentEventDetails(convertToPaymentEventDetails(responseDTO.getPaymentEventDetails()))
 				.transactionStatus(setTransactionStatus(responseDTO.getTransactionStatus())).build();
