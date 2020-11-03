@@ -104,7 +104,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
                     getExchangeObjectForSrcAmount(transactionAmount,toAccount,fromAccount);
 
 
-        final BigDecimal transferAmountInSrcCurrency = request.getAmount()!=null && !request.getCurrency().equalsIgnoreCase(request.getTxnCurrency())
+        final BigDecimal transferAmountInSrcCurrency = request.getAmount()!=null && !isCurrencySame(toAccount, fromAccount)
             ? conversionResult.getAccountCurrencyAmount()
             : transactionAmount;
             
