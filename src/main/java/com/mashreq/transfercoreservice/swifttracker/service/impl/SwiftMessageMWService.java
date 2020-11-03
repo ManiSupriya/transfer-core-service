@@ -79,7 +79,7 @@ public class SwiftMessageMWService {
 	                .creditAccount(gpiTransactionsDetailsResType.getCreditAccount())
 	                .creditAccountBranch(gpiTransactionsDetailsResType.getCreditAccountBranch())
 	                .creditAccountCcy(gpiTransactionsDetailsResType.getCreditAccountCcy())
-	                .creditAmount(gpiTransactionsDetailsResType.getCreditAccount())
+	                .creditAmount(gpiTransactionsDetailsResType.getCreditAmount())
 	                .transactionRefNo(gpiTransactionsDetailsResType.getTransactionRefNo())
 	            	.uetr(gpiTransactionsDetailsResType.getUETR())
 	            	.ultBeneficiary1(gpiTransactionsDetailsResType.getUltBeneficiary1())
