@@ -101,10 +101,11 @@ public class CharityStrategyDefault implements FundTransferStrategy {
         //responseHandler(balanceValidator.validate(request, metadata,validateContext));
 
         // Assuming to account is always in AED
+        Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
 
         log.info("Limit Validation start.");
         BigDecimal limitUsageAmount = request.getAmount();
-        final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metadata,null);
+        final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metadata, bendId);
         log.info("Limit Validation successful");
         String txnRefNo = validationResult.getTransactionRefNo();
 

@@ -137,7 +137,8 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         if(goldSilverTransfer(request)){
             limitValidator.validateMin(userDTO, request.getServiceType(), transactionAmount, metadata);
         }
-        final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metadata,null);
+        Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
+        final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metadata, bendId);
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccount, toAccount,conversionResult.getExchangeRate(),validationResult);
 
         fundTransferRequest.setProductId(isMT5AccountProdID(fundTransferRequest));

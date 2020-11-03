@@ -155,8 +155,8 @@ public class FundTransferMWService {
         creditLeg.setBenName(request.getBeneficiaryFullName());
         creditLeg.setAWInstName(request.getAwInstName());
         creditLeg.setAWInstBICCode(request.getAwInstBICCode());
-        creditLeg.setBenAddr1(StringUtils.isBlank(request.getBeneficiaryAddressOne())?request.getToAccount():request.getBeneficiaryAddressOne());
-        creditLeg.setBenAddr2(StringUtils.isBlank(request.getBeneficiaryAddressTwo())?request.getDestinationCurrency():request.getBeneficiaryAddressTwo());
+        creditLeg.setBenAddr1(request.getBeneficiaryAddressOne());
+        creditLeg.setBenAddr2(request.getBeneficiaryAddressTwo());
         creditLeg.setBenAddr3(request.getBeneficiaryAddressThree());
         creditLeg.setAWInstAddr2(request.getBeneficiaryAddressTwo());
 
