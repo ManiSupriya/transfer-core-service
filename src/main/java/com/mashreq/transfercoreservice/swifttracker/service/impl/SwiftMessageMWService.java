@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.esbcore.bindings.account.mbcdm.FundTransferReqType;
@@ -82,7 +83,7 @@ public class SwiftMessageMWService {
 	                .creditAmount(gpiTransactionsDetailsResType.getCreditAmount())
 	                .transactionRefNo(gpiTransactionsDetailsResType.getTransactionRefNo())
 	            	.uetr(gpiTransactionsDetailsResType.getUETR())
-	            	.ultBeneficiary1(gpiTransactionsDetailsResType.getUltBeneficiary1())
+	            	.ultBeneficiary1(StringUtils.isNotBlank(gpiTransactionsDetailsResType.getUltBeneficiary1()) && gpiTransactionsDetailsResType.getUltBeneficiary1().charAt(0) == '/' ? gpiTransactionsDetailsResType.getUltBeneficiary1().substring(1): gpiTransactionsDetailsResType.getUltBeneficiary1())
 	            	.ultBeneficiary2(gpiTransactionsDetailsResType.getUltBeneficiary2())
 	            	.debitAccount(gpiTransactionsDetailsResType.getDebitAccount())
 	            	.debitAccountBranch(gpiTransactionsDetailsResType.getDebitAccountBranch())
