@@ -39,7 +39,7 @@ public enum TransferErrorCode implements ErrorCode {
     DEAL_NUMBER_TOTALLY_UTILIZED("TN-1026", "The deal number completely utilized"),
     TRNS_CORE_400("TRNS-CORE-400", "Please validate your request body"),
     TRNS_CORE_406("TRNS-CORE-406", "Request parameter is missing"),
-    TXN_CURRENCY_INVALID("TN-1027", "Deal Validation"),
+    TXN_CURRENCY_INVALID("TN-1027", "Not a valid transfer currency"),
 
     INVALID_BEN_CODE("LM-1106","Invalid ben code"),
 
