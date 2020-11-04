@@ -143,6 +143,7 @@ public class LimitValidator {
         log.info("[LimitValidator] limit validator called cif ={} and beneficiaryType={} and paidAmount={}",
                 htmlEscape(userDTO.getCifId()), htmlEscape(beneficiaryType), htmlEscape(paidAmount.toString()));
         LimitValidatorResponse limitValidatorResultsDto = limitCheckService.validateLimit(userDTO.getCifId(), beneficiaryType, metaData.getCountry(),metaData.getSegment(),benId,paidAmount);
+        log.info("limitValidatorResultsDto {}",limitValidatorResultsDto);
         String transactionRefNo = generateTransactionRefNo(limitValidatorResultsDto,metaData,beneficiaryType);
         limitValidatorResultsDto.setTransactionRefNo(transactionRefNo);
 
