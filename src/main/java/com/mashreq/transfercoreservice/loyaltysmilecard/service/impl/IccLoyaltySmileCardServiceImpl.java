@@ -45,6 +45,7 @@ public class IccLoyaltySmileCardServiceImpl implements IccLoyaltySmileCardServic
 	private final CardService cardService;
 	private final AsyncUserEventPublisher asyncUserEventPublisher;
 	private final EncryptionService encryptionService = new EncryptionService();
+	private static final String MD5_STRING = "MD5";
 	@Override
 	public Response<Object> generateRedeemIDforSmileCard(String cifId, String userCacheKey) {
 		String sessionId = getMd5(cifId+LocalDateTime.now().toString());
@@ -112,7 +113,7 @@ public class IccLoyaltySmileCardServiceImpl implements IccLoyaltySmileCardServic
 	public static String getMd5(String input) 
 	{
 		try {
-			MessageDigest md = MessageDigest.getInstance("MD5");
+			MessageDigest md = MessageDigest.getInstance(MD5_STRING);
 			byte[] messageDigest = md.digest(input.getBytes());
 			BigInteger no = new BigInteger(1, messageDigest);
 			String hashtext = no.toString(16);

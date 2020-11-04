@@ -146,7 +146,7 @@ public class FundTransferServiceDefault implements FundTransferService {
         // Insert payment history irrespective of mw payment fails or success
         TransactionHistory transactionHistory = generateTransactionHistory(request, response, userDTO, metadata);
 
-        log.info("Inserting into Payments History table {} ", transactionHistory);
+        log.info("Inserting into Payments History table {} ", htmlEscape(transactionHistory.getTransactionRefNo()));
         transactionRepository.save(transactionHistory);
 
         log.info("Total time taken for {} Fund Transfer {} milli seconds ", htmlEscape(request.getServiceType()), htmlEscape(Long.toString(between(start, now()).toMillis())));

@@ -32,6 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -299,7 +300,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         if(qrDealDetails == null){
             logAndThrow(FundTransferEventType.FUND_TRANSFER_CC_CALL, TransferErrorCode.FT_CC_NO_DEALS, requestMetaData);
         }
-        log.info("Fund transfer CC QR Deals verified "+cif);
+        log.info("Fund transfer CC QR Deals verified {}", htmlEscape(cif));
         BigDecimal maximumEligibleAmount = qrDealDetails.getTotalLimitAmount();
         BigDecimal utilizedAmount = qrDealDetails.getUtilizedLimitAmount();
         if(utilizedAmount == null){
@@ -311,11 +312,11 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         if(result == -1){
             logAndThrow(FundTransferEventType.FUND_TRANSFER_CC_CALL, TransferErrorCode.FT_CC_BALANCE_NOT_SUFFICIENT, requestMetaData);
         }
-        log.info("Fund transfer CC Available Balance is verified "+cif);
+        log.info("Fund transfer CC Available Balance is verified {}", htmlEscape(cif));
         fundTransferRequest = prepareFundTransferRequestPayload(requestMetaData, requestDTO, cardDetailsDTO.getCurrency(),
                 cardDetailsDTO.getSegment(), beneficiaryDto, validationResult);
         updateFundTransferRequest(beneficiaryDto, fundTransferRequest, requestDTO, cardDetailsDTO);
-        log.info("Fund transfer CC calling MW "+cif);
+        log.info("Fund transfer CC calling MW {}", htmlEscape(cif));
         fundTransferResponse = fundTransferCCMWService.transfer(fundTransferRequest, requestMetaData);
 
         // Only if MW request is success, then update the utilized amount
@@ -323,7 +324,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         if(isSuccessOrProcessing(fundTransferResponse)){
             utilizedAmount = utilizedAmount.add(requestedAmount);
             qrDealsService.updateQRDeals(cif, utilizedAmount);
-            log.info("Fund transfer CC updated QR deals utilized amount " + cif);
+            log.info("Fund transfer CC updated QR deals utilized amount {}", htmlEscape(cif));
             fundTransferRequest.setSourceOfFund(SOURCE_OF_FUND_CC);
             fundTransferRequest.setTransferType(getTransferType(fundTransferRequest.getTxnCurrency()));
             fundTransferRequest.setNotificationType(OTHER_ACCOUNT_TRANSACTION);

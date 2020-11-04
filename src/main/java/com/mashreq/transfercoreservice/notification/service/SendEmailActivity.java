@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import static org.springframework.web.util.HtmlUtils.htmlEscape;
 
 import java.io.IOException;
 
@@ -23,7 +24,7 @@ public class SendEmailActivity implements PostTransactionActivity<SendEmailReque
         if (payload.isEmailPresent()) {
             final EmailRequest emailRequest = emailService.prepareEmailRequest(payload);
             emailService.sendMessage(emailRequest);
-            log.info("[SendEmailActivity] - Email sent to the customer on following emailAddress: {}", payload.getToEmailAddress());
+            log.info("[SendEmailActivity] - Email sent to the customer on following emailAddress: {}", htmlEscape(payload.getToEmailAddress()));
         }
 
     }
