@@ -91,6 +91,17 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         final AccountDetailsDTO toAccount = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getToAccount());
         final AccountDetailsDTO fromAccount = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
 
+        if(!request.getTxnCurrency().equalsIgnoreCase(toAccount.getCurrency())){
+            auditEventPublisher.publishFailedEsbEvent(FundTransferEventType.CURRENCY_VALIDATION, metadata,
+                    CommonConstants.FUND_TRANSFER, metadata.getChannelTraceId(),
+                    TransferErrorCode.TXN_CURRENCY_INVALID.toString(),
+                    TransferErrorCode.TXN_CURRENCY_INVALID.getErrorMessage(),
+                    TransferErrorCode.TXN_CURRENCY_INVALID.getErrorMessage());
+            GenericExceptionHandler.handleError(TransferErrorCode.TXN_CURRENCY_INVALID,
+                    TransferErrorCode.TXN_CURRENCY_INVALID.getErrorMessage(),
+                    TransferErrorCode.TXN_CURRENCY_INVALID.getErrorMessage());
+        }
+
         validateAccountContext.add("from-account", fromAccount);
         validateAccountContext.add("to-account", toAccount);
         validateAccountContext.add("to-account-currency", toAccount.getCurrency());
@@ -137,7 +148,8 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         if(goldSilverTransfer(request)){
             limitValidator.validateMin(userDTO, request.getServiceType(), transactionAmount, metadata);
         }
-        final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metadata,null);
+        Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
+        final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metadata, bendId);
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccount, toAccount,conversionResult.getExchangeRate(),validationResult);
 
         fundTransferRequest.setProductId(isMT5AccountProdID(fundTransferRequest));

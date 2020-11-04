@@ -39,6 +39,7 @@ public enum TransferErrorCode implements ErrorCode {
     DEAL_NUMBER_TOTALLY_UTILIZED("TN-1026", "The deal number completely utilized"),
     TRNS_CORE_400("TRNS-CORE-400", "Please validate your request body"),
     TRNS_CORE_406("TRNS-CORE-406", "Request parameter is missing"),
+    TXN_CURRENCY_INVALID("TN-1027", "Not a valid transfer currency"),
 
     INVALID_BEN_CODE("LM-1106","Invalid ben code"),
 
@@ -96,6 +97,8 @@ public enum TransferErrorCode implements ErrorCode {
     FUND_TRANSFER_PROCESSING("TN-5004", "Fund transfer is in processing"),
     TRANSFER_AMOUNT_IN_NAGATIVE("TN-5006", "Transfer amount will be in negative"),
     FUND_TRANSFER_FREEZED("TN-5007", "Transfer Failed You cannot transfer funds from this account due to restrictions"),
+    ULTIMATE_BENEFICIARY_IBAN_NOT_VALID("TN-5008", "IBAN Check Digit validation failed,Ultimate Beneficiary IBAN is not valid"),
+    EXACHANGE_RATE_AMOUNT_NOT_EQUATE("TN-5009", "Exchange rate Debit/Credit Amount does not equate"),
 
 
     FLEX_RULE_ENGINE_FAILED("TN-6000", "Flex Rule Engine Failed"),
