@@ -91,6 +91,17 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         final AccountDetailsDTO toAccount = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getToAccount());
         final AccountDetailsDTO fromAccount = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
 
+        if(!request.getTxnCurrency().equalsIgnoreCase(toAccount.getCurrency())){
+            auditEventPublisher.publishFailedEsbEvent(FundTransferEventType.CURRENCY_VALIDATION, metadata,
+                    CommonConstants.FUND_TRANSFER, metadata.getChannelTraceId(),
+                    TransferErrorCode.TXN_CURRENCY_INVALID.toString(),
+                    TransferErrorCode.TXN_CURRENCY_INVALID.getErrorMessage(),
+                    TransferErrorCode.TXN_CURRENCY_INVALID.getErrorMessage());
+            GenericExceptionHandler.handleError(TransferErrorCode.TXN_CURRENCY_INVALID,
+                    TransferErrorCode.TXN_CURRENCY_INVALID.getErrorMessage(),
+                    TransferErrorCode.TXN_CURRENCY_INVALID.getErrorMessage());
+        }
+
         validateAccountContext.add("from-account", fromAccount);
         validateAccountContext.add("to-account", toAccount);
         validateAccountContext.add("to-account-currency", toAccount.getCurrency());
