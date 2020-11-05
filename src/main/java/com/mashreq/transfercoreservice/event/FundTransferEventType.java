@@ -36,6 +36,7 @@ public enum FundTransferEventType implements EventType {
 
     CHARITY_ACCOUNT_VALIDATION("FUND_TRANSFER", "Charity Account Validation"),
     ACCOUNT_BELONGS_TO_CIF("FUND_TRANSFER", "Account belongs to cif"),
+    ACCOUNT_IS_DORMENT("FUND_TRANSFER", "Account is dorment"),
     BALANCE_VALIDATION("FUND_TRANSFER", "Balance Validation"),
     DEAL_VALIDATION("FUND_TRANSFER", "Deal Validation"),
     BENEFICIARY_VALIDATION("FUND_TRANSFER", "Beneficiary validation"),
