@@ -73,6 +73,7 @@ public enum TransferErrorCode implements ErrorCode {
 
 
     ACCOUNT_NOT_BELONG_TO_CIF("TN-4200", "Account does not belong to CIF"),
+    ACCOUNT_IS_IN_DORMENT("TN-4203", "Account is dormant"),
     ACCOUNT_CURRENCY_MISMATCH("TN-4201", "Account currency does not match with given currency"),
     CURRENCY_IS_INVALID("TN-4202", "Currency does not match"),
     ACCOUNT_NOT_FOUND("TN-4003", "Account not found"),
