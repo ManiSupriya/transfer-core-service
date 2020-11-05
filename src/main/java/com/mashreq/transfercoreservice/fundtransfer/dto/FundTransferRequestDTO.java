@@ -49,6 +49,7 @@ public class FundTransferRequestDTO {
     @ValueOfEnum(enumClass = ChargeBearer.class, message = "Not a valid charge bearer", isRequired = false)
     private String chargeBearer;
 
+    @Pattern(regexp = "^[a-zA-Z0-9-]+",message="Not a valid transaction number")
     private String dealNumber;
 
     @NotBlank(message = "Financial Transaction Number cannot be empty")
