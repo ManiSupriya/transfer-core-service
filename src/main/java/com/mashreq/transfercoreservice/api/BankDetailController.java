@@ -1,7 +1,7 @@
 package com.mashreq.transfercoreservice.api;
 
 
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 import javax.validation.Valid;
 

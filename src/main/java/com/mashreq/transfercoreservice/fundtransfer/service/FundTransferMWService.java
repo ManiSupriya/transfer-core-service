@@ -27,7 +27,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static com.mashreq.transfercoreservice.middleware.SoapWebserviceClientFactory.soapClient;
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 
 @Slf4j

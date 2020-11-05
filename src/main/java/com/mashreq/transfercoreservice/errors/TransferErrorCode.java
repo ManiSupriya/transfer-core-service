@@ -40,6 +40,7 @@ public enum TransferErrorCode implements ErrorCode {
     TRNS_CORE_400("TRNS-CORE-400", "Please validate your request body"),
     TRNS_CORE_406("TRNS-CORE-406", "Request parameter is missing"),
     TXN_CURRENCY_INVALID("TN-1027", "Not a valid transfer currency"),
+    REFERENCE_NO_INVALID("TN-1028", "Not a valid Reference Number for the account"),
 
     INVALID_BEN_CODE("LM-1106","Invalid ben code"),
 

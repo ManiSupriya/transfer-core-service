@@ -21,7 +21,7 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
 import static com.mashreq.transfercoreservice.event.FundTransferEventType.LIMIT_VALIDATION;
 import static com.mashreq.transfercoreservice.event.FundTransferEventType.MIN_LIMIT_VALIDATION;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.getCodeByType;
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 @Slf4j
 @Service
@@ -37,7 +37,7 @@ public class LimitValidator {
      */
     public LimitValidatorResultsDto validate(final UserDTO userDTO, final String beneficiaryType, final BigDecimal paidAmount, final RequestMetaData metaData) {
         log.info("[LimitValidator] limit validator called cif ={} and beneficiaryType={} and paidAmount={}",
-                htmlEscape(userDTO.getCifId()), htmlEscape(beneficiaryType), htmlEscape(paidAmount.toString()));
+                htmlEscape(userDTO.getCifId()), htmlEscape(beneficiaryType), htmlEscape(paidAmount));
         LimitValidatorResultsDto limitValidatorResultsDto =
                 mobCommonService.validateAvailableLimit(userDTO.getCifId(), beneficiaryType, paidAmount);
 
@@ -96,7 +96,7 @@ public class LimitValidator {
 
     public void validateMin(UserDTO userDTO, final String beneficiaryType, BigDecimal limitUsageAmount, RequestMetaData metadata) {
         log.info("[LimitValidator] Min limit validator called cif ={} and beneficiaryType={} and paidAmount={}",
-                htmlEscape(userDTO.getCifId()), htmlEscape(beneficiaryType), htmlEscape(limitUsageAmount.toString()));
+                htmlEscape(userDTO.getCifId()), htmlEscape(beneficiaryType), htmlEscape(limitUsageAmount));
         ServiceType serviceType = getServiceType(beneficiaryType);
         BigDecimal minAmount = getMinAmount(serviceType.getMinAmount());
         String remarks = getRemarks(minAmount,userDTO.getCifId(),limitUsageAmount,beneficiaryType,LimitCheckType.MIN_AMOUNT.name());
@@ -140,8 +140,8 @@ public class LimitValidator {
     }
 
     public LimitValidatorResponse validateWithProc(final UserDTO userDTO, final String beneficiaryType, final BigDecimal paidAmount, final RequestMetaData metaData,Long benId) {
-        log.info("[LimitValidator] limit validator called cif ={} and beneficiaryType={} and paidAmount={}",
-                htmlEscape(userDTO.getCifId()), htmlEscape(beneficiaryType), htmlEscape(paidAmount.toString()));
+        log.info("[LimitValidator] limit validator called cif ={} and beneficiaryType={} and paidAmount={} and countryId {} and segmentId {}",
+                htmlEscape(userDTO.getCifId()), htmlEscape(beneficiaryType), htmlEscape(paidAmount), htmlEscape(metaData.getCountry()), htmlEscape(metaData.getSegment()));
         LimitValidatorResponse limitValidatorResultsDto = limitCheckService.validateLimit(userDTO.getCifId(), beneficiaryType, metaData.getCountry(),metaData.getSegment(),benId,paidAmount);
         log.info("limitValidatorResultsDto {}",limitValidatorResultsDto);
         String transactionRefNo = generateTransactionRefNo(limitValidatorResultsDto,metaData,beneficiaryType);

@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 
 import static com.mashreq.transfercoreservice.middleware.SoapWebserviceClientFactory.soapClient;
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 
 /**

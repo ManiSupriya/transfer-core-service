@@ -13,7 +13,7 @@ import java.util.List;
 
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_NOT_BELONG_TO_CIF;
 import static com.mashreq.transfercoreservice.event.FundTransferEventType.ACCOUNT_BELONGS_TO_CIF;
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 /**
  * @author Thanigachalamp

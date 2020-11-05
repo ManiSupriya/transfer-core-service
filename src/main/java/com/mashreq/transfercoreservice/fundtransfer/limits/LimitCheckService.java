@@ -11,7 +11,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Service;
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 import javax.sql.DataSource;
 import java.math.BigDecimal;
@@ -37,7 +37,7 @@ public class LimitCheckService {
     public LimitValidatorResponse validateLimit(String cifId, String beneficiaryTypeCode, String country,String segment,Long beneId,BigDecimal amount) {
         LimitValidatorResponse limitValidatorResponse = null;
         try {
-        	log.info("Segment: {}, Cif: {}, BeneType: {}, country: {}, beneId: {}, amount {} ", htmlEscape(segment), htmlEscape(cifId), htmlEscape(beneficiaryTypeCode), htmlEscape(country), htmlEscape(beneId.toString()), htmlEscape(amount.toString()));
+        	log.info("Segment: {}, Cif: {}, BeneType: {}, country: {}, beneId: {}, amount {} ", htmlEscape(segment), htmlEscape(cifId), htmlEscape(beneficiaryTypeCode), htmlEscape(country), htmlEscape(beneId), htmlEscape(amount));
             JdbcTemplate template = new JdbcTemplate(dataSource);
             SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(template).withProcedureName("USP_VALIDATE_LIMIT");
             MapSqlParameterSource input = new MapSqlParameterSource();

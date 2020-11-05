@@ -4,7 +4,7 @@ import static com.mashreq.transfercoreservice.common.CommonConstants.SMILE_CARD_
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.EXPIRED_SESSION_ID;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_SESSION_ID;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.NOT_MATCHING_CARD_DETAILS;
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;

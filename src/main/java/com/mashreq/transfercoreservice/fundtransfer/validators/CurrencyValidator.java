@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_CURRENCY_MISMATCH;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.CURRENCY_IS_INVALID;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.*;
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 /**
  * @author shahbazkh

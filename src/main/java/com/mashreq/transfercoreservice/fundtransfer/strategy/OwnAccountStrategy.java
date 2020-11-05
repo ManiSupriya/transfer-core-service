@@ -35,7 +35,7 @@ import java.util.concurrent.CompletableFuture;
 
 import static java.time.Duration.between;
 import static java.time.Instant.now;
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 /**
  * @author shahbazkh
@@ -91,7 +91,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         final AccountDetailsDTO toAccount = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getToAccount());
         final AccountDetailsDTO fromAccount = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
 
-        if(!request.getTxnCurrency().equalsIgnoreCase(toAccount.getCurrency()) || !request.getTxnCurrency().equalsIgnoreCase(fromAccount.getCurrency())){
+        if(!request.getTxnCurrency().equalsIgnoreCase(toAccount.getCurrency()) && !request.getTxnCurrency().equalsIgnoreCase(fromAccount.getCurrency())){
             auditEventPublisher.publishFailedEsbEvent(FundTransferEventType.CURRENCY_VALIDATION, metadata,
                     CommonConstants.FUND_TRANSFER, metadata.getChannelTraceId(),
                     TransferErrorCode.TXN_CURRENCY_INVALID.toString(),

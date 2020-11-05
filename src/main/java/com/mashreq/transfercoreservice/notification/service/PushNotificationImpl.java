@@ -33,7 +33,7 @@ public class PushNotificationImpl {
             String message = populateMessage(customer, type);
             notificationRequest.setMessage(message);
             NotificationResponse notificationResponse = notificationClient.sendPushNotification(notificationRequest,metaData.getPrimaryCif());
-            log.info("{}, pushNotificationResponse: {}, Push notification response received.", htmlEscape(metaData), htmlEscape(notificationResponse.toString()));
+            log.info("{}, pushNotificationResponse: {}, Push notification response received.", htmlEscape(metaData), htmlEscape(notificationResponse));
             return notificationResponse != null && notificationResponse.getNotificationId()!=null && notificationResponse.getTrackingId()!=null;
         }
         return false;

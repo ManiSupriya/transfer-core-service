@@ -6,7 +6,7 @@ import static com.mashreq.transfercoreservice.swifttracker.commonconstants.Swift
 /**
  * @author SURESH PASUPULETI
  */
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 import java.util.List;
 

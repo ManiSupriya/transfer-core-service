@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.FT_CC_BALANCE_NOT_SUFFICIENT;
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 /**
  * @author Thanigachalam P
@@ -33,10 +33,10 @@ public class CCBalanceValidator implements Validator {
 
         log.info("CC Validating Balance for service type [ {} ] ", htmlEscape(request.getServiceType()));
         CardDetailsDTO fromAccount = context.get("from-account", CardDetailsDTO.class);
-        log.info("Balance in account [ {} ] ", htmlEscape(fromAccount.getAvailableCreditLimit().toString()));
+        log.info("Balance in account [ {} ] ", htmlEscape(fromAccount.getAvailableCreditLimit()));
 
         BigDecimal transferAmountInSrcCurrency = context.get("transfer-amount-in-source-currency", BigDecimal.class);
-        log.info("Amount to be credited is [ {} ] ", htmlEscape(transferAmountInSrcCurrency.toString()));
+        log.info("Amount to be credited is [ {} ] ", htmlEscape(transferAmountInSrcCurrency));
 
         if (!isBalanceAvailable(fromAccount.getAvailableCreditLimit(), transferAmountInSrcCurrency)) {
             auditEventPublisher.publishFailureEvent(FundTransferEventType.BALANCE_VALIDATION, metadata, null,
