@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BALANCE_NOT_SUFFICIENT;
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 /**
  * @author shahbazkh
@@ -35,10 +35,10 @@ public class BalanceValidator implements Validator {
 
         log.info("Validating Balance for service type [ {} ] ", htmlEscape(request.getServiceType()));
         AccountDetailsDTO fromAccount = context.get("from-account", AccountDetailsDTO.class);
-        log.info("Balance in account [ {} {} ] ", htmlEscape(fromAccount.getAvailableBalance().toString()), htmlEscape(fromAccount.getCurrency()));
+        log.info("Balance in account [ {} {} ] ", htmlEscape(fromAccount.getAvailableBalance()), htmlEscape(fromAccount.getCurrency()));
 
         BigDecimal transferAmountInSrcCurrency = context.get("transfer-amount-in-source-currency", BigDecimal.class);
-        log.info("Amount to be credited is [ {} {} ] ", htmlEscape(transferAmountInSrcCurrency.toString()), htmlEscape(fromAccount.getCurrency()));
+        log.info("Amount to be credited is [ {} {} ] ", htmlEscape(transferAmountInSrcCurrency), htmlEscape(fromAccount.getCurrency()));
 
         if (!isBalanceAvailable(fromAccount.getAvailableBalance(), transferAmountInSrcCurrency)) {
             auditEventPublisher.publishFailureEvent(FundTransferEventType.BALANCE_VALIDATION, metadata, null,
@@ -76,9 +76,9 @@ public class BalanceValidator implements Validator {
     
     public boolean validate(CardLessCashGenerationRequest cardLessCashGenerationRequest, RequestMetaData metadata, AccountDetailsDTO fromAccount) {
 
-        log.info("Balance in account [ {} {} ] ", htmlEscape(fromAccount.getAvailableBalance().toString()), htmlEscape(fromAccount.getCurrency()));
+        log.info("Balance in account [ {} {} ] ", htmlEscape(fromAccount.getAvailableBalance()), htmlEscape(fromAccount.getCurrency()));
         BigDecimal amountTobePaid = cardLessCashGenerationRequest.getAmount();
-        log.info("Amount to be credited is [ {} {} ] ", htmlEscape(amountTobePaid.toString()), htmlEscape(fromAccount.getCurrency()));
+        log.info("Amount to be credited is [ {} {} ] ", htmlEscape(amountTobePaid), htmlEscape(fromAccount.getCurrency()));
         return isBalanceAvailable(fromAccount.getAvailableBalance(), amountTobePaid);
     }
 }

@@ -36,6 +36,7 @@ public enum FundTransferEventType implements EventType {
 
     CHARITY_ACCOUNT_VALIDATION("FUND_TRANSFER", "Charity Account Validation"),
     ACCOUNT_BELONGS_TO_CIF("FUND_TRANSFER", "Account belongs to cif"),
+    ACCOUNT_IS_DORMENT("FUND_TRANSFER", "Account is dorment"),
     BALANCE_VALIDATION("FUND_TRANSFER", "Balance Validation"),
     DEAL_VALIDATION("FUND_TRANSFER", "Deal Validation"),
     BENEFICIARY_VALIDATION("FUND_TRANSFER", "Beneficiary validation"),
@@ -64,6 +65,7 @@ public enum FundTransferEventType implements EventType {
     CARD_LESS_CASH_OTP_VALIDATION("CARDLESS-CASH","OTP validation is success"),
     FUND_TRANSFER_OTP_DOES_NOT_MATCH("FUND_TRANSFER","OTP is not valid"),
     FUND_TRANSFER_OTP_VALIDATION("FUND_TRANSFER","OTP validation is success"),
+    CARD_LESS_CASH_REFERENCE_NO_INVALID("CARDLESS-CASH","Not a valid Reference Number for the account"),
 
     FLEX_GET_EXCHANGE_RATE("FUND_TRANSFER_ENQUIRY", "Get exchange rate for QR"),
     FLEX_GET_CHARGES("FUND_TRANSFER_ENQUIRY", "Get charges for QR"),

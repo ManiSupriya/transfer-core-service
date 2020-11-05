@@ -40,6 +40,7 @@ public enum TransferErrorCode implements ErrorCode {
     TRNS_CORE_400("TRNS-CORE-400", "Please validate your request body"),
     TRNS_CORE_406("TRNS-CORE-406", "Request parameter is missing"),
     TXN_CURRENCY_INVALID("TN-1027", "Not a valid transfer currency"),
+    REFERENCE_NO_INVALID("TN-1028", "Not a valid Reference Number for the account"),
 
     INVALID_BEN_CODE("LM-1106","Invalid ben code"),
 
@@ -72,6 +73,7 @@ public enum TransferErrorCode implements ErrorCode {
 
 
     ACCOUNT_NOT_BELONG_TO_CIF("TN-4200", "Account does not belong to CIF"),
+    ACCOUNT_IS_IN_DORMENT("TN-4203", "Account is dormant"),
     ACCOUNT_CURRENCY_MISMATCH("TN-4201", "Account currency does not match with given currency"),
     CURRENCY_IS_INVALID("TN-4202", "Currency does not match"),
     ACCOUNT_NOT_FOUND("TN-4003", "Account not found"),

@@ -16,7 +16,7 @@ import java.util.List;
 import static com.mashreq.transfercoreservice.client.dto.BeneficiaryStatus.ACTIVE;
 import static com.mashreq.transfercoreservice.client.dto.BeneficiaryStatus.IN_COOLING_PERIOD;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 /**
  * @author shahbazkh

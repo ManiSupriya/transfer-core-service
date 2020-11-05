@@ -4,7 +4,7 @@ import static com.mashreq.transfercoreservice.loyaltysmilecard.common.CommonCons
 import static com.mashreq.transfercoreservice.loyaltysmilecard.common.CommonConstants.SMILE_REWARDS_GENERATE;
 import static com.mashreq.transfercoreservice.loyaltysmilecard.common.CommonConstants.SMILE_REWARDS_URL;
 import static com.mashreq.transfercoreservice.loyaltysmilecard.common.CommonConstants.SMILE_REWARDS_VALIDATE;
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;

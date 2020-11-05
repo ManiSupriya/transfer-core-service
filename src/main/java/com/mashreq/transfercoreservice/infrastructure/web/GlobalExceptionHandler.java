@@ -1,6 +1,6 @@
 package com.mashreq.transfercoreservice.infrastructure.web;
 
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

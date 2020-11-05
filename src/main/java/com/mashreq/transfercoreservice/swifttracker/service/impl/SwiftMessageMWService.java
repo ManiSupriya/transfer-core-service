@@ -1,7 +1,7 @@
 package com.mashreq.transfercoreservice.swifttracker.service.impl;
 
 import static com.mashreq.transfercoreservice.middleware.SoapWebserviceClientFactory.soapClient;
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

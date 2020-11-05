@@ -3,7 +3,7 @@ package com.mashreq.transfercoreservice.cardlesscash.service.impl;
 import static com.mashreq.transfercoreservice.common.CommonConstants.CARD_LESS_CASH;
 import static com.mashreq.transfercoreservice.common.CommonConstants.MOB_CHANNEL;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -62,7 +62,25 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 	@Override
 	public Response<CardLessCashBlockResponse> blockCardLessCashRequest(CardLessCashBlockRequest blockRequest,
 			RequestMetaData metaData) {
-
+		CardLessCashQueryRequest cardLessCashQueryRequest = new CardLessCashQueryRequest();
+		cardLessCashQueryRequest.setAccountNumber(blockRequest.getAccountNumber());
+		cardLessCashQueryRequest.setRemitNumDays(1);
+		List<CardLessCashQueryResponse> cardLessCashQueryResponse = accountService.cardLessCashRemitQuery(cardLessCashQueryRequest, metaData).getData();
+		boolean isRefNOValid = false;
+		for(CardLessCashQueryResponse queryResponse:cardLessCashQueryResponse)
+		{
+			if(queryResponse.getRemitNo().equalsIgnoreCase(blockRequest.getReferenceNumber()));
+			isRefNOValid = true;
+		}
+		if(!isRefNOValid) {
+			asyncUserEventPublisher.publishFailedEsbEvent(FundTransferEventType.CARD_LESS_CASH_REFERENCE_NO_INVALID,
+					metaData, CARD_LESS_CASH, metaData.getChannelTraceId(),
+					TransferErrorCode.REFERENCE_NO_INVALID.toString(),
+					TransferErrorCode.REFERENCE_NO_INVALID.getErrorMessage(),
+					TransferErrorCode.REFERENCE_NO_INVALID.getErrorMessage());
+			GenericExceptionHandler.handleError(TransferErrorCode.REFERENCE_NO_INVALID,
+					TransferErrorCode.REFERENCE_NO_INVALID.getErrorMessage(), TransferErrorCode.REFERENCE_NO_INVALID.getErrorMessage());
+		}
 		return accountService.blockCardLessCashRequest(blockRequest, metaData);
 	}
 
@@ -81,7 +99,7 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 		verifyOTPRequestDTO.setRedisKey(metaData.getUserCacheKey());
 		log.info("cardLessCash Generation otp request{} ", verifyOTPRequestDTO);
 			Response<VerifyOTPResponseDTO> verifyOTP = otpService.verifyOTP(verifyOTPRequestDTO);
-			log.info("cardLessCash Generation otp response{} ", htmlEscape(verifyOTP.getStatus().toString()));
+			log.info("cardLessCash Generation otp response{} ", htmlEscape(verifyOTP.getStatus()));
 			if (!verifyOTP.getData().isAuthenticated()) {
 				asyncUserEventPublisher.publishFailedEsbEvent(FundTransferEventType.CARD_LESS_CASH_OTP_DOES_NOT_MATCH,
 						metaData, CARD_LESS_CASH, metaData.getChannelTraceId(),

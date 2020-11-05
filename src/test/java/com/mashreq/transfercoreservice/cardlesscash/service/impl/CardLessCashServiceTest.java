@@ -81,6 +81,8 @@ public class CardLessCashServiceTest {
 	 DigitalUserLimitUsage digitalUserLimitUsage;
 	 @Mock
 	 LimitValidatorResultsDto limitValidatorResponse;
+	 @Mock
+	 List<CardLessCashQueryResponse> cardLessCashQueryResponse;
 	 
     @Test
     public void blockCardLessCashRequestTest() {
@@ -91,6 +93,7 @@ public class CardLessCashServiceTest {
                 .referenceNumber(referenceNumber)
                 .build();
         cardLessCashBlockResponse.setSuccess(true);
+        Mockito.when(accountService.cardLessCashRemitQuery(Mockito.any(), Mockito.any())).thenReturn(generateCardLessCashQueryResponse());
         Mockito.when(accountService.blockCardLessCashRequest(cardLessCashBlockRequest, metaData))
                 .thenReturn(Response.<CardLessCashBlockResponse>builder().data(cardLessCashBlockResponse).build());
         cardLessCashService = new CardLessCashServiceImpl(accountService, asyncUserEventPublisher, iamService, digitalUserRepository, digitalUserLimitUsageRepository, balanceValidator, limitValidator, transactionRepository);
@@ -144,12 +147,24 @@ public class CardLessCashServiceTest {
 	@Test
 	public void cardLessCashRemitQueryTest() {
 
+		Mockito.when(accountService.cardLessCashRemitQuery(generateCardlessCashQueryRequest(), metaData)).thenReturn(generateCardLessCashQueryResponse());
+				;
+		cardLessCashService = new CardLessCashServiceImpl(accountService, asyncUserEventPublisher, iamService, digitalUserRepository, digitalUserLimitUsageRepository, balanceValidator, limitValidator, transactionRepository);
+		Response<List<CardLessCashQueryResponse>> cardLessCashQueryRes = cardLessCashService
+				.cardLessCashRemitQuery(generateCardlessCashQueryRequest(), metaData);
+		Assert.assertNotNull(cardLessCashQueryRes);
+
+	}
+	
+	CardLessCashQueryRequest generateCardlessCashQueryRequest(){
         String accountNumber = "019100064328";
-        Integer remitNumDays = 1;
-        CardLessCashQueryRequest cardLessCashQueryRequest = CardLessCashQueryRequest.builder()
+        Integer remitNumDays = 1;        
+		return CardLessCashQueryRequest.builder()
                 .accountNumber(accountNumber)
                 .remitNumDays(remitNumDays)
                 .build();
+	}
+	Response<List<CardLessCashQueryResponse>> generateCardLessCashQueryResponse() {
         CardLessCashQueryResponse cardLessCashQueryResponse = new CardLessCashQueryResponse();
         cardLessCashQueryResponse.setStatus("A");
         cardLessCashQueryResponse.setAmount(new BigDecimal(1));
@@ -159,13 +174,7 @@ public class CardLessCashServiceTest {
         cardLessCashQueryResponse.setRedeemedDate(LocalDate.now());
 		List<CardLessCashQueryResponse> cardLessCashQueryResponseList = new ArrayList<>();
 		cardLessCashQueryResponseList.add(cardLessCashQueryResponse);
-		Mockito.when(accountService.cardLessCashRemitQuery(cardLessCashQueryRequest, metaData)).thenReturn(
-				Response.<List<CardLessCashQueryResponse>>builder().data(cardLessCashQueryResponseList).build());
-		cardLessCashService = new CardLessCashServiceImpl(accountService, asyncUserEventPublisher, iamService, digitalUserRepository, digitalUserLimitUsageRepository, balanceValidator, limitValidator, transactionRepository);
-		Response<List<CardLessCashQueryResponse>> cardLessCashQueryRes = cardLessCashService
-				.cardLessCashRemitQuery(cardLessCashQueryRequest, metaData);
-		Assert.assertNotNull(cardLessCashQueryRes);
-
+		return Response.<List<CardLessCashQueryResponse>>builder().data(cardLessCashQueryResponseList).build();
 	}
 
 }

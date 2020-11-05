@@ -8,7 +8,7 @@ import com.mashreq.webcore.dto.response.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 import java.util.Collections;
 import java.util.List;
@@ -29,7 +29,7 @@ public class CardService {
     private final CardClient cardClient;
 
     public List<CardDetailsDTO> getCardsFromCore(final String cifId, CardType cardType) {
-        log.info("Fetching cards for cifId {} and cardType {} ", htmlEscape(cifId), htmlEscape(getCardType(cardType).toString()));
+        log.info("Fetching cards for cifId {} and cardType {} ", htmlEscape(cifId), htmlEscape(getCardType(cardType)));
         try {
             Response<List<CoreCardDetailsDto>> cardsResponse = cardClient.getCards(cifId, getCardType(cardType));
 
@@ -39,7 +39,7 @@ public class CardService {
             }
 
             List<CardDetailsDTO> cards = convertResponseToCards(cardsResponse.getData());
-            log.info("{} Cards fetch for cif id {} and card type {} ", htmlEscape(Integer.toString(cards.size())), htmlEscape(cifId), htmlEscape(cardType.toString()));
+            log.info("{} Cards fetch for cif id {} and card type {} ", htmlEscape(Integer.toString(cards.size())), htmlEscape(cifId), htmlEscape(cardType));
             return cards;
 
         } catch (Exception e) {

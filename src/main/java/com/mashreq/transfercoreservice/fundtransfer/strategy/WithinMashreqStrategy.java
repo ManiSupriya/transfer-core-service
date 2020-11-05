@@ -36,7 +36,7 @@ import java.util.Optional;
 
 import static java.time.Duration.between;
 import static java.time.Instant.now;
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 /**
  * @author shahbazkh

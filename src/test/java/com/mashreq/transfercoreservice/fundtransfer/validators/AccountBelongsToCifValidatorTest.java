@@ -86,6 +86,7 @@ public class AccountBelongsToCifValidatorTest {
         FundTransferRequestDTO mockFundTransferRequest = new FundTransferRequestDTO();
         mockFundTransferRequest.setServiceType("own-account");
         mockFundTransferRequest.setToAccount("019010050532");
+
         mockFundTransferRequest.setFromAccount("010797697124");
 
 
