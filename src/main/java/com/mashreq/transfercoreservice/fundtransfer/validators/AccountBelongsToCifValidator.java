@@ -6,9 +6,11 @@ import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_NOT_BELONG_TO_CIF;
 import static com.mashreq.transfercoreservice.event.FundTransferEventType.ACCOUNT_BELONGS_TO_CIF;
@@ -76,8 +78,8 @@ public class AccountBelongsToCifValidator implements Validator {
     }
 
     private boolean isAccountNotDormant(List<AccountDetailsDTO> coreAccounts, String accountNumber) {
-        return !coreAccounts.stream()
-                .anyMatch(x -> x.getNumber().equals(accountNumber) && x.getStatus().equalsIgnoreCase(ACCOUNT_DORMANT));
+        return coreAccounts.stream().anyMatch(x -> x.getNumber().equals(accountNumber) && StringUtils.isNotBlank(x.getStatus()) && x.getStatus().equalsIgnoreCase(ACCOUNT_DORMANT));
+
     }
 
     private ValidationResult prepareValidationResult(boolean status) {
