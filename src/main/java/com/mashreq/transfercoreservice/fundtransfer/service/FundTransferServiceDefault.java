@@ -37,7 +37,7 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_C
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.*;
 import static java.time.Duration.between;
 import static java.time.Instant.now;
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 @Slf4j
 @TrackExec
@@ -97,7 +97,7 @@ public class FundTransferServiceDefault implements FundTransferService {
         verifyOTPRequestDTO.setRedisKey(metadata.getUserCacheKey());
         log.info("fund transfer otp request{} ", verifyOTPRequestDTO);
         Response<VerifyOTPResponseDTO> verifyOTP = otpService.verifyOTP(verifyOTPRequestDTO);
-        log.info("fund transfer otp response{} ", htmlEscape(verifyOTP.getStatus().toString()));
+        log.info("fund transfer otp response{} ", htmlEscape(verifyOTP.getStatus()));
         if (!verifyOTP.getData().isAuthenticated()) {
             auditEventPublisher.publishFailedEsbEvent(FundTransferEventType.FUND_TRANSFER_OTP_DOES_NOT_MATCH,
                     metadata, CommonConstants.FUND_TRANSFER, metadata.getChannelTraceId(),

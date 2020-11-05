@@ -50,7 +50,7 @@ public class SMSService  {
 
         log.info("{}, smsMessage: {}, phoneNumber: {}. SMS being sent.", htmlEscape(logPrefix), htmlEscape(message), htmlEscape(phoneNumber));
         SMSResponse smsResponse = notificationClient.sendSMS(createSmsObject(message, phoneNumber));
-        log.info("{}, smsResponse: {}, SMS response received.", htmlEscape(logPrefix), htmlEscape(smsResponse.toString()));
+        log.info("{}, smsResponse: {}, SMS response received.", htmlEscape(logPrefix), htmlEscape(smsResponse));
         return smsResponse != null && smsResponse.getStatusCode() != null && "SUCCESS".equalsIgnoreCase(smsResponse.getStatusCode());
     }
 

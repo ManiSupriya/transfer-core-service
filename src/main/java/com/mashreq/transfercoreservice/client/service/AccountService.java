@@ -5,7 +5,7 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_N
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACC_EXTERNAL_SERVICE_ERROR;
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 import java.math.BigDecimal;
 import java.util.Collections;

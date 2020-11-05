@@ -24,7 +24,7 @@ import static java.time.LocalDateTime.now;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static org.springframework.web.util.HtmlUtils.htmlEscape;
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 /**
  * @author shahbazkh
@@ -69,12 +69,12 @@ public class FlexRuleEngineService {
 
         assertAccountCurrencyMatch(request, searchAccountDto);
 
-        log.info("Calling Flex Rule MW for CHARGES with Debit Leg {} {} ", htmlEscape(request.getAccountCurrency()), htmlEscape(request.getAccountCurrencyAmount().toString()));
+        log.info("Calling Flex Rule MW for CHARGES with Debit Leg {} {} ", htmlEscape(request.getAccountCurrency()), htmlEscape(request.getAccountCurrencyAmount()));
 
         final FlexRuleEngineMWResponse response = flexRuleEngineMWService.getRules(
                 getFlexRequestWithDebitLeg(metadata, request, valueDate, beneficiary), metaData);
 
-        log.info("Debit Amount  = {} {} ", htmlEscape(request.getAccountCurrency()), htmlEscape(request.getAccountCurrencyAmount().toString()));
+        log.info("Debit Amount  = {} {} ", htmlEscape(request.getAccountCurrency()), htmlEscape(request.getAccountCurrencyAmount()));
 
         if (!request.getAccountCurrency().equals(response.getChargeCurrency())) {
             return getChargeWithConvertedCurrency(request, response);
@@ -86,10 +86,10 @@ public class FlexRuleEngineService {
 
     private ChargeResponseDTO getCharge(FlexRuleEngineRequestDTO request, FlexRuleEngineMWResponse response) {
         final BigDecimal chargeAmount = new BigDecimal(response.getChargeAmount());
-        log.info("Charge in Debit Currency = {} {} ", htmlEscape(request.getAccountCurrency()), htmlEscape(chargeAmount.toString()));
+        log.info("Charge in Debit Currency = {} {} ", htmlEscape(request.getAccountCurrency()), htmlEscape(chargeAmount));
 
         final BigDecimal totalDebitAmount = request.getAccountCurrencyAmount().add(chargeAmount);
-        log.info("Total Debit Amount = {} {} ", htmlEscape(request.getAccountCurrency()), htmlEscape(totalDebitAmount.toString()));
+        log.info("Total Debit Amount = {} {} ", htmlEscape(request.getAccountCurrency()), htmlEscape(totalDebitAmount));
 
         return ChargeResponseDTO.builder()
                 .flexChargeAmount(chargeAmount)
@@ -102,9 +102,9 @@ public class FlexRuleEngineService {
 
     private ChargeResponseDTO getChargeWithConvertedCurrency(FlexRuleEngineRequestDTO request, FlexRuleEngineMWResponse response) {
         CurrencyConversionDto convertedCurrency = getConvertedChargeAmount(request, response);
-        log.info("Charge in Debit Currency = {} {} ", htmlEscape(request.getAccountCurrency()), htmlEscape(convertedCurrency.getAccountCurrencyAmount().toString()));
+        log.info("Charge in Debit Currency = {} {} ", htmlEscape(request.getAccountCurrency()), htmlEscape(convertedCurrency.getAccountCurrencyAmount()));
         final BigDecimal totalDebitAmount = request.getAccountCurrencyAmount().add(convertedCurrency.getAccountCurrencyAmount());
-        log.info("Total Debit Amount = {} {} ", htmlEscape(request.getAccountCurrency()), htmlEscape(totalDebitAmount.toString()));
+        log.info("Total Debit Amount = {} {} ", htmlEscape(request.getAccountCurrency()), htmlEscape(totalDebitAmount));
 
         return ChargeResponseDTO.builder()
                 .flexChargeCurrency(response.getChargeCurrency())
