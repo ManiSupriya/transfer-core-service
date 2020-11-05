@@ -52,7 +52,7 @@ public class FundTransferRequestDTO {
     private String dealNumber;
 
     @NotBlank(message = "Financial Transaction Number cannot be empty")
-    @Pattern(regexp = "^[a-zA-Z0-9/-]$",message="Not a valid transaction number")
+    @Pattern(regexp = "^[a-zA-Z0-9-]+",message="Not a valid transaction number")
     private String finTxnNo;
 
     private String beneficiaryId;
