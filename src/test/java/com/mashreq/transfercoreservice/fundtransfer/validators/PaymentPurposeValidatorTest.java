@@ -12,13 +12,12 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_PURPOSE_CODE;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_PURPOSE_DESC;
+
 
 @RunWith(MockitoJUnitRunner.class)
 public class PaymentPurposeValidatorTest {
@@ -108,7 +107,7 @@ public class PaymentPurposeValidatorTest {
 
         //then
         Assert.assertEquals(false, result.isSuccess());
-        Assert.assertEquals(INVALID_PURPOSE_DESC, result.getTransferErrorCode());
+        Assert.assertEquals(INVALID_PURPOSE_CODE, result.getTransferErrorCode());
 
     }
 

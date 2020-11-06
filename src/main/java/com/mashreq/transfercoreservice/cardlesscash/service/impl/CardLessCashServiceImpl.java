@@ -69,8 +69,10 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 		boolean isRefNOValid = false;
 		for(CardLessCashQueryResponse queryResponse:cardLessCashQueryResponse)
 		{
+
 			if(queryResponse.getRemitNo().equalsIgnoreCase(blockRequest.getReferenceNumber()));
-			isRefNOValid = true;
+				isRefNOValid = true;
+			log.info("cardLessCash BlockRequest validation {} ", blockRequest.getReferenceNumber());
 		}
 		if(!isRefNOValid) {
 			asyncUserEventPublisher.publishFailedEsbEvent(FundTransferEventType.CARD_LESS_CASH_REFERENCE_NO_INVALID,
