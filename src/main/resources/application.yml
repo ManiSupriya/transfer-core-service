@@ -5,7 +5,7 @@ management:
   endpoints:
     web:
       base-path: /api/actuator
-      exposure.include: health
+      exposure.include: info
 
 springdoc:
   api-docs:
