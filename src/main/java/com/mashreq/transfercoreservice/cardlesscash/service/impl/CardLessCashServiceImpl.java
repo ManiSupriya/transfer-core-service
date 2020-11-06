@@ -70,9 +70,9 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 		for(CardLessCashQueryResponse queryResponse:cardLessCashQueryResponse)
 		{
 
-			if(queryResponse.getRemitNo().equalsIgnoreCase(blockRequest.getReferenceNumber()));
+			if(queryResponse.getRemitNo().equalsIgnoreCase(blockRequest.getReferenceNumber()))
 				isRefNOValid = true;
-			log.info("cardLessCash BlockRequest validation {} ", blockRequest.getReferenceNumber());
+			log.info("cardLessCash BlockRequest validation {} queryResponse.getRemitNo() {}", htmlEscape(blockRequest.getReferenceNumber()), htmlEscape(queryResponse.getRemitNo()));
 		}
 		if(!isRefNOValid) {
 			asyncUserEventPublisher.publishFailedEsbEvent(FundTransferEventType.CARD_LESS_CASH_REFERENCE_NO_INVALID,
