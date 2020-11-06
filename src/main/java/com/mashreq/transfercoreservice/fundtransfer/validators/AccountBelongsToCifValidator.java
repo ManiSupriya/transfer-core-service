@@ -60,7 +60,7 @@ public class AccountBelongsToCifValidator implements Validator {
             return prepareValidationResult(Boolean.FALSE);
         }
 
-        if(validateFromAccount != null && isAccountNotDormant(accounts, request.getFromAccount())){
+        if(validateFromAccount != null && isAccountDormant(accounts, request.getFromAccount())){
             auditEventPublisher.publishFailureEvent(ACCOUNT_IS_DORMENT, metadata, null,
                     ACCOUNT_IS_IN_DORMENT.getErrorMessage(), ACCOUNT_IS_IN_DORMENT.getCustomErrorCode(), null);
             return prepareValidationResult(Boolean.FALSE);
@@ -77,7 +77,7 @@ public class AccountBelongsToCifValidator implements Validator {
                 .anyMatch(x -> x.getNumber().equals(accountNumber));
     }
 
-    private boolean isAccountNotDormant(List<AccountDetailsDTO> coreAccounts, String accountNumber) {
+    private boolean isAccountDormant(List<AccountDetailsDTO> coreAccounts, String accountNumber) {
         return coreAccounts.stream().anyMatch(x -> x.getNumber().equals(accountNumber) && StringUtils.isNotBlank(x.getStatus()) && x.getStatus().equalsIgnoreCase(ACCOUNT_DORMANT));
 
     }
