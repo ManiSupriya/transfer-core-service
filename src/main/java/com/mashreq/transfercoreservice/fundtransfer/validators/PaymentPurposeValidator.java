@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import java.util.Set;
 
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_PURPOSE_CODE;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_PURPOSE_DESC;
 import static com.mashreq.transfercoreservice.event.FundTransferEventType.PAYMENT_PURPOSE_VALIDATION;
 
 @Slf4j
@@ -26,30 +25,26 @@ public class PaymentPurposeValidator implements Validator {
     public ValidationResult validate(FundTransferRequestDTO request, RequestMetaData metadata, ValidationContext context) {
         final Set<MoneyTransferPurposeDto> purposes = context.get("purposes", Set.class);
 
-        if (!lookForPurposeCode(purposes, request.getPurposeCode())) {
+        MoneyTransferPurposeDto requestedPurpose = new MoneyTransferPurposeDto();
+        requestedPurpose.setPurposeCode(request.getPurposeCode());
+        requestedPurpose.setPurposeDesc(request.getPurposeDesc());
+
+
+        if (!lookForPurposeCode(purposes, requestedPurpose)) {
             auditEventPublisher.publishFailureEvent(PAYMENT_PURPOSE_VALIDATION, metadata, null,
                     INVALID_PURPOSE_CODE.getCustomErrorCode(), INVALID_PURPOSE_CODE.getErrorMessage(), null);
             return ValidationResult.builder().success(false).transferErrorCode(INVALID_PURPOSE_CODE)
                     .build();
         }
 
-        if (!lookForPurposeDesc(purposes, request.getPurposeDesc())) {
-            auditEventPublisher.publishFailureEvent(PAYMENT_PURPOSE_VALIDATION, metadata, null,
-                    INVALID_PURPOSE_CODE.getCustomErrorCode(), INVALID_PURPOSE_CODE.getErrorMessage(), null);
-            return ValidationResult.builder().success(false).transferErrorCode(INVALID_PURPOSE_DESC)
-                    .build();
-        }
 
         log.info("Purpose code and description validation successful");
         auditEventPublisher.publishSuccessEvent(PAYMENT_PURPOSE_VALIDATION, metadata, null);
         return ValidationResult.builder().success(true).build();
     }
 
-    private boolean lookForPurposeCode(Set<MoneyTransferPurposeDto> purposes, String code) {
-        return purposes.stream().anyMatch(pop -> pop.getPurposeCode().equals(code));
+    private boolean lookForPurposeCode(Set<MoneyTransferPurposeDto> purposes, MoneyTransferPurposeDto requestedPurpose) {
+        return purposes.stream().anyMatch(pop -> pop.equals(requestedPurpose));
     }
 
-    private boolean lookForPurposeDesc(Set<MoneyTransferPurposeDto> purposes, String desc) {
-        return purposes.stream().anyMatch(pop -> pop.getPurposeDesc().equals(desc));
-    }
 }
