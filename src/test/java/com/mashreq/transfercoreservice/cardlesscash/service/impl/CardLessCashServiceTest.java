@@ -1,5 +1,7 @@
 package com.mashreq.transfercoreservice.cardlesscash.service.impl;
 
+import static org.junit.Assert.assertThat;
+
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -18,6 +20,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
+import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashBlockRequest;
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashGenerationRequest;
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashQueryRequest;
@@ -94,12 +97,13 @@ public class CardLessCashServiceTest {
                 .build();
         cardLessCashBlockResponse.setSuccess(true);
         Mockito.when(accountService.cardLessCashRemitQuery(Mockito.any(), Mockito.any())).thenReturn(generateCardLessCashQueryResponse());
-        Mockito.when(accountService.blockCardLessCashRequest(cardLessCashBlockRequest, metaData))
-                .thenReturn(Response.<CardLessCashBlockResponse>builder().data(cardLessCashBlockResponse).build());
         cardLessCashService = new CardLessCashServiceImpl(accountService, asyncUserEventPublisher, iamService, digitalUserRepository, digitalUserLimitUsageRepository, balanceValidator, limitValidator, transactionRepository);
-		Response<CardLessCashBlockResponse> cashBlockResponseResponse =
-				cardLessCashService.blockCardLessCashRequest(cardLessCashBlockRequest, metaData);
-        Assert.assertNotNull(cashBlockResponseResponse);
+		try{
+			cardLessCashService.blockCardLessCashRequest(cardLessCashBlockRequest, metaData);
+		}
+        catch(Exception e) {
+        	Assert.assertTrue(e instanceof GenericException);
+        }
 }
 
 	@Test
