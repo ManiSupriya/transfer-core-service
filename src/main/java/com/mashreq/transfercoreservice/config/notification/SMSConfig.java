@@ -17,6 +17,8 @@ public class SMSConfig {
     private String serviceId;
     private String callCenterNo;
     private String ownAccountTransactionInitiated;
+    private String mashreqServiceId;
+    private String neoServiceId;
 
     public String getSMSTemplate(String type, CustomerNotification customerNotification) {
         if(type.equals(OWN_ACCOUNT_TRANSACTION)){

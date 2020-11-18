@@ -147,6 +147,8 @@ app:
         goldSilverBuySuccess: buy-goldsilver-success.ftl
         goldSilverSellSuccess: sell-goldsilver-success.ftl
     sms:
+      mashreqServiceId: ${ALERT_SMS_MASHREQ_PAYMENT_SERVICEID:330}
+      neoServiceId: ${ALERT_SMS_NEO_PAYMENT_SERVICEID:350}
       priority: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_PRIORITY:HIGH}
       serviceId: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_SERVICEID:91}
       callCenterNo: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_CALL_CENTER_NO:04 424 6666}
