@@ -33,9 +33,9 @@ import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 import static java.time.Duration.between;
 import static java.time.Instant.now;
-import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 /**
  * @author shahbazkh
@@ -196,6 +196,9 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         CustomerNotification customerNotification =new CustomerNotification();
         customerNotification.setAmount(String.valueOf(amount));
         customerNotification.setCurrency(requestDTO.getTxnCurrency());
+        if(StringUtils.isEmpty(requestDTO.getTxnCurrency())) {
+            customerNotification.setCurrency(requestDTO.getCurrency());
+        }
         customerNotification.setTxnRef(transactionRefNo);
         customerNotification.setSegment(digitalUserSegment.getCustomerCareInfo(metadata.getSegment()));
         return customerNotification;
