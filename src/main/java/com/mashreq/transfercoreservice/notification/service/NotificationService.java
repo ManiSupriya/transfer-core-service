@@ -65,7 +65,7 @@ public class NotificationService {
 
             for (int i = 0; i < 3 && StringUtils.isNotBlank(phoneNo); i++) {
                 try {
-                    smsSent = smsService.sendSMS(customer, type, metaData.getPrimaryCif(), smsRetryCount, phoneNo);
+                    smsSent = smsService.sendSMS(customer, type, metaData, smsRetryCount, phoneNo);
                     if (smsSent) {
                         break;
                     }

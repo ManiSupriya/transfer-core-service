@@ -33,9 +33,9 @@ import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 import static java.time.Duration.between;
 import static java.time.Instant.now;
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 /**
  * @author shahbazkh
@@ -44,7 +44,7 @@ import static java.time.Instant.now;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class OwnAccountStrategy implements FundTransferStrategy {
+public class OwnAccountStrategyTest implements FundTransferStrategy {
 
     private static final String INTERNAL_ACCOUNT_FLAG = "N";
     public static final String OWN_ACCOUNT_TRANSACTION_CODE = "096";
@@ -196,9 +196,6 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         CustomerNotification customerNotification =new CustomerNotification();
         customerNotification.setAmount(String.valueOf(amount));
         customerNotification.setCurrency(requestDTO.getTxnCurrency());
-        if(StringUtils.isEmpty(requestDTO.getTxnCurrency())) {
-            customerNotification.setCurrency(requestDTO.getCurrency());
-        }
         customerNotification.setTxnRef(transactionRefNo);
         customerNotification.setSegment(digitalUserSegment.getCustomerCareInfo(metadata.getSegment()));
         return customerNotification;
