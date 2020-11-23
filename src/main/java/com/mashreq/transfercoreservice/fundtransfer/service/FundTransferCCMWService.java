@@ -47,6 +47,8 @@ public class FundTransferCCMWService {
     private final FTCCConfig ftCCConfig;
     private final AsyncUserEventPublisher auditEventPublisher;
     private static final String SUCCESS = "S";
+    private static final String FAILED = "Failed";
+    private static final String SUCCESS_EXPAND = "SUCCESS";
     private static final String SUCCESS_CODE_ENDS_WITH = "-000";
     private static final String PAYMENT_DETAIL_PREFIX = "/REF/ ";
 
@@ -126,6 +128,9 @@ public class FundTransferCCMWService {
     // TODO need to verify
     private CoreFundTransferResponseDto constructFTResponseDTO(FundTransferCCResType fundTransferCCResType, ErrorType exceptionDetails, MwResponseStatus s) {
         CoreFundTransferResponseDto coreFundTransferResponseDto = new CoreFundTransferResponseDto();
+        String cardStatus;
+        String coreStatus;
+        TransferErrorCode transferErrorCode;
         if(fundTransferCCResType != null){
             coreFundTransferResponseDto.setHostRefNo(fundTransferCCResType.getCardReferenceNumber());
             coreFundTransferResponseDto.setMwReferenceNo(fundTransferCCResType.getCardReferenceNumber());
@@ -137,6 +142,16 @@ public class FundTransferCCMWService {
             coreFundTransferResponseDto.setMwResponseCode(exceptionDetails.getErrorCode());
         }
         coreFundTransferResponseDto.setMwResponseStatus(s);
+        //Below code is changed to show specific error code in case if card status = SUCCESS and core status = Failed - 33462
+        if(s.equals(MwResponseStatus.F)){
+            cardStatus = fundTransferCCResType.getCardStatus();
+            coreStatus = fundTransferCCResType.getCoreStatus();
+            if(SUCCESS_EXPAND.equalsIgnoreCase(cardStatus) && FAILED.equalsIgnoreCase(coreStatus)){
+                transferErrorCode = TransferErrorCode.FT_CC_MW_SUCCESS_FAILED_RESPONSE;
+                coreFundTransferResponseDto.setMwResponseDescription(transferErrorCode.getErrorMessage());
+                coreFundTransferResponseDto.setMwResponseCode(transferErrorCode.getCustomErrorCode());
+            }
+        }
         return coreFundTransferResponseDto;
     }
 

@@ -19,7 +19,7 @@ spring:
   profiles.active: ${ACTIVE_PROFILE:local}
   datasource:
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
-    url: ${MSSQL_DEV_URL}
+    url: ${MSSQL_DB_URL}
     username: ${MSSQL_DEV_USERNAME}
     password: ${MSSQL_DB_KEY}
     hikari:
@@ -89,6 +89,7 @@ external:
           EAI-FCI-BRK-2463: FUND_TRANSFER_FREEZED
           EAI-FCI-BRK-998: ULTIMATE_BENEFICIARY_IBAN_NOT_VALID
           FT-VALS-44: EXACHANGE_RATE_AMOUNT_NOT_EQUATE
+          TN-8011: FT_CC_MW_SUCCESS_FAILED_RESPONSE
   fees-code:
     mapper:
       fees:
@@ -192,7 +193,7 @@ mob-common:
       threadNamePrefix: mob-insurance-life-general-pool
   commonUserEventDataSource:
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
-    jdbcUrl: ${MSSQL_EVENT_DEV_URL}
+    jdbcUrl: ${MSSQL_EVENT_DB_URL}
     username: ${MSSQL_EVENT_DEV_USERNAME}
     password: ${MSSQL_EVENT_DB_KEY}
     maxPoolSize: ${MSSQL_EVENT_MAX_POOL_SIZE:40}
