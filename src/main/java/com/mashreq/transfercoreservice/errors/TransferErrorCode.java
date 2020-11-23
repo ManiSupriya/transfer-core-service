@@ -156,6 +156,7 @@ public enum TransferErrorCode implements ErrorCode {
     PUSH_NOTIFICATION_FAILED("TN-9003","Failed to send push notification"),
     ACCOUNT_NO_NOT_MASKED("TN-8010","Account no masked is failed due to length"),
     EMAIL_NOTIFICATION_FAILED("EMAIL_9001","Failed to send email notification"),
+    FT_CC_MW_SUCCESS_FAILED_RESPONSE("TN-8011","Transaction pending for processing"),
     ;
 
 

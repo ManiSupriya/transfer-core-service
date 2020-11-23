@@ -259,6 +259,7 @@ public class FundTransferServiceDefault implements FundTransferService {
                 .transactionRefNo(fundTransferResponse.getTransactionRefNo())
                 .hostReferenceNo(fundTransferResponse.getResponseDto().getHostRefNo())
                 .valueDate(LocalDateTime.now())
+                .beneficiaryId(StringUtils.isNotBlank(request.getBeneficiaryId())?Long.valueOf(request.getBeneficiaryId()):null)
                 .build();
 
     }
