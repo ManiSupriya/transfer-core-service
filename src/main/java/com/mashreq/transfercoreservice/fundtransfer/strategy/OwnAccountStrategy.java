@@ -171,7 +171,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 
     private void prepareAndCallPostTransactionActivity(RequestMetaData metadata, FundTransferRequest fundTransferRequest, FundTransferRequestDTO request, FundTransferResponse fundTransferResponse, CurrencyConversionDto conversionResult) {
         boolean isSuccess = MwResponseStatus.S.equals(fundTransferResponse.getResponseDto().getMwResponseStatus());
-        if(goldSilverTransfer(request) && isSuccess){
+        if(goldSilverTransfer(request) && isSuccess && StringUtils.isEmpty(request.getTxnCurrency())){
             if(buyRequest(request)){
                 fundTransferRequest.setNotificationType(NotificationType.GOLD_SILVER_BUY_SUCCESS);
                 fundTransferRequest.setSrcAmount(conversionResult.getAccountCurrencyAmount());
