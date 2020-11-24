@@ -99,7 +99,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
             log.info("Update missing beneficiary details");
             beneficiaryDto = beneficiaryService.getUpdate(request.getBeneRequiredFields(), Long.valueOf(request.getBeneficiaryId()), metadata, INTERNATIONAL_VALIDATION_TYPE);
         } else {
-            beneficiaryDto = beneficiaryService.getById(metadata.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), metadata);
+            beneficiaryDto = beneficiaryService.getById(request.getBeneRequiredFields(), Long.valueOf(request.getBeneficiaryId()), metadata, INTERNATIONAL_VALIDATION_TYPE);
         }
         validationContext.add("beneficiary-dto", beneficiaryDto);
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
