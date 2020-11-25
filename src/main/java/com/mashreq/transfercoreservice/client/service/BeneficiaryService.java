@@ -57,7 +57,7 @@ public class BeneficiaryService {
     
     public BeneficiaryDto getById(AdditionalFields additionalFields, Long id, RequestMetaData metaData, String validationType) {
         log.info("Fetching Beneficiary for id = {}", id);
-        Response<BeneficiaryDto> response = beneficiaryClient.getById(additionalFields, id, validationType);
+        Response<BeneficiaryDto> response = beneficiaryClient.getById(metaData.getPrimaryCif(), validationType, id);
 
         if (ResponseStatus.ERROR == response.getStatus() || isNull(response.getData())) {
             userEventPublisher.publishFailureEvent(FundTransferEventType.FUNDTRANSFER_BENDETAILS, metaData, "failed to get ben details", response.getErrorCode(), response.getMessage(), response.getMessage());
