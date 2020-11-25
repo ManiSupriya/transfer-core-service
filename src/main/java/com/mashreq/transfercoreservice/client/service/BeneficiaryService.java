@@ -39,7 +39,25 @@ public class BeneficiaryService {
 
     public BeneficiaryDto getById(final String cifId, Long id, RequestMetaData metaData) {
         log.info("Fetching Beneficiary for id = {}", id);
-        Response<BeneficiaryDto> response = beneficiaryClient.getById(cifId, id);
+        Response<BeneficiaryDto> response = beneficiaryClient.getByIdWithoutValidation(cifId, id);
+
+        if (ResponseStatus.ERROR == response.getStatus() || isNull(response.getData())) {
+            userEventPublisher.publishFailureEvent(FundTransferEventType.FUNDTRANSFER_BENDETAILS, metaData, "failed to get ben details", response.getErrorCode(), response.getMessage(), response.getMessage());
+            GenericExceptionHandler.handleError(BENE_EXTERNAL_SERVICE_ERROR, BENE_EXTERNAL_SERVICE_ERROR.getErrorMessage(),
+                    getErrorDetails(response));
+        }
+        log.info("Beneficiary fetched successfully for id = {}", id);
+        BeneficiaryDto beneficiaryDto = response.getData();
+
+        if (beneficiaryDto.getBeneficiaryCountryISO() != null && beneficiaryDto.getBeneficiaryCountryISO().equals(SRILANKA)) {
+            beneficiaryDto = updateBenInfo(beneficiaryDto);
+        }
+        return beneficiaryDto;
+    }
+    
+    public BeneficiaryDto getById(AdditionalFields additionalFields, Long id, RequestMetaData metaData, String validationType) {
+        log.info("Fetching Beneficiary for id = {}", id);
+        Response<BeneficiaryDto> response = beneficiaryClient.getById(additionalFields, id, validationType);
 
         if (ResponseStatus.ERROR == response.getStatus() || isNull(response.getData())) {
             userEventPublisher.publishFailureEvent(FundTransferEventType.FUNDTRANSFER_BENDETAILS, metaData, "failed to get ben details", response.getErrorCode(), response.getMessage(), response.getMessage());

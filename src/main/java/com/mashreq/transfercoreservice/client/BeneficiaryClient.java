@@ -20,13 +20,15 @@ import javax.validation.constraints.NotNull;
 public interface BeneficiaryClient {
 
     @GetMapping("/v1/beneficiary/{id}")
-    Response<BeneficiaryDto> getById(@RequestHeader(HeaderNames.CIF_HEADER_NAME) String cifId, @NotNull @PathVariable Long id);
+    Response<BeneficiaryDto> getByIdWithoutValidation(@RequestHeader(HeaderNames.CIF_HEADER_NAME) String cifId, @NotNull @PathVariable Long id);
 
     @PutMapping("/v1/beneficiary/{validationType}/internal/{benId}")
     Response<BeneficiaryDto> update(@RequestBody AdditionalFields additionalFields, @PathVariable Long benId, @PathVariable String validationType);
     
     @GetMapping("/v1/charity-beneficiary/{id}")
     Response<CharityBeneficiaryDto> getCharity(@NotNull @PathVariable String id);
-
+    
+    @GetMapping("/v1/beneficiary/{validationType}/internal/{id}")
+    Response<BeneficiaryDto> getById(@RequestBody AdditionalFields additionalFields, @PathVariable Long benId, @PathVariable String validationType);
 
 }
