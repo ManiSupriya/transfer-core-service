@@ -1,9 +1,12 @@
 package com.mashreq.transfercoreservice.middleware;
 
-import com.mashreq.mobcommons.services.middleware.MobSoapClientInterceptor;
-import com.mashreq.mobcommons.services.middleware.MobSoapLogger;
+import com.mashreq.esbcore.middleware.MobSoapClientInterceptor;
+import com.mashreq.esbcore.middleware.MobSoapLogger;
+import com.mashreq.esbcore.middleware.MobSoapServiceProperties;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.ws.client.WebServiceIOException;
@@ -16,13 +19,15 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.EXTERNAL_
 
 @Slf4j
 public class SoapClient extends WebServiceGatewaySupport {
+	@Autowired
+    private MobSoapServiceProperties mobSoapServiceProperties;
 
     protected SoapClient(SoapServiceProperties soapProperties, Jaxb2Marshaller marshaller) {
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         requestFactory.setConnectTimeout(soapProperties.getConnectTimeout());
         requestFactory.setReadTimeout(soapProperties.getReadTimeout());
         setMessageSender(new ClientHttpRequestMessageSender(requestFactory));
-        ClientInterceptor[] interceptors = new ClientInterceptor[]{new MobSoapClientInterceptor( new MobSoapLogger())};
+        ClientInterceptor[] interceptors = new ClientInterceptor[]{new MobSoapClientInterceptor( new MobSoapLogger(mobSoapServiceProperties))};
 
         this.setDefaultUri(soapProperties.getUrl());
         this.setMarshaller(marshaller);

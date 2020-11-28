@@ -1,6 +1,5 @@
 package com.mashreq.transfercoreservice.middleware;
 
-import com.mashreq.mobcommons.services.middleware.MobSoapClientInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -10,6 +9,8 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.ws.client.core.WebServiceTemplate;
 import org.springframework.ws.client.core.support.WebServiceGatewaySupport;
 import org.springframework.ws.client.support.interceptor.ClientInterceptor;
+
+import com.mashreq.esbcore.middleware.MobSoapClientInterceptor;
 
 @Configuration
 public class SoapConfiguration {
