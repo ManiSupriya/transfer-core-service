@@ -26,7 +26,7 @@ public class SoapConfiguration {
     private SoapServiceProperties serviceProperties;
 
     @Autowired
-    MobSoapClientInterceptor logHttpHeaderClientInterceptor;
+    SoapClientInterceptor logHttpHeaderClientInterceptor;
 
     @Bean
     public Jaxb2Marshaller marshaller() {
