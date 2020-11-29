@@ -27,12 +27,12 @@ public class SoapClient extends WebServiceGatewaySupport {
         requestFactory.setConnectTimeout(soapProperties.getConnectTimeout());
         requestFactory.setReadTimeout(soapProperties.getReadTimeout());
         setMessageSender(new ClientHttpRequestMessageSender(requestFactory));
-        //ClientInterceptor[] interceptors = new ClientInterceptor[]{logHttpHeaderClientInterceptor};
+        ClientInterceptor[] interceptors = new ClientInterceptor[]{new SoapClientInterceptor( new HttpLoggingUtils())};
 
         this.setDefaultUri(soapProperties.getUrl());
         this.setMarshaller(marshaller);
         this.setUnmarshaller(marshaller);
-        //this.setInterceptors(interceptors);
+        this.setInterceptors(interceptors);
     }
 
     public Object exchange(Object requestPayload) {
