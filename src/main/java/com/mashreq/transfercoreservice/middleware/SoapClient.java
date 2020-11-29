@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
+import org.springframework.stereotype.Service;
 import org.springframework.ws.client.WebServiceIOException;
 import org.springframework.ws.client.core.support.WebServiceGatewaySupport;
 import org.springframework.ws.client.support.interceptor.ClientInterceptor;
@@ -18,6 +19,7 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.CONNECTIO
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.EXTERNAL_SERVICE_ERROR_MW;
 
 @Slf4j
+@Service
 public class SoapClient extends WebServiceGatewaySupport {
 	@Autowired
     private MobSoapServiceProperties mobSoapServiceProperties;
