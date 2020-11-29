@@ -15,7 +15,7 @@ springdoc:
     path: /swagger
 
 spring:
-  application.name: beneficiary-core-service
+  application.name: transfer-core-service
   profiles.active: ${ACTIVE_PROFILE:local}
   datasource:
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver

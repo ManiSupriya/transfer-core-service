@@ -6,14 +6,13 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.EXTERNAL_
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
-import org.springframework.stereotype.Service;
 import org.springframework.ws.client.WebServiceIOException;
 import org.springframework.ws.client.core.support.WebServiceGatewaySupport;
 import org.springframework.ws.client.support.interceptor.ClientInterceptor;
 import org.springframework.ws.transport.http.ClientHttpRequestMessageSender;
+
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
