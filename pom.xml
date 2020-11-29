@@ -39,7 +39,7 @@
         <spring-cloud.version>Greenwich.SR2</spring-cloud.version>
 
         <!-- internal modules -->
-        <com.mashreq.esbcore>1.0.78</com.mashreq.esbcore>
+        <com.mashreq.esbcore>1.0.88</com.mashreq.esbcore>
         <com.mashreq.logcore>1.0.4</com.mashreq.logcore>
         <com.mashreq.encryption>1.0.0</com.mashreq.encryption>
         <com.mashreq.ms.ms-commons>1.0.6</com.mashreq.ms.ms-commons>
