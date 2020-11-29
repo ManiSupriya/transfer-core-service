@@ -1,28 +1,33 @@
 package com.mashreq.transfercoreservice.middleware;
 
-import com.mashreq.mobcommons.services.middleware.MobSoapClientInterceptor;
-import com.mashreq.mobcommons.services.middleware.MobSoapLogger;
-import com.mashreq.ms.exceptions.GenericExceptionHandler;
-import lombok.extern.slf4j.Slf4j;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.CONNECTION_TIMEOUT_MW;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.EXTERNAL_SERVICE_ERROR_MW;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
+import org.springframework.stereotype.Service;
 import org.springframework.ws.client.WebServiceIOException;
 import org.springframework.ws.client.core.support.WebServiceGatewaySupport;
 import org.springframework.ws.client.support.interceptor.ClientInterceptor;
 import org.springframework.ws.transport.http.ClientHttpRequestMessageSender;
+import com.mashreq.ms.exceptions.GenericExceptionHandler;
 
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.CONNECTION_TIMEOUT_MW;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.EXTERNAL_SERVICE_ERROR_MW;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class SoapClient extends WebServiceGatewaySupport {
+	
+	@Autowired
+    SoapClientInterceptor logHttpHeaderClientInterceptor;
 
     protected SoapClient(SoapServiceProperties soapProperties, Jaxb2Marshaller marshaller) {
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         requestFactory.setConnectTimeout(soapProperties.getConnectTimeout());
         requestFactory.setReadTimeout(soapProperties.getReadTimeout());
         setMessageSender(new ClientHttpRequestMessageSender(requestFactory));
-        ClientInterceptor[] interceptors = new ClientInterceptor[]{new MobSoapClientInterceptor( new MobSoapLogger())};
+        ClientInterceptor[] interceptors = new ClientInterceptor[]{new SoapClientInterceptor( new HttpLoggingUtils())};
 
         this.setDefaultUri(soapProperties.getUrl());
         this.setMarshaller(marshaller);
