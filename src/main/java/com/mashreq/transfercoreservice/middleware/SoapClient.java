@@ -11,15 +11,12 @@ import org.springframework.ws.client.WebServiceIOException;
 import org.springframework.ws.client.core.support.WebServiceGatewaySupport;
 import org.springframework.ws.client.support.interceptor.ClientInterceptor;
 import org.springframework.ws.transport.http.ClientHttpRequestMessageSender;
-import com.mashreq.esbcore.middleware.MobSoapServiceProperties;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Service
-@RequiredArgsConstructor
 public class SoapClient extends WebServiceGatewaySupport {
 	
 	@Autowired
@@ -30,12 +27,12 @@ public class SoapClient extends WebServiceGatewaySupport {
         requestFactory.setConnectTimeout(soapProperties.getConnectTimeout());
         requestFactory.setReadTimeout(soapProperties.getReadTimeout());
         setMessageSender(new ClientHttpRequestMessageSender(requestFactory));
-        ClientInterceptor[] interceptors = new ClientInterceptor[]{logHttpHeaderClientInterceptor};
+        //ClientInterceptor[] interceptors = new ClientInterceptor[]{logHttpHeaderClientInterceptor};
 
         this.setDefaultUri(soapProperties.getUrl());
         this.setMarshaller(marshaller);
         this.setUnmarshaller(marshaller);
-        this.setInterceptors(interceptors);
+        //this.setInterceptors(interceptors);
     }
 
     public Object exchange(Object requestPayload) {
