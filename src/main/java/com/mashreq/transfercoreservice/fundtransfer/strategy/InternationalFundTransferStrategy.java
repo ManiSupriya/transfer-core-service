@@ -224,9 +224,8 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .txnCurrency(request.getTxnCurrency())
                 .dealRate(request.getDealRate())
                 .limitTransactionRefNo(validationResult.getTransactionRefNo())
-                .acwthInst1(StringUtils.isBlank(request.getAdditionalField()) && request.getAdditionalField().length() > maxLength ? StringUtils.left(request.getAdditionalField(), maxLength): (additionalFeild = StringUtils.right(request.getAdditionalField(), maxLength)))
-                .acwthInst2(StringUtils.isBlank(additionalFeild) && additionalFeild.length() > maxLength ? StringUtils.left(additionalFeild, maxLength): (additionalFeild = StringUtils.right(additionalFeild, maxLength)))
-                .acwthInst5(StringUtils.isBlank(additionalFeild) ? StringUtils.left(additionalFeild, maxLength) : null)
+                .acwthInst1(StringUtils.isBlank(request.getAdditionalField()) && request.getAdditionalField().length() > maxLength ? StringUtils.left(request.getAdditionalField(), maxLength): request.getAdditionalField())
+                .acwthInst2(StringUtils.isBlank(request.getAdditionalField()) && request.getAdditionalField().length() > maxLength ? request.getAdditionalField().substring(maxLength): null)
                 .build();
 
         return enrichFundTransferRequestByCountryCode(fundTransferRequest, beneficiaryDto);
