@@ -158,7 +158,9 @@ public class FundTransferMWService {
         creditLeg.setBenAddr1(request.getBeneficiaryAddressOne());
         creditLeg.setBenAddr2(request.getBeneficiaryAddressTwo());
         creditLeg.setBenAddr3(request.getBeneficiaryAddressThree());
-        creditLeg.setAWInstAddr2(request.getBeneficiaryAddressTwo());
+        creditLeg.setAWInst1(request.getAcwthInst1());
+        creditLeg.setAWInst2(request.getAcwthInst2());
+        
 
         if(request.getAmount() == null) {
             debitLeg.setAmount(request.getSrcAmount());
