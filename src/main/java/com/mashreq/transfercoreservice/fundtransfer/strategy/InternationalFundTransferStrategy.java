@@ -45,6 +45,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     private static final String ROUTING_CODE_PREFIX = "//";
     public static final String INTERNATIONAL = "International";
     public static final String TRANSACTIONCODE = "15";
+    public static final String SPACE_CHAR = " ";
     int maxLength = 35;
     private final FinTxnNoValidator finTxnNoValidator;
     private final AccountService accountService;
@@ -216,7 +217,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .beneficiaryFullName(StringUtils.isBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength? StringUtils.left(beneficiaryDto.getFullName(), maxLength): beneficiaryDto.getFullName())
                 .beneficiaryAddressOne(StringUtils.isBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength? StringUtils.right(beneficiaryDto.getFullName(), maxLength): null)
                 .beneficiaryAddressTwo(StringUtils.left(StringUtils.isBlank(beneficiaryDto.getAddressLine1())?beneficiaryDto.getBankCountry():beneficiaryDto.getAddressLine1(), maxLength))
-                .beneficiaryAddressThree(StringUtils.left(beneficiaryDto.getAddressLine2(), maxLength))
+                .beneficiaryAddressThree(StringUtils.left(beneficiaryDto.getAddressLine2().concat(SPACE_CHAR+beneficiaryDto.getAddressLine3()), maxLength))
                 .destinationCurrency(request.getTxnCurrency())
                 .transactionCode(TRANSACTIONCODE)
                 .dealNumber(request.getDealNumber())
