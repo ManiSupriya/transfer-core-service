@@ -233,7 +233,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     private FundTransferRequest enrichFundTransferRequestByCountryCode(FundTransferRequest request, BeneficiaryDto beneficiaryDto) {
         List<CountryMasterDto> countryList = maintenanceService.getAllCountries("MOB", "AE", Boolean.TRUE);
         final Optional<CountryMasterDto> countryDto = countryList.stream()
-                .filter(country -> country.getCode().equals(beneficiaryDto.getBeneficiaryCountryISO()))
+                .filter(country -> country.getName().equalsIgnoreCase(beneficiaryDto.getBankCountry()))
                 .findAny();
         if (countryDto.isPresent()) {
             final CountryMasterDto countryMasterDto = countryDto.get();
