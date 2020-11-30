@@ -224,8 +224,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .txnCurrency(request.getTxnCurrency())
                 .dealRate(request.getDealRate())
                 .limitTransactionRefNo(validationResult.getTransactionRefNo())
-                .acwthInst1(StringUtils.isNotBlank(request.getAdditionalField()) && request.getAdditionalField().length() > maxLength ? StringUtils.left(request.getAdditionalField(), maxLength): request.getAdditionalField())
-                .acwthInst2(StringUtils.isNotBlank(request.getAdditionalField()) && request.getAdditionalField().length() > maxLength ? request.getAdditionalField().substring(maxLength): null)
+                .acwthInst1(request.getAdditionalField()) //TODO Add For testing need to create new field to map
                 .build();
 
         return enrichFundTransferRequestByCountryCode(fundTransferRequest, beneficiaryDto);
