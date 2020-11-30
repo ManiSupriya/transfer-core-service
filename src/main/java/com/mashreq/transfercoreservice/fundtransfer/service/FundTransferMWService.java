@@ -42,6 +42,7 @@ public class FundTransferMWService {
     private static final String NARRATION_PREFIX = "Fund Transfer-";
     private static final String NARRATION_SUFFIX = " Banking";
     private static final String PAYMENT_DETAIL_PREFIX = "/REF/ ";
+    public static final String SPACE_CHAR = " ";
     private final AsyncUserEventPublisher auditEventPublisher;
     private static final String GOLD = "XAU";
     private static final String SILVER = "XAG";
@@ -151,14 +152,16 @@ public class FundTransferMWService {
         creditLeg.setTransactionCode(request.getTransactionCode());
         creditLeg.setCurrency(request.getDestinationCurrency());
         creditLeg.setChargeBearer(request.getChargeBearer());
-        creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc());
+        creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc()+SPACE_CHAR+request.getAcwthInst1());
         creditLeg.setBenName(request.getBeneficiaryFullName());
         creditLeg.setAWInstName(request.getAwInstName());
         creditLeg.setAWInstBICCode(request.getAwInstBICCode());
         creditLeg.setBenAddr1(request.getBeneficiaryAddressOne());
         creditLeg.setBenAddr2(request.getBeneficiaryAddressTwo());
         creditLeg.setBenAddr3(request.getBeneficiaryAddressThree());
-        creditLeg.setAWInstAddr2(request.getBeneficiaryAddressTwo());
+        //creditLeg.setAWInst1(request.getAcwthInst1());
+        //creditLeg.setAWInst2(request.getAcwthInst2());
+        
 
         if(request.getAmount() == null) {
             debitLeg.setAmount(request.getSrcAmount());
