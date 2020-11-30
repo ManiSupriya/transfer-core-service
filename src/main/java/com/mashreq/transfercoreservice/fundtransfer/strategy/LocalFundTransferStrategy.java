@@ -58,6 +58,8 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     private static final int LOCAL_IBAN_LENGTH = 23;
     private static final String LOCAL_PRODUCT_ID = "DBLC";
     public static final String LOCAL_TRANSACTION_CODE = "15";
+    public static final String SPACE_CHAR = " ";
+    int maxLength = 35;
     public static final String AED = "AED";
     public static final String NON_AED = "non-AED";
     private final IBANValidator ibanValidator;
@@ -431,7 +433,15 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
     private FundTransferRequest prepareFundTransferRequestPayload(RequestMetaData metadata, FundTransferRequestDTO request,
                                                                   String currency, String branchCode, BeneficiaryDto beneficiaryDto, LimitValidatorResponse validationResult) {
-        return FundTransferRequest.builder()
+    	String address3 = null;
+    	if(StringUtils.isNotBlank(beneficiaryDto.getAddressLine2()) && StringUtils.isNotBlank(beneficiaryDto.getAddressLine3())){
+    		address3 = StringUtils.left(beneficiaryDto.getAddressLine2().concat(SPACE_CHAR+beneficiaryDto.getAddressLine3()), maxLength);
+    	} else if(StringUtils.isNotBlank(beneficiaryDto.getAddressLine2()) && StringUtils.isBlank(beneficiaryDto.getAddressLine3())){
+    		address3 = StringUtils.left(beneficiaryDto.getAddressLine2(), maxLength);
+    	} else if(StringUtils.isBlank(beneficiaryDto.getAddressLine2()) && StringUtils.isNotBlank(beneficiaryDto.getAddressLine3())){
+    		address3 = StringUtils.left(beneficiaryDto.getAddressLine3(), maxLength);
+    	}
+    	return FundTransferRequest.builder()
                 .productId(LOCAL_PRODUCT_ID)
                 .amount(request.getAmount())
                 .channel(metadata.getChannel())
@@ -444,7 +454,10 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
                 .finTxnNo(request.getFinTxnNo())
                 .sourceCurrency(currency)
                 .sourceBranchCode(branchCode)
-                .beneficiaryFullName(beneficiaryDto.getFullName())
+                .beneficiaryFullName(StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength? StringUtils.left(beneficiaryDto.getFullName(), maxLength): beneficiaryDto.getFullName())
+                .beneficiaryAddressOne(StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength? beneficiaryDto.getFullName().substring(maxLength): null)
+                .beneficiaryAddressTwo(StringUtils.left(StringUtils.isBlank(beneficiaryDto.getAddressLine1())?beneficiaryDto.getBankCountry():beneficiaryDto.getAddressLine1(), maxLength))
+                .beneficiaryAddressThree(address3)
                 .destinationCurrency(localCurrency)
                 .awInstName(beneficiaryDto.getBankName())
                 .awInstBICCode(beneficiaryDto.getSwiftCode())
