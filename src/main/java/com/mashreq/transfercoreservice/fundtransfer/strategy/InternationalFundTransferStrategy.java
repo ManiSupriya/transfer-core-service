@@ -217,7 +217,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .beneficiaryFullName(StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength? StringUtils.left(beneficiaryDto.getFullName(), maxLength): beneficiaryDto.getFullName())
                 .beneficiaryAddressOne(StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength? beneficiaryDto.getFullName().substring(maxLength): null)
                 .beneficiaryAddressTwo(StringUtils.left(StringUtils.isNotBlank(beneficiaryDto.getAddressLine1())?beneficiaryDto.getBankCountry():beneficiaryDto.getAddressLine1(), maxLength))
-                .beneficiaryAddressThree(StringUtils.left(beneficiaryDto.getAddressLine2().concat(SPACE_CHAR+beneficiaryDto.getAddressLine3()), maxLength))
+                .beneficiaryAddressThree(StringUtils.isNotBlank(beneficiaryDto.getAddressLine2())?StringUtils.left(beneficiaryDto.getAddressLine2().concat(SPACE_CHAR+beneficiaryDto.getAddressLine3()), maxLength):beneficiaryDto.getAddressLine3())
                 .destinationCurrency(request.getTxnCurrency())
                 .transactionCode(TRANSACTIONCODE)
                 .dealNumber(request.getDealNumber())
@@ -233,7 +233,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     private FundTransferRequest enrichFundTransferRequestByCountryCode(FundTransferRequest request, BeneficiaryDto beneficiaryDto) {
         List<CountryMasterDto> countryList = maintenanceService.getAllCountries("MOB", "AE", Boolean.TRUE);
         final Optional<CountryMasterDto> countryDto = countryList.stream()
-                .filter(country -> country.getCode().equals(beneficiaryDto.getBeneficiaryCountryISO()))
+                .filter(country -> country.getName().equalsIgnoreCase(beneficiaryDto.getBankCountry()))
                 .findAny();
         if (countryDto.isPresent()) {
             final CountryMasterDto countryMasterDto = countryDto.get();
