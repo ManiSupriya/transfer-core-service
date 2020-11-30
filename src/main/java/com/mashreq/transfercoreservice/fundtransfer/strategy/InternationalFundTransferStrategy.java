@@ -44,6 +44,9 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     private static final String INDIVIDUAL_ACCOUNT = "I";
     private static final String ROUTING_CODE_PREFIX = "//";
     public static final String INTERNATIONAL = "International";
+    public static final String TRANSACTIONCODE = "15";
+    public static final String SPACE_CHAR = " ";
+    int maxLength = 35;
     private final FinTxnNoValidator finTxnNoValidator;
     private final AccountService accountService;
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
@@ -101,6 +104,8 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         } else {
             beneficiaryDto = beneficiaryService.getById(request.getBeneRequiredFields(), Long.valueOf(request.getBeneficiaryId()), metadata, INTERNATIONAL_VALIDATION_TYPE);
         }
+        
+        
         validationContext.add("beneficiary-dto", beneficiaryDto);
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
 
@@ -193,7 +198,10 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
 
     private FundTransferRequest prepareFundTransferRequestPayload(RequestMetaData metadata, FundTransferRequestDTO request,
                                                                   AccountDetailsDTO accountDetails, BeneficiaryDto beneficiaryDto, LimitValidatorResponse validationResult) {
-        final FundTransferRequest fundTransferRequest = FundTransferRequest.builder()
+
+        String additionalFeild = null;
+        
+    	final FundTransferRequest fundTransferRequest = FundTransferRequest.builder()
                 .productId(INTERNATIONAL_PRODUCT_ID)
                 .amount(request.getAmount())
                 .channel(metadata.getChannel())
@@ -206,16 +214,18 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .finTxnNo(request.getFinTxnNo())
                 .sourceCurrency(accountDetails.getCurrency())
                 .sourceBranchCode(accountDetails.getBranchCode())
-                .beneficiaryFullName(beneficiaryDto.getFullName())
+                .beneficiaryFullName(StringUtils.isBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength? StringUtils.left(beneficiaryDto.getFullName(), maxLength): beneficiaryDto.getFullName())
+                .beneficiaryAddressOne(StringUtils.isBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength? beneficiaryDto.getFullName().substring(maxLength): null)
+                .beneficiaryAddressTwo(StringUtils.left(StringUtils.isBlank(beneficiaryDto.getAddressLine1())?beneficiaryDto.getBankCountry():beneficiaryDto.getAddressLine1(), maxLength))
+                .beneficiaryAddressThree(StringUtils.left(beneficiaryDto.getAddressLine2().concat(SPACE_CHAR+beneficiaryDto.getAddressLine3()), maxLength))
                 .destinationCurrency(request.getTxnCurrency())
-                .beneficiaryAddressOne(beneficiaryDto.getAddressLine1())
-                .beneficiaryAddressTwo(StringUtils.isBlank(beneficiaryDto.getAddressLine2())?beneficiaryDto.getBankCountry():beneficiaryDto.getAddressLine2())
-                .beneficiaryAddressThree(beneficiaryDto.getAddressLine3())
-                .transactionCode("15")
+                .transactionCode(TRANSACTIONCODE)
                 .dealNumber(request.getDealNumber())
                 .txnCurrency(request.getTxnCurrency())
                 .dealRate(request.getDealRate())
                 .limitTransactionRefNo(validationResult.getTransactionRefNo())
+                .acwthInst1(StringUtils.isBlank(request.getAdditionalField()) && request.getAdditionalField().length() > maxLength ? StringUtils.left(request.getAdditionalField(), maxLength): request.getAdditionalField())
+                .acwthInst2(StringUtils.isBlank(request.getAdditionalField()) && request.getAdditionalField().length() > maxLength ? request.getAdditionalField().substring(maxLength): null)
                 .build();
 
         return enrichFundTransferRequestByCountryCode(fundTransferRequest, beneficiaryDto);
