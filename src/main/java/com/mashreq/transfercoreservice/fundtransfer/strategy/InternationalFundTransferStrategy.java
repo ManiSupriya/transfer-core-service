@@ -62,7 +62,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     private final BeneficiaryService beneficiaryService;
     private final LimitValidator limitValidator;
 
-    private final HashMap<String, String> countryToCurrencyMap = new HashMap<>();
+    private final HashMap<String, String> routingSuffixMap = new HashMap<>();
 
     @Autowired
     private PostTransactionService postTransactionService;
@@ -72,13 +72,13 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
 
     //Todo: Replace with native currency fetched from API call
     @PostConstruct
-    private void initCountryToNativeCurrencyMap() {
-        countryToCurrencyMap.put("IN", "INR");
-        countryToCurrencyMap.put("AU", "AUD");
-        countryToCurrencyMap.put("CA", "CAD");
-        countryToCurrencyMap.put("NZ", "NZD");
-        countryToCurrencyMap.put("UK", "GBP");
-        countryToCurrencyMap.put("US", "USD");
+    private void initRoutingPrefixMap() {
+        routingSuffixMap.put("IN", "//");
+        routingSuffixMap.put("AU", "//BSB");
+        routingSuffixMap.put("CA", "//");
+        routingSuffixMap.put("NZ", "//BSB");
+        routingSuffixMap.put("UK", "//SC");
+        routingSuffixMap.put("US", "//FW");
     }
 
     @Override
@@ -239,16 +239,16 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     private FundTransferRequest enrichFundTransferRequestByCountryCode(FundTransferRequest request, BeneficiaryDto beneficiaryDto) {
         List<CountryMasterDto> countryList = maintenanceService.getAllCountries("MOB", "AE", Boolean.TRUE);
         final Optional<CountryMasterDto> countryDto = countryList.stream()
-                .filter(country -> country.getCode().equals(beneficiaryDto.getBankCode()))
+                .filter(country -> country.getCode().equals(beneficiaryDto.getBankCountryISO()))
                 .findAny();
         if (countryDto.isPresent()) {
             final CountryMasterDto countryMasterDto = countryDto.get();
-            if (StringUtils.isNotBlank(countryMasterDto.getRoutingCode()) && request.getTxnCurrency()
+            if (StringUtils.isNotBlank(routingSuffixMap.get(beneficiaryDto.getBankCountryISO())) && request.getTxnCurrency()
                     .equalsIgnoreCase(countryMasterDto.getNativeCurrency()) && StringUtils.isNotBlank(beneficiaryDto.getRoutingCode())) {
-                 String routingPrefix=StringUtils.isNotBlank(countryMasterDto.getRoutingCode())?countryMasterDto.getRoutingCode():"";
-                 log.info("Routing Prefix for fund transfer: "+ROUTING_CODE_PREFIX + routingPrefix + beneficiaryDto.getRoutingCode());
+
+                 log.info("Routing Prefix for fund transfer: "+ROUTING_CODE_PREFIX + routingSuffixMap.get(beneficiaryDto.getBankCountryISO()) + beneficiaryDto.getRoutingCode());
                 return request.toBuilder()
-                        .awInstBICCode(ROUTING_CODE_PREFIX + routingPrefix + beneficiaryDto.getRoutingCode())
+                        .awInstBICCode(ROUTING_CODE_PREFIX + routingSuffixMap.get(beneficiaryDto.getBankCountryISO()) + beneficiaryDto.getRoutingCode())
                         .awInstName(beneficiaryDto.getSwiftCode())
                         .build();
             }
