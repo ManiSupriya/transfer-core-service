@@ -62,7 +62,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     private final BeneficiaryService beneficiaryService;
     private final LimitValidator limitValidator;
 
-    private final HashMap<String, String> countryToCurrencyMap = new HashMap<>();
+    private final HashMap<String, String> routingSuffixMap = new HashMap<>();
 
     @Autowired
     private PostTransactionService postTransactionService;
@@ -72,13 +72,13 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
 
     //Todo: Replace with native currency fetched from API call
     @PostConstruct
-    private void initCountryToNativeCurrencyMap() {
-        countryToCurrencyMap.put("IN", "INR");
-        countryToCurrencyMap.put("AU", "AUD");
-        countryToCurrencyMap.put("CA", "CAD");
-        countryToCurrencyMap.put("NZ", "NZD");
-        countryToCurrencyMap.put("UK", "GBP");
-        countryToCurrencyMap.put("US", "USD");
+    private void initRoutingPrefixMap() {
+        routingSuffixMap.put("IN", "/");
+        routingSuffixMap.put("AU", "/BSB");
+        routingSuffixMap.put("CA", "/");
+        routingSuffixMap.put("NZ", "/BSB");
+        routingSuffixMap.put("UK", "/SC");
+        routingSuffixMap.put("US", "/FW");
     }
 
     @Override
@@ -199,8 +199,14 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     private FundTransferRequest prepareFundTransferRequestPayload(RequestMetaData metadata, FundTransferRequestDTO request,
                                                                   AccountDetailsDTO accountDetails, BeneficiaryDto beneficiaryDto, LimitValidatorResponse validationResult) {
 
-        String additionalFeild = null;
-        
+    	String address3 = null;
+    	if(StringUtils.isNotBlank(beneficiaryDto.getAddressLine2()) && StringUtils.isNotBlank(beneficiaryDto.getAddressLine3())){
+    		address3 = StringUtils.left(beneficiaryDto.getAddressLine2().concat(SPACE_CHAR+beneficiaryDto.getAddressLine3()), maxLength);
+    	} else if(StringUtils.isNotBlank(beneficiaryDto.getAddressLine2()) && StringUtils.isBlank(beneficiaryDto.getAddressLine3())){
+    		address3 = StringUtils.left(beneficiaryDto.getAddressLine2(), maxLength);
+    	} else if(StringUtils.isBlank(beneficiaryDto.getAddressLine2()) && StringUtils.isNotBlank(beneficiaryDto.getAddressLine3())){
+    		address3 = StringUtils.left(beneficiaryDto.getAddressLine3(), maxLength);
+    	}
     	final FundTransferRequest fundTransferRequest = FundTransferRequest.builder()
                 .productId(INTERNATIONAL_PRODUCT_ID)
                 .amount(request.getAmount())
@@ -216,8 +222,8 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .sourceBranchCode(accountDetails.getBranchCode())
                 .beneficiaryFullName(StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength? StringUtils.left(beneficiaryDto.getFullName(), maxLength): beneficiaryDto.getFullName())
                 .beneficiaryAddressOne(StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength? beneficiaryDto.getFullName().substring(maxLength): null)
-                .beneficiaryAddressTwo(StringUtils.left(StringUtils.isNotBlank(beneficiaryDto.getAddressLine1())?beneficiaryDto.getBankCountry():beneficiaryDto.getAddressLine1(), maxLength))
-                .beneficiaryAddressThree(StringUtils.isNotBlank(beneficiaryDto.getAddressLine2())?StringUtils.left(beneficiaryDto.getAddressLine2().concat(SPACE_CHAR+beneficiaryDto.getAddressLine3()), maxLength):beneficiaryDto.getAddressLine3())
+                .beneficiaryAddressTwo(StringUtils.left(StringUtils.isBlank(beneficiaryDto.getAddressLine1())?beneficiaryDto.getBankCountry():beneficiaryDto.getAddressLine1(), maxLength))
+                .beneficiaryAddressThree(address3)
                 .destinationCurrency(request.getTxnCurrency())
                 .transactionCode(TRANSACTIONCODE)
                 .dealNumber(request.getDealNumber())
@@ -233,15 +239,16 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     private FundTransferRequest enrichFundTransferRequestByCountryCode(FundTransferRequest request, BeneficiaryDto beneficiaryDto) {
         List<CountryMasterDto> countryList = maintenanceService.getAllCountries("MOB", "AE", Boolean.TRUE);
         final Optional<CountryMasterDto> countryDto = countryList.stream()
-                .filter(country -> country.getCode().equals(beneficiaryDto.getBankCode()))
+                .filter(country -> country.getCode().equals(beneficiaryDto.getBankCountryISO()))
                 .findAny();
         if (countryDto.isPresent()) {
             final CountryMasterDto countryMasterDto = countryDto.get();
-            if (StringUtils.isNotBlank(countryMasterDto.getRoutingCode()) && request.getDestinationCurrency()
-                    .equals(countryToCurrencyMap.get(beneficiaryDto.getBeneficiaryCountryISO()))) {
+            if (StringUtils.isNotBlank(routingSuffixMap.get(beneficiaryDto.getBankCountryISO())) && request.getTxnCurrency()
+                    .equalsIgnoreCase(countryMasterDto.getNativeCurrency()) && StringUtils.isNotBlank(beneficiaryDto.getRoutingCode())) {
 
+                 log.info("Routing Prefix for fund transfer: "+ROUTING_CODE_PREFIX + routingSuffixMap.get(beneficiaryDto.getBankCountryISO()) + beneficiaryDto.getRoutingCode());
                 return request.toBuilder()
-                        .awInstBICCode(ROUTING_CODE_PREFIX + beneficiaryDto.getRoutingCode())
+                        .awInstBICCode(routingSuffixMap.get(beneficiaryDto.getBankCountryISO()) + beneficiaryDto.getRoutingCode())
                         .awInstName(beneficiaryDto.getSwiftCode())
                         .build();
             }
