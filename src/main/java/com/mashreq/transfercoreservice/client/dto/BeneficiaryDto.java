@@ -56,6 +56,7 @@ public class BeneficiaryDto {
     private String bankState;
     private String bankCity;
     private String bankBranchName;
+    private String bankCountryISO;
 
     // Beneficiary address for international beneficiary
     private String addressLine1;
