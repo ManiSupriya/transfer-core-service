@@ -73,12 +73,12 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     //Todo: Replace with native currency fetched from API call
     @PostConstruct
     private void initRoutingPrefixMap() {
-        routingSuffixMap.put("IN", "//");
-        routingSuffixMap.put("AU", "//BSB");
-        routingSuffixMap.put("CA", "//");
-        routingSuffixMap.put("NZ", "//BSB");
-        routingSuffixMap.put("UK", "//SC");
-        routingSuffixMap.put("US", "//FW");
+        routingSuffixMap.put("IN", "/");
+        routingSuffixMap.put("AU", "/BSB");
+        routingSuffixMap.put("CA", "/");
+        routingSuffixMap.put("NZ", "/BSB");
+        routingSuffixMap.put("UK", "/SC");
+        routingSuffixMap.put("US", "/FW");
     }
 
     @Override
@@ -248,7 +248,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
 
                  log.info("Routing Prefix for fund transfer: "+ROUTING_CODE_PREFIX + routingSuffixMap.get(beneficiaryDto.getBankCountryISO()) + beneficiaryDto.getRoutingCode());
                 return request.toBuilder()
-                        .awInstBICCode(ROUTING_CODE_PREFIX + routingSuffixMap.get(beneficiaryDto.getBankCountryISO()) + beneficiaryDto.getRoutingCode())
+                        .awInstBICCode(routingSuffixMap.get(beneficiaryDto.getBankCountryISO()) + beneficiaryDto.getRoutingCode())
                         .awInstName(beneficiaryDto.getSwiftCode())
                         .build();
             }
