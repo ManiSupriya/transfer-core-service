@@ -199,8 +199,14 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     private FundTransferRequest prepareFundTransferRequestPayload(RequestMetaData metadata, FundTransferRequestDTO request,
                                                                   AccountDetailsDTO accountDetails, BeneficiaryDto beneficiaryDto, LimitValidatorResponse validationResult) {
 
-        String additionalFeild = null;
-        
+    	String address3 = null;
+    	if(StringUtils.isNotBlank(beneficiaryDto.getAddressLine2()) && StringUtils.isNotBlank(beneficiaryDto.getAddressLine3())){
+    		address3 = StringUtils.left(beneficiaryDto.getAddressLine2().concat(SPACE_CHAR+beneficiaryDto.getAddressLine3()), maxLength);
+    	} else if(StringUtils.isNotBlank(beneficiaryDto.getAddressLine2()) && StringUtils.isBlank(beneficiaryDto.getAddressLine3())){
+    		address3 = StringUtils.left(beneficiaryDto.getAddressLine2(), maxLength);
+    	} else if(StringUtils.isBlank(beneficiaryDto.getAddressLine2()) && StringUtils.isNotBlank(beneficiaryDto.getAddressLine3())){
+    		address3 = StringUtils.left(beneficiaryDto.getAddressLine3(), maxLength);
+    	}
     	final FundTransferRequest fundTransferRequest = FundTransferRequest.builder()
                 .productId(INTERNATIONAL_PRODUCT_ID)
                 .amount(request.getAmount())
@@ -216,16 +222,15 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .sourceBranchCode(accountDetails.getBranchCode())
                 .beneficiaryFullName(StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength? StringUtils.left(beneficiaryDto.getFullName(), maxLength): beneficiaryDto.getFullName())
                 .beneficiaryAddressOne(StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength? beneficiaryDto.getFullName().substring(maxLength): null)
-                .beneficiaryAddressTwo(StringUtils.left(StringUtils.isNotBlank(beneficiaryDto.getAddressLine1())?beneficiaryDto.getBankCountry():beneficiaryDto.getAddressLine1(), maxLength))
-                .beneficiaryAddressThree(StringUtils.left(beneficiaryDto.getAddressLine2().concat(SPACE_CHAR+beneficiaryDto.getAddressLine3()), maxLength))
+                .beneficiaryAddressTwo(StringUtils.left(StringUtils.isBlank(beneficiaryDto.getAddressLine1())?beneficiaryDto.getBankCountry():beneficiaryDto.getAddressLine1(), maxLength))
+                .beneficiaryAddressThree(address3)
                 .destinationCurrency(request.getTxnCurrency())
                 .transactionCode(TRANSACTIONCODE)
                 .dealNumber(request.getDealNumber())
                 .txnCurrency(request.getTxnCurrency())
                 .dealRate(request.getDealRate())
                 .limitTransactionRefNo(validationResult.getTransactionRefNo())
-                .acwthInst1(StringUtils.isNotBlank(request.getAdditionalField()) && request.getAdditionalField().length() > maxLength ? StringUtils.left(request.getAdditionalField(), maxLength): request.getAdditionalField())
-                .acwthInst2(StringUtils.isNotBlank(request.getAdditionalField()) && request.getAdditionalField().length() > maxLength ? request.getAdditionalField().substring(maxLength): null)
+                .acwthInst1(request.getAdditionalField()) //TODO Add For testing need to create new field to map
                 .build();
 
         return enrichFundTransferRequestByCountryCode(fundTransferRequest, beneficiaryDto);
