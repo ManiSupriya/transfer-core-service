@@ -234,15 +234,16 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     private FundTransferRequest enrichFundTransferRequestByCountryCode(FundTransferRequest request, BeneficiaryDto beneficiaryDto) {
         List<CountryMasterDto> countryList = maintenanceService.getAllCountries("MOB", "AE", Boolean.TRUE);
         final Optional<CountryMasterDto> countryDto = countryList.stream()
-                .filter(country -> country.getCode().equals(beneficiaryDto.getBeneficiaryCountryISO()))
+                .filter(country -> country.getCode().equals(beneficiaryDto.getBankCode()))
                 .findAny();
         if (countryDto.isPresent()) {
             final CountryMasterDto countryMasterDto = countryDto.get();
-            if (StringUtils.isNotBlank(countryMasterDto.getRoutingCode()) && request.getDestinationCurrency()
-                    .equals(countryToCurrencyMap.get(beneficiaryDto.getBeneficiaryCountryISO()))) {
-
+            if (StringUtils.isNotBlank(countryMasterDto.getRoutingCode()) && request.getTxnCurrency()
+                    .equalsIgnoreCase(countryMasterDto.getNativeCurrency()) && StringUtils.isNotBlank(beneficiaryDto.getRoutingCode())) {
+                 String routingPrefix=StringUtils.isNotBlank(countryMasterDto.getRoutingCode())?countryMasterDto.getRoutingCode():"";
+                 log.info("Routing Prefix for fund transfer: "+ROUTING_CODE_PREFIX + routingPrefix + beneficiaryDto.getRoutingCode());
                 return request.toBuilder()
-                        .awInstBICCode(ROUTING_CODE_PREFIX + beneficiaryDto.getRoutingCode())
+                        .awInstBICCode(ROUTING_CODE_PREFIX + routingPrefix + beneficiaryDto.getRoutingCode())
                         .awInstName(beneficiaryDto.getSwiftCode())
                         .build();
             }
