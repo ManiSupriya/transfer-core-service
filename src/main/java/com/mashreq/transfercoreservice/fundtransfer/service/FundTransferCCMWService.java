@@ -51,6 +51,7 @@ public class FundTransferCCMWService {
     private static final String SUCCESS_EXPAND = "SUCCESS";
     private static final String SUCCESS_CODE_ENDS_WITH = "-000";
     private static final String PAYMENT_DETAIL_PREFIX = "/REF/ ";
+    public static final String SPACE_CHAR = " ";
 
 
     public static final String DEBIT_ACCOUNT_BRANCH = "030";
@@ -207,7 +208,12 @@ public class FundTransferCCMWService {
         creditLeg.setUltimateBeneficiary2(fundTransferRequest.getBeneficiaryFullName());
         creditLeg.setUltimateBeneficiary4(fundTransferRequest.getBeneficiaryFullName());
         creditLeg.setChargeBearer(fundTransferRequest.getChargeBearer());
-        creditLeg.setPaymentDetails1(PAYMENT_DETAIL_PREFIX + fundTransferRequest.getPurposeDesc());
+        if (StringUtils.isNotBlank(fundTransferRequest.getAcwthInst1())) {
+			creditLeg.setPaymentDetails1(PAYMENT_DETAIL_PREFIX + fundTransferRequest.getPurposeDesc() + SPACE_CHAR
+					+ fundTransferRequest.getAcwthInst1());
+		} else{
+			creditLeg.setPaymentDetails1(PAYMENT_DETAIL_PREFIX + fundTransferRequest.getPurposeDesc());
+		}
         creditLeg.setAcwthInst1(fundTransferRequest.getAcwthInst1());
         creditLeg.setAcwthInst2(fundTransferRequest.getAcwthInst2());
         creditLeg.setAcwthInst5(fundTransferRequest.getAcwthInst5());
