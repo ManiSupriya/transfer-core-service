@@ -77,7 +77,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         routingSuffixMap.put("AU", "/BSB");
         routingSuffixMap.put("CA", "/");
         routingSuffixMap.put("NZ", "/BSB");
-        routingSuffixMap.put("UK", "/SC");
+        routingSuffixMap.put("GB", "/SC");
         routingSuffixMap.put("US", "/FW");
     }
 
