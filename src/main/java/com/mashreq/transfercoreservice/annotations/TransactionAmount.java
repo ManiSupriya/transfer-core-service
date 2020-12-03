@@ -16,7 +16,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * @author shahbazkh
  */
 @Positive(message = "Should be positive")
-@Digits(fraction = 2, integer = 6, message = "Amount should be in 6 digits with two fraction")
+@Digits(fraction = 2, integer = 15, message = "Amount should be in 15 digits with two fraction")
 @Target(FIELD)
 @Retention(RUNTIME)
 @Constraint(validatedBy = {})
