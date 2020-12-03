@@ -199,14 +199,15 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     private FundTransferRequest prepareFundTransferRequestPayload(RequestMetaData metadata, FundTransferRequestDTO request,
                                                                   AccountDetailsDTO accountDetails, BeneficiaryDto beneficiaryDto, LimitValidatorResponse validationResult) {
 
-    	String address3 = null;
-    	if(StringUtils.isNotBlank(beneficiaryDto.getAddressLine2()) && StringUtils.isNotBlank(beneficiaryDto.getAddressLine3())){
+    	String add1 = StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength? StringUtils.left(beneficiaryDto.getFullName().substring(maxLength) + " "+beneficiaryDto.getAddressLine1(),maxLength): null;
+        String add3 = add1+" "+ beneficiaryDto.getAddressLine2()+ " "+ beneficiaryDto.getAddressLine3();
+    	/*if(StringUtils.isNotBlank(beneficiaryDto.getAddressLine2()) && StringUtils.isNotBlank(beneficiaryDto.getAddressLine3())){
     		address3 = StringUtils.left(beneficiaryDto.getAddressLine2().concat(SPACE_CHAR+beneficiaryDto.getAddressLine3()), maxLength);
     	} else if(StringUtils.isNotBlank(beneficiaryDto.getAddressLine2()) && StringUtils.isBlank(beneficiaryDto.getAddressLine3())){
     		address3 = StringUtils.left(beneficiaryDto.getAddressLine2(), maxLength);
     	} else if(StringUtils.isBlank(beneficiaryDto.getAddressLine2()) && StringUtils.isNotBlank(beneficiaryDto.getAddressLine3())){
     		address3 = StringUtils.left(beneficiaryDto.getAddressLine3(), maxLength);
-    	}
+    	}*/
     	final FundTransferRequest fundTransferRequest = FundTransferRequest.builder()
                 .productId(INTERNATIONAL_PRODUCT_ID)
                 .amount(request.getAmount())
@@ -221,9 +222,8 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .sourceCurrency(accountDetails.getCurrency())
                 .sourceBranchCode(accountDetails.getBranchCode())
                 .beneficiaryFullName(StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength? StringUtils.left(beneficiaryDto.getFullName(), maxLength): beneficiaryDto.getFullName())
-                .beneficiaryAddressOne(StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength? beneficiaryDto.getFullName().substring(maxLength): null)
-                .beneficiaryAddressTwo(StringUtils.left(StringUtils.isBlank(beneficiaryDto.getAddressLine1())?beneficiaryDto.getBankCountry():beneficiaryDto.getAddressLine1(), maxLength))
-                .beneficiaryAddressThree(address3)
+                .beneficiaryAddressOne(add1)
+                .beneficiaryAddressThree(add3)
                 .destinationCurrency(request.getTxnCurrency())
                 .transactionCode(TRANSACTIONCODE)
                 .dealNumber(request.getDealNumber())
@@ -241,6 +241,8 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         final Optional<CountryMasterDto> countryDto = countryList.stream()
                 .filter(country -> country.getCode().equals(beneficiaryDto.getBankCountryISO()))
                 .findAny();
+
+
         if (countryDto.isPresent()) {
             final CountryMasterDto countryMasterDto = countryDto.get();
             if (StringUtils.isNotBlank(routingSuffixMap.get(beneficiaryDto.getBankCountryISO())) && request.getTxnCurrency()
@@ -250,12 +252,14 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 return request.toBuilder()
                         .awInstBICCode(routingSuffixMap.get(beneficiaryDto.getBankCountryISO()) + beneficiaryDto.getRoutingCode())
                         .awInstName(beneficiaryDto.getSwiftCode())
+                        .beneficiaryAddressTwo(StringUtils.isNotBlank(countryMasterDto.getName())?countryMasterDto.getName().toUpperCase():countryMasterDto.getName())
                         .build();
             }
         }
         return request.toBuilder()
                 .awInstBICCode(beneficiaryDto.getSwiftCode())
                 .awInstName(beneficiaryDto.getBankName())
+                .beneficiaryAddressTwo(countryDto.isPresent()&&StringUtils.isNotBlank(countryDto.get().getName())?countryDto.get().getName().toUpperCase():null)
                 .build();
     }
     
