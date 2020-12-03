@@ -152,7 +152,11 @@ public class FundTransferMWService {
         creditLeg.setTransactionCode(request.getTransactionCode());
         creditLeg.setCurrency(request.getDestinationCurrency());
         creditLeg.setChargeBearer(request.getChargeBearer());
+        if (StringUtils.isNotBlank(request.getAcwthInst1())){
         creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc()+SPACE_CHAR+request.getAcwthInst1());
+        }else {
+        	creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc());	
+        }
         creditLeg.setBenName(request.getBeneficiaryFullName());
         creditLeg.setAWInstName(request.getAwInstName());
         creditLeg.setAWInstBICCode(request.getAwInstBICCode());

@@ -77,7 +77,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         routingSuffixMap.put("AU", "/BSB");
         routingSuffixMap.put("CA", "/");
         routingSuffixMap.put("NZ", "/BSB");
-        routingSuffixMap.put("UK", "/SC");
+        routingSuffixMap.put("GB", "/SC");
         routingSuffixMap.put("US", "/FW");
     }
 
@@ -230,7 +230,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .txnCurrency(request.getTxnCurrency())
                 .dealRate(request.getDealRate())
                 .limitTransactionRefNo(validationResult.getTransactionRefNo())
-                .acwthInst1(request.getAdditionalField()) //TODO Add For testing need to create new field to map
+                .acwthInst1(request.getFinalBene()) //TODO Add For testing need to create new field to map
                 .build();
 
         return enrichFundTransferRequestByCountryCode(fundTransferRequest, beneficiaryDto);
