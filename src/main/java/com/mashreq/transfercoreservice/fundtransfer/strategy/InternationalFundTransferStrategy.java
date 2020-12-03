@@ -230,7 +230,8 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .txnCurrency(request.getTxnCurrency())
                 .dealRate(request.getDealRate())
                 .limitTransactionRefNo(validationResult.getTransactionRefNo())
-                .acwthInst1(request.getFinalBene()) //TODO Add For testing need to create new field to map
+                .finalBene(request.getFinalBene())
+                .additionaField(request.getAdditionalField())
                 .build();
 
         return enrichFundTransferRequestByCountryCode(fundTransferRequest, beneficiaryDto);

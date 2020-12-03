@@ -48,4 +48,6 @@ public class FundTransferRequest {
     private String status;
     private String txnCurrency;
     private String NotificationType;
+    private String finalBene;
+    private String additionaField;
 }
