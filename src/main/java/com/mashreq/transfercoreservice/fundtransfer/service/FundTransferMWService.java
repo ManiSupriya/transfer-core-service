@@ -153,7 +153,7 @@ public class FundTransferMWService {
         creditLeg.setCurrency(request.getDestinationCurrency());
         creditLeg.setChargeBearer(request.getChargeBearer());
         String additionalField=StringUtils.isNotBlank(request.getAdditionaField())?SPACE_CHAR+request.getAdditionaField():"";
-        if (StringUtils.isNotBlank(request.getAcwthInst1())){
+        if (StringUtils.isNotBlank(request.getFinalBene())){
         creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc()+SPACE_CHAR+request.getFinalBene()+additionalField);
         }else {
         	creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc());	
