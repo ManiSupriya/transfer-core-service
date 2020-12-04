@@ -199,8 +199,8 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     private FundTransferRequest prepareFundTransferRequestPayload(RequestMetaData metadata, FundTransferRequestDTO request,
                                                                   AccountDetailsDTO accountDetails, BeneficiaryDto beneficiaryDto, LimitValidatorResponse validationResult) {
 
-    	String add1 = StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength? StringUtils.left(beneficiaryDto.getFullName().substring(maxLength) + " "+beneficiaryDto.getAddressLine1(),maxLength): null;
-        String add3 = add1+" "+ beneficiaryDto.getAddressLine2()+ " "+ beneficiaryDto.getAddressLine3();
+    	String add1 = StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength? StringUtils.left(beneficiaryDto.getFullName().substring(maxLength) + " "+beneficiaryDto.getAddressLine1(),maxLength): "";
+        String add3 = StringUtils.isNotBlank(add1)?add1+" ":""+ beneficiaryDto.getAddressLine2()+ " "+ beneficiaryDto.getAddressLine3();
     	/*if(StringUtils.isNotBlank(beneficiaryDto.getAddressLine2()) && StringUtils.isNotBlank(beneficiaryDto.getAddressLine3())){
     		address3 = StringUtils.left(beneficiaryDto.getAddressLine2().concat(SPACE_CHAR+beneficiaryDto.getAddressLine3()), maxLength);
     	} else if(StringUtils.isNotBlank(beneficiaryDto.getAddressLine2()) && StringUtils.isBlank(beneficiaryDto.getAddressLine3())){
