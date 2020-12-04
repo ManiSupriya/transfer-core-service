@@ -156,7 +156,7 @@ public class FundTransferMWService {
         if (StringUtils.isNotBlank(request.getFinalBene())){
         creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc()+SPACE_CHAR+request.getFinalBene()+additionalField);
         }else {
-        	creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc());	
+        	creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc() + additionalField);
         }
         creditLeg.setBenName(request.getBeneficiaryFullName());
         creditLeg.setAWInstName(request.getAwInstName());
