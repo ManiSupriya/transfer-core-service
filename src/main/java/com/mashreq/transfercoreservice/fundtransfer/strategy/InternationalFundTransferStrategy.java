@@ -199,8 +199,14 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     private FundTransferRequest prepareFundTransferRequestPayload(RequestMetaData metadata, FundTransferRequestDTO request,
                                                                   AccountDetailsDTO accountDetails, BeneficiaryDto beneficiaryDto, LimitValidatorResponse validationResult) {
 
-    	String add1 = StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength? StringUtils.left(beneficiaryDto.getFullName().substring(maxLength) + " "+beneficiaryDto.getAddressLine1(),maxLength): "";
-        String add3 = StringUtils.isNotBlank(add1)?add1+" ":""+ beneficiaryDto.getAddressLine2()+ " "+ beneficiaryDto.getAddressLine3();
+        String beneFullName =StringUtils.isNotBlank(beneficiaryDto.getFullName())&& beneficiaryDto.getFullName().length() > maxLength?beneficiaryDto.getFullName().substring(maxLength)+" ":"";
+        String add1 =StringUtils.isNotBlank(beneficiaryDto.getAddressLine1())?beneficiaryDto.getAddressLine1()+" ":"";
+        String add2 =StringUtils.isNotBlank(beneficiaryDto.getAddressLine2())?beneficiaryDto.getAddressLine2()+" ":"";
+        String add3 =StringUtils.isNotBlank(beneficiaryDto.getAddressLine3())?beneficiaryDto.getAddressLine3():"";
+
+
+    	String finalAdd1= StringUtils.left(beneFullName+add1,maxLength);
+        String finalAdd2 = StringUtils.left(finalAdd1+add2+add3,maxLength);
     	/*if(StringUtils.isNotBlank(beneficiaryDto.getAddressLine2()) && StringUtils.isNotBlank(beneficiaryDto.getAddressLine3())){
     		address3 = StringUtils.left(beneficiaryDto.getAddressLine2().concat(SPACE_CHAR+beneficiaryDto.getAddressLine3()), maxLength);
     	} else if(StringUtils.isNotBlank(beneficiaryDto.getAddressLine2()) && StringUtils.isBlank(beneficiaryDto.getAddressLine3())){
@@ -222,8 +228,8 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .sourceCurrency(accountDetails.getCurrency())
                 .sourceBranchCode(accountDetails.getBranchCode())
                 .beneficiaryFullName(StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength? StringUtils.left(beneficiaryDto.getFullName(), maxLength): beneficiaryDto.getFullName())
-                .beneficiaryAddressOne(add1)
-                .beneficiaryAddressThree(add3)
+                .beneficiaryAddressOne(finalAdd1)
+                .beneficiaryAddressThree(finalAdd2)
                 .destinationCurrency(request.getTxnCurrency())
                 .transactionCode(TRANSACTIONCODE)
                 .dealNumber(request.getDealNumber())
