@@ -206,7 +206,12 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
 
 
     	String finalAdd1= StringUtils.left(beneFullName+add1,maxLength);
-        String finalAdd2 = StringUtils.left(finalAdd1.substring(maxLength)+add2+add3,maxLength);
+        String finalAdd2 = null;
+    	if(StringUtils.isNotBlank(finalAdd1) && finalAdd1.length()>maxLength)
+            finalAdd2 = StringUtils.left(finalAdd1.substring(maxLength)+add2+add3,maxLength);
+    	else
+            finalAdd2 = StringUtils.left(add2+add3,maxLength);
+
     	/*if(StringUtils.isNotBlank(beneficiaryDto.getAddressLine2()) && StringUtils.isNotBlank(beneficiaryDto.getAddressLine3())){
     		address3 = StringUtils.left(beneficiaryDto.getAddressLine2().concat(SPACE_CHAR+beneficiaryDto.getAddressLine3()), maxLength);
     	} else if(StringUtils.isNotBlank(beneficiaryDto.getAddressLine2()) && StringUtils.isBlank(beneficiaryDto.getAddressLine3())){
