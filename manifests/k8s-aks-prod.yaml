@@ -53,7 +53,9 @@ spec:
             fieldRef:
               fieldPath: metadata.namespace
         - name: APPDYNAMICS_AGENT_APPLICATION_NAME
-          value: $(APPLICATION_NAME)-$(ENVIRONMENT_NAME)
+          value: MOB-$(ENVIRONMENT_NAME)
+        - name: APPDYNAMICS_AGENT_TIER_NAME
+          value: $(APPLICATION_NAME)
         - name: JAVA_OPTS
           value: -Xms512m -Xmx1200m
         - name: PLACEHOLDER
