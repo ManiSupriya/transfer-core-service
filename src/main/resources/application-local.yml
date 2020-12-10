@@ -14,9 +14,9 @@ spring:
   profiles.active: local
   main.lazy-initialization: false
   datasource:
-    url: ${MSSQL_DEV_URL:jdbc:sqlserver://10.196.3.22:1433;databaseName=MOB-DEV}
-    username: ${MSSQL_DEV_USERNAME:Mobdbuser}
-    password: ${MSSQL_DB_KEY:Mobdbuser}
+    url: jdbc:sqlserver://localhost:1433;databaseName=MOB-LOCAL
+    username: ${MSSQL_DEV_USERNAME:SA}
+    password: ${MSSQL_DB_KEY:Asdasdasd123}
   jpa:
     show-sql: true
     hibernate:
@@ -95,6 +95,7 @@ app:
     mobcustomer: ${MOB_CUSTOMER_SERVICE:http://localhost:8088}
     beneficiary: ${BENEFICIARY_CORE_SERVICE:http://digital-dev.mashreq.com/api/beneficiary-core-service}
     mobcommon: ${MOB_COMMON_SERVICE:http://digital-dev.mashreq.com/api/mob-common-service}
+    beneficiaryservice: https://digital-uat.mashreq.com/api/beneficiary-service
   middleware:
     endpoint: http://172.24.70.29:7800/AllOperationsSOAP_HTTP_Service
     timeout: 100000
@@ -137,9 +138,9 @@ redis:
 mob-common:
   commonUserEventDataSource:
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
-    jdbcUrl: ${MSSQL_EVENT_DEV_URL:jdbc:sqlserver://10.196.3.22:1433;databaseName=MOB-DEV}
-    username: ${MSSQL_EVENT_DEV_USERNAME:Mobdbuser}
-    password: ${MSSQL_EVENT_DB_KEY:Mobdbuser}
+    jdbcUrl: jdbc:sqlserver://localhost:1433;databaseName=MOB-LOCAL
+    username: SA
+    password: Asdasdasd123
     maxPoolSize: 40
     poolName: hikari-user-events-life-pool
     minimumidletime: 600000

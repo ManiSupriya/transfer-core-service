@@ -92,6 +92,7 @@ public enum TransferErrorCode implements ErrorCode {
     IFSC_CODE_NOT_FOUND("TN-5110", "IFSC Code not found"),
     INVALID_FLEX_RULE_COUNTRY("TN-5111", "Invalid Country for rule engine"),
     INVALID_SWIFT_CODE("TN-5112", "Invalid Swift code"),
+    BIC_SEARCH_FAILED("TN-5113", "BIC Code search failed"),
 
 
     EXTERNAL_SERVICE_ERROR("TN-5000", "Something went wrong with external service"),

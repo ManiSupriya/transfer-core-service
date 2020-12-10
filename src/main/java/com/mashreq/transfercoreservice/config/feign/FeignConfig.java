@@ -10,7 +10,6 @@ import feign.codec.ErrorDecoder;
  * @date 3/8/20
  */
 
-@Configuration
 public class FeignConfig {
 
     @Bean
