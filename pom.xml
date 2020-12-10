@@ -51,6 +51,7 @@
         <log4j-api.version>2.13.2</log4j-api.version>
 		<tomcat.version>9.0.37</tomcat.version>
         <properties-maven-plugin.version>1.0.0</properties-maven-plugin.version>
+        <jackson.databind.version>2.11.0</jackson.databind.version>
     </properties>
 
     <repositories>
@@ -286,7 +287,7 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.5.12</version>
+            <version>4.5.13</version>
         </dependency>
 
         <dependency>
@@ -294,7 +295,24 @@
             <artifactId>feign-httpclient</artifactId>
             <version>10.9</version>
         </dependency>
-        
+
+        <dependency>
+            <groupId>com.mashreq</groupId>
+            <artifactId>logcore</artifactId>
+            <version>${com.mashreq.logcore}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.databind.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>
