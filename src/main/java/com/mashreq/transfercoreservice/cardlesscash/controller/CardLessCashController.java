@@ -147,7 +147,14 @@ public class CardLessCashController {
      
      private void assertMobileNo(final String mobileNumber, RequestMetaData metaData) {
      	log.info("cardLessCash  mobileNumber {} Validation", htmlEscape(mobileNumber));
-         if (mobileNumber.isEmpty() || !mobileNumber.matches("^[0-9]{10}$")) {
+     	 /*
+         * Bug 35838 - BE|Cardless cash -Getting request failed due to validation of mobile digit number
+         * 
+         *  change: 
+         *  As discussed with NavaKumar the mobile no can contain 12 digits or 10 digits, so we are checking only whether mobile no is empty or not
+         * 
+         */
+     	if (mobileNumber.isEmpty()) {
          	asyncUserEventPublisher.publishFailedEsbEvent(FundTransferEventType.CARD_LESS_CASH_MOBILE_NUMBER_DOES_NOT_MATCH, metaData, CARD_LESS_CASH, metaData.getChannelTraceId(),
          			TransferErrorCode.MOBILE_NUMBER_DOES_NOT_MATCH.toString(), TransferErrorCode.MOBILE_NUMBER_DOES_NOT_MATCH.getErrorMessage(),
        			TransferErrorCode.MOBILE_NUMBER_DOES_NOT_MATCH.getErrorMessage());
