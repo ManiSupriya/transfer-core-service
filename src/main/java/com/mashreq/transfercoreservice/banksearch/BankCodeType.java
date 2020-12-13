@@ -9,7 +9,8 @@ import com.mashreq.transfercoreservice.annotations.ValidEnum;
 public enum BankCodeType implements ValidEnum {
     IBAN("iban"),
     SWIFT("swift"),
-    ROUTE_CODE("routing-code");
+    ROUTE_CODE("routing-code"),
+    BIC("bic");
 
     BankCodeType(final String name) {
         this.name = name;

@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/bank/search")
-public class BankDetailController {
+public class BankSearchController {
 
     private final BankDetailService bankDetailService;
     private final AccountClient accountClient;

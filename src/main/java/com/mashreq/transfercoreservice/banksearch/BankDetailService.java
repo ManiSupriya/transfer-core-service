@@ -31,6 +31,7 @@ public class BankDetailService {
     private final OmwCoreClient omwClient;
     private final SwiftBankDetailsMapper bankDetailsMapper;
     private final SoapServiceProperties soapServiceProperties;
+    private final BICCodeSearchService bicCodeSearchService;
     
     public BankResultsDto getBankDetails(final String swiftCode, RequestMetaData requestMetadata) {
     	validateSwiftCode(swiftCode);
@@ -46,6 +47,9 @@ public class BankDetailService {
     }
 
     public List<BankResultsDto> getBankDetails(final String channelTraceId, final BankDetailRequestDto bankDetailRequest, final RequestMetaData requestMetaData) {
+        if("bic".equalsIgnoreCase(bankDetailRequest.getType())){
+            return bicCodeSearchService.fetchBankDetailsWithBic(bankDetailRequest.getCountryCode(), requestMetaData );
+        }
         if ("iban".equals(bankDetailRequest.getType())) {
             return ibanSearchMWService.fetchBankDetailsWithIban(channelTraceId, bankDetailRequest.getValue(), requestMetaData );
         }
