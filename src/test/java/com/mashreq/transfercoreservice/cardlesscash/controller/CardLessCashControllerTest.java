@@ -132,7 +132,7 @@ public class CardLessCashControllerTest {
 		try {
 			String accountNumber = "019100064328";
 			BigDecimal amount = new BigDecimal("1000");
-			String mobileNo = "191064328";
+			String mobileNo = "";
 			String userId = "12345";
 			CardLessCashGenerationRequest cardLessCashGenerationRequest = CardLessCashGenerationRequest.builder()
 					.accountNo(accountNumber).amount(amount).build();
