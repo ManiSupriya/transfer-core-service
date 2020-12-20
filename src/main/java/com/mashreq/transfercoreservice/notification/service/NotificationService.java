@@ -53,7 +53,11 @@ public class NotificationService {
         String channel = isMobile ? MOBILE_BANKING : ONLINE_BANKING;
         customer.setChannel(channel);
         /**
+         * BUG 36630 - Local & INFT - SMS - customer contact center number is not correct in SMS for fund transfer
+         * 
+         *  change: 
          * this is fix for the wrong customer care details in SMS, Now SMS Info populating based on the Segment from segment_ms table
+         * 
          */
         customer.setSegment(digitalUserSegment.getCustomerCareInfo(metaData.getSegment()));
         if (!StringUtils.isEmpty(phoneNo)) {
