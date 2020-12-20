@@ -44,6 +44,11 @@ spec:
       labels:
         app: #{Build.Repository.Name}#
     spec:
+      tolerations:
+      - key: app
+        value: mob
+        operator: Equal
+        effect: NoSchedule
       containers:
       - env:
         - name: APPLICATION_NAME
