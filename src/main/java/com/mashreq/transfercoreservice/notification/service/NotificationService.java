@@ -36,6 +36,9 @@ public class NotificationService {
 
     @Autowired
     private AsyncUserEventPublisher userEventPublisher;
+    
+    @Autowired
+    private DigitalUserSegment digitalUserSegment;
 
     public static final String MOBILE = "MOBILE";
     public static final String MOBILE_BANKING = "Mobile Banking";
@@ -49,6 +52,10 @@ public class NotificationService {
         boolean isMobile = metaData.getChannel().contains(MOBILE);
         String channel = isMobile ? MOBILE_BANKING : ONLINE_BANKING;
         customer.setChannel(channel);
+        /**
+         * this is fix for the wrong customer care details in SMS, Now SMS Info populating based on the Segment from segment_ms table
+         */
+        customer.setSegment(digitalUserSegment.getCustomerCareInfo(metaData.getSegment()));
         if (!StringUtils.isEmpty(phoneNo)) {
             sendSms(customer, type, metaData, phoneNo);
         }
