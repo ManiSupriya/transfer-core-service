@@ -25,7 +25,7 @@ public class ValidationContext {
 
     public <T> T get(String key, Class<T> clazz) {
         if (!map.containsKey(key)) {
-            log.error("Cannot find any data with key [ {} ] in Validation Context ", key);
+            log.warn("Cannot find any data with key [ {} ] in Validation Context ", key);
         }
         return clazz.cast(map.get(key));
     }

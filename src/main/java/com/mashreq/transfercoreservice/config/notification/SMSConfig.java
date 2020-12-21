@@ -24,11 +24,18 @@ public class SMSConfig {
         if(type.equals(OWN_ACCOUNT_TRANSACTION)){
             return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getChannel(),customerNotification.getCurrency(),customerNotification.getAmount(),customerNotification.getTxnRef(),customerNotification.getSegment().getCustomerCareNumber());
         }
+        /**
+         * BUG 36630 - Local & INFT - SMS - customer contact center number is not correct in SMS for fund transfer
+         * 
+         *  change: 
+         * this is fix for the wrong customer care details in SMS, Now SMS Info populating based on the Segment from segment_ms table
+         * 
+         */
         if(type.equals(LOCAL_ACCOUNT_TRANSACTION)){
-            return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getChannel(),customerNotification.getCurrency(),customerNotification.getAmount(),customerNotification.getTxnRef(),callCenterNo);
+            return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getChannel(),customerNotification.getCurrency(),customerNotification.getAmount(),customerNotification.getTxnRef(),customerNotification.getSegment().getCustomerCareNumber());
         }
         if(type.equals(OTHER_ACCOUNT_TRANSACTION)){
-            return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getChannel(),customerNotification.getCurrency(),customerNotification.getAmount(),customerNotification.getTxnRef(),callCenterNo);
+            return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getChannel(),customerNotification.getCurrency(),customerNotification.getAmount(),customerNotification.getTxnRef(),customerNotification.getSegment().getCustomerCareNumber());
         }
         return "";
     }
