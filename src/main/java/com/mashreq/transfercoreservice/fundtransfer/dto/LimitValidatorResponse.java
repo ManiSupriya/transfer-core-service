@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 @Builder
 public class LimitValidatorResponse {
 
-    private boolean isValid;
+    private Boolean isValid;
     private BigDecimal currentAvailableAmount;
     private Integer currentAvailableCount;
     private String amountRemark;
