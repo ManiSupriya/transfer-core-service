@@ -148,7 +148,7 @@ public class LimitValidator {
         limitValidatorResultsDto.setTransactionRefNo(transactionRefNo);
 
         final String remarks = getRemarks(limitValidatorResultsDto, metaData.getPrimaryCif(), String.valueOf(paidAmount), beneficiaryType);
-        if (!limitValidatorResultsDto.isValid()) {
+        if (Boolean.FALSE.equals(limitValidatorResultsDto.getIsValid())) {
             if (LimitCheckType.MONTHLY_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, MONTHLY_AMOUNT_REACHED.getCustomErrorCode(), MONTHLY_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
                 GenericExceptionHandler.handleError(MONTHLY_AMOUNT_REACHED,
