@@ -49,6 +49,15 @@ spec:
         value: mob
         operator: Equal
         effect: NoSchedule
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: agentpool
+                operator: In
+                values:
+                - mobnodepool
       containers:
       - env:
         - name: APPLICATION_NAME
