@@ -91,9 +91,10 @@ public class BankResultsDto {
     public BankResultsDto(BICCodeSearchResponseDto bankDetails) {
         setBankName(bankDetails.getBankName());
         setBankCountry(bankDetails.getBankCountry());
-        setBankCity(bankDetails.getBankCity());
+        //change after discussing with Nava and Indrajit as branchCode is mapped to Address3 in SME
+        setBankCity(bankDetails.getBranchCode());
         setSwiftCode(bankDetails.getSwiftCode());
-        setBranchCode(bankDetails.getBranchCode());
+        //setBranchCode(bankDetails.getBankCity());
         setBranchName(bankDetails.getBranchName());
     }
 }
