@@ -51,8 +51,13 @@ public class DealValidator implements Validator {
 			if (request.getDealNumber() != null) {
 				dealEnquiryDto = maintenanceService.getFXDealInformation(request.getDealNumber());
 				for (DealEnquiryDetailsDto dealEnquiryDetailsDto : dealEnquiryDto.getDetailsDtoList()) {
-					BigDecimal availableDealAmount = dealEnquiryDetailsDto.getDealAmount().subtract(new BigDecimal(dealEnquiryDetailsDto.getTotalUtilizedAmount())) ;
-			        log.info("availableDealAmount {}",availableDealAmount);
+					/*
+			        BugID 40597 :
+			        -- Fix done to handle null value for FX deal utilized amount.
+			        -- This issue is faced only for newly created deals as those deal don't have valid utilized amount
+			        */
+					BigDecimal availableDealAmount = StringUtils.isNotBlank(dealEnquiryDetailsDto.getTotalUtilizedAmount())?dealEnquiryDetailsDto.getDealAmount().subtract(new BigDecimal(dealEnquiryDetailsDto.getTotalUtilizedAmount())):dealEnquiryDetailsDto.getDealAmount();
+					log.info("availableDealAmount {}",availableDealAmount);
 			        if(availableDealAmount.compareTo(ZERO) == 0) {
 			        	log.info("Deal Validation failed");
 			        	auditEventPublisher.publishFailureEvent(FundTransferEventType.DEAL_VALIDATION, metadata,
