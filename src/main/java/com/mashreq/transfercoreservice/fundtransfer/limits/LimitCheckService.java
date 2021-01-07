@@ -1,7 +1,6 @@
 package com.mashreq.transfercoreservice.fundtransfer.limits;
 
 
-
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.fundtransfer.dto.LimitValidatorResponse;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +10,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Service;
-import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 import javax.sql.DataSource;
 import java.math.BigDecimal;
@@ -19,7 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ERROR_LIMIT_CHECK;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.LIMIT_PACKAGE_NOT_DEFINED;
 
 @Slf4j
 @Service
@@ -27,6 +27,7 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ERROR_LIM
 public class LimitCheckService {
 
     private final DataSource dataSource;
+    private final String LIMIT_PACKAGE_NOT_FOUND_SP_ERROR = "SP-1000";
 
     private static <T> T convertInstanceOfObject(Object obj, Class<T> clazz){
         if(obj != null)
@@ -61,6 +62,16 @@ public class LimitCheckService {
             log.error("Error for limit validator={}", e.getMessage());
             GenericExceptionHandler.handleError(ERROR_LIMIT_CHECK, ERROR_LIMIT_CHECK.getErrorMessage());
         }
+
+        if (limitValidatorResponse.getErrorCode() != null &&
+                LIMIT_PACKAGE_NOT_FOUND_SP_ERROR.equalsIgnoreCase(limitValidatorResponse.getErrorCode())) {
+            log.error("Error for limit validator because limit package not found for SEGMENT ={} and trxType={} ",
+                    htmlEscape(segment), htmlEscape(beneficiaryTypeCode));
+
+            GenericExceptionHandler.handleError(LIMIT_PACKAGE_NOT_DEFINED,
+                    LIMIT_PACKAGE_NOT_DEFINED.getErrorMessage());
+        }
+
         return limitValidatorResponse;
     }
 
