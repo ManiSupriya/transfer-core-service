@@ -70,6 +70,16 @@ public interface CoreEnquiryService<R, P> {
 					assignCustomErrorCode(response.getErrorCode(), OTP_VERIFY_USER_INACTIVE_STATUS);
 				} else if (FAILED_TO_DECRYPT.equals(errorHandlingStrategy)) {
 					assignCustomErrorCode(response.getErrorCode(), OTP_VERIFY_USER_FAILED_TO_DECRYPT);
+				} else if (EXCEEDS_WITHDRAWL_LIMIT.equals(errorHandlingStrategy)) {
+					assignCustomErrorCode(response.getErrorCode(), ACC_SERVICE_EXCEED_WITHDRAWL_LIMIT_ERROR);
+				} else if (DENIED_BY_POLICY_OTP_REUSE_NOT_ALLOWED.equals(errorHandlingStrategy)) {
+					assignCustomErrorCode(response.getErrorCode(), DENIED_BY_POLICY_OTP_REUSE_NOT_ALLOWED_STAUS);
+				} else if (OBJ_TOKENSTORE_ID_NOT_FOUND.equals(errorHandlingStrategy)) {
+					assignCustomErrorCode(response.getErrorCode(), OBJ_TOKENSTORE_ID_NOT_FOUND_STATUS);
+				} else if (USER_SESSION_ALREADY_INVALIDATED.equals(errorHandlingStrategy)) {
+					assignCustomErrorCode(response.getErrorCode(), USER_SESSION_ALREADY_INVALIDATED_STATUS);
+				} else if (EXCEEDS_WITHDRAWL_FREEQUENCY.equals(errorHandlingStrategy)) {
+					assignCustomErrorCode(response.getErrorCode(), ACC_SERVICE_EXCEED_WITHDRAWL_ERROR);
 				}
             } else {
                 GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR, EXTERNAL_SERVICE_ERROR.getErrorMessage(), getErrorDetails(response));
@@ -94,9 +104,6 @@ public interface CoreEnquiryService<R, P> {
                 final String errorHandlingStrategy = errorHandlingStrategyOptional.get();
                 if (SEND_EMPTY_ERROR_RESPONSE.equals(errorHandlingStrategy)) {
                     return defaultSuccessResponse();
-                } 
-                else if (EXCEEDS_WITHDRAWL_FREEQUENCY.equals(errorHandlingStrategy)) {
-                	GenericExceptionHandler.handleError(ACC_SERVICE_EXCEED_WITHDRAWL_ERROR, ACC_SERVICE_EXCEED_WITHDRAWL_ERROR.getErrorMessage(), errorDetails);
                 } else if (EXCEEDS_WITHDRAWL_FREEQUENCY.equals(errorHandlingStrategy)) {
 					GenericExceptionHandler.handleError(ACC_SERVICE_EXCEED_WITHDRAWL_ERROR,
 							ACC_SERVICE_EXCEED_WITHDRAWL_ERROR.getErrorMessage(), errorDetails);
