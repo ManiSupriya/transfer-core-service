@@ -7,7 +7,9 @@ import com.mashreq.esbcore.bindings.header.mbcdm.ErrorType;
 import com.mashreq.esbcore.bindings.header.mbcdm.HeaderType;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
+import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
+import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
@@ -16,8 +18,11 @@ import com.mashreq.transfercoreservice.middleware.SoapClient;
 import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.middleware.enums.YesNo;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -62,7 +67,17 @@ public class FundTransferMWService {
                 });
 
         EAIServices response = (EAIServices) soapClient.exchange(generateEAIRequest(request,msgId));
-
+        /**
+         * Handling Null pointer Exception in case of Host Timeout 
+         */
+        if (!isSuccessfull(response) && ObjectUtils.isEmpty(response.getBody().getFundTransferReq())) {
+        	log.info("Fund transfer failed to account [ {} ]", request.getToAccount());
+        	auditEventPublisher.publishFailedEsbEvent(FundTransferEventType.FUND_TRANSFER_MW_CALL, metaData, getRemarks(request), msgId,
+        			response.getBody().getExceptionDetails().getErrorCode(), response.getBody().getExceptionDetails().getErrorDescription(), response.getBody().getExceptionDetails().getErrorCode());
+        	GenericExceptionHandler.handleError(TransferErrorCode.EXTERNAL_SERVICE_ERROR_MW,
+					TransferErrorCode.EXTERNAL_SERVICE_ERROR_MW.getErrorMessage(),
+					response.getBody().getExceptionDetails().getErrorCode()+"-"+response.getBody().getExceptionDetails().getErrorDescription());
+        }
         final FundTransferResType.Transfer transfer = response.getBody().getFundTransferRes().getTransfer().get(0);
         final ErrorType exceptionDetails = response.getBody().getExceptionDetails();
         if (isSuccessfull(response)) {

@@ -24,6 +24,7 @@ import com.mashreq.webcore.dto.response.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -98,7 +99,7 @@ public class FundTransferServiceDefault implements FundTransferService {
         log.info("fund transfer otp request{} ", verifyOTPRequestDTO);
         Response<VerifyOTPResponseDTO> verifyOTP = otpService.verifyOTP(verifyOTPRequestDTO);
         log.info("fund transfer otp response{} ", htmlEscape(verifyOTP.getStatus()));
-        if (!verifyOTP.getData().isAuthenticated()) {
+        if (ObjectUtils.isEmpty(verifyOTP.getData()) || !verifyOTP.getData().isAuthenticated()) {
             auditEventPublisher.publishFailedEsbEvent(FundTransferEventType.FUND_TRANSFER_OTP_DOES_NOT_MATCH,
                     metadata, CommonConstants.FUND_TRANSFER, metadata.getChannelTraceId(),
                     TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.toString(),
