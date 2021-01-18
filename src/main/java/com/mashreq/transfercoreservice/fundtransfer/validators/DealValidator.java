@@ -192,7 +192,7 @@ public class DealValidator implements Validator {
 	        if(requestDto.getCurrency().equalsIgnoreCase(dealEnquiryRes.getDealCurrency()))
 	            return requestDto.getAmount().divide(dealEnquiryRes.getDealRate(),2, RoundingMode.HALF_UP);
 	        else
-	            return requestDto.getAmount().multiply(dealEnquiryRes.getDealRate());
+	            return requestDto.getAmount();
 
 	     }
 }
