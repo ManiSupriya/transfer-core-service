@@ -3,6 +3,7 @@ package com.mashreq.transfercoreservice.fundtransfer.validators;
 import static com.mashreq.transfercoreservice.common.CommonConstants.INVALID_DEAL_NUMBER;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
@@ -39,6 +40,7 @@ public class DealValidator implements Validator {
 	private final MaintenanceService maintenanceService;
 	private final ExternalErrorCodeConfig errorCodeConfig;
     private static String ACTIVE_STATUS= "A";
+    private static String E_STATUS= "E";
     private static String TXN_STATUS = "O";
     private static String AUTH_STATUS= "A";
     private static BigDecimal ZERO = new BigDecimal(0);
@@ -56,6 +58,7 @@ public class DealValidator implements Validator {
 			        -- Fix done to handle null value for FX deal utilized amount.
 			        -- This issue is faced only for newly created deals as those deal don't have valid utilized amount
 			        */
+					BigDecimal calculateDealTxnAmount = calculateDealTxnAmount(request, dealEnquiryDetailsDto);
 					BigDecimal availableDealAmount = StringUtils.isNotBlank(dealEnquiryDetailsDto.getTotalUtilizedAmount())?dealEnquiryDetailsDto.getDealAmount().subtract(new BigDecimal(dealEnquiryDetailsDto.getTotalUtilizedAmount())):dealEnquiryDetailsDto.getDealAmount();
 					log.info("availableDealAmount {}",availableDealAmount);
 			        if(availableDealAmount.compareTo(ZERO) == 0) {
@@ -70,7 +73,7 @@ public class DealValidator implements Validator {
 								TransferErrorCode.DEAL_NUMBER_TOTALLY_UTILIZED.getErrorMessage());
 			        }
 			        
-			        if (availableDealAmount.compareTo(request.getAmount()) < 0) {
+			        if (availableDealAmount.compareTo(calculateDealTxnAmount) < 0) {
 						log.info("Deal Validation failed");
 						auditEventPublisher.publishFailureEvent(FundTransferEventType.DEAL_VALIDATION, metadata,
 								CommonConstants.DEAL_VALIDATION,
@@ -143,7 +146,7 @@ public class DealValidator implements Validator {
             GenericExceptionHandler.handleError(TransferErrorCode.DEAL_NUMBER_NOT_VALID_STATE, TransferErrorCode.DEAL_NUMBER_NOT_VALID_STATE.getErrorMessage(),TransferErrorCode.DEAL_NUMBER_NOT_VALID_STATE.getErrorMessage());
         }
         
-        if (!StringUtils.equalsIgnoreCase(response.getDealStatus(),ACTIVE_STATUS)) {
+        if (!StringUtils.equalsIgnoreCase(response.getDealStatus(),ACTIVE_STATUS) && !StringUtils.equalsIgnoreCase(response.getDealStatus(),E_STATUS)) {
         	auditEventPublisher.publishFailureEvent(FundTransferEventType.DEAL_VALIDATION, requestMetaData,
 					CommonConstants.DEAL_VALIDATION, TransferErrorCode.DEAL_NUMBER_NOT_VALID_STATE.toString(),
 					TransferErrorCode.DEAL_NUMBER_NOT_VALID_STATE.getErrorMessage(),
@@ -184,4 +187,12 @@ public class DealValidator implements Validator {
 	        GenericExceptionHandler.handleError(TransferErrorCode.MAINTENANCE_SERVICE_ERROR, TransferErrorCode.MAINTENANCE_SERVICE_ERROR.getErrorMessage(), TransferErrorCode.MAINTENANCE_SERVICE_ERROR.getErrorMessage());
 			return null;
 	    }
+	 
+	 private BigDecimal calculateDealTxnAmount(FundTransferRequestDTO requestDto,DealEnquiryDetailsDto dealEnquiryRes){
+	        if(requestDto.getCurrency().equalsIgnoreCase(dealEnquiryRes.getDealCurrency()))
+	            return requestDto.getAmount().divide(dealEnquiryRes.getDealRate(),2, RoundingMode.HALF_UP);
+	        else
+	            return requestDto.getAmount().multiply(dealEnquiryRes.getDealRate());
+
+	     }
 }
