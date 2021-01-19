@@ -7,6 +7,8 @@ import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
 import com.mashreq.transfercoreservice.config.feign.FeignConfig;
+import com.mashreq.transfercoreservice.fundtransfer.dto.DealConversionRateRequestDto;
+import com.mashreq.transfercoreservice.fundtransfer.dto.DealConversionRateResponseDto;
 import com.mashreq.transfercoreservice.model.ApplicationSettingDto;
 import com.mashreq.webcore.dto.response.Response;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -38,6 +40,9 @@ public interface MobCommonClient {
 
     @GetMapping("/v1/customer")
     Response<CustomerDetailsDto> getCustomerDetails(@RequestHeader(HeaderNames.CIF_HEADER_NAME) String cifId);
+
+    @PostMapping("/v1/currency/dealConversion")
+    Response<DealConversionRateResponseDto> convertBetweenCurrenciesWithDeal(@RequestBody DealConversionRateRequestDto conversionRateRequestDto);
 
     @GetMapping(value = "/v1/settings")
     Response<List<ApplicationSettingDto>> getApplicationSettings(@RequestParam(value = "group", required = false) final String group);
