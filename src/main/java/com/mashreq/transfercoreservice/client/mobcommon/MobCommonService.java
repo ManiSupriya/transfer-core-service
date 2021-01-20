@@ -6,6 +6,8 @@ import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
+import com.mashreq.transfercoreservice.fundtransfer.dto.DealConversionRateRequestDto;
+import com.mashreq.transfercoreservice.fundtransfer.dto.DealConversionRateResponseDto;
 import com.mashreq.transfercoreservice.model.ApplicationSettingDto;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
@@ -80,6 +82,20 @@ public class MobCommonService {
                     EXTERNAL_SERVICE_ERROR.getErrorMessage(), getErrorDetails(conversionResponse));
         }
         log.info("[MobCommonService] Currency Conversion success in  {} ms ", Duration.between(startTime, now()).toMillis());
+        return conversionResponse.getData();
+    }
+    
+    public DealConversionRateResponseDto getConvertBetweenCurrenciesWithDeal(DealConversionRateRequestDto dealConversionRateRequestDto) {
+        log.info("[MobCommonService] Calling deal currency conversion service with data {} ", dealConversionRateRequestDto);
+        Instant startTime = now();
+        Response<DealConversionRateResponseDto> conversionResponse = mobCommonClient.convertBetweenCurrenciesWithDeal(dealConversionRateRequestDto);
+        if (ResponseStatus.ERROR == conversionResponse.getStatus() || isNull(conversionResponse.getData())) {
+            final String errorDetails = getErrorDetails(conversionResponse);
+            log.error("[MobCommonService] Exception in calling mob customer for POP ={} ", errorDetails);
+            GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR,
+                    EXTERNAL_SERVICE_ERROR.getErrorMessage(), getErrorDetails(conversionResponse));
+        }
+        log.info("[MobCommonService] Currency Deal Conversion success in  {} ms ", Duration.between(startTime, now()).toMillis());
         return conversionResponse.getData();
     }
 
