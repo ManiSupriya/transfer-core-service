@@ -5,11 +5,11 @@ import java.util.List;
 
 import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
 
-import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-@Builder
+@NoArgsConstructor
 public class DealConversionRateResponseDto {
 	private BigDecimal exchangeRate;
 	private BigDecimal accountCurrencyAmount;
