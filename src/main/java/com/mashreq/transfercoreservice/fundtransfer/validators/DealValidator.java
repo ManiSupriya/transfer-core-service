@@ -29,6 +29,7 @@ public class DealValidator implements Validator {
 			dealConversionRateRequestDto.setTransactionType(request.getServiceType());
 			dealConversionRateRequestDto.setTransactionAmount(request.getAmount());
 			dealConversionRateRequestDto.setTransactionCurrency(request.getTxnCurrency());
+			dealConversionRateRequestDto.setDealNumber(request.getDealNumber());
 			DealConversionRateResponseDto dealConversionRateResponseDto = mobCommonService.getConvertBetweenCurrenciesWithDeal(dealConversionRateRequestDto);
 			log.info("Deal Validation is success {}", dealConversionRateResponseDto);
 			request.setDealRate(dealConversionRateResponseDto.getDealEnquiry().getDealRate());
