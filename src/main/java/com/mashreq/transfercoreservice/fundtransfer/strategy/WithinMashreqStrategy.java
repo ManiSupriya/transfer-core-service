@@ -169,6 +169,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         		currencyRequest.setAccountNumber(sourceAccountDetailsDTO.getNumber());
         		currencyRequest.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
         		currencyRequest.setTransactionCurrency(request.getTxnCurrency());
+        		currencyRequest.setDealNumber(request.getDealNumber());
         		currencyRequest.setTransactionAmount(request.getAmount());
         CurrencyConversionDto conversionResultInSourceAcctCurrency = maintenanceService.convertBetweenCurrencies(currencyRequest);
         amtToBePaidInSrcCurrency = conversionResultInSourceAcctCurrency.getAccountCurrencyAmount();
