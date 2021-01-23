@@ -425,6 +425,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         currencyRequest.setAccountNumber(sourceAccountDetailsDTO.getNumber());
         currencyRequest.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
         currencyRequest.setTransactionCurrency("AED");
+        currencyRequest.setDealNumber(request.getDealNumber());
         currencyRequest.setTransactionAmount(request.getAmount());
         CurrencyConversionDto conversionResultInSourceAcctCurrency = maintenanceService.convertBetweenCurrencies(currencyRequest);
         amtToBePaidInSrcCurrency = conversionResultInSourceAcctCurrency.getAccountCurrencyAmount();

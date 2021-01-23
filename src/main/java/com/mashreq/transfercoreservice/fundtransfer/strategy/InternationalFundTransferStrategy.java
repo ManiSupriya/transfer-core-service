@@ -188,6 +188,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         BigDecimal amtToBePaidInSrcCurrency;
         final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
         currencyRequest.setAccountNumber(sourceAccountDetailsDTO.getNumber());
+        currencyRequest.setDealNumber(request.getDealNumber());
         currencyRequest.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
         currencyRequest.setTransactionCurrency(request.getTxnCurrency());
         currencyRequest.setTransactionAmount(request.getAmount());
