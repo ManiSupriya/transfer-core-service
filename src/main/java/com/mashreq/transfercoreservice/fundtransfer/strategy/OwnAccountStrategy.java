@@ -111,7 +111,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 
         //added this condition for sell gold since we have amount in srcCurrency
         CurrencyConversionDto conversionResult = request.getAmount()!=null && !isCurrencySame(toAccount, fromAccount)
-                    ? getCurrencyExchangeObject(transactionAmount,toAccount,fromAccount):
+                    ? getCurrencyExchangeObject(transactionAmount,request,toAccount,fromAccount):
                     getExchangeObjectForSrcAmount(transactionAmount,toAccount,fromAccount);
 
 
@@ -262,11 +262,12 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     }
 
     //convert to sourceAccount from destAccount
-    private CurrencyConversionDto getCurrencyExchangeObject(BigDecimal transactionAmount, AccountDetailsDTO destAccount, AccountDetailsDTO sourceAccount) {
+    private CurrencyConversionDto getCurrencyExchangeObject(BigDecimal transactionAmount,FundTransferRequestDTO request , AccountDetailsDTO destAccount, AccountDetailsDTO sourceAccount) {
         final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
         currencyRequest.setAccountNumber(sourceAccount.getNumber());
         currencyRequest.setAccountCurrency(sourceAccount.getCurrency());
         currencyRequest.setTransactionCurrency(destAccount.getCurrency());
+        currencyRequest.setDealNumber(request.getDealNumber());
         currencyRequest.setTransactionAmount(transactionAmount);
         return maintenanceService.convertBetweenCurrencies(currencyRequest);
 
