@@ -9,6 +9,10 @@ import com.mashreq.transfercoreservice.client.dto.BICCodeSearchResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+
+import java.util.List;
 
 /**
  * @author shahbazkh
@@ -17,6 +21,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Slf4j
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class BankResultsDto {
     private String bankName;
@@ -63,7 +68,12 @@ public class BankResultsDto {
         setBranchName(type.getBankBranch());
     }
 
-    public BankResultsDto(IBANDetailsResType ibanDetailsRes) {
+    public BankResultsDto(IBANDetailsResType ibanDetailsRes , List<String> rountingCodeEnabledCountryCodes) {
+        final boolean isRoutingCountry = rountingCodeEnabledCountryCodes
+                .stream()
+                .anyMatch(cntrycode -> StringUtils.equals(cntrycode, ibanDetailsRes.getCountryCode()));
+        log.info("[BankResultsDto] IBAN Search: Is search country routing code enabled : {} , country code: {}",
+                isRoutingCountry, ibanDetailsRes.getCountryCode());
         setAccountNo(ibanDetailsRes.getAccountNo());
         setBranchCode(ibanDetailsRes.getBranchCode());
         setBranchName(ibanDetailsRes.getBranchName());
@@ -72,10 +82,13 @@ public class BankResultsDto {
         setBankCity(ibanDetailsRes.getPostal());
         setBankName(ibanDetailsRes.getInstTitle());
         setInstTitleOver(ibanDetailsRes.getInstTitleOver());
-        setRoutingNo(ibanDetailsRes.getRoutingNO());
         setStreet(ibanDetailsRes.getStreet());
         setSwiftCode(ibanDetailsRes.getSwiftBic());
         setSwiftOver(ibanDetailsRes.getSwiftOver());
+        if(isRoutingCountry) {
+            log.info("[BankResultsDto] setting routing code {} for routing enabled country {} ",ibanDetailsRes.getRoutingNO());
+            setRoutingNo(ibanDetailsRes.getRoutingNO());
+        }
     }
 
 
