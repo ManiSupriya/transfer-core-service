@@ -2,6 +2,7 @@ package com.mashreq.transfercoreservice.client.mobcommon;
 
 import com.mashreq.ms.commons.cache.HeaderNames;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
+import com.mashreq.transfercoreservice.client.dto.CountryResponseDto;
 import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
@@ -32,7 +33,8 @@ public interface MobCommonClient {
     Response<Set<MoneyTransferPurposeDto>> getPaymentPurpose(@NotNull @PathVariable String transactionType,
                                                              @RequestParam(value = "qrType") String qrType,
                                                              @RequestParam(value = "customerType") String customerType);
-
+    @GetMapping("/v1/countries/ROUTING_CODE_ENABLED")
+    Response<CountryResponseDto> getRoutingCodeEnabledCountries();
 
     @PostMapping("/v1/currency/conversion")
     Response<CurrencyConversionDto> convertBetweenCurrencies(@RequestBody CoreCurrencyConversionRequestDto conversionRateRequestDto);

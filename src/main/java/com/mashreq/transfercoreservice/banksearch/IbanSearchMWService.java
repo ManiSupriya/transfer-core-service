@@ -5,6 +5,8 @@ import com.mashreq.esbcore.bindings.accountservices.mbcdm.ibandetails.EAIService
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
+import com.mashreq.transfercoreservice.client.dto.CountryDto;
+import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.middleware.HeaderFactory;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
@@ -34,6 +37,7 @@ public class IbanSearchMWService {
     private final HeaderFactory headerFactory;
     private final SoapServiceProperties soapServiceProperties;
     private final AsyncUserEventPublisher asyncUserEventPublisher;
+    private final MobCommonService mobCommonService;
     private static final String SUCCESS = "S";
     private static final String SUCCESS_CODE_ENDS_WITH = "-000";
 
@@ -41,10 +45,15 @@ public class IbanSearchMWService {
     public List<BankResultsDto> fetchBankDetailsWithIban(String channelTraceId, String ibanValue, RequestMetaData metaData) {
         log.info("Searching for Bank details with iban [ {} ]", htmlEscape(ibanValue));
 
+        final List<String> routingCodeEnabledCountriesList = mobCommonService.getRoutingCodeEnabledCountries()
+                .stream()
+                .map(CountryDto::getCode)
+                .collect(Collectors.toList());
+
         EAIServices response = (EAIServices) webServiceClient.exchange(getIbanEAIRequest(channelTraceId, ibanValue));
         validateOMWResponse(response, metaData, channelTraceId, ibanValue);
         asyncUserEventPublisher.publishSuccessfulEsbEvent(FundTransferEventType.IBAN_SEARCH_MW_CALL, metaData, ibanValue, channelTraceId);
-        BankResultsDto resultsDto = new BankResultsDto(response.getBody().getIBANDetailsRes());
+        BankResultsDto resultsDto = new BankResultsDto(response.getBody().getIBANDetailsRes(), routingCodeEnabledCountriesList);
         return Arrays.asList(resultsDto);
 
     }
