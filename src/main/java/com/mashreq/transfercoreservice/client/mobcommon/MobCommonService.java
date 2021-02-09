@@ -1,7 +1,10 @@
 package com.mashreq.transfercoreservice.client.mobcommon;
 
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
+import com.mashreq.transfercoreservice.cache.MobRedisService;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
+import com.mashreq.transfercoreservice.client.dto.CountryDto;
+import com.mashreq.transfercoreservice.client.dto.CountryResponseDto;
 import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
@@ -13,6 +16,7 @@ import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -34,6 +38,8 @@ import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 public class MobCommonService {
 
     private final MobCommonClient mobCommonClient;
+    private final MobRedisService mobRedisService;
+    public static final String MOB_AE_ROUTING_CODE_SUPPORTED_COUNTRIES = "MOB:AE:ROUTING_CODE_SUPPORTED_COUNTRIES";
     public static final String TRUE = "true";
 
     public LimitValidatorResultsDto validateAvailableLimit(String cifId, String beneficiaryTypeCode, BigDecimal amount) {
@@ -121,5 +127,25 @@ public class MobCommonService {
         }
         log.info("[MobCommonService] MobCommonService response success in nanoseconds {} ", Duration.between(startTime, now()));
         return response.getData();
+    }
+
+    public List<CountryDto> getRoutingCodeEnabledCountries() {
+        log.info("[MobCommonService] Calling MobCommonClient to get routing code enabled countries");
+        Instant startTime = now();
+        CountryResponseDto countryResponseDto = mobRedisService.get(MOB_AE_ROUTING_CODE_SUPPORTED_COUNTRIES, CountryResponseDto.class);
+
+        if (Objects.nonNull(countryResponseDto) && CollectionUtils.isNotEmpty((countryResponseDto.getAllCountries()))) {
+            log.info("CACHE HIT for getRoutingCodeCountries");
+            return countryResponseDto.getAllCountries();
+        } else {
+            log.info("CACHE MISS for getRoutingCodeCountries");
+            Response<CountryResponseDto> response = mobCommonClient.getRoutingCodeEnabledCountries();
+            if (Objects.isNull(response.getData()) || response.getStatus().equals(ResponseStatus.ERROR)) {
+                GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR, EXTERNAL_SERVICE_ERROR.getErrorMessage(),
+                        getErrorDetails(response));
+            }
+            log.info("[MobCommonService] MobCommonService response success in nanoseconds {} ", Duration.between(startTime, now()));
+            return response.getData().getAllCountries();
+        }
     }
 }
