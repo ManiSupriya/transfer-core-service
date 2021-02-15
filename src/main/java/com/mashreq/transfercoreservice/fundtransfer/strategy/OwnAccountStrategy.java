@@ -113,12 +113,12 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         BigDecimal transactionAmount = request.getAmount() == null ? request.getSrcAmount() : request.getAmount();
 
         //added this condition for sell gold since we have amount in srcCurrency
-        CurrencyConversionDto conversionResult = request.getAmount() != null && !isCurrencySame(request.getTxnCurrency(), fromAccount.getCurrency())
+        CurrencyConversionDto conversionResult = request.getTxnCurrency() != null && request.getAmount() != null && !isCurrencySame(request.getTxnCurrency(), fromAccount.getCurrency())
                 ? getCurrencyExchangeObject(transactionAmount, request, toAccount, fromAccount) :
                 getExchangeObjectForSrcAmount(transactionAmount, toAccount, fromAccount);
 
 
-        final BigDecimal transferAmountInSrcCurrency = request.getAmount() != null && !isCurrencySame(request.getTxnCurrency(), fromAccount.getCurrency())
+        final BigDecimal transferAmountInSrcCurrency = request.getTxnCurrency() != null && request.getAmount() != null && !isCurrencySame(request.getTxnCurrency(), fromAccount.getCurrency())
                 ? conversionResult.getAccountCurrencyAmount()
                 : transactionAmount;
 
