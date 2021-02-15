@@ -104,7 +104,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 
         validateAccountContext.add("from-account", fromAccount);
         validateAccountContext.add("to-account", toAccount);
-        if (StringUtils.isNotBlank(request.getSrcAmount().toString()))
+        if (request.getSrcAmount() != null && StringUtils.isNotBlank(request.getSrcAmount().toString()))
             validateAccountContext.add("to-account-currency", toAccount.getCurrency());
         else
             validateAccountContext.add("to-account-currency", request.getTxnCurrency());
