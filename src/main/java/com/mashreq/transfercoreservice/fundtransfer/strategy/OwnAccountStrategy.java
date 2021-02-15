@@ -113,12 +113,12 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         BigDecimal transactionAmount = request.getAmount() == null ? request.getSrcAmount() : request.getAmount();
 
         //added this condition for sell gold since we have amount in srcCurrency
-        CurrencyConversionDto conversionResult = request.getAmount() != null && !isCurrencySame(toAccount, fromAccount)
+        CurrencyConversionDto conversionResult = request.getAmount() != null && !isCurrencySame(request.getTxnCurrency(), fromAccount.getCurrency())
                 ? getCurrencyExchangeObject(transactionAmount, request, toAccount, fromAccount) :
                 getExchangeObjectForSrcAmount(transactionAmount, toAccount, fromAccount);
 
 
-        final BigDecimal transferAmountInSrcCurrency = request.getAmount() != null && !isCurrencySame(toAccount, fromAccount)
+        final BigDecimal transferAmountInSrcCurrency = request.getAmount() != null && !isCurrencySame(request.getTxnCurrency(), fromAccount.getCurrency())
                 ? conversionResult.getAccountCurrencyAmount()
                 : transactionAmount;
 
@@ -264,8 +264,12 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         return destinationAccount.getCurrency().equalsIgnoreCase(sourceAccount.getCurrency());
     }
 
+    private boolean isCurrencySame(String destinationCurrency, String sourceCurrency) {
+        return destinationCurrency.equalsIgnoreCase(sourceCurrency);
+    }
+
     //convert to sourceAccount from destAccount
-    private CurrencyConversionDto getCurrencyExchangeObject(BigDecimal transactionAmount,FundTransferRequestDTO request , AccountDetailsDTO destAccount, AccountDetailsDTO sourceAccount) {
+    private CurrencyConversionDto getCurrencyExchangeObject(BigDecimal transactionAmount, FundTransferRequestDTO request, AccountDetailsDTO destAccount, AccountDetailsDTO sourceAccount) {
         final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
         currencyRequest.setAccountNumber(sourceAccount.getNumber());
         currencyRequest.setAccountCurrency(sourceAccount.getCurrency());
