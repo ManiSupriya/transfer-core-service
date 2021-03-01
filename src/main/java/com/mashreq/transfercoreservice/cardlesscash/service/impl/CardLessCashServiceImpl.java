@@ -6,6 +6,7 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_C
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -154,6 +155,7 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 				.accountTo(cardLessCashGenerationRequest.getAccountNo())
 				.billRefNo(coreResponse.getData().getReferenceNumber())
 				.valueDate(LocalDateTime.now())
+				.createdDate(Instant.now())
 				.transactionRefNo(coreResponse.getData().getReferenceNumber())
 				.financialTransactionNo(coreResponse.getData().getReferenceNumber()).build();
 		log.info("Inserting into Transaction History table {} ", htmlEscape(transactionHistory.getTransactionRefNo()));
