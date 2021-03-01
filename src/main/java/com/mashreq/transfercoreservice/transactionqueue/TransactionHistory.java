@@ -5,6 +5,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Entity
@@ -43,4 +44,5 @@ public class TransactionHistory {
     private String rejectedReason;
     private String transactionRefNo;
     private String transactionCategory;
+    private Instant createdDate;
 }

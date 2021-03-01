@@ -104,25 +104,28 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 
         validateAccountContext.add("from-account", fromAccount);
         validateAccountContext.add("to-account", toAccount);
-        validateAccountContext.add("to-account-currency", toAccount.getCurrency());
+        if (request.getSrcAmount() != null && StringUtils.isNotBlank(request.getSrcAmount().toString()))
+            validateAccountContext.add("to-account-currency", toAccount.getCurrency());
+        else
+            validateAccountContext.add("to-account-currency", request.getTxnCurrency());
         responseHandler(currencyValidator.validate(request, metadata, validateAccountContext));
 
         BigDecimal transactionAmount = request.getAmount() == null ? request.getSrcAmount() : request.getAmount();
 
         //added this condition for sell gold since we have amount in srcCurrency
-        CurrencyConversionDto conversionResult = request.getAmount()!=null && !isCurrencySame(toAccount, fromAccount)
-                    ? getCurrencyExchangeObject(transactionAmount,request,toAccount,fromAccount):
-                    getExchangeObjectForSrcAmount(transactionAmount,toAccount,fromAccount);
+        CurrencyConversionDto conversionResult = request.getTxnCurrency() != null && request.getAmount() != null && !isCurrencySame(request.getTxnCurrency(), fromAccount.getCurrency())
+                ? getCurrencyExchangeObject(transactionAmount, request, toAccount, fromAccount) :
+                getExchangeObjectForSrcAmount(transactionAmount, toAccount, fromAccount);
 
 
-        final BigDecimal transferAmountInSrcCurrency = request.getAmount()!=null && !isCurrencySame(toAccount, fromAccount)
-            ? conversionResult.getAccountCurrencyAmount()
-            : transactionAmount;
-            
-         //Deal Validator
+        final BigDecimal transferAmountInSrcCurrency = request.getTxnCurrency() != null && request.getAmount() != null && !isCurrencySame(request.getTxnCurrency(), fromAccount.getCurrency())
+                ? conversionResult.getAccountCurrencyAmount()
+                : transactionAmount;
+
+        //Deal Validator
         log.info("Deal Validation Started");
-		if (StringUtils.isNotBlank(request.getDealNumber()) && !request.getDealNumber().isEmpty()) {
-			String trxCurrency = StringUtils.isBlank(request.getTxnCurrency()) ? LOCAL_CURRENCY
+        if (StringUtils.isNotBlank(request.getDealNumber()) && !request.getDealNumber().isEmpty()) {
+            String trxCurrency = StringUtils.isBlank(request.getTxnCurrency()) ? LOCAL_CURRENCY
 					: request.getTxnCurrency();
 			if (StringUtils.equalsIgnoreCase(trxCurrency, request.getCurrency())) {
 				auditEventPublisher.publishFailedEsbEvent(FundTransferEventType.DEAL_VALIDATION, metadata,
@@ -261,8 +264,12 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         return destinationAccount.getCurrency().equalsIgnoreCase(sourceAccount.getCurrency());
     }
 
+    private boolean isCurrencySame(String destinationCurrency, String sourceCurrency) {
+        return destinationCurrency.equalsIgnoreCase(sourceCurrency);
+    }
+
     //convert to sourceAccount from destAccount
-    private CurrencyConversionDto getCurrencyExchangeObject(BigDecimal transactionAmount,FundTransferRequestDTO request , AccountDetailsDTO destAccount, AccountDetailsDTO sourceAccount) {
+    private CurrencyConversionDto getCurrencyExchangeObject(BigDecimal transactionAmount, FundTransferRequestDTO request, AccountDetailsDTO destAccount, AccountDetailsDTO sourceAccount) {
         final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
         currencyRequest.setAccountNumber(sourceAccount.getNumber());
         currencyRequest.setAccountCurrency(sourceAccount.getCurrency());
