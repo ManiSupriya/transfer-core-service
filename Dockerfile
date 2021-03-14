@@ -16,11 +16,6 @@ RUN \
     cd $JAVA_HOME/jre/lib/security \
     && keytool -keystore cacerts -storepass changeit -noprompt -trustcacerts -importcert -alias ciam.mashreqbank.com -file mashreq_root_ca_certificate.cer
 
-
-ENV TZ=Asia/Dubai
-
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
 USER appuser
 
 # Do not change any of these
