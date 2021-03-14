@@ -455,24 +455,25 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
                 .finTxnNo(request.getFinTxnNo())
                 .sourceCurrency(currency)
                 .sourceBranchCode(branchCode)
-                .beneficiaryFullName(StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength? StringUtils.left(beneficiaryDto.getFullName(), maxLength): beneficiaryDto.getFullName())
-                .beneficiaryAddressOne(StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength? beneficiaryDto.getFullName().substring(maxLength): null)
-                .beneficiaryAddressTwo(StringUtils.left(StringUtils.isBlank(beneficiaryDto.getAddressLine1())?beneficiaryDto.getBankCountry():beneficiaryDto.getAddressLine1(), maxLength))
+                .beneficiaryFullName(StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength ? StringUtils.left(beneficiaryDto.getFullName(), maxLength) : beneficiaryDto.getFullName())
+                .beneficiaryAddressOne(StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength ? beneficiaryDto.getFullName().substring(maxLength) : null)
+                .beneficiaryAddressTwo(StringUtils.left(StringUtils.isBlank(beneficiaryDto.getAddressLine1()) ? beneficiaryDto.getBankCountry() : beneficiaryDto.getAddressLine1(), maxLength))
                 .beneficiaryAddressThree(address3)
                 .destinationCurrency(localCurrency)
                 .awInstName(beneficiaryDto.getBankName())
                 .awInstBICCode(beneficiaryDto.getSwiftCode())
                 .beneficiaryAddressTwo(address)
                 .transactionCode(LOCAL_TRANSACTION_CODE)
+                .finalBene(request.getFinalBene())
                 .dealNumber(request.getDealNumber())
                 .dealRate(request.getDealRate())
                 .txnCurrency(request.getTxnCurrency())
                 .limitTransactionRefNo(validationResult.getTransactionRefNo())
                 .acwthInst1(request.getAdditionalField()) //TODO Add For testing need to create new field to map
                 .build();
-
     }
 
+    
     private CardDetailsDTO getSelectedCreditCard(List<CardDetailsDTO> coreCardAccounts, String encryptedCardNo) {
         CardDetailsDTO cardDetailsDTO = null;
         String decryptedCardNo;

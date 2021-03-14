@@ -16,7 +16,6 @@ RUN \
     cd $JAVA_HOME/jre/lib/security \
     && keytool -keystore cacerts -storepass changeit -noprompt -trustcacerts -importcert -alias ciam.mashreqbank.com -file mashreq_root_ca_certificate.cer
 
-
 USER appuser
 
 # Do not change any of these
