@@ -465,15 +465,16 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
                 .beneficiaryAddressTwo(address)
                 .transactionCode(LOCAL_TRANSACTION_CODE)
                 .finalBene(request.getFinalBene())
+                
                 .dealNumber(request.getDealNumber())
                 .dealRate(request.getDealRate())
                 .txnCurrency(request.getTxnCurrency())
                 .limitTransactionRefNo(validationResult.getTransactionRefNo())
                 .acwthInst1(request.getAdditionalField()) //TODO Add For testing need to create new field to map
                 .build();
-
     }
 
+    
     private CardDetailsDTO getSelectedCreditCard(List<CardDetailsDTO> coreCardAccounts, String encryptedCardNo) {
         CardDetailsDTO cardDetailsDTO = null;
         String decryptedCardNo;
