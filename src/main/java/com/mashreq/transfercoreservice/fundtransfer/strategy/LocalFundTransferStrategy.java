@@ -466,7 +466,6 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
                 .transactionCode(LOCAL_TRANSACTION_CODE)
                 .finalBene(request.getFinalBene())
                 .dealNumber(request.getDealNumber())
-                .finalBene(request.getFinalBene())
                 .dealRate(request.getDealRate())
                 .txnCurrency(request.getTxnCurrency())
                 .limitTransactionRefNo(validationResult.getTransactionRefNo())
