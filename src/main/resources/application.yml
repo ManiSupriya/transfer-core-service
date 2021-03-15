@@ -127,6 +127,7 @@ app:
     mobcommon: ${MOB_COMMON_SERVICE:http://mob-common-service:8080}
     omw-core: ${OMW_CORE:https://172.24.70.29:7805/omw/core}
     beneficiaryservice: ${BENEFICIARY_SERVICE:http://beneficiary-service:8080}
+    quick-remit: ${QUICK_REMIT_SERVICE:http://mob-quickremit-service:8080}
   ftcc:
     merchantId: ${TFTCC_MERCHANT_ID:000008026734}
     terminalId: ${TFTCC_TERMINAL_ID:20091124}

@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -75,7 +76,7 @@ public class MaintenanceService {
         log.info("Fetching all currencies  from maintenance service ");
         Response<List<CoreCurrencyDto>> response = maintenanceClient.getAllCurrencies(DEFAULT_REGION);
         if (ResponseStatus.ERROR == response.getStatus() || Objects.isNull(response.getData())) {
-          //  GenericExceptionHandler.handleError(MobCommonErrorCode.MAINTENANCE_SERVICE_ERROR, MobCommonErrorCode.MAINTENANCE_SERVICE_ERROR.getErrorMessage());
+        	Collections.emptyList();
         }
         return response.getData();
     }

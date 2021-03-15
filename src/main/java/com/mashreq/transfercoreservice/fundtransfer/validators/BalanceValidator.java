@@ -24,7 +24,7 @@ import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class BalanceValidator implements Validator {
+public class BalanceValidator implements Validator<FundTransferRequestDTO> {
 
 
     private final AsyncUserEventPublisher auditEventPublisher;

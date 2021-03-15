@@ -14,9 +14,9 @@ spring:
   profiles.active: local
   main.lazy-initialization: false
   datasource:
-    url: jdbc:sqlserver://localhost:1433;databaseName=MOB-LOCAL
-    username: ${MSSQL_DEV_USERNAME:SA}
-    password: ${MSSQL_DB_KEY:Asdasdasd123}
+    url: ${MSSQL_DB_URL:jdbc:sqlserver://10.196.3.22:1433;databaseName=MOB-UAT}
+    username: ${MSSQL_DB_USERNAME:Mobliquibasedbuse}
+    password: ${MSSQL_DB_KEY:Mobliquibasedbuse}
   jpa:
     show-sql: true
     hibernate:
@@ -86,16 +86,17 @@ app:
     timeInterval: 1
     smilesProductBin: 524179
   services:
-    maintenance: ${MAINTENANCE_SERVICE_URL:http://digital-dev.mashreq.com/api/maintenance-service}
+    maintenance: ${MAINTENANCE_SERVICE_URL:http://digital-uat.mashreq.com/api/maintenance-service}
     customers: ${CUSTOMER_SERVICE_URL:http://localhost:8083}
-    accounts: ${ACCOUNT_SERVICE_URL:http://digital-dev.mashreq.com/api/accounts-service}
-    otp: http://digital-dev.mashreq.com/api/ms-security-iam/
-    cards: ${CARD_SERVICE_URL:http://digital-dev.mashreq.com/api/cards-service}
-    notification: ${NOTIFICATION_SERVICE:http://digital-dev.mashreq.com/api/notification-service}
+    accounts: ${ACCOUNT_SERVICE_URL:http://digital-uat.mashreq.com/api/accounts-service}
+    otp: http://digital-uat.mashreq.com/api/ms-security-iam/
+    cards: ${CARD_SERVICE_URL:http://digital-uat.mashreq.com/api/cards-service}
+    notification: ${NOTIFICATION_SERVICE:http://digital-uat.mashreq.com/api/notification-service}
     mobcustomer: ${MOB_CUSTOMER_SERVICE:http://localhost:8088}
-    beneficiary: ${BENEFICIARY_CORE_SERVICE:http://digital-dev.mashreq.com/api/beneficiary-core-service}
-    mobcommon: ${MOB_COMMON_SERVICE:http://digital-dev.mashreq.com/api/mob-common-service}
-    beneficiaryservice: https://digital-uat.mashreq.com/api/beneficiary-service
+    beneficiary: ${BENEFICIARY_CORE_SERVICE:http://digital-uat.mashreq.com/api/beneficiary-core-service}
+    mobcommon: ${MOB_COMMON_SERVICE:http://digital-uat.mashreq.com/api/mob-common-service}
+    beneficiaryservice: http://digital-uat.mashreq.com/api/beneficiary-service
+    quick-remit: http://digital-uat.mashreq.com/api/mob-quickremit-service
   middleware:
     endpoint: http://172.24.70.29:7800/AllOperationsSOAP_HTTP_Service
     timeout: 100000
@@ -138,9 +139,9 @@ redis:
 mob-common:
   commonUserEventDataSource:
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
-    jdbcUrl: jdbc:sqlserver://localhost:1433;databaseName=MOB-LOCAL
-    username: SA
-    password: Asdasdasd123
+    jdbcUrl: ${MSSQL_DB_URL:jdbc:sqlserver://10.196.3.22:1433;databaseName=MOB-UAT}
+    username: ${MSSQL_DB_USERNAME:Mobliquibasedbuse}
+    password: ${MSSQL_DB_KEY:Mobliquibasedbuse}
     maxPoolSize: 40
     poolName: hikari-user-events-life-pool
     minimumidletime: 600000

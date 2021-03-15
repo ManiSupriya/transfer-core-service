@@ -1,16 +1,15 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 
 /**
  * @author shahbazkh
  */
-public interface Validator {
+public interface Validator<T> {
 
-    default ValidationResult validate(final FundTransferRequestDTO request, final RequestMetaData metadata) {
+    default ValidationResult validate(final T request, final RequestMetaData metadata) {
         return validate(request, metadata, null);
     }
 
-    ValidationResult validate(FundTransferRequestDTO request, RequestMetaData metadata, ValidationContext context);
+    ValidationResult validate(T request, RequestMetaData metadata, ValidationContext context);
 }

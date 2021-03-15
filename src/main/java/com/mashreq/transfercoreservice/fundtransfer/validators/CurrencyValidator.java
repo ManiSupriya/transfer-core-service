@@ -25,7 +25,7 @@ import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class CurrencyValidator implements Validator {
+public class CurrencyValidator implements Validator<FundTransferRequestDTO> {
 
     private final AsyncUserEventPublisher auditEventPublisher;
     @Override

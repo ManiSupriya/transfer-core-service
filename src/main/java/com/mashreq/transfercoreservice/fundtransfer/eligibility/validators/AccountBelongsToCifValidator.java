@@ -1,22 +1,26 @@
-package com.mashreq.transfercoreservice.fundtransfer.validators;
+package com.mashreq.transfercoreservice.fundtransfer.eligibility.validators;
+
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_IS_IN_DORMENT;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_NOT_BELONG_TO_CIF;
+import static com.mashreq.transfercoreservice.event.FundTransferEventType.ACCOUNT_BELONGS_TO_CIF;
+import static com.mashreq.transfercoreservice.event.FundTransferEventType.ACCOUNT_IS_DORMENT;
+
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
+import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
+import com.mashreq.transfercoreservice.fundtransfer.validators.Validator;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.Optional;
-
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_NOT_BELONG_TO_CIF;
-import static com.mashreq.transfercoreservice.event.FundTransferEventType.ACCOUNT_BELONGS_TO_CIF;
-import static com.mashreq.transfercoreservice.event.FundTransferEventType.ACCOUNT_IS_DORMENT;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_IS_IN_DORMENT;
-import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 /**
  * @author shahbazkh
@@ -24,15 +28,15 @@ import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
  */
 
 @Slf4j
-@Component
+@Component("accountEligibilityValidator")
 @RequiredArgsConstructor
-public class AccountBelongsToCifValidator implements Validator<FundTransferRequestDTO> {
+public class AccountBelongsToCifValidator implements Validator<FundTransferEligibiltyRequestDTO> {
 
     private final AsyncUserEventPublisher auditEventPublisher;
     private static final String ACCOUNT_DORMANT = "DORMANT";
 
     @Override
-    public ValidationResult validate(FundTransferRequestDTO request, RequestMetaData metadata, ValidationContext context) {
+    public ValidationResult validate(FundTransferEligibiltyRequestDTO request, RequestMetaData metadata, ValidationContext context) {
 
         log.info("Validating Account for service type [ {} ] ", htmlEscape(request.getServiceType()));
 

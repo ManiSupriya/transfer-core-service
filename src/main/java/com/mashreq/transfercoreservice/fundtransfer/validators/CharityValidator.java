@@ -20,7 +20,7 @@ import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class CharityValidator implements Validator {
+public class CharityValidator implements Validator<FundTransferRequestDTO> {
 
     private final AsyncUserEventPublisher auditEventPublisher;
 

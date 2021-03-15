@@ -10,18 +10,13 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import java.math.BigDecimal;
 
-/**
- * @author shahbazkh
- * @date 3/8/20
- */
-
 @Data
 @ConditionalRequired(fieldName = "beneficiaryId", dependentFieldName = "serviceType", noneMatch = "WYMA", message = "Beneficiary ID is mandatory")
 @ConditionalRequired(fieldName = "purposeCode", dependentFieldName = "serviceType", anyMatch = {"INFT", "LOCAL"}, message = "Purpose code cannot be empty")
 @ConditionalRequired(fieldName = "purposeDesc", dependentFieldName = "serviceType", anyMatch = {"INFT", "LOCAL"}, message = "Purpose Description code cannot be empty")
 @ConditionalRequired(fieldName = "chargeBearer", dependentFieldName = "serviceType", anyMatch = {"INFT", "LOCAL"}, message = "charge bearer cannot be empty")
 @ConditionalRequired(fieldName = "productCode", dependentFieldName = "serviceType", anyMatch = "QRT", message = "Product Code is mandatory")
-public class FundTransferRequestDTO {
+public class FundTransferEligibiltyRequestDTO {
 
     @Account
     private String fromAccount;
@@ -50,17 +45,9 @@ public class FundTransferRequestDTO {
     @Pattern(regexp = "^$|[a-zA-Z0-9-]+",message="Not a valid Deal number")
     private String dealNumber;
 
-    @NotBlank(message = "Financial Transaction Number cannot be empty")
-    @Pattern(regexp = "^[a-zA-Z0-9-]+",message="Not a valid transaction number")
-    private String finTxnNo;
-
     private String beneficiaryId;
 
     private String productCode;
-    private String otp;
-    private String challengeToken;
-    private int dpPublicKeyIndex;
-    private String dpRandomNumber;
     private String txnCurrency;
     private String additionalField;
     private String finalBene;

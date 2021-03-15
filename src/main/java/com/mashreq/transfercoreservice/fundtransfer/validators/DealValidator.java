@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class DealValidator implements Validator {
+public class DealValidator implements Validator<FundTransferRequestDTO> {
 
 	private final MobCommonService mobCommonService;
 
