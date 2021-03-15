@@ -17,7 +17,7 @@ import static com.mashreq.transfercoreservice.event.FundTransferEventType.PAYMEN
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class PaymentPurposeValidator implements Validator {
+public class PaymentPurposeValidator implements Validator<FundTransferRequestDTO> {
 
     private final AsyncUserEventPublisher auditEventPublisher;
 

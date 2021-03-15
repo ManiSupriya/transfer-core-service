@@ -8,7 +8,7 @@ import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.CustomerClientType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
@@ -16,7 +16,7 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 
 public interface TransferEligibilityService {
 
-    void checkEligibility(RequestMetaData metaData, FundTransferRequestDTO request, UserDTO userDTO);
+    void checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request, UserDTO userDTO);
     
     ServiceType getServiceType();
 
@@ -37,5 +37,9 @@ public interface TransferEligibilityService {
 			return true;
 		}
 		return false;
+	}
+
+	default void modifyServiceType(FundTransferEligibiltyRequestDTO request) {
+		request.setServiceType(getServiceType().name());
 	}
 }

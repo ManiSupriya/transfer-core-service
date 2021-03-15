@@ -3,6 +3,7 @@ package com.mashreq.transfercoreservice.fundtransfer.eligibility.service;
 
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.PAYMENT_ELIGIBILITY_ERROR;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.INFT;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.LOCAL;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.QRT;
@@ -23,7 +24,8 @@ import org.springframework.stereotype.Service;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.errors.TransferErrorCode;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.model.DigitalUser;
@@ -50,12 +52,12 @@ public class TransferEligibilityProxy {
 		transferEligibilityServiceMap = new EnumMap<>(ServiceType.class);
 		transferEligibilityServiceMap.put(INFT, Arrays.asList(inftAccountEligibilityService, qrAccountEligibilityService));
 		transferEligibilityServiceMap.put(QRT, 	Arrays.asList(inftAccountEligibilityService, qrAccountEligibilityService));
-		transferEligibilityServiceMap.put(LOCAL, Arrays.asList(localAccountEligibilityService));
+		transferEligibilityServiceMap.put(LOCAL, Arrays.asList(localAccountEligibilityService, qrAccountEligibilityService));
 		transferEligibilityServiceMap.put(WAMA, Arrays.asList(withinAccountEligibilityService));
 		transferEligibilityServiceMap.put(WYMA, Arrays.asList(ownAccountEligibilityService));
 	}
 
-	public List<ServiceType> getEligibleServiceTypes(RequestMetaData metaData, FundTransferRequestDTO request) {
+	public List<ServiceType> getEligibleServiceTypes(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request) {
 		
 		log.info("Starting fund transfer eligibility check for {} ", htmlEscape(request.getServiceType()));
 		
@@ -69,15 +71,20 @@ public class TransferEligibilityProxy {
 		log.info("Creating  User DTO");
 		UserDTO userDTO = createUserDTO(metaData, digitalUser);
 
-
+		GenericException exception = null;
 		for(TransferEligibilityService eligibilityService : transferEligibilityServiceMap.get(serviceType)) {
 			try {
+				eligibilityService.modifyServiceType(request);
 				eligibilityService.checkEligibility(metaData, request, userDTO);
 				serviceTypes.add(eligibilityService.getServiceType());
 			}
 			catch(GenericException ge) {
 				log.error("Validation error while checking for eligibility for service type {}", serviceType, ge);
+				exception = ge;
 			}
+		}
+		if(serviceTypes.isEmpty()) {
+			GenericExceptionHandler.handleError(PAYMENT_ELIGIBILITY_ERROR, PAYMENT_ELIGIBILITY_ERROR.getCustomErrorCode(), exception.getErrorDetails());
 		}
 		return serviceTypes;
 	}

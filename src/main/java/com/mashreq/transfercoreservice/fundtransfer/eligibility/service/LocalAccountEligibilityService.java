@@ -22,11 +22,11 @@ import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.CardService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
+import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.BeneficiaryValidator;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.LimitValidatorFactory;
-import com.mashreq.transfercoreservice.fundtransfer.validators.BeneficiaryValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
 
 import lombok.RequiredArgsConstructor;
@@ -47,7 +47,7 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
     private final EncryptionService encryptionService = new EncryptionService();
 
     @Override
-	public void checkEligibility(RequestMetaData metaData, FundTransferRequestDTO request,
+	public void checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request,
 			UserDTO userDTO) {
         if(StringUtils.isNotBlank(request.getCardNo())){
         	if(isSMESegment(metaData)) {
@@ -72,7 +72,7 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
      * @param userDTO
      * @return
      */
-    private void executeNonCreditCard(FundTransferRequestDTO request, RequestMetaData metaData, UserDTO userDTO) {
+    private void executeNonCreditCard(FundTransferEligibiltyRequestDTO request, RequestMetaData metaData, UserDTO userDTO) {
 
         final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metaData.getPrimaryCif());
         final ValidationContext validationContext = new ValidationContext();
@@ -108,7 +108,7 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
      * @param userDTO
      * @return
      */
-    private void executeCC(FundTransferRequestDTO request, RequestMetaData requestMetaData, UserDTO userDTO){
+    private void executeCC(FundTransferEligibiltyRequestDTO request, RequestMetaData requestMetaData, UserDTO userDTO){
 
     	final List<CardDetailsDTO> accountsFromCore = cardService.getCardsFromCore(requestMetaData.getPrimaryCif(), CardType.CC);
         final ValidationContext validationContext = new ValidationContext();
@@ -131,7 +131,7 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
      * @param validationContext
      * @return
      */
-    private BeneficiaryDto validateBeneficiary(FundTransferRequestDTO request, RequestMetaData requestMetaData, ValidationContext validationContext) {
+    private BeneficiaryDto validateBeneficiary(FundTransferEligibiltyRequestDTO request, RequestMetaData requestMetaData, ValidationContext validationContext) {
 
         final BeneficiaryDto beneficiaryDto = beneficiaryService.getById(requestMetaData.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), requestMetaData);
         validationContext.add("beneficiary-dto", beneficiaryDto);
@@ -163,7 +163,7 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
         return sourceAccountCurrency.equalsIgnoreCase(beneficiaryDto.getBeneficiaryCurrency());
     }
 
-    private BigDecimal getAmountInSrcCurrency(FundTransferRequestDTO request, BeneficiaryDto beneficiaryDto, AccountDetailsDTO sourceAccountDetailsDTO) {
+    private BigDecimal getAmountInSrcCurrency(FundTransferEligibiltyRequestDTO request, BeneficiaryDto beneficiaryDto, AccountDetailsDTO sourceAccountDetailsDTO) {
         BigDecimal amtToBePaidInSrcCurrency;
         final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
         currencyRequest.setAccountNumber(sourceAccountDetailsDTO.getNumber());

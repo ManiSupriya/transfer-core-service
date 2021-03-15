@@ -16,7 +16,7 @@ import com.mashreq.transfercoreservice.client.dto.CountryMasterDto;
 import com.mashreq.transfercoreservice.client.dto.QRExchangeRequest;
 import com.mashreq.transfercoreservice.client.dto.QRExchangeResponse;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
 
@@ -31,7 +31,7 @@ public class QuickRemitService {
 	private final QuickRemitServiceClient quickRemitServiceClient;
 	private final AsyncUserEventPublisher userEventPublisher;
 
-	public QRExchangeResponse exchange(FundTransferRequestDTO request, Optional<CountryMasterDto> countryDto, RequestMetaData metaData) {
+	public QRExchangeResponse exchange(FundTransferEligibiltyRequestDTO request, Optional<CountryMasterDto> countryDto, RequestMetaData metaData) {
 		Response<QRExchangeResponse> quickRemitResponse = quickRemitServiceClient.exchange(
 				QRExchangeRequest.builder()
 				.benId(Long.valueOf(request.getBeneficiaryId()))

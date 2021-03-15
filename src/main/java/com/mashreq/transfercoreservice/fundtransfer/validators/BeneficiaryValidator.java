@@ -21,7 +21,7 @@ import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class BeneficiaryValidator implements Validator {
+public class BeneficiaryValidator implements Validator<FundTransferRequestDTO> {
 
     private static final String QUICK_REMIT = "quick-remit";
     private static final String INFT = "INFT";

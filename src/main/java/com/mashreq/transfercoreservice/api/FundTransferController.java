@@ -16,11 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.service.TransferEligibilityProxy;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferService;
-import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferServiceDefault;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
 
@@ -38,7 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class FundTransferController {
 
-    private final FundTransferServiceDefault fundTransferService;
+    private final FundTransferService fundTransferService;
     private final TransferEligibilityProxy transferEligibilityProxy;
 
     @ApiOperation(value = "Processes to start payment", response = FundTransferRequestDTO.class)
@@ -67,10 +67,10 @@ public class FundTransferController {
             @ApiResponse(code = 200, message = "Successfully processed"),
             @ApiResponse(code = 500, message = "Something went wrong")
     })
-    @PostMapping
+    @PostMapping("/paymentType")
     public Response<List<ServiceType>> retrieveEligibleServiceType(
     		@RequestAttribute("X-REQUEST-METADATA") RequestMetaData metaData,
-    		@Valid @RequestBody FundTransferRequestDTO request) {
+    		@Valid @RequestBody FundTransferEligibiltyRequestDTO request) {
 
         log.info("{} transfer eligibility request received for usertype ->{} and serviceType -> {}", htmlEscape(metaData.getUserType()), htmlEscape(request.getServiceType()));
         if(request.getAmount() == null && request.getSrcAmount() == null){

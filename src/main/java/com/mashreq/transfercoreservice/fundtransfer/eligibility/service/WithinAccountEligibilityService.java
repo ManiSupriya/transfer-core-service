@@ -16,11 +16,11 @@ import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
+import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.BeneficiaryValidator;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.LimitValidatorFactory;
-import com.mashreq.transfercoreservice.fundtransfer.validators.BeneficiaryValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
 
 import lombok.RequiredArgsConstructor;
@@ -41,7 +41,7 @@ public class WithinAccountEligibilityService implements TransferEligibilityServi
 	private final AsyncUserEventPublisher auditEventPublisher;
 
 	@Override
-	public void checkEligibility(RequestMetaData metaData, FundTransferRequestDTO request,
+	public void checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request,
 			UserDTO userDTO) {
 
 
@@ -86,11 +86,11 @@ public class WithinAccountEligibilityService implements TransferEligibilityServi
 		return ServiceType.WAMA;
 	}
 
-	private boolean isCurrencySame(FundTransferRequestDTO request) {
+	private boolean isCurrencySame(FundTransferEligibiltyRequestDTO request) {
 		return request.getCurrency().equalsIgnoreCase(request.getTxnCurrency());
 	}
 
-	private BigDecimal getAmountInSrcCurrency(FundTransferRequestDTO request, BeneficiaryDto beneficiaryDto,
+	private BigDecimal getAmountInSrcCurrency(FundTransferEligibiltyRequestDTO request, BeneficiaryDto beneficiaryDto,
 			AccountDetailsDTO sourceAccountDetailsDTO) {
 		BigDecimal amtToBePaidInSrcCurrency;
 		final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();

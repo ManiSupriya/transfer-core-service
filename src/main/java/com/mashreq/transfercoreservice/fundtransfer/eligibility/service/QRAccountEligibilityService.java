@@ -21,12 +21,12 @@ import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.client.service.QuickRemitService;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
+import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.BeneficiaryValidator;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CurrencyValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.LimitValidatorFactory;
-import com.mashreq.transfercoreservice.fundtransfer.validators.BeneficiaryValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
 
 import lombok.RequiredArgsConstructor;
@@ -46,7 +46,7 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 	private final QuickRemitService quickRemitService;
 	private final AsyncUserEventPublisher userEventPublisher;
 	 
-	public void checkEligibility(RequestMetaData metaData, FundTransferRequestDTO request,
+	public void checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request,
 			UserDTO userDTO) {
 
 		log.info("Quick remit eligibility initiated");
@@ -96,7 +96,7 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 		return ServiceType.QRT;
 	}
 
-	private CurrencyConversionDto getAmountInSrcCurrency(FundTransferRequestDTO request, BeneficiaryDto beneficiaryDto,
+	private CurrencyConversionDto getAmountInSrcCurrency(FundTransferEligibiltyRequestDTO request, BeneficiaryDto beneficiaryDto,
 			AccountDetailsDTO sourceAccountDetailsDTO) {
 
 		final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();

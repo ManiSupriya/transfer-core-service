@@ -13,13 +13,11 @@ import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestD
 import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.LimitValidatorResponse;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
+import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.AccountBelongsToCifValidator;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.LimitValidatorFactory;
-import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.AccountBelongsToCifValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
 
 import lombok.RequiredArgsConstructor;
@@ -41,7 +39,7 @@ public class OwnAccountEligibilityService implements TransferEligibilityService{
 	private final AsyncUserEventPublisher auditEventPublisher;
 
 	@Override
-	public void checkEligibility(RequestMetaData metaData, FundTransferRequestDTO request, UserDTO userDTO) {
+	public void checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request, UserDTO userDTO) {
 
 		final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metaData.getPrimaryCif());
 
@@ -91,7 +89,7 @@ public class OwnAccountEligibilityService implements TransferEligibilityService{
 		return ServiceType.WYMA;
 	}
 	
-	private String getBeneficiaryCode(FundTransferRequestDTO request) {
+	private String getBeneficiaryCode(FundTransferEligibiltyRequestDTO request) {
 		if(goldSilverTransfer(request)){
 			return request.getCurrency();
 		}
@@ -122,7 +120,7 @@ public class OwnAccountEligibilityService implements TransferEligibilityService{
 	}
 
 	//convert to sourceAccount from destAccount
-	private CurrencyConversionDto getCurrencyExchangeObject(BigDecimal transactionAmount, FundTransferRequestDTO request, AccountDetailsDTO destAccount, AccountDetailsDTO sourceAccount) {
+	private CurrencyConversionDto getCurrencyExchangeObject(BigDecimal transactionAmount, FundTransferEligibiltyRequestDTO request, AccountDetailsDTO destAccount, AccountDetailsDTO sourceAccount) {
 		final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
 		currencyRequest.setAccountNumber(sourceAccount.getNumber());
 		currencyRequest.setAccountCurrency(sourceAccount.getCurrency());
@@ -133,7 +131,7 @@ public class OwnAccountEligibilityService implements TransferEligibilityService{
 
 	}
 
-	private boolean goldSilverTransfer(FundTransferRequestDTO request){
+	private boolean goldSilverTransfer(FundTransferEligibiltyRequestDTO request){
 		return (ServiceType.XAU.getName().equals(request.getCurrency()) || ServiceType.XAG.getName().equals(request.getCurrency()));
 	}
 

@@ -164,6 +164,8 @@ public enum TransferErrorCode implements ErrorCode {
     QUICK_REMIT_EXTERNAL_SERVICE_ERROR("TN-8023", "Something went wrong with quick remit external service"),
     
     INVALID_SEGMENT("TN-8024", "Invalid segment"),
+    
+    PAYMENT_ELIGIBILITY_ERROR("TN-8025", "Something went wrong while checking payment eligibility"),
     ;
 
 
