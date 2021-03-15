@@ -55,8 +55,8 @@ public class AccountService {
 	private final AccountCardLessCashQueryService accountCardLessCashQueryService;
 	private final AccountCardLessCashRequestService accountCardLessCashRequestService;
 	private final AccountCardLessCashBlockRequestService accountCardLessCashBlockRequestService;
-	 private final FeesExternalConfig feeCodeConfig;
-	 private final AsyncUserEventPublisher asyncUserEventPublisher;
+	private final FeesExternalConfig feeCodeConfig;
+	private final AsyncUserEventPublisher asyncUserEventPublisher;
 
 	public List<AccountDetailsDTO> getAccountsFromCore(final String cifId) {
 		log.info("Fetching accounts for cifId {} ", htmlEscape(cifId));

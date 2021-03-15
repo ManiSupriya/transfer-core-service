@@ -158,6 +158,12 @@ public enum TransferErrorCode implements ErrorCode {
     ACCOUNT_NO_NOT_MASKED("TN-8010","Account no masked is failed due to length"),
     EMAIL_NOTIFICATION_FAILED("EMAIL_9001","Failed to send email notification"),
     FT_CC_MW_SUCCESS_FAILED_RESPONSE("TN-8011","Transaction pending for processing"),
+    
+    INVALID_USER_TYPE("TN-8022", "Invalid User type"),
+    
+    QUICK_REMIT_EXTERNAL_SERVICE_ERROR("TN-8023", "Something went wrong with quick remit external service"),
+    
+    INVALID_SEGMENT("TN-8024", "Invalid segment"),
     ;
 
 
