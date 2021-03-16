@@ -15,7 +15,6 @@ import java.math.BigDecimal;
 @ConditionalRequired(fieldName = "purposeCode", dependentFieldName = "serviceType", anyMatch = {"INFT", "LOCAL"}, message = "Purpose code cannot be empty")
 @ConditionalRequired(fieldName = "purposeDesc", dependentFieldName = "serviceType", anyMatch = {"INFT", "LOCAL"}, message = "Purpose Description code cannot be empty")
 @ConditionalRequired(fieldName = "chargeBearer", dependentFieldName = "serviceType", anyMatch = {"INFT", "LOCAL"}, message = "charge bearer cannot be empty")
-@ConditionalRequired(fieldName = "productCode", dependentFieldName = "serviceType", anyMatch = "QRT", message = "Product Code is mandatory")
 public class FundTransferEligibiltyRequestDTO {
 
     @Account
@@ -47,7 +46,6 @@ public class FundTransferEligibiltyRequestDTO {
 
     private String beneficiaryId;
 
-    private String productCode;
     private String txnCurrency;
     private String additionalField;
     private String finalBene;
