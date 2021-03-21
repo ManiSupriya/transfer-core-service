@@ -103,7 +103,6 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 		currencyRequest.setAccountNumber(sourceAccountDetailsDTO.getNumber());
 		currencyRequest.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
 		currencyRequest.setTransactionCurrency(beneficiaryDto.getBeneficiaryCurrency());
-		currencyRequest.setProductCode(request.getProductCode());
 		currencyRequest.setTransactionAmount(request.getAmount());
 
 		return maintenanceService.convertBetweenCurrencies(currencyRequest);
