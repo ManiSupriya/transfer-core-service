@@ -52,7 +52,7 @@ public class TransferEligibilityProxy {
 		transferEligibilityServiceMap = new EnumMap<>(ServiceType.class);
 		transferEligibilityServiceMap.put(INFT, Arrays.asList(inftAccountEligibilityService, qrAccountEligibilityService));
 		transferEligibilityServiceMap.put(QRT, 	Arrays.asList(inftAccountEligibilityService, qrAccountEligibilityService));
-		transferEligibilityServiceMap.put(LOCAL, Arrays.asList(localAccountEligibilityService, qrAccountEligibilityService));
+		transferEligibilityServiceMap.put(LOCAL, Arrays.asList(localAccountEligibilityService, inftAccountEligibilityService));
 		transferEligibilityServiceMap.put(WAMA, Arrays.asList(withinAccountEligibilityService));
 		transferEligibilityServiceMap.put(WYMA, Arrays.asList(ownAccountEligibilityService));
 	}
