@@ -1,5 +1,18 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
+import static java.time.Duration.between;
+import static java.time.Instant.now;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
@@ -12,30 +25,31 @@ import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.common.CommonConstants;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.*;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
+import com.mashreq.transfercoreservice.fundtransfer.dto.LimitValidatorResponse;
+import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
+import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
-import com.mashreq.transfercoreservice.fundtransfer.validators.*;
+import com.mashreq.transfercoreservice.fundtransfer.validators.AccountBelongsToCifValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.AccountFreezeValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.CurrencyValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.FinTxnNoValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.SameAccountValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
 import com.mashreq.transfercoreservice.notification.model.NotificationType;
 import com.mashreq.transfercoreservice.notification.service.DigitalUserSegment;
 import com.mashreq.transfercoreservice.notification.service.NotificationService;
 import com.mashreq.transfercoreservice.notification.service.PostTransactionService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-
-import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
-import static java.time.Duration.between;
-import static java.time.Instant.now;
 
 /**
  * @author shahbazkh
@@ -67,6 +81,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     private final NotificationService notificationService;
     private final AsyncUserEventPublisher auditEventPublisher;
     private final DigitalUserSegment digitalUserSegment;
+    private final AccountFreezeValidator freezeValidator;
 
     @Autowired
     private PostTransactionService postTransactionService;
@@ -80,11 +95,12 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         responseHandler(sameAccountValidator.validate(request, metadata));
 
         final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metadata.getPrimaryCif());
-
         final ValidationContext validateAccountContext = new ValidationContext();
         validateAccountContext.add("account-details", accountsFromCore);
         validateAccountContext.add("validate-to-account", Boolean.TRUE);
         validateAccountContext.add("validate-from-account", Boolean.TRUE);
+        
+        validateAccountFreezeDetails(request, metadata, validateAccountContext);
 
         responseHandler(accountBelongsToCifValidator.validate(request, metadata, validateAccountContext));
 
@@ -172,7 +188,24 @@ public class OwnAccountStrategy implements FundTransferStrategy {
                 .build();
     }
 
-    private void prepareAndCallPostTransactionActivity(RequestMetaData metadata, FundTransferRequest fundTransferRequest, FundTransferRequestDTO request, FundTransferResponse fundTransferResponse, CurrencyConversionDto conversionResult) {
+	/**
+	 * Validates debit and credit freeze details for source and destination account details respectively
+	 * @param request
+	 * @param metadata
+	 * @param validateAccountContext
+	 */
+	private void validateAccountFreezeDetails(FundTransferRequestDTO request, RequestMetaData metadata,
+			final ValidationContext validateAccountContext) {
+		SearchAccountDto toAccountDetails = accountService.getAccountDetailsFromCore(request.getToAccount());
+        validateAccountContext.add("credit-account-details", toAccountDetails);
+        validateAccountContext.add("validate-credit-freeze", Boolean.TRUE);
+        SearchAccountDto fromAccountDetails = accountService.getAccountDetailsFromCore(request.getFromAccount());
+        validateAccountContext.add("debit-account-details", fromAccountDetails);
+        validateAccountContext.add("validate-debit-freeze", Boolean.TRUE);
+        freezeValidator.validate(request, metadata);
+	}
+
+	private void prepareAndCallPostTransactionActivity(RequestMetaData metadata, FundTransferRequest fundTransferRequest, FundTransferRequestDTO request, FundTransferResponse fundTransferResponse, CurrencyConversionDto conversionResult) {
         boolean isSuccess = MwResponseStatus.S.equals(fundTransferResponse.getResponseDto().getMwResponseStatus());
         if(goldSilverTransfer(request) && isSuccess && StringUtils.isEmpty(request.getTxnCurrency())){
             if(buyRequest(request)){

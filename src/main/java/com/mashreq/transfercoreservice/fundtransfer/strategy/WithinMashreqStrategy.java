@@ -7,6 +7,7 @@ import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
 import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
+import com.mashreq.transfercoreservice.client.dto.SearchAccountDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
@@ -16,6 +17,7 @@ import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.UAEAccountNumberResolver;
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
@@ -66,13 +68,15 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     private final DealValidator dealValidator;
     private final AsyncUserEventPublisher auditEventPublisher;
     private final NotificationService notificationService;
+    private final AccountFreezeValidator freezeValidator;
+    private final UAEAccountNumberResolver accountNumberResolver;
     @Autowired
     private PostTransactionService postTransactionService;
 
     @Value("${app.uae.transaction.code:096}")
     private String transactionCode;
     private final String MASHREQ = "Mashreq";
-
+    
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, RequestMetaData metadata, UserDTO userDTO) {
 
@@ -104,7 +108,8 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
 
         validationContext.add("transfer-amount-in-source-currency", transferAmountInSrcCurrency);
         responseHandler(balanceValidator.validate(request, metadata, validationContext));
-
+        /** validating account freeze conditions */
+        validateAccountFreezeDetails(request, metadata, validationContext);
 
         //Limit Validation
         Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
@@ -154,6 +159,24 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     private boolean isCurrencySame(FundTransferRequestDTO request) {
         return request.getCurrency().equalsIgnoreCase(request.getTxnCurrency());
     }
+    
+    /**
+	 * Validates debit and credit freeze details for source and destination account details respectively
+	 * @param request
+	 * @param metadata
+	 * @param validateAccountContext
+	 */
+	private void validateAccountFreezeDetails(FundTransferRequestDTO request, RequestMetaData metadata,
+			final ValidationContext validateAccountContext) {
+		SearchAccountDto toAccountDetails = accountService.getAccountDetailsFromCore(accountNumberResolver.generateAccountNumber(request.getToAccount()));
+        validateAccountContext.add("credit-account-details", toAccountDetails);
+        validateAccountContext.add("validate-credit-freeze", Boolean.TRUE);
+        SearchAccountDto fromAccountDetails = accountService.getAccountDetailsFromCore(request.getFromAccount());
+        validateAccountContext.add("debit-account-details", fromAccountDetails);
+        validateAccountContext.add("validate-debit-freeze", Boolean.TRUE);
+        freezeValidator.validate(request, metadata);
+	}
+    
     private CustomerNotification populateCustomerNotification(String transactionRefNo, String currency, BigDecimal amount) {
         CustomerNotification customerNotification =new CustomerNotification();
         customerNotification.setAmount(String.valueOf(amount));
