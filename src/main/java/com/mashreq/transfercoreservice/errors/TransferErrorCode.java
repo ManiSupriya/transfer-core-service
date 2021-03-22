@@ -41,7 +41,8 @@ public enum TransferErrorCode implements ErrorCode {
     TRNS_CORE_406("TRNS-CORE-406", "Request parameter is missing"),
     TXN_CURRENCY_INVALID("TN-1027", "Not a valid transfer currency"),
     REFERENCE_NO_INVALID("TN-1028", "Not a valid Reference Number for the account"),
-
+    DESTINATION_ACCOUNT_FREEZED_FOR_CREDIT("TN-1029", "Destination account is freezed for credit"),
+    SOURCE_ACCOUNT_FREEZED_FOR_DEBIT("TN-1030", "Destination account is freezed for credit"),
     INVALID_BEN_CODE("LM-1106","Invalid ben code"),
 
     DEAL_VALIDATION_FAILED("TN-1201", "Deal Number validation Failed"),
