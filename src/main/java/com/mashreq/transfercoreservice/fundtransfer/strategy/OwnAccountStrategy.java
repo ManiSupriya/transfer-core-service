@@ -202,7 +202,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         SearchAccountDto fromAccountDetails = accountService.getAccountDetailsFromCore(request.getFromAccount());
         validateAccountContext.add("debit-account-details", fromAccountDetails);
         validateAccountContext.add("validate-debit-freeze", Boolean.TRUE);
-        freezeValidator.validate(request, metadata);
+        freezeValidator.validate(request, metadata,validateAccountContext);
 	}
 
 	private void prepareAndCallPostTransactionActivity(RequestMetaData metadata, FundTransferRequest fundTransferRequest, FundTransferRequestDTO request, FundTransferResponse fundTransferResponse, CurrencyConversionDto conversionResult) {

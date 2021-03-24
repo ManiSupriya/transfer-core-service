@@ -3,19 +3,14 @@ package com.mashreq.transfercoreservice.fundtransfer.validators;
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.DESTINATION_ACCOUNT_FREEZED_FOR_CREDIT;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.SOURCE_ACCOUNT_FREEZED_FOR_DEBIT;
+import static com.mashreq.transfercoreservice.event.FundTransferEventType.ACCOUNT_FREEZE_VALIDATION;
 import static com.mashreq.transfercoreservice.event.FundTransferEventType.ACCOUNT_IS_UNDER_CREDIT_FREEZE;
 import static com.mashreq.transfercoreservice.event.FundTransferEventType.ACCOUNT_IS_UNDER_DEBIT_FREEZE;
-import static com.mashreq.transfercoreservice.event.FundTransferEventType.ACCOUNT_FREEZE_VALIDATION;
 
-import java.util.List;
-
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
-import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
-import com.mashreq.transfercoreservice.client.dto.CoreAccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.SearchAccountDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
