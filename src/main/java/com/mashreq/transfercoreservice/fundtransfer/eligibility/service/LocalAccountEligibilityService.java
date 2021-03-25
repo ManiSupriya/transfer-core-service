@@ -85,19 +85,16 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
 
         final BeneficiaryDto beneficiaryDto = beneficiaryService.getById(metaData.getPrimaryCif(), valueOf(request.getBeneficiaryId()), metaData);
         validationContext.add("beneficiary-dto", beneficiaryDto);
-        validationContext.add("to-account-currency", StringUtils.isBlank(beneficiaryDto.getBeneficiaryCurrency())
-                ? AED : beneficiaryDto.getBeneficiaryCurrency());
+        validationContext.add("to-account-currency", AED);
         responseHandler(beneficiaryValidator.validate(request, metaData, validationContext));
 
         //Balance Validation
-        final BigDecimal transferAmountInSrcCurrency = isCurrencySame(beneficiaryDto, fromAccountDetails.getCurrency())
-                ? request.getAmount()
-                : getAmountInSrcCurrency(request, beneficiaryDto, fromAccountDetails);
+        final BigDecimal transferAmountInSrcCurrency = getAmountInSrcCurrency(request, fromAccountDetails);
 
         //Limit Validation
         Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
         final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), fromAccountDetails, transferAmountInSrcCurrency);
-        limitValidatorFactory.getValidator(metaData).validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metaData, bendId);
+        limitValidatorFactory.getValidator(metaData).validate(userDTO, request.getServiceType(), limitUsageAmount, metaData, bendId);
 
     }
 
@@ -120,7 +117,7 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
         validateBeneficiary(request, requestMetaData, validationContext);
         
         final BigDecimal limitUsageAmount = request.getAmount();
-        limitValidatorFactory.getValidator(requestMetaData).validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, requestMetaData, null);
+        limitValidatorFactory.getValidator(requestMetaData).validate(userDTO, request.getServiceType(), limitUsageAmount, requestMetaData, null);
         
     }
 
@@ -135,8 +132,7 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
 
         final BeneficiaryDto beneficiaryDto = beneficiaryService.getById(requestMetaData.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), requestMetaData);
         validationContext.add("beneficiary-dto", beneficiaryDto);
-        validationContext.add("to-account-currency", StringUtils.isBlank(beneficiaryDto.getBeneficiaryCurrency())
-                ? AED : beneficiaryDto.getBeneficiaryCurrency());
+        validationContext.add("to-account-currency", AED);
         responseHandler(beneficiaryValidator.validate(request, requestMetaData, validationContext));
 
         return beneficiaryDto;
@@ -159,11 +155,7 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
         return currencyConversionDto.getTransactionAmount();
     }
 
-    private boolean isCurrencySame(BeneficiaryDto beneficiaryDto, String sourceAccountCurrency) {
-        return sourceAccountCurrency.equalsIgnoreCase(beneficiaryDto.getBeneficiaryCurrency());
-    }
-
-    private BigDecimal getAmountInSrcCurrency(FundTransferEligibiltyRequestDTO request, BeneficiaryDto beneficiaryDto, AccountDetailsDTO sourceAccountDetailsDTO) {
+    private BigDecimal getAmountInSrcCurrency(FundTransferEligibiltyRequestDTO request, AccountDetailsDTO sourceAccountDetailsDTO) {
         BigDecimal amtToBePaidInSrcCurrency;
         final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
         currencyRequest.setAccountNumber(sourceAccountDetailsDTO.getNumber());

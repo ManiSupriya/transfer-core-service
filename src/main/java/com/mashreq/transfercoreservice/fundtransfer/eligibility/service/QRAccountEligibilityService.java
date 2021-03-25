@@ -58,7 +58,6 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 		final ValidationContext validationContext = new ValidationContext();
 		
 		final BeneficiaryDto beneficiaryDto = beneficiaryService.getById(metaData.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), metaData);
-        final String countryCodeISo = beneficiaryDto.getBeneficiaryCountryISO();
         
         List<CountryMasterDto> countryList = maintenanceService.getAllCountries("MOB", "AE", Boolean.TRUE);
         final Optional<CountryMasterDto> countryDto = countryList.stream()
@@ -70,9 +69,7 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
         }
         
         currencyValidatorFactory.getValidator(metaData).validate(request, metaData, validationContext);
-        
-        log.info("Initiating Quick Remit transfer to {}", countryCodeISo);
-        
+                
         validationContext.add("beneficiary-dto", beneficiaryDto);
         
         final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metaData.getPrimaryCif());
@@ -80,12 +77,12 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 		responseHandler(beneficiaryValidator.validate(request, metaData, validationContext));
 
 		final AccountDetailsDTO sourceAccountDetailsDTO = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
-		final CurrencyConversionDto currencyConversionDto = getAmountInSrcCurrency(request, beneficiaryDto, sourceAccountDetailsDTO);
+		final CurrencyConversionDto currencyConversionDto = getAmountInSrcCurrency(request, sourceAccountDetailsDTO);
 
 		final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), sourceAccountDetailsDTO,
 				currencyConversionDto.getAccountCurrencyAmount());
 		
-		limitValidatorFactory.getValidator(metaData).validate(userDTO, request.getServiceType(), limitUsageAmount, metaData);
+		limitValidatorFactory.getValidator(metaData).validate(userDTO, request.getServiceType(), limitUsageAmount, metaData, Long.valueOf(request.getBeneficiaryId()));
 
 		quickRemitService.exchange(request, countryDto, metaData);
 		
@@ -96,13 +93,12 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 		return ServiceType.QRT;
 	}
 
-	private CurrencyConversionDto getAmountInSrcCurrency(FundTransferEligibiltyRequestDTO request, BeneficiaryDto beneficiaryDto,
-			AccountDetailsDTO sourceAccountDetailsDTO) {
+	private CurrencyConversionDto getAmountInSrcCurrency(FundTransferEligibiltyRequestDTO request, AccountDetailsDTO sourceAccountDetailsDTO) {
 
 		final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
 		currencyRequest.setAccountNumber(sourceAccountDetailsDTO.getNumber());
 		currencyRequest.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
-		currencyRequest.setTransactionCurrency(beneficiaryDto.getBeneficiaryCurrency());
+		currencyRequest.setTransactionCurrency(request.getTxnCurrency());
 		currencyRequest.setTransactionAmount(request.getAmount());
 
 		return maintenanceService.convertBetweenCurrencies(currencyRequest);

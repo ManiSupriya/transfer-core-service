@@ -137,8 +137,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
         final BeneficiaryDto beneficiaryDto = beneficiaryService.getById(metadata.getPrimaryCif(), valueOf(request.getBeneficiaryId()), metadata);
         validationContext.add("beneficiary-dto", beneficiaryDto);
-        validationContext.add("to-account-currency", StringUtils.isBlank(beneficiaryDto.getBeneficiaryCurrency())
-                ? localCurrency : beneficiaryDto.getBeneficiaryCurrency());
+        validationContext.add("to-account-currency", localCurrency);
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
 
 
@@ -165,9 +164,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
    		 }
 
         //Balance Validation
-        final BigDecimal transferAmountInSrcCurrency = isCurrencySame(beneficiaryDto, fromAccountDetails.getCurrency())
-                ? request.getAmount()
-                : getAmountInSrcCurrency(request, beneficiaryDto, fromAccountDetails);
+        final BigDecimal transferAmountInSrcCurrency = getAmountInSrcCurrency(request, beneficiaryDto, fromAccountDetails);
         validationContext.add("transfer-amount-in-source-currency", transferAmountInSrcCurrency);
         responseHandler(balanceValidator.validate(request, metadata, validationContext));
 
@@ -175,7 +172,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         //Limit Validation
         Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
         final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), fromAccountDetails, transferAmountInSrcCurrency);
-        final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metadata, bendId);
+        final LimitValidatorResponse validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount, metadata, bendId);
         String txnRefNo = validationResult.getTransactionRefNo();
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountDetails.getCurrency(), fromAccountDetails.getBranchCode(), beneficiaryDto, validationResult);
         log.info("Local Fund transfer initiated.......");
@@ -240,7 +237,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
        // final BigDecimal limitUsageAmount = getCCLimitUsageAmount(request.getDealNumber(), selectedCreditCard, transferAmountInSrcCurrency);
 
         final BigDecimal limitUsageAmount = transferAmountInSrcCurrency;
-         final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, requestMetaData, null);
+         final LimitValidatorResponse validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount, requestMetaData, null);
          String txnRefNo = validationResult.getTransactionRefNo();
          fundTransferResponse = processCreditCardTransfer(request, requestMetaData, selectedCreditCard, beneficiaryDto, validationResult);
          if(isSuccessOrProcessing(fundTransferResponse)){
@@ -270,8 +267,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
         final BeneficiaryDto beneficiaryDto = beneficiaryService.getById(requestMetaData.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), requestMetaData);
         validationContext.add("beneficiary-dto", beneficiaryDto);
-        validationContext.add("to-account-currency", StringUtils.isBlank(beneficiaryDto.getBeneficiaryCurrency())
-                ? localCurrency : beneficiaryDto.getBeneficiaryCurrency());
+        validationContext.add("to-account-currency", localCurrency);
         responseHandler(beneficiaryValidator.validate(request, requestMetaData, validationContext));
 
         validationContext.add("iban-length", LOCAL_IBAN_LENGTH);
@@ -413,10 +409,6 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
         CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(currencyConversionRequestDto);
         return currencyConversionDto.getTransactionAmount();
-    }
-
-    private boolean isCurrencySame(BeneficiaryDto beneficiaryDto, String sourceAccountCurrency) {
-        return sourceAccountCurrency.equalsIgnoreCase(beneficiaryDto.getBeneficiaryCurrency());
     }
 
     private BigDecimal getAmountInSrcCurrency(FundTransferRequestDTO request, BeneficiaryDto beneficiaryDto, AccountDetailsDTO sourceAccountDetailsDTO) {

@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.annotation.PostConstruct;
@@ -24,7 +25,6 @@ import org.springframework.stereotype.Service;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
-import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
@@ -84,7 +84,8 @@ public class TransferEligibilityProxy {
 			}
 		}
 		if(serviceTypes.isEmpty()) {
-			GenericExceptionHandler.handleError(PAYMENT_ELIGIBILITY_ERROR, PAYMENT_ELIGIBILITY_ERROR.getCustomErrorCode(), exception.getErrorDetails());
+			GenericExceptionHandler.handleError(PAYMENT_ELIGIBILITY_ERROR, PAYMENT_ELIGIBILITY_ERROR.getCustomErrorCode(), 
+					Objects.nonNull(exception.getErrorDetails()) ? exception.getErrorDetails() : exception.getMessage());
 		}
 		return serviceTypes;
 	}

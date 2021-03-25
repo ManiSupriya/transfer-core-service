@@ -64,25 +64,19 @@ public class INFTAccountEligibilityService implements TransferEligibilityService
 
         final AccountDetailsDTO sourceAccountDetailsDTO = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
 
-        final BigDecimal transferAmountInSrcCurrency = isCurrencySame(beneficiaryDto,sourceAccountDetailsDTO)
-                ? request.getAmount()
-                : getAmountInSrcCurrency(request, beneficiaryDto, sourceAccountDetailsDTO);
+        final BigDecimal transferAmountInSrcCurrency = getAmountInSrcCurrency(request, beneficiaryDto, sourceAccountDetailsDTO);
 
         //Limit Validation
         Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
         final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), sourceAccountDetailsDTO,transferAmountInSrcCurrency);
         
-        limitValidatorFactory.getValidator(metaData).validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metaData, bendId);
+        limitValidatorFactory.getValidator(metaData).validate(userDTO, request.getServiceType(), limitUsageAmount, metaData, bendId);
     }
 
 	@Override
 	public ServiceType getServiceType() {
 		return ServiceType.INFT;
 	}
-    
-    private boolean isCurrencySame(BeneficiaryDto beneficiaryDto, AccountDetailsDTO sourceAccountDetailsDTO) {
-        return sourceAccountDetailsDTO.getCurrency().equalsIgnoreCase(beneficiaryDto.getBeneficiaryCurrency());
-    }
 
     private BigDecimal convertAmountInLocalCurrency(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO,
                                                     final BigDecimal transferAmountInSrcCurrency) {

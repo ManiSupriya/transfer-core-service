@@ -38,7 +38,7 @@ public class CurrencyValidator implements Validator<FundTransferRequestDTO> {
 
         if(WAMA.getName().equals(request.getServiceType()) ) {
             BeneficiaryDto beneficiaryDto = context.get("beneficiary-dto", BeneficiaryDto.class);
-            if (beneficiaryDto != null && !isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), beneficiaryDto.getBeneficiaryCurrency())) {
+            if (beneficiaryDto != null && !isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), null)) {
                 log.error("Beneficiary Currency and Requested Currency does not match for service type [ {} ]  ", htmlEscape(request.getServiceType()));
                 auditEventPublisher.publishFailureEvent(FundTransferEventType.CURRENCY_VALIDATION, metadata, null,
                         CURRENCY_IS_INVALID.getCustomErrorCode(), CURRENCY_IS_INVALID.getErrorMessage(), null );
