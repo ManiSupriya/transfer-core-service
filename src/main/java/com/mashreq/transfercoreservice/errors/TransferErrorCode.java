@@ -177,6 +177,13 @@ public enum TransferErrorCode implements ErrorCode {
     INVALID_SEGMENT("TN-8024", "Invalid segment"),
     
     PAYMENT_ELIGIBILITY_ERROR("TN-8025", "Something went wrong while checking payment eligibility"),
+    
+    IBAN_DETAILS_NOT_FOUND("TN-8026", "IBAN Account details not found"),
+    IBAN_CHECK_DIGIT_VALIDATION_FAILED("TN-8027", "IBAN check digit validation failed"),
+    INVALID_IBAN_LENGTH("TN-8028", "Invalid IBAN | Account number"),
+    
+    BANK_NOT_FOUND_WITH_IBAN("TN-8029", "Bank not found with iban"),
+    
     ;
 
 

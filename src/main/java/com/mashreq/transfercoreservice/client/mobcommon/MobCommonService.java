@@ -42,25 +42,6 @@ public class MobCommonService {
     public static final String MOB_AE_ROUTING_CODE_SUPPORTED_COUNTRIES = "MOB:AE:ROUTING_CODE_SUPPORTED_COUNTRIES";
     public static final String TRUE = "true";
 
-    public LimitValidatorResultsDto validateAvailableLimit(String cifId, String beneficiaryTypeCode, BigDecimal amount) {
-        Instant startTime = Instant.now();
-        log.info("[MobCommonService] Calling MobCommonService for limit validation for cif={} beneficiaryTypeCode = {} " +
-                        "and amount ={}",
-                htmlEscape(cifId), htmlEscape(beneficiaryTypeCode), htmlEscape(amount));
-
-        Response<LimitValidatorResultsDto> response =
-                mobCommonClient.validateAvailableLimit(cifId, beneficiaryTypeCode, amount);
-
-        if (ResponseStatus.ERROR == response.getStatus() || isNull(response.getData())) {
-            final String errorDetails = getErrorDetails(response);
-            log.error("[MobCommonService] Exception in calling mob customer for limit validation ={} ", errorDetails);
-            GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR,
-                    EXTERNAL_SERVICE_ERROR.getErrorMessage(), getErrorDetails(response));
-        }
-        log.info("[MobCommonService] Limit validation response success in  {} ms ", Duration.between(startTime, now()).toMillis());
-        return response.getData();
-    }
-
     public Set<MoneyTransferPurposeDto> getPaymentPurposes( String transactionType, String qrType, String accountType) {
         log.info("[MobCommonService] Calling MobCommonService for getting POP for QR transfer to country={}  ",
                 qrType);

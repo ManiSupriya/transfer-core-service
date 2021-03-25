@@ -121,7 +121,6 @@ public class LocalFundTransferStrategyTest {
         UserDTO userDTO = new UserDTO();
 
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
-        beneficiaryDto.setBeneficiaryCurrency(srcCurrency);
         beneficiaryDto.setAccountNumber(toAcct);
         beneficiaryDto.setSwiftCode(swift);
         beneficiaryDto.setBankName(bankName);
@@ -156,7 +155,7 @@ public class LocalFundTransferStrategyTest {
         limitValidatorResultsDto.setLimitVersionUuid(limitVersionUuid);
         LimitValidatorResponse limitValidatorResponse = new LimitValidatorResponse();
         limitValidatorResponse.setLimitVersionUuid(limitVersionUuid);
-        when(limitValidator.validateWithProc(eq(userDTO), eq("LOCAL"), eq(limitUsageAmount), eq(metadata), any()))
+        when(limitValidator.validate(eq(userDTO), eq("LOCAL"), eq(limitUsageAmount), eq(metadata), any()))
         .thenReturn(limitValidatorResponse);
         when(dealValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
 
@@ -229,11 +228,9 @@ public class LocalFundTransferStrategyTest {
         UserDTO userDTO = new UserDTO();
 
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
-        beneficiaryDto.setBeneficiaryCurrency(srcCurrency);
         beneficiaryDto.setAccountNumber(toAcct);
         beneficiaryDto.setSwiftCode(swift);
         beneficiaryDto.setBankName(bankName);
-        beneficiaryDto.setBeneficiaryCurrency(destCurrency);
         beneficiaryDto.setFullName(fullName);
         AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
         accountDetailsDTO.setNumber(fromAcct);
@@ -286,7 +283,7 @@ public class LocalFundTransferStrategyTest {
         when(maintenanceService.convertCurrency(eq(currencyConversionRequestDto))).thenReturn(secondConversion);
         LimitValidatorResponse limitValidatorResponse = new LimitValidatorResponse();
         limitValidatorResponse.setLimitVersionUuid(limitVersionUuid);
-        when(limitValidator.validateWithProc(eq(userDTO), eq("LOCAL"), eq(paidAmt), eq(metadata), any()))
+        when(limitValidator.validate(eq(userDTO), eq("LOCAL"), eq(paidAmt), eq(metadata), any()))
                 .thenReturn(limitValidatorResponse);
         when(dealValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
 

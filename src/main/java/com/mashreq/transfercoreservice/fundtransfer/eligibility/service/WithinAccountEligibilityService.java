@@ -58,7 +58,6 @@ public class WithinAccountEligibilityService implements TransferEligibilityServi
 		validationContext.add("from-account", fromAccountOpt.get());
 
 		BeneficiaryDto beneficiaryDto = beneficiaryService.getById(metaData.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), metaData);
-		validationContext.add("to-account-currency",beneficiaryDto.getBeneficiaryCurrency());
 		validationContext.add("beneficiary-dto", beneficiaryDto);
 
 		responseHandler(beneficiaryValidator.validate(request, metaData, validationContext));
@@ -72,7 +71,7 @@ public class WithinAccountEligibilityService implements TransferEligibilityServi
 		//Limit Validation
 		Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
 
-		limitValidatorFactory.getValidator(metaData).validateWithProc(
+		limitValidatorFactory.getValidator(metaData).validate(
 				userDTO, 
 				request.getServiceType(), 
 				getLimitUsageAmount(request.getDealNumber(), fromAccountOpt.get(),transferAmountInSrcCurrency), 

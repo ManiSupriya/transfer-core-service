@@ -41,53 +41,10 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class LimitValidator implements ILimitValidator{
 
-    private final MobCommonService mobCommonService;
     private final AsyncUserEventPublisher auditEventPublisher;
     private final ServiceTypeRepository serviceTypeRepository;
     private final LimitCheckService limitCheckService;
-    /**
-     * Method to get the limits and validate against user's consumed limit
-     */
-    @Override
-    public LimitValidatorResultsDto validate(final UserDTO userDTO, final String beneficiaryType, final BigDecimal paidAmount, final RequestMetaData metaData) {
-        log.info("[LimitValidator] limit validator called cif ={} and beneficiaryType={} and paidAmount={}",
-                htmlEscape(userDTO.getCifId()), htmlEscape(beneficiaryType), htmlEscape(paidAmount));
-        LimitValidatorResultsDto limitValidatorResultsDto =
-                mobCommonService.validateAvailableLimit(userDTO.getCifId(), beneficiaryType, paidAmount);
-
-        final String remarks = getRemarks(limitValidatorResultsDto, metaData.getPrimaryCif(), String.valueOf(paidAmount), beneficiaryType);
-        if (!limitValidatorResultsDto.isValid()) {
-
-            if (LimitCheckType.DAILY_AMOUNT.equals(limitValidatorResultsDto.getLimitCheckType())) {
-                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks,
-                        DAY_AMOUNT_LIMIT_REACHED.getCustomErrorCode(), DAY_AMOUNT_LIMIT_REACHED.getErrorMessage(), null);
-                GenericExceptionHandler.handleError(DAY_AMOUNT_LIMIT_REACHED,
-                        DAY_AMOUNT_LIMIT_REACHED.getErrorMessage());
-            } else {
-                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks,
-                        MONTH_AMOUNT_LIMIT_REACHED.getCustomErrorCode(), MONTH_AMOUNT_LIMIT_REACHED.getErrorMessage(), null);
-                GenericExceptionHandler.handleError(MONTH_AMOUNT_LIMIT_REACHED,
-                        MONTH_AMOUNT_LIMIT_REACHED.getErrorMessage());
-            }
-        }
-        auditEventPublisher.publishSuccessEvent(LIMIT_VALIDATION, metaData, remarks);
-        log.info("Limit validation successful");
-        return limitValidatorResultsDto;
-    }
-
-    private String getRemarks(LimitValidatorResultsDto resultsDto, String cif, String paidAmount, String beneficiaryType) {
-        return String.format(
-                "Cif=%s,PaidAmount=%s,BeneType=%s,availableLimitAmount=%s,maxAmountDaily=%s,maxAmountMonthly=%s,limitCheckType=%s",
-                cif,
-                paidAmount,
-                beneficiaryType,
-                resultsDto.getAvailableLimitAmount(),
-                resultsDto.getMaxAmountDaily(),
-                resultsDto.getMaxAmountMonthly(),
-                resultsDto.getLimitCheckType()
-        );
-    }
-
+    
     private String getRemarks(LimitValidatorResponse resultsDto, String cif, String paidAmount, String beneficiaryType) {
         return String.format(
                 "Cif=%s,PaidAmount=%s,BeneType=%s,availableLimitAmount=%s,availableLimitCount=%s,maxAmountDaily=%s,maxAmountMonthly=%s,maxCountMonthly=%s,maxCountDaily=%s," +
@@ -155,7 +112,7 @@ public class LimitValidator implements ILimitValidator{
     }
 
     @Override
-    public LimitValidatorResponse validateWithProc(final UserDTO userDTO, final String beneficiaryType, final BigDecimal paidAmount, final RequestMetaData metaData,Long benId) {
+    public LimitValidatorResponse validate(final UserDTO userDTO, final String beneficiaryType, final BigDecimal paidAmount, final RequestMetaData metaData,Long benId) {
         log.info("[LimitValidator] limit validator called cif ={} and beneficiaryType={} and paidAmount={} and countryId {} and segmentId {}",
                 htmlEscape(userDTO.getCifId()), htmlEscape(beneficiaryType), htmlEscape(paidAmount), htmlEscape(metaData.getCountry()), htmlEscape(metaData.getSegment()));
         LimitValidatorResponse limitValidatorResultsDto = limitCheckService.validateLimit(userDTO.getCifId(), beneficiaryType, metaData.getCountry(),metaData.getSegment(),benId,paidAmount);

@@ -141,7 +141,6 @@ public class LocalFundTransferStrategyCCTest {
 
     private BeneficiaryDto buildBeneficiaryDTO(){
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
-        beneficiaryDto.setBeneficiaryCurrency("AED");
         beneficiaryDto.setAccountNumber("AE610240041520084750901");
         beneficiaryDto.setSwiftCode("EBILAEADXXX");
         beneficiaryDto.setBankName("EMIRATES NBD PJSC");
@@ -254,7 +253,7 @@ public class LocalFundTransferStrategyCCTest {
         limitValidatorResultsDto.setLimitVersionUuid(limitVersionUuid);
         LimitValidatorResponse limitValidatorResponse = new LimitValidatorResponse();
         limitValidatorResponse.setLimitVersionUuid(limitVersionUuid);
-        when(limitValidator.validateWithProc(eq(userDTO), eq("LOCAL"), any(), eq(metadata), any()))
+        when(limitValidator.validate(eq(userDTO), eq("LOCAL"), any(), eq(metadata), any()))
         .thenReturn(limitValidatorResponse);
         when(dealValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
         Country country = new Country();

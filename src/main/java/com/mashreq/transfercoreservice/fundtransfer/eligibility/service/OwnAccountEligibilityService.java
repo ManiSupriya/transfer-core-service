@@ -81,7 +81,7 @@ public class OwnAccountEligibilityService implements TransferEligibilityService{
 			limitValidatorFactory.getValidator(metaData).validateMin(userDTO, request.getServiceType(), transactionAmount, metaData);
 		}
 		Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId()) ? Long.parseLong(request.getBeneficiaryId()):null;
-		limitValidatorFactory.getValidator(metaData).validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metaData, bendId);
+		limitValidatorFactory.getValidator(metaData).validate(userDTO, request.getServiceType(), limitUsageAmount, metaData, bendId);
 	}
 
 	@Override
