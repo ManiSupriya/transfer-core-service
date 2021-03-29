@@ -42,7 +42,6 @@ public class CurrencyValidatorTest {
 
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
         beneficiaryDto.setAccountNumber("019022073766");
-        beneficiaryDto.setBeneficiaryCurrency("USD");
         beneficiaryDto.setStatus(BeneficiaryStatus.ACTIVE.getValue());
 
         mockValidationContext.add("from-account", accountDetailsDTO);
@@ -245,7 +244,6 @@ public class CurrencyValidatorTest {
 
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
         beneficiaryDto.setAccountNumber("019022073766");
-        beneficiaryDto.setBeneficiaryCurrency("USD");
         beneficiaryDto.setStatus(BeneficiaryStatus.ACTIVE.getValue());
 
         mockValidationContext.add("from-account", accountDetailsDTO);
@@ -256,7 +254,7 @@ public class CurrencyValidatorTest {
         final ValidationResult result = currencyValidator.validate(requestDTO, null, mockValidationContext);
 
         //then
-        Assert.assertEquals(result.isSuccess(), true);
+        Assert.assertEquals(result.isSuccess(), false);
 
     }
 
@@ -303,7 +301,6 @@ public class CurrencyValidatorTest {
 
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
         beneficiaryDto.setAccountNumber("019022073766");
-        beneficiaryDto.setBeneficiaryCurrency("USD");
         beneficiaryDto.setStatus(BeneficiaryStatus.ACTIVE.getValue());
 
         mockValidationContext.add("from-account", accountDetailsDTO);
@@ -360,7 +357,6 @@ public class CurrencyValidatorTest {
 
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
         beneficiaryDto.setAccountNumber("019022073766");
-        beneficiaryDto.setBeneficiaryCurrency("USD");
         beneficiaryDto.setStatus(BeneficiaryStatus.ACTIVE.getValue());
 
         ValidationContext mockValidationContext = new ValidationContext();

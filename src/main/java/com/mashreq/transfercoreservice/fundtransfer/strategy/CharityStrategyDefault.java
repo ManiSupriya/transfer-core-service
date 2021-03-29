@@ -105,7 +105,7 @@ public class CharityStrategyDefault implements FundTransferStrategy {
 
         log.info("Limit Validation start.");
         BigDecimal limitUsageAmount = request.getAmount();
-        final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metadata, bendId);
+        final LimitValidatorResponse validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount, metadata, bendId);
         log.info("Limit Validation successful");
         String txnRefNo = validationResult.getTransactionRefNo();
 

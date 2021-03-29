@@ -1,5 +1,11 @@
 package com.mashreq.transfercoreservice.client.service;
 
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_EXTERNAL_SERVICE_ERROR;
+import static java.util.Objects.isNull;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
+
 import com.google.common.base.Enums;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
@@ -9,17 +15,11 @@ import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.AdditionalFields;
-import com.mashreq.transfercoreservice.fundtransfer.dto.BankDetails;
-import com.mashreq.transfercoreservice.repository.BankMsDAO;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_EXTERNAL_SERVICE_ERROR;
-import static java.util.Objects.isNull;
 
 /**
  * @author shahbazkh
@@ -34,8 +34,6 @@ public class BeneficiaryService {
     public static final String TRUE = "true";
     private final BeneficiaryClient beneficiaryClient;
     private final AsyncUserEventPublisher userEventPublisher;
-    private static final String SRILANKA = "LK";
-    private final BankMsDAO bankMsDAO;
 
     public BeneficiaryDto getById(final String cifId, Long id, RequestMetaData metaData) {
         log.info("Fetching Beneficiary for id = {}", id);
@@ -47,12 +45,7 @@ public class BeneficiaryService {
                     getErrorDetails(response));
         }
         log.info("Beneficiary fetched successfully for id = {}", id);
-        BeneficiaryDto beneficiaryDto = response.getData();
-
-        if (beneficiaryDto.getBeneficiaryCountryISO() != null && beneficiaryDto.getBeneficiaryCountryISO().equals(SRILANKA)) {
-            beneficiaryDto = updateBenInfo(beneficiaryDto);
-        }
-        return beneficiaryDto;
+        return response.getData();
     }
     
     public BeneficiaryDto getById(AdditionalFields additionalFields, Long id, RequestMetaData metaData, String validationType) {
@@ -65,12 +58,7 @@ public class BeneficiaryService {
                     getErrorDetails(response));
         }
         log.info("Beneficiary fetched successfully for id = {}", id);
-        BeneficiaryDto beneficiaryDto = response.getData();
-
-        if (beneficiaryDto.getBeneficiaryCountryISO() != null && beneficiaryDto.getBeneficiaryCountryISO().equals(SRILANKA)) {
-            beneficiaryDto = updateBenInfo(beneficiaryDto);
-        }
-        return beneficiaryDto;
+        return response.getData();
     }
 
     public BeneficiaryDto getUpdate(AdditionalFields additionalFields, Long id, RequestMetaData metaData, String validationType) {
@@ -93,12 +81,8 @@ public class BeneficiaryService {
 
         }
         log.info("Beneficiary fetched successfully for id = {}", id);
-        BeneficiaryDto beneficiaryDto = response.getData();
 
-        if (beneficiaryDto.getBeneficiaryCountryISO() != null && beneficiaryDto.getBeneficiaryCountryISO().equals(SRILANKA)) {
-            beneficiaryDto = updateBenInfo(beneficiaryDto);
-        }
-        return beneficiaryDto;
+        return response.getData();
     }
 
     public static String getErrorDetails(Response response) {
@@ -106,16 +90,6 @@ public class BeneficiaryService {
             return response.getErrorCode() + "," + response.getErrorDetails() + "," + response.getMessage();
         }
         return response.getErrorCode() + "," + response.getMessage();
-    }
-
-    public BeneficiaryDto updateBenInfo(BeneficiaryDto beneficiaryDto) {
-        BankDetails bankDetails = bankMsDAO.getBankDetails(beneficiaryDto.getBeneficiaryCountryISO(), beneficiaryDto.getSwiftCode());
-        if (bankDetails == null) {
-            GenericExceptionHandler.handleError(TransferErrorCode.MISSING_BEN_DETAILS, TransferErrorCode.MISSING_BEN_DETAILS.getErrorMessage());
-        }
-        beneficiaryDto.setRoutingCode(bankDetails.getBranchCode());
-        beneficiaryDto.setBankCode(bankDetails.getBankCode());
-        return beneficiaryDto;
     }
 
 }

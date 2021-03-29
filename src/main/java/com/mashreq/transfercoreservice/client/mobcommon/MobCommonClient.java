@@ -23,12 +23,6 @@ import java.util.Set;
 @FeignClient(name = "mobcommon", url = "${app.services.mobcommon}", configuration = FeignConfig.class)
 public interface MobCommonClient {
 
-    @GetMapping("/v1/limit/available/{beneficiaryTypeCode}")
-    Response<LimitValidatorResultsDto> validateAvailableLimit(@RequestHeader(HeaderNames.CIF_HEADER_NAME) String cifId,
-                                                              @NotNull @PathVariable String beneficiaryTypeCode,
-                                                              @RequestParam(value = "amount", required = false) BigDecimal amount);
-
-
     @GetMapping("/v1/payment-purposes/{transactionType}")
     Response<Set<MoneyTransferPurposeDto>> getPaymentPurpose(@NotNull @PathVariable String transactionType,
                                                              @RequestParam(value = "qrType") String qrType,

@@ -55,7 +55,6 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final LocalFundTransferStrategy localFundTransferStrategy;
     private final InternationalFundTransferStrategy internationalFundTransferStrategy;
     private final CharityStrategyDefault charityStrategyDefault;
-    private final QuickRemitStrategy quickRemitStrategy;
     private final AsyncUserEventPublisher auditEventPublisher;
     private EnumMap<ServiceType, FundTransferStrategy> fundTransferStrategies;
     private final OTPService otpService;
@@ -71,7 +70,6 @@ public class FundTransferServiceDefault implements FundTransferService {
         fundTransferStrategies.put(BAIT_AL_KHAIR, charityStrategyDefault);
         fundTransferStrategies.put(DUBAI_CARE, charityStrategyDefault);
         fundTransferStrategies.put(DAR_AL_BER, charityStrategyDefault);
-        fundTransferStrategies.put(QRT, quickRemitStrategy);
     }
 
     @Override

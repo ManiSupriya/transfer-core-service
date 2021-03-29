@@ -1,19 +1,28 @@
 package com.mashreq.transfercoreservice.banksearch;
 
-import com.mashreq.mobcommons.services.http.RequestMetaData;
-import com.mashreq.ms.exceptions.GenericExceptionHandler;
-import com.mashreq.transfercoreservice.client.OmwCoreClient;
-import com.mashreq.transfercoreservice.client.dto.CoreBankDetails;
-import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import static com.mashreq.transfercoreservice.common.UAEIbanValidator.validateIban;
+import static com.mashreq.transfercoreservice.errors.ExceptionUtils.genericException;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BANK_NOT_FOUND_WITH_IBAN;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_SWIFT_CODE;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
-import java.util.List;
+import com.mashreq.mobcommons.services.http.RequestMetaData;
+import com.mashreq.ms.exceptions.GenericExceptionHandler;
+import com.mashreq.transfercoreservice.client.OmwCoreClient;
+import com.mashreq.transfercoreservice.client.dto.CoreBankDetails;
+import com.mashreq.transfercoreservice.fundtransfer.dto.BankDetails;
+import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
+import com.mashreq.transfercoreservice.repository.BankRepository;
 
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_SWIFT_CODE;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author shahbazkh
@@ -32,6 +41,8 @@ public class BankDetailService {
     private final SwiftBankDetailsMapper bankDetailsMapper;
     private final SoapServiceProperties soapServiceProperties;
     private final BICCodeSearchService bicCodeSearchService;
+    private final BankRepository bankRepository;
+    private final static String LOCAL_IBAN_CODE = "AE";
     
     public BankResultsDto getBankDetails(final String swiftCode, RequestMetaData requestMetadata) {
     	validateSwiftCode(swiftCode);
@@ -51,6 +62,9 @@ public class BankDetailService {
             return bicCodeSearchService.fetchBankDetailsWithBic(bankDetailRequest.getCountryCode(), requestMetaData );
         }
         if ("iban".equals(bankDetailRequest.getType())) {
+        	if(isLocalIban(bankDetailRequest.getValue())) {
+        		return getLocalIbanBankDetails(bankDetailRequest.getValue());
+        	}
             return ibanSearchMWService.fetchBankDetailsWithIban(channelTraceId, bankDetailRequest.getValue(), requestMetaData );
         }
         if("swift".equals(bankDetailRequest.getType())) {
@@ -59,7 +73,23 @@ public class BankDetailService {
         return routingCodeSearchMWService.fetchBankDetailsWithRoutingCode(channelTraceId, bankDetailRequest, requestMetaData);
     }
 
-    private void validateSwiftCode(String code) {
+    private List<BankResultsDto> getLocalIbanBankDetails(String iban) {
+    	validateIban(iban);
+
+        BankDetails bank = bankRepository.findByBankCode(iban.substring(4, 7)).orElseThrow(() -> genericException(BANK_NOT_FOUND_WITH_IBAN));
+        
+        BankResultsDto bankResults = new BankResultsDto();
+        bankResults.setSwiftCode(bank.getSwiftCode());
+        bankResults.setBankName(bank.getBankName());
+        
+		return Arrays.asList(bankResults);
+	}
+
+	private boolean isLocalIban(String iban) {
+		return Objects.nonNull(iban) && iban.startsWith(LOCAL_IBAN_CODE);
+	}
+
+	private void validateSwiftCode(String code) {
 		code = StringUtils.trimToEmpty(code);
 		if(code.length() != 8 && code.length() != 11) {
 			GenericExceptionHandler.handleError(INVALID_SWIFT_CODE, INVALID_SWIFT_CODE.getErrorMessage());

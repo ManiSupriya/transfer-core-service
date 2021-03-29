@@ -53,7 +53,6 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 
 		log.info("Quick remit eligibility initiated");
 		
-		Optional<CountryMasterDto> countryDto;
 		if (isSMESegment(metaData) && StringUtils.isNotBlank(request.getCardNo())) {
 			return EligibilityResponse.builder().status(FundsTransferEligibility.NOT_ELIGIBLE)
 					.errorCode(INVALID_SEGMENT.getCustomErrorCode()).errorMessage(INVALID_SEGMENT.getErrorMessage())
@@ -61,29 +60,24 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 		}
 
 		final ValidationContext validationContext = new ValidationContext();
+		
+		final BeneficiaryDto beneficiaryDto = beneficiaryService.getById(metaData.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), metaData);
+        
+        List<CountryMasterDto> countryList = maintenanceService.getAllCountries("MOB", "AE", Boolean.TRUE);
+        final Optional<CountryMasterDto> countryDto = countryList.stream()
+                .filter(country -> country.getCode().equals(beneficiaryDto.getBankCountryISO()))
+                .findAny();
 
-		final BeneficiaryDto beneficiaryDto = beneficiaryService.getById(metaData.getPrimaryCif(),
-				Long.valueOf(request.getBeneficiaryId()), metaData);
-		final String countryCodeISo = beneficiaryDto.getBeneficiaryCountryISO();
-
-		List<CountryMasterDto> countryList = maintenanceService.getAllCountries("MOB", "AE", Boolean.TRUE);
-		countryDto = countryList.stream()
-				.filter(country -> country.getCode().equals(beneficiaryDto.getBankCountryISO())).findAny();
-
-		if (countryDto.isPresent()) {
-			validationContext.add("country", countryDto.get());
-		}
-
-		currencyValidatorFactory.getValidator(metaData).validate(request, metaData, validationContext);
-
-		log.info("Initiating Quick Remit transfer to {}", countryCodeISo);
-
-		validationContext.add("beneficiary-dto", beneficiaryDto);
-
-		final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metaData.getPrimaryCif());
-
-		responseHandler(beneficiaryValidator.validate(request, metaData, validationContext));
-		// corrected logic to use right account currency amount
+        if (countryDto.isPresent()) {
+        	validationContext.add("country", countryDto.get());
+        }
+        
+        currencyValidatorFactory.getValidator(metaData).validate(request, metaData, validationContext);
+                
+        validationContext.add("beneficiary-dto", beneficiaryDto);
+        responseHandler(beneficiaryValidator.validate(request, metaData, validationContext));
+        
+        final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metaData.getPrimaryCif());
 		final AccountDetailsDTO sourceAccountDetailsDTO = getAccountDetailsBasedOnAccountNumber(accountsFromCore,
 				request.getFromAccount());
 		QRExchangeResponse response = quickRemitService.exchange(request, countryDto, metaData);
@@ -92,8 +86,7 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 		}
 		final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), sourceAccountDetailsDTO,
 				new BigDecimal(response.getAccountCurrencyAmount()));
-		limitValidatorFactory.getValidator(metaData).validate(userDTO, request.getServiceType(), limitUsageAmount,
-				metaData);
+		limitValidatorFactory.getValidator(metaData).validate(userDTO, request.getServiceType(), limitUsageAmount, metaData, Long.valueOf(request.getBeneficiaryId()));
 		return EligibilityResponse.builder().status(FundsTransferEligibility.ELIGIBLE).data(response).build();
 	}
 
