@@ -177,6 +177,7 @@ public enum TransferErrorCode implements ErrorCode {
     INVALID_SEGMENT("TN-8024", "Invalid segment"),
     
     PAYMENT_ELIGIBILITY_ERROR("TN-8025", "Something went wrong while checking payment eligibility"),
+    PAYMENT_NOT_ELIGIBLE_FOR_QR("TN-8026", "Payment not eligible for quick remit")
     ;
 
 

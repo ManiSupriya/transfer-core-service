@@ -17,6 +17,8 @@ import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
+import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
+import com.mashreq.transfercoreservice.fundtransfer.eligibility.enums.FundsTransferEligibility;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.BeneficiaryValidator;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CurrencyValidator;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.LimitValidatorFactory;
@@ -40,39 +42,47 @@ public class INFTAccountEligibilityService implements TransferEligibilityService
 
     
     @Override
-	public void checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request,UserDTO userDTO) {
-    	
-    	currencyValidator.validate(request, metaData);
-        
-    	final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metaData.getPrimaryCif());
+	public EligibilityResponse checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request,UserDTO userDTO) {
+    	log.info("INFT transfer eligibility validation started");
+		currencyValidator.validate(request, metaData);
 
-        final ValidationContext validationContext = new ValidationContext();
+		final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metaData.getPrimaryCif());
 
-        BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
-        if (request.getBeneRequiredFields() != null &&
-                ((request.getBeneRequiredFields().getMissingFields()!=null && !request.getBeneRequiredFields().getMissingFields().isEmpty()) ||
-                (request.getBeneRequiredFields().getIncorrectFields()!=null && !request.getBeneRequiredFields().getIncorrectFields().isEmpty()))){
-            log.info("Update missing beneficiary details");
-            beneficiaryDto = beneficiaryService.getUpdate(request.getBeneRequiredFields(), Long.valueOf(request.getBeneficiaryId()), metaData, INTERNATIONAL_VALIDATION_TYPE);
-        } else {
-            beneficiaryDto = beneficiaryService.getById(request.getBeneRequiredFields(), Long.valueOf(request.getBeneficiaryId()), metaData, INTERNATIONAL_VALIDATION_TYPE);
-        }
-        
-        
-        validationContext.add("beneficiary-dto", beneficiaryDto);
-        responseHandler(beneficiaryValidator.validate(request, metaData, validationContext));
+		final ValidationContext validationContext = new ValidationContext();
 
-        final AccountDetailsDTO sourceAccountDetailsDTO = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
+		BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
+		if (request.getBeneRequiredFields() != null && ((request.getBeneRequiredFields().getMissingFields() != null
+				&& !request.getBeneRequiredFields().getMissingFields().isEmpty())
+				|| (request.getBeneRequiredFields().getIncorrectFields() != null
+						&& !request.getBeneRequiredFields().getIncorrectFields().isEmpty()))) {
+			log.info("Update missing beneficiary details");
+			beneficiaryDto = beneficiaryService.getUpdate(request.getBeneRequiredFields(),
+					Long.valueOf(request.getBeneficiaryId()), metaData, INTERNATIONAL_VALIDATION_TYPE);
+		} else {
+			beneficiaryDto = beneficiaryService.getById(request.getBeneRequiredFields(),
+					Long.valueOf(request.getBeneficiaryId()), metaData, INTERNATIONAL_VALIDATION_TYPE);
+		}
 
-        final BigDecimal transferAmountInSrcCurrency = isCurrencySame(beneficiaryDto,sourceAccountDetailsDTO)
-                ? request.getAmount()
-                : getAmountInSrcCurrency(request, beneficiaryDto, sourceAccountDetailsDTO);
+		validationContext.add("beneficiary-dto", beneficiaryDto);
+		responseHandler(beneficiaryValidator.validate(request, metaData, validationContext));
 
-        //Limit Validation
-        Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
-        final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), sourceAccountDetailsDTO,transferAmountInSrcCurrency);
-        
-        limitValidatorFactory.getValidator(metaData).validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metaData, bendId);
+		final AccountDetailsDTO sourceAccountDetailsDTO = getAccountDetailsBasedOnAccountNumber(accountsFromCore,
+				request.getFromAccount());
+
+		final BigDecimal transferAmountInSrcCurrency = isCurrencySame(beneficiaryDto, sourceAccountDetailsDTO)
+				? request.getAmount()
+				: getAmountInSrcCurrency(request, beneficiaryDto, sourceAccountDetailsDTO);
+
+		// Limit Validation
+		Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId()) ? Long.parseLong(request.getBeneficiaryId())
+				: null;
+		final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), sourceAccountDetailsDTO,
+				transferAmountInSrcCurrency);
+
+		limitValidatorFactory.getValidator(metaData).validateWithProc(userDTO, request.getServiceType(),
+				limitUsageAmount, metaData, bendId);
+		log.info("INFT transfer eligibility validation successfully finished");
+        return EligibilityResponse.builder().status(FundsTransferEligibility.ELIGIBLE).build();
     }
 
 	@Override
