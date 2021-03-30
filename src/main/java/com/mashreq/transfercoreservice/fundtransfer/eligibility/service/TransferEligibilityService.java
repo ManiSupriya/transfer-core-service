@@ -11,12 +11,13 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.CustomerClientType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
+import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 
 
 public interface TransferEligibilityService {
 
-    void checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request, UserDTO userDTO);
+	EligibilityResponse checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request, UserDTO userDTO);
     
     ServiceType getServiceType();
 

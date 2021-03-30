@@ -11,12 +11,12 @@ import org.springframework.stereotype.Service;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
-import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
 import com.mashreq.transfercoreservice.client.dto.CountryMasterDto;
 import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
+import com.mashreq.transfercoreservice.client.dto.QRExchangeResponse;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
@@ -24,6 +24,8 @@ import com.mashreq.transfercoreservice.client.service.QuickRemitService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
+import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
+import com.mashreq.transfercoreservice.fundtransfer.eligibility.enums.FundsTransferEligibility;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.BeneficiaryValidator;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CurrencyValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.LimitValidatorFactory;
@@ -46,15 +48,17 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 	private final QuickRemitService quickRemitService;
 	private final AsyncUserEventPublisher userEventPublisher;
 	 
-	public void checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request,
+	public EligibilityResponse checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request,
 			UserDTO userDTO) {
 
 		log.info("Quick remit eligibility initiated");
 		
-		if(isSMESegment(metaData) && StringUtils.isNotBlank(request.getCardNo())) {
-    		GenericExceptionHandler.handleError(INVALID_SEGMENT, INVALID_SEGMENT.getErrorMessage());
-    	}
-		
+		if (isSMESegment(metaData) && StringUtils.isNotBlank(request.getCardNo())) {
+			return EligibilityResponse.builder().status(FundsTransferEligibility.NOT_ELIGIBLE)
+					.errorCode(INVALID_SEGMENT.getCustomErrorCode()).errorMessage(INVALID_SEGMENT.getErrorMessage())
+					.build();
+		}
+
 		final ValidationContext validationContext = new ValidationContext();
 		
 		final BeneficiaryDto beneficiaryDto = beneficiaryService.getById(metaData.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), metaData);
@@ -71,37 +75,24 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
         currencyValidatorFactory.getValidator(metaData).validate(request, metaData, validationContext);
                 
         validationContext.add("beneficiary-dto", beneficiaryDto);
+        responseHandler(beneficiaryValidator.validate(request, metaData, validationContext));
         
         final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metaData.getPrimaryCif());
-
-		responseHandler(beneficiaryValidator.validate(request, metaData, validationContext));
-
-		final AccountDetailsDTO sourceAccountDetailsDTO = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
-		final CurrencyConversionDto currencyConversionDto = getAmountInSrcCurrency(request, sourceAccountDetailsDTO);
-
+		final AccountDetailsDTO sourceAccountDetailsDTO = getAccountDetailsBasedOnAccountNumber(accountsFromCore,
+				request.getFromAccount());
+		QRExchangeResponse response = quickRemitService.exchange(request, countryDto, metaData);
+		if (!response.isAllowQR()) {
+			return EligibilityResponse.builder().status(FundsTransferEligibility.NOT_ELIGIBLE).data(response).build();
+		}
 		final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), sourceAccountDetailsDTO,
-				currencyConversionDto.getAccountCurrencyAmount());
-		
+				new BigDecimal(response.getAccountCurrencyAmount()));
 		limitValidatorFactory.getValidator(metaData).validate(userDTO, request.getServiceType(), limitUsageAmount, metaData, Long.valueOf(request.getBeneficiaryId()));
-
-		quickRemitService.exchange(request, countryDto, metaData);
-		
+		return EligibilityResponse.builder().status(FundsTransferEligibility.ELIGIBLE).data(response).build();
 	}
-	
+
 	@Override
 	public ServiceType getServiceType() {
 		return ServiceType.QRT;
-	}
-
-	private CurrencyConversionDto getAmountInSrcCurrency(FundTransferEligibiltyRequestDTO request, AccountDetailsDTO sourceAccountDetailsDTO) {
-
-		final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
-		currencyRequest.setAccountNumber(sourceAccountDetailsDTO.getNumber());
-		currencyRequest.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
-		currencyRequest.setTransactionCurrency(request.getTxnCurrency());
-		currencyRequest.setTransactionAmount(request.getAmount());
-
-		return maintenanceService.convertBetweenCurrencies(currencyRequest);
 	}
 
 	private BigDecimal getLimitUsageAmount(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO,

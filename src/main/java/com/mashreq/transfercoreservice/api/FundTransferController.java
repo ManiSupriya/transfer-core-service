@@ -4,6 +4,7 @@ package com.mashreq.transfercoreservice.api;
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.validation.Valid;
 
@@ -19,6 +20,7 @@ import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
+import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.service.TransferEligibilityProxy;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferService;
 import com.mashreq.webcore.dto.response.Response;
@@ -68,7 +70,7 @@ public class FundTransferController {
             @ApiResponse(code = 500, message = "Something went wrong")
     })
     @PostMapping("/paymentType")
-    public Response<List<ServiceType>> retrieveEligibleServiceType(
+    public Response<Map<ServiceType,EligibilityResponse>> retrieveEligibleServiceType(
     		@RequestAttribute("X-REQUEST-METADATA") RequestMetaData metaData,
     		@Valid @RequestBody FundTransferEligibiltyRequestDTO request) {
 
@@ -76,7 +78,7 @@ public class FundTransferController {
         if(request.getAmount() == null && request.getSrcAmount() == null){
             GenericExceptionHandler.handleError(TransferErrorCode.INVALID_REQUEST, "Bad Request", "Both debitAmount and credit amount are missing");
         }
-        return Response.<List<ServiceType>>builder()
+        return Response.<Map<ServiceType,EligibilityResponse>>builder()
                 .status(ResponseStatus.SUCCESS)
                 .data(transferEligibilityProxy.getEligibleServiceTypes(metaData, request)).build();
     }

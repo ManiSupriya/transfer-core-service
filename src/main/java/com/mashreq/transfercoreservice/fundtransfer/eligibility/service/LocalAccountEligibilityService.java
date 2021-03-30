@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import com.mashreq.encryption.encryptor.EncryptionService;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
-import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CardDetailsDTO;
@@ -25,6 +24,8 @@ import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
+import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
+import com.mashreq.transfercoreservice.fundtransfer.eligibility.enums.FundsTransferEligibility;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.BeneficiaryValidator;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.LimitValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
@@ -47,17 +48,22 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
     private final EncryptionService encryptionService = new EncryptionService();
 
     @Override
-	public void checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request,
+	public EligibilityResponse checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request,
 			UserDTO userDTO) {
-        if(StringUtils.isNotBlank(request.getCardNo())){
-        	if(isSMESegment(metaData)) {
-        		GenericExceptionHandler.handleError(INVALID_SEGMENT, INVALID_SEGMENT.getErrorMessage());
-        	}
-        	executeCC(request, metaData, userDTO);
-        } else {
-        	executeNonCreditCard(request, metaData, userDTO);
-        }
-    }
+    	log.info("Local transfer eligibility validation started");
+		if (StringUtils.isNotBlank(request.getCardNo())) {
+			if (isSMESegment(metaData)) {
+				return EligibilityResponse.builder().status(FundsTransferEligibility.NOT_ELIGIBLE)
+						.errorCode(INVALID_SEGMENT.getCustomErrorCode()).errorMessage(INVALID_SEGMENT.getErrorMessage())
+						.build();
+			}
+			executeCC(request, metaData, userDTO);
+		} else {
+			executeNonCreditCard(request, metaData, userDTO);
+		}
+		log.info("Local transfer eligibility validation successfully finished");
+		return EligibilityResponse.builder().status(FundsTransferEligibility.ELIGIBLE).build();
+	}
 
 	@Override
 	public ServiceType getServiceType() {

@@ -19,6 +19,8 @@ import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
+import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
+import com.mashreq.transfercoreservice.fundtransfer.eligibility.enums.FundsTransferEligibility;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.BeneficiaryValidator;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.LimitValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
@@ -41,10 +43,9 @@ public class WithinAccountEligibilityService implements TransferEligibilityServi
 	private final AsyncUserEventPublisher auditEventPublisher;
 
 	@Override
-	public void checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request,
+	public EligibilityResponse checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request,
 			UserDTO userDTO) {
-
-
+		log.info("WithinAccountEligibility validation started");
 		final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metaData.getPrimaryCif());
 		final ValidationContext validationContext = new ValidationContext();
 		validationContext.add("account-details", accountsFromCore);
@@ -59,17 +60,16 @@ public class WithinAccountEligibilityService implements TransferEligibilityServi
 
 		BeneficiaryDto beneficiaryDto = beneficiaryService.getById(metaData.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), metaData);
 		validationContext.add("beneficiary-dto", beneficiaryDto);
-
 		responseHandler(beneficiaryValidator.validate(request, metaData, validationContext));
 
-		final BigDecimal transferAmountInSrcCurrency = isCurrencySame(request)
-				? request.getAmount()
-						: getAmountInSrcCurrency(request, beneficiaryDto, fromAccountOpt.get());
+		final BigDecimal transferAmountInSrcCurrency = isCurrencySame(request) ? request.getAmount()
+				: getAmountInSrcCurrency(request, beneficiaryDto, fromAccountOpt.get());
 
 		validationContext.add("transfer-amount-in-source-currency", transferAmountInSrcCurrency);
 
-		//Limit Validation
-		Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
+		// Limit Validation
+		Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId()) ? Long.parseLong(request.getBeneficiaryId())
+				: null;
 
 		limitValidatorFactory.getValidator(metaData).validate(
 				userDTO, 
@@ -77,7 +77,8 @@ public class WithinAccountEligibilityService implements TransferEligibilityServi
 				getLimitUsageAmount(request.getDealNumber(), fromAccountOpt.get(),transferAmountInSrcCurrency), 
 				metaData, 
 				bendId);
-
+		log.info("WithinAccountEligibility validation successfully finished");
+		return EligibilityResponse.builder().status(FundsTransferEligibility.ELIGIBLE).build();
 	}
 
 	@Override

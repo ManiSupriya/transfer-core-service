@@ -183,7 +183,7 @@ public enum TransferErrorCode implements ErrorCode {
     INVALID_IBAN_LENGTH("TN-8028", "Invalid IBAN | Account number"),
     
     BANK_NOT_FOUND_WITH_IBAN("TN-8029", "Bank not found with iban"),
-    
+    PAYMENT_NOT_ELIGIBLE_FOR_QR("TN-8030", "Payment not eligible for quick remit")
     ;
 
 
