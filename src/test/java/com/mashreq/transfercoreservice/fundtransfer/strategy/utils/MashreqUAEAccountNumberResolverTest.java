@@ -6,12 +6,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 
-public class UAEAccountNumberResolverTest {
-	private UAEAccountNumberResolver resolver;
+public class MashreqUAEAccountNumberResolverTest {
+	private MashreqUAEAccountNumberResolver resolver;
 	
 	@Before
 	public void init() {
-		resolver = new UAEAccountNumberResolver(23, 12);
+		resolver = new MashreqUAEAccountNumberResolver(23, 12);
 	}
 	
 	@Test

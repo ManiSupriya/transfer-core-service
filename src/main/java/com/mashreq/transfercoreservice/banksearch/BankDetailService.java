@@ -18,6 +18,7 @@ import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.OmwCoreClient;
 import com.mashreq.transfercoreservice.client.dto.CoreBankDetails;
 import com.mashreq.transfercoreservice.fundtransfer.dto.BankDetails;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.MashreqUAEAccountNumberResolver;
 import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
 import com.mashreq.transfercoreservice.repository.BankRepository;
 
@@ -42,7 +43,9 @@ public class BankDetailService {
     private final SoapServiceProperties soapServiceProperties;
     private final BICCodeSearchService bicCodeSearchService;
     private final BankRepository bankRepository;
+    private final MashreqUAEAccountNumberResolver accountNumberResolver;
     private final static String LOCAL_IBAN_CODE = "AE";
+    private final static String MASHREQ_UAE_BANK_CODE = "033";
     
     public BankResultsDto getBankDetails(final String swiftCode, RequestMetaData requestMetadata) {
     	validateSwiftCode(swiftCode);
@@ -76,13 +79,20 @@ public class BankDetailService {
     private List<BankResultsDto> getLocalIbanBankDetails(String iban) {
     	validateIban(iban);
 
-        BankDetails bank = bankRepository.findByBankCode(iban.substring(4, 7)).orElseThrow(() -> genericException(BANK_NOT_FOUND_WITH_IBAN));
+        String bankcode = iban.substring(4, 7);
+		BankDetails bank = bankRepository.findByBankCode(bankcode).orElseThrow(() -> genericException(BANK_NOT_FOUND_WITH_IBAN));
         
         BankResultsDto bankResults = new BankResultsDto();
         bankResults.setSwiftCode(bank.getSwiftCode());
         bankResults.setBankName(bank.getBankName());
-        
+        updateAccountNumber(bankResults,iban,bankcode);
 		return Arrays.asList(bankResults);
+	}
+
+	private void updateAccountNumber(BankResultsDto bankResults, String iban, String bankcode) {
+		if(StringUtils.isNotEmpty(iban) && MASHREQ_UAE_BANK_CODE.equals(bankcode)) {
+			bankResults.setAccountNo(accountNumberResolver.generateAccountNumber(iban));
+		}
 	}
 
 	private boolean isLocalIban(String iban) {

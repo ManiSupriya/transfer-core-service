@@ -9,11 +9,11 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-public class UAEAccountNumberResolver {
+public class MashreqUAEAccountNumberResolver {
     private final Integer uaeIbanLength;
     private final Integer accountNumberLength;
     
-    public UAEAccountNumberResolver(@Value("${app.uae.iban.length}") Integer uaeIbanLength, @Value("${app.uae.iban.accountNumber}") Integer accountNumberLength) {
+    public MashreqUAEAccountNumberResolver(@Value("${app.uae.iban.length}") Integer uaeIbanLength, @Value("${app.uae.iban.accountNumber}") Integer accountNumberLength) {
 		this.accountNumberLength = accountNumberLength;
 		this.uaeIbanLength = uaeIbanLength;
     	
