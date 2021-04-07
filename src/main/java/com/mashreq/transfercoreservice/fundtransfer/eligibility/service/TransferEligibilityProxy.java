@@ -78,7 +78,13 @@ public class TransferEligibilityProxy {
 				serviceTypes.put(eligibilityService.getServiceType(),eligibilityService.checkEligibility(metaData, request, userDTO));
 			} catch(GenericException ge) {
 				log.error("Validation error while checking for eligibility for service type {}", serviceType, ge);
-				serviceTypes.put(eligibilityService.getServiceType(),EligibilityResponse.builder().status(FundsTransferEligibility.NOT_ELIGIBLE).errorCode(ge.getErrorCode()).errorMessage(ge.getMessage()).build());
+				serviceTypes.put(eligibilityService.getServiceType(),
+						EligibilityResponse.builder()
+						.status(FundsTransferEligibility.NOT_ELIGIBLE)
+						.errorCode(ge.getErrorCode())
+						.errorMessage(ge.getMessage())
+						.errorDetails(ge.getErrorDetails())
+						.build());
 			}
 		}
 		return serviceTypes;
