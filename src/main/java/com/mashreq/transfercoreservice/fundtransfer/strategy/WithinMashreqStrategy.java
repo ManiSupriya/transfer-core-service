@@ -17,7 +17,7 @@ import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.UAEAccountNumberResolver;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.MashreqUAEAccountNumberResolver;
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
@@ -69,7 +69,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     private final AsyncUserEventPublisher auditEventPublisher;
     private final NotificationService notificationService;
     private final AccountFreezeValidator freezeValidator;
-    private final UAEAccountNumberResolver accountNumberResolver;
+    private final MashreqUAEAccountNumberResolver accountNumberResolver;
     @Autowired
     private PostTransactionService postTransactionService;
 
