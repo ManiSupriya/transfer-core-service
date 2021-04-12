@@ -94,7 +94,7 @@ public enum TransferErrorCode implements ErrorCode {
     INVALID_FLEX_RULE_COUNTRY("TN-5111", "Invalid Country for rule engine"),
     INVALID_SWIFT_CODE("TN-5112", "Invalid Swift code"),
     BIC_SEARCH_FAILED("TN-5113", "BIC Code search failed"),
-
+    SWIFT_AND_BIC_SEARCH_FAILED("TN-5114", "Both Swift and BIC Code search failed"),
 
     EXTERNAL_SERVICE_ERROR("TN-5000", "Something went wrong with external service"),
     FUND_TRANSFER_FAILED("TN-5001", "Fund transfer failed"),

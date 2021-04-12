@@ -4,6 +4,7 @@ import static com.mashreq.transfercoreservice.common.UAEIbanValidator.validateIb
 import static com.mashreq.transfercoreservice.errors.ExceptionUtils.genericException;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BANK_NOT_FOUND_WITH_IBAN;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_SWIFT_CODE;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.SWIFT_AND_BIC_SEARCH_FAILED;
 
 import java.util.Arrays;
 import java.util.List;
@@ -14,9 +15,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
+import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.OmwCoreClient;
 import com.mashreq.transfercoreservice.client.dto.CoreBankDetails;
+import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.BankDetails;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.MashreqUAEAccountNumberResolver;
 import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
@@ -72,11 +75,28 @@ public class BankDetailService {
         }
         if("swift".equals(bankDetailRequest.getType())) {
         	validateSwiftCode(bankDetailRequest.getValue());
+        	return fetchBySwiftAndBicCode(channelTraceId, bankDetailRequest, requestMetaData);
         }
         return routingCodeSearchMWService.fetchBankDetailsWithRoutingCode(channelTraceId, bankDetailRequest, requestMetaData);
     }
 
-    private List<BankResultsDto> getLocalIbanBankDetails(String iban) {
+    private List<BankResultsDto> fetchBySwiftAndBicCode(String channelTraceId, BankDetailRequestDto bankDetailRequest, RequestMetaData requestMetaData) {
+    	List<BankResultsDto> bankDetails = null;
+    	try {
+    		bankDetails = routingCodeSearchMWService.fetchBankDetailsWithRoutingCode(channelTraceId, bankDetailRequest, requestMetaData);
+    	}
+    	catch(GenericException gex) {
+    		try {
+    			bankDetails = bicCodeSearchService.fetchBankDetailsWithBic(bankDetailRequest.getCountryCode(), requestMetaData );
+    		}
+    		catch(GenericException ge) {
+    			GenericExceptionHandler.handleError(SWIFT_AND_BIC_SEARCH_FAILED, SWIFT_AND_BIC_SEARCH_FAILED.getErrorMessage(), ge.getErrorDetails());
+    		}
+    	}
+		return bankDetails;
+	}
+
+	private List<BankResultsDto> getLocalIbanBankDetails(String iban) {
     	validateIban(iban);
 
         String bankcode = iban.substring(4, 7);
