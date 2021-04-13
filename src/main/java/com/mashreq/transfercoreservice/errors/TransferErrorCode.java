@@ -80,6 +80,7 @@ public enum TransferErrorCode implements ErrorCode {
     ACCOUNT_NOT_FOUND("TN-4003", "Account not found"),
     CONNECTED_ACCOUNT_EMPTY("TN-4004", "Connected Account is empty"),
     ACCOUNT_RESOURCES_MISMATCH("TN-4005", "There was not enough resources in account "),
+    LOCAL_CURRENCY_MISMATCH("TN-4006", "Local currency does not match with transaction currency"),
 
     IBAN_NOT_FOUND("TN-5100", "IBAN not found"),
     ROUTING_CODE_NOT_FOUND("TN-5102", "Routing Code not found"),

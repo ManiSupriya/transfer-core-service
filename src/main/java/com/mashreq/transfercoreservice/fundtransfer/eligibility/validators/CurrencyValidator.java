@@ -2,14 +2,17 @@ package com.mashreq.transfercoreservice.fundtransfer.eligibility.validators;
 
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_CURRENCY_MISMATCH;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.LOCAL_CURRENCY_MISMATCH;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.CURRENCY_IS_INVALID;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.INFT;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.QRT;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WAMA;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WYMA;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.LOCAL;
 
 import java.util.Objects;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
@@ -24,7 +27,6 @@ import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
-import com.mashreq.transfercoreservice.fundtransfer.validators.Validator;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +39,10 @@ public class CurrencyValidator implements ICurrencyValidator {
     private final AsyncUserEventPublisher auditEventPublisher;
     private final MaintenanceService maintenanceService;
     private static final String INTERNATIONAL = "INTERNATIONAL";
+    
+    @Value("${app.local.currency}")
+    private String localCurrency;
+
     
     @Override
     public ValidationResult validate(FundTransferEligibiltyRequestDTO request, RequestMetaData metadata, ValidationContext context) {
@@ -76,11 +82,14 @@ public class CurrencyValidator implements ICurrencyValidator {
 
         }       
         
-
-        AccountDetailsDTO fromAccount = context.get("from-account", AccountDetailsDTO.class);
         String requestedCurrency = request.getCurrency();
         log.info("Requested currency [ {} ] service type [ {} ] ", htmlEscape(requestedCurrency), htmlEscape(request.getServiceType()));
 
+        AccountDetailsDTO fromAccount = null;
+        if(null != context) {
+        	fromAccount = context.get("from-account", AccountDetailsDTO.class);
+        }
+        
         if(WAMA.getName().equals(request.getServiceType()) ) {
             BeneficiaryDto beneficiaryDto = context.get("beneficiary-dto", BeneficiaryDto.class);
             if (beneficiaryDto != null && !isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), null)) {
@@ -98,6 +107,15 @@ public class CurrencyValidator implements ICurrencyValidator {
                 auditEventPublisher.publishFailureEvent(FundTransferEventType.CURRENCY_VALIDATION, metadata, null,
                         ACCOUNT_CURRENCY_MISMATCH.getCustomErrorCode(), ACCOUNT_CURRENCY_MISMATCH.getErrorMessage(), null);
                 return ValidationResult.builder().success(false).transferErrorCode(TransferErrorCode.ACCOUNT_CURRENCY_MISMATCH).build();
+            }
+        }
+        
+        if(LOCAL.getName().equals(request.getServiceType()) ) {
+            if (!(localCurrency.equals(request.getTxnCurrency()))) {
+                log.error("Transaction Currency and local Currency does not match for service type [ {} ]  ", htmlEscape(request.getServiceType()));
+                auditEventPublisher.publishFailureEvent(FundTransferEventType.CURRENCY_VALIDATION, metadata, null,
+                		LOCAL_CURRENCY_MISMATCH.getCustomErrorCode(), LOCAL_CURRENCY_MISMATCH.getErrorMessage(), null);
+                return ValidationResult.builder().success(false).transferErrorCode(TransferErrorCode.LOCAL_CURRENCY_MISMATCH).build();
             }
         }
 

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
+import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
@@ -30,6 +31,7 @@ import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.Benef
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CurrencyValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.LimitValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
+import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -72,8 +74,8 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
         	validationContext.add("country", countryDto.get());
         }
         
-        currencyValidatorFactory.getValidator(metaData).validate(request, metaData, validationContext);
-                
+        responseHandler(currencyValidatorFactory.getValidator(metaData).validate(request, metaData, validationContext));
+        
         validationContext.add("beneficiary-dto", beneficiaryDto);
         responseHandler(beneficiaryValidator.validate(request, metaData, validationContext));
         
