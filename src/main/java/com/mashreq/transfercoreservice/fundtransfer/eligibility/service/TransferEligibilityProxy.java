@@ -3,11 +3,7 @@ package com.mashreq.transfercoreservice.fundtransfer.eligibility.service;
 
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.INFT;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.LOCAL;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.QRT;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WAMA;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WYMA;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.*;
 
 import java.util.Arrays;
 import java.util.EnumMap;
@@ -53,6 +49,8 @@ public class TransferEligibilityProxy {
 		transferEligibilityServiceMap = new EnumMap<>(ServiceType.class);
 		transferEligibilityServiceMap.put(INFT, Arrays.asList(inftAccountEligibilityService, qrAccountEligibilityService));
 		transferEligibilityServiceMap.put(QRT, 	Arrays.asList(inftAccountEligibilityService, qrAccountEligibilityService));
+		transferEligibilityServiceMap.put(QRIN, Arrays.asList(inftAccountEligibilityService, qrAccountEligibilityService));
+		transferEligibilityServiceMap.put(QRPK, Arrays.asList(inftAccountEligibilityService, qrAccountEligibilityService));
 		transferEligibilityServiceMap.put(LOCAL, Arrays.asList(localAccountEligibilityService, inftAccountEligibilityService));
 		transferEligibilityServiceMap.put(WAMA, Arrays.asList(withinAccountEligibilityService));
 		transferEligibilityServiceMap.put(WYMA, Arrays.asList(ownAccountEligibilityService));
