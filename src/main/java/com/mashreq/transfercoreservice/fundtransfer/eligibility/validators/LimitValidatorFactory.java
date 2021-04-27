@@ -22,8 +22,8 @@ public class LimitValidatorFactory {
 	
 	public ILimitValidator getValidator(RequestMetaData metaData) {
 
-		if(Objects.nonNull(metaData.getUserCacheKey())) {
-			if(metaData.getUserCacheKey().equals(CustomerClientType.SME.name())) {
+		if(Objects.nonNull(metaData.getUserType())) {
+			if(metaData.getUserType().equals(CustomerClientType.SME.name())) {
 				return smeLimitValidator;
 			}
 		}
