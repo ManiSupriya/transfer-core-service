@@ -22,7 +22,7 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.service.TransferEligibilityProxy;
-import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferService;
+import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferFactory;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
 
@@ -39,8 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 @Api(value = "Fund Transfer")
 @RequiredArgsConstructor
 public class FundTransferController {
-
-    private final FundTransferService fundTransferService;
+    private final FundTransferFactory serviceFactory;
     private final TransferEligibilityProxy transferEligibilityProxy;
 
     @ApiOperation(value = "Processes to start payment", response = FundTransferRequestDTO.class)
@@ -51,7 +50,6 @@ public class FundTransferController {
     @PostMapping
     public Response transferFunds(@RequestAttribute("X-REQUEST-METADATA") RequestMetaData metaData,
                                   @Valid @RequestBody FundTransferRequestDTO request) {
-
         log.info("{} Fund transfer for request received ", htmlEscape(request.getServiceType()));
         log.info("Fund transfer meta data created {} ", htmlEscape(metaData));
         if(request.getAmount() == null && request.getSrcAmount() ==null){
@@ -59,7 +57,7 @@ public class FundTransferController {
         }
         return Response.builder()
                 .status(ResponseStatus.SUCCESS)
-                .data(fundTransferService.transferFund(metaData, request)).build();
+                .data(serviceFactory.getServiceAppropriateService(request).transferFund(metaData, request)).build();
     }
     
     @ApiOperation(

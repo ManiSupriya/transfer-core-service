@@ -4,6 +4,9 @@ import lombok.Builder;
 import lombok.Data;
 
 import javax.persistence.*;
+
+import com.mashreq.transfercoreservice.fundtransfer.dto.ChargeBearer;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -45,4 +48,14 @@ public class TransactionHistory {
     private String transactionRefNo;
     private String transactionCategory;
     private Instant createdDate;
+    @Enumerated(value = EnumType.STRING)
+    @Column(name = "service_fee_paid_by")
+    private ChargeBearer chargeBearer;
+    @Column(name = "total_debit_amount")
+    private String debitAmount;
+    @Column(name = "exchange_rate")
+    private String exchangeRate;
+    @Column(name = "payment_note")
+    private String paymentNote;
+    
 }

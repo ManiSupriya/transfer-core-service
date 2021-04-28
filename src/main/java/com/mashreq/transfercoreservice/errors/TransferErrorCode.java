@@ -43,6 +43,11 @@ public enum TransferErrorCode implements ErrorCode {
     REFERENCE_NO_INVALID("TN-1028", "Not a valid Reference Number for the account"),
     DESTINATION_ACCOUNT_FREEZED_FOR_CREDIT("TN-1029", "Destination account is freezed for credit"),
     SOURCE_ACCOUNT_FREEZED_FOR_DEBIT("TN-1030", "Destination account is freezed for credit"),
+    INVALID_FT_ORDER_TYPE("TN-1031", "Invalid funds tranfer order type"),
+    INVALID_SI_FREQUENCY_TYPE("TN-1032", "Invalid frequency type"),
+    TXN_NOT_ALLOWED_FOR_PAY_LATER("TN-1033", "Pay Later not allowed"),
+    INVALID_CHARGE_BEARER("TN-1034", "Invalid Charge Bearer"),
+    PAY_LATER_TRANSACTION_INITIATION_FAILED("TN-1035", "Transaction initiation failed"),
     INVALID_BEN_CODE("LM-1106","Invalid ben code"),
 
     DEAL_VALIDATION_FAILED("TN-1201", "Deal Number validation Failed"),
