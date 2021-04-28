@@ -40,7 +40,8 @@ import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 @RequiredArgsConstructor
 public class FundTransferMWService {
 
-    private final HeaderFactory headerFactory;
+    private static final String AED_CURRENCY = "AED";
+	private final HeaderFactory headerFactory;
     private final SoapServiceProperties soapServiceProperties;
     private static final String SUCCESS = "S";
     private static final String SUCCESS_CODE_ENDS_WITH = "-000";
@@ -53,6 +54,8 @@ public class FundTransferMWService {
     private static final String SILVER = "XAG";
     private static final String UAE_COUNTRY= "UNITED ARAB EMIRATES";
 
+    
+    private String paymentPrefix = "";
 
     public FundTransferResponse transfer(FundTransferRequest request, RequestMetaData metaData, String msgId) {
         log.info("Fund transfer initiated from account [ {} ]", htmlEscape(request.getFromAccount()));
@@ -168,11 +171,16 @@ public class FundTransferMWService {
         creditLeg.setCurrency(request.getDestinationCurrency());
         creditLeg.setChargeBearer(request.getChargeBearer());
         String additionalField=StringUtils.isNotBlank(request.getAdditionaField())?SPACE_CHAR+request.getAdditionaField():"";
-        if (StringUtils.isNotBlank(request.getFinalBene())){
-        creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc()+SPACE_CHAR+request.getFinalBene()+additionalField);
-        }else {
-        	creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc() + additionalField);
-        }
+        
+		if (AED_CURRENCY.equalsIgnoreCase(request.getDestinationCurrency())) {
+			paymentPrefix = PAYMENT_DETAIL_PREFIX;
+		}
+		if (StringUtils.isNotBlank(request.getFinalBene())) {
+			creditLeg.setPaymentDetails(
+					paymentPrefix + request.getPurposeDesc() + SPACE_CHAR + request.getFinalBene() + additionalField);
+		} else {
+			creditLeg.setPaymentDetails(paymentPrefix + request.getPurposeDesc() + additionalField);
+		}
         creditLeg.setBenName(request.getBeneficiaryFullName());
         creditLeg.setAWInstName(request.getAwInstName());
         creditLeg.setAWInstBICCode(request.getAwInstBICCode());
