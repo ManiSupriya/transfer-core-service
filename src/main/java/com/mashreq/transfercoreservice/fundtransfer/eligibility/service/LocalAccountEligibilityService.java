@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.mashreq.encryption.encryptor.EncryptionService;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
+import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CardDetailsDTO;
@@ -27,8 +28,10 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.enums.FundsTransferEligibility;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.BeneficiaryValidator;
+import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CurrencyValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.LimitValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
+import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,6 +49,7 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
     private final CardService cardService;
     private final MaintenanceService maintenanceService;
     private final EncryptionService encryptionService = new EncryptionService();
+    private final CurrencyValidatorFactory currencyValidatorFactory;    
 
     @Override
 	public EligibilityResponse checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request,
@@ -80,6 +84,8 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
      */
     private void executeNonCreditCard(FundTransferEligibiltyRequestDTO request, RequestMetaData metaData, UserDTO userDTO) {
 
+    	responseHandler(currencyValidatorFactory.getValidator(metaData).validate(request, metaData));
+    	
         final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metaData.getPrimaryCif());
         final ValidationContext validationContext = new ValidationContext();
         validationContext.add("account-details", accountsFromCore);

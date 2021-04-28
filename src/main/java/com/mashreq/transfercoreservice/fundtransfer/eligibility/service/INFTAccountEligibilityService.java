@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
+import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
@@ -21,8 +22,10 @@ import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityR
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.enums.FundsTransferEligibility;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.BeneficiaryValidator;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CurrencyValidator;
+import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CurrencyValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.LimitValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
+import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,15 +40,16 @@ public class INFTAccountEligibilityService implements TransferEligibilityService
     private final BeneficiaryValidator beneficiaryValidator;
     private final MaintenanceService maintenanceService;
     private final BeneficiaryService beneficiaryService;
-    private final CurrencyValidator currencyValidator;
+    private final CurrencyValidatorFactory currencyValidatorFactory;
     private final LimitValidatorFactory limitValidatorFactory;
 
     
     @Override
 	public EligibilityResponse checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request,UserDTO userDTO) {
     	log.info("INFT transfer eligibility validation started");
-		currencyValidator.validate(request, metaData);
-
+    	
+    	responseHandler(currencyValidatorFactory.getValidator(metaData).validate(request, metaData));
+    	
 		final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metaData.getPrimaryCif());
 
 		final ValidationContext validationContext = new ValidationContext();

@@ -85,6 +85,7 @@ public enum TransferErrorCode implements ErrorCode {
     ACCOUNT_NOT_FOUND("TN-4003", "Account not found"),
     CONNECTED_ACCOUNT_EMPTY("TN-4004", "Connected Account is empty"),
     ACCOUNT_RESOURCES_MISMATCH("TN-4005", "There was not enough resources in account "),
+    LOCAL_CURRENCY_MISMATCH("TN-4006", "Local currency does not match with transaction currency"),
 
     IBAN_NOT_FOUND("TN-5100", "IBAN not found"),
     ROUTING_CODE_NOT_FOUND("TN-5102", "Routing Code not found"),
@@ -99,7 +100,7 @@ public enum TransferErrorCode implements ErrorCode {
     INVALID_FLEX_RULE_COUNTRY("TN-5111", "Invalid Country for rule engine"),
     INVALID_SWIFT_CODE("TN-5112", "Invalid Swift code"),
     BIC_SEARCH_FAILED("TN-5113", "BIC Code search failed"),
-
+    SWIFT_AND_BIC_SEARCH_FAILED("TN-5114", "Both Swift and BIC Code search failed"),
 
     EXTERNAL_SERVICE_ERROR("TN-5000", "Something went wrong with external service"),
     FUND_TRANSFER_FAILED("TN-5001", "Fund transfer failed"),

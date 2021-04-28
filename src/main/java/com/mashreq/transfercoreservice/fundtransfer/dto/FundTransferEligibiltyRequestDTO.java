@@ -12,8 +12,6 @@ import java.math.BigDecimal;
 
 @Data
 @ConditionalRequired(fieldName = "beneficiaryId", dependentFieldName = "serviceType", noneMatch = "WYMA", message = "Beneficiary ID is mandatory")
-@ConditionalRequired(fieldName = "purposeCode", dependentFieldName = "serviceType", anyMatch = {"INFT", "LOCAL"}, message = "Purpose code cannot be empty")
-@ConditionalRequired(fieldName = "purposeDesc", dependentFieldName = "serviceType", anyMatch = {"INFT", "LOCAL"}, message = "Purpose Description code cannot be empty")
 @ConditionalRequired(fieldName = "chargeBearer", dependentFieldName = "serviceType", anyMatch = {"INFT", "LOCAL"}, message = "charge bearer cannot be empty")
 public class FundTransferEligibiltyRequestDTO {
 
@@ -33,10 +31,6 @@ public class FundTransferEligibiltyRequestDTO {
     private String serviceType;
 
     private String currency;
-
-    private String purposeCode;
-
-    private String purposeDesc;
 
     @ValueOfEnum(enumClass = ChargeBearer.class, message = "Not a valid charge bearer", isRequired = false)
     private String chargeBearer;
