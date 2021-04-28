@@ -55,7 +55,7 @@ public class FundTransferCCMWService {
     
     
 	private static final String AED_CURRENCY = "AED";
-	private String paymentPrefix = "";
+	private static String paymentPrefix = "";
 
 
     public static final String DEBIT_ACCOUNT_BRANCH = "030";

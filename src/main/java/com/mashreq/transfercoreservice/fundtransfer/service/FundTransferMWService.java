@@ -55,7 +55,7 @@ public class FundTransferMWService {
     private static final String UAE_COUNTRY= "UNITED ARAB EMIRATES";
 
     
-    private String paymentPrefix = "";
+    private static String paymentPrefix = "";
 
     public FundTransferResponse transfer(FundTransferRequest request, RequestMetaData metaData, String msgId) {
         log.info("Fund transfer initiated from account [ {} ]", htmlEscape(request.getFromAccount()));
