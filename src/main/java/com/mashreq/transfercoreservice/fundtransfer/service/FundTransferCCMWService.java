@@ -52,6 +52,10 @@ public class FundTransferCCMWService {
     private static final String SUCCESS_CODE_ENDS_WITH = "-000";
     private static final String PAYMENT_DETAIL_PREFIX = "/REF/ ";
     public static final String SPACE_CHAR = " ";
+    
+    
+	private static final String AED_CURRENCY = "AED";
+	private String paymentPrefix = "";
 
 
     public static final String DEBIT_ACCOUNT_BRANCH = "030";
@@ -208,11 +212,15 @@ public class FundTransferCCMWService {
         creditLeg.setUltimateBeneficiary2(fundTransferRequest.getBeneficiaryFullName());
         creditLeg.setUltimateBeneficiary4(fundTransferRequest.getBeneficiaryFullName());
         creditLeg.setChargeBearer(fundTransferRequest.getChargeBearer());
+        
+        if (AED_CURRENCY.equalsIgnoreCase(fundTransferRequest.getDestinationCurrency())) {
+			paymentPrefix = PAYMENT_DETAIL_PREFIX;
+		}
         if (StringUtils.isNotBlank(fundTransferRequest.getAcwthInst1())) {
-			creditLeg.setPaymentDetails1(PAYMENT_DETAIL_PREFIX + fundTransferRequest.getPurposeDesc() + SPACE_CHAR
+			creditLeg.setPaymentDetails1(paymentPrefix + fundTransferRequest.getPurposeDesc() + SPACE_CHAR
 					+ fundTransferRequest.getAcwthInst1());
 		} else{
-			creditLeg.setPaymentDetails1(PAYMENT_DETAIL_PREFIX + fundTransferRequest.getPurposeDesc());
+			creditLeg.setPaymentDetails1(paymentPrefix + fundTransferRequest.getPurposeDesc());
 		}
         creditLeg.setAcwthInst1(fundTransferRequest.getAcwthInst1());
         creditLeg.setAcwthInst2(fundTransferRequest.getAcwthInst2());
