@@ -55,8 +55,6 @@ public class FundTransferMWService {
     private static final String UAE_COUNTRY= "UNITED ARAB EMIRATES";
 
     
-    private static String paymentPrefix = "";
-
     public FundTransferResponse transfer(FundTransferRequest request, RequestMetaData metaData, String msgId) {
         log.info("Fund transfer initiated from account [ {} ]", htmlEscape(request.getFromAccount()));
 
@@ -172,14 +170,21 @@ public class FundTransferMWService {
         creditLeg.setChargeBearer(request.getChargeBearer());
         String additionalField=StringUtils.isNotBlank(request.getAdditionaField())?SPACE_CHAR+request.getAdditionaField():"";
         
-		if (AED_CURRENCY.equalsIgnoreCase(request.getDestinationCurrency())) {
-			paymentPrefix = PAYMENT_DETAIL_PREFIX;
-		}
+        log.info("request.getDestinationCurrency() {}", request.getDestinationCurrency());
 		if (StringUtils.isNotBlank(request.getFinalBene())) {
-			creditLeg.setPaymentDetails(
-					paymentPrefix + request.getPurposeDesc() + SPACE_CHAR + request.getFinalBene() + additionalField);
+			if (AED_CURRENCY.equalsIgnoreCase(request.getDestinationCurrency())) {
+				creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc() + SPACE_CHAR
+						+ request.getFinalBene() + additionalField);
+			} else {
+				creditLeg.setPaymentDetails(
+						request.getPurposeDesc() + SPACE_CHAR + request.getFinalBene() + additionalField);
+			}
 		} else {
-			creditLeg.setPaymentDetails(paymentPrefix + request.getPurposeDesc() + additionalField);
+			if (AED_CURRENCY.equalsIgnoreCase(request.getDestinationCurrency())) {
+				creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc() + additionalField);
+			} else {
+				creditLeg.setPaymentDetails(request.getPurposeDesc() + additionalField);
+			}
 		}
         creditLeg.setBenName(request.getBeneficiaryFullName());
         creditLeg.setAWInstName(request.getAwInstName());
