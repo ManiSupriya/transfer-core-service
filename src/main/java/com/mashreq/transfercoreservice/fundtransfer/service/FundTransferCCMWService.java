@@ -212,6 +212,7 @@ public class FundTransferCCMWService {
         creditLeg.setUltimateBeneficiary4(fundTransferRequest.getBeneficiaryFullName());
         creditLeg.setChargeBearer(fundTransferRequest.getChargeBearer());
         
+        log.info("fundTransferRequest.getDestinationCurrency() {}", fundTransferRequest.getDestinationCurrency());
 		if (StringUtils.isNotBlank(fundTransferRequest.getAcwthInst1())) {
 			if (AED_CURRENCY.equalsIgnoreCase(fundTransferRequest.getDestinationCurrency())) {
 				creditLeg.setPaymentDetails1(PAYMENT_DETAIL_PREFIX + fundTransferRequest.getPurposeDesc() + SPACE_CHAR
@@ -222,9 +223,9 @@ public class FundTransferCCMWService {
 			}
 		} else {
 			if (AED_CURRENCY.equalsIgnoreCase(fundTransferRequest.getDestinationCurrency())) {
-				creditLeg.setPaymentDetails1(fundTransferRequest.getPurposeDesc());
-			} else {
 				creditLeg.setPaymentDetails1(PAYMENT_DETAIL_PREFIX + fundTransferRequest.getPurposeDesc());
+			} else {
+				creditLeg.setPaymentDetails1(fundTransferRequest.getPurposeDesc());
 			}
 		}
         creditLeg.setAcwthInst1(fundTransferRequest.getAcwthInst1());

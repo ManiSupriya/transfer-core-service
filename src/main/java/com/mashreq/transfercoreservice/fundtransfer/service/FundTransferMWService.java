@@ -171,8 +171,6 @@ public class FundTransferMWService {
         String additionalField=StringUtils.isNotBlank(request.getAdditionaField())?SPACE_CHAR+request.getAdditionaField():"";
         
         log.info("request.getDestinationCurrency() {}", request.getDestinationCurrency());
-        log.info("request.getSourceCurrency() {}", request.getSourceCurrency());
-        
 		if (StringUtils.isNotBlank(request.getFinalBene())) {
 			if (AED_CURRENCY.equalsIgnoreCase(request.getDestinationCurrency())) {
 				creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc() + SPACE_CHAR
