@@ -3,14 +3,19 @@ package com.mashreq.transfercoreservice.fundtransfer.eligibility.service;
 
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.*;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.INFT;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.LOCAL;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.QRIN;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.QRPK;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.QRT;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WAMA;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WYMA;
 
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 import javax.annotation.PostConstruct;
