@@ -4,6 +4,7 @@ import static com.mashreq.transfercoreservice.common.UAEIbanValidator.validateIb
 import static com.mashreq.transfercoreservice.errors.ExceptionUtils.genericException;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BANK_NOT_FOUND_WITH_IBAN;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_SWIFT_CODE;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_ROUTING_CODE;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.SWIFT_AND_BIC_SEARCH_FAILED;
 
 import java.util.Arrays;
@@ -77,7 +78,13 @@ public class BankDetailService {
         	validateSwiftCode(bankDetailRequest.getValue());
         	return fetchBySwiftAndBicCode(channelTraceId, bankDetailRequest, requestMetaData);
         }
-        return routingCodeSearchMWService.fetchBankDetailsWithRoutingCode(channelTraceId, bankDetailRequest, requestMetaData);
+        
+        List<BankResultsDto> bankResults = routingCodeSearchMWService.fetchBankDetailsWithRoutingCode(channelTraceId, bankDetailRequest, requestMetaData);
+        if(Objects.isNull(bankResults) || (Objects.nonNull(bankResults) && bankResults.isEmpty())) {
+        	GenericExceptionHandler.handleError(INVALID_ROUTING_CODE, INVALID_ROUTING_CODE.getErrorMessage());
+        }
+        
+        return bankResults;
     }
 
     private List<BankResultsDto> fetchBySwiftAndBicCode(String channelTraceId, BankDetailRequestDto bankDetailRequest, RequestMetaData requestMetaData) {
