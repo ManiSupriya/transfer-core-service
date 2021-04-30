@@ -21,7 +21,7 @@ public class CurrencyValidatorFactory {
 	public ICurrencyValidator getValidator(RequestMetaData metaData) {
 
 		if(Objects.nonNull(metaData.getUserCacheKey())) {
-			if(metaData.getUserCacheKey().equals(CustomerClientType.SME.name())) {
+			if(metaData.getUserType().equals(CustomerClientType.SME.name())) {
 				return smeCurrencyValidator;
 			}
 		}
