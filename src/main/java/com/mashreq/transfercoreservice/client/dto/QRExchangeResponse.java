@@ -27,5 +27,6 @@ public class QRExchangeResponse {
 
     private boolean allowQR;
     private String gatewayType;
+    private String exchangeRateDisplay;
 
 }

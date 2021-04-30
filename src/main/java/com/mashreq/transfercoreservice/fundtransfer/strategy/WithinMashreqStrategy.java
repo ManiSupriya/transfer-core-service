@@ -73,8 +73,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     private final NotificationService notificationService;
     private final AccountFreezeValidator freezeValidator;
     private final MashreqUAEAccountNumberResolver accountNumberResolver;
-    @Autowired
-    private PostTransactionService postTransactionService;
+    private final PostTransactionService postTransactionService;
 
     @Value("${app.uae.transaction.code:096}")
     private String transactionCode;

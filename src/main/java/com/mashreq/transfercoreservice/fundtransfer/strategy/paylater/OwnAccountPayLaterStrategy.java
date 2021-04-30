@@ -34,6 +34,7 @@ import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
 import com.mashreq.transfercoreservice.notification.model.NotificationType;
 import com.mashreq.transfercoreservice.notification.service.DigitalUserSegment;
 import com.mashreq.transfercoreservice.notification.service.NotificationService;
+import com.mashreq.transfercoreservice.notification.service.PostTransactionService;
 import com.mashreq.transfercoreservice.paylater.enums.FTOrderType;
 import com.mashreq.transfercoreservice.paylater.enums.OrderStatus;
 import com.mashreq.transfercoreservice.paylater.enums.SIFrequencyType;
@@ -47,8 +48,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
-	private static final String  OWN_ACCOUNT_TRANSACTION = "OWN_ACCOUNT_TRANSACTION";
+	private static final String OWN_ACCOUNT_TRANSACTION = "OWN_ACCOUNT_TRANSACTION";
 	private final FundTransferOrderRepository fundTransferOrderRepository;
+
 	@Autowired
 	public OwnAccountPayLaterStrategy(AccountBelongsToCifValidator accountBelongsToCifValidator,
 			SameAccountValidator sameAccountValidator, FinTxnNoValidator finTxnNoValidator,
@@ -57,10 +59,10 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 			FundTransferMWService fundTransferMWService, BalanceValidator balanceValidator,
 			NotificationService notificationService, AsyncUserEventPublisher auditEventPublisher,
 			DigitalUserSegment digitalUserSegment, AccountFreezeValidator freezeValidator,
-			FundTransferOrderRepository fundTransferOrderRepository) {
+			PostTransactionService postTransactionService, FundTransferOrderRepository fundTransferOrderRepository) {
 		super(accountBelongsToCifValidator, sameAccountValidator, finTxnNoValidator, currencyValidator, limitValidator,
-				accountService, dealValidator, maintenanceService, fundTransferMWService, balanceValidator, notificationService,
-				auditEventPublisher, digitalUserSegment, freezeValidator);
+				accountService, dealValidator, maintenanceService, fundTransferMWService, balanceValidator,
+				notificationService, auditEventPublisher, digitalUserSegment, freezeValidator, postTransactionService);
 		this.fundTransferOrderRepository = fundTransferOrderRepository;
 	}
 
@@ -69,26 +71,29 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 			final ValidationContext validateAccountContext, final BigDecimal transferAmountInSrcCurrency) {
 		log.info("Skipping balance validation for pay later transaction");
 	}
-	
+
 	@Override
-	protected void prepareAndCallPostTransactionActivity(RequestMetaData metadata, FundTransferRequest fundTransferRequest, FundTransferRequestDTO request, FundTransferResponse fundTransferResponse, CurrencyConversionDto conversionResult) {
-        boolean isSuccess = MwResponseStatus.S.equals(fundTransferResponse.getResponseDto().getMwResponseStatus());
-       if(isSuccess){
-            fundTransferRequest.setTransferType(OWN_ACCOUNT);
-            fundTransferRequest.setNotificationType(NotificationType.LOCAL);
-            fundTransferRequest.setStatus(MwResponseStatus.S.getName());
-            this.getPostTransactionService().performPostTransactionActivities(metadata, fundTransferRequest);
-        }
-    }
-	
+	protected void prepareAndCallPostTransactionActivity(RequestMetaData metadata,
+			FundTransferRequest fundTransferRequest, FundTransferRequestDTO request,
+			FundTransferResponse fundTransferResponse, CurrencyConversionDto conversionResult) {
+		if (isSuccessOrProcessing(fundTransferResponse)) {
+			fundTransferRequest.setTransferType(OWN_ACCOUNT);
+			fundTransferRequest.setNotificationType(NotificationType.LOCAL);
+			fundTransferRequest.setStatus(MwResponseStatus.S.getName());
+			this.getPostTransactionService().performPostTransactionActivities(metadata, fundTransferRequest);
+		}
+	}
+
 	@Override
 	protected void handleSuccessfulTransaction(FundTransferRequestDTO request, RequestMetaData metadata,
 			UserDTO userDTO, BigDecimal transactionAmount, final LimitValidatorResponse validationResult,
 			final FundTransferResponse fundTransferResponse) {
-		if(isSuccessOrProcessing(fundTransferResponse)){
-		   final CustomerNotification customerNotification = this.populateCustomerNotification(validationResult.getTransactionRefNo(),request,transactionAmount,metadata);
-		   this.getNotificationService().sendNotifications(customerNotification,OWN_ACCOUNT_TRANSACTION,metadata,userDTO);
-		   }
+		if (isSuccessOrProcessing(fundTransferResponse)) {
+			final CustomerNotification customerNotification = this.populateCustomerNotification(
+					validationResult.getTransactionRefNo(), request, transactionAmount, metadata);
+			this.getNotificationService().sendNotifications(customerNotification, OWN_ACCOUNT_TRANSACTION, metadata,
+					userDTO);
+		}
 	}
 
 	@Override
@@ -96,17 +101,17 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 			final LimitValidatorResponse validationResult, final FundTransferRequest fundTransferRequest,
 			FundTransferRequestDTO request) {
 		log.info("Persisting funds transfer order for {}");
-		FundTransferOrder fundTransferOrder = this.createOrderFromRequest(fundTransferRequest, metadata, validationResult.getTransactionRefNo(),
-				request);
+		FundTransferOrder fundTransferOrder = this.createOrderFromRequest(fundTransferRequest, metadata,
+				validationResult.getTransactionRefNo(), request);
 		log.info("Persisting funds transfer order for {}", fundTransferOrder);
 		fundTransferOrderRepository.saveAndFlush(fundTransferOrder);
 		return FundTransferResponse.builder().payOrderInitiated(true).build();
-		}
-	
+	}
+
 	private boolean isSuccessOrProcessing(FundTransferResponse response) {
 		return Boolean.TRUE.equals(response.getPayOrderInitiated());
 	}
-	
+
 	private FundTransferOrder createOrderFromRequest(FundTransferRequest fundTransferRequest, RequestMetaData metadata,
 			String txnRefNo, FundTransferRequestDTO request) {
 		FundTransferOrder order = new FundTransferOrder();
@@ -121,7 +126,9 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 		order.setDealRate(fundTransferRequest.getDealRate());
 		order.setDestinationAccountCurrency(fundTransferRequest.getDestinationCurrency());
 		order.setFinancialTransactionNo(fundTransferRequest.getFinTxnNo());
-		order.setFrequency(SIFrequencyType.getSIFrequencyTypeByName(request.getFrequency()));
+		order.setFrequency(
+				request.getFrequency() != null ? SIFrequencyType.getSIFrequencyTypeByName(request.getFrequency())
+						: null);
 		order.setFxDealNumber(fundTransferRequest.getDealNumber());
 		order.setInternalAccFlag(fundTransferRequest.getInternalAccFlag());
 		// TODO: create an order id generator class with some common logic for all SI
@@ -136,10 +143,10 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 		order.setSourceCurrency(fundTransferRequest.getSourceCurrency());
 		order.setSndrBranchCode(fundTransferRequest.getSourceBranchCode());
 		order.setStartDate(
-				DateTimeUtil.getInstance().convertToDateTime(request.getStartDate(), DateTimeUtil.DATE_TIME_FORMATTER));
+				DateTimeUtil.getInstance().convertToDate(request.getStartDate(), DateTimeUtil.DATE_TIME_FORMATTER).atTime(0, 0));
 		if (FTOrderType.SI.equals(order.getOrderType())) {
-			order.setEndDate(DateTimeUtil.getInstance().convertToDateTime(request.getEndDate(),
-					DateTimeUtil.DATE_TIME_FORMATTER));
+			order.setEndDate(
+					DateTimeUtil.getInstance().convertToDate(request.getEndDate(), DateTimeUtil.DATE_TIME_FORMATTER).atTime(23, 59));
 		}
 		order.setSourceBranchCode(fundTransferRequest.getSourceBranchCode());
 		order.setDestinationAccountNumber(fundTransferRequest.getToAccount());

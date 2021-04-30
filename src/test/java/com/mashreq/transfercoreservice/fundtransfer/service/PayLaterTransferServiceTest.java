@@ -1,17 +1,13 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
-import static org.junit.Assert.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.EnumMap;
-import java.util.Optional;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -32,18 +28,12 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponseDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.FundTransferStrategy;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.InternationalFundTransferStrategy;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.paylater.InternationalPayLaterFundTransferStrategy;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.paylater.LocalFundPayLaterTransferStrategy;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.paylater.OwnAccountPayLaterStrategy;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.paylater.WithinMashreqPayLaterStrategy;
-import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
-import com.mashreq.transfercoreservice.model.Country;
 import com.mashreq.transfercoreservice.model.DigitalUser;
-import com.mashreq.transfercoreservice.model.DigitalUserGroup;
-import com.mashreq.transfercoreservice.model.Segment;
 import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
@@ -175,21 +165,4 @@ public class PayLaterTransferServiceTest {
 		return fundTransferRequestDTO;
 	}
 
-	private DigitalUser createDigitalUserDTO() {
-		DigitalUser digUser = new DigitalUser();
-		digUser.setCif("012345678");
-		digUser.setCountry("AE");
-		digUser.setDeviceidRegisteredForPushnotify("fcwrdr142516");
-		DigitalUserGroup digitalUserGroup = new DigitalUserGroup();
-		Segment segment = new Segment();
-		segment.setId(2l);
-		digitalUserGroup.setSegment(segment );
-		Country country = new Country();
-		country.setLocalCurrency("AED");
-		digitalUserGroup.setCountry(country );
-		digUser.setDigitalUserGroup(digitalUserGroup );
-		digUser.setDeviceInfo("Mobile");
-        return digUser;
-    }
-	
 }

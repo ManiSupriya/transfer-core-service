@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
@@ -85,8 +84,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     private final DigitalUserSegment digitalUserSegment;
     private final AccountFreezeValidator freezeValidator;
 
-    @Autowired
-    private PostTransactionService postTransactionService;
+    private final PostTransactionService postTransactionService;
 
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, RequestMetaData metadata, UserDTO userDTO) {

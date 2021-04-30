@@ -31,6 +31,7 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.FinTxnNoValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.PaymentPurposeValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
+import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
 import com.mashreq.transfercoreservice.notification.service.NotificationService;
 import com.mashreq.transfercoreservice.paylater.enums.FTOrderType;
@@ -92,7 +93,7 @@ public class InternationalPayLaterFundTransferStrategy extends InternationalFund
 		order.setDealRate(fundTransferRequest.getDealRate());
 		//order.setDestinationAccountCurrency(fundTransferRequest.get);
 		order.setFinancialTransactionNo(fundTransferRequest.getFinTxnNo());
-		order.setFrequency(SIFrequencyType.getSIFrequencyTypeByName(request.getFrequency()));
+		order.setFrequency(request.getFrequency()!= null ? SIFrequencyType.getSIFrequencyTypeByName(request.getFrequency()) : null);
 		order.setFxDealNumber(fundTransferRequest.getDealNumber());
 		order.setInternalAccFlag(fundTransferRequest.getInternalAccFlag());
 		//TODO: create an order id generator class with some common logic for all SI orders
@@ -105,9 +106,11 @@ public class InternationalPayLaterFundTransferStrategy extends InternationalFund
 		order.setServiceType(ServiceType.INFT);
 		order.setSourceCurrency(fundTransferRequest.getSourceCurrency());
 		order.setSndrBranchCode(fundTransferRequest.getSourceBranchCode());
-		order.setStartDate(DateTimeUtil.getInstance().convertToDateTime(request.getStartDate(), DateTimeUtil.DATE_TIME_FORMATTER));
-		if(FTOrderType.SI.equals(order.getOrderType())) {
-			order.setEndDate(DateTimeUtil.getInstance().convertToDateTime(request.getEndDate(), DateTimeUtil.DATE_TIME_FORMATTER));
+		order.setStartDate(
+				DateTimeUtil.getInstance().convertToDate(request.getStartDate(), DateTimeUtil.DATE_TIME_FORMATTER).atTime(0, 0));
+		if (FTOrderType.SI.equals(order.getOrderType())) {
+			order.setEndDate(
+					DateTimeUtil.getInstance().convertToDate(request.getEndDate(), DateTimeUtil.DATE_TIME_FORMATTER).atTime(23, 59));
 		}
 		order.setSourceBranchCode(fundTransferRequest.getSourceBranchCode());
 		order.setDestinationAccountNumber(fundTransferRequest.getToAccount());
@@ -126,7 +129,7 @@ public class InternationalPayLaterFundTransferStrategy extends InternationalFund
         getNotificationService().sendNotifications(customerNotification,OTHER_ACCOUNT_TRANSACTION,metadata,userDTO);
         fundTransferRequest.setTransferType(INTERNATIONAL);
         fundTransferRequest.setNotificationType(OTHER_ACCOUNT_TRANSACTION);
-        fundTransferRequest.setStatus(fundTransferResponse.getResponseDto().getMwResponseStatus().getName());
+        fundTransferRequest.setStatus(MwResponseStatus.S.getName());
         this.getPostTransactionService().performPostTransactionActivities(metadata, fundTransferRequest);
         }
 	}

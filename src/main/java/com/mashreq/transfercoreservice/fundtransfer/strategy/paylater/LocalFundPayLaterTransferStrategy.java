@@ -38,6 +38,7 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.FinTxnNoValidator
 import com.mashreq.transfercoreservice.fundtransfer.validators.IBANValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.PaymentPurposeValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
+import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
 import com.mashreq.transfercoreservice.notification.service.NotificationService;
 import com.mashreq.transfercoreservice.paylater.enums.FTOrderType;
@@ -99,7 +100,7 @@ public class LocalFundPayLaterTransferStrategy extends LocalFundTransferStrategy
             getNotificationService().sendNotifications(customerNotification,OTHER_ACCOUNT_TRANSACTION,metadata,userDTO);
             fundTransferRequest.setTransferType(getTransferType(fundTransferRequest.getTxnCurrency()));
             fundTransferRequest.setNotificationType(OTHER_ACCOUNT_TRANSACTION);
-            fundTransferRequest.setStatus(fundTransferResponse.getResponseDto().getMwResponseStatus().getName());
+            fundTransferRequest.setStatus(MwResponseStatus.S.getName());
             getPostTransactionService().performPostTransactionActivities(metadata, fundTransferRequest);
         }
 	}
@@ -113,7 +114,8 @@ public class LocalFundPayLaterTransferStrategy extends LocalFundTransferStrategy
 			final ValidationContext validationContext, final AccountDetailsDTO fromAccountDetails,
 			final BeneficiaryDto beneficiaryDto) {
     	log.info("Skipping balance validation check for loal pay later transaction ");
-		return null;
+    	final BigDecimal transferAmountInSrcCurrency = this.getAmountInSrcCurrency(request, beneficiaryDto, fromAccountDetails);
+		return transferAmountInSrcCurrency;
 	}
     
     protected FundTransferResponse processTransaction(RequestMetaData metadata, String txnRefNo,
@@ -140,7 +142,7 @@ public class LocalFundPayLaterTransferStrategy extends LocalFundTransferStrategy
 		order.setDealRate(fundTransferRequest.getDealRate());
 		// order.setDestinationAccountCurrency(fundTransferRequest.get);
 		order.setFinancialTransactionNo(fundTransferRequest.getFinTxnNo());
-		order.setFrequency(SIFrequencyType.getSIFrequencyTypeByName(request.getFrequency()));
+		order.setFrequency(request.getFrequency()!= null ? SIFrequencyType.getSIFrequencyTypeByName(request.getFrequency()) : null);
 		order.setFxDealNumber(fundTransferRequest.getDealNumber());
 		order.setInternalAccFlag(fundTransferRequest.getInternalAccFlag());
 		// TODO: create an order id generator class with some common logic for all SI
@@ -155,10 +157,10 @@ public class LocalFundPayLaterTransferStrategy extends LocalFundTransferStrategy
 		order.setSourceCurrency(fundTransferRequest.getSourceCurrency());
 		order.setSndrBranchCode(fundTransferRequest.getSourceBranchCode());
 		order.setStartDate(
-				DateTimeUtil.getInstance().convertToDateTime(request.getStartDate(), DateTimeUtil.DATE_TIME_FORMATTER));
+				DateTimeUtil.getInstance().convertToDate(request.getStartDate(), DateTimeUtil.DATE_TIME_FORMATTER).atTime(0, 0));
 		if (FTOrderType.SI.equals(order.getOrderType())) {
-			order.setEndDate(DateTimeUtil.getInstance().convertToDateTime(request.getEndDate(),
-					DateTimeUtil.DATE_TIME_FORMATTER));
+			order.setEndDate(
+					DateTimeUtil.getInstance().convertToDate(request.getEndDate(), DateTimeUtil.DATE_TIME_FORMATTER).atTime(23, 59));
 		}
 		order.setSourceBranchCode(fundTransferRequest.getSourceBranchCode());
 		order.setDestinationAccountNumber(fundTransferRequest.getToAccount());

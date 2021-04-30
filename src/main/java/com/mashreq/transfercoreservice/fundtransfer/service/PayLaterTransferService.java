@@ -116,7 +116,7 @@ public class PayLaterTransferService extends FundTransferServiceDefault{
         log.info("Skipping pay later insertion into table {} ", htmlEscape(transactionHistory.getTransactionRefNo()));
 		return transactionHistory;
 	}
-
+    
     protected boolean isFailure(FundTransferResponse response) {
         return Boolean.FALSE.equals(response.getPayOrderInitiated());
     }

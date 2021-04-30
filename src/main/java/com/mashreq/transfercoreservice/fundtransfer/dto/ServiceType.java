@@ -22,8 +22,6 @@ public enum ServiceType implements ValidEnum {
     DAR_AL_BER("DALBR","DAR_AL_BER","DA"),
     BAIT_AL_KHAIR("BALKH","BAIT_AL_KHAIR","BA"),
     DUBAI_CARE("DCARE","DUBAI_CARE","DC"),
-    QRIN("QRT","QUICK_REMIT","QR"),
-    QRPK("QRT","QUICK_REMIT","QR"),
     QRT("QRT","QUICK_REMIT","QR"),
     XAU("XAU","GOLD_TRANSFER","GL"),
     XAG("XAG","SILVER_TRANSFER","SL"),

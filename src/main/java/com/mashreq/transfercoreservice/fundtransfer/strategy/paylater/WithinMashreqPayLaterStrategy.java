@@ -34,6 +34,7 @@ import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
 import com.mashreq.transfercoreservice.notification.model.NotificationType;
 import com.mashreq.transfercoreservice.notification.service.NotificationService;
+import com.mashreq.transfercoreservice.notification.service.PostTransactionService;
 import com.mashreq.transfercoreservice.paylater.enums.FTOrderType;
 import com.mashreq.transfercoreservice.paylater.enums.OrderStatus;
 import com.mashreq.transfercoreservice.paylater.enums.SIFrequencyType;
@@ -56,10 +57,12 @@ public class WithinMashreqPayLaterStrategy extends WithinMashreqStrategy {
 			FundTransferMWService fundTransferMWService, BalanceValidator balanceValidator, DealValidator dealValidator,
 			AsyncUserEventPublisher auditEventPublisher, NotificationService notificationService,
 			AccountFreezeValidator freezeValidator, MashreqUAEAccountNumberResolver accountNumberResolver,
+			PostTransactionService postTransactionService,
 			FundTransferOrderRepository fundTransferOrderRepository) {
 		super(sameAccountValidator, finTxnNoValidator, accountBelongsToCifValidator, currencyValidator, beneficiaryValidator,
 				accountService, beneficiaryService, limitValidator, maintenanceService, fundTransferMWService, balanceValidator,
-				dealValidator, auditEventPublisher, notificationService, freezeValidator, accountNumberResolver);
+				dealValidator, auditEventPublisher, notificationService, 
+				freezeValidator, accountNumberResolver, postTransactionService);
 		this.fundTransferOrderRepository = fundTransferOrderRepository;
 	}
 
@@ -112,7 +115,7 @@ public class WithinMashreqPayLaterStrategy extends WithinMashreqStrategy {
 		order.setDealRate(fundTransferRequest.getDealRate());
 		order.setDestinationAccountCurrency(fundTransferRequest.getDestinationCurrency());
 		order.setFinancialTransactionNo(fundTransferRequest.getFinTxnNo());
-		order.setFrequency(SIFrequencyType.getSIFrequencyTypeByName(request.getFrequency()));
+		order.setFrequency(request.getFrequency()!= null ? SIFrequencyType.getSIFrequencyTypeByName(request.getFrequency()) : null);
 		order.setFxDealNumber(fundTransferRequest.getDealNumber());
 		order.setInternalAccFlag(fundTransferRequest.getInternalAccFlag());
 		// TODO: create an order id generator class with some common logic for all SI
@@ -127,10 +130,10 @@ public class WithinMashreqPayLaterStrategy extends WithinMashreqStrategy {
 		order.setSourceCurrency(fundTransferRequest.getSourceCurrency());
 		order.setSndrBranchCode(fundTransferRequest.getSourceBranchCode());
 		order.setStartDate(
-				DateTimeUtil.getInstance().convertToDateTime(request.getStartDate(), DateTimeUtil.DATE_TIME_FORMATTER));
+				DateTimeUtil.getInstance().convertToDate(request.getStartDate(), DateTimeUtil.DATE_TIME_FORMATTER).atTime(0, 0));
 		if (FTOrderType.SI.equals(order.getOrderType())) {
-			order.setEndDate(DateTimeUtil.getInstance().convertToDateTime(request.getEndDate(),
-					DateTimeUtil.DATE_TIME_FORMATTER));
+			order.setEndDate(
+					DateTimeUtil.getInstance().convertToDate(request.getEndDate(), DateTimeUtil.DATE_TIME_FORMATTER).atTime(23, 59));
 		}
 		order.setSourceBranchCode(fundTransferRequest.getSourceBranchCode());
 		order.setDestinationAccountNumber(fundTransferRequest.getToAccount());
