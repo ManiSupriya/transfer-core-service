@@ -40,7 +40,6 @@ import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 @RequiredArgsConstructor
 public class FundTransferMWService {
 
-    private static final String AED_CURRENCY = "AED";
 	private final HeaderFactory headerFactory;
     private final SoapServiceProperties soapServiceProperties;
     private static final String SUCCESS = "S";
@@ -53,6 +52,11 @@ public class FundTransferMWService {
     private static final String GOLD = "XAU";
     private static final String SILVER = "XAG";
     private static final String UAE_COUNTRY= "UNITED ARAB EMIRATES";
+    
+    public static final String INTERNATIONAL = "International";
+    
+    public static final String NON_AED_LOCAL = "Local non-AED";
+    
 
     
     public FundTransferResponse transfer(FundTransferRequest request, RequestMetaData metaData, String msgId) {
@@ -143,8 +147,7 @@ public class FundTransferMWService {
         EAIServices services = new EAIServices();
         services.setHeader(headerFactory.getHeader(soapServiceProperties.getServiceCodes().getFundTransfer(),msgId));
         services.setBody(new EAIServices.Body());
-
-
+        
         //Setting individual components
         FundTransferReqType fundTransferReqType = new FundTransferReqType();
 
@@ -172,18 +175,21 @@ public class FundTransferMWService {
         
         log.info("request.getDestinationCurrency() {}", request.getDestinationCurrency());
 		if (StringUtils.isNotBlank(request.getFinalBene())) {
-			if (AED_CURRENCY.equalsIgnoreCase(request.getDestinationCurrency())) {
-				creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc() + SPACE_CHAR
-						+ request.getFinalBene() + additionalField);
-			} else {
+			if (INTERNATIONAL.equalsIgnoreCase(request.getTransferType())
+					|| NON_AED_LOCAL.equalsIgnoreCase(request.getTransferType())) {
 				creditLeg.setPaymentDetails(
 						request.getPurposeDesc() + SPACE_CHAR + request.getFinalBene() + additionalField);
 			}
+			else {
+				creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc() + SPACE_CHAR
+						+ request.getFinalBene() + additionalField);
+			}
 		} else {
-			if (AED_CURRENCY.equalsIgnoreCase(request.getDestinationCurrency())) {
-				creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc() + additionalField);
-			} else {
+			if (INTERNATIONAL.equalsIgnoreCase(request.getTransferType())
+					|| NON_AED_LOCAL.equalsIgnoreCase(request.getTransferType())) {
 				creditLeg.setPaymentDetails(request.getPurposeDesc() + additionalField);
+			} else {
+				creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc() + additionalField);
 			}
 		}
         creditLeg.setBenName(request.getBeneficiaryFullName());
