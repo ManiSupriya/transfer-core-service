@@ -24,6 +24,8 @@ import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
 import com.mashreq.transfercoreservice.notification.model.NotificationType;
 import com.mashreq.transfercoreservice.notification.service.NotificationService;
 import com.mashreq.transfercoreservice.notification.service.PostTransactionService;
+
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -47,6 +49,7 @@ import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 @Slf4j
 @Component
+@Getter
 @RequiredArgsConstructor
 public class WithinMashreqStrategy implements FundTransferStrategy {
 
@@ -70,12 +73,11 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     private final NotificationService notificationService;
     private final AccountFreezeValidator freezeValidator;
     private final MashreqUAEAccountNumberResolver accountNumberResolver;
-    @Autowired
-    private PostTransactionService postTransactionService;
+    private final PostTransactionService postTransactionService;
 
     @Value("${app.uae.transaction.code:096}")
     private String transactionCode;
-    private final String MASHREQ = "Mashreq";
+    protected final String MASHREQ = "Mashreq";
     
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, RequestMetaData metadata, UserDTO userDTO) {
@@ -106,7 +108,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
                 : getAmountInSrcCurrency(request, beneficiaryDto, fromAccountOpt.get());
 
         validationContext.add("transfer-amount-in-source-currency", transferAmountInSrcCurrency);
-        responseHandler(balanceValidator.validate(request, metadata, validationContext));
+        validateAccountBalance(request, metadata, validationContext);
         /** validating account freeze conditions */
         validateAccountFreezeDetails(request, metadata, validationContext);
 
@@ -137,10 +139,29 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
 
         log.info("Total time taken for {} strategy {} milli seconds ", htmlEscape(request.getServiceType()), htmlEscape(Long.toString(between(start, now()).toMillis())));
 
-
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountOpt.get(), beneficiaryDto, validationResult);
-        final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata, txnRefNo);
-        if(isSuccessOrProcessing(fundTransferResponse)) {
+        final FundTransferResponse fundTransferResponse = processTransaction(metadata, txnRefNo, fundTransferRequest,request);
+        handleSuccessfulTransaction(request, metadata, userDTO, validationResult, fundTransferRequest,
+				fundTransferResponse);
+        
+        return fundTransferResponse.toBuilder()
+                .limitUsageAmount(limitUsageAmount)
+                .limitVersionUuid(validationResult.getLimitVersionUuid())
+                .debitAmount(transferAmountInSrcCurrency)
+                .transactionRefNo(txnRefNo).build();
+
+    }
+
+	protected FundTransferResponse processTransaction(RequestMetaData metadata, String txnRefNo,
+			final FundTransferRequest fundTransferRequest,FundTransferRequestDTO request) {
+		final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata, txnRefNo);
+		return fundTransferResponse;
+	}
+
+	protected void handleSuccessfulTransaction(FundTransferRequestDTO request, RequestMetaData metadata,
+			UserDTO userDTO, final LimitValidatorResponse validationResult,
+			final FundTransferRequest fundTransferRequest, final FundTransferResponse fundTransferResponse) {
+		if(isSuccessOrProcessing(fundTransferResponse)) {
         	final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getTxnCurrency(),request.getAmount());
             notificationService.sendNotifications(customerNotification,NotificationType.OTHER_ACCOUNT_TRANSACTION,metadata,userDTO);
             fundTransferRequest.setTransferType(MASHREQ);
@@ -148,12 +169,12 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
             fundTransferRequest.setStatus(MwResponseStatus.S.getName());
             postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest);
         }
-        
-        return fundTransferResponse.toBuilder()
-                .limitUsageAmount(limitUsageAmount)
-                .limitVersionUuid(validationResult.getLimitVersionUuid()).transactionRefNo(txnRefNo).build();
+	}
 
-    }
+	protected void validateAccountBalance(FundTransferRequestDTO request, RequestMetaData metadata,
+			final ValidationContext validationContext) {
+		responseHandler(balanceValidator.validate(request, metadata, validationContext));
+	}
 
     private boolean isCurrencySame(FundTransferRequestDTO request) {
         return request.getCurrency().equalsIgnoreCase(request.getTxnCurrency());
@@ -176,7 +197,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         freezeValidator.validate(request, metadata,validateAccountContext);
 	}
     
-    private CustomerNotification populateCustomerNotification(String transactionRefNo, String currency, BigDecimal amount) {
+    protected CustomerNotification populateCustomerNotification(String transactionRefNo, String currency, BigDecimal amount) {
         CustomerNotification customerNotification =new CustomerNotification();
         customerNotification.setAmount(String.valueOf(amount));
         customerNotification.setCurrency(currency);
@@ -237,6 +258,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
                 .dealRate(request.getDealRate())
                 .txnCurrency(request.getTxnCurrency())
                 .limitTransactionRefNo(validationResult.getTransactionRefNo())
+                .paymentNote(request.getPaymentNote())
                 .build();
 
     }

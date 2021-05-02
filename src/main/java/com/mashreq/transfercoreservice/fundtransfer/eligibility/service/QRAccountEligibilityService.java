@@ -3,6 +3,7 @@ package com.mashreq.transfercoreservice.fundtransfer.eligibility.service;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_SEGMENT;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
-import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
@@ -31,7 +31,6 @@ import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.Benef
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CurrencyValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.LimitValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
-import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -89,9 +88,42 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 		final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), sourceAccountDetailsDTO,
 				new BigDecimal(response.getAccountCurrencyAmount()));
 		limitValidatorFactory.getValidator(metaData).validate(userDTO, request.getServiceType(), limitUsageAmount, metaData, Long.valueOf(request.getBeneficiaryId()));
+		updateExchangeRateDisplay(response);
+		
 		return EligibilityResponse.builder().status(FundsTransferEligibility.ELIGIBLE).data(response).build();
 	}
 
+	/**
+	 * Generates exchange rate display string based on the power of the currency.
+	 * logic applied, if exchangeRate is greater than one then 1 Transaction
+	 * currency = X Account Currency else 1 Account Currency = Y Transaction
+	 * currency where X -> Exchange rate and Y -> Reciprocal of exchange rate
+	 * 
+	 * @param exchangeRate
+	 * @param dealConversionRateRequestDto
+	 * @return
+	 */
+	protected void updateExchangeRateDisplay(QRExchangeResponse response) {
+		StringBuilder builder = new StringBuilder("");
+		BigDecimal exchangeRate = new BigDecimal(response.getExchangeRate());
+		if (exchangeRate.compareTo(BigDecimal.ONE) > 0) {
+			builder =  builder.append("1 ").append(response.getTransactionCurrency()).append(" = ")
+					.append(exchangeRate.setScale(5, RoundingMode.DOWN).toPlainString()).append(" ")
+					.append(response.getAccountCurrency());
+		} else {
+			exchangeRate = findReciprocal(exchangeRate);
+			builder = builder.append("1 ").append(response.getAccountCurrency()).append(" = ")
+					.append(exchangeRate.setScale(5, RoundingMode.DOWN).toPlainString()).append(" ")
+					.append(response.getTransactionCurrency());
+		}
+		response.setExchangeRateDisplay(builder.toString());
+	}
+	
+
+	private BigDecimal findReciprocal(BigDecimal exchangeRate) {
+		return BigDecimal.ONE.divide(exchangeRate, 8, RoundingMode.HALF_UP);
+	}
+	
 	@Override
 	public ServiceType getServiceType() {
 		return ServiceType.QRT;

@@ -35,6 +35,8 @@ public class FundTransferRequest {
     private BigDecimal srcAmount;
     private BigDecimal exchangeRate;
     private String limitTransactionRefNo;
+    /**added for note to beneficiary field*/
+    private String paymentNote;
     // below fields are applicable for credit card
     private String cardNo;
     private String expiryDate;
