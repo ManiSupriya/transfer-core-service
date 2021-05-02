@@ -264,9 +264,7 @@ public class FundTransferServiceDefault implements FundTransferService {
 
     TransactionHistory generateTransactionHistory(FundTransferRequestDTO request, FundTransferResponse fundTransferResponse, UserDTO userDTO,
                                              RequestMetaData fundTransferMetadata) {
-
-        //convert dto
-    	TransactionHistory history = TransactionHistory.builder()
+    	return TransactionHistory.builder()
                 .cif(fundTransferMetadata.getPrimaryCif())
                 .userId(userDTO.getUserId())
                 .accountTo(request.getToAccount())
@@ -291,6 +289,5 @@ public class FundTransferServiceDefault implements FundTransferService {
                 .debitAmount(fundTransferResponse.getDebitAmount()!= null ? fundTransferResponse.getDebitAmount().toPlainString():null)
                 .beneficiaryId(StringUtils.isNotBlank(request.getBeneficiaryId())?Long.valueOf(request.getBeneficiaryId()):null)
                 .build();
-         return null;
     }
 }
