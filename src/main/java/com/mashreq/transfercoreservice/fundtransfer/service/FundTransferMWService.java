@@ -53,9 +53,10 @@ public class FundTransferMWService {
     private static final String SILVER = "XAG";
     private static final String UAE_COUNTRY= "UNITED ARAB EMIRATES";
     
-    public static final String INTERNATIONAL = "International";
+    public static final String INTERNATIONAL = "INFT";
+    public static final String LOCAL = "LOCAL";
+    public static final String AED_CURRENCY = "AED";
     
-    public static final String NON_AED_LOCAL = "Local non-AED";
     
 
     
@@ -175,8 +176,9 @@ public class FundTransferMWService {
         
         log.info("request.getDestinationCurrency() {}", request.getDestinationCurrency());
 		if (StringUtils.isNotBlank(request.getFinalBene())) {
-			if (INTERNATIONAL.equalsIgnoreCase(request.getTransferType())
-					|| NON_AED_LOCAL.equalsIgnoreCase(request.getTransferType())) {
+			if (INTERNATIONAL.equalsIgnoreCase(request.getServiceType())
+					|| (LOCAL.equalsIgnoreCase(request.getServiceType())
+							&& !AED_CURRENCY.equalsIgnoreCase(request.getDestinationCurrency()))) {
 				creditLeg.setPaymentDetails(
 						request.getPurposeDesc() + SPACE_CHAR + request.getFinalBene() + additionalField);
 			}
@@ -185,8 +187,9 @@ public class FundTransferMWService {
 						+ request.getFinalBene() + additionalField);
 			}
 		} else {
-			if (INTERNATIONAL.equalsIgnoreCase(request.getTransferType())
-					|| NON_AED_LOCAL.equalsIgnoreCase(request.getTransferType())) {
+			if (INTERNATIONAL.equalsIgnoreCase(request.getServiceType())
+					|| (LOCAL.equalsIgnoreCase(request.getServiceType())
+							&& !AED_CURRENCY.equalsIgnoreCase(request.getDestinationCurrency()))) {
 				creditLeg.setPaymentDetails(request.getPurposeDesc() + additionalField);
 			} else {
 				creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc() + additionalField);
