@@ -39,6 +39,7 @@ import com.mashreq.transfercoreservice.fundtransfer.strategy.paylater.Internatio
 import com.mashreq.transfercoreservice.fundtransfer.strategy.paylater.LocalFundPayLaterTransferStrategy;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.paylater.OwnAccountPayLaterStrategy;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.paylater.WithinMashreqPayLaterStrategy;
+import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionHistory;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionRepository;
@@ -158,7 +159,7 @@ public class PayLaterTransferService extends FundTransferServiceDefault{
                 .paidAmount(request.getAmount() == null ? request.getSrcAmount() : request.getAmount())
                 .fromCurrency(request.getCurrency())
                 .toCurrency(request.getTxnCurrency())
-                .status(fundTransferResponse.getResponseDto().getMwResponseStatus().getName())
+                .status(fundTransferResponse.getPayOrderInitiated() == Boolean.TRUE ?  MwResponseStatus.S.getName() : MwResponseStatus.F.getName())
                 .accountFrom(request.getFromAccount())
                 .financialTransactionNo(request.getFinTxnNo())
                 .transactionRefNo(fundTransferResponse.getTransactionRefNo())
