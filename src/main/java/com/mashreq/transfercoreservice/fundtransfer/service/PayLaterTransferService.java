@@ -24,7 +24,6 @@ import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.service.OTPService;
 import com.mashreq.transfercoreservice.errors.ExternalErrorCodeConfig;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
-import com.mashreq.transfercoreservice.fundtransfer.dto.ChargeBearer;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
@@ -155,18 +154,15 @@ public class PayLaterTransferService extends FundTransferServiceDefault{
                 .accountTo(request.getToAccount())
                 .transactionTypeCode(request.getServiceType())
                 .channel(fundTransferMetadata.getChannel())
-                .billRefNo(fundTransferResponse.getResponseDto().getMwReferenceNo())
                 .ipAddress(fundTransferMetadata.getDeviceIP())
                 .paidAmount(request.getAmount() == null ? request.getSrcAmount() : request.getAmount())
                 .fromCurrency(request.getCurrency())
                 .toCurrency(request.getTxnCurrency())
                 .status(fundTransferResponse.getResponseDto().getMwResponseStatus().getName())
-                .mwResponseCode(fundTransferResponse.getResponseDto().getMwResponseCode())
-                .mwResponseDescription(fundTransferResponse.getResponseDto().getMwResponseDescription())
                 .accountFrom(request.getFromAccount())
                 .financialTransactionNo(request.getFinTxnNo())
                 .transactionRefNo(fundTransferResponse.getTransactionRefNo())
-                .hostReferenceNo(fundTransferResponse.getResponseDto().getHostRefNo())
+                .hostReferenceNo(fundTransferResponse.getResponseDto().getTransactionRefNo())
                 .valueDate(LocalDateTime.now())
                 .createdDate(Instant.now())
                 .beneficiaryId(StringUtils.isNotBlank(request.getBeneficiaryId())?Long.valueOf(request.getBeneficiaryId()):null)
