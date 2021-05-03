@@ -244,6 +244,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .limitTransactionRefNo(validationResult.getTransactionRefNo())
                 .finalBene(request.getFinalBene())
                 .additionaField(request.getAdditionalField())
+                .serviceType(request.getServiceType())
                 .build();
 
         return enrichFundTransferRequestByCountryCode(fundTransferRequest, beneficiaryDto);
