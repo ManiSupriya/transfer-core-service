@@ -48,9 +48,35 @@ public class BeneficiaryService {
         return response.getData();
     }
     
+    public BeneficiaryDto getByIdV2(final String cifId, Long id, RequestMetaData metaData) {
+        log.info("Fetching Beneficiary for id = {}", id);
+        Response<BeneficiaryDto> response = beneficiaryClient.getByIdWithoutValidationV2(cifId, id);
+
+        if (ResponseStatus.ERROR == response.getStatus() || isNull(response.getData())) {
+            userEventPublisher.publishFailureEvent(FundTransferEventType.FUNDTRANSFER_BENDETAILS, metaData, "failed to get ben details", response.getErrorCode(), response.getMessage(), response.getMessage());
+            GenericExceptionHandler.handleError(BENE_EXTERNAL_SERVICE_ERROR, BENE_EXTERNAL_SERVICE_ERROR.getErrorMessage(),
+                    getErrorDetails(response));
+        }
+        log.info("Beneficiary fetched successfully for id = {}", id);
+        return response.getData();
+    }
+    
     public BeneficiaryDto getById(AdditionalFields additionalFields, Long id, RequestMetaData metaData, String validationType) {
         log.info("Fetching Beneficiary for id = {}", id);
         Response<BeneficiaryDto> response = beneficiaryClient.getById(metaData.getPrimaryCif(), validationType, id);
+
+        if (ResponseStatus.ERROR == response.getStatus() || isNull(response.getData())) {
+            userEventPublisher.publishFailureEvent(FundTransferEventType.FUNDTRANSFER_BENDETAILS, metaData, "failed to get ben details", response.getErrorCode(), response.getMessage(), response.getMessage());
+            GenericExceptionHandler.handleError(BENE_EXTERNAL_SERVICE_ERROR, BENE_EXTERNAL_SERVICE_ERROR.getErrorMessage(),
+                    getErrorDetails(response));
+        }
+        log.info("Beneficiary fetched successfully for id = {}", id);
+        return response.getData();
+    }
+    
+    public BeneficiaryDto getByIdV2(AdditionalFields additionalFields, Long id, RequestMetaData metaData, String validationType) {
+        log.info("Fetching Beneficiary for id = {}", id);
+        Response<BeneficiaryDto> response = beneficiaryClient.getByIdV2(metaData.getPrimaryCif(), validationType, id);
 
         if (ResponseStatus.ERROR == response.getStatus() || isNull(response.getData())) {
             userEventPublisher.publishFailureEvent(FundTransferEventType.FUNDTRANSFER_BENDETAILS, metaData, "failed to get ben details", response.getErrorCode(), response.getMessage(), response.getMessage());
