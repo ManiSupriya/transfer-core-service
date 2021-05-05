@@ -58,7 +58,7 @@ public class WithinAccountEligibilityService implements TransferEligibilityServi
 		//from account will always be present as it has been validated in the accountBelongsToCifValidator
 		validationContext.add("from-account", fromAccountOpt.get());
 
-		BeneficiaryDto beneficiaryDto = beneficiaryService.getById(metaData.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), metaData);
+		BeneficiaryDto beneficiaryDto = beneficiaryService.getByIdV2(metaData.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), metaData);
 		validationContext.add("beneficiary-dto", beneficiaryDto);
 		responseHandler(beneficiaryValidator.validate(request, metaData, validationContext));
 
