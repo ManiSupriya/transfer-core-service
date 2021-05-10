@@ -60,7 +60,7 @@ public class BankDetailService {
     
     private final static String LOCAL_IBAN_CODE = "AE";
     private final static String MASHREQ_UAE_BANK_CODE = "033";
-    private static Map<String, CountryDto> ALL_COUNTRIES = null;
+    private static Map<String, CountryDto> ALL_COUNTRIES;
     
     public BankResultsDto getBankDetails(final String swiftCode, RequestMetaData requestMetadata) {
     	validateSwiftCode(swiftCode);
