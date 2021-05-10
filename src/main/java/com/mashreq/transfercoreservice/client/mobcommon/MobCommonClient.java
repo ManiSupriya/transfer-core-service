@@ -29,6 +29,9 @@ public interface MobCommonClient {
                                                              @RequestParam(value = "customerType") String customerType);
     @GetMapping("/v1/countries/ROUTING_CODE_ENABLED")
     Response<CountryResponseDto> getRoutingCodeEnabledCountries();
+    
+    @GetMapping("/v1/countries/ALL")
+    Response<CountryResponseDto> getAllCountries();
 
     @PostMapping("/v1/currency/conversion")
     Response<CurrencyConversionDto> convertBetweenCurrencies(@RequestBody CoreCurrencyConversionRequestDto conversionRateRequestDto);
