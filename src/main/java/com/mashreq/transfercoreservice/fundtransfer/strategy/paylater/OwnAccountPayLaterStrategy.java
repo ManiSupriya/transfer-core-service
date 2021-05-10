@@ -153,6 +153,8 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 		order.setTransactionCode(fundTransferRequest.getTransactionCode());
 		order.setTransactionValue(Money.valueOf(request.getAmount(), fundTransferRequest.getTxnCurrency()));
 		order.setPaymentNote(request.getPaymentNote());
+		order.setSourceAccount(request.getFromAccount());
+		order.setEmail(metadata.getEmail());
 		return order;
 	}
 }
