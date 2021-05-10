@@ -261,7 +261,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .dealRate(request.getDealRate())
                 .limitTransactionRefNo(validationResult.getTransactionRefNo())
                 .finalBene(request.getFinalBene())
-                .additionaField(request.getAdditionalField())
+                .additionaField(StringUtils.isEmpty(request.getAdditionalField())?request.getPaymentNote():request.getAdditionalField())
                 .paymentNote(request.getPaymentNote())
                 .build();
 

@@ -89,4 +89,8 @@ public class FundTransferOrder extends DomainEntity {
 	private String sourceBranchCode;
 	@Column(name = "payment_note")
 	private String paymentNote;
+	@Column(name = "src_account_number",length = 15)
+	private String sourceAccount;
+	@Column(name = "email",length = 150)
+	private String email;
 }

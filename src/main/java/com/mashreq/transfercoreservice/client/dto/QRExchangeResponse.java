@@ -2,7 +2,6 @@ package com.mashreq.transfercoreservice.client.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
