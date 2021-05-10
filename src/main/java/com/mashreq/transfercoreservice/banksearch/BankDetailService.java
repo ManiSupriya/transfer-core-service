@@ -60,7 +60,7 @@ public class BankDetailService {
     
     private final static String LOCAL_IBAN_CODE = "AE";
     private final static String MASHREQ_UAE_BANK_CODE = "033";
-    private static Map<String, CountryDto> ALL_COUNTRIES;
+    private static Map<String, String> ALL_COUNTRIES_MAP;
     
     public BankResultsDto getBankDetails(final String swiftCode, RequestMetaData requestMetadata) {
     	validateSwiftCode(swiftCode);
@@ -154,8 +154,8 @@ public class BankDetailService {
 		
 		if(null != results) {
 		
-			if(null == ALL_COUNTRIES) {
-				ALL_COUNTRIES = mobCommonService.getAllCountries();
+			if(null == ALL_COUNTRIES_MAP) {
+				ALL_COUNTRIES_MAP = mobCommonService.getCountryCodeMap();
 			}
 			
 			return results.stream()
@@ -167,10 +167,9 @@ public class BankDetailService {
 	}
 
 	private BankResultsDto updateCountryInBankResults(BankResultsDto bankResult) {
-		if(null != bankResult && null != ALL_COUNTRIES) {
-			if(StringUtils.isBlank(bankResult.getBankCountry()) && 
-					ALL_COUNTRIES.containsKey(bankResult.getCountryCode())) {
-				bankResult.setBankCountry(ALL_COUNTRIES.get(bankResult.getCountryCode()).getName());
+		if(null != bankResult && null != ALL_COUNTRIES_MAP) {
+			if(StringUtils.isBlank(bankResult.getBankCountry())) {
+				bankResult.setBankCountry(ALL_COUNTRIES_MAP.get(bankResult.getCountryCode()));
 			}
 		}
 		return bankResult;
