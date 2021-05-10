@@ -3,24 +3,32 @@ package com.mashreq.transfercoreservice.banksearch;
 import static com.mashreq.transfercoreservice.common.UAEIbanValidator.validateIban;
 import static com.mashreq.transfercoreservice.errors.ExceptionUtils.genericException;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BANK_NOT_FOUND_WITH_IBAN;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_SWIFT_CODE;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_ROUTING_CODE;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INTERNAL_ERROR;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_SWIFT_CODE;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.SWIFT_AND_BIC_SEARCH_FAILED;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import com.mashreq.mobcommons.services.common.MOBCommonService;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.OmwCoreClient;
 import com.mashreq.transfercoreservice.client.dto.CoreBankDetails;
-import com.mashreq.transfercoreservice.errors.TransferErrorCode;
+import com.mashreq.transfercoreservice.client.dto.CountryDto;
+import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.BankDetails;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.MashreqUAEAccountNumberResolver;
 import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
@@ -48,8 +56,11 @@ public class BankDetailService {
     private final BICCodeSearchService bicCodeSearchService;
     private final BankRepository bankRepository;
     private final MashreqUAEAccountNumberResolver accountNumberResolver;
+    private final MobCommonService mobCommonService;
+    
     private final static String LOCAL_IBAN_CODE = "AE";
     private final static String MASHREQ_UAE_BANK_CODE = "033";
+    private static Map<String, String> ALL_COUNTRIES_MAP;
     
     public BankResultsDto getBankDetails(final String swiftCode, RequestMetaData requestMetadata) {
     	validateSwiftCode(swiftCode);
@@ -64,7 +75,7 @@ public class BankDetailService {
     	return bankDetailsMapper.coreBankResultsToDto(response);
     }
 
-    public List<BankResultsDto> getBankDetails(final String channelTraceId, final BankDetailRequestDto bankDetailRequest, final RequestMetaData requestMetaData) {
+    private List<BankResultsDto> getBankDetails(final String channelTraceId, final BankDetailRequestDto bankDetailRequest, final RequestMetaData requestMetaData) {
         if("bic".equalsIgnoreCase(bankDetailRequest.getType())){
             return bicCodeSearchService.fetchBankDetailsWithBic(bankDetailRequest.getCountryCode(), requestMetaData );
         }
@@ -137,5 +148,31 @@ public class BankDetailService {
 	public BankResultsDto getBankDeatilsByIfsc(final String channelTraceId, final String ifscCode, final RequestMetaData requestMetaData) {
         return ifscCodeSearchMWService.getBankDetailByIfscCode(channelTraceId, ifscCode, requestMetaData);
     }
+
+	public List<BankResultsDto> getBankDetails(@Valid BankDetailRequestDto bankDetailRequest, RequestMetaData metaData) {
+		List<BankResultsDto> results = getBankDetails(metaData.getChannelTraceId(), bankDetailRequest, metaData);
+		
+		if(null != results) {
+		
+			if(null == ALL_COUNTRIES_MAP) {
+				ALL_COUNTRIES_MAP = mobCommonService.getCountryCodeMap();
+			}
+			
+			return results.stream()
+			.map(bankResult -> updateCountryInBankResults(bankResult))
+			.collect(Collectors.toList());
+		}
+		
+		throw genericException(INTERNAL_ERROR);
+	}
+
+	private BankResultsDto updateCountryInBankResults(BankResultsDto bankResult) {
+		if(null != bankResult && null != ALL_COUNTRIES_MAP) {
+			if(StringUtils.isBlank(bankResult.getBankCountry())) {
+				bankResult.setBankCountry(ALL_COUNTRIES_MAP.get(bankResult.getCountryCode()));
+			}
+		}
+		return bankResult;
+	}
 
 }

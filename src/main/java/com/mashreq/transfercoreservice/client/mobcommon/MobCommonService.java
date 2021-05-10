@@ -8,18 +8,22 @@ import static java.util.Objects.isNull;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.cache.MobRedisService;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
 import com.mashreq.transfercoreservice.client.dto.CountryDto;
 import com.mashreq.transfercoreservice.client.dto.CountryResponseDto;
 import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
+import com.mashreq.transfercoreservice.client.dto.TransferSupportedCountryDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.DealConversionRateRequestDto;
@@ -39,6 +43,10 @@ public class MobCommonService {
     private final MobCommonClient mobCommonClient;
     private final MobRedisService mobRedisService;
     public static final String MOB_AE_ROUTING_CODE_SUPPORTED_COUNTRIES = "MOB:AE:ROUTING_CODE_SUPPORTED_COUNTRIES";
+    
+    public static final String MOB_AE_TRANSFER_SUPPORTED_COUNTRIES = "MOB:AE:TRANSFER_SUPPORTED_COUNTRIES";
+    private static final TypeReference<List<TransferSupportedCountryDto>> TRANSFER_SUPPORTED_COUNTRIES_TYPE = new TypeReference<List<TransferSupportedCountryDto>>() {
+    };
     public static final String TRUE = "true";
 
     public Set<MoneyTransferPurposeDto> getPaymentPurposes( String transactionType, String qrType, String accountType) {
@@ -127,5 +135,26 @@ public class MobCommonService {
             log.info("[MobCommonService] MobCommonService response success in nanoseconds {} ", Duration.between(startTime, now()));
             return response.getData().getAllCountries();
         }
+    }
+    
+    public Map<String, String> getCountryCodeMap() {
+        log.info("[MobCommonService] Calling MobCommonClient to get all countries");
+        Instant startTime = now();
+        List<TransferSupportedCountryDto> countryResponseDto = mobRedisService.get(MOB_AE_TRANSFER_SUPPORTED_COUNTRIES, TRANSFER_SUPPORTED_COUNTRIES_TYPE);
+
+        if (Objects.isNull(countryResponseDto) || Objects.nonNull(countryResponseDto) && CollectionUtils.isNotEmpty(countryResponseDto)) {
+            log.info("CACHE MISS for getAllCountries");
+            Response<CountryResponseDto> response = mobCommonClient.getAllCountries();
+            if (Objects.isNull(response.getData()) || response.getStatus().equals(ResponseStatus.ERROR)) {
+                GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR, EXTERNAL_SERVICE_ERROR.getErrorMessage(),
+                        getErrorDetails(response));
+            }
+            log.info("[MobCommonService] MobCommonService response success in nanoseconds {} ", Duration.between(startTime, now()));
+           return response.getData().getAllCountries().stream()
+           		.collect(Collectors.toMap(CountryDto::getCode, CountryDto::getName));
+        }
+        
+        return countryResponseDto.stream()
+        		.collect(Collectors.toMap(TransferSupportedCountryDto::getCode, TransferSupportedCountryDto::getName));
     }
 }

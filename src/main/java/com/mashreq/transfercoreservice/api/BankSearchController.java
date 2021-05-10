@@ -54,7 +54,7 @@ public class BankSearchController {
         log.info("Received request to search {} with value {} ", htmlEscape(bankDetailRequest.getType()), htmlEscape(bankDetailRequest.getValue()));
         return Response.builder()
                 .status(ResponseStatus.SUCCESS)
-                .data(bankDetailService.getBankDetails(metaData.getChannelTraceId(), bankDetailRequest, metaData)).build();
+                .data(bankDetailService.getBankDetails(bankDetailRequest, metaData)).build();
     }
 
     @GetMapping("/ifsc/{code}")

@@ -9,5 +9,6 @@ public class AdditionalFields {
 
     Map<String, String> missingFields;
     Map<String, String> incorrectFields;
+    boolean newVersion;
 
 }

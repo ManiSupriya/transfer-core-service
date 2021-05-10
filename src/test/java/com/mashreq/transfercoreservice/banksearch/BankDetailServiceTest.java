@@ -14,6 +14,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.OmwCoreClient;
+import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.BankDetails;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.MashreqUAEAccountNumberResolver;
 import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
@@ -40,13 +41,15 @@ public class BankDetailServiceTest {
 	@Mock
     private BankRepository bankRepository;
 	@Mock
+    private MobCommonService mobCommonService;
+	@Mock
     private MashreqUAEAccountNumberResolver accountNumberResolver;
 	
 	@Before
 	public void init() {
 		service = new BankDetailService(ibanSearchMWService, routingCodeSearchMWService, ifscCodeSearchMWService,
 				omwClient, bankDetailsMapper, soapServiceProperties, bicCodeSearchService, bankRepository,
-				accountNumberResolver);
+				accountNumberResolver, mobCommonService);
 	}
 	
 	
@@ -57,6 +60,7 @@ public class BankDetailServiceTest {
 		request.setType("iban");
 		request.setValue("AE280330000010698008304");
 		RequestMetaData metadata = new RequestMetaData();
+		metadata.setChannelTraceId("whrvh3b4h5bh6");
 		BankDetails bankDetails = new BankDetails();
 		bankDetails.setBankCode("033");
 		bankDetails.setBankName("Mashreq Bank PSC");
@@ -64,7 +68,7 @@ public class BankDetailServiceTest {
 		String accNo = "010698008304";
 		Mockito.when(bankRepository.findByBankCode("033")).thenReturn(Optional.of(bankDetails));
 		Mockito.when(accountNumberResolver.generateAccountNumber(Mockito.anyString())).thenReturn(accNo);
-		List<BankResultsDto> response = service.getBankDetails("whrvh3b4h5bh6", request, metadata );
+		List<BankResultsDto> response = service.getBankDetails(request, metadata );
 		assertEquals(1, response.size());
 		assertEquals(accNo, response.get(0).getAccountNo());
 	}
