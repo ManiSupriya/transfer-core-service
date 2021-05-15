@@ -41,6 +41,7 @@ import com.mashreq.transfercoreservice.notification.service.NotificationService;
 import com.mashreq.transfercoreservice.notification.service.PostTransactionService;
 import com.mashreq.transfercoreservice.paylater.enums.FTOrderType;
 import com.mashreq.transfercoreservice.paylater.repository.FundTransferOrderRepository;
+import com.mashreq.transfercoreservice.paylater.utils.SequenceNumberGenerator;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InternationalPayLaterFundTransferStrategyTest {
@@ -75,12 +76,13 @@ public class InternationalPayLaterFundTransferStrategyTest {
 	private FundTransferOrderRepository fundTransferOrderRepository;
 	@Mock
     private PostTransactionService postTransactionService;
-	
+	@Mock
+	private SequenceNumberGenerator seqGenerator;
 	@Before
 	public void init () {
 		internationalPayLaterFundTransferStrategy = new InternationalPayLaterFundTransferStrategy(finTxnNoValidator, accountService, accountBelongsToCifValidator, paymentPurposeValidator, beneficiaryValidator,
 				balanceValidator, fundTransferMWService, maintenanceService, mobCommonService, dealValidator,
-				notificationService, beneficiaryService, limitValidator,fundTransferOrderRepository);
+				notificationService, beneficiaryService, limitValidator,fundTransferOrderRepository,seqGenerator);
 		ReflectionTestUtils.setField(internationalPayLaterFundTransferStrategy,"postTransactionService", postTransactionService);
 	}
 	
@@ -109,6 +111,7 @@ public class InternationalPayLaterFundTransferStrategyTest {
 		Mockito.when(accountService.getAccountsFromCore(Mockito.eq(metadata.getPrimaryCif()))).thenReturn(accountList);
 		CurrencyConversionDto conversionResult = FundTransferTestUtil.getConversionResult(request);
 		Mockito.when(maintenanceService.convertBetweenCurrencies(Mockito.any())).thenReturn(conversionResult );
+		Mockito.when(seqGenerator.getNextOrderId()).thenReturn("210512344321");
 		FundTransferResponse response = internationalPayLaterFundTransferStrategy.execute(request, metadata, userDTO);
 		assertEquals(transactionRefNo, response.getTransactionRefNo());
 		assertEquals(conversionResult.getAccountCurrencyAmount(), response.getDebitAmount());

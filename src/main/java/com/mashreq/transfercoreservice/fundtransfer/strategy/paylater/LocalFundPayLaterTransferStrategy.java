@@ -48,6 +48,8 @@ import com.mashreq.transfercoreservice.paylater.model.FundTransferOrder;
 import com.mashreq.transfercoreservice.paylater.model.Money;
 import com.mashreq.transfercoreservice.paylater.repository.FundTransferOrderRepository;
 import com.mashreq.transfercoreservice.paylater.utils.DateTimeUtil;
+import com.mashreq.transfercoreservice.paylater.utils.OrderExecutionDateResolver;
+import com.mashreq.transfercoreservice.paylater.utils.SequenceNumberGenerator;
 import com.mashreq.transfercoreservice.repository.CountryRepository;
 
 import lombok.extern.slf4j.Slf4j;
@@ -56,7 +58,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class LocalFundPayLaterTransferStrategy extends LocalFundTransferStrategy {
 	private final FundTransferOrderRepository fundTransferOrderRepository;
-	
+	private final SequenceNumberGenerator seqGenerator;
 	public LocalFundPayLaterTransferStrategy(IBANValidator ibanValidator, FinTxnNoValidator finTxnNoValidator,
 			AccountBelongsToCifValidator accountBelongsToCifValidator, CCBelongsToCifValidator ccBelongsToCifValidator,
 			BeneficiaryValidator beneficiaryValidator, AccountService accountService,
@@ -66,12 +68,14 @@ public class LocalFundPayLaterTransferStrategy extends LocalFundTransferStrategy
 			MaintenanceService maintenanceService, MobCommonService mobCommonService, DealValidator dealValidator,
 			CountryRepository countryRepository, FundTransferCCMWService fundTransferCCMWService,
 			AsyncUserEventPublisher auditEventPublisher, NotificationService notificationService,
-			FundTransferOrderRepository fundTransferOrderRepository) {
+			FundTransferOrderRepository fundTransferOrderRepository,
+			SequenceNumberGenerator seqGenerator) {
 		super(ibanValidator, finTxnNoValidator, accountBelongsToCifValidator, ccBelongsToCifValidator, beneficiaryValidator,
 				accountService, beneficiaryService, limitValidator, fundTransferMWService, paymentPurposeValidator,
 				balanceValidator, ccBalanceValidator, maintenanceService, mobCommonService, dealValidator, countryRepository,
 				fundTransferCCMWService, auditEventPublisher, notificationService);
-		this.fundTransferOrderRepository=fundTransferOrderRepository;;
+		this.fundTransferOrderRepository=fundTransferOrderRepository;
+		this.seqGenerator = seqGenerator;
 	}
 	
 	 /**
@@ -140,14 +144,11 @@ public class LocalFundPayLaterTransferStrategy extends LocalFundTransferStrategy
 		order.setUserType(metadata.getUserType());
 		order.setCustomerSegment(metadata.getSegment());
 		order.setDealRate(fundTransferRequest.getDealRate());
-		// order.setDestinationAccountCurrency(fundTransferRequest.get);
 		order.setFinancialTransactionNo(fundTransferRequest.getFinTxnNo());
 		order.setFrequency(request.getFrequency()!= null ? SIFrequencyType.getSIFrequencyTypeByName(request.getFrequency()) : null);
 		order.setFxDealNumber(fundTransferRequest.getDealNumber());
 		order.setInternalAccFlag(fundTransferRequest.getInternalAccFlag());
-		// TODO: create an order id generator class with some common logic for all SI
-		// orders
-		order.setOrderId(txnRefNo);
+		order.setOrderId(seqGenerator.getNextOrderId());
 		order.setOrderStatus(OrderStatus.PENDING);
 		order.setOrderType(FTOrderType.getFTOrderTypeByName(request.getOrderType()));
 		order.setProductId(fundTransferRequest.getProductId());
@@ -155,7 +156,6 @@ public class LocalFundPayLaterTransferStrategy extends LocalFundTransferStrategy
 		order.setPurposeDesc(request.getPurposeDesc());
 		order.setServiceType(ServiceType.LOCAL);
 		order.setSourceCurrency(fundTransferRequest.getSourceCurrency());
-		order.setSndrBranchCode(fundTransferRequest.getSourceBranchCode());
 		order.setStartDate(
 				DateTimeUtil.getInstance().convertToDate(request.getStartDate(), DateTimeUtil.DATE_TIME_FORMATTER).atTime(0, 0));
 		if (FTOrderType.SI.equals(order.getOrderType())) {
@@ -169,6 +169,7 @@ public class LocalFundPayLaterTransferStrategy extends LocalFundTransferStrategy
 		order.setPaymentNote(request.getPaymentNote());
 		order.setSourceAccount(request.getFromAccount());
 		order.setEmail(metadata.getEmail());
+		order.setNextExecutionTime(OrderExecutionDateResolver.getNextExecutionTime(order));
 		return order;
 	}
 }

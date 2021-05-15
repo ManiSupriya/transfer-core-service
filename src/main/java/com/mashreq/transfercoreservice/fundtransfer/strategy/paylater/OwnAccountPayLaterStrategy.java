@@ -42,6 +42,8 @@ import com.mashreq.transfercoreservice.paylater.model.FundTransferOrder;
 import com.mashreq.transfercoreservice.paylater.model.Money;
 import com.mashreq.transfercoreservice.paylater.repository.FundTransferOrderRepository;
 import com.mashreq.transfercoreservice.paylater.utils.DateTimeUtil;
+import com.mashreq.transfercoreservice.paylater.utils.OrderExecutionDateResolver;
+import com.mashreq.transfercoreservice.paylater.utils.SequenceNumberGenerator;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -50,6 +52,7 @@ import lombok.extern.slf4j.Slf4j;
 public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 	private static final String OWN_ACCOUNT_TRANSACTION = "OWN_ACCOUNT_TRANSACTION";
 	private final FundTransferOrderRepository fundTransferOrderRepository;
+	private final SequenceNumberGenerator seqGenerator;
 
 	@Autowired
 	public OwnAccountPayLaterStrategy(AccountBelongsToCifValidator accountBelongsToCifValidator,
@@ -59,11 +62,13 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 			FundTransferMWService fundTransferMWService, BalanceValidator balanceValidator,
 			NotificationService notificationService, AsyncUserEventPublisher auditEventPublisher,
 			DigitalUserSegment digitalUserSegment, AccountFreezeValidator freezeValidator,
-			PostTransactionService postTransactionService, FundTransferOrderRepository fundTransferOrderRepository) {
+			PostTransactionService postTransactionService, FundTransferOrderRepository fundTransferOrderRepository,
+			SequenceNumberGenerator seqGenerator) {
 		super(accountBelongsToCifValidator, sameAccountValidator, finTxnNoValidator, currencyValidator, limitValidator,
 				accountService, dealValidator, maintenanceService, fundTransferMWService, balanceValidator,
 				notificationService, auditEventPublisher, digitalUserSegment, freezeValidator, postTransactionService);
 		this.fundTransferOrderRepository = fundTransferOrderRepository;
+		this.seqGenerator = seqGenerator;
 	}
 
 	@Override
@@ -131,9 +136,7 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 						: null);
 		order.setFxDealNumber(fundTransferRequest.getDealNumber());
 		order.setInternalAccFlag(fundTransferRequest.getInternalAccFlag());
-		// TODO: create an order id generator class with some common logic for all SI
-		// orders
-		order.setOrderId(txnRefNo);
+		order.setOrderId(seqGenerator.getNextOrderId());
 		order.setOrderStatus(OrderStatus.PENDING);
 		order.setOrderType(FTOrderType.getFTOrderTypeByName(request.getOrderType()));
 		order.setProductId(fundTransferRequest.getProductId());
@@ -141,7 +144,6 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 		order.setPurposeDesc(request.getPurposeDesc());
 		order.setServiceType(ServiceType.WYMA);
 		order.setSourceCurrency(fundTransferRequest.getSourceCurrency());
-		order.setSndrBranchCode(fundTransferRequest.getSourceBranchCode());
 		order.setStartDate(
 				DateTimeUtil.getInstance().convertToDate(request.getStartDate(), DateTimeUtil.DATE_TIME_FORMATTER).atTime(0, 0));
 		if (FTOrderType.SI.equals(order.getOrderType())) {
@@ -155,6 +157,7 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 		order.setPaymentNote(request.getPaymentNote());
 		order.setSourceAccount(request.getFromAccount());
 		order.setEmail(metadata.getEmail());
+		order.setNextExecutionTime(OrderExecutionDateResolver.getNextExecutionTime(order));
 		return order;
 	}
 }

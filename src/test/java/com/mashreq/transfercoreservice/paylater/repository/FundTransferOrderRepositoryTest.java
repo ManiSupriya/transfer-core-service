@@ -41,6 +41,7 @@ public class FundTransferOrderRepositoryTest {
 		order.setOrderStatus(OrderStatus.PENDING);
 		order.setServiceType(ServiceType.INFT);
 		order.setTransactionValue(Money.valueOf(BigDecimal.TEN, "USD"));
+		order.setOrderId("1234567");
 		order = repository.saveAndFlush(order);
 		assertNotNull(order.getId());
 	}
@@ -54,6 +55,7 @@ public class FundTransferOrderRepositoryTest {
 		order.setSourceCurrency("AED");
 		order.setOrderStatus(OrderStatus.PENDING);
 		order.setServiceType(ServiceType.INFT);
+		order.setOrderId("1234567");
 		order.setTransactionValue(Money.valueOf(BigDecimal.TEN, "USD"));
 		repository.saveAndFlush(order);
 	}
@@ -66,6 +68,7 @@ public class FundTransferOrderRepositoryTest {
 		order.setCreatedOn(LocalDateTime.now());
 		order.setStartDate(LocalDateTime.now().plusDays(1));
 		order.setSourceCurrency("AED");
+		order.setOrderId("1234567");
 		order.setOrderStatus(OrderStatus.PENDING);
 		order.setTransactionValue(Money.valueOf(BigDecimal.TEN, "USD"));
 		repository.saveAndFlush(order);
@@ -77,6 +80,7 @@ public class FundTransferOrderRepositoryTest {
 		order.setOrderType(FTOrderType.PL);
 		order.setServiceType(ServiceType.INFT);
 		order.setCreatedBy("SYSTEM");
+		order.setOrderId("1234567");
 		order.setCreatedOn(LocalDateTime.now());
 		order.setStartDate(LocalDateTime.now().plusDays(1));
 		order.setSourceCurrency("AED");
@@ -91,6 +95,7 @@ public class FundTransferOrderRepositoryTest {
 		order.setOrderType(FTOrderType.PL);
 		order.setServiceType(ServiceType.INFT);
 		order.setCreatedBy("SYSTEM");
+		order.setOrderId("1234567");
 		order.setCreatedOn(LocalDateTime.now());
 		order.setCif("0123456789");
 		order.setSourceCurrency("AED");
