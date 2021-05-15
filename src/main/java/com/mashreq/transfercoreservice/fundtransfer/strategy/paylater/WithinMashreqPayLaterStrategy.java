@@ -42,6 +42,8 @@ import com.mashreq.transfercoreservice.paylater.model.FundTransferOrder;
 import com.mashreq.transfercoreservice.paylater.model.Money;
 import com.mashreq.transfercoreservice.paylater.repository.FundTransferOrderRepository;
 import com.mashreq.transfercoreservice.paylater.utils.DateTimeUtil;
+import com.mashreq.transfercoreservice.paylater.utils.OrderExecutionDateResolver;
+import com.mashreq.transfercoreservice.paylater.utils.SequenceNumberGenerator;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -49,6 +51,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class WithinMashreqPayLaterStrategy extends WithinMashreqStrategy {
 	private final FundTransferOrderRepository fundTransferOrderRepository;
+	private final SequenceNumberGenerator seqGenerator;
 	@Autowired
 	public WithinMashreqPayLaterStrategy(SameAccountValidator sameAccountValidator, FinTxnNoValidator finTxnNoValidator,
 			AccountBelongsToCifValidator accountBelongsToCifValidator, CurrencyValidator currencyValidator,
@@ -58,12 +61,14 @@ public class WithinMashreqPayLaterStrategy extends WithinMashreqStrategy {
 			AsyncUserEventPublisher auditEventPublisher, NotificationService notificationService,
 			AccountFreezeValidator freezeValidator, MashreqUAEAccountNumberResolver accountNumberResolver,
 			PostTransactionService postTransactionService,
-			FundTransferOrderRepository fundTransferOrderRepository) {
+			FundTransferOrderRepository fundTransferOrderRepository,
+			SequenceNumberGenerator seqGenerator) {
 		super(sameAccountValidator, finTxnNoValidator, accountBelongsToCifValidator, currencyValidator, beneficiaryValidator,
 				accountService, beneficiaryService, limitValidator, maintenanceService, fundTransferMWService, balanceValidator,
 				dealValidator, auditEventPublisher, notificationService, 
 				freezeValidator, accountNumberResolver, postTransactionService);
 		this.fundTransferOrderRepository = fundTransferOrderRepository;
+		this.seqGenerator = seqGenerator;
 	}
 
 	@Override
@@ -118,9 +123,7 @@ public class WithinMashreqPayLaterStrategy extends WithinMashreqStrategy {
 		order.setFrequency(request.getFrequency()!= null ? SIFrequencyType.getSIFrequencyTypeByName(request.getFrequency()) : null);
 		order.setFxDealNumber(fundTransferRequest.getDealNumber());
 		order.setInternalAccFlag(fundTransferRequest.getInternalAccFlag());
-		// TODO: create an order id generator class with some common logic for all SI
-		// orders
-		order.setOrderId(txnRefNo);
+		order.setOrderId(seqGenerator.getNextOrderId());
 		order.setOrderStatus(OrderStatus.PENDING);
 		order.setOrderType(FTOrderType.getFTOrderTypeByName(request.getOrderType()));
 		order.setProductId(fundTransferRequest.getProductId());
@@ -128,7 +131,6 @@ public class WithinMashreqPayLaterStrategy extends WithinMashreqStrategy {
 		order.setPurposeDesc(request.getPurposeDesc());
 		order.setServiceType(ServiceType.WAMA);
 		order.setSourceCurrency(fundTransferRequest.getSourceCurrency());
-		order.setSndrBranchCode(fundTransferRequest.getSourceBranchCode());
 		order.setStartDate(
 				DateTimeUtil.getInstance().convertToDate(request.getStartDate(), DateTimeUtil.DATE_TIME_FORMATTER).atTime(0, 0));
 		if (FTOrderType.SI.equals(order.getOrderType())) {
@@ -142,6 +144,7 @@ public class WithinMashreqPayLaterStrategy extends WithinMashreqStrategy {
 		order.setPaymentNote(request.getPaymentNote());
 		order.setSourceAccount(request.getFromAccount());
 		order.setEmail(metadata.getEmail());
+		order.setNextExecutionTime(OrderExecutionDateResolver.getNextExecutionTime(order));
 		return order;
 	}
 }

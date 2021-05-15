@@ -41,23 +41,28 @@ import com.mashreq.transfercoreservice.paylater.model.FundTransferOrder;
 import com.mashreq.transfercoreservice.paylater.model.Money;
 import com.mashreq.transfercoreservice.paylater.repository.FundTransferOrderRepository;
 import com.mashreq.transfercoreservice.paylater.utils.DateTimeUtil;
+import com.mashreq.transfercoreservice.paylater.utils.OrderExecutionDateResolver;
+import com.mashreq.transfercoreservice.paylater.utils.SequenceNumberGenerator;
 
 import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class InternationalPayLaterFundTransferStrategy extends InternationalFundTransferStrategy {
 	private final FundTransferOrderRepository fundTransferOrderRepository;
+	private final SequenceNumberGenerator seqGenerator;
 	public InternationalPayLaterFundTransferStrategy(FinTxnNoValidator finTxnNoValidator, AccountService accountService,
 			AccountBelongsToCifValidator accountBelongsToCifValidator, PaymentPurposeValidator paymentPurposeValidator,
 			BeneficiaryValidator beneficiaryValidator, BalanceValidator balanceValidator,
 			FundTransferMWService fundTransferMWService, MaintenanceService maintenanceService,
 			MobCommonService mobCommonService, DealValidator dealValidator, NotificationService notificationService,
 			BeneficiaryService beneficiaryService, LimitValidator limitValidator,
-			FundTransferOrderRepository fundTransferOrderRepository) {
+			FundTransferOrderRepository fundTransferOrderRepository,
+			SequenceNumberGenerator seqGenerator) {
 		super(finTxnNoValidator, accountService, accountBelongsToCifValidator, paymentPurposeValidator, beneficiaryValidator,
 				balanceValidator, fundTransferMWService, maintenanceService, mobCommonService, dealValidator,
 				notificationService, beneficiaryService, limitValidator);
 		this.fundTransferOrderRepository=fundTransferOrderRepository;
+		this.seqGenerator=seqGenerator;
 	}
 
 	@Override
@@ -91,13 +96,11 @@ public class InternationalPayLaterFundTransferStrategy extends InternationalFund
 		order.setUserType(metadata.getUserType());
 		order.setCustomerSegment(metadata.getSegment());
 		order.setDealRate(fundTransferRequest.getDealRate());
-		//order.setDestinationAccountCurrency(fundTransferRequest.get);
 		order.setFinancialTransactionNo(fundTransferRequest.getFinTxnNo());
 		order.setFrequency(request.getFrequency()!= null ? SIFrequencyType.getSIFrequencyTypeByName(request.getFrequency()) : null);
 		order.setFxDealNumber(fundTransferRequest.getDealNumber());
 		order.setInternalAccFlag(fundTransferRequest.getInternalAccFlag());
-		//TODO: create an order id generator class with some common logic for all SI orders
-		order.setOrderId(txnRefNo);
+		order.setOrderId(seqGenerator.getNextOrderId());
 		order.setOrderStatus(OrderStatus.PENDING);
 		order.setOrderType(FTOrderType.getFTOrderTypeByName(request.getOrderType()));
 		order.setProductId(fundTransferRequest.getProductId());
@@ -105,7 +108,6 @@ public class InternationalPayLaterFundTransferStrategy extends InternationalFund
 		order.setPurposeDesc(request.getPurposeDesc());
 		order.setServiceType(ServiceType.INFT);
 		order.setSourceCurrency(fundTransferRequest.getSourceCurrency());
-		order.setSndrBranchCode(fundTransferRequest.getSourceBranchCode());
 		order.setStartDate(
 				DateTimeUtil.getInstance().convertToDate(request.getStartDate(), DateTimeUtil.DATE_TIME_FORMATTER).atTime(0, 0));
 		if (FTOrderType.SI.equals(order.getOrderType())) {
@@ -118,6 +120,7 @@ public class InternationalPayLaterFundTransferStrategy extends InternationalFund
 		order.setTransactionValue(Money.valueOf(request.getAmount(), fundTransferRequest.getTxnCurrency()));
 		order.setPaymentNote(request.getPaymentNote());
 		order.setSourceAccount(request.getFromAccount());
+		order.setNextExecutionTime(OrderExecutionDateResolver.getNextExecutionTime(order));
 		order.setEmail(metadata.getEmail());
 		return order;
 	}

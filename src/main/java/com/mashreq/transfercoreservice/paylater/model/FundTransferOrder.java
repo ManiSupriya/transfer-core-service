@@ -28,7 +28,7 @@ public class FundTransferOrder extends DomainEntity {
 	 * TODO: add account details for WYMA transfer
 	 */
 	private static final long serialVersionUID = 3208787880578091943L;
-	@Column(name = "order_id",length = 25)
+	@Column(name = "order_id",length = 15,nullable = false)
 	private String orderId;
 	@Enumerated(EnumType.STRING)
 	@Column(name = "order_type", nullable = false,length = 2)
@@ -40,6 +40,8 @@ public class FundTransferOrder extends DomainEntity {
 	private LocalDateTime startDate;
 	@Column(name = "end_date")
 	private LocalDateTime endDate;
+	@Column(name = "next_execution_time")
+	private LocalDateTime nextExecutionTime;
 	@Embedded
 	private Money transactionValue;
 	@Column(name = "src_ccy", nullable = false,length = 3)
@@ -52,8 +54,6 @@ public class FundTransferOrder extends DomainEntity {
 	private Long beneficiaryId;
 	@Column(name = "cif", nullable = false,length = 12)
 	private String cif;
-	@Column(name = "sndr_branch_code",length = 20)
-	private String sndrBranchCode;
 	@Column(name = "internal_acc_flag",length = 1)
 	private String internalAccFlag;
 	@Column(name = "purpose_code",length = 50)

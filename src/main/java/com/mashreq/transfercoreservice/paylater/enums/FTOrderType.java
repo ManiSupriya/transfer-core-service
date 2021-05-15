@@ -15,15 +15,21 @@ import com.mashreq.transfercoreservice.annotations.ValidEnum;
  *
  */
 public enum FTOrderType implements ValidEnum {
-	SI("SI"),PL("PL"),PN("PN");
+	SI("SI",true),PL("PL",false),PN("PN",false);
 	private String name;
+	private boolean repeateable;
 	@Override
 	public String getName() {
 		return this.name;
 	}
+
+	public boolean isRepeateable() {
+		return repeateable;
+	}
 	
-	private FTOrderType(String name) {
+	private FTOrderType(String name,boolean repeateable) {
 		this.name = name;
+		this.repeateable = repeateable;
 	}
 	
 	private static final Map<String, FTOrderType> ftOrderTypeLookup = Stream.of(FTOrderType.values())

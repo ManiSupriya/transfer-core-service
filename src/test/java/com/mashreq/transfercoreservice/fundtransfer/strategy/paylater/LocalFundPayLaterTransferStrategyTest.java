@@ -46,6 +46,7 @@ import com.mashreq.transfercoreservice.notification.service.NotificationService;
 import com.mashreq.transfercoreservice.notification.service.PostTransactionService;
 import com.mashreq.transfercoreservice.paylater.enums.FTOrderType;
 import com.mashreq.transfercoreservice.paylater.repository.FundTransferOrderRepository;
+import com.mashreq.transfercoreservice.paylater.utils.SequenceNumberGenerator;
 import com.mashreq.transfercoreservice.repository.CountryRepository;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -97,13 +98,15 @@ public class LocalFundPayLaterTransferStrategyTest {
     private CardService cardService;
 	@Mock
     private PostTransactionService postTransactionService;
-	
+	@Mock
+	private SequenceNumberGenerator seqGenerator;
 	@Before
 	public void init() {
 		localFundPayLaterTransferStrategy = new  LocalFundPayLaterTransferStrategy(ibanValidator, finTxnNoValidator, accountBelongsToCifValidator, ccBelongsToCifValidator, beneficiaryValidator,
 				accountService, beneficiaryService, limitValidator, fundTransferMWService, paymentPurposeValidator,
 				balanceValidator, ccBalanceValidator, maintenanceService, mobCommonService, dealValidator, countryRepository,
-				fundTransferCCMWService, auditEventPublisher, notificationService,fundTransferOrderRepository);
+				fundTransferCCMWService, auditEventPublisher, notificationService,fundTransferOrderRepository,
+				seqGenerator);
 		 ReflectionTestUtils.setField(localFundPayLaterTransferStrategy,"cardService", cardService);
 	     ReflectionTestUtils.setField(localFundPayLaterTransferStrategy,"qrDealsService", qrDealsService);
 	     ReflectionTestUtils.setField(localFundPayLaterTransferStrategy,"postTransactionService", postTransactionService);
@@ -137,6 +140,7 @@ public class LocalFundPayLaterTransferStrategyTest {
 		Mockito.when(accountService.getAccountsFromCore(Mockito.eq(metadata.getPrimaryCif()))).thenReturn(accountList);
 		CurrencyConversionDto conversionResult = FundTransferTestUtil.getConversionResult(request);
 		Mockito.when(maintenanceService.convertBetweenCurrencies(Mockito.any())).thenReturn(conversionResult);
+		Mockito.when(seqGenerator.getNextOrderId()).thenReturn("210512344321");
 		FundTransferResponse response = localFundPayLaterTransferStrategy.execute(request, metadata, userDTO);
 		assertEquals(transactionRefNo, response.getTransactionRefNo());
 		assertEquals(request.getAmount(), response.getDebitAmount());

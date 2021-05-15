@@ -40,6 +40,7 @@ import com.mashreq.transfercoreservice.notification.service.NotificationService;
 import com.mashreq.transfercoreservice.notification.service.PostTransactionService;
 import com.mashreq.transfercoreservice.paylater.enums.FTOrderType;
 import com.mashreq.transfercoreservice.paylater.repository.FundTransferOrderRepository;
+import com.mashreq.transfercoreservice.paylater.utils.SequenceNumberGenerator;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OwnAccountPayLaterStrategyTest {
@@ -76,6 +77,8 @@ public class OwnAccountPayLaterStrategyTest {
 	private FundTransferOrderRepository fundTransferOrderRepository;
 	@Mock
 	private PostTransactionService postTransactionService;
+	@Mock
+	private SequenceNumberGenerator seqGenerator;
 	
 	@Before
 	public void init() {
@@ -84,7 +87,7 @@ public class OwnAccountPayLaterStrategyTest {
 				dealValidator,maintenanceService,fundTransferMWService,balanceValidator,
 				notificationService,auditEventPublisher,digitalUserSegment,freezeValidator,
 				postTransactionService,
-				fundTransferOrderRepository);
+				fundTransferOrderRepository,seqGenerator);
 	}
 	
 	@Test
@@ -113,6 +116,7 @@ public class OwnAccountPayLaterStrategyTest {
 		accountType.setAccountType("MBMETA");
 		accountDto.setAccountType(accountType );
 		Mockito.when(accountService.getAccountDetailsFromCore(Mockito.any())).thenReturn(accountDto );
+		Mockito.when(seqGenerator.getNextOrderId()).thenReturn("210512344321");
 		FundTransferResponse response = payLaterStrategy.execute(request, metadata, userDTO);
 		assertEquals(transactionRefNo, response.getTransactionRefNo());
 		assertEquals(conversionResult.getAccountCurrencyAmount(), response.getDebitAmount());
