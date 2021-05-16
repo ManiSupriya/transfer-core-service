@@ -110,7 +110,7 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 				validationResult.getTransactionRefNo(), request);
 		log.info("Persisting funds transfer order for {}", fundTransferOrder);
 		fundTransferOrderRepository.saveAndFlush(fundTransferOrder);
-		return FundTransferResponse.builder().payOrderInitiated(true).build();
+		return FundTransferResponse.builder().payOrderInitiated(true).transactionRefNo(fundTransferOrder.getOrderId()).build();
 	}
 
 	private boolean isSuccessOrProcessing(FundTransferResponse response) {
@@ -136,9 +136,10 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 						: null);
 		order.setFxDealNumber(fundTransferRequest.getDealNumber());
 		order.setInternalAccFlag(fundTransferRequest.getInternalAccFlag());
-		order.setOrderId(seqGenerator.getNextOrderId());
-		order.setOrderStatus(OrderStatus.PENDING);
 		order.setOrderType(FTOrderType.getFTOrderTypeByName(request.getOrderType()));
+		order.setOrderId(order.getOrderType().isRepeateable() ? seqGenerator.getNextOrderId() : txnRefNo);
+		order.setOrderStatus(OrderStatus.PENDING);
+		order.setTrxRefNo(txnRefNo);
 		order.setProductId(fundTransferRequest.getProductId());
 		order.setPurposeCode(request.getPurposeCode());
 		order.setPurposeDesc(request.getPurposeDesc());
@@ -159,5 +160,16 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 		order.setEmail(metadata.getEmail());
 		order.setNextExecutionTime(OrderExecutionDateResolver.getNextExecutionTime(order));
 		return order;
+	}
+	
+	@Override
+	protected FundTransferResponse prepareResponse(final BigDecimal transferAmountInSrcCurrency,
+			final BigDecimal limitUsageAmount, final LimitValidatorResponse validationResult,
+			final FundTransferResponse fundTransferResponse) {
+		return fundTransferResponse.toBuilder()
+                .limitUsageAmount(limitUsageAmount)
+                .limitVersionUuid(validationResult.getLimitVersionUuid())
+                .debitAmount(transferAmountInSrcCurrency)
+                .build();
 	}
 }

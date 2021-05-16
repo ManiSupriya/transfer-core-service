@@ -177,13 +177,19 @@ public class OwnAccountStrategy implements FundTransferStrategy {
        
         log.info("Total time taken for {} strategy {} milli seconds ", htmlEscape(request.getServiceType()), htmlEscape(Long.toString(between(start, now()).toMillis())));
         prepareAndCallPostTransactionActivity(metadata,fundTransferRequest,request,fundTransferResponse,conversionResult);
-        return fundTransferResponse.toBuilder()
+        return prepareResponse(transferAmountInSrcCurrency, limitUsageAmount, validationResult, fundTransferResponse);
+    }
+
+	protected FundTransferResponse prepareResponse(final BigDecimal transferAmountInSrcCurrency,
+			final BigDecimal limitUsageAmount, final LimitValidatorResponse validationResult,
+			final FundTransferResponse fundTransferResponse) {
+		return fundTransferResponse.toBuilder()
                 .limitUsageAmount(limitUsageAmount)
                 .limitVersionUuid(validationResult.getLimitVersionUuid())
                 .transactionRefNo(validationResult.getTransactionRefNo())
                 .debitAmount(transferAmountInSrcCurrency)
                 .build();
-    }
+	}
 
 	protected void handleSuccessfulTransaction(FundTransferRequestDTO request, RequestMetaData metadata,
 			UserDTO userDTO, BigDecimal transactionAmount, final LimitValidatorResponse validationResult,

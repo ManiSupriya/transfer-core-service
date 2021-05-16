@@ -143,13 +143,19 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         handleSuccessfulTransaction(request, metadata, userDTO, validationResult, fundTransferRequest,
 				fundTransferResponse);
         
-        return fundTransferResponse.toBuilder()
+        return prepareResponse(transferAmountInSrcCurrency, limitUsageAmount, validationResult, txnRefNo, fundTransferResponse);
+
+    }
+
+	protected FundTransferResponse prepareResponse(final BigDecimal transferAmountInSrcCurrency,
+			final BigDecimal limitUsageAmount, final LimitValidatorResponse validationResult, String txnRefNo,
+			final FundTransferResponse fundTransferResponse) {
+		return fundTransferResponse.toBuilder()
                 .limitUsageAmount(limitUsageAmount)
                 .limitVersionUuid(validationResult.getLimitVersionUuid())
                 .debitAmount(transferAmountInSrcCurrency)
                 .transactionRefNo(txnRefNo).build();
-
-    }
+	}
 
 	protected FundTransferResponse processTransaction(RequestMetaData metadata, String txnRefNo,
 			final FundTransferRequest fundTransferRequest,FundTransferRequestDTO request) {

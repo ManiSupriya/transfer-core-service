@@ -81,7 +81,7 @@ public class InternationalPayLaterFundTransferStrategy extends InternationalFund
 		FundTransferOrder fundTransferOrder = this.createOrderFromRequest(fundTransferRequest,metadata,txnRefNo,request);
 		log.info("Persisting funds transfer order for {}",fundTransferOrder);
 		fundTransferOrderRepository.saveAndFlush(fundTransferOrder);
-		return FundTransferResponse.builder().payOrderInitiated(true).build();
+		return FundTransferResponse.builder().payOrderInitiated(true).transactionRefNo(fundTransferOrder.getOrderId()).build();
 	}
 	
 	private FundTransferOrder createOrderFromRequest(FundTransferRequest fundTransferRequest, RequestMetaData metadata,
@@ -100,9 +100,10 @@ public class InternationalPayLaterFundTransferStrategy extends InternationalFund
 		order.setFrequency(request.getFrequency()!= null ? SIFrequencyType.getSIFrequencyTypeByName(request.getFrequency()) : null);
 		order.setFxDealNumber(fundTransferRequest.getDealNumber());
 		order.setInternalAccFlag(fundTransferRequest.getInternalAccFlag());
-		order.setOrderId(seqGenerator.getNextOrderId());
 		order.setOrderStatus(OrderStatus.PENDING);
 		order.setOrderType(FTOrderType.getFTOrderTypeByName(request.getOrderType()));
+		order.setOrderId(order.getOrderType().isRepeateable() ? seqGenerator.getNextOrderId() : txnRefNo);
+		order.setTrxRefNo(txnRefNo);
 		order.setProductId(fundTransferRequest.getProductId());
 		order.setPurposeCode(request.getPurposeCode());
 		order.setPurposeDesc(request.getPurposeDesc());
@@ -143,5 +144,14 @@ public class InternationalPayLaterFundTransferStrategy extends InternationalFund
 		return Boolean.TRUE.equals(response.getPayOrderInitiated());
 	}
 
+	@Override
+	protected FundTransferResponse prepareResponse(final BigDecimal transferAmountInSrcCurrency,
+			final BigDecimal limitUsageAmount, final LimitValidatorResponse validationResult, String txnRefNo,
+			final FundTransferResponse fundTransferResponse) {
+		return fundTransferResponse.toBuilder()
+                .limitUsageAmount(limitUsageAmount)
+                .debitAmount(transferAmountInSrcCurrency)
+                .limitVersionUuid(validationResult.getLimitVersionUuid()).build();
+	}
 	
 }
