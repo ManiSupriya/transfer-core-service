@@ -140,7 +140,7 @@ public class LocalFundPayLaterTransferStrategyTest {
 		Mockito.when(accountService.getAccountsFromCore(Mockito.eq(metadata.getPrimaryCif()))).thenReturn(accountList);
 		CurrencyConversionDto conversionResult = FundTransferTestUtil.getConversionResult(request);
 		Mockito.when(maintenanceService.convertBetweenCurrencies(Mockito.any())).thenReturn(conversionResult);
-		Mockito.when(seqGenerator.getNextOrderId()).thenReturn("210512344321");
+		//Mockito.when(seqGenerator.getNextOrderId()).thenReturn("210512344321");
 		FundTransferResponse response = localFundPayLaterTransferStrategy.execute(request, metadata, userDTO);
 		assertEquals(transactionRefNo, response.getTransactionRefNo());
 		assertEquals(request.getAmount(), response.getDebitAmount());

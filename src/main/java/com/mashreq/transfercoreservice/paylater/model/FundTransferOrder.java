@@ -93,4 +93,6 @@ public class FundTransferOrder extends DomainEntity {
 	private String sourceAccount;
 	@Column(name = "email",length = 150)
 	private String email;
+	@Column(name = "trx_ref_no",length = 20)
+	private String trxRefNo;
 }

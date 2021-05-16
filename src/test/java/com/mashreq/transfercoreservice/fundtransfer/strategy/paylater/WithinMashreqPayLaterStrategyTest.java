@@ -130,7 +130,7 @@ public class WithinMashreqPayLaterStrategyTest {
 		accountType.setAccountType("MBMETA");
 		accountDto.setAccountType(accountType );
 		Mockito.when(accountService.getAccountDetailsFromCore(Mockito.any())).thenReturn(accountDto );
-		Mockito.when(seqGenerator.getNextOrderId()).thenReturn("210512344321");
+		//Mockito.when(seqGenerator.getNextOrderId()).thenReturn("210512344321");
 		FundTransferResponse response = withinMashreqPayLaterStrategy.execute(request, metadata, userDTO);
 		assertEquals(transactionRefNo, response.getTransactionRefNo());
 		assertEquals(conversionResult.getAccountCurrencyAmount(), response.getDebitAmount());
