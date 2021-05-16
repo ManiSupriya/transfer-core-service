@@ -77,7 +77,7 @@ public class FundTransferMWService {
          * Handling Null pointer Exception in case of Host Timeout 
          */
         if (!isSuccessfull(response) && ObjectUtils.isEmpty(response.getBody().getFundTransferReq())) {
-        	log.info("Fund transfer failed to account [ {} ]", request.getToAccount());
+        	log.info("Fund transfer failed to account [ {} ]", htmlEscape(request.getToAccount()));
         	auditEventPublisher.publishFailedEsbEvent(FundTransferEventType.FUND_TRANSFER_MW_CALL, metaData, getRemarks(request), msgId,
         			response.getBody().getExceptionDetails().getErrorCode(), response.getBody().getExceptionDetails().getErrorDescription(), response.getBody().getExceptionDetails().getErrorCode());
         	GenericExceptionHandler.handleError(TransferErrorCode.EXTERNAL_SERVICE_ERROR_MW,
@@ -88,12 +88,12 @@ public class FundTransferMWService {
         final ErrorType exceptionDetails = response.getBody().getExceptionDetails();
         if (isSuccessfull(response)) {
             auditEventPublisher.publishSuccessfulEsbEvent(FundTransferEventType.FUND_TRANSFER_MW_CALL, metaData, getRemarks(request), msgId);
-            log.info("Fund transferred successfully to account [ {} ]", request.getToAccount());
+            log.info("Fund transferred successfully to account [ {} ]", htmlEscape(request.getToAccount()));
             final CoreFundTransferResponseDto coreFundTransferResponseDto = constructFTResponseDTO(transfer, exceptionDetails, MwResponseStatus.S);
             return FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
         }
 
-        log.info("Fund transfer failed to account [ {} ]", request.getToAccount());
+        log.info("Fund transfer failed to account [ {} ]", htmlEscape(request.getToAccount()));
         final CoreFundTransferResponseDto coreFundTransferResponseDto = constructFTResponseDTO(transfer, exceptionDetails, MwResponseStatus.F);
         auditEventPublisher.publishFailedEsbEvent(FundTransferEventType.FUND_TRANSFER_MW_CALL, metaData, getRemarks(request), msgId,
                 coreFundTransferResponseDto.getMwResponseCode(), coreFundTransferResponseDto.getMwResponseDescription(), coreFundTransferResponseDto.getExternalErrorMessage());
@@ -128,7 +128,7 @@ public class FundTransferMWService {
     }
 
     private boolean isSuccessfull(EAIServices response) {
-        log.info("Validate response {}", response);
+        log.info("Validate response {}", htmlEscape(response));
         if (!(StringUtils.endsWith(response.getBody().getExceptionDetails().getErrorCode(), SUCCESS_CODE_ENDS_WITH)
                 && SUCCESS.equals(response.getHeader().getStatus()))) {
             log.error("Exception during fund transfer. Code: {} , Description: {}", response.getBody()
@@ -174,7 +174,7 @@ public class FundTransferMWService {
         creditLeg.setChargeBearer(request.getChargeBearer());
         String additionalField=StringUtils.isNotBlank(request.getAdditionaField())?SPACE_CHAR+request.getAdditionaField():"";
         
-        log.info("request.getDestinationCurrency() {}", request.getDestinationCurrency());
+        log.info("request.getDestinationCurrency() {}", htmlEscape(request.getDestinationCurrency()));
 		if (StringUtils.isNotBlank(request.getFinalBene())) {
 			if (INTERNATIONAL.equalsIgnoreCase(request.getServiceType())
 					|| (LOCAL.equalsIgnoreCase(request.getServiceType())
@@ -236,7 +236,7 @@ public class FundTransferMWService {
         	fundTransferReqType.setDealFlag(YesNo.N.name());
         }
         services.getBody().setFundTransferReq(fundTransferReqType);
-        log.info("EAI Service request for fund transfer prepared {}", services);
+        log.info("EAI Service request for fund transfer prepared {}", htmlEscape(services));
         return services;
     }
 
