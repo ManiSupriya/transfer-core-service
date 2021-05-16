@@ -179,7 +179,7 @@ public class FundTransferCCMWService {
         fundTransferReqType.setDebitLeg(debitLeg);
         fundTransferReqType.setCreditLeg(creditLeg);
         services.getBody().setFundTransferCCReq(fundTransferReqType);
-        log.info("EAI Service request for fund transfer prepared {}", services);
+        log.info("EAI Service request for fund transfer prepared {}", htmlEscape(services));
         return services;
     }
 
@@ -212,7 +212,7 @@ public class FundTransferCCMWService {
         creditLeg.setUltimateBeneficiary4(fundTransferRequest.getBeneficiaryFullName());
         creditLeg.setChargeBearer(fundTransferRequest.getChargeBearer());
         
-        log.info("fundTransferRequest.getDestinationCurrency() {}", fundTransferRequest.getDestinationCurrency());
+        log.info("fundTransferRequest.getDestinationCurrency() {}", htmlEscape(fundTransferRequest.getDestinationCurrency()));
 		if (StringUtils.isNotBlank(fundTransferRequest.getAcwthInst1())) {
 			if (AED_CURRENCY.equalsIgnoreCase(fundTransferRequest.getDestinationCurrency())) {
 				creditLeg.setPaymentDetails1(PAYMENT_DETAIL_PREFIX + fundTransferRequest.getPurposeDesc() + SPACE_CHAR
