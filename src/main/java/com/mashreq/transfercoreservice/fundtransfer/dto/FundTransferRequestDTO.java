@@ -85,4 +85,6 @@ public class FundTransferRequestDTO {
     
     private String paymentNote;
     
+    private String promoCode;
+    
 }

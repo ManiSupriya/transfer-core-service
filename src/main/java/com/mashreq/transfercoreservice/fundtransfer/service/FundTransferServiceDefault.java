@@ -17,6 +17,7 @@ import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsage
 import com.mashreq.transfercoreservice.fundtransfer.strategy.*;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.model.DigitalUser;
+import com.mashreq.transfercoreservice.promo.service.PromoCodeService;
 import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionHistory;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionRepository;
@@ -65,6 +66,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     protected EnumMap<ServiceType, FundTransferStrategy> fundTransferStrategies;
     private final OTPService otpService;
     private final ExternalErrorCodeConfig errorCodeConfig;
+    private final PromoCodeService promoCodeService;
 
     @PostConstruct
     public void init() {
@@ -83,7 +85,7 @@ public class FundTransferServiceDefault implements FundTransferService {
         final ServiceType serviceType = getServiceByType(request.getServiceType());
         final FundTransferEventType initiatedEvent = FundTransferEventType.getEventTypeByCode(serviceType.getEventPrefix() + FUND_TRANSFER_INITIATION_SUFFIX);
         if(!WYMA.getName().equals(serviceType.getName())){
-            verifyOtp(request,metadata);
+            //verifyOtp(request,metadata);
         }
         return auditEventPublisher.publishEventLifecycle(
                 () -> getFundTransferResponse(metadata, request),
@@ -148,6 +150,7 @@ public class FundTransferServiceDefault implements FundTransferService {
 
         handleFailure(request, response);
 
+        boolean promoApplied = promoCodeService.validateAndSave(request, transactionHistory.getStatus(), metadata);
 
         return FundTransferResponseDTO.builder()
                 .accountTo(transactionHistory.getAccountTo())
@@ -157,6 +160,8 @@ public class FundTransferServiceDefault implements FundTransferService {
                 .mwResponseCode(transactionHistory.getMwResponseCode())
                 .mwResponseDescription(transactionHistory.getMwResponseDescription())
                 .transactionRefNo(response.getTransactionRefNo())
+                .promoCode(request.getPromoCode())
+                .promoApplied(promoApplied)
                 .build();
     }
 
