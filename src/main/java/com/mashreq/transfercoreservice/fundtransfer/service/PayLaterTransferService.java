@@ -40,6 +40,7 @@ import com.mashreq.transfercoreservice.fundtransfer.strategy.paylater.LocalFundP
 import com.mashreq.transfercoreservice.fundtransfer.strategy.paylater.OwnAccountPayLaterStrategy;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.paylater.WithinMashreqPayLaterStrategy;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
+import com.mashreq.transfercoreservice.promo.service.PromoCodeService;
 import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionHistory;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionRepository;
@@ -67,10 +68,11 @@ public class PayLaterTransferService extends FundTransferServiceDefault{
 			OwnAccountPayLaterStrategy ownAccountPayLaterStrategy,
 			WithinMashreqPayLaterStrategy withinMashreqPayLaterStrategy,
 			LocalFundPayLaterTransferStrategy localFundPayLaterTransferStrategy,
-			InternationalPayLaterFundTransferStrategy internationalPayLaterFundTransferStrategy) {
+			InternationalPayLaterFundTransferStrategy internationalPayLaterFundTransferStrategy,
+			PromoCodeService promoCodeService) {
 		super(digitalUserRepository, transactionRepository, digitalUserLimitUsageService, ownAccountStrategy,
 				withinMashreqStrategy, localFundTransferStrategy, internationalFundTransferStrategy,
-				charityStrategyDefault, auditEventPublisher, otpService, errorCodeConfig);
+				charityStrategyDefault, auditEventPublisher, otpService, errorCodeConfig, promoCodeService);
 		this.ownAccountPayLaterStrategy = ownAccountPayLaterStrategy;
 		this.withinMashreqPayLaterStrategy = withinMashreqPayLaterStrategy;
 		this.localFundPayLaterTransferStrategy = localFundPayLaterTransferStrategy;
