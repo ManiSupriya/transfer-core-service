@@ -33,6 +33,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.EnumMap;
@@ -192,7 +193,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     private void updateExchangeRate(TransactionHistory transactionHistory) {
 		if(NumberUtils.isCreatable(transactionHistory.getDebitAmount()) && transactionHistory.getPaidAmount()!= null) {
 			BigDecimal debitAmnt = new BigDecimal(transactionHistory.getDebitAmount());
-			transactionHistory.setExchangeRate(debitAmnt.divide(transactionHistory.getPaidAmount()).toPlainString());
+			transactionHistory.setExchangeRate(debitAmnt.divide(transactionHistory.getPaidAmount(),3, RoundingMode.HALF_DOWN).toPlainString());
 		}
 	}
 
