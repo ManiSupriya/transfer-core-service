@@ -7,6 +7,7 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_ACC_
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_NOT_ACTIVE;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_NOT_ACTIVE_OR_COOLING;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_NOT_FOUND;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.LOCAL_CURRENCY_NOT_ALLOWED_FOR_SWIFT;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,6 +20,7 @@ import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 import com.mashreq.transfercoreservice.fundtransfer.validators.Validator;
@@ -33,6 +35,7 @@ public class BeneficiaryValidator implements Validator<FundTransferEligibiltyReq
 
     private static final String QUICK_REMIT = "quick-remit";
     private static final String INFT = "INFT";
+    private static final String LOCAL_CURRENCY = "AED";
     private final AsyncUserEventPublisher auditEventPublisher;
 
 
@@ -57,16 +60,25 @@ public class BeneficiaryValidator implements Validator<FundTransferEligibiltyReq
                     .build();
         }
 
-        if (QUICK_REMIT.equals(request.getServiceType()) || INFT.equals(request.getServiceType())) {
+        if (QUICK_REMIT.equals(request.getServiceType())) {
             return validateBeneficiaryStatus(Arrays.asList(ACTIVE.name(), IN_COOLING_PERIOD.name()),
                     beneficiaryDto.getStatus(), BENE_NOT_ACTIVE_OR_COOLING,metadata);
         }
+        
+        if(INFT.equals(request.getServiceType())) {
+        	ValidationResult result = validateBeneficiaryStatus(Arrays.asList(ACTIVE.name(), IN_COOLING_PERIOD.name()),
+                    beneficiaryDto.getStatus(), BENE_NOT_ACTIVE_OR_COOLING,metadata);
+        	if(result.isSuccess()) {
+        		result = validateLocalBeneficiaryCurrency(beneficiaryDto, request.getTxnCurrency(), LOCAL_CURRENCY_NOT_ALLOWED_FOR_SWIFT);
+        	}
+        	return result;
+        }
 
         log.info("Beneficiary validation successful for service type [ {} ], status [ {} ] ", htmlEscape(request.getServiceType()), htmlEscape(beneficiaryDto.getStatus()));
-        return validateBeneficiaryStatus(Arrays.asList(ACTIVE.name()), beneficiaryDto.getStatus(), BENE_NOT_ACTIVE,metadata);
+        return validateBeneficiaryStatus(Arrays.asList(ACTIVE.name(),IN_COOLING_PERIOD.name()), beneficiaryDto.getStatus(), BENE_NOT_ACTIVE,metadata);
     }
 
-    private ValidationResult validateBeneficiaryStatus(List<String> validStatus, String beneficiaryStatus, TransferErrorCode errorCode, RequestMetaData metadata) {
+	private ValidationResult validateBeneficiaryStatus(List<String> validStatus, String beneficiaryStatus, TransferErrorCode errorCode, RequestMetaData metadata) {
         if (validStatus.stream().anyMatch(status -> status.equalsIgnoreCase(beneficiaryStatus))) {
             auditEventPublisher.publishSuccessEvent(FundTransferEventType.BENEFICIARY_VALIDATION, metadata, null);
             return ValidationResult.builder().success(true).build();
@@ -77,6 +89,20 @@ public class BeneficiaryValidator implements Validator<FundTransferEligibiltyReq
                     .build();
         }
     }
+
+    /** Method to check if beneficiary is local then transaction currency should be NON-AED. Only then INFT is eligible else it is a local transaction
+     * @param beneficiaryDto
+     * @param txnCurrency
+     * @param errorCode 
+     */
+    private ValidationResult validateLocalBeneficiaryCurrency(BeneficiaryDto beneficiaryDto, String txnCurrency, TransferErrorCode errorCode) {
+    	boolean isLocalAedBene = ServiceType.LOCAL.name().equals(beneficiaryDto.getServiceTypeCode()) && LOCAL_CURRENCY.equals(txnCurrency);
+    	
+    	return isLocalAedBene ? 
+    			ValidationResult.builder().success(false).transferErrorCode(errorCode).build()  : 
+    				ValidationResult.builder().success(true).build();
+		
+	}
 
 
 }
