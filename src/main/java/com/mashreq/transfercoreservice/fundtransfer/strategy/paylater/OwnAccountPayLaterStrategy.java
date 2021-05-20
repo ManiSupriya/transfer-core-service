@@ -122,7 +122,6 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 		FundTransferOrder order = new FundTransferOrder();
 		order.setCreatedBy(metadata.getUsername());
 		order.setCreatedOn(LocalDateTime.now());
-		order.setBeneficiaryId(Long.valueOf(request.getBeneficiaryId()));
 		order.setChannel(metadata.getChannel());
 		order.setChargeBearer(ChargeBearer.valueOf(request.getChargeBearer()));
 		order.setCif(metadata.getPrimaryCif());
