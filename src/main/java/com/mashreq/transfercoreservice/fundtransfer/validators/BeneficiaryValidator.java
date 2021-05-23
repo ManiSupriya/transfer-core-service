@@ -1,22 +1,29 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
+import static com.mashreq.transfercoreservice.client.dto.BeneficiaryStatus.ACTIVE;
+import static com.mashreq.transfercoreservice.client.dto.BeneficiaryStatus.IN_COOLING_PERIOD;
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_ACC_NOT_MATCH;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_NOT_ACTIVE;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_NOT_ACTIVE_OR_COOLING;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_NOT_FOUND;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.LOCAL_CURRENCY_NOT_ALLOWED_FOR_SWIFT;
+
+import java.util.Arrays;
+import java.util.List;
+
+import org.springframework.stereotype.Component;
+
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-
-import java.util.Arrays;
-import java.util.List;
-
-import static com.mashreq.transfercoreservice.client.dto.BeneficiaryStatus.ACTIVE;
-import static com.mashreq.transfercoreservice.client.dto.BeneficiaryStatus.IN_COOLING_PERIOD;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
-import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 @Slf4j
 @Component
@@ -25,6 +32,7 @@ public class BeneficiaryValidator implements Validator<FundTransferRequestDTO> {
 
     private static final String QUICK_REMIT = "quick-remit";
     private static final String INFT = "INFT";
+    private static final String LOCAL_CURRENCY = "AED";
     private final AsyncUserEventPublisher auditEventPublisher;
 
 
@@ -54,8 +62,9 @@ public class BeneficiaryValidator implements Validator<FundTransferRequestDTO> {
                     beneficiaryDto.getStatus(), BENE_NOT_ACTIVE_OR_COOLING,metadata);
         }
 
+
         log.info("Beneficiary validation successful for service type [ {} ], status [ {} ] ", htmlEscape(request.getServiceType()), htmlEscape(beneficiaryDto.getStatus()));
-        return validateBeneficiaryStatus(Arrays.asList(ACTIVE.name()), beneficiaryDto.getStatus(), BENE_NOT_ACTIVE,metadata);
+        return validateBeneficiaryStatus(Arrays.asList(ACTIVE.name(),IN_COOLING_PERIOD.name()), beneficiaryDto.getStatus(), BENE_NOT_ACTIVE_OR_COOLING,metadata);
     }
 
     private ValidationResult validateBeneficiaryStatus(List<String> validStatus, String beneficiaryStatus, TransferErrorCode errorCode, RequestMetaData metadata) {
@@ -70,5 +79,18 @@ public class BeneficiaryValidator implements Validator<FundTransferRequestDTO> {
         }
     }
 
+    /** Method to check if beneficiary is local then transaction currency should be NON-AED. Only then INFT is eligible else it is a local transaction
+     * @param beneficiaryDto
+     * @param txnCurrency
+     * @param errorCode 
+     */
+    private ValidationResult validateLocalBeneficiaryCurrency(BeneficiaryDto beneficiaryDto, String txnCurrency, TransferErrorCode errorCode) {
+    	boolean isLocalAedBene = ServiceType.LOCAL.name().equals(beneficiaryDto.getServiceTypeCode()) && LOCAL_CURRENCY.equals(txnCurrency);
+    	
+    	return isLocalAedBene ? 
+    			ValidationResult.builder().success(false).transferErrorCode(errorCode).build()  : 
+    				ValidationResult.builder().success(true).build();
+		
+	}
 
 }
