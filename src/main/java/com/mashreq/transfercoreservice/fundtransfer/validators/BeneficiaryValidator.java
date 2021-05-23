@@ -79,18 +79,4 @@ public class BeneficiaryValidator implements Validator<FundTransferRequestDTO> {
         }
     }
 
-    /** Method to check if beneficiary is local then transaction currency should be NON-AED. Only then INFT is eligible else it is a local transaction
-     * @param beneficiaryDto
-     * @param txnCurrency
-     * @param errorCode 
-     */
-    private ValidationResult validateLocalBeneficiaryCurrency(BeneficiaryDto beneficiaryDto, String txnCurrency, TransferErrorCode errorCode) {
-    	boolean isLocalAedBene = ServiceType.LOCAL.name().equals(beneficiaryDto.getServiceTypeCode()) && LOCAL_CURRENCY.equals(txnCurrency);
-    	
-    	return isLocalAedBene ? 
-    			ValidationResult.builder().success(false).transferErrorCode(errorCode).build()  : 
-    				ValidationResult.builder().success(true).build();
-		
-	}
-
 }

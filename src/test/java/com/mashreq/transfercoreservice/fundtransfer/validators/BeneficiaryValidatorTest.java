@@ -81,7 +81,7 @@ public class BeneficiaryValidatorTest {
 
         //then
         Assert.assertEquals(false, result.isSuccess());
-        Assert.assertEquals(TransferErrorCode.BENE_NOT_ACTIVE, result.getTransferErrorCode());
+        Assert.assertEquals(TransferErrorCode.BENE_NOT_ACTIVE_OR_COOLING, result.getTransferErrorCode());
     }
 
     @Test
