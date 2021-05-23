@@ -57,22 +57,14 @@ public class BeneficiaryValidator implements Validator<FundTransferRequestDTO> {
                     .build();
         }
 
-        if (QUICK_REMIT.equals(request.getServiceType())) {
+        if (QUICK_REMIT.equals(request.getServiceType()) || INFT.equals(request.getServiceType())) {
             return validateBeneficiaryStatus(Arrays.asList(ACTIVE.name(), IN_COOLING_PERIOD.name()),
                     beneficiaryDto.getStatus(), BENE_NOT_ACTIVE_OR_COOLING,metadata);
         }
-        
-        if(INFT.equals(request.getServiceType())) {
-        	ValidationResult result = validateBeneficiaryStatus(Arrays.asList(ACTIVE.name(), IN_COOLING_PERIOD.name()),
-                    beneficiaryDto.getStatus(), BENE_NOT_ACTIVE_OR_COOLING,metadata);
-        	if(result.isSuccess()) {
-        		result = validateLocalBeneficiaryCurrency(beneficiaryDto, request.getTxnCurrency(), LOCAL_CURRENCY_NOT_ALLOWED_FOR_SWIFT);
-        	}
-        	return result;
-        }
+
 
         log.info("Beneficiary validation successful for service type [ {} ], status [ {} ] ", htmlEscape(request.getServiceType()), htmlEscape(beneficiaryDto.getStatus()));
-        return validateBeneficiaryStatus(Arrays.asList(ACTIVE.name(),IN_COOLING_PERIOD.name()), beneficiaryDto.getStatus(), BENE_NOT_ACTIVE,metadata);
+        return validateBeneficiaryStatus(Arrays.asList(ACTIVE.name(),IN_COOLING_PERIOD.name()), beneficiaryDto.getStatus(), BENE_NOT_ACTIVE_OR_COOLING,metadata);
     }
 
     private ValidationResult validateBeneficiaryStatus(List<String> validStatus, String beneficiaryStatus, TransferErrorCode errorCode, RequestMetaData metadata) {
