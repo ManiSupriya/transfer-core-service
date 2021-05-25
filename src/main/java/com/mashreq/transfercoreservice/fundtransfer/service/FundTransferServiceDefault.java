@@ -85,7 +85,7 @@ public class FundTransferServiceDefault implements FundTransferService {
         final ServiceType serviceType = getServiceByType(request.getServiceType());
         final FundTransferEventType initiatedEvent = FundTransferEventType.getEventTypeByCode(serviceType.getEventPrefix() + FUND_TRANSFER_INITIATION_SUFFIX);
         if(!WYMA.getName().equals(serviceType.getName())){
-            verifyOtp(request,metadata);
+            //verifyOtp(request,metadata);
         }
         return auditEventPublisher.publishEventLifecycle(
                 () -> getFundTransferResponse(metadata, request),

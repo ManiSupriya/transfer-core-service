@@ -29,7 +29,7 @@ import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurpose
 import com.mashreq.transfercoreservice.fundtransfer.dto.DealConversionRateRequestDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.DealConversionRateResponseDto;
 import com.mashreq.transfercoreservice.model.ApplicationSettingDto;
-import com.mashreq.transfercoreservice.promo.dto.PromoCodeRequestDto;
+import com.mashreq.transfercoreservice.promo.dto.PromoCodeTransactionRequestDto;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
 
@@ -159,7 +159,7 @@ public class MobCommonService {
         		.collect(Collectors.toMap(TransferSupportedCountryDto::getCode, TransferSupportedCountryDto::getName));
     }
     
-    public void validatePromoCode(PromoCodeRequestDto promoCodeReq) {
+    public void validatePromoCode(PromoCodeTransactionRequestDto promoCodeReq) {
         log.info("[MobCommonService] Calling MobCommonClient to validate promo code");
         
         Response<Void> response = mobCommonClient.validatePromo(promoCodeReq.getPromoCode(), promoCodeReq);
