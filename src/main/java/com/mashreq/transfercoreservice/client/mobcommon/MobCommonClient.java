@@ -23,7 +23,7 @@ import com.mashreq.transfercoreservice.config.feign.FeignConfig;
 import com.mashreq.transfercoreservice.fundtransfer.dto.DealConversionRateRequestDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.DealConversionRateResponseDto;
 import com.mashreq.transfercoreservice.model.ApplicationSettingDto;
-import com.mashreq.transfercoreservice.promo.dto.PromoCodeRequestDto;
+import com.mashreq.transfercoreservice.promo.dto.PromoCodeTransactionRequestDto;
 import com.mashreq.webcore.dto.response.Response;
 
 @FeignClient(name = "mobcommon", url = "${app.services.mobcommon}", configuration = FeignConfig.class)
@@ -53,6 +53,6 @@ public interface MobCommonClient {
     Response<List<ApplicationSettingDto>> getApplicationSettings(@RequestParam(value = "group", required = false) final String group);
     
     @PostMapping(value = "/v1/promo/validate/{promoCode}", consumes = "application/json")
-    Response<Void> validatePromo(@NotNull @PathVariable String promoCode, @RequestBody PromoCodeRequestDto promoCodeReq);
+    Response<Void> validatePromo(@NotNull @PathVariable String promoCode, @RequestBody PromoCodeTransactionRequestDto promoCodeReq);
 
 }
