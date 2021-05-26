@@ -105,11 +105,20 @@ public class BankDetailService {
     	}
     	catch(GenericException gex) {
     		try {
-    			bankDetails = bicCodeSearchService.fetchBankDetailsWithBic(bankDetailRequest.getCountryCode(), requestMetaData );
+    			bankDetails = bicCodeSearchService.fetchBankDetailsWithBic(bankDetailRequest.getCountryCode(), requestMetaData ).stream()
+    					.filter(bankResult -> 
+		    					StringUtils.isNotBlank(bankResult.getSwiftCode()) &&
+		    					StringUtils.isNotBlank(bankDetailRequest.getValue()) &&
+		    					bankResult.getSwiftCode().equals(bankDetailRequest.getValue()))
+    					.collect(Collectors.toList());
     		}
     		catch(GenericException ge) {
     			GenericExceptionHandler.handleError(SWIFT_AND_BIC_SEARCH_FAILED, SWIFT_AND_BIC_SEARCH_FAILED.getErrorMessage(), ge.getErrorDetails());
     		}
+    	}
+    	
+    	if(null == bankDetails || bankDetails.isEmpty()) {
+    		GenericExceptionHandler.handleError(INVALID_SWIFT_CODE, INVALID_SWIFT_CODE.getErrorMessage());
     	}
 		return bankDetails;
 	}
