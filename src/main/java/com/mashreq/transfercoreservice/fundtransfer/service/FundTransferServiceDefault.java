@@ -1,36 +1,5 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
-import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
-import static com.mashreq.transfercoreservice.errors.ExceptionUtils.genericException;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BANK_NOT_FOUND_WITH_IBAN;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_NOT_FOUND;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.BAIT_AL_KHAIR;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.DAR_AL_BER;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.DUBAI_CARE;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.INFT;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.LOCAL;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WAMA;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WYMA;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.getServiceByType;
-import static java.time.Duration.between;
-import static java.time.Instant.now;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.EnumMap;
-import java.util.Optional;
-
-import javax.annotation.PostConstruct;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Service;
-
 import com.mashreq.logcore.annotations.TrackExec;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
@@ -42,25 +11,13 @@ import com.mashreq.transfercoreservice.common.CommonConstants;
 import com.mashreq.transfercoreservice.errors.ExternalErrorCodeConfig;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.ChargeBearer;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponseDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageService;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.CharityStrategyDefault;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.FundTransferStrategy;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.InternationalFundTransferStrategy;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.LocalFundTransferStrategy;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.OwnAccountStrategy;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.WithinMashreqStrategy;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.*;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
-import com.mashreq.transfercoreservice.model.Beneficiary;
 import com.mashreq.transfercoreservice.model.DigitalUser;
 import com.mashreq.transfercoreservice.promo.service.PromoCodeService;
-import com.mashreq.transfercoreservice.repository.BeneficiaryRepository;
 import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionHistory;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionRepository;
@@ -69,6 +26,25 @@ import com.mashreq.webcore.dto.response.Response;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.EnumMap;
+import java.util.Optional;
+
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.*;
+import static java.time.Duration.between;
+import static java.time.Instant.now;
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 @Slf4j
 @TrackExec
@@ -81,7 +57,6 @@ public class FundTransferServiceDefault implements FundTransferService {
     private static final String FUND_TRANSFER_INITIATION_SUFFIX = "_FUND_TRANSFER_REQUEST";
     private final DigitalUserRepository digitalUserRepository;
     private final TransactionRepository transactionRepository;
-    private final BeneficiaryRepository beneficiaryRepository;
     private final DigitalUserLimitUsageService digitalUserLimitUsageService;
     private final OwnAccountStrategy ownAccountStrategy;
     private final WithinMashreqStrategy withinMashreqStrategy;
@@ -194,13 +169,9 @@ public class FundTransferServiceDefault implements FundTransferService {
 	protected void handleIfTransactionIsSuccess(RequestMetaData metadata, FundTransferRequestDTO request,
 			UserDTO userDTO, FundTransferResponse response) {
 		if (isSuccessOrProcessing(response)) {
-        	
-			Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
-            
-        	Beneficiary beneficiary = beneficiaryRepository.findById(bendId).orElseThrow(() -> genericException(BENE_NOT_FOUND));
-			
-        	DigitalUserLimitUsageDTO digitalUserLimitUsageDTO = generateUserLimitUsage(
-                    request.getServiceType(), response.getLimitUsageAmount(), userDTO, metadata, response.getLimitVersionUuid(),response.getTransactionRefNo(), bendId, beneficiary.getBeneficiaryUniqueRefNo() );
+        	Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
+            DigitalUserLimitUsageDTO digitalUserLimitUsageDTO = generateUserLimitUsage(
+                    request.getServiceType(), response.getLimitUsageAmount(), userDTO, metadata, response.getLimitVersionUuid(),response.getTransactionRefNo(), bendId );
             log.info("Inserting into limits table {} ", digitalUserLimitUsageDTO);
             digitalUserLimitUsageService.insert(digitalUserLimitUsageDTO);
         }
@@ -282,7 +253,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     }
 
     protected DigitalUserLimitUsageDTO generateUserLimitUsage(String serviceType, BigDecimal usageAmount, UserDTO userDTO,
-                                                            RequestMetaData fundTransferMetadata, String versionUuid,String transactionRefNo, Long benId, Long benRefNo) {
+                                                            RequestMetaData fundTransferMetadata, String versionUuid,String transactionRefNo, Long benId) {
         return DigitalUserLimitUsageDTO.builder()
                 .digitalUserId(userDTO.getUserId())
                 .cif(fundTransferMetadata.getPrimaryCif())
@@ -293,7 +264,6 @@ public class FundTransferServiceDefault implements FundTransferService {
                 .createdBy(String.valueOf(userDTO.getUserId()))
                 .transactionRefNo(transactionRefNo)
                 .beneficiaryId(benId)
-                .beneficiaryUniqueRefNo(null != benRefNo ? benRefNo : benId)
                 .build();
 
     }
