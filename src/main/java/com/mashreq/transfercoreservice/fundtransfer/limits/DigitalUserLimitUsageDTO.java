@@ -18,4 +18,5 @@ public class DigitalUserLimitUsageDTO {
     private String createdBy;
     private String transactionRefNo;
     private Long beneficiaryId;
+    private Long beneficiaryUniqueRefNo;
 }

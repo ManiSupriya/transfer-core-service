@@ -19,7 +19,7 @@ import java.time.Instant;
 @ToString
 @Getter
 @Setter
-public class 	DigitalUserLimitUsage {
+public class DigitalUserLimitUsage {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,4 +49,5 @@ public class 	DigitalUserLimitUsage {
 
 	private String transactionRefNo;
 	private Long beneficiaryId;
+	private Long beneficiaryUniqueRefNo;
 }
