@@ -1,6 +1,8 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
+import static com.mashreq.transfercoreservice.errors.ExceptionUtils.genericException;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_NOT_FOUND;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.INFT;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.LOCAL;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WAMA;
@@ -40,7 +42,9 @@ import com.mashreq.transfercoreservice.fundtransfer.strategy.paylater.LocalFundP
 import com.mashreq.transfercoreservice.fundtransfer.strategy.paylater.OwnAccountPayLaterStrategy;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.paylater.WithinMashreqPayLaterStrategy;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
+import com.mashreq.transfercoreservice.model.Beneficiary;
 import com.mashreq.transfercoreservice.promo.service.PromoCodeService;
+import com.mashreq.transfercoreservice.repository.BeneficiaryRepository;
 import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionHistory;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionRepository;
@@ -59,7 +63,9 @@ public class PayLaterTransferService extends FundTransferServiceDefault{
 	
     @Autowired
 	public PayLaterTransferService(DigitalUserRepository digitalUserRepository,
-			TransactionRepository transactionRepository, DigitalUserLimitUsageService digitalUserLimitUsageService,
+			TransactionRepository transactionRepository,
+			BeneficiaryRepository beneficiaryRepository,
+			DigitalUserLimitUsageService digitalUserLimitUsageService,
 			OwnAccountStrategy ownAccountStrategy, WithinMashreqStrategy withinMashreqStrategy,
 			LocalFundTransferStrategy localFundTransferStrategy,
 			InternationalFundTransferStrategy internationalFundTransferStrategy,
@@ -70,7 +76,7 @@ public class PayLaterTransferService extends FundTransferServiceDefault{
 			LocalFundPayLaterTransferStrategy localFundPayLaterTransferStrategy,
 			InternationalPayLaterFundTransferStrategy internationalPayLaterFundTransferStrategy,
 			PromoCodeService promoCodeService) {
-		super(digitalUserRepository, transactionRepository, digitalUserLimitUsageService, ownAccountStrategy,
+		super(digitalUserRepository, transactionRepository, beneficiaryRepository, digitalUserLimitUsageService, ownAccountStrategy,
 				withinMashreqStrategy, localFundTransferStrategy, internationalFundTransferStrategy,
 				charityStrategyDefault, auditEventPublisher, otpService, errorCodeConfig, promoCodeService);
 		this.ownAccountPayLaterStrategy = ownAccountPayLaterStrategy;
@@ -95,8 +101,9 @@ public class PayLaterTransferService extends FundTransferServiceDefault{
     	//TODO: have to insert the usage while inititation
 		if (isSuccessOrProcessing(response)) {
         	Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
+        	Beneficiary beneficiary = getBeneficiaryRepository().findById(bendId).orElseThrow(() -> genericException(BENE_NOT_FOUND));
             DigitalUserLimitUsageDTO digitalUserLimitUsageDTO = generateUserLimitUsage(
-                    request.getServiceType(), response.getLimitUsageAmount(), userDTO, metadata, response.getLimitVersionUuid(),response.getTransactionRefNo(), bendId );
+                    request.getServiceType(), response.getLimitUsageAmount(), userDTO, metadata, response.getLimitVersionUuid(),response.getTransactionRefNo(), bendId, beneficiary.getBeneficiaryUniqueRefNo() );
             log.info("Inserting into limits table {} ", digitalUserLimitUsageDTO);
             this.getDigitalUserLimitUsageService().insert(digitalUserLimitUsageDTO);
         }
