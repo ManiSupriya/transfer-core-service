@@ -198,6 +198,12 @@
             <groupId>com.mashreq.ms</groupId>
             <artifactId>ms-commons</artifactId>
             <version>${com.mashreq.ms.ms-commons}</version>
+            <exclusions>
+	            <exclusion>
+	            	<groupId>net.sf.jasperreports</groupId>
+					<artifactId>jasperreports</artifactId>
+	            </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.springfox</groupId>
