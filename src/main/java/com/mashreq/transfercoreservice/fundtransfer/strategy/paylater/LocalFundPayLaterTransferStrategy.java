@@ -5,6 +5,7 @@ import static com.mashreq.transfercoreservice.notification.model.NotificationTyp
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.mashreq.transfercoreservice.common.NotificationName;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
@@ -100,8 +101,9 @@ public class LocalFundPayLaterTransferStrategy extends LocalFundTransferStrategy
 			final FundTransferRequest fundTransferRequest, final FundTransferResponse fundTransferResponse) {
     	//TODO:change notification and post transaction events
 		if(isSuccessOrProcessing(fundTransferResponse)){
-            final CustomerNotification customerNotification = this.populateCustomerNotification(validationResult.getTransactionRefNo(),request.getTxnCurrency(),request.getAmount());
-            getNotificationService().sendNotifications(customerNotification,OTHER_ACCOUNT_TRANSACTION,metadata,userDTO);
+            final CustomerNotification customerNotification = this.populateCustomerNotification(validationResult.getTransactionRefNo(),request.getTxnCurrency(),
+					request.getAmount(),fundTransferRequest.getBeneficiaryFullName(),fundTransferRequest.getToAccount());
+            getNotificationService().sendNotifications(customerNotification,OTHER_ACCOUNT_TRANSACTION,metadata,userDTO, NotificationName.LOCAL_PL_SI_CREATION);
             fundTransferRequest.setTransferType(getTransferType(fundTransferRequest.getTxnCurrency()));
             fundTransferRequest.setNotificationType(OTHER_ACCOUNT_TRANSACTION);
             fundTransferRequest.setStatus(MwResponseStatus.S.getName());

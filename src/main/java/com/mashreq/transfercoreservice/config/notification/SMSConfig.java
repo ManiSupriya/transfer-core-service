@@ -17,10 +17,11 @@ public class SMSConfig {
     private String serviceId;
     private String callCenterNo;
     private String ownAccountTransactionInitiated;
+    private String plSiCreation;
     private String mashreqServiceId;
     private String neoServiceId;
 
-    public String getSMSTemplate(String type, CustomerNotification customerNotification) {
+    public String getSMSTemplate(String type, CustomerNotification customerNotification, String notificationName) {
         if(type.equals(OWN_ACCOUNT_TRANSACTION)){
             return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getChannel(),customerNotification.getCurrency(),customerNotification.getAmount(),customerNotification.getTxnRef(),customerNotification.getSegment().getCustomerCareNumber());
         }
@@ -36,6 +37,9 @@ public class SMSConfig {
         }
         if(type.equals(OTHER_ACCOUNT_TRANSACTION)){
             return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getChannel(),customerNotification.getCurrency(),customerNotification.getAmount(),customerNotification.getTxnRef(),customerNotification.getSegment().getCustomerCareNumber());
+        }
+        if(notificationName.contains("PL") && notificationName.contains("CREATION")){
+            return MessageFormat.format(plSiCreation, customerNotification.getBeneficiaryName(), customerNotification.getCreditAccount(),customerNotification.getSegment().getCustomerCareNumber());
         }
         return "";
     }

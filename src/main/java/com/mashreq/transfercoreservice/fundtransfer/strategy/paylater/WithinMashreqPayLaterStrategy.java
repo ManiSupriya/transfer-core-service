@@ -3,6 +3,7 @@ package com.mashreq.transfercoreservice.fundtransfer.strategy.paylater;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.mashreq.transfercoreservice.common.NotificationName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -83,8 +84,9 @@ public class WithinMashreqPayLaterStrategy extends WithinMashreqStrategy {
 			final FundTransferRequest fundTransferRequest, final FundTransferResponse fundTransferResponse) {
 		//TODO: Change this accordingly for pay later
 		if(isSuccessOrProcessing(fundTransferResponse)) {
-        	final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getTxnCurrency(),request.getAmount());
-            this.getNotificationService().sendNotifications(customerNotification,NotificationType.OTHER_ACCOUNT_TRANSACTION,metadata,userDTO);
+        	final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getTxnCurrency(),
+					request.getAmount(),fundTransferRequest.getBeneficiaryFullName(),fundTransferRequest.getToAccount());
+            this.getNotificationService().sendNotifications(customerNotification,NotificationType.OTHER_ACCOUNT_TRANSACTION,metadata,userDTO, NotificationName.WITHIN_MASHREQ_PL_SI_CREATION);
             fundTransferRequest.setTransferType(MASHREQ);
             fundTransferRequest.setNotificationType(NotificationType.LOCAL);
             fundTransferRequest.setStatus(MwResponseStatus.S.getName());

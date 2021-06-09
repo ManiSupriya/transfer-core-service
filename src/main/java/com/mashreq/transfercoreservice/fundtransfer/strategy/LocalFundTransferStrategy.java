@@ -12,6 +12,7 @@ import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.CardService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.common.CommonConstants;
+import com.mashreq.transfercoreservice.common.NotificationName;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
@@ -200,8 +201,9 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 			UserDTO userDTO, final LimitValidatorResponse validationResult,
 			final FundTransferRequest fundTransferRequest, final FundTransferResponse fundTransferResponse) {
 		if(isSuccessOrProcessing(fundTransferResponse)){
-            final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getTxnCurrency(),request.getAmount());
-            notificationService.sendNotifications(customerNotification,OTHER_ACCOUNT_TRANSACTION,metadata,userDTO);
+            final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getTxnCurrency(),
+                    request.getAmount(),fundTransferRequest.getBeneficiaryFullName(),fundTransferRequest.getToAccount());
+            notificationService.sendNotifications(customerNotification,OTHER_ACCOUNT_TRANSACTION,metadata,userDTO, NotificationName.LOCAL_FT);
             fundTransferRequest.setTransferType(getTransferType(fundTransferRequest.getTxnCurrency()));
             fundTransferRequest.setNotificationType(OTHER_ACCOUNT_TRANSACTION);
             fundTransferRequest.setStatus(fundTransferResponse.getResponseDto().getMwResponseStatus().getName());
@@ -271,8 +273,8 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
          String txnRefNo = validationResult.getTransactionRefNo();
          fundTransferResponse = processCreditCardTransfer(request, requestMetaData, selectedCreditCard, beneficiaryDto, validationResult);
          if(isSuccessOrProcessing(fundTransferResponse)){
-             final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getTxnCurrency(),request.getAmount());
-             notificationService.sendNotifications(customerNotification,OTHER_ACCOUNT_TRANSACTION,requestMetaData,userDTO);
+             final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getTxnCurrency(),request.getAmount(),"","");
+             notificationService.sendNotifications(customerNotification,OTHER_ACCOUNT_TRANSACTION,requestMetaData,userDTO,NotificationName.LOCAL_FT);
              }
          
         return fundTransferResponse.toBuilder()
@@ -392,11 +394,13 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         return isoCurrency;
     }
 
-    protected CustomerNotification populateCustomerNotification(String transactionRefNo, String currency, BigDecimal amount) {
+    protected CustomerNotification populateCustomerNotification(String transactionRefNo, String currency, BigDecimal amount, String beneficiaryName, String creditAccount) {
         CustomerNotification customerNotification =new CustomerNotification();
         customerNotification.setAmount(String.valueOf(amount));
         customerNotification.setCurrency(currency);
         customerNotification.setTxnRef(transactionRefNo);
+        customerNotification.setBeneficiaryName(beneficiaryName);
+        customerNotification.setCreditAccount(creditAccount);
         return customerNotification;
     }
 

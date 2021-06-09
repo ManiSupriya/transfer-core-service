@@ -25,8 +25,9 @@ import static com.mashreq.transfercoreservice.notification.model.NotificationTyp
 public class PushTemplate {
 
     private String ownAccountTransactionInitiated;
+    private String plSiCreation;
 
-    public String getPushTemplate(String type, CustomerNotification customerNotification) {
+    public String getPushTemplate(String type, CustomerNotification customerNotification, String notificationName) {
         if(type.equals(OWN_ACCOUNT_TRANSACTION)){
             return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getChannel(),customerNotification.getCurrency(),customerNotification.getAmount(),customerNotification.getTxnRef(),customerNotification.getSegment().getCustomerCareNumber());
         }
@@ -35,6 +36,9 @@ public class PushTemplate {
         }
         if(type.equals(OTHER_ACCOUNT_TRANSACTION)){
             return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getChannel(),customerNotification.getCurrency(),customerNotification.getAmount(),customerNotification.getTxnRef(),customerNotification.getSegment().getCustomerCareNumber());
+        }
+        if(notificationName.contains("PL") && notificationName.contains("CREATION")){
+            return MessageFormat.format(plSiCreation, customerNotification.getBeneficiaryName(), customerNotification.getCreditAccount(),customerNotification.getSegment().getCustomerCareNumber());
         }
         return "";
     }

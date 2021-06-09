@@ -3,6 +3,7 @@ package com.mashreq.transfercoreservice.fundtransfer.strategy.paylater;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.mashreq.transfercoreservice.common.NotificationName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -92,12 +93,12 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 	@Override
 	protected void handleSuccessfulTransaction(FundTransferRequestDTO request, RequestMetaData metadata,
 			UserDTO userDTO, BigDecimal transactionAmount, final LimitValidatorResponse validationResult,
-			final FundTransferResponse fundTransferResponse) {
+			final FundTransferResponse fundTransferResponse, final FundTransferRequest fundTransferRequest) {
 		if (isSuccessOrProcessing(fundTransferResponse)) {
 			final CustomerNotification customerNotification = this.populateCustomerNotification(
-					validationResult.getTransactionRefNo(), request, transactionAmount, metadata);
+					validationResult.getTransactionRefNo(), request, transactionAmount, metadata, fundTransferRequest.getBeneficiaryFullName(), fundTransferRequest.getToAccount());
 			this.getNotificationService().sendNotifications(customerNotification, OWN_ACCOUNT_TRANSACTION, metadata,
-					userDTO);
+					userDTO, NotificationName.OWN_ACCOUNT_PL_SI_CREATION);
 		}
 	}
 
