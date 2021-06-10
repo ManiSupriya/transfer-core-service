@@ -53,7 +53,7 @@ public class NotificationService {
 
     @Async("GenericAsyncExecutor")
     @TrackExecTimeAndResult
-    public void sendNotifications(CustomerNotification customer, String type, RequestMetaData metaData, UserDTO userDTO, String notificationName) {
+    public void sendNotifications(CustomerNotification customer, String type, RequestMetaData metaData, UserDTO userDTO) {
 
         String phoneNo = metaData.getMobileNUmber();
         boolean isMobile = metaData.getChannel().contains(MOBILE);
@@ -68,28 +68,28 @@ public class NotificationService {
          */
         customer.setSegment(digitalUserSegment.getCustomerCareInfo(metaData.getSegment()));
         if (!StringUtils.isEmpty(phoneNo)) {
-            sendSms(customer, type, metaData, phoneNo, notificationName);
+            sendSms(customer, type, metaData, phoneNo);
         }
-        sendPushNotification(customer, type, metaData, phoneNo, userDTO, notificationName);
+        sendPushNotification(customer, type, metaData, phoneNo, userDTO);
     }
 
     /**
      * sends sms to given phoneNumber using sms service
      */
     //can add conditions on type if sms is not required to be sent for the type
-    private void sendSms(CustomerNotification customer, String type, RequestMetaData metaData, String phoneNo, String notificationName) {
+    private void sendSms(CustomerNotification customer, String type, RequestMetaData metaData, String phoneNo) {
             boolean smsSent = false;
             int smsRetryCount = 0;
 
             for (int i = 0; i < 3 && StringUtils.isNotBlank(phoneNo); i++) {
                 try {
-                    smsSent = smsService.sendSMS(customer, type, metaData, smsRetryCount, phoneNo, notificationName);
+                    smsSent = smsService.sendSMS(customer, type, metaData, smsRetryCount, phoneNo);
                     if (smsSent) {
-                        notificationStatusRepository.save(createNotificationStatus(customer, notificationName, "SUCCESS", "SMS"));
+                        notificationStatusRepository.save(createNotificationStatus(customer, type, "SUCCESS", "SMS"));
                         break;
                     }
                 } catch (Exception e) {
-                    notificationStatusRepository.save(createNotificationStatus(customer, notificationName, "FAILED", "SMS"));
+                    notificationStatusRepository.save(createNotificationStatus(customer, type, "FAILED", "SMS"));
                     userEventPublisher.publishFailureEvent(SMS_NOTIFICATION, metaData, "sending sms notification failed", SMS_NOTIFICATION_FAILED.getCustomErrorCode(), SMS_NOTIFICATION_FAILED.getErrorMessage(), e.getMessage());
                     GenericExceptionHandler.logOnly(e, "ErrorCode=" + SMS_NOTIFICATION_FAILED.getCustomErrorCode() + ",ErrorMessage=" + SMS_NOTIFICATION_FAILED.getErrorMessage() + ", " + ",type =" + type + ",Error in sendSMS() ," + metaData.getPrimaryCif() + ", ExceptionMessage=" + e.getMessage());
                     smsRetryCount++;
@@ -100,19 +100,19 @@ public class NotificationService {
             userEventPublisher.publishSuccessEvent(SMS_NOTIFICATION, metaData, customer.getTxnRef() + " smsSent");
     }
 
-    private void sendPushNotification(CustomerNotification customer, String type, RequestMetaData metaData, String phoneNo, UserDTO userDTO, String notificationName) {
+    private void sendPushNotification(CustomerNotification customer, String type, RequestMetaData metaData, String phoneNo, UserDTO userDTO) {
             try {
-                boolean response  = pushNotification.sendPushNotification(customer, type, metaData, userDTO, notificationName);
+                boolean response  = pushNotification.sendPushNotification(customer, type, metaData, userDTO);
                 if(response){
-                    notificationStatusRepository.save(createNotificationStatus(customer, notificationName, "SUCCESS", "PUSH"));
+                    notificationStatusRepository.save(createNotificationStatus(customer, type, "SUCCESS", "PUSH"));
                     userEventPublisher.publishSuccessEvent(PUSH_NOTIFICATION, metaData, customer.getTxnRef() + " pushSent");
                 }
                 else{
-                    notificationStatusRepository.save(createNotificationStatus(customer, notificationName, "FAILED", "PUSH"));
+                    notificationStatusRepository.save(createNotificationStatus(customer, type, "FAILED", "PUSH"));
                     userEventPublisher.publishFailureEvent(PUSH_NOTIFICATION, metaData, "sending push notification failed", PUSH_NOTIFICATION_FAILED.getCustomErrorCode(), PUSH_NOTIFICATION_FAILED.getErrorMessage(), "push notification failed");
                 }
             } catch (Exception e) {
-                notificationStatusRepository.save(createNotificationStatus(customer, notificationName, "FAILED", "PUSH"));
+                notificationStatusRepository.save(createNotificationStatus(customer, type, "FAILED", "PUSH"));
                 userEventPublisher.publishFailureEvent(PUSH_NOTIFICATION, metaData, "sending push notification failed", PUSH_NOTIFICATION_FAILED.getCustomErrorCode(), PUSH_NOTIFICATION_FAILED.getErrorMessage(), e.getMessage());
                 GenericExceptionHandler.logOnly(e, "ErrorCode=" + PUSH_NOTIFICATION_FAILED.getCustomErrorCode() + ",ErrorMessage=" + PUSH_NOTIFICATION_FAILED.getErrorMessage() + ", " + ",type =" + type + ",Error in pushNotification() ," + metaData.getPrimaryCif() + ", ExceptionMessage=" + e.getMessage());
             }

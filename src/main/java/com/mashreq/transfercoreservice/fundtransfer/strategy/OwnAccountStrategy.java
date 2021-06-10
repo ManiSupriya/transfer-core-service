@@ -1,6 +1,7 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
+import static com.mashreq.transfercoreservice.notification.model.NotificationType.OWN_ACCOUNT_FT;
 import static java.time.Duration.between;
 import static java.time.Instant.now;
 
@@ -9,7 +10,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import com.mashreq.transfercoreservice.common.NotificationName;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -197,7 +197,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 			final FundTransferResponse fundTransferResponse, final FundTransferRequest fundTransferRequest) {
 		if(isSuccessOrProcessing(fundTransferResponse)){
 		   final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request,transactionAmount,metadata,fundTransferRequest.getBeneficiaryFullName(),fundTransferRequest.getToAccount());
-		   notificationService.sendNotifications(customerNotification,OWN_ACCOUNT_TRANSACTION,metadata,userDTO, NotificationName.OWN_ACCOUNT_FT);
+		   notificationService.sendNotifications(customerNotification, OWN_ACCOUNT_FT, metadata, userDTO);
 		   }
 	}
 

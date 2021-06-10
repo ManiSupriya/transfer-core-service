@@ -7,7 +7,6 @@ import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurpose
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
-import com.mashreq.transfercoreservice.common.NotificationName;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
@@ -31,6 +30,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.mashreq.transfercoreservice.notification.model.NotificationType.INFT_TRANSACTION;
 import static com.mashreq.transfercoreservice.notification.model.NotificationType.OTHER_ACCOUNT_TRANSACTION;
 
 
@@ -158,7 +158,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
 		if(isSuccessOrProcessing(fundTransferResponse)){
         final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),
                 request.getTxnCurrency(),request.getAmount(),fundTransferRequest.getBeneficiaryFullName(), fundTransferRequest.getToAccount());
-        notificationService.sendNotifications(customerNotification,OTHER_ACCOUNT_TRANSACTION,metadata,userDTO, NotificationName.INFT_TRANSACTION);
+        notificationService.sendNotifications(customerNotification, INFT_TRANSACTION, metadata,userDTO);
         fundTransferRequest.setTransferType(INTERNATIONAL);
         fundTransferRequest.setNotificationType(OTHER_ACCOUNT_TRANSACTION);
         fundTransferRequest.setStatus(fundTransferResponse.getResponseDto().getMwResponseStatus().getName());

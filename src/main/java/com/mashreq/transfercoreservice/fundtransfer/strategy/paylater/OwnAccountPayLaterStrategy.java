@@ -3,7 +3,6 @@ package com.mashreq.transfercoreservice.fundtransfer.strategy.paylater;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import com.mashreq.transfercoreservice.common.NotificationName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -47,6 +46,8 @@ import com.mashreq.transfercoreservice.paylater.utils.OrderExecutionDateResolver
 import com.mashreq.transfercoreservice.paylater.utils.SequenceNumberGenerator;
 
 import lombok.extern.slf4j.Slf4j;
+
+import static com.mashreq.transfercoreservice.notification.model.NotificationType.OWN_ACCOUNT_PL_SI_CREATION;
 
 @Slf4j
 @Service
@@ -97,8 +98,8 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 		if (isSuccessOrProcessing(fundTransferResponse)) {
 			final CustomerNotification customerNotification = this.populateCustomerNotification(
 					validationResult.getTransactionRefNo(), request, transactionAmount, metadata, fundTransferRequest.getBeneficiaryFullName(), fundTransferRequest.getToAccount());
-			this.getNotificationService().sendNotifications(customerNotification, OWN_ACCOUNT_TRANSACTION, metadata,
-					userDTO, NotificationName.OWN_ACCOUNT_PL_SI_CREATION);
+			this.getNotificationService().sendNotifications(customerNotification, OWN_ACCOUNT_PL_SI_CREATION, metadata,
+					userDTO);
 		}
 	}
 

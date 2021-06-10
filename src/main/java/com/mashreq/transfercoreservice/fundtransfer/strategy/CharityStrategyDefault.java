@@ -5,7 +5,6 @@ import com.mashreq.transfercoreservice.client.BeneficiaryClient;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.CharityBeneficiaryDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
-import com.mashreq.transfercoreservice.common.NotificationName;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
@@ -23,6 +22,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mashreq.transfercoreservice.notification.model.NotificationType.CHARITY_TRANSACTION;
 import static com.mashreq.transfercoreservice.notification.model.NotificationType.OTHER_ACCOUNT_TRANSACTION;
 import static java.time.Duration.between;
 import static java.time.Instant.now;
@@ -115,7 +115,7 @@ public class CharityStrategyDefault implements FundTransferStrategy {
 		if (isSuccessOrProcessing(fundTransferResponse)) {
 			final CustomerNotification customerNotification = populateCustomerNotification(
 					validationResult.getTransactionRefNo(), request.getCurrency(), request.getAmount());
-			notificationService.sendNotifications(customerNotification, OTHER_ACCOUNT_TRANSACTION, metadata, userDTO, NotificationName.CHARITY_TRANSACTION);
+			notificationService.sendNotifications(customerNotification, CHARITY_TRANSACTION, metadata, userDTO);
 		}
 
         //final FundTransferResponse fundTransferResponse = coreTransferService.transferFundsBetweenAccounts(request);

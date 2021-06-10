@@ -21,8 +21,8 @@ public class SMSConfig {
     private String mashreqServiceId;
     private String neoServiceId;
 
-    public String getSMSTemplate(String type, CustomerNotification customerNotification, String notificationName) {
-        if(type.equals(OWN_ACCOUNT_TRANSACTION)){
+    public String getSMSTemplate(String type, CustomerNotification customerNotification) {
+        if(type.equals(OWN_ACCOUNT_FT)){
             return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getChannel(),customerNotification.getCurrency(),customerNotification.getAmount(),customerNotification.getTxnRef(),customerNotification.getSegment().getCustomerCareNumber());
         }
         /**
@@ -32,13 +32,13 @@ public class SMSConfig {
          * this is fix for the wrong customer care details in SMS, Now SMS Info populating based on the Segment from segment_ms table
          * 
          */
-        if(type.equals(LOCAL_ACCOUNT_TRANSACTION)){
+        if(type.equals(LOCAL_FT)){
             return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getChannel(),customerNotification.getCurrency(),customerNotification.getAmount(),customerNotification.getTxnRef(),customerNotification.getSegment().getCustomerCareNumber());
         }
-        if(type.equals(OTHER_ACCOUNT_TRANSACTION)){
+        if(type.equals(INFT_TRANSACTION)){
             return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getChannel(),customerNotification.getCurrency(),customerNotification.getAmount(),customerNotification.getTxnRef(),customerNotification.getSegment().getCustomerCareNumber());
         }
-        if(notificationName.contains("PL") && notificationName.contains("CREATION")){
+        if(type.contains("PL") && type.contains("CREATION")){
             return MessageFormat.format(plSiCreation, customerNotification.getBeneficiaryName(), customerNotification.getCreditAccount(),customerNotification.getSegment().getCustomerCareNumber());
         }
         return "";

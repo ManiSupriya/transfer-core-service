@@ -1,11 +1,11 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy.paylater;
 
+import static com.mashreq.transfercoreservice.notification.model.NotificationType.INFT_PL_SI_CREATION;
 import static com.mashreq.transfercoreservice.notification.model.NotificationType.OTHER_ACCOUNT_TRANSACTION;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import com.mashreq.transfercoreservice.common.NotificationName;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
@@ -134,7 +134,7 @@ public class InternationalPayLaterFundTransferStrategy extends InternationalFund
 		if(isSuccessOrProcessing(fundTransferResponse)){
         final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),
 				request.getTxnCurrency(),request.getAmount(),fundTransferRequest.getBeneficiaryFullName(),fundTransferRequest.getToAccount());
-        getNotificationService().sendNotifications(customerNotification,OTHER_ACCOUNT_TRANSACTION,metadata,userDTO, NotificationName.INFT_PL_SI_CREATION);
+        getNotificationService().sendNotifications(customerNotification, INFT_PL_SI_CREATION, metadata, userDTO);
         fundTransferRequest.setTransferType(INTERNATIONAL);
         fundTransferRequest.setNotificationType(OTHER_ACCOUNT_TRANSACTION);
         fundTransferRequest.setStatus(MwResponseStatus.S.getName());

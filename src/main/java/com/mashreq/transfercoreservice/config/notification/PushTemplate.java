@@ -14,9 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.text.MessageFormat;
 
-import static com.mashreq.transfercoreservice.notification.model.NotificationType.LOCAL_ACCOUNT_TRANSACTION;
-import static com.mashreq.transfercoreservice.notification.model.NotificationType.OTHER_ACCOUNT_TRANSACTION;
-import static com.mashreq.transfercoreservice.notification.model.NotificationType.OWN_ACCOUNT_TRANSACTION;
+import static com.mashreq.transfercoreservice.notification.model.NotificationType.*;
 
 
 @Data
@@ -27,17 +25,17 @@ public class PushTemplate {
     private String ownAccountTransactionInitiated;
     private String plSiCreation;
 
-    public String getPushTemplate(String type, CustomerNotification customerNotification, String notificationName) {
-        if(type.equals(OWN_ACCOUNT_TRANSACTION)){
+    public String getPushTemplate(String type, CustomerNotification customerNotification) {
+        if(type.equals(OWN_ACCOUNT_FT)){
             return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getChannel(),customerNotification.getCurrency(),customerNotification.getAmount(),customerNotification.getTxnRef(),customerNotification.getSegment().getCustomerCareNumber());
         }
         if(type.equals(LOCAL_ACCOUNT_TRANSACTION)){
             return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getChannel(),customerNotification.getCurrency(),customerNotification.getAmount(),customerNotification.getTxnRef(),customerNotification.getSegment().getCustomerCareNumber());
         }
-        if(type.equals(OTHER_ACCOUNT_TRANSACTION)){
+        if(type.equals(INFT_TRANSACTION)){
             return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getChannel(),customerNotification.getCurrency(),customerNotification.getAmount(),customerNotification.getTxnRef(),customerNotification.getSegment().getCustomerCareNumber());
         }
-        if(notificationName.contains("PL") && notificationName.contains("CREATION")){
+        if(type.contains("PL") && type.contains("CREATION")){
             return MessageFormat.format(plSiCreation, customerNotification.getBeneficiaryName(), customerNotification.getCreditAccount(),customerNotification.getSegment().getCustomerCareNumber());
         }
         return "";

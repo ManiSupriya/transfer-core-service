@@ -12,7 +12,6 @@ import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.CardService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.common.CommonConstants;
-import com.mashreq.transfercoreservice.common.NotificationName;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
@@ -42,7 +41,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.mashreq.transfercoreservice.notification.model.NotificationType.OTHER_ACCOUNT_TRANSACTION;
+import static com.mashreq.transfercoreservice.notification.model.NotificationType.*;
 import static java.lang.Long.valueOf;
 
 /**
@@ -203,7 +202,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 		if(isSuccessOrProcessing(fundTransferResponse)){
             final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getTxnCurrency(),
                     request.getAmount(),fundTransferRequest.getBeneficiaryFullName(),fundTransferRequest.getToAccount());
-            notificationService.sendNotifications(customerNotification,OTHER_ACCOUNT_TRANSACTION,metadata,userDTO, NotificationName.LOCAL_FT);
+            notificationService.sendNotifications(customerNotification, LOCAL_FT, metadata,userDTO);
             fundTransferRequest.setTransferType(getTransferType(fundTransferRequest.getTxnCurrency()));
             fundTransferRequest.setNotificationType(OTHER_ACCOUNT_TRANSACTION);
             fundTransferRequest.setStatus(fundTransferResponse.getResponseDto().getMwResponseStatus().getName());
@@ -274,7 +273,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
          fundTransferResponse = processCreditCardTransfer(request, requestMetaData, selectedCreditCard, beneficiaryDto, validationResult);
          if(isSuccessOrProcessing(fundTransferResponse)){
              final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getTxnCurrency(),request.getAmount(),"","");
-             notificationService.sendNotifications(customerNotification,OTHER_ACCOUNT_TRANSACTION,requestMetaData,userDTO,NotificationName.LOCAL_FT);
+             notificationService.sendNotifications(customerNotification, LOCAL_FT_CC, requestMetaData,userDTO);
              }
          
         return fundTransferResponse.toBuilder()

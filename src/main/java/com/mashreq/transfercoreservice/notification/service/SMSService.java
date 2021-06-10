@@ -45,9 +45,9 @@ public class SMSService  {
      */
 
     @TrackExecTimeAndResult
-    public boolean sendSMS(CustomerNotification customerNotification, String type, RequestMetaData metaData, int retryCount, String phoneNo, String notificationName) {
+    public boolean sendSMS(CustomerNotification customerNotification, String type, RequestMetaData metaData, int retryCount, String phoneNo) {
         String logPrefix = metaData.getPrimaryCif() + ", retryCount: " + retryCount;
-        String message =  smsConfig.getSMSTemplate(type,customerNotification, notificationName);
+        String message =  smsConfig.getSMSTemplate(type,customerNotification);
         return sendSMS(message, phoneNo, metaData, logPrefix);
     }
 

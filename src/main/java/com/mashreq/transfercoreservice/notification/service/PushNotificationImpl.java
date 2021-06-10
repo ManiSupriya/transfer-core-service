@@ -25,12 +25,12 @@ public class PushNotificationImpl {
     @Autowired
     PushTemplate pushTemplate;
 
-    boolean sendPushNotification(CustomerNotification customer, String type, RequestMetaData metaData,UserDTO userDTO, String notificationName) {
+    boolean sendPushNotification(CustomerNotification customer, String type, RequestMetaData metaData,UserDTO userDTO) {
         if (StringUtils.isNotBlank(userDTO.getDeviceRegisteredForPush())) {
             NotificationRequest notificationRequest = new NotificationRequest();
             notificationRequest.setChannelId(metaData.getChannel());
             notificationRequest.setDeviceInfo(DeviceInfo.valueOf(userDTO.getDeviceInfo()));
-            String message = populateMessage(customer, type, notificationName);
+            String message = populateMessage(customer, type);
             notificationRequest.setMessage(message);
             NotificationResponse notificationResponse = notificationClient.sendPushNotification(notificationRequest,metaData.getPrimaryCif());
             log.info("{}, pushNotificationResponse: {}, Push notification response received.", htmlEscape(metaData), htmlEscape(notificationResponse));
@@ -39,7 +39,7 @@ public class PushNotificationImpl {
         return false;
     }
 
-    private String populateMessage(CustomerNotification customerNotification,String type, String notificationName) {
-        return pushTemplate.getPushTemplate(type, customerNotification, notificationName);
+    private String populateMessage(CustomerNotification customerNotification,String type) {
+        return pushTemplate.getPushTemplate(type, customerNotification);
     }
 }
