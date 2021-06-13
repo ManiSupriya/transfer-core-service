@@ -47,6 +47,8 @@ import com.mashreq.transfercoreservice.paylater.utils.SequenceNumberGenerator;
 
 import lombok.extern.slf4j.Slf4j;
 
+import static com.mashreq.transfercoreservice.notification.model.NotificationType.OWN_ACCOUNT_PL_SI_CREATION;
+
 @Slf4j
 @Service
 public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
@@ -92,11 +94,11 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 	@Override
 	protected void handleSuccessfulTransaction(FundTransferRequestDTO request, RequestMetaData metadata,
 			UserDTO userDTO, BigDecimal transactionAmount, final LimitValidatorResponse validationResult,
-			final FundTransferResponse fundTransferResponse) {
+			final FundTransferResponse fundTransferResponse, final FundTransferRequest fundTransferRequest) {
 		if (isSuccessOrProcessing(fundTransferResponse)) {
 			final CustomerNotification customerNotification = this.populateCustomerNotification(
-					validationResult.getTransactionRefNo(), request, transactionAmount, metadata);
-			this.getNotificationService().sendNotifications(customerNotification, OWN_ACCOUNT_TRANSACTION, metadata,
+					validationResult.getTransactionRefNo(), request, transactionAmount, metadata, fundTransferRequest.getBeneficiaryFullName(), fundTransferRequest.getToAccount());
+			this.getNotificationService().sendNotifications(customerNotification, OWN_ACCOUNT_PL_SI_CREATION, metadata,
 					userDTO);
 		}
 	}

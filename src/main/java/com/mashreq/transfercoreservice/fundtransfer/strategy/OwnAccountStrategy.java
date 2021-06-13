@@ -1,6 +1,7 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
+import static com.mashreq.transfercoreservice.notification.model.NotificationType.OWN_ACCOUNT_FT;
 import static java.time.Duration.between;
 import static java.time.Instant.now;
 
@@ -173,7 +174,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
        fundTransferRequest.setProductId(isMT5AccountProdID(fundTransferRequest));
        final FundTransferResponse fundTransferResponse = processTransfer(metadata, validationResult, fundTransferRequest,request);
 
-       handleSuccessfulTransaction(request, metadata, userDTO, transactionAmount, validationResult, fundTransferResponse);
+       handleSuccessfulTransaction(request, metadata, userDTO, transactionAmount, validationResult, fundTransferResponse, fundTransferRequest);
        
         log.info("Total time taken for {} strategy {} milli seconds ", htmlEscape(request.getServiceType()), htmlEscape(Long.toString(between(start, now()).toMillis())));
         prepareAndCallPostTransactionActivity(metadata,fundTransferRequest,request,fundTransferResponse,conversionResult);
@@ -193,10 +194,10 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 
 	protected void handleSuccessfulTransaction(FundTransferRequestDTO request, RequestMetaData metadata,
 			UserDTO userDTO, BigDecimal transactionAmount, final LimitValidatorResponse validationResult,
-			final FundTransferResponse fundTransferResponse) {
+			final FundTransferResponse fundTransferResponse, final FundTransferRequest fundTransferRequest) {
 		if(isSuccessOrProcessing(fundTransferResponse)){
-		   final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request,transactionAmount,metadata);
-		   notificationService.sendNotifications(customerNotification,OWN_ACCOUNT_TRANSACTION,metadata,userDTO);
+		   final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request,transactionAmount,metadata,fundTransferRequest.getBeneficiaryFullName(),fundTransferRequest.getToAccount());
+		   notificationService.sendNotifications(customerNotification, OWN_ACCOUNT_FT, metadata, userDTO);
 		   }
 	}
 
@@ -253,7 +254,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         }
     }
 
-    protected CustomerNotification populateCustomerNotification(String transactionRefNo, FundTransferRequestDTO requestDTO, BigDecimal amount, RequestMetaData metadata) {
+    protected CustomerNotification populateCustomerNotification(String transactionRefNo, FundTransferRequestDTO requestDTO, BigDecimal amount, RequestMetaData metadata, String beneficiaryName, String creditAccount) {
         CustomerNotification customerNotification =new CustomerNotification();
         customerNotification.setAmount(String.valueOf(amount));
         customerNotification.setCurrency(requestDTO.getTxnCurrency());
@@ -262,6 +263,8 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         }
         customerNotification.setTxnRef(transactionRefNo);
         customerNotification.setSegment(digitalUserSegment.getCustomerCareInfo(metadata.getSegment()));
+        customerNotification.setBeneficiaryName(beneficiaryName);
+        customerNotification.setCreditAccount(creditAccount);
         return customerNotification;
     }
 

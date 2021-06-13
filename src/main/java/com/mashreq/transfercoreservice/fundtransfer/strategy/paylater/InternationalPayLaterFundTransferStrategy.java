@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy.paylater;
 
+import static com.mashreq.transfercoreservice.notification.model.NotificationType.INFT_PL_SI_CREATION;
 import static com.mashreq.transfercoreservice.notification.model.NotificationType.OTHER_ACCOUNT_TRANSACTION;
 
 import java.math.BigDecimal;
@@ -131,8 +132,9 @@ public class InternationalPayLaterFundTransferStrategy extends InternationalFund
 			UserDTO userDTO, final LimitValidatorResponse validationResult,
 			final FundTransferRequest fundTransferRequest, final FundTransferResponse fundTransferResponse) {
 		if(isSuccessOrProcessing(fundTransferResponse)){
-        final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getTxnCurrency(),request.getAmount());
-        getNotificationService().sendNotifications(customerNotification,OTHER_ACCOUNT_TRANSACTION,metadata,userDTO);
+        final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),
+				request.getTxnCurrency(),request.getAmount(),fundTransferRequest.getBeneficiaryFullName(),fundTransferRequest.getToAccount());
+        getNotificationService().sendNotifications(customerNotification, INFT_PL_SI_CREATION, metadata, userDTO);
         fundTransferRequest.setTransferType(INTERNATIONAL);
         fundTransferRequest.setNotificationType(OTHER_ACCOUNT_TRANSACTION);
         fundTransferRequest.setStatus(MwResponseStatus.S.getName());

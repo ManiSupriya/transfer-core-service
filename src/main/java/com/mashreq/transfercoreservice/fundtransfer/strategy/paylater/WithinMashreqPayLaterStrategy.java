@@ -48,6 +48,8 @@ import com.mashreq.transfercoreservice.paylater.utils.SequenceNumberGenerator;
 
 import lombok.extern.slf4j.Slf4j;
 
+import static com.mashreq.transfercoreservice.notification.model.NotificationType.WITHIN_MASHREQ_PL_SI_CREATION;
+
 @Slf4j
 @Service
 public class WithinMashreqPayLaterStrategy extends WithinMashreqStrategy {
@@ -83,8 +85,9 @@ public class WithinMashreqPayLaterStrategy extends WithinMashreqStrategy {
 			final FundTransferRequest fundTransferRequest, final FundTransferResponse fundTransferResponse) {
 		//TODO: Change this accordingly for pay later
 		if(isSuccessOrProcessing(fundTransferResponse)) {
-        	final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getTxnCurrency(),request.getAmount());
-            this.getNotificationService().sendNotifications(customerNotification,NotificationType.OTHER_ACCOUNT_TRANSACTION,metadata,userDTO);
+        	final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getTxnCurrency(),
+					request.getAmount(),fundTransferRequest.getBeneficiaryFullName(),fundTransferRequest.getToAccount());
+            this.getNotificationService().sendNotifications(customerNotification, WITHIN_MASHREQ_PL_SI_CREATION, metadata, userDTO);
             fundTransferRequest.setTransferType(MASHREQ);
             fundTransferRequest.setNotificationType(NotificationType.LOCAL);
             fundTransferRequest.setStatus(MwResponseStatus.S.getName());

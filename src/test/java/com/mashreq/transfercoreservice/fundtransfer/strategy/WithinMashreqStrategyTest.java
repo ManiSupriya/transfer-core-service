@@ -34,6 +34,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mashreq.transfercoreservice.notification.model.NotificationType.WITHIN_MASHREQ_FT;
 import static java.time.Duration.between;
 import static java.time.Instant.now;
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
@@ -137,7 +138,7 @@ public class WithinMashreqStrategyTest implements FundTransferStrategy {
         final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata, txnRefNo);
         if(isSuccessOrProcessing(fundTransferResponse)) {
         	final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getTxnCurrency(),request.getAmount());
-            notificationService.sendNotifications(customerNotification,NotificationType.OTHER_ACCOUNT_TRANSACTION,metadata,userDTO);
+            notificationService.sendNotifications(customerNotification,WITHIN_MASHREQ_FT,metadata,userDTO);
             fundTransferRequest.setTransferType(MASHREQ);
             fundTransferRequest.setNotificationType(NotificationType.LOCAL);
             fundTransferRequest.setStatus(MwResponseStatus.S.getName());

@@ -37,6 +37,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mashreq.transfercoreservice.notification.model.NotificationType.WITHIN_MASHREQ_FT;
 import static java.time.Duration.between;
 import static java.time.Instant.now;
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
@@ -167,8 +168,9 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
 			UserDTO userDTO, final LimitValidatorResponse validationResult,
 			final FundTransferRequest fundTransferRequest, final FundTransferResponse fundTransferResponse) {
 		if(isSuccessOrProcessing(fundTransferResponse)) {
-        	final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getTxnCurrency(),request.getAmount());
-            notificationService.sendNotifications(customerNotification,NotificationType.OTHER_ACCOUNT_TRANSACTION,metadata,userDTO);
+        	final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getTxnCurrency(),
+                    request.getAmount(),fundTransferRequest.getBeneficiaryFullName(), fundTransferRequest.getToAccount());
+            notificationService.sendNotifications(customerNotification, WITHIN_MASHREQ_FT, metadata, userDTO);
             fundTransferRequest.setTransferType(MASHREQ);
             fundTransferRequest.setNotificationType(NotificationType.LOCAL);
             fundTransferRequest.setStatus(MwResponseStatus.S.getName());
@@ -202,11 +204,13 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         freezeValidator.validate(request, metadata,validateAccountContext);
 	}
     
-    protected CustomerNotification populateCustomerNotification(String transactionRefNo, String currency, BigDecimal amount) {
+    protected CustomerNotification populateCustomerNotification(String transactionRefNo, String currency, BigDecimal amount, String beneficiaryName, String creditAccount) {
         CustomerNotification customerNotification =new CustomerNotification();
         customerNotification.setAmount(String.valueOf(amount));
         customerNotification.setCurrency(currency);
         customerNotification.setTxnRef(transactionRefNo);
+        customerNotification.setBeneficiaryName(beneficiaryName);
+        customerNotification.setCreditAccount(creditAccount);
         return customerNotification;
     }
 
