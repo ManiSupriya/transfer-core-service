@@ -26,19 +26,13 @@ public class PushTemplate {
     private String plSiCreation;
 
     public String getPushTemplate(String type, CustomerNotification customerNotification) {
-        if(type.equals(OWN_ACCOUNT_FT)){
-            return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getChannel(),customerNotification.getCurrency(),customerNotification.getAmount(),customerNotification.getTxnRef(),customerNotification.getSegment().getCustomerCareNumber());
-        }
-        if(type.equals(LOCAL_ACCOUNT_TRANSACTION)){
-            return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getChannel(),customerNotification.getCurrency(),customerNotification.getAmount(),customerNotification.getTxnRef(),customerNotification.getSegment().getCustomerCareNumber());
-        }
-        if(type.equals(INFT_TRANSACTION)){
-            return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getChannel(),customerNotification.getCurrency(),customerNotification.getAmount(),customerNotification.getTxnRef(),customerNotification.getSegment().getCustomerCareNumber());
-        }
         if(type.contains("PL") && type.contains("CREATION")){
             return MessageFormat.format(plSiCreation, customerNotification.getBeneficiaryName(), customerNotification.getCreditAccount(),customerNotification.getSegment().getCustomerCareNumber());
         }
-        return "";
+        else
+        {
+            return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getChannel(),customerNotification.getCurrency(),customerNotification.getAmount(),customerNotification.getTxnRef(),customerNotification.getSegment().getCustomerCareNumber());
+        }
     }
 
 }
