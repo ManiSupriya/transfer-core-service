@@ -52,4 +52,5 @@ public class FundTransferRequest {
     private String NotificationType;
     private String finalBene;
     private String additionaField;
+    private String serviceType;
 }

@@ -495,10 +495,12 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
                 .txnCurrency(request.getTxnCurrency())
                 .limitTransactionRefNo(validationResult.getTransactionRefNo())
                 .acwthInst1(request.getAdditionalField()) //TODO Add For testing need to create new field to map
-                .serviceType(request.getServiceType())
+<<<<<<< HEAD
                 .paymentNote(request.getPaymentNote())
+=======
+                .serviceType(request.getServiceType())
+>>>>>>> b32f3b3c5d801b83060fb79d2ca885516c1a0352
                 .build();
-
     }
 
     

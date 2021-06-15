@@ -271,9 +271,13 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .dealRate(request.getDealRate())
                 .limitTransactionRefNo(validationResult.getTransactionRefNo())
                 .finalBene(request.getFinalBene())
+<<<<<<< HEAD
                 .additionaField(StringUtils.isEmpty(request.getAdditionalField())?request.getPaymentNote():request.getAdditionalField())
                 .paymentNote(request.getPaymentNote())
+=======
+                .additionaField(request.getAdditionalField())
                 .serviceType(request.getServiceType())
+>>>>>>> b32f3b3c5d801b83060fb79d2ca885516c1a0352
                 .build();
 
         return enrichFundTransferRequestByCountryCode(fundTransferRequest, beneficiaryDto);
