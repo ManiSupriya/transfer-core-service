@@ -83,6 +83,32 @@ public class FundTransferCCMWServiceTest {
 		}
 	}
 	
+	@Test
+	public void testTransferWithNonAED() {
+		fundTransferRequest.setDestinationCurrency("INR");
+		Mockito.doNothing().when(asyncUserEventPublisher).publishFailedEsbEvent(Mockito.any(), Mockito.any(),
+				Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+		try {
+			fundTransferCCMWService.transfer(fundTransferRequest, requestMetaData);
+		} catch (Throwable throwable) {
+			GenericException genericException = (GenericException) throwable;
+			Assert.assertEquals(genericException.getErrorCode(), "TN-8006");
+		}
+	}
+	
+	@Test
+	public void testTransferWithAED() {
+		fundTransferRequest.setDestinationCurrency("AED");
+		Mockito.doNothing().when(asyncUserEventPublisher).publishFailedEsbEvent(Mockito.any(), Mockito.any(),
+				Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+		try {
+			fundTransferCCMWService.transfer(fundTransferRequest, requestMetaData);
+		} catch (Throwable throwable) {
+			GenericException genericException = (GenericException) throwable;
+			Assert.assertEquals(genericException.getErrorCode(), "TN-8006");
+		}
+	}
+	
 	private FundTransferRequest generateFundTransferRequest() {
 		return FundTransferRequest.builder().acwthInst1("")
 		 .acwthInst2("test1")

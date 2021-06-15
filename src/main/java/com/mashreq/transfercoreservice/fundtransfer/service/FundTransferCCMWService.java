@@ -52,6 +52,9 @@ public class FundTransferCCMWService {
     private static final String SUCCESS_CODE_ENDS_WITH = "-000";
     private static final String PAYMENT_DETAIL_PREFIX = "/REF/ ";
     public static final String SPACE_CHAR = " ";
+    
+    
+	private static final String AED_CURRENCY = "AED";
 
 
     public static final String DEBIT_ACCOUNT_BRANCH = "030";
@@ -176,7 +179,7 @@ public class FundTransferCCMWService {
         fundTransferReqType.setDebitLeg(debitLeg);
         fundTransferReqType.setCreditLeg(creditLeg);
         services.getBody().setFundTransferCCReq(fundTransferReqType);
-        log.info("EAI Service request for fund transfer prepared {}", services);
+        log.info("EAI Service request for fund transfer prepared {}", htmlEscape(services));
         return services;
     }
 
@@ -208,11 +211,22 @@ public class FundTransferCCMWService {
         creditLeg.setUltimateBeneficiary2(fundTransferRequest.getBeneficiaryFullName());
         creditLeg.setUltimateBeneficiary4(fundTransferRequest.getBeneficiaryFullName());
         creditLeg.setChargeBearer(fundTransferRequest.getChargeBearer());
-        if (StringUtils.isNotBlank(fundTransferRequest.getAcwthInst1())) {
-			creditLeg.setPaymentDetails1(PAYMENT_DETAIL_PREFIX + fundTransferRequest.getPurposeDesc() + SPACE_CHAR
-					+ fundTransferRequest.getAcwthInst1());
-		} else{
-			creditLeg.setPaymentDetails1(PAYMENT_DETAIL_PREFIX + fundTransferRequest.getPurposeDesc());
+        
+        log.info("fundTransferRequest.getDestinationCurrency() {}", htmlEscape(fundTransferRequest.getDestinationCurrency()));
+		if (StringUtils.isNotBlank(fundTransferRequest.getAcwthInst1())) {
+			if (AED_CURRENCY.equalsIgnoreCase(fundTransferRequest.getDestinationCurrency())) {
+				creditLeg.setPaymentDetails1(PAYMENT_DETAIL_PREFIX + fundTransferRequest.getPurposeDesc() + SPACE_CHAR
+						+ fundTransferRequest.getAcwthInst1());
+			} else {
+				creditLeg.setPaymentDetails1(
+						fundTransferRequest.getPurposeDesc() + SPACE_CHAR + fundTransferRequest.getAcwthInst1());
+			}
+		} else {
+			if (AED_CURRENCY.equalsIgnoreCase(fundTransferRequest.getDestinationCurrency())) {
+				creditLeg.setPaymentDetails1(PAYMENT_DETAIL_PREFIX + fundTransferRequest.getPurposeDesc());
+			} else {
+				creditLeg.setPaymentDetails1(fundTransferRequest.getPurposeDesc());
+			}
 		}
         creditLeg.setAcwthInst1(fundTransferRequest.getAcwthInst1());
         creditLeg.setAcwthInst2(fundTransferRequest.getAcwthInst2());
