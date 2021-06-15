@@ -1,5 +1,18 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
+import static com.mashreq.transfercoreservice.notification.model.NotificationType.OWN_ACCOUNT_FT;
+import static java.time.Duration.between;
+import static java.time.Instant.now;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.stereotype.Service;
+
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
@@ -12,30 +25,32 @@ import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.common.CommonConstants;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.*;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
+import com.mashreq.transfercoreservice.fundtransfer.dto.LimitValidatorResponse;
+import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
+import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
-import com.mashreq.transfercoreservice.fundtransfer.validators.*;
+import com.mashreq.transfercoreservice.fundtransfer.validators.AccountBelongsToCifValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.AccountFreezeValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.CurrencyValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.FinTxnNoValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.SameAccountValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
 import com.mashreq.transfercoreservice.notification.model.NotificationType;
 import com.mashreq.transfercoreservice.notification.service.DigitalUserSegment;
 import com.mashreq.transfercoreservice.notification.service.NotificationService;
 import com.mashreq.transfercoreservice.notification.service.PostTransactionService;
+
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-
-import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
-import static java.time.Duration.between;
-import static java.time.Instant.now;
 
 /**
  * @author shahbazkh
@@ -43,6 +58,7 @@ import static java.time.Instant.now;
  */
 @Slf4j
 @Service
+@Getter
 @RequiredArgsConstructor
 public class OwnAccountStrategy implements FundTransferStrategy {
 
@@ -67,9 +83,9 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     private final NotificationService notificationService;
     private final AsyncUserEventPublisher auditEventPublisher;
     private final DigitalUserSegment digitalUserSegment;
+    private final AccountFreezeValidator freezeValidator;
 
-    @Autowired
-    private PostTransactionService postTransactionService;
+    private final PostTransactionService postTransactionService;
 
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, RequestMetaData metadata, UserDTO userDTO) {
@@ -80,11 +96,12 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         responseHandler(sameAccountValidator.validate(request, metadata));
 
         final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metadata.getPrimaryCif());
-
         final ValidationContext validateAccountContext = new ValidationContext();
         validateAccountContext.add("account-details", accountsFromCore);
         validateAccountContext.add("validate-to-account", Boolean.TRUE);
         validateAccountContext.add("validate-from-account", Boolean.TRUE);
+        
+        validateAccountFreezeDetails(request, metadata, validateAccountContext);
 
         responseHandler(accountBelongsToCifValidator.validate(request, metadata, validateAccountContext));
 
@@ -141,8 +158,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 			responseHandler(dealValidator.validate(request, metadata, validateAccountContext));
 		}
 
-        validateAccountContext.add("transfer-amount-in-source-currency", transferAmountInSrcCurrency);
-        responseHandler(balanceValidator.validate(request, metadata, validateAccountContext));
+        validateAccountBalance(request, metadata, validateAccountContext, transferAmountInSrcCurrency);
 
 
         //Limit Validation
@@ -152,27 +168,70 @@ public class OwnAccountStrategy implements FundTransferStrategy {
             limitValidator.validateMin(userDTO, request.getServiceType(), transactionAmount, metadata);
         }
         Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
-        final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metadata, bendId);
+        final LimitValidatorResponse validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount, metadata, bendId);
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccount, toAccount,conversionResult.getExchangeRate(),validationResult);
 
-        fundTransferRequest.setProductId(isMT5AccountProdID(fundTransferRequest));
-       final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata,validationResult.getTransactionRefNo());
+       fundTransferRequest.setProductId(isMT5AccountProdID(fundTransferRequest));
+       final FundTransferResponse fundTransferResponse = processTransfer(metadata, validationResult, fundTransferRequest,request);
 
-       if(isSuccessOrProcessing(fundTransferResponse)){
-       final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request,transactionAmount,metadata);
-       notificationService.sendNotifications(customerNotification,OWN_ACCOUNT_TRANSACTION,metadata,userDTO);
-       }
+       handleSuccessfulTransaction(request, metadata, userDTO, transactionAmount, validationResult, fundTransferResponse, fundTransferRequest);
        
         log.info("Total time taken for {} strategy {} milli seconds ", htmlEscape(request.getServiceType()), htmlEscape(Long.toString(between(start, now()).toMillis())));
         prepareAndCallPostTransactionActivity(metadata,fundTransferRequest,request,fundTransferResponse,conversionResult);
-        return fundTransferResponse.toBuilder()
+        return prepareResponse(transferAmountInSrcCurrency, limitUsageAmount, validationResult, fundTransferResponse);
+    }
+
+	protected FundTransferResponse prepareResponse(final BigDecimal transferAmountInSrcCurrency,
+			final BigDecimal limitUsageAmount, final LimitValidatorResponse validationResult,
+			final FundTransferResponse fundTransferResponse) {
+		return fundTransferResponse.toBuilder()
                 .limitUsageAmount(limitUsageAmount)
                 .limitVersionUuid(validationResult.getLimitVersionUuid())
                 .transactionRefNo(validationResult.getTransactionRefNo())
+                .debitAmount(transferAmountInSrcCurrency)
                 .build();
-    }
+	}
 
-    private void prepareAndCallPostTransactionActivity(RequestMetaData metadata, FundTransferRequest fundTransferRequest, FundTransferRequestDTO request, FundTransferResponse fundTransferResponse, CurrencyConversionDto conversionResult) {
+	protected void handleSuccessfulTransaction(FundTransferRequestDTO request, RequestMetaData metadata,
+			UserDTO userDTO, BigDecimal transactionAmount, final LimitValidatorResponse validationResult,
+			final FundTransferResponse fundTransferResponse, final FundTransferRequest fundTransferRequest) {
+		if(isSuccessOrProcessing(fundTransferResponse)){
+		   final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request,transactionAmount,metadata,fundTransferRequest.getBeneficiaryFullName(),fundTransferRequest.getToAccount());
+		   notificationService.sendNotifications(customerNotification, OWN_ACCOUNT_FT, metadata, userDTO);
+		   }
+	}
+
+	protected FundTransferResponse processTransfer(RequestMetaData metadata,
+			final LimitValidatorResponse validationResult, final FundTransferRequest fundTransferRequest,
+			FundTransferRequestDTO request) {
+		final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata,validationResult.getTransactionRefNo());
+		return fundTransferResponse;
+	}
+
+	protected void validateAccountBalance(FundTransferRequestDTO request, RequestMetaData metadata,
+			final ValidationContext validateAccountContext, final BigDecimal transferAmountInSrcCurrency) {
+		validateAccountContext.add("transfer-amount-in-source-currency", transferAmountInSrcCurrency);
+        responseHandler(balanceValidator.validate(request, metadata, validateAccountContext));
+	}
+
+	/**
+	 * Validates debit and credit freeze details for source and destination account details respectively
+	 * @param request
+	 * @param metadata
+	 * @param validateAccountContext
+	 */
+	private void validateAccountFreezeDetails(FundTransferRequestDTO request, RequestMetaData metadata,
+			final ValidationContext validateAccountContext) {
+		SearchAccountDto toAccountDetails = accountService.getAccountDetailsFromCore(request.getToAccount());
+        validateAccountContext.add("credit-account-details", toAccountDetails);
+        validateAccountContext.add("validate-credit-freeze", Boolean.TRUE);
+        SearchAccountDto fromAccountDetails = accountService.getAccountDetailsFromCore(request.getFromAccount());
+        validateAccountContext.add("debit-account-details", fromAccountDetails);
+        validateAccountContext.add("validate-debit-freeze", Boolean.TRUE);
+        freezeValidator.validate(request, metadata,validateAccountContext);
+	}
+
+	protected void prepareAndCallPostTransactionActivity(RequestMetaData metadata, FundTransferRequest fundTransferRequest, FundTransferRequestDTO request, FundTransferResponse fundTransferResponse, CurrencyConversionDto conversionResult) {
         boolean isSuccess = MwResponseStatus.S.equals(fundTransferResponse.getResponseDto().getMwResponseStatus());
         if(goldSilverTransfer(request) && isSuccess && StringUtils.isEmpty(request.getTxnCurrency())){
             if(buyRequest(request)){
@@ -195,7 +254,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         }
     }
 
-    private CustomerNotification populateCustomerNotification(String transactionRefNo, FundTransferRequestDTO requestDTO, BigDecimal amount, RequestMetaData metadata) {
+    protected CustomerNotification populateCustomerNotification(String transactionRefNo, FundTransferRequestDTO requestDTO, BigDecimal amount, RequestMetaData metadata, String beneficiaryName, String creditAccount) {
         CustomerNotification customerNotification =new CustomerNotification();
         customerNotification.setAmount(String.valueOf(amount));
         customerNotification.setCurrency(requestDTO.getTxnCurrency());
@@ -204,6 +263,8 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         }
         customerNotification.setTxnRef(transactionRefNo);
         customerNotification.setSegment(digitalUserSegment.getCustomerCareInfo(metadata.getSegment()));
+        customerNotification.setBeneficiaryName(beneficiaryName);
+        customerNotification.setCreditAccount(creditAccount);
         return customerNotification;
     }
 
@@ -235,19 +296,20 @@ public class OwnAccountStrategy implements FundTransferStrategy {
                 .exchangeRate(exchangeRate)
                 .txnCurrency(request.getTxnCurrency())
                 .limitTransactionRefNo(validationResult.getTransactionRefNo())
+                .paymentNote(request.getPaymentNote())
                 .build();
 
     }
 
 
-    private BigDecimal getLimitUsageAmount(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO,
+    protected BigDecimal getLimitUsageAmount(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO,
                                            final BigDecimal transferAmountInSrcCurrency) {
         return LOCAL_CURRENCY.equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
                 ? transferAmountInSrcCurrency
                 : convertAmountInLocalCurrency(dealNumber, sourceAccountDetailsDTO, transferAmountInSrcCurrency);
     }
 
-    private BigDecimal convertAmountInLocalCurrency(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO,
+    protected BigDecimal convertAmountInLocalCurrency(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO,
                                                     final BigDecimal transferAmountInSrcCurrency) {
         CoreCurrencyConversionRequestDto currencyConversionRequestDto = new CoreCurrencyConversionRequestDto();
         currencyConversionRequestDto.setAccountNumber(sourceAccountDetailsDTO.getNumber());
@@ -258,10 +320,6 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 
         CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(currencyConversionRequestDto);
         return currencyConversionDto.getTransactionAmount();
-    }
-
-    private boolean isCurrencySame(AccountDetailsDTO destinationAccount, AccountDetailsDTO sourceAccount) {
-        return destinationAccount.getCurrency().equalsIgnoreCase(sourceAccount.getCurrency());
     }
 
     private boolean isCurrencySame(String destinationCurrency, String sourceCurrency) {
@@ -307,6 +365,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         }
         return null;
     }
+    
     private boolean isSuccessOrProcessing(FundTransferResponse response) {
         return response.getResponseDto().getMwResponseStatus().equals(MwResponseStatus.S) ||
                 response.getResponseDto().getMwResponseStatus().equals(MwResponseStatus.P);

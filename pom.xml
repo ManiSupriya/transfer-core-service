@@ -77,6 +77,11 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+	            <groupId>org.springframework</groupId>
+	            <artifactId>spring-core</artifactId>
+	            <version>5.3.7</version>
+        </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -198,6 +203,12 @@
             <groupId>com.mashreq.ms</groupId>
             <artifactId>ms-commons</artifactId>
             <version>${com.mashreq.ms.ms-commons}</version>
+            <exclusions>
+	            <exclusion>
+	            	<groupId>net.sf.jasperreports</groupId>
+					<artifactId>jasperreports</artifactId>
+	            </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.springfox</groupId>
@@ -208,17 +219,6 @@
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger-ui</artifactId>
             <version>${springfox.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct</artifactId>
-            <version>${mapstruct.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct-processor</artifactId>
-            <version>${mapstruct.version}</version>
-            <scope>provided</scope>
         </dependency>
 
         <!-- Helpers -->
@@ -307,24 +307,6 @@
             <artifactId>feign-httpclient</artifactId>
             <version>10.9</version>
         </dependency>
-
-        <dependency>
-            <groupId>com.mashreq</groupId>
-            <artifactId>logcore</artifactId>
-            <version>${com.mashreq.logcore}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-databind</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.databind.version}</version>
-        </dependency>
-
     </dependencies>
 
     <build>

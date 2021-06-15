@@ -50,8 +50,6 @@ public class QuickRemitIndiaRequestMapper {
                 .beneficiaryFullName(beneficiaryDto.getFullName())
                 .beneficiaryName(StringUtils.defaultIfBlank(beneficiaryDto.getFinalName(), beneficiaryDto.getFullName()))
                 .channelTraceId(channelTraceId)
-                .destCountry(beneficiaryDto.getBeneficiaryCountryISO())
-                .destCurrency(beneficiaryDto.getBeneficiaryCurrency())
                 .srcISOCurrency(srcIsoCurrency)
                 .destISOCurrency(INDIA_COUNTRY_ISO)
                 .exchangeRate(exchangeRate)
@@ -66,8 +64,6 @@ public class QuickRemitIndiaRequestMapper {
                 .senderName(accountDetails.getCustomerName())
                 .srcCurrency(accountDetails.getCurrency())
                 .transactionAmount(request.getAmount().toString())
-                .transactionCurrency(beneficiaryDto.getBeneficiaryCurrency())
-                .beneficiaryMobileNo(beneficiaryDto.getMobileNumber())
                 .build();
 
         return CustomerDetailsUtils.deriveSenderIdNumberAndAddress(quickRemitFundTransferRequest, customerDetails);

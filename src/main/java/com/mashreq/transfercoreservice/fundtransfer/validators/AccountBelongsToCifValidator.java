@@ -26,7 +26,7 @@ import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class AccountBelongsToCifValidator implements Validator {
+public class AccountBelongsToCifValidator implements Validator<FundTransferRequestDTO> {
 
     private final AsyncUserEventPublisher auditEventPublisher;
     private static final String ACCOUNT_DORMANT = "DORMANT";

@@ -51,6 +51,7 @@ public class RoutingCodeSearchMWService {
         List<BankResultsDto> results = response.getBody().getFetchAccuityDataRes().getAccuityDetails()
                 .stream()
                 .map(x -> new BankResultsDto(x))
+                .filter(x -> StringUtils.isNotBlank(x.getSwiftCode()))
                 .collect(Collectors.toList());
 
         return results;

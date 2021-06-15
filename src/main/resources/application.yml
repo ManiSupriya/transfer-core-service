@@ -120,6 +120,7 @@ app:
     address: 'UNITED ARAB EMIRATES'
     iban:
       length: 23
+      accountNumber: ${MASHREQ_ACCOUNTNUMBER_LENGTH:12}
   bank:
     code: '033'
   loyalty:
@@ -137,6 +138,7 @@ app:
     mobcommon: ${MOB_COMMON_SERVICE:http://mob-common-service:8080}
     omw-core: ${OMW_CORE:https://172.24.70.29:7805/omw/core}
     beneficiaryservice: ${BENEFICIARY_SERVICE:http://beneficiary-service:8080}
+    quick-remit: ${QUICK_REMIT_SERVICE:http://mob-quickremit-service:8080}
   ftcc:
     merchantId: ${TFTCC_MERCHANT_ID:000008026734}
     terminalId: ${TFTCC_TERMINAL_ID:20091124}
@@ -168,9 +170,11 @@ app:
       serviceId: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_SERVICEID:91}
       callCenterNo: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_CALL_CENTER_NO:04 424 6666}
       ownAccountTransactionInitiated: ${OWN_ACCOUNT_SMS:Request received through {0} for a Fund Transfer of {1} {2} with {3}. Contact {4} if you did not initiate this.}
+      plSiCreation: ${PL_SI_CREATION_SMS:On your request SI/Pay later has been set up for the beneficiary {0}, account number {1}. If not requested, please contact {2}. Thank you for using our services.}
     push:
       ownAccountTransactionInitiated: ${OWN_ACCOUNT_PUSH:Request received through {0} for a Fund Transfer of {1} {2} with {3}. Contact {4} if you did not initiate this.}
-
+      plSiCreation: ${PL_SI_CREATION_SMS:On your request SI/Pay later has been set up for the beneficiary {0}, account number {1}. If not requested, please contact {2}. Thank you for using our services.}
+      
 instarem:
   rules:
     bankCodeType:

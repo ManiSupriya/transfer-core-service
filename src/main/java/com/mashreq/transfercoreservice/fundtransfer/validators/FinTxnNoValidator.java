@@ -21,7 +21,7 @@ import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class FinTxnNoValidator implements Validator {
+public class FinTxnNoValidator implements Validator<FundTransferRequestDTO> {
 
     private final TransactionHistoryService transactionHistoryService;
     private final AsyncUserEventPublisher auditEventPublisher;

@@ -34,6 +34,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mashreq.transfercoreservice.notification.model.NotificationType.WITHIN_MASHREQ_FT;
 import static java.time.Duration.between;
 import static java.time.Instant.now;
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
@@ -94,7 +95,6 @@ public class WithinMashreqStrategyTest implements FundTransferStrategy {
         validationContext.add("from-account", fromAccountOpt.get());
 
         BeneficiaryDto beneficiaryDto = beneficiaryService.getById(metadata.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), metadata);
-        validationContext.add("to-account-currency",beneficiaryDto.getBeneficiaryCurrency());
         validationContext.add("beneficiary-dto", beneficiaryDto);
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
         responseHandler(currencyValidator.validate(request, metadata, validationContext));
@@ -109,7 +109,7 @@ public class WithinMashreqStrategyTest implements FundTransferStrategy {
         //Limit Validation
         Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
         final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), fromAccountOpt.get(),transferAmountInSrcCurrency);
-        final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metadata, bendId);
+        final LimitValidatorResponse validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount, metadata, bendId);
         String txnRefNo = validationResult.getTransactionRefNo();
 
         //Deal Validator
@@ -138,7 +138,7 @@ public class WithinMashreqStrategyTest implements FundTransferStrategy {
         final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata, txnRefNo);
         if(isSuccessOrProcessing(fundTransferResponse)) {
         	final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getTxnCurrency(),request.getAmount());
-            notificationService.sendNotifications(customerNotification,NotificationType.OTHER_ACCOUNT_TRANSACTION,metadata,userDTO);
+            notificationService.sendNotifications(customerNotification,WITHIN_MASHREQ_FT,metadata,userDTO);
             fundTransferRequest.setTransferType(MASHREQ);
             fundTransferRequest.setNotificationType(NotificationType.LOCAL);
             fundTransferRequest.setStatus(MwResponseStatus.S.getName());
@@ -207,7 +207,6 @@ public class WithinMashreqStrategyTest implements FundTransferStrategy {
                 .sourceCurrency(sourceAccount.getCurrency())
                 .sourceBranchCode(sourceAccount.getBranchCode())
                 .beneficiaryFullName(beneficiaryDto.getFullName())
-                .destinationCurrency(beneficiaryDto.getBeneficiaryCurrency())
                 .transactionCode(WITHIN_MASHREQ_TRANSACTION_CODE)
                 .internalAccFlag(INTERNAL_ACCOUNT_FLAG)
                 .dealNumber(request.getDealNumber())

@@ -20,5 +20,6 @@ public class CustomerNotification {
     String buy_sell;
     Segment segment;
     String channel;
+    String beneficiaryName;
 
 }

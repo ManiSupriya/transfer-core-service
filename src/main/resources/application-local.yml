@@ -1,9 +1,9 @@
 server:
   port: 8067
   http2:
-    enabled: on
+    enabled: true
   compression:
-    enabled: on
+    enabled: true
     mime-types: text/html,text/xml,text/plain,text/css, application/javascript, application/json
     min-response-size: 1024
 
@@ -14,13 +14,13 @@ spring:
   profiles.active: local
   main.lazy-initialization: false
   datasource:
-    url: jdbc:sqlserver://localhost:1433;databaseName=MOB-LOCAL
-    username: ${MSSQL_DEV_USERNAME:SA}
-    password: ${MSSQL_DB_KEY:Asdasdasd123}
+    url: ${MSSQL_DB_URL:jdbc:sqlserver://10.196.3.22:1433;databaseName=MOB-UAT}
+    username: ${MSSQL_DB_USERNAME:Mobliquibasedbuse}
+    password: ${MSSQL_DB_KEY:Mobliquibasedbuse}
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
 
 external:
   error-code:
@@ -86,16 +86,17 @@ app:
     timeInterval: 1
     smilesProductBin: 524179
   services:
-    maintenance: ${MAINTENANCE_SERVICE_URL:http://digital-dev.mashreq.com/api/maintenance-service}
+    maintenance: ${MAINTENANCE_SERVICE_URL:http://digital-uat.mashreq.com/api/maintenance-service}
     customers: ${CUSTOMER_SERVICE_URL:http://localhost:8083}
-    accounts: ${ACCOUNT_SERVICE_URL:http://digital-dev.mashreq.com/api/accounts-service}
-    otp: http://digital-dev.mashreq.com/api/ms-security-iam/
-    cards: ${CARD_SERVICE_URL:http://digital-dev.mashreq.com/api/cards-service}
-    notification: ${NOTIFICATION_SERVICE:http://digital-dev.mashreq.com/api/notification-service}
+    accounts: ${ACCOUNT_SERVICE_URL:http://digital-uat.mashreq.com/api/accounts-service}
+    otp: http://digital-uat.mashreq.com/api/ms-security-iam/
+    cards: ${CARD_SERVICE_URL:http://digital-uat.mashreq.com/api/cards-service}
+    notification: ${NOTIFICATION_SERVICE:http://digital-uat.mashreq.com/api/notification-service}
     mobcustomer: ${MOB_CUSTOMER_SERVICE:http://localhost:8088}
-    beneficiary: ${BENEFICIARY_CORE_SERVICE:http://digital-dev.mashreq.com/api/beneficiary-core-service}
-    mobcommon: ${MOB_COMMON_SERVICE:http://digital-dev.mashreq.com/api/mob-common-service}
-    beneficiaryservice: https://digital-uat.mashreq.com/api/beneficiary-service
+    beneficiary: ${BENEFICIARY_CORE_SERVICE:http://digital-uat.mashreq.com/api/beneficiary-core-service}
+    mobcommon: ${MOB_COMMON_SERVICE:http://digital-uat.mashreq.com/api/mob-common-service}
+    beneficiaryservice: http://digital-uat.mashreq.com/api/beneficiary-service
+    quick-remit: http://digital-uat.mashreq.com/api/mob-quickremit-service
   middleware:
     endpoint: http://172.24.70.29:7800/AllOperationsSOAP_HTTP_Service
     timeout: 100000
@@ -126,6 +127,18 @@ app:
         callCenterNo: ${NOTIFICATION_EMAIL_CALL_CENTER_NO:04 424 6666}
         localFundTransfer: mt-within-own-accounts.ftl
         otherFundTransfer: mt-other-accounts.ftl
+    sms:
+      mashreqServiceId: ${ALERT_SMS_MASHREQ_PAYMENT_SERVICEID:330}
+      neoServiceId: ${ALERT_SMS_NEO_PAYMENT_SERVICEID:350}
+      priority: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_PRIORITY:HIGH}
+      serviceId: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_SERVICEID:91}
+      callCenterNo: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_CALL_CENTER_NO:04 424 6666}
+      ownAccountTransactionInitiated: ${OWN_ACCOUNT_SMS:Request received through {0} for a Fund Transfer of {1} {2} with {3}. Contact {4} if you did not initiate this.}
+      plSiCreation: ${PL_SI_CREATION_SMS:On your request SI/Pay later has been set up for the beneficiary {0}, account number {1}. If not requested, please contact {2}. Thank you for using our services.}
+    push:
+      ownAccountTransactionInitiated: ${OWN_ACCOUNT_PUSH:Request received through {0} for a Fund Transfer of {1} {2} with {3}. Contact {4} if you did not initiate this.}
+      plSiCreation: ${PL_SI_CREATION_SMS:On your request SI/Pay later has been set up for the beneficiary {0}, account number {1}. If not requested, please contact {2}. Thank you for using our services.}
+
 redis:
   enable: true
   write.ttl: 60
@@ -138,9 +151,9 @@ redis:
 mob-common:
   commonUserEventDataSource:
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
-    jdbcUrl: jdbc:sqlserver://localhost:1433;databaseName=MOB-LOCAL
-    username: SA
-    password: Asdasdasd123
+    jdbcUrl: ${MSSQL_DB_URL:jdbc:sqlserver://10.196.3.22:1433;databaseName=MOB-UAT}
+    username: ${MSSQL_DB_USERNAME:Mobliquibasedbuse}
+    password: ${MSSQL_DB_KEY:Mobliquibasedbuse}
     maxPoolSize: 40
     poolName: hikari-user-events-life-pool
     minimumidletime: 600000
