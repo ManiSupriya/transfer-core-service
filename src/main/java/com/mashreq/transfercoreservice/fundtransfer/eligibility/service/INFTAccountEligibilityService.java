@@ -64,8 +64,8 @@ public class INFTAccountEligibilityService implements TransferEligibilityService
 			beneficiaryDto = beneficiaryService.getUpdate(request.getBeneRequiredFields(),
 					Long.valueOf(request.getBeneficiaryId()), metaData, INTERNATIONAL_VALIDATION_TYPE);
 		} else {
-			beneficiaryDto = beneficiaryService.getByIdV2(request.getBeneRequiredFields(),
-					Long.valueOf(request.getBeneficiaryId()), metaData, INTERNATIONAL_VALIDATION_TYPE);
+			beneficiaryDto = beneficiaryService.getByIdV2(metaData.getPrimaryCif(),
+					Long.valueOf(request.getBeneficiaryId()), metaData);
 		}
 
 		validationContext.add("beneficiary-dto", beneficiaryDto);
@@ -74,7 +74,7 @@ public class INFTAccountEligibilityService implements TransferEligibilityService
 		final AccountDetailsDTO sourceAccountDetailsDTO = getAccountDetailsBasedOnAccountNumber(accountsFromCore,
 				request.getFromAccount());
 
-		final BigDecimal transferAmountInSrcCurrency = getAmountInSrcCurrency(request, beneficiaryDto, sourceAccountDetailsDTO);
+		final BigDecimal transferAmountInSrcCurrency = getAmountInSrcCurrency(request, sourceAccountDetailsDTO);
 
 		// Limit Validation
 		Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId()) ? Long.parseLong(request.getBeneficiaryId())
@@ -112,8 +112,7 @@ public class INFTAccountEligibilityService implements TransferEligibilityService
                 : convertAmountInLocalCurrency(dealNumber, sourceAccountDetailsDTO, transferAmountInSrcCurrency);
     }
 
-    private BigDecimal getAmountInSrcCurrency(FundTransferEligibiltyRequestDTO request, BeneficiaryDto beneficiaryDto,
-                                              AccountDetailsDTO sourceAccountDetailsDTO) {
+    private BigDecimal getAmountInSrcCurrency(FundTransferEligibiltyRequestDTO request, AccountDetailsDTO sourceAccountDetailsDTO) {
         BigDecimal amtToBePaidInSrcCurrency;
         final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
         currencyRequest.setAccountNumber(sourceAccountDetailsDTO.getNumber());
