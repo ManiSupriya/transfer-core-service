@@ -48,7 +48,7 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 	private final CurrencyValidatorFactory currencyValidatorFactory;
 	private final QuickRemitService quickRemitService;
 	private final AsyncUserEventPublisher userEventPublisher;
-	 
+
 	public EligibilityResponse checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request,
 			UserDTO userDTO) {
 
@@ -87,7 +87,10 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 		}
 		final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), sourceAccountDetailsDTO,
 				new BigDecimal(response.getAccountCurrencyAmount()));
-		limitValidatorFactory.getValidator(metaData).validate(userDTO, request.getServiceType(), limitUsageAmount, metaData, Long.valueOf(request.getBeneficiaryId()));
+		limitValidatorFactory.getValidator(metaData).validate(
+				userDTO,
+				getServiceType() == ServiceType.QRT ? "QROC" : request.getServiceType(),
+				limitUsageAmount, metaData, Long.valueOf(request.getBeneficiaryId()));
 		updateExchangeRateDisplay(response);
 		
 		return EligibilityResponse.builder().status(FundsTransferEligibility.ELIGIBLE).data(response).build();
@@ -99,8 +102,7 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 	 * currency = X Account Currency else 1 Account Currency = Y Transaction
 	 * currency where X -> Exchange rate and Y -> Reciprocal of exchange rate
 	 * 
-	 * @param exchangeRate
-	 * @param dealConversionRateRequestDto
+	 * @param response
 	 * @return
 	 */
 	protected void updateExchangeRateDisplay(QRExchangeResponse response) {
