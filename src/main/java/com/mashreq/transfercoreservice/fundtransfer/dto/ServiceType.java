@@ -25,6 +25,7 @@ public enum ServiceType implements ValidEnum {
     QRIN("QRIN","QUICK_REMIT","QR"),
     QRPK("QRPK","QUICK_REMIT","QR"),
     QRT("QRT","QUICK_REMIT","QR"),
+    QROC("QROC","QUICK_REMIT","QR"),
     XAU("XAU","GOLD_TRANSFER","GL"),
     XAG("XAG","SILVER_TRANSFER","SL"),
     CLC("cardless-cash","CARDLESS_CASH","cardless-cash")
