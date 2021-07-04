@@ -3,6 +3,7 @@ package com.mashreq.transfercoreservice.fundtransfer.strategy.paylater;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.mashreq.transfercoreservice.common.HtmlEscapeCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -110,7 +111,7 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 		log.info("Persisting funds transfer order for {}");
 		FundTransferOrder fundTransferOrder = this.createOrderFromRequest(fundTransferRequest, metadata,
 				validationResult.getTransactionRefNo(), request);
-		log.info("Persisting funds transfer order for {}", fundTransferOrder);
+		log.info("Persisting funds transfer order for {}", HtmlEscapeCache.htmlEscape(fundTransferOrder));
 		fundTransferOrderRepository.saveAndFlush(fundTransferOrder);
 		return FundTransferResponse.builder().payOrderInitiated(true).transactionRefNo(fundTransferOrder.getOrderId()).build();
 	}

@@ -6,6 +6,7 @@ import static com.mashreq.transfercoreservice.notification.model.NotificationTyp
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.mashreq.transfercoreservice.common.HtmlEscapeCache;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
@@ -80,7 +81,7 @@ public class InternationalPayLaterFundTransferStrategy extends InternationalFund
 			final FundTransferRequest fundTransferRequest, FundTransferRequestDTO request) {
 		log.info("Persisting funds transfer order for {}");
 		FundTransferOrder fundTransferOrder = this.createOrderFromRequest(fundTransferRequest,metadata,txnRefNo,request);
-		log.info("Persisting funds transfer order for {}",fundTransferOrder);
+		log.info("Persisting funds transfer order for {}", HtmlEscapeCache.htmlEscape(fundTransferOrder));
 		fundTransferOrderRepository.saveAndFlush(fundTransferOrder);
 		return FundTransferResponse.builder().payOrderInitiated(true).transactionRefNo(fundTransferOrder.getOrderId()).build();
 	}
