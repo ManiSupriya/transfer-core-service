@@ -17,7 +17,7 @@ public interface NotificationClient {
         SMSResponse sendSMS(@RequestBody SMSObject smsObj);
 
         @PostMapping(value = "/common/notification/email", consumes = "application/json")
-        ResponseEntity<EmailResponse> sendEmail(@RequestBody EmailRequest emailRequest);
+        ResponseEntity<EmailResponse> sendEmail(@RequestBody SendEmailRequest emailRequest);
 
         @PostMapping(value = "/common/message/sendNotification", consumes = "application/json")
         NotificationResponse sendPushNotification(@RequestBody NotificationRequest notificationRequest, @RequestHeader("X-USSM-USER-CIF") String cif);
