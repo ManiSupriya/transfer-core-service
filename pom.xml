@@ -53,6 +53,7 @@
         <jackson.version>2.11.0</jackson.version>
         <properties-maven-plugin.version>1.0.0</properties-maven-plugin.version>
         <jackson.databind.version>2.11.0</jackson.databind.version>
+        <templates.utils.version>1.0.2.RELEASE</templates.utils.version>
     </properties>
 
     <repositories>
@@ -86,6 +87,12 @@
     </dependencyManagement>
 
     <dependencies>
+
+        <dependency>
+            <groupId>com.mashreq</groupId>
+            <artifactId>templates-utils</artifactId>
+            <version>${templates.utils.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
