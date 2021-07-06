@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.fundtransfer.eligibility.service;
 
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_SEGMENT;
 
 import java.math.BigDecimal;
@@ -92,7 +93,6 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 				getServiceType() == ServiceType.QRT ? "QROC" : request.getServiceType(),
 				limitUsageAmount, metaData, Long.valueOf(request.getBeneficiaryId()));
 		updateExchangeRateDisplay(response);
-		
 		return EligibilityResponse.builder().status(FundsTransferEligibility.ELIGIBLE).data(response).build();
 	}
 
@@ -105,9 +105,10 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 	 * @param response
 	 * @return
 	 */
-	protected void updateExchangeRateDisplay(QRExchangeResponse response) {
+	public void updateExchangeRateDisplay(QRExchangeResponse response) {
 		StringBuilder builder = new StringBuilder("");
-		BigDecimal exchangeRate = new BigDecimal(response.getExchangeRate());
+		BigDecimal exchangeRate = findAndUpdateExchangeRate(response);
+		response.setExchangeRate(exchangeRate.toPlainString());
 		if (exchangeRate.compareTo(BigDecimal.ONE) > 0) {
 			builder =  builder.append("1 ").append(response.getTransactionCurrency()).append(" = ")
 					.append(exchangeRate.setScale(5, RoundingMode.DOWN).toPlainString()).append(" ")
@@ -121,9 +122,20 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 		response.setExchangeRateDisplay(builder.toString());
 	}
 	
+	/**
+	 * for updating exchange rate in right format
+	 * @param response
+	 * @return
+	 */
+	private BigDecimal findAndUpdateExchangeRate(QRExchangeResponse response) {
+		BigDecimal debitAmount = new BigDecimal(response.getDebitAmountWithoutCharges());
+		BigDecimal trxAmount = new BigDecimal(response.getTransactionAmount());
+		log.info("debit amount without charges is {}, transaction amount is {} ",htmlEscape(debitAmount),htmlEscape(trxAmount));
+		return debitAmount.divide(trxAmount,8,RoundingMode.HALF_UP);
+	}
 
 	private BigDecimal findReciprocal(BigDecimal exchangeRate) {
-		return BigDecimal.ONE.divide(exchangeRate, 8, RoundingMode.HALF_UP);
+		return BigDecimal.ONE.divide(exchangeRate, 12, RoundingMode.HALF_DOWN);
 	}
 	
 	@Override
