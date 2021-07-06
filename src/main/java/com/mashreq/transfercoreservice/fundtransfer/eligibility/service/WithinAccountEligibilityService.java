@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+import com.mashreq.transfercoreservice.errors.ExceptionUtils;
+import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -55,8 +57,7 @@ public class WithinAccountEligibilityService implements TransferEligibilityServi
 				.filter(x -> request.getFromAccount().equals(x.getNumber()))
 				.findFirst();
 
-		//from account will always be present as it has been validated in the accountBelongsToCifValidator
-		validationContext.add("from-account", fromAccountOpt.get());
+		validationContext.add("from-account", fromAccountOpt.orElseThrow(() -> ExceptionUtils.genericException(TransferErrorCode.ACCOUNT_NOT_FOUND)));
 
 		BeneficiaryDto beneficiaryDto = beneficiaryService.getByIdV2(metaData.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), metaData);
 		validationContext.add("beneficiary-dto", beneficiaryDto);
