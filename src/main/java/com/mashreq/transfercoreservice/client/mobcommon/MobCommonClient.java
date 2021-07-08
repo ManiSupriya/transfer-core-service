@@ -5,6 +5,7 @@ import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
+import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -54,5 +55,18 @@ public interface MobCommonClient {
     
     @PostMapping(value = "/v1/promo/validate/{promoCode}", consumes = "application/json")
     Response<Void> validatePromo(@NotNull @PathVariable String promoCode, @RequestBody PromoCodeTransactionRequestDto promoCodeReq);
+
+    @GetMapping(value = "/v1/account/debit/freeze/{accountNumber}")
+    Response<Boolean> checkDebitFreeze(
+            @RequestHeader(HeaderNames.CIF_HEADER_NAME) String cifId,
+            @RequestHeader(HeaderNames.X_USSM_USER_REDIS_KEY) String userCacheKey,
+            @NotNull @PathVariable String accountNumber);
+
+    @PostMapping(value = "/v1/account/credit/freeze/{accountNumber}")
+    Response<Boolean> checkCreditFreeze(
+            @RequestHeader(HeaderNames.CIF_HEADER_NAME) String cifId,
+            @RequestHeader(HeaderNames.X_USSM_USER_REDIS_KEY) String userCacheKey,
+            @RequestParam ServiceType serviceTypeCode,
+            @NotNull @PathVariable String accountNumber);
 
 }

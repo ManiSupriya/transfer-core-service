@@ -20,6 +20,8 @@ import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 
+import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
@@ -48,6 +50,7 @@ public class TransferEligibilityProxy {
 	private final WithinAccountEligibilityService withinAccountEligibilityService;
 	private final QRAccountEligibilityService qrAccountEligibilityService;
 	private final DigitalUserRepository digitalUserRepository;
+	private final MobCommonService mobCommonService;
 
 	@PostConstruct
 	public void init() {
@@ -75,6 +78,8 @@ public class TransferEligibilityProxy {
 		log.info("Creating  User DTO");
 		UserDTO userDTO = createUserDTO(metaData, digitalUser);
 
+		validate(metaData, serviceType, request);
+
 		for(TransferEligibilityService eligibilityService : transferEligibilityServiceMap.get(serviceType)) {
 			try {
 				eligibilityService.modifyServiceType(request);
@@ -91,6 +96,19 @@ public class TransferEligibilityProxy {
 			}
 		}
 		return serviceTypes;
+	}
+
+	private void validate(RequestMetaData metaData, ServiceType serviceType, FundTransferEligibiltyRequestDTO request) {
+
+		//debit freeze for all accounts
+		if (StringUtils.isBlank(request.getCardNo())) {
+			mobCommonService.checkDebitFreeze(metaData, request.getFromAccount());
+		}
+
+		//credt freeze for mashreq accounts
+		if(serviceType.equals(WAMA) || serviceType.equals(WYMA)){
+			mobCommonService.checkCreditFreeze(metaData, serviceType, request.getFromAccount());
+		}
 	}
 
 	private DigitalUser getDigitalUser(RequestMetaData fundTransferMetadata) {

@@ -2,6 +2,8 @@ package com.mashreq.transfercoreservice.client.mobcommon;
 
 import static com.mashreq.transfercoreservice.client.ErrorUtils.getErrorDetails;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.EXTERNAL_SERVICE_ERROR;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_DEBIT_FREEZE;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_CREDIT_FREEZE;
 import static java.time.Instant.now;
 import static java.util.Objects.isNull;
 
@@ -13,6 +15,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.mashreq.mobcommons.services.CustomHtmlEscapeUtil;
+import com.mashreq.mobcommons.services.http.RequestMetaData;
+import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
@@ -58,7 +63,7 @@ public class MobCommonService {
 
         if (ResponseStatus.ERROR == paymentPurpose.getStatus() || isNull(paymentPurpose.getData())) {
             final String errorDetails = getErrorDetails(paymentPurpose);
-            log.error("[MobCommonService] Exception in calling mob customer for POP ={} ", errorDetails);
+            log.error("[MobCommonService] Exception in calling mob common for POP ={} ", errorDetails);
             GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR,
                     EXTERNAL_SERVICE_ERROR.getErrorMessage(), getErrorDetails(paymentPurpose));
         }
@@ -72,7 +77,7 @@ public class MobCommonService {
         Response<CurrencyConversionDto> conversionResponse = mobCommonClient.convertBetweenCurrencies(currencyRequest);
         if (ResponseStatus.ERROR == conversionResponse.getStatus() || isNull(conversionResponse.getData())) {
             final String errorDetails = getErrorDetails(conversionResponse);
-            log.error("[MobCommonService] Exception in calling mob customer for POP ={} ", errorDetails);
+            log.error("[MobCommonService] Exception in calling mob common for POP ={} ", errorDetails);
             GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR,
                     EXTERNAL_SERVICE_ERROR.getErrorMessage(), getErrorDetails(conversionResponse));
         }
@@ -86,7 +91,7 @@ public class MobCommonService {
         Response<DealConversionRateResponseDto> conversionResponse = mobCommonClient.convertBetweenCurrenciesWithDeal(dealConversionRateRequestDto);
         if (ResponseStatus.ERROR == conversionResponse.getStatus() || isNull(conversionResponse.getData())) {
             final String errorDetails = getErrorDetails(conversionResponse);
-            log.error("[MobCommonService] Exception in calling mob customer for POP ={} ", errorDetails);
+            log.error("[MobCommonService] Exception in calling mob common for POP ={} ", errorDetails);
             GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR,
                     EXTERNAL_SERVICE_ERROR.getErrorMessage(), getErrorDetails(conversionResponse));
         }
@@ -168,5 +173,49 @@ public class MobCommonService {
                     getErrorDetails(response));
         }
         log.info("[MobCommonService] MobCommonService promo code validation response success");
+    }
+
+    public void checkDebitFreeze(RequestMetaData requestMetaData, String accountNumber) {
+        log.info("[MobCommonService] Calling MobCommonService for checking debit freeze for accountNumber {}  ", CustomHtmlEscapeUtil.htmlEscape(accountNumber));
+        Instant startTime = now();
+        final Response<Boolean> result = mobCommonClient.checkDebitFreeze(requestMetaData.getPrimaryCif(), requestMetaData.getUserCacheKey(), accountNumber);
+
+        if (ResponseStatus.ERROR == result.getStatus() || (isNull(result.getData()))) {
+            final String errorDetails = getErrorDetails(result);
+            log.error("[MobCommonService] Exception in calling mob common for debit freeze ={} ", errorDetails);
+            GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR,
+                    EXTERNAL_SERVICE_ERROR.getErrorMessage(), errorDetails);
+        }
+
+        if(result.getData()){
+            log.error("[MobCommonService] accountNumber {} is debit freeze ", CustomHtmlEscapeUtil.htmlEscape(accountNumber));
+            GenericExceptionHandler.handleError(ACCOUNT_DEBIT_FREEZE,
+                    ACCOUNT_DEBIT_FREEZE.getErrorMessage());
+        }
+
+        log.info("[MobCommonService] Payment purpose response success in  {} ms ", Duration.between(startTime, now()).toMillis());
+    }
+
+    public void checkCreditFreeze(RequestMetaData requestMetaData, ServiceType serviceType, String accountNumber) {
+        log.info("[MobCommonService] Calling MobCommonService for checking credit freeze for accountNumber {}  ", CustomHtmlEscapeUtil.htmlEscape(accountNumber));
+        Instant startTime = now();
+        final Response<Boolean> result = mobCommonClient.checkCreditFreeze(
+                requestMetaData.getPrimaryCif(),
+                requestMetaData.getUserCacheKey(),
+                serviceType,
+                accountNumber);
+
+        if (ResponseStatus.ERROR == result.getStatus() || (isNull(result.getData()) || !result.getData())) {
+            final String errorDetails = getErrorDetails(result);
+            log.error("[MobCommonService] Exception in calling mob common for credit freeze ={} ", errorDetails);
+            GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR,
+                    EXTERNAL_SERVICE_ERROR.getErrorMessage(), errorDetails);
+        }
+        if(result.getData()){
+            log.error("[MobCommonService] accountNumber {} is credit freeze ", CustomHtmlEscapeUtil.htmlEscape(accountNumber));
+            GenericExceptionHandler.handleError(ACCOUNT_CREDIT_FREEZE,
+                    ACCOUNT_CREDIT_FREEZE.getErrorMessage());
+        }
+        log.info("[MobCommonService] Payment purpose response success in  {} ms ", Duration.between(startTime, now()).toMillis());
     }
 }
