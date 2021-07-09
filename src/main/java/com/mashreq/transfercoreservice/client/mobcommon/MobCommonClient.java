@@ -62,7 +62,7 @@ public interface MobCommonClient {
             @RequestHeader(HeaderNames.X_USSM_USER_REDIS_KEY) String userCacheKey,
             @NotNull @PathVariable String accountNumber);
 
-    @PostMapping(value = "/v1/account/credit/freeze/{accountNumber}")
+    @GetMapping(value = "/v1/account/credit/freeze/{accountNumber}")
     Response<Boolean> checkCreditFreeze(
             @RequestHeader(HeaderNames.CIF_HEADER_NAME) String cifId,
             @RequestHeader(HeaderNames.X_USSM_USER_REDIS_KEY) String userCacheKey,
