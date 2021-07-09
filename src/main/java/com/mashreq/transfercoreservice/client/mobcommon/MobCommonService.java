@@ -205,7 +205,7 @@ public class MobCommonService {
                 serviceType,
                 accountNumber);
 
-        if (ResponseStatus.ERROR == result.getStatus() || (isNull(result.getData()) || !result.getData())) {
+        if (ResponseStatus.ERROR == result.getStatus() || (isNull(result.getData()))) {
             final String errorDetails = getErrorDetails(result);
             log.error("[MobCommonService] Exception in calling mob common for credit freeze ={} ", errorDetails);
             GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR,
