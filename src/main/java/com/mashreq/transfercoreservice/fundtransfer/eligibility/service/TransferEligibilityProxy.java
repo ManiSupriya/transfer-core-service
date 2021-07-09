@@ -107,7 +107,7 @@ public class TransferEligibilityProxy {
 
 		//credt freeze for mashreq accounts
 		if(serviceType.equals(WAMA) || serviceType.equals(WYMA)){
-			mobCommonService.checkCreditFreeze(metaData, serviceType, request.getFromAccount());
+			mobCommonService.checkCreditFreeze(metaData, serviceType, request.getToAccount());
 		}
 	}
 
