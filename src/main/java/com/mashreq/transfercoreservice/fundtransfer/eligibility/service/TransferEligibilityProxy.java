@@ -3,6 +3,7 @@ package com.mashreq.transfercoreservice.fundtransfer.eligibility.service;
 
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.PAYMENT_ELIGIBILITY_ERROR;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.INFT;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.LOCAL;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.QRIN;
@@ -109,6 +110,21 @@ public class TransferEligibilityProxy {
 		if(serviceType.equals(WAMA) || serviceType.equals(WYMA)){
 			mobCommonService.checkCreditFreeze(metaData, serviceType, request.getToAccount());
 		}
+
+		if(!isSourceOfFundEligible(request, serviceType)){
+			GenericExceptionHandler.handleError(PAYMENT_ELIGIBILITY_ERROR, PAYMENT_ELIGIBILITY_ERROR.getErrorMessage());
+		}
+	}
+
+	private boolean isSourceOfFundEligible(FundTransferEligibiltyRequestDTO request, ServiceType serviceType) {
+		if(StringUtils.isNotBlank(request.getFromAccount())){
+			return true;
+		}
+		if(StringUtils.isNotBlank(request.getCardNo()) &&
+				Arrays.asList(QRIN,QRPK,LOCAL).contains(serviceType)){
+			return true;
+		}
+		return false;
 	}
 
 	private DigitalUser getDigitalUser(RequestMetaData fundTransferMetadata) {
