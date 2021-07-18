@@ -194,6 +194,7 @@ public enum TransferErrorCode implements ErrorCode {
     ACCOUNT_DEBIT_FREEZE("TN-8032", "Account is frozen for debit"),
     ACCOUNT_CREDIT_FREEZE("TN-8033", "Account is frozen for credit"),
     PAYMENT_NOT_ELIGIBLE("TN-8034", "Payment not eligible"),
+    INVALID_ACCOUNT_NUMBER("TN-8035", "Invalid Account number."),
     ;
 
 

@@ -79,12 +79,15 @@ public class TransferEligibilityProxy {
 		log.info("Creating  User DTO");
 		UserDTO userDTO = createUserDTO(metaData, digitalUser);
 
-		validate(metaData, serviceType, request);
-
 		for(TransferEligibilityService eligibilityService : transferEligibilityServiceMap.get(serviceType)) {
 			try {
 				eligibilityService.modifyServiceType(request);
+
+				//common validations across all service types
+				validate(metaData, eligibilityService.getServiceType(), request);
+
 				serviceTypes.put(eligibilityService.getServiceType(),eligibilityService.checkEligibility(metaData, request, userDTO));
+
 			} catch(GenericException ge) {
 				log.error("Validation error while checking for eligibility for service type {}", serviceType, ge);
 				serviceTypes.put(eligibilityService.getServiceType(),
@@ -106,7 +109,7 @@ public class TransferEligibilityProxy {
 			mobCommonService.checkDebitFreeze(metaData, request.getFromAccount());
 		}
 
-		//credt freeze for mashreq accounts
+		//credit freeze for mashreq accounts
 		if(serviceType.equals(WAMA) || serviceType.equals(WYMA)){
 			mobCommonService.checkCreditFreeze(metaData, serviceType, request.getToAccount());
 		}
@@ -114,17 +117,6 @@ public class TransferEligibilityProxy {
 		if(!isSourceOfFundEligible(request, serviceType)){
 			GenericExceptionHandler.handleError(PAYMENT_ELIGIBILITY_ERROR, PAYMENT_ELIGIBILITY_ERROR.getErrorMessage());
 		}
-	}
-
-	private boolean isSourceOfFundEligible(FundTransferEligibiltyRequestDTO request, ServiceType serviceType) {
-		if(StringUtils.isNotBlank(request.getFromAccount())){
-			return true;
-		}
-		if(StringUtils.isNotBlank(request.getCardNo()) &&
-				Arrays.asList(QRIN,QRPK,LOCAL).contains(serviceType)){
-			return true;
-		}
-		return false;
 	}
 
 	private DigitalUser getDigitalUser(RequestMetaData fundTransferMetadata) {
@@ -150,5 +142,13 @@ public class TransferEligibilityProxy {
 		log.info("User DTO  created {} ", userDTO);
 		return userDTO;
 	}
-
+	private boolean isSourceOfFundEligible(FundTransferEligibiltyRequestDTO request, ServiceType serviceType) {
+		if(StringUtils.isNotBlank(request.getCardNo())){
+			return Arrays.asList(QRIN,QRPK,QRT,LOCAL).contains(serviceType);
+		}
+		if(StringUtils.isNotBlank(request.getFromAccount())){
+			return true;
+		}
+		return false;
+	}
 }
