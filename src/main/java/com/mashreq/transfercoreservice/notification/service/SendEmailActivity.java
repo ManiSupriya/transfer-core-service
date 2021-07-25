@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.notification.service;
 
+import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.notification.model.EmailRequest;
 import com.mashreq.transfercoreservice.notification.model.SendEmailRequest;
 import freemarker.template.TemplateException;
@@ -20,10 +21,10 @@ public class SendEmailActivity implements PostTransactionActivity<SendEmailReque
 
     @Override
     @Async("generalTaskExecutor")
-    public void execute(SendEmailRequest payload) throws IOException, TemplateException {
+    public void execute(SendEmailRequest payload, RequestMetaData requestMetaData) throws IOException, TemplateException {
         if (payload.isEmailPresent()) {
-            final EmailRequest emailRequest = emailService.prepareEmailRequest(payload);
-            emailService.sendMessage(emailRequest);
+//            final EmailRequest emailRequest = emailService.prepareEmailRequest(payload);
+            emailService.sendMessage(payload, requestMetaData);
             log.info("[SendEmailActivity] - Email sent to the customer on following emailAddress: {}", htmlEscape(payload.getToEmailAddress()));
         }
 

@@ -250,34 +250,26 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
         final BeneficiaryDto beneficiaryDto = validateBeneficiary(request, requestMetaData, validationContext);
 
-        //Balance Validation
-        // TODO comment tbe below transfer amount in src currency for CC
-      /*  final BigDecimal transferAmountInSrcCurrency = isCurrencySame(beneficiaryDto, request.getCurrency())
-                ? request.getAmount()
-                : getAmountInSrcCurrency(request, selectedCreditCard);*/
-
         final BigDecimal transferAmountInSrcCurrency = request.getAmount();
-        
+
         String trxCurrency = StringUtils.isBlank(request.getTxnCurrency()) ? localCurrency
-				: request.getTxnCurrency();
+                : request.getTxnCurrency();
 
         request.setTxnCurrency(trxCurrency);
         validationContext.add("transfer-amount-in-source-currency", transferAmountInSrcCurrency);
         responseHandler(ccBalanceValidator.validate(request, requestMetaData, validationContext));
 
-        //Limit Validation
-        // TODO comment tbe below limit usage amount check for CC
-       // final BigDecimal limitUsageAmount = getCCLimitUsageAmount(request.getDealNumber(), selectedCreditCard, transferAmountInSrcCurrency);
-
         final BigDecimal limitUsageAmount = transferAmountInSrcCurrency;
-         final LimitValidatorResponse validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount, requestMetaData, null);
-         String txnRefNo = validationResult.getTransactionRefNo();
-         fundTransferResponse = processCreditCardTransfer(request, requestMetaData, selectedCreditCard, beneficiaryDto, validationResult);
-         if(isSuccessOrProcessing(fundTransferResponse)){
-             final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getTxnCurrency(),request.getAmount(),"","");
-             notificationService.sendNotifications(customerNotification, LOCAL_FT_CC, requestMetaData,userDTO);
-             }
-         
+        final LimitValidatorResponse validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount, requestMetaData, null);
+        String txnRefNo = validationResult.getTransactionRefNo();
+
+        fundTransferResponse = processCreditCardTransfer(request, requestMetaData, selectedCreditCard, beneficiaryDto, validationResult);
+
+        if(isSuccessOrProcessing(fundTransferResponse)){
+            final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getTxnCurrency(),request.getAmount(),"","");
+            notificationService.sendNotifications(customerNotification, LOCAL_FT_CC, requestMetaData,userDTO);
+        }
+
         return fundTransferResponse.toBuilder()
                 .limitUsageAmount(limitUsageAmount)
                 .limitVersionUuid(validationResult.getLimitVersionUuid()).transactionRefNo(txnRefNo).build();
@@ -327,7 +319,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         String cif = requestMetaData.getPrimaryCif();
         FundTransferRequest fundTransferRequest;
         FundTransferResponse fundTransferResponse;
-        QRDealDetails qrDealDetails = qrDealsService.getQRDealDetails(cif, requestMetaData.getCountry());
+        QRDealDetails qrDealDetails = qrDealsService.getQRDealDetails(cif, beneficiaryDto.getBankCountryISO());
         if(qrDealDetails == null){
             logAndThrow(FundTransferEventType.FUND_TRANSFER_CC_CALL, TransferErrorCode.FT_CC_NO_DEALS, requestMetaData);
         }

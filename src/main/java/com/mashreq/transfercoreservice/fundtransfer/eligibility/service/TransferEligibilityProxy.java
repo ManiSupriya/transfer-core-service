@@ -2,7 +2,7 @@ package com.mashreq.transfercoreservice.fundtransfer.eligibility.service;
 
 
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.INFT;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.LOCAL;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.QRIN;
@@ -20,6 +20,8 @@ import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 
+import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
@@ -48,6 +50,7 @@ public class TransferEligibilityProxy {
 	private final WithinAccountEligibilityService withinAccountEligibilityService;
 	private final QRAccountEligibilityService qrAccountEligibilityService;
 	private final DigitalUserRepository digitalUserRepository;
+	private final MobCommonService mobCommonService;
 
 	@PostConstruct
 	public void init() {
@@ -78,7 +81,12 @@ public class TransferEligibilityProxy {
 		for(TransferEligibilityService eligibilityService : transferEligibilityServiceMap.get(serviceType)) {
 			try {
 				eligibilityService.modifyServiceType(request);
+
+				//common validations across all service types
+				validate(metaData, eligibilityService.getServiceType(), request);
+
 				serviceTypes.put(eligibilityService.getServiceType(),eligibilityService.checkEligibility(metaData, request, userDTO));
+
 			} catch(GenericException ge) {
 				log.error("Validation error while checking for eligibility for service type {}", serviceType, ge);
 				serviceTypes.put(eligibilityService.getServiceType(),
@@ -91,6 +99,23 @@ public class TransferEligibilityProxy {
 			}
 		}
 		return serviceTypes;
+	}
+
+	private void validate(RequestMetaData metaData, ServiceType serviceType, FundTransferEligibiltyRequestDTO request) {
+
+		//debit freeze for all accounts
+		if (StringUtils.isBlank(request.getCardNo())) {
+			mobCommonService.checkDebitFreeze(metaData, request.getFromAccount());
+		}
+
+		//credit freeze for mashreq accounts
+		if(serviceType.equals(WAMA) || serviceType.equals(WYMA)){
+			mobCommonService.checkCreditFreeze(metaData, serviceType, request.getToAccount());
+		}
+
+		if(!isSourceOfFundEligible(request, serviceType)){
+			GenericExceptionHandler.handleError(PAYMENT_NOT_ELIGIBLE, PAYMENT_NOT_ELIGIBLE.getErrorMessage());
+		}
 	}
 
 	private DigitalUser getDigitalUser(RequestMetaData fundTransferMetadata) {
@@ -116,5 +141,13 @@ public class TransferEligibilityProxy {
 		log.info("User DTO  created {} ", userDTO);
 		return userDTO;
 	}
-
+	private boolean isSourceOfFundEligible(FundTransferEligibiltyRequestDTO request, ServiceType serviceType) {
+		if(StringUtils.isNotBlank(request.getCardNo())){
+			return Arrays.asList(QRIN,QRPK,QRT,LOCAL).contains(serviceType);
+		}
+		if(StringUtils.isNotBlank(request.getFromAccount())){
+			return true;
+		}
+		return false;
+	}
 }

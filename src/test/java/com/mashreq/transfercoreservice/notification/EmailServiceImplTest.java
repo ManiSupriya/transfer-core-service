@@ -1,5 +1,7 @@
 package com.mashreq.transfercoreservice.notification;
 
+import com.mashreq.mobcommons.services.events.publisher.AuditEventPublisher;
+import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.transfercoreservice.client.NotificationClient;
 import com.mashreq.transfercoreservice.config.notification.EmailTemplateHelper;
@@ -37,6 +39,9 @@ public class EmailServiceImplTest {
     @Mock
     private EmailTemplateHelper emailTemplateHelper;
 
+    @Mock
+    private AuditEventPublisher auditEventPublisher;
+
     @InjectMocks
     private EmailServiceImpl emailService;
 
@@ -65,18 +70,20 @@ public class EmailServiceImplTest {
     @Test
     public void testSendMessage()  {
         EmailResponse emailResponse = new EmailResponse();
-        EmailRequest emailRequest = new EmailRequest();
+        SendEmailRequest emailRequest = SendEmailRequest.builder().fromEmailAddress("").build();
         ResponseEntity<EmailResponse> emailResponseResponseEntity = new ResponseEntity<>(emailResponse,HttpStatus.OK);
+        emailResponseResponseEntity.getBody().setSuccess(true);
         when(notificationClient.sendEmail(any())).thenReturn(emailResponseResponseEntity);
-        EmailResponse actualEmailResponse =  emailService.sendMessage(emailRequest);
+        EmailResponse actualEmailResponse =  emailService.sendMessage(emailRequest, new RequestMetaData());
         Assert.assertNotNull(actualEmailResponse);
+        Assert.assertTrue(actualEmailResponse.isSuccess());
     }
 
     @Test
     public void testSendMessageError()  {
-        EmailRequest emailRequest = new EmailRequest();
+        SendEmailRequest emailRequest = SendEmailRequest.builder().fromEmailAddress("").build();
         when(notificationClient.sendEmail(any())).thenThrow(GenericException.class);
-        Throwable exception = Assertions.assertThrows(Exception.class, () -> emailService.sendMessage(emailRequest));
+        Throwable exception = Assertions.assertThrows(Exception.class, () -> emailService.sendMessage(emailRequest, new RequestMetaData()));
         Assert.assertEquals(exception.getMessage(), TransferErrorCode.EMAIL_NOTIFICATION_FAILED.getErrorMessage());
     }
 }

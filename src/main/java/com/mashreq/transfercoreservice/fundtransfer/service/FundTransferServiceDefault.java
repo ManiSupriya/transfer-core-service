@@ -6,6 +6,7 @@ import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPRequestDTO;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPResponseDTO;
+import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
 import com.mashreq.transfercoreservice.client.service.OTPService;
 import com.mashreq.transfercoreservice.common.CommonConstants;
 import com.mashreq.transfercoreservice.errors.ExternalErrorCodeConfig;
@@ -68,6 +69,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final OTPService otpService;
     private final ExternalErrorCodeConfig errorCodeConfig;
     private final PromoCodeService promoCodeService;
+    private final MobCommonService mobCommonService;
 
     @PostConstruct
     public void init() {
@@ -127,6 +129,9 @@ public class FundTransferServiceDefault implements FundTransferService {
 
         log.info("Creating  User DTO");
         UserDTO userDTO = createUserDTO(metadata, digitalUser);
+        final ServiceType serviceType = getServiceByType(request.getServiceType());
+
+        checkDebitAndCreditFreeze(metadata, serviceType, request);
 
         //deal number not applicable if both currencies are same
         if(StringUtils.isNotBlank(request.getTxnCurrency()) && request.getCurrency().equalsIgnoreCase(request.getTxnCurrency()) && (request.getDealNumber()!=null && !request.getDealNumber().isEmpty())) {
@@ -166,7 +171,19 @@ public class FundTransferServiceDefault implements FundTransferService {
                 .build();
     }
 
-	protected void handleIfTransactionIsSuccess(RequestMetaData metadata, FundTransferRequestDTO request,
+    private void checkDebitAndCreditFreeze(RequestMetaData metaData, ServiceType serviceType, FundTransferRequestDTO request) {
+        //debit freeze for all accounts
+        if (org.apache.commons.lang3.StringUtils.isBlank(request.getCardNo())) {
+            mobCommonService.checkDebitFreeze(metaData, request.getFromAccount());
+        }
+
+        //credt freeze for mashreq accounts
+        if(serviceType.equals(WAMA) || serviceType.equals(WYMA)){
+            mobCommonService.checkCreditFreeze(metaData, serviceType, request.getToAccount());
+        }
+    }
+
+    protected void handleIfTransactionIsSuccess(RequestMetaData metadata, FundTransferRequestDTO request,
 			UserDTO userDTO, FundTransferResponse response) {
 		if (isSuccessOrProcessing(response)) {
         	Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
