@@ -85,7 +85,8 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     private final AsyncUserEventPublisher auditEventPublisher;
     private final EncryptionService encryptionService = new EncryptionService();
     private final NotificationService notificationService;
-
+    private final CCTransactionEligibilityValidator ccTrxValidator;
+    
     @Value("${app.local.currency}")
     private String localCurrency;
 
@@ -104,6 +105,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, RequestMetaData requestMetaData, UserDTO userDTO) {
         FundTransferResponse fundTransferResponse;
+        responseHandler(ccTrxValidator.validate(request, requestMetaData));
         if(StringUtils.isBlank(request.getCardNo())){
             fundTransferResponse = executeNonCreditCard(request, requestMetaData, userDTO);
         } else {

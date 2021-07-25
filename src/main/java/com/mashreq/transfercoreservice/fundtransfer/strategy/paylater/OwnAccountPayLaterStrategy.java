@@ -25,6 +25,7 @@ import com.mashreq.transfercoreservice.fundtransfer.strategy.OwnAccountStrategy;
 import com.mashreq.transfercoreservice.fundtransfer.validators.AccountBelongsToCifValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.AccountFreezeValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.CCTransactionEligibilityValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.CurrencyValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.FinTxnNoValidator;
@@ -66,10 +67,11 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 			NotificationService notificationService, AsyncUserEventPublisher auditEventPublisher,
 			DigitalUserSegment digitalUserSegment, AccountFreezeValidator freezeValidator,
 			PostTransactionService postTransactionService, FundTransferOrderRepository fundTransferOrderRepository,
-			SequenceNumberGenerator seqGenerator) {
+			SequenceNumberGenerator seqGenerator, CCTransactionEligibilityValidator ccTrxValidator) {
 		super(accountBelongsToCifValidator, sameAccountValidator, finTxnNoValidator, currencyValidator, limitValidator,
 				accountService, dealValidator, maintenanceService, fundTransferMWService, balanceValidator,
-				notificationService, auditEventPublisher, digitalUserSegment, freezeValidator, postTransactionService);
+				notificationService, auditEventPublisher, digitalUserSegment, freezeValidator,
+				postTransactionService, ccTrxValidator);
 		this.fundTransferOrderRepository = fundTransferOrderRepository;
 		this.seqGenerator = seqGenerator;
 	}

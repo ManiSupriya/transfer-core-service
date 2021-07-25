@@ -108,6 +108,9 @@ public class LocalFundTransferStrategyCCTest {
 
     @Mock
     private QRDealsService qrDealsService;
+    
+    @Mock
+	private CCTransactionEligibilityValidator ccTrxValidator;
 
     @Captor
     private ArgumentCaptor<FundTransferRequest> fundTransferRequest;
@@ -195,6 +198,7 @@ public class LocalFundTransferStrategyCCTest {
         setMockObject(requestDTO, metadata, userDTO);
         QRDealDetails qrDealDetails = buildQRDealDetails();
         when(qrDealsService.getQRDealDetails(metadata.getPrimaryCif(), metadata.getCountry())).thenReturn(qrDealDetails);
+        when(ccTrxValidator.validate(any(), any())).thenReturn(ValidationResult.builder().success(Boolean.TRUE).build());
         final FundTransferResponse response = localFundTransferStrategy.execute(requestDTO, metadata, userDTO);
         CoreFundTransferResponseDto coreFundTransferResponseDto = response.getResponseDto();
         Assert.assertEquals(coreFundTransferResponseDto.getMwResponseStatus().getName(), MwResponseStatus.S.getName());
@@ -207,6 +211,7 @@ public class LocalFundTransferStrategyCCTest {
         RequestMetaData metadata = buildRequestMetaData();
         UserDTO userDTO = new UserDTO();
         setMockObject(requestDTO, metadata, userDTO);
+        when(ccTrxValidator.validate(any(), any())).thenReturn(ValidationResult.builder().success(Boolean.TRUE).build());
         when(qrDealsService.getQRDealDetails(metadata.getPrimaryCif(), metadata.getCountry())).thenReturn(null);
         Throwable exception = Assertions.assertThrows(Exception.class, () -> localFundTransferStrategy.execute(requestDTO, metadata, userDTO));
         Assert.assertEquals(exception.getMessage(), TransferErrorCode.FT_CC_NO_DEALS.getErrorMessage());
@@ -222,6 +227,7 @@ public class LocalFundTransferStrategyCCTest {
         UserDTO userDTO = new UserDTO();
         setMockObject(requestDTO, metadata, userDTO);
         QRDealDetails qrDealDetails = buildQRDealDetails();
+        when(ccTrxValidator.validate(any(), any())).thenReturn(ValidationResult.builder().success(Boolean.TRUE).build());
         when(qrDealsService.getQRDealDetails(metadata.getPrimaryCif(), metadata.getCountry())).thenReturn(qrDealDetails);
         Throwable exception = Assertions.assertThrows(Exception.class, () -> localFundTransferStrategy.execute(requestDTO, metadata, userDTO));
         Assert.assertEquals(exception.getMessage(), TransferErrorCode.FT_CC_BALANCE_NOT_SUFFICIENT.getErrorMessage());

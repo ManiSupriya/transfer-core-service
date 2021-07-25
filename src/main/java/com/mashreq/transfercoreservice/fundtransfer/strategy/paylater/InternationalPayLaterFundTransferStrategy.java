@@ -29,6 +29,7 @@ import com.mashreq.transfercoreservice.fundtransfer.strategy.InternationalFundTr
 import com.mashreq.transfercoreservice.fundtransfer.validators.AccountBelongsToCifValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.BeneficiaryValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.CCTransactionEligibilityValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.FinTxnNoValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.PaymentPurposeValidator;
@@ -58,11 +59,13 @@ public class InternationalPayLaterFundTransferStrategy extends InternationalFund
 			FundTransferMWService fundTransferMWService, MaintenanceService maintenanceService,
 			MobCommonService mobCommonService, DealValidator dealValidator, NotificationService notificationService,
 			BeneficiaryService beneficiaryService, LimitValidator limitValidator,
+			CCTransactionEligibilityValidator ccTrxValidator,
 			FundTransferOrderRepository fundTransferOrderRepository,
 			SequenceNumberGenerator seqGenerator) {
 		super(finTxnNoValidator, accountService, accountBelongsToCifValidator, paymentPurposeValidator, beneficiaryValidator,
 				balanceValidator, fundTransferMWService, maintenanceService, mobCommonService, dealValidator,
-				notificationService, beneficiaryService, limitValidator);
+				notificationService, beneficiaryService, limitValidator,
+				ccTrxValidator);
 		this.fundTransferOrderRepository=fundTransferOrderRepository;
 		this.seqGenerator=seqGenerator;
 	}

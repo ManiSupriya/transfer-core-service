@@ -34,6 +34,7 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.AccountBelongsToC
 import com.mashreq.transfercoreservice.fundtransfer.validators.AccountFreezeValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.BeneficiaryValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.CCTransactionEligibilityValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.CurrencyValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.FinTxnNoValidator;
@@ -86,6 +87,8 @@ public class WithinMashreqPayLaterStrategyTest {
 	private PostTransactionService postTransactionService;
 	@Mock
 	private SequenceNumberGenerator seqGenerator;
+	@Mock
+	private CCTransactionEligibilityValidator ccTrxValidator;
 	
 	@Before
 	public void init() {
@@ -94,7 +97,7 @@ public class WithinMashreqPayLaterStrategyTest {
 				fundTransferMWService, balanceValidator, dealValidator,
 				auditEventPublisher, notificationService, freezeValidator, 
 				accountNumberResolver, postTransactionService, 
-				fundTransferOrderRepository, seqGenerator);
+				fundTransferOrderRepository, seqGenerator,ccTrxValidator);
 	}
 	
 	@Test
@@ -111,6 +114,7 @@ public class WithinMashreqPayLaterStrategyTest {
 		Mockito.when(finTxnNoValidator.validate(Mockito.eq(request), Mockito.eq(metadata))).thenReturn(validationResult);
 		Mockito.when(sameAccountValidator.validate(Mockito.eq(request), Mockito.eq(metadata))).thenReturn(validationResult);
 		Mockito.when(accountBelongsToCifValidator.validate(Mockito.eq(request), Mockito.eq(metadata), Mockito.any())).thenReturn(validationResult);
+		Mockito.when(ccTrxValidator.validate(Mockito.any(), Mockito.any())).thenReturn(validationResult);
 		Mockito.when(freezeValidator.validate(Mockito.eq(request), Mockito.eq(metadata), Mockito.any())).thenReturn(validationResult);
 		BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
 		beneficiaryDto.setId(Long.valueOf(beneficiaryId));
