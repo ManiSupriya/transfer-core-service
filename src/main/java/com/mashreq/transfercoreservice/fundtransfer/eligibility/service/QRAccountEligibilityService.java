@@ -135,8 +135,12 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 		responseHandler(ccBalanceValidator.validate(request, requestMetaData, validationContext));
 
 		final BigDecimal limitUsageAmount = transferAmountInSrcCurrency;
-		limitValidatorFactory.getValidator(requestMetaData)
-				.validate(userDTO, request.getServiceType(), limitUsageAmount, requestMetaData, null);
+		limitValidatorFactory.getValidator(requestMetaData).validate(
+				userDTO,
+				getServiceType() == ServiceType.QRT ? "QROC" : request.getServiceType(),
+				limitUsageAmount,
+				requestMetaData,
+				null);
 
 		QRDealDetails qrDealDetails = qrDealsService.getQRDealDetails(requestMetaData.getPrimaryCif(), beneficiaryDto.getBankCountryISO());
 		if(qrDealDetails == null){
