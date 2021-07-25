@@ -37,6 +37,7 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.BeneficiaryValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.CCBalanceValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.CCBelongsToCifValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.CCTransactionEligibilityValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.FinTxnNoValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.IBANValidator;
@@ -100,13 +101,15 @@ public class LocalFundPayLaterTransferStrategyTest {
     private PostTransactionService postTransactionService;
 	@Mock
 	private SequenceNumberGenerator seqGenerator;
+	@Mock
+	private CCTransactionEligibilityValidator ccTrxValidator;
 	@Before
 	public void init() {
 		localFundPayLaterTransferStrategy = new  LocalFundPayLaterTransferStrategy(ibanValidator, finTxnNoValidator, accountBelongsToCifValidator, ccBelongsToCifValidator, beneficiaryValidator,
 				accountService, beneficiaryService, limitValidator, fundTransferMWService, paymentPurposeValidator,
 				balanceValidator, ccBalanceValidator, maintenanceService, mobCommonService, dealValidator, countryRepository,
-				fundTransferCCMWService, auditEventPublisher, notificationService,fundTransferOrderRepository,
-				seqGenerator);
+				fundTransferCCMWService, auditEventPublisher, notificationService,
+				fundTransferOrderRepository,seqGenerator,ccTrxValidator);
 		 ReflectionTestUtils.setField(localFundPayLaterTransferStrategy,"cardService", cardService);
 	     ReflectionTestUtils.setField(localFundPayLaterTransferStrategy,"qrDealsService", qrDealsService);
 	     ReflectionTestUtils.setField(localFundPayLaterTransferStrategy,"postTransactionService", postTransactionService);
@@ -130,6 +133,7 @@ public class LocalFundPayLaterTransferStrategyTest {
 		Mockito.when(paymentPurposeValidator.validate(Mockito.eq(request), Mockito.eq(metadata), Mockito.any())).thenReturn(validationResult);
 		Mockito.when(beneficiaryValidator.validate(Mockito.eq(request), Mockito.eq(metadata), Mockito.any())).thenReturn(validationResult);
 		Mockito.when(ibanValidator.validate(Mockito.eq(request), Mockito.eq(metadata), Mockito.any())).thenReturn(validationResult);
+		Mockito.when(ccTrxValidator.validate(Mockito.any(), Mockito.any())).thenReturn(validationResult);
 		String transactionRefNo = "TRN-test-12234";
 		LimitValidatorResponse limitResponse = LimitValidatorResponse.builder().transactionRefNo(transactionRefNo).build();
 		BeneficiaryDto beneficiaryDto = new BeneficiaryDto();

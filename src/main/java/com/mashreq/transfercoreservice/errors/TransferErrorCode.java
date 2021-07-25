@@ -190,11 +190,14 @@ public enum TransferErrorCode implements ErrorCode {
     
     BANK_NOT_FOUND_WITH_IBAN("TN-8029", "Bank not found with iban"),
     PAYMENT_NOT_ELIGIBLE_FOR_QR("TN-8030", "Payment not eligible for quick remit"), 
+    
+    
+    CC_TRX_NOT_ALLOWED("CCTN-4001", "CC transactions are not allowed for service type"),
     LOCAL_CURRENCY_NOT_ALLOWED_FOR_SWIFT("TN-8031", "AED currency not allowed for Swift transactions"),
     ACCOUNT_DEBIT_FREEZE("TN-8032", "Account is frozen for debit"),
     ACCOUNT_CREDIT_FREEZE("TN-8033", "Account is frozen for credit"),
     PAYMENT_NOT_ELIGIBLE("TN-8034", "Payment not eligible"),
-    INVALID_ACCOUNT_NUMBER("TN-8035", "Invalid Account number."),
+    INVALID_ACCOUNT_NUMBER("TN-8035", "Invalid Account number.")
     ;
 
 

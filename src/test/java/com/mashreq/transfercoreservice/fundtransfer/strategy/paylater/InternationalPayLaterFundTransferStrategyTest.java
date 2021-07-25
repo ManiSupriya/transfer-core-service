@@ -33,6 +33,7 @@ import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWServic
 import com.mashreq.transfercoreservice.fundtransfer.validators.AccountBelongsToCifValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.BeneficiaryValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.CCTransactionEligibilityValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.FinTxnNoValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.PaymentPurposeValidator;
@@ -78,11 +79,15 @@ public class InternationalPayLaterFundTransferStrategyTest {
     private PostTransactionService postTransactionService;
 	@Mock
 	private SequenceNumberGenerator seqGenerator;
+	@Mock
+	private CCTransactionEligibilityValidator ccTrxValidator;
+	
 	@Before
 	public void init () {
 		internationalPayLaterFundTransferStrategy = new InternationalPayLaterFundTransferStrategy(finTxnNoValidator, accountService, accountBelongsToCifValidator, paymentPurposeValidator, beneficiaryValidator,
 				balanceValidator, fundTransferMWService, maintenanceService, mobCommonService, dealValidator,
-				notificationService, beneficiaryService, limitValidator,fundTransferOrderRepository,seqGenerator);
+				notificationService, beneficiaryService, limitValidator,ccTrxValidator,
+				fundTransferOrderRepository,seqGenerator);
 		ReflectionTestUtils.setField(internationalPayLaterFundTransferStrategy,"postTransactionService", postTransactionService);
 	}
 	
@@ -101,6 +106,7 @@ public class InternationalPayLaterFundTransferStrategyTest {
 		Mockito.when(accountBelongsToCifValidator.validate(Mockito.eq(request), Mockito.eq(metadata), Mockito.any())).thenReturn(validationResult);
 		Mockito.when(paymentPurposeValidator.validate(Mockito.eq(request), Mockito.eq(metadata), Mockito.any())).thenReturn(validationResult);
 		Mockito.when(beneficiaryValidator.validate(Mockito.eq(request), Mockito.eq(metadata), Mockito.any())).thenReturn(validationResult);
+		Mockito.when(ccTrxValidator.validate(Mockito.any(), Mockito.any())).thenReturn(validationResult);
 		BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
 		beneficiaryDto.setId(Long.valueOf(beneficiaryId));
 		Mockito.when(beneficiaryService.getById(Mockito.any(), Mockito.eq(Long.valueOf(request.getBeneficiaryId())), Mockito.eq(metadata),Mockito.eq("international"))).thenReturn(beneficiaryDto);
