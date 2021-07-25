@@ -1,7 +1,6 @@
 package com.mashreq.transfercoreservice.fundtransfer.eligibility.service;
 
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -14,16 +13,12 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.CustomerClientType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
-import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
-import org.apache.commons.lang3.StringUtils;
-
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.*;
 
 
 public interface TransferEligibilityService {
 
-	EligibilityResponse checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request, UserDTO userDTO);
+	Object checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request, UserDTO userDTO);
     
     ServiceType getServiceType();
 

@@ -2,8 +2,7 @@ package com.mashreq.transfercoreservice.fundtransfer.eligibility.service;
 
 
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.PAYMENT_ELIGIBILITY_ERROR;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.INFT;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.LOCAL;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.QRIN;
@@ -115,7 +114,7 @@ public class TransferEligibilityProxy {
 		}
 
 		if(!isSourceOfFundEligible(request, serviceType)){
-			GenericExceptionHandler.handleError(PAYMENT_ELIGIBILITY_ERROR, PAYMENT_ELIGIBILITY_ERROR.getErrorMessage());
+			GenericExceptionHandler.handleError(PAYMENT_NOT_ELIGIBLE, PAYMENT_NOT_ELIGIBLE.getErrorMessage());
 		}
 	}
 

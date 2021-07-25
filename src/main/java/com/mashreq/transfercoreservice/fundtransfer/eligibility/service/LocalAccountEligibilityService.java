@@ -1,11 +1,20 @@
 package com.mashreq.transfercoreservice.fundtransfer.eligibility.service;
 
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_SEGMENT;
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
+import static com.mashreq.transfercoreservice.event.FundTransferEventType.ACCOUNT_BELONGS_TO_CIF;
 import static java.lang.Long.valueOf;
 
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.mashreq.mobcommons.services.events.publisher.AuditEventPublisher;
+import com.mashreq.transfercoreservice.cache.UserSessionCacheService;
+import com.mashreq.transfercoreservice.errors.TransferErrorCode;
+import com.mashreq.transfercoreservice.event.FundTransferEventType;
+import com.mashreq.transfercoreservice.fundtransfer.dto.*;
+import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CCBalanceValidator;
+import com.mashreq.transfercoreservice.fundtransfer.service.QRDealsService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -22,9 +31,6 @@ import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.CardService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.enums.FundsTransferEligibility;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.BeneficiaryValidator;
@@ -49,7 +55,11 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
     private final CardService cardService;
     private final MaintenanceService maintenanceService;
     private final EncryptionService encryptionService = new EncryptionService();
-    private final CurrencyValidatorFactory currencyValidatorFactory;    
+    private final CurrencyValidatorFactory currencyValidatorFactory;
+    private final CCBalanceValidator ccBalanceValidator;
+    private final QRDealsService qrDealsService;
+    private final AuditEventPublisher auditEventPublisher;
+    private final UserSessionCacheService userSessionCacheService;
 
     @Override
 	public EligibilityResponse checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request,
@@ -119,18 +129,63 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
      */
     private void executeCC(FundTransferEligibiltyRequestDTO request, RequestMetaData requestMetaData, UserDTO userDTO){
 
-    	final List<CardDetailsDTO> accountsFromCore = cardService.getCardsFromCore(requestMetaData.getPrimaryCif(), CardType.CC);
+        responseHandler(currencyValidatorFactory.getValidator(requestMetaData).validate(request, requestMetaData));
+
+        assertCardNumberBelongsToUser(request, requestMetaData);
+
+        final List<CardDetailsDTO> accountsFromCore = cardService.getCardsFromCore(requestMetaData.getPrimaryCif(), CardType.CC);
         final ValidationContext validationContext = new ValidationContext();
+
         validationContext.add("account-details", accountsFromCore);
         validationContext.add("validate-from-account", Boolean.TRUE);
 
-        validationContext.add("from-account", getSelectedCreditCard(accountsFromCore, request.getCardNo()));
+        final CardDetailsDTO selectedCreditCard = getSelectedCreditCard(accountsFromCore, request.getCardNo());
 
-        validateBeneficiary(request, requestMetaData, validationContext);
-        
-        final BigDecimal limitUsageAmount = request.getAmount();
-        limitValidatorFactory.getValidator(requestMetaData).validate(userDTO, request.getServiceType(), limitUsageAmount, requestMetaData, null);
-        
+        validationContext.add("from-account", selectedCreditCard);
+
+        BeneficiaryDto beneficiaryDto = validateBeneficiary(request, requestMetaData, validationContext);
+
+        final BigDecimal transferAmountInSrcCurrency = request.getAmount();
+
+        String trxCurrency = StringUtils.isBlank(request.getTxnCurrency()) ? AED : request.getTxnCurrency();
+
+        request.setTxnCurrency(trxCurrency);
+        validationContext.add("transfer-amount-in-source-currency", transferAmountInSrcCurrency);
+        responseHandler(ccBalanceValidator.validate(request, requestMetaData, validationContext));
+
+        final BigDecimal limitUsageAmount = transferAmountInSrcCurrency;
+        limitValidatorFactory.getValidator(requestMetaData)
+                .validate(userDTO, request.getServiceType(), limitUsageAmount, requestMetaData, null);
+
+        QRDealDetails qrDealDetails = qrDealsService.getQRDealDetails(requestMetaData.getPrimaryCif(), beneficiaryDto.getBankCountryISO());
+        if(qrDealDetails == null){
+            logAndThrow(FundTransferEventType.FUND_TRANSFER_CC_CALL, TransferErrorCode.FT_CC_NO_DEALS, requestMetaData);
+        }
+        log.info("Fund transfer CC QR Deals verified {}", htmlEscape(requestMetaData.getPrimaryCif()));
+        BigDecimal utilizedAmount = qrDealDetails.getUtilizedLimitAmount();
+        if(utilizedAmount == null){
+            utilizedAmount = new BigDecimal("0");
+        }
+        BigDecimal balancedAmount = qrDealDetails.getTotalLimitAmount().subtract(utilizedAmount);
+        int result = balancedAmount.compareTo(request.getAmount());
+        if(result == -1){
+            logAndThrow(FundTransferEventType.FUND_TRANSFER_CC_CALL, TransferErrorCode.FT_CC_BALANCE_NOT_SUFFICIENT, requestMetaData);
+        }
+    }
+
+    private void assertCardNumberBelongsToUser(FundTransferEligibiltyRequestDTO fundOrderCreateRequest, RequestMetaData metaData) {
+        if (userSessionCacheService.isCardNumberBelongsToCif(fundOrderCreateRequest.getCardNo(), metaData.getUserCacheKey())) {
+            log.info("setting payment mode to card");
+            String cardNumber = encryptionService.decrypt(fundOrderCreateRequest.getCardNo());
+            if (org.springframework.util.StringUtils.isEmpty(cardNumber)) {
+                log.info("card number is empty");
+                auditEventPublisher.publishFailureEvent(ACCOUNT_BELONGS_TO_CIF, metaData, null,
+                        ACCOUNT_NOT_BELONG_TO_CIF.getErrorMessage(), ACCOUNT_NOT_BELONG_TO_CIF.getErrorMessage(), null);
+                GenericExceptionHandler.handleError(ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF, ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF.getErrorMessage());
+            }
+            auditEventPublisher.publishSuccessEvent(ACCOUNT_BELONGS_TO_CIF, metaData, "card belongs to the cif");
+            return;
+        }
     }
 
     /**
@@ -192,5 +247,11 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
             }
         }
         return cardDetailsDTO;
+    }
+
+    private void logAndThrow(FundTransferEventType fundTransferEventType, TransferErrorCode errorCodeSet, RequestMetaData requestMetaData){
+        auditEventPublisher.publishFailureEvent(fundTransferEventType, requestMetaData,"",
+                fundTransferEventType.name(), fundTransferEventType.getDescription(), fundTransferEventType.getDescription());
+        GenericExceptionHandler.handleError(errorCodeSet,errorCodeSet.getErrorMessage());
     }
 }
