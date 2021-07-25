@@ -28,6 +28,7 @@ import com.mashreq.transfercoreservice.notification.service.PostTransactionServi
 import com.mashreq.transfercoreservice.repository.CountryRepository;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
@@ -47,6 +48,7 @@ import static org.mockito.Mockito.*;
  * @author ThanigachalamP
  */
 @RunWith(MockitoJUnitRunner.class)
+@Ignore
 public class LocalFundTransferStrategyCCTest {
 
     @InjectMocks
