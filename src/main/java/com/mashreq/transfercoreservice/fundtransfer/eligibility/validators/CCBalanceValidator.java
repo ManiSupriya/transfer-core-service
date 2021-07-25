@@ -24,7 +24,7 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.FT_CC_BAL
  *
  */
 @Slf4j
-@Component
+@Component("ccBalanceValidatorEligibility")
 @RequiredArgsConstructor
 public class CCBalanceValidator implements Validator<FundTransferEligibiltyRequestDTO> {
 
