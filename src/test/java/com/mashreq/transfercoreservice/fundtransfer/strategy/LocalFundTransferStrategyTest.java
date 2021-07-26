@@ -2,20 +2,22 @@ package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
-import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
-import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
-import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
-import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
+import com.mashreq.transfercoreservice.client.dto.*;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
+import com.mashreq.transfercoreservice.client.service.CardService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
+import com.mashreq.transfercoreservice.fundtransfer.service.QRDealsService;
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
+import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
+import com.mashreq.transfercoreservice.notification.service.NotificationService;
+import com.mashreq.transfercoreservice.notification.service.PostTransactionService;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -25,6 +27,7 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
@@ -33,7 +36,6 @@ import java.util.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-@Ignore
 public class LocalFundTransferStrategyTest {
 
     @InjectMocks
@@ -78,6 +80,24 @@ public class LocalFundTransferStrategyTest {
     @Mock
     private DealValidator dealValidator;
 
+    @Mock
+    private QRDealsService qrDealsService;
+
+    @Mock
+    private CardService cardService;
+
+    @Mock
+    private CCBalanceValidator ccBalanceValidator;
+
+    @Mock
+    private CCBelongsToCifValidator ccBelongsToCifValidator;
+
+    @Mock
+    private NotificationService notificationService;
+
+    @Mock
+    private PostTransactionService postTransactionService;
+
     @Captor
     private ArgumentCaptor<FundTransferRequest> fundTransferRequest;
 
@@ -86,6 +106,8 @@ public class LocalFundTransferStrategyTest {
     public void test_when_fund_transfer_is_successful_when_source_destination_currency_same() {
         //Given
         BigDecimal limitUsageAmount = new BigDecimal(200);
+        BigDecimal paidAmt = new BigDecimal(200);
+
         String limitVersionUuid = "uuid1234";
         String fromAcct = "019010050532";
         String toAcct = "AE120260001015673975601";
@@ -115,7 +137,7 @@ public class LocalFundTransferStrategyTest {
         requestDTO.setAmount(new BigDecimal(200));
         requestDTO.setServiceType(ServiceType.LOCAL.getName());
         requestDTO.setBeneficiaryId(beneId);
-        requestDTO.setCardNo("1111222233334444");
+        //requestDTO.setCardNo("393D9E6606F972B3F057CD932BFAA2615DFB187EECEC8860E7B35C71EC4F73F7");
 
         RequestMetaData metadata =  RequestMetaData.builder().primaryCif(cif).channel(channel).channelTraceId(channelTraceId).build();
         UserDTO userDTO = new UserDTO();
@@ -133,6 +155,11 @@ public class LocalFundTransferStrategyTest {
         accountsFromCore.add(accountDetailsDTO);
         final Set<MoneyTransferPurposeDto> popList = new HashSet(Arrays.asList(MoneyTransferPurposeDto.class));
 
+        CurrencyConversionDto secondConversion = new CurrencyConversionDto();
+        secondConversion.setAccountCurrencyAmount(paidAmt);
+
+        CoreFundTransferResponseDto coreResponse = new CoreFundTransferResponseDto();
+        coreResponse.setMwResponseStatus(MwResponseStatus.S);
         //when
 
         ReflectionTestUtils.setField(localFundTransferStrategy,"localCurrency", srcCurrency);
@@ -155,12 +182,17 @@ public class LocalFundTransferStrategyTest {
         limitValidatorResultsDto.setLimitVersionUuid(limitVersionUuid);
         LimitValidatorResponse limitValidatorResponse = new LimitValidatorResponse();
         limitValidatorResponse.setLimitVersionUuid(limitVersionUuid);
-        when(limitValidator.validate(eq(userDTO), eq("LOCAL"), eq(limitUsageAmount), eq(metadata), any()))
+        when(limitValidator.validate( any(),  any(),  any(),  any(), any()))
         .thenReturn(limitValidatorResponse);
-        when(dealValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
+        //when(dealValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
+        //when(ccBelongsToCifValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
+        //when(ccBalanceValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
 
-        when(fundTransferMWService.transfer(fundTransferRequest.capture(),eq(metadata),anyString()))
-                .thenReturn(FundTransferResponse.builder().limitUsageAmount(limitUsageAmount).limitVersionUuid(limitVersionUuid).build());
+        //when(qrDealsService.getQRDealDetails(any(), any())).thenReturn(new QRDealDetails());
+        when(maintenanceService.convertBetweenCurrencies(any())).thenReturn(secondConversion);
+
+        when(fundTransferMWService.transfer(fundTransferRequest.capture(),any(),any()))
+                .thenReturn(FundTransferResponse.builder().responseDto(coreResponse).limitUsageAmount(limitUsageAmount).limitVersionUuid(limitVersionUuid).build());
 
         final FundTransferResponse response = localFundTransferStrategy.execute(requestDTO, metadata, userDTO);
         final FundTransferRequest actualFundTransferRequest = fundTransferRequest.getValue();
@@ -222,7 +254,7 @@ public class LocalFundTransferStrategyTest {
         requestDTO.setAmount(paidAmt);
         requestDTO.setServiceType(ServiceType.LOCAL.getName());
         requestDTO.setBeneficiaryId(beneId);
-        requestDTO.setCardNo("1234567812345678");
+        //requestDTO.setCardNo("393D9E6606F972B3F057CD932BFAA2615DFB187EECEC8860E7B35C71EC4F73F7");
 
         RequestMetaData metadata =  RequestMetaData.builder().primaryCif(cif).channel(channel).channelTraceId(channelTraceId).build();
         UserDTO userDTO = new UserDTO();
@@ -257,6 +289,10 @@ public class LocalFundTransferStrategyTest {
         currencyConversionRequestDto.setTransactionCurrency("AED");
         CurrencyConversionDto secondConversion = new CurrencyConversionDto();
         secondConversion.setTransactionAmount(paidAmt);
+
+        CoreFundTransferResponseDto coreResponse = new CoreFundTransferResponseDto();
+        coreResponse.setMwResponseStatus(MwResponseStatus.S);
+
         //when
 
         ReflectionTestUtils.setField(localFundTransferStrategy,"localCurrency", destCurrency);
@@ -279,16 +315,20 @@ public class LocalFundTransferStrategyTest {
         when(beneficiaryValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
         when(ibanValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
         when(balanceValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
+        //when(ccBalanceValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
+        //when(ccBelongsToCifValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
 
         when(maintenanceService.convertCurrency(eq(currencyConversionRequestDto))).thenReturn(secondConversion);
         LimitValidatorResponse limitValidatorResponse = new LimitValidatorResponse();
         limitValidatorResponse.setLimitVersionUuid(limitVersionUuid);
         when(limitValidator.validate(eq(userDTO), eq("LOCAL"), eq(paidAmt), eq(metadata), any()))
                 .thenReturn(limitValidatorResponse);
-        when(dealValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
+        //when(dealValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
+        when(fundTransferMWService.transfer(fundTransferRequest.capture(), any(),any()))
+                .thenReturn(FundTransferResponse.builder().responseDto(coreResponse).limitUsageAmount(paidAmt).limitVersionUuid(limitVersionUuid).build());
 
-        when(fundTransferMWService.transfer(fundTransferRequest.capture(),eq(metadata),anyString()))
-                .thenReturn(FundTransferResponse.builder().limitUsageAmount(paidAmt).limitVersionUuid(limitVersionUuid).build());
+        //when(cardService.getCardsFromCore(any(), any())).thenReturn(Collections.emptyList());
+        //when(qrDealsService.getQRDealDetails(any(), any())).thenReturn(new QRDealDetails());
 
         final FundTransferResponse response = localFundTransferStrategy.execute(requestDTO, metadata, userDTO);
         final FundTransferRequest actualFundTransferRequest = fundTransferRequest.getValue();

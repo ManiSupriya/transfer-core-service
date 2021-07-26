@@ -85,6 +85,9 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     private final AsyncUserEventPublisher auditEventPublisher;
     private final EncryptionService encryptionService = new EncryptionService();
     private final NotificationService notificationService;
+    private final QRDealsService qrDealsService;
+    private final CardService cardService;
+    private final PostTransactionService postTransactionService;
 
     @Value("${app.local.currency}")
     private String localCurrency;
@@ -92,14 +95,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     @Value("${app.uae.address}")
     private String address;
 
-    @Autowired
-    private QRDealsService qrDealsService;
 
-    @Autowired
-    private CardService cardService;
-
-    @Autowired
-    private PostTransactionService postTransactionService;
 
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, RequestMetaData requestMetaData, UserDTO userDTO) {

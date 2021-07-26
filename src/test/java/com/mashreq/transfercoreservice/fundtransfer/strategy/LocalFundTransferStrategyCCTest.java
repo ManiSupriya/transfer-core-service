@@ -32,10 +32,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -48,7 +45,6 @@ import static org.mockito.Mockito.*;
  * @author ThanigachalamP
  */
 @RunWith(MockitoJUnitRunner.class)
-@Ignore
 public class LocalFundTransferStrategyCCTest {
 
     @InjectMocks
@@ -196,7 +192,7 @@ public class LocalFundTransferStrategyCCTest {
         UserDTO userDTO = new UserDTO();
         setMockObject(requestDTO, metadata, userDTO);
         QRDealDetails qrDealDetails = buildQRDealDetails();
-        when(qrDealsService.getQRDealDetails(metadata.getPrimaryCif(), metadata.getCountry())).thenReturn(qrDealDetails);
+        when(qrDealsService.getQRDealDetails(Mockito.any(), Mockito.any())).thenReturn(qrDealDetails);
         final FundTransferResponse response = localFundTransferStrategy.execute(requestDTO, metadata, userDTO);
         CoreFundTransferResponseDto coreFundTransferResponseDto = response.getResponseDto();
         Assert.assertEquals(coreFundTransferResponseDto.getMwResponseStatus().getName(), MwResponseStatus.S.getName());
@@ -209,7 +205,7 @@ public class LocalFundTransferStrategyCCTest {
         RequestMetaData metadata = buildRequestMetaData();
         UserDTO userDTO = new UserDTO();
         setMockObject(requestDTO, metadata, userDTO);
-        when(qrDealsService.getQRDealDetails(metadata.getPrimaryCif(), metadata.getCountry())).thenReturn(null);
+//        when(qrDealsService.getQRDealDetails(metadata.getPrimaryCif(), metadata.getCountry())).thenReturn(null);
         Throwable exception = Assertions.assertThrows(Exception.class, () -> localFundTransferStrategy.execute(requestDTO, metadata, userDTO));
         Assert.assertEquals(exception.getMessage(), TransferErrorCode.FT_CC_NO_DEALS.getErrorMessage());
     }
@@ -224,9 +220,9 @@ public class LocalFundTransferStrategyCCTest {
         UserDTO userDTO = new UserDTO();
         setMockObject(requestDTO, metadata, userDTO);
         QRDealDetails qrDealDetails = buildQRDealDetails();
-        when(qrDealsService.getQRDealDetails(metadata.getPrimaryCif(), metadata.getCountry())).thenReturn(qrDealDetails);
+        when(qrDealsService.getQRDealDetails(any(), any())).thenReturn(qrDealDetails);
         Throwable exception = Assertions.assertThrows(Exception.class, () -> localFundTransferStrategy.execute(requestDTO, metadata, userDTO));
-        Assert.assertEquals(exception.getMessage(), TransferErrorCode.FT_CC_BALANCE_NOT_SUFFICIENT.getErrorMessage());
+        Assert.assertEquals(TransferErrorCode.FT_CC_BALANCE_NOT_SUFFICIENT.getErrorMessage(), exception.getMessage() );
     }
 
 

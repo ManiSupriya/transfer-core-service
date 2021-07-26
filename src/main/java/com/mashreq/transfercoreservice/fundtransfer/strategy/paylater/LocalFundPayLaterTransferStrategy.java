@@ -6,7 +6,10 @@ import static com.mashreq.transfercoreservice.notification.model.NotificationTyp
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.mashreq.transfercoreservice.client.service.CardService;
 import com.mashreq.transfercoreservice.common.HtmlEscapeCache;
+import com.mashreq.transfercoreservice.fundtransfer.service.QRDealsService;
+import com.mashreq.transfercoreservice.notification.service.PostTransactionService;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
@@ -70,12 +73,14 @@ public class LocalFundPayLaterTransferStrategy extends LocalFundTransferStrategy
 			MaintenanceService maintenanceService, MobCommonService mobCommonService, DealValidator dealValidator,
 			CountryRepository countryRepository, FundTransferCCMWService fundTransferCCMWService,
 			AsyncUserEventPublisher auditEventPublisher, NotificationService notificationService,
+											 QRDealsService qrDealsService, CardService cardService,
+											 PostTransactionService postTransactionService,
 			FundTransferOrderRepository fundTransferOrderRepository,
 			SequenceNumberGenerator seqGenerator) {
 		super(ibanValidator, finTxnNoValidator, accountBelongsToCifValidator, ccBelongsToCifValidator, beneficiaryValidator,
 				accountService, beneficiaryService, limitValidator, fundTransferMWService, paymentPurposeValidator,
 				balanceValidator, ccBalanceValidator, maintenanceService, mobCommonService, dealValidator, countryRepository,
-				fundTransferCCMWService, auditEventPublisher, notificationService);
+				fundTransferCCMWService, auditEventPublisher, notificationService, qrDealsService, cardService, postTransactionService);
 		this.fundTransferOrderRepository=fundTransferOrderRepository;
 		this.seqGenerator = seqGenerator;
 	}

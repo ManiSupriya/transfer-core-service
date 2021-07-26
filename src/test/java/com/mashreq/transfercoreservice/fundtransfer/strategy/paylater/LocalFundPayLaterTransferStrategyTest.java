@@ -105,7 +105,7 @@ public class LocalFundPayLaterTransferStrategyTest {
 		localFundPayLaterTransferStrategy = new  LocalFundPayLaterTransferStrategy(ibanValidator, finTxnNoValidator, accountBelongsToCifValidator, ccBelongsToCifValidator, beneficiaryValidator,
 				accountService, beneficiaryService, limitValidator, fundTransferMWService, paymentPurposeValidator,
 				balanceValidator, ccBalanceValidator, maintenanceService, mobCommonService, dealValidator, countryRepository,
-				fundTransferCCMWService, auditEventPublisher, notificationService,fundTransferOrderRepository,
+				fundTransferCCMWService, auditEventPublisher, notificationService,qrDealsService, cardService, postTransactionService, fundTransferOrderRepository,
 				seqGenerator);
 		 ReflectionTestUtils.setField(localFundPayLaterTransferStrategy,"cardService", cardService);
 	     ReflectionTestUtils.setField(localFundPayLaterTransferStrategy,"qrDealsService", qrDealsService);
