@@ -36,6 +36,7 @@ import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWServic
 import com.mashreq.transfercoreservice.fundtransfer.validators.AccountBelongsToCifValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.AccountFreezeValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.CCTransactionEligibilityValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.CurrencyValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.FinTxnNoValidator;
@@ -86,12 +87,12 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     private final AccountFreezeValidator freezeValidator;
 
     private final PostTransactionService postTransactionService;
-
+    private final CCTransactionEligibilityValidator ccTrxValidator;
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, RequestMetaData metadata, UserDTO userDTO) {
 
         Instant start = Instant.now();
-
+        responseHandler(ccTrxValidator.validate(request, metadata));
         responseHandler(finTxnNoValidator.validate(request, metadata));
         responseHandler(sameAccountValidator.validate(request, metadata));
 

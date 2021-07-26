@@ -33,6 +33,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.math.BigDecimal;
 import java.util.*;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -97,6 +98,9 @@ public class LocalFundTransferStrategyTest {
 
     @Mock
     private PostTransactionService postTransactionService;
+
+    @Mock
+    private CCTransactionEligibilityValidator ccTransactionEligibilityValidator;
 
     @Captor
     private ArgumentCaptor<FundTransferRequest> fundTransferRequest;
@@ -187,7 +191,7 @@ public class LocalFundTransferStrategyTest {
         //when(dealValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
         //when(ccBelongsToCifValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
         //when(ccBalanceValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
-
+        when(ccTransactionEligibilityValidator.validate(any(), any())).thenReturn(ValidationResult.builder().success(true).build());
         //when(qrDealsService.getQRDealDetails(any(), any())).thenReturn(new QRDealDetails());
         when(maintenanceService.convertBetweenCurrencies(any())).thenReturn(secondConversion);
 
@@ -315,6 +319,7 @@ public class LocalFundTransferStrategyTest {
         when(beneficiaryValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
         when(ibanValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
         when(balanceValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
+        when(ccTransactionEligibilityValidator.validate(any(), any())).thenReturn(ValidationResult.builder().success(true).build());
         //when(ccBalanceValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
         //when(ccBelongsToCifValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
 

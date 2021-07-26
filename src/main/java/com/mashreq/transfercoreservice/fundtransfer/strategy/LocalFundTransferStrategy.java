@@ -88,7 +88,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     private final QRDealsService qrDealsService;
     private final CardService cardService;
     private final PostTransactionService postTransactionService;
-
+    private final CCTransactionEligibilityValidator ccTrxValidator;
     @Value("${app.local.currency}")
     private String localCurrency;
 
@@ -100,6 +100,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, RequestMetaData requestMetaData, UserDTO userDTO) {
         FundTransferResponse fundTransferResponse;
+        responseHandler(ccTrxValidator.validate(request, requestMetaData));
         if(StringUtils.isBlank(request.getCardNo())){
             fundTransferResponse = executeNonCreditCard(request, requestMetaData, userDTO);
         } else {

@@ -74,7 +74,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     private final AccountFreezeValidator freezeValidator;
     private final MashreqUAEAccountNumberResolver accountNumberResolver;
     private final PostTransactionService postTransactionService;
-
+    private final CCTransactionEligibilityValidator ccTrxValidator;
     @Value("${app.uae.transaction.code:096}")
     private String transactionCode;
     protected final String MASHREQ = "Mashreq";
@@ -83,7 +83,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     public FundTransferResponse execute(FundTransferRequestDTO request, RequestMetaData metadata, UserDTO userDTO) {
 
         Instant start = Instant.now();
-
+        responseHandler(ccTrxValidator.validate(request, metadata));
         responseHandler(finTxnNoValidator.validate(request, metadata));
         responseHandler(sameAccountValidator.validate(request, metadata));
 

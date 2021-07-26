@@ -30,6 +30,7 @@ import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWServic
 import com.mashreq.transfercoreservice.fundtransfer.validators.AccountBelongsToCifValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.AccountFreezeValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.CCTransactionEligibilityValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.CurrencyValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.FinTxnNoValidator;
@@ -79,6 +80,8 @@ public class OwnAccountPayLaterStrategyTest {
 	private PostTransactionService postTransactionService;
 	@Mock
 	private SequenceNumberGenerator seqGenerator;
+	@Mock
+	private CCTransactionEligibilityValidator ccTrxValidator;
 	
 	@Before
 	public void init() {
@@ -87,7 +90,7 @@ public class OwnAccountPayLaterStrategyTest {
 				dealValidator,maintenanceService,fundTransferMWService,balanceValidator,
 				notificationService,auditEventPublisher,digitalUserSegment,freezeValidator,
 				postTransactionService,
-				fundTransferOrderRepository,seqGenerator);
+				fundTransferOrderRepository,seqGenerator,ccTrxValidator);
 	}
 	
 	@Test
@@ -103,6 +106,7 @@ public class OwnAccountPayLaterStrategyTest {
 		Mockito.when(sameAccountValidator.validate(Mockito.eq(request), Mockito.eq(metadata))).thenReturn(validationResult);
 		Mockito.when(accountBelongsToCifValidator.validate(Mockito.eq(request), Mockito.eq(metadata), Mockito.any())).thenReturn(validationResult);
 		Mockito.when(freezeValidator.validate(Mockito.eq(request), Mockito.eq(metadata), Mockito.any())).thenReturn(validationResult);
+		Mockito.when(ccTrxValidator.validate(Mockito.any(), Mockito.any())).thenReturn(validationResult);
 		String transactionRefNo = "TRN-test-12234";
 		LimitValidatorResponse limitResponse = LimitValidatorResponse.builder().transactionRefNo(transactionRefNo).build();
 		Mockito.when(limitValidator.validate(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(limitResponse );

@@ -38,6 +38,7 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.BeneficiaryValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.CCBalanceValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.CCBelongsToCifValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.CCTransactionEligibilityValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.FinTxnNoValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.IBANValidator;
@@ -76,11 +77,12 @@ public class LocalFundPayLaterTransferStrategy extends LocalFundTransferStrategy
 											 QRDealsService qrDealsService, CardService cardService,
 											 PostTransactionService postTransactionService,
 			FundTransferOrderRepository fundTransferOrderRepository,
-			SequenceNumberGenerator seqGenerator) {
+			SequenceNumberGenerator seqGenerator,
+			CCTransactionEligibilityValidator ccTrxValidator) {
 		super(ibanValidator, finTxnNoValidator, accountBelongsToCifValidator, ccBelongsToCifValidator, beneficiaryValidator,
 				accountService, beneficiaryService, limitValidator, fundTransferMWService, paymentPurposeValidator,
 				balanceValidator, ccBalanceValidator, maintenanceService, mobCommonService, dealValidator, countryRepository,
-				fundTransferCCMWService, auditEventPublisher, notificationService, qrDealsService, cardService, postTransactionService);
+				fundTransferCCMWService, auditEventPublisher, notificationService, qrDealsService, cardService, postTransactionService,ccTrxValidator);
 		this.fundTransferOrderRepository=fundTransferOrderRepository;
 		this.seqGenerator = seqGenerator;
 	}

@@ -146,7 +146,7 @@ public class FundTransferServiceDefaultTest {
 		Optional<DigitalUser> userOptional = Optional.of(digitalUser);
 		Mockito.when(digitalUserRepository.findByCifEquals(Mockito.anyString())).thenReturn(userOptional);
 		fundTransferResponse = FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
-		strategy = new InternationalFundTransferStrategy(null, null, null, null, null, null, null, null, null, null, null, null, null);
+		strategy = new InternationalFundTransferStrategy(null, null, null, null, null, null, null, null, null, null, null, null, null,null);
 		Method method = fundTransferServiceDefault.getClass().getDeclaredMethod("getFundTransferResponse", paramTypes);
 		method.setAccessible(true);
 		

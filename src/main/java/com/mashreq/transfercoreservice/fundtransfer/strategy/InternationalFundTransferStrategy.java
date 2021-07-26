@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_NOT_BELONG_TO_CIF;
+import static com.mashreq.transfercoreservice.event.FundTransferEventType.ACCOUNT_BELONGS_TO_CIF;
 import static com.mashreq.transfercoreservice.notification.model.NotificationType.INFT_TRANSACTION;
 import static com.mashreq.transfercoreservice.notification.model.NotificationType.OTHER_ACCOUNT_TRANSACTION;
 
@@ -67,6 +69,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     private final LimitValidator limitValidator;
 
     private final HashMap<String, String> routingSuffixMap = new HashMap<>();
+    private final CCTransactionEligibilityValidator ccTrxValidator;
 
     @Autowired
     private PostTransactionService postTransactionService;
@@ -87,6 +90,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
 
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, RequestMetaData metadata, UserDTO userDTO) {
+    	responseHandler(ccTrxValidator.validate(request, metadata));
         responseHandler(finTxnNoValidator.validate(request, metadata));
         final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metadata.getPrimaryCif());
 
