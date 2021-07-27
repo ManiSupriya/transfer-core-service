@@ -116,6 +116,11 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 
 		assertCardNumberBelongsToUser(request, requestMetaData);
 
+		QRDealDetails qrDealDetails = qrDealsService.getQRDealDetails(requestMetaData.getPrimaryCif(), beneficiaryDto.getBankCountryISO());
+		if(qrDealDetails == null){
+			logAndThrow(FundTransferEventType.FUND_TRANSFER_CC_CALL, TransferErrorCode.FT_CC_NO_DEALS, requestMetaData);
+		}
+
 		final List<CardDetailsDTO> accountsFromCore = cardService.getCardsFromCore(requestMetaData.getPrimaryCif(), CardType.CC);
 		final ValidationContext validationContext = new ValidationContext();
 
@@ -142,10 +147,6 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 				requestMetaData,
 				null);
 
-		QRDealDetails qrDealDetails = qrDealsService.getQRDealDetails(requestMetaData.getPrimaryCif(), beneficiaryDto.getBankCountryISO());
-		if(qrDealDetails == null){
-			logAndThrow(FundTransferEventType.FUND_TRANSFER_CC_CALL, TransferErrorCode.FT_CC_NO_DEALS, requestMetaData);
-		}
 		log.info("Fund transfer CC QR Deals verified {}", htmlEscape(requestMetaData.getPrimaryCif()));
 		BigDecimal utilizedAmount = qrDealDetails.getUtilizedLimitAmount();
 		if(utilizedAmount == null){
