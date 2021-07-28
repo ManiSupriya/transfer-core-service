@@ -29,6 +29,7 @@ import com.mashreq.transfercoreservice.middleware.HeaderFactory;
 import com.mashreq.transfercoreservice.middleware.SoapClient;
 import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
+import com.mashreq.transfercoreservice.middleware.enums.TFTAuthorization;
 import com.mashreq.transfercoreservice.middleware.enums.YesNo;
 
 import lombok.RequiredArgsConstructor;
@@ -156,6 +157,11 @@ public class FundTransferMWService {
         fundTransferReqType.setBatchTransactionId(batchTransIdTemporary + "");
         fundTransferReqType.setProductId(request.getProductId());
         fundTransferReqType.setTransTypeCode(request.getPurposeCode());
+        /**
+         * Hard-coding this values as per the request from Business 
+         * All transactions for RETAIL customers are STP only irrespective of any txn currency
+         * Later for SME this value should be calculated dynamically based on the input */
+        fundTransferReqType.setAuthorization(TFTAuthorization.AUTHORIZED.getCode());
 
         List<FundTransferReqType.Transfer> transferList = fundTransferReqType.getTransfer();
         FundTransferReqType.Transfer.CreditLeg creditLeg = new FundTransferReqType.Transfer.CreditLeg();
@@ -172,6 +178,9 @@ public class FundTransferMWService {
         creditLeg.setTransactionCode(request.getTransactionCode());
         creditLeg.setCurrency(request.getDestinationCurrency());
         creditLeg.setChargeBearer(request.getChargeBearer());
+        
+        /** only applicable for SWIFT transfers :: added as part of new DLS enhancement */
+        creditLeg.setIntermBICCode(request.getIntermediaryBankSwiftCode());
         String additionalField=StringUtils.isNotBlank(request.getAdditionaField())?SPACE_CHAR+request.getAdditionaField():"";
         
         log.info("request.getDestinationCurrency() {}", htmlEscape(request.getDestinationCurrency()));

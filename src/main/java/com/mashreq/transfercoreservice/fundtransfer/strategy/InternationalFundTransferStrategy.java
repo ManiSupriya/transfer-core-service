@@ -252,6 +252,13 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     	} else if(StringUtils.isBlank(beneficiaryDto.getAddressLine2()) && StringUtils.isNotBlank(beneficiaryDto.getAddressLine3())){
     		address3 = StringUtils.left(beneficiaryDto.getAddressLine3(), maxLength);
     	}*/
+    	/** updating beneficiary final name from beneficiary dto if it is present 
+    	 * added this because in new money transfer journey there is no option in UI for user to input this values during money transfer
+    	 * this is handled in beneficiary module only */
+    	if(StringUtils.isBlank(request.getFinalBene()) && StringUtils.isNotBlank(beneficiaryDto.getFinalName())) {
+    		request.setFinalBene(beneficiaryDto.getFinalName());
+    	}
+    	
     	final FundTransferRequest fundTransferRequest = FundTransferRequest.builder()
                 .productId(INTERNATIONAL_PRODUCT_ID)
                 .amount(request.getAmount())
@@ -273,6 +280,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .dealNumber(request.getDealNumber())
                 .txnCurrency(request.getTxnCurrency())
                 .dealRate(request.getDealRate())
+                .intermediaryBankSwiftCode(request.getIntermediaryBankSwiftCode())
                 .limitTransactionRefNo(validationResult.getTransactionRefNo())
                 .finalBene(request.getFinalBene())
                 .additionaField(StringUtils.isEmpty(request.getAdditionalField())?request.getPaymentNote():request.getAdditionalField())
