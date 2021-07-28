@@ -2,6 +2,12 @@ package com.mashreq.transfercoreservice.fundtransfer.eligibility.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.mashreq.encryption.encryptor.EncryptionService;
+import com.mashreq.mobcommons.services.events.publisher.AuditEventPublisher;
+import com.mashreq.transfercoreservice.cache.UserSessionCacheService;
+import com.mashreq.transfercoreservice.client.service.*;
+import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CCBalanceValidator;
+import com.mashreq.transfercoreservice.fundtransfer.service.QRDealsService;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -11,16 +17,11 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.transfercoreservice.client.dto.QRExchangeResponse;
-import com.mashreq.transfercoreservice.client.service.AccountService;
-import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
-import com.mashreq.transfercoreservice.client.service.MaintenanceService;
-import com.mashreq.transfercoreservice.client.service.QuickRemitService;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.BeneficiaryValidator;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CurrencyValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.LimitValidatorFactory;
 
 @RunWith(MockitoJUnitRunner.class)
-@Ignore
 public class QRAccountEligibilityServiceTest {
 
 	private QRAccountEligibilityService service;
@@ -39,11 +40,35 @@ public class QRAccountEligibilityServiceTest {
 	@Mock
 	private QuickRemitService quickRemitService;
 	@Mock
-	private AsyncUserEventPublisher userEventPublisher;
+	private AuditEventPublisher userEventPublisher;
+
+	@Mock
+	private CCBalanceValidator ccBalanceValidator;
+	@Mock
+	private QRDealsService qrDealsService;
+
+	@Mock
+	private UserSessionCacheService userSessionCacheService;
+	@Mock
+	private CardService cardService;
+
+	private EncryptionService encryptionService = new EncryptionService();
 	
 	@Before
 	public void init() {
-		//service = new QRAccountEligibilityService();
+		service = new QRAccountEligibilityService(
+				beneficiaryService,
+				accountService,
+				maintenanceService,
+				beneficiaryValidator,
+				limitValidatorFactory,
+				currencyValidatorFactory,
+				quickRemitService,
+				ccBalanceValidator,
+				qrDealsService,
+				userEventPublisher,
+				userSessionCacheService,
+				cardService);
 	}
 	
 	@Test
