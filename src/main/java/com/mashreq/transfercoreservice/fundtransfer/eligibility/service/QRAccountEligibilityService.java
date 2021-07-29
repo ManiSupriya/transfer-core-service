@@ -131,19 +131,15 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 
 		validationContext.add("from-account", selectedCreditCard);
 
-		final BigDecimal transferAmountInSrcCurrency = request.getAmount();
+		final BigDecimal transferAmountInSrcCurrency = getAmountInSrcCurrency(request);
 
-		String trxCurrency = StringUtils.isBlank(request.getTxnCurrency()) ? AED : request.getTxnCurrency();
-
-		request.setTxnCurrency(trxCurrency);
 		validationContext.add("transfer-amount-in-source-currency", transferAmountInSrcCurrency);
 		responseHandler(ccBalanceValidator.validate(request, requestMetaData, validationContext));
 
-		final BigDecimal limitUsageAmount = transferAmountInSrcCurrency;
 		limitValidatorFactory.getValidator(requestMetaData).validate(
 				userDTO,
 				getServiceType() == ServiceType.QRT ? "QROC" : request.getServiceType(),
-				limitUsageAmount,
+				transferAmountInSrcCurrency,
 				requestMetaData,
 				null);
 
@@ -153,7 +149,7 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 			utilizedAmount = new BigDecimal("0");
 		}
 		BigDecimal balancedAmount = qrDealDetails.getTotalLimitAmount().subtract(utilizedAmount);
-		int result = balancedAmount.compareTo(request.getAmount());
+		int result = balancedAmount.compareTo(transferAmountInSrcCurrency);
 		if(result == -1){
 			logAndThrow(FundTransferEventType.FUND_TRANSFER_CC_CALL, TransferErrorCode.FT_CC_BALANCE_NOT_SUFFICIENT, requestMetaData);
 		}
@@ -261,5 +257,18 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 			}
 		}
 		return cardDetailsDTO;
+	}
+
+	private BigDecimal getAmountInSrcCurrency(FundTransferEligibiltyRequestDTO request) {
+		BigDecimal amtToBePaidInSrcCurrency;
+		final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
+		currencyRequest.setAccountNumber(request.getFromAccount());
+		currencyRequest.setAccountCurrencyAmount(request.getAmount());
+		currencyRequest.setAccountCurrency(request.getTxnCurrency());
+		currencyRequest.setTransactionCurrency(AED);
+		currencyRequest.setDealNumber(request.getDealNumber());
+		CurrencyConversionDto conversionResultInSourceAcctCurrency = maintenanceService.convertBetweenCurrencies(currencyRequest);
+		amtToBePaidInSrcCurrency = conversionResultInSourceAcctCurrency.getTransactionAmount();
+		return amtToBePaidInSrcCurrency;
 	}
 }
