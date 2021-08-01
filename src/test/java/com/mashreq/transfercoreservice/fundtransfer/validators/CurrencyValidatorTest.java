@@ -6,6 +6,7 @@ import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryStatus;
 import com.mashreq.transfercoreservice.client.dto.CharityBeneficiaryDto;
+import com.mashreq.transfercoreservice.client.dto.SearchAccountDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
@@ -46,7 +47,9 @@ public class CurrencyValidatorTest {
 
         mockValidationContext.add("from-account", accountDetailsDTO);
         mockValidationContext.add("beneficiary-dto", beneficiaryDto);
-
+        SearchAccountDto toAccount = new SearchAccountDto();
+        toAccount.setCurrency("USD");
+        mockValidationContext.add("credit-account-details", toAccount);
         //when
         final ValidationResult result = currencyValidator.validate(requestDTO, null, mockValidationContext);
 
@@ -248,13 +251,15 @@ public class CurrencyValidatorTest {
 
         mockValidationContext.add("from-account", accountDetailsDTO);
         mockValidationContext.add("beneficiary-dto", beneficiaryDto);
-
+        SearchAccountDto toAccount = new SearchAccountDto();
+        toAccount.setCurrency("USD");
+        mockValidationContext.add("credit-account-details", toAccount);
         //when
          
         final ValidationResult result = currencyValidator.validate(requestDTO, null, mockValidationContext);
 
         //then
-        Assert.assertEquals(result.isSuccess(), false);
+        Assert.assertEquals(result.isSuccess(), true);
 
     }
 
@@ -305,6 +310,9 @@ public class CurrencyValidatorTest {
 
         mockValidationContext.add("from-account", accountDetailsDTO);
         mockValidationContext.add("beneficiary-dto", beneficiaryDto);
+        SearchAccountDto toAccount = new SearchAccountDto();
+        toAccount.setCurrency("USD");
+        mockValidationContext.add("credit-account-details", toAccount);
 
         //when
          
