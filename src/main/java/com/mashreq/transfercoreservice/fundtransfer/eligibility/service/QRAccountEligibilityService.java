@@ -135,13 +135,13 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 
 		validationContext.add("transfer-amount-in-source-currency", transferAmountInSrcCurrency);
 		responseHandler(ccBalanceValidator.validate(request, requestMetaData, validationContext));
-
+		Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
 		limitValidatorFactory.getValidator(requestMetaData).validate(
 				userDTO,
 				getServiceType() == ServiceType.QRT ? "QROC" : request.getServiceType(),
 				transferAmountInSrcCurrency,
 				requestMetaData,
-				null);
+				bendId);
 
 		log.info("Fund transfer CC QR Deals verified {}", htmlEscape(requestMetaData.getPrimaryCif()));
 		BigDecimal utilizedAmount = qrDealDetails.getUtilizedLimitAmount();
