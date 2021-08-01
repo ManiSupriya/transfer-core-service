@@ -102,6 +102,8 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         BeneficiaryDto beneficiaryDto = beneficiaryService.getById(metadata.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), metadata);
         validationContext.add("beneficiary-dto", beneficiaryDto);
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
+        /** validating account freeze conditions */
+        validateAccountFreezeDetails(request, metadata, validationContext);
         responseHandler(currencyValidator.validate(request, metadata, validationContext));
         final BigDecimal transferAmountInSrcCurrency = isCurrencySame(request)
                 ? request.getAmount()
@@ -109,8 +111,6 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
 
         validationContext.add("transfer-amount-in-source-currency", transferAmountInSrcCurrency);
         validateAccountBalance(request, metadata, validationContext);
-        /** validating account freeze conditions */
-        validateAccountFreezeDetails(request, metadata, validationContext);
 
         //Limit Validation
         Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
