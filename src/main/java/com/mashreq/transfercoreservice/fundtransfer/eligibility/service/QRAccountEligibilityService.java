@@ -262,7 +262,7 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 	private BigDecimal getAmountInSrcCurrency(FundTransferEligibiltyRequestDTO request) {
 		BigDecimal amtToBePaidInSrcCurrency;
 		final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
-		currencyRequest.setAccountNumber(request.getFromAccount());
+		currencyRequest.setAccountNumber(encryptionService.decrypt(request.getCardNo()));
 		currencyRequest.setAccountCurrencyAmount(request.getAmount());
 		currencyRequest.setAccountCurrency(request.getTxnCurrency());
 		currencyRequest.setTransactionCurrency(AED);
