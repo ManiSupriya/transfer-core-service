@@ -138,7 +138,7 @@ public class FundTransferCCMWService {
         if(fundTransferCCResType != null){
             coreFundTransferResponseDto.setHostRefNo(fundTransferCCResType.getCardReferenceNumber());
             coreFundTransferResponseDto.setMwReferenceNo(fundTransferCCResType.getCardReferenceNumber());
-            coreFundTransferResponseDto.setTransactionRefNo(fundTransferCCResType.getCardReferenceNumber());
+            coreFundTransferResponseDto.setTransactionRefNo(fundTransferCCResType.getCoreReferenceNumber());
         }
         if(exceptionDetails != null){
             coreFundTransferResponseDto.setExternalErrorMessage(exceptionDetails.getData());

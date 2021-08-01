@@ -131,7 +131,7 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 
 		validationContext.add("from-account", selectedCreditCard);
 
-		final BigDecimal transferAmountInSrcCurrency = getAmountInSrcCurrency(request);
+		final BigDecimal transferAmountInSrcCurrency = getAmountInSrcCurrency(request, requestMetaData);
 
 		validationContext.add("transfer-amount-in-source-currency", transferAmountInSrcCurrency);
 		responseHandler(ccBalanceValidator.validate(request, requestMetaData, validationContext));
@@ -233,15 +233,19 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 	private void assertCardNumberBelongsToUser(FundTransferEligibiltyRequestDTO fundOrderCreateRequest, RequestMetaData metaData) {
 		if (userSessionCacheService.isCardNumberBelongsToCif(fundOrderCreateRequest.getCardNo(), metaData.getUserCacheKey())) {
 			log.info("setting payment mode to card");
-			String cardNumber = encryptionService.decrypt(fundOrderCreateRequest.getCardNo());
-			if (org.springframework.util.StringUtils.isEmpty(cardNumber)) {
-				log.info("card number is empty");
-				auditEventPublisher.publishFailureEvent(ACCOUNT_BELONGS_TO_CIF, metaData, null,
-						ACCOUNT_NOT_BELONG_TO_CIF.getErrorMessage(), ACCOUNT_NOT_BELONG_TO_CIF.getErrorMessage(), null);
-				GenericExceptionHandler.handleError(ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF, ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF.getErrorMessage());
-			}
+			checkValidCardNo(fundOrderCreateRequest.getCardNo(), metaData);
 			auditEventPublisher.publishSuccessEvent(ACCOUNT_BELONGS_TO_CIF, metaData, "card belongs to the cif");
 			return;
+		}
+	}
+
+	private void checkValidCardNo(String cardNo, RequestMetaData metaData) {
+		String cardNumber = encryptionService.decrypt(cardNo);
+		if (org.springframework.util.StringUtils.isEmpty(cardNumber)) {
+			log.info("card number is empty");
+			auditEventPublisher.publishFailureEvent(ACCOUNT_BELONGS_TO_CIF, metaData, null,
+					ACCOUNT_NOT_BELONG_TO_CIF.getErrorMessage(), ACCOUNT_NOT_BELONG_TO_CIF.getErrorMessage(), null);
+			GenericExceptionHandler.handleError(ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF, ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF.getErrorMessage());
 		}
 	}
 
@@ -259,10 +263,19 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 		return cardDetailsDTO;
 	}
 
-	private BigDecimal getAmountInSrcCurrency(FundTransferEligibiltyRequestDTO request) {
+	private BigDecimal getAmountInSrcCurrency(FundTransferEligibiltyRequestDTO request, RequestMetaData requestMetaData) {
 		BigDecimal amtToBePaidInSrcCurrency;
+
 		final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
-		currencyRequest.setAccountNumber(encryptionService.decrypt(request.getCardNo()));
+
+		if(StringUtils.isNotBlank(request.getCardNo())){
+			checkValidCardNo(request.getCardNo(), requestMetaData);
+			currencyRequest.setAccountNumber(encryptionService.decrypt(request.getCardNo()));
+		}
+		else{
+			currencyRequest.setAccountNumber(request.getFromAccount());
+		}
+
 		currencyRequest.setAccountCurrencyAmount(request.getAmount());
 		currencyRequest.setAccountCurrency(request.getTxnCurrency());
 		currencyRequest.setTransactionCurrency(AED);
