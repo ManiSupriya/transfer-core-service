@@ -136,9 +136,9 @@ public class FundTransferCCMWService {
         String coreStatus;
         TransferErrorCode transferErrorCode;
         if(fundTransferCCResType != null){
-            coreFundTransferResponseDto.setHostRefNo(fundTransferCCResType.getCardReferenceNumber());
+            coreFundTransferResponseDto.setHostRefNo(fundTransferCCResType.getCoreReferenceNumber());
             coreFundTransferResponseDto.setMwReferenceNo(fundTransferCCResType.getCardReferenceNumber());
-            coreFundTransferResponseDto.setTransactionRefNo(fundTransferCCResType.getCoreReferenceNumber());
+            coreFundTransferResponseDto.setTransactionRefNo(fundTransferCCResType.getCardReferenceNumber());
         }
         if(exceptionDetails != null){
             coreFundTransferResponseDto.setExternalErrorMessage(exceptionDetails.getData());
