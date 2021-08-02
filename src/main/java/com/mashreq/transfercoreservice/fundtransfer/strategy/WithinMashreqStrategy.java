@@ -78,6 +78,8 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     @Value("${app.uae.transaction.code:096}")
     private String transactionCode;
     protected final String MASHREQ = "Mashreq";
+    @Value("${app.uae.address}")
+    private String address;
     
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, RequestMetaData metadata, UserDTO userDTO) {
@@ -174,6 +176,9 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
             fundTransferRequest.setTransferType(MASHREQ);
             fundTransferRequest.setNotificationType(NotificationType.LOCAL);
             fundTransferRequest.setStatus(MwResponseStatus.S.getName());
+            /**added this here to avoid the impact; In some cases, amount is not updating while generating request
+             * this is done to enable transactions with TXN currency as  */
+            fundTransferRequest.setAmount(request.getAmount());
             postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest);
         }
 	}
@@ -250,8 +255,10 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     }
     private FundTransferRequest prepareFundTransferRequestPayload(RequestMetaData metadata, FundTransferRequestDTO request,
                                                                   AccountDetailsDTO sourceAccount, BeneficiaryDto beneficiaryDto, LimitValidatorResponse validationResult) {
-        return FundTransferRequest.builder()
-                .amount(request.getAmount())
+    	FundTransferRequest trnsrequest = 
+         FundTransferRequest.builder()
+                .amount(!sourceAccount.getCurrency().equals(request.getTxnCurrency()) ? request.getAmount() : null)
+                .srcAmount(sourceAccount.getCurrency().equals(request.getTxnCurrency()) ? request.getAmount() : null)
                 .channel(metadata.getChannel())
                 .channelTraceId(metadata.getChannelTraceId())
                 .fromAccount(request.getFromAccount())
@@ -265,11 +272,17 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
                 .internalAccFlag(INTERNAL_ACCOUNT_FLAG)
                 .dealNumber(request.getDealNumber())
                 .dealRate(request.getDealRate())
+                .beneficiaryAddressTwo(address)
                 .txnCurrency(request.getTxnCurrency())
                 .limitTransactionRefNo(validationResult.getTransactionRefNo())
                 .paymentNote(request.getPaymentNote())
                 .build();
-
+    	if(sourceAccount.getCurrency().equals(request.getTxnCurrency())) {
+    		trnsrequest.setSrcAmount(request.getAmount());
+    	}else {
+    		trnsrequest.setAmount(request.getAmount());
+    	}
+    	return trnsrequest;
     }
 
     
