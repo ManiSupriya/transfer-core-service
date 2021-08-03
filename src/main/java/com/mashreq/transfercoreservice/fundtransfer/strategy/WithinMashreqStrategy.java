@@ -207,6 +207,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         validateAccountContext.add("debit-account-details", fromAccountDetails);
         validateAccountContext.add("validate-debit-freeze", Boolean.TRUE);
         freezeValidator.validate(request, metadata,validateAccountContext);
+        request.setDestinationAccountCurrency(toAccountDetails.getCurrency());
 	}
     
     protected CustomerNotification populateCustomerNotification(String transactionRefNo, String currency, BigDecimal amount, String beneficiaryName, String creditAccount) {
@@ -267,7 +268,8 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
                 .sourceCurrency(sourceAccount.getCurrency())
                 .sourceBranchCode(sourceAccount.getBranchCode())
                 .beneficiaryFullName(beneficiaryDto.getFullName())
-                .destinationCurrency(request.getTxnCurrency())
+                /** added if condition to avoid impact on existing logic, as per actual logic , destination currency should not be null*/
+                .destinationCurrency(StringUtils.isNotBlank(request.getDestinationAccountCurrency()) ? request.getDestinationAccountCurrency() : request.getTxnCurrency())
                 .transactionCode(WITHIN_MASHREQ_TRANSACTION_CODE)
                 .internalAccFlag(INTERNAL_ACCOUNT_FLAG)
                 .dealNumber(request.getDealNumber())
