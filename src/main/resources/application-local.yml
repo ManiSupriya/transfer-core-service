@@ -126,8 +126,10 @@ app:
         fromEmailName: ${NOTIFICATION_FROM_EMAIL_NAME:MashreqDigital}
         fromEmailAddress: ${NOTIFICATION_FROM_EMAIL_ADDRESS:MashreqDigital@mashreqbank.com}
         callCenterNo: ${NOTIFICATION_EMAIL_CALL_CENTER_NO:04 424 6666}
-        localFundTransfer: mt-within-own-accounts.ftl
-        otherFundTransfer: mt-other-accounts.ftl
+        localFundTransfer: templates/mt-within-own-accounts
+        otherFundTransfer: templates/mt-other-accounts
+        plEmailTemplate: templates/plEmailTemplate
+        sIEmailTemplate: templates/sIEmailTemplate
     sms:
       mashreqServiceId: ${ALERT_SMS_MASHREQ_PAYMENT_SERVICEID:330}
       neoServiceId: ${ALERT_SMS_NEO_PAYMENT_SERVICEID:350}

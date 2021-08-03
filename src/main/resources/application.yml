@@ -159,10 +159,12 @@ app:
         fromEmailName: ${EMAIL_FROM_NAME_MOB:MashreqDigital}
         fromEmailAddress: ${EMAIL_FROM_ADD_MOB:MashreqDigital@mashreq.com}
         callCenterNo: ${NOTIFICATION_EMAIL_CALL_CENTER_NO:04 424 6666}
-        localFundTransfer: mt-within-own-accounts.ftl
-        otherFundTransfer: mt-other-accounts.ftl
-        goldSilverBuySuccess: buy-goldsilver-success.ftl
-        goldSilverSellSuccess: sell-goldsilver-success.ftl
+        localFundTransfer: templates/mt-within-own-accounts
+        otherFundTransfer: templates/mt-other-accounts
+        goldSilverBuySuccess: templates/buy-goldsilver-success
+        goldSilverSellSuccess: templates/sell-goldsilver-success
+        plEmailTemplate: templates/plEmailTemplate
+        sIEmailTemplate: templates/sIEmailTemplate
     sms:
       mashreqServiceId: ${ALERT_SMS_MASHREQ_PAYMENT_SERVICEID:330}
       neoServiceId: ${ALERT_SMS_NEO_PAYMENT_SERVICEID:350}
