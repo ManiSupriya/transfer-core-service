@@ -136,7 +136,7 @@ public class FundTransferCCMWService {
         String coreStatus;
         TransferErrorCode transferErrorCode;
         if(fundTransferCCResType != null){
-            coreFundTransferResponseDto.setHostRefNo(fundTransferCCResType.getCardReferenceNumber());
+            coreFundTransferResponseDto.setHostRefNo(fundTransferCCResType.getCoreReferenceNumber());
             coreFundTransferResponseDto.setMwReferenceNo(fundTransferCCResType.getCardReferenceNumber());
             coreFundTransferResponseDto.setTransactionRefNo(fundTransferCCResType.getCardReferenceNumber());
         }

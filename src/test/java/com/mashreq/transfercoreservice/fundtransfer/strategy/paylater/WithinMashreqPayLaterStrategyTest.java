@@ -103,6 +103,7 @@ public class WithinMashreqPayLaterStrategyTest {
 	@Test
 	public void test_success_Scenario() {
 		FundTransferRequestDTO request = FundTransferTestUtil.generateFundTransferRequest();
+		request.setChargeBearer(null);
 		request.setServiceType(ServiceType.WAMA.getName());
 		request.setOrderType(FTOrderType.PL.getName());
 		request.setStartDate("2041-12-12");

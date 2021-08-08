@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
+import com.mashreq.mobcommons.services.CustomHtmlEscapeUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -75,64 +76,85 @@ public class BankDetailService {
     	return bankDetailsMapper.coreBankResultsToDto(response);
     }
 
-    private List<BankResultsDto> getBankDetails(final String channelTraceId, final BankDetailRequestDto bankDetailRequest, final RequestMetaData requestMetaData) {
-        if("bic".equalsIgnoreCase(bankDetailRequest.getType())){
-            return bicCodeSearchService.fetchBankDetailsWithBic(bankDetailRequest.getCountryCode(), requestMetaData );
-        }
-        if ("iban".equals(bankDetailRequest.getType())) {
-        	if(isLocalIban(bankDetailRequest.getValue())) {
-        		return getLocalIbanBankDetails(bankDetailRequest.getValue());
-        	}
-            return ibanSearchMWService.fetchBankDetailsWithIban(channelTraceId, bankDetailRequest.getValue(), requestMetaData );
-        }
-        if("swift".equals(bankDetailRequest.getType())) {
-        	validateSwiftCode(bankDetailRequest.getValue());
-        	return fetchBySwiftAndBicCode(channelTraceId, bankDetailRequest, requestMetaData);
-        }
-        
-        List<BankResultsDto> bankResults = routingCodeSearchMWService.fetchBankDetailsWithRoutingCode(channelTraceId, bankDetailRequest, requestMetaData);
-        if(Objects.isNull(bankResults) || (Objects.nonNull(bankResults) && bankResults.isEmpty())) {
-        	GenericExceptionHandler.handleError(INVALID_ROUTING_CODE, INVALID_ROUTING_CODE.getErrorMessage());
-        }
-        
-        return bankResults;
+	public BankResultsDto getBankDeatilsByIfsc(final String channelTraceId, final String ifscCode, final RequestMetaData requestMetaData) {
+        return ifscCodeSearchMWService.getBankDetailByIfscCode(channelTraceId, ifscCode, requestMetaData);
     }
 
-    private List<BankResultsDto> fetchBySwiftAndBicCode(String channelTraceId, BankDetailRequestDto bankDetailRequest, RequestMetaData requestMetaData) {
-    	List<BankResultsDto> bankDetails = null;
-    	try {
-    		bankDetails = routingCodeSearchMWService.fetchBankDetailsWithRoutingCode(channelTraceId, bankDetailRequest, requestMetaData);
-    	}
-    	catch(GenericException gex) {
-    		try {
-    			bankDetails = bicCodeSearchService.fetchBankDetailsWithBic(bankDetailRequest.getCountryCode(), requestMetaData ).stream()
-    					.filter(bankResult -> 
-		    					StringUtils.isNotBlank(bankResult.getSwiftCode()) &&
-		    					StringUtils.isNotBlank(bankDetailRequest.getValue()) &&
-		    					bankResult.getSwiftCode().equals(bankDetailRequest.getValue()))
-    					.collect(Collectors.toList());
-    		}
-    		catch(GenericException ge) {
-    			GenericExceptionHandler.handleError(SWIFT_AND_BIC_SEARCH_FAILED, SWIFT_AND_BIC_SEARCH_FAILED.getErrorMessage(), ge.getErrorDetails());
-    		}
-    	}
-    	
-    	if(null == bankDetails || bankDetails.isEmpty()) {
-    		GenericExceptionHandler.handleError(INVALID_SWIFT_CODE, INVALID_SWIFT_CODE.getErrorMessage());
-    	}
+	public List<BankResultsDto> getBankDetails(@Valid BankDetailRequestDto bankDetailRequest, RequestMetaData metaData) {
+		List<BankResultsDto> results = getBankDetails(metaData.getChannelTraceId(), bankDetailRequest, metaData);
+		
+		if(null != results) {
+		
+			if(null == ALL_COUNTRIES_MAP) {
+				ALL_COUNTRIES_MAP = mobCommonService.getCountryCodeMap();
+			}
+			
+			return results.stream()
+			.map(bankResult -> modifyBankResult(bankResult))
+			.collect(Collectors.toList());
+		}
+		
+		throw genericException(INTERNAL_ERROR);
+	}
+
+	private List<BankResultsDto> getBankDetails(final String channelTraceId, final BankDetailRequestDto bankDetailRequest, final RequestMetaData requestMetaData) {
+		if("bic".equalsIgnoreCase(bankDetailRequest.getType())){
+			return bicCodeSearchService.fetchBankDetailsWithBic(bankDetailRequest.getCountryCode(), requestMetaData );
+		}
+		if ("iban".equals(bankDetailRequest.getType())) {
+			if(isLocalIban(bankDetailRequest.getValue())) {
+				return getLocalIbanBankDetails(bankDetailRequest.getValue());
+			}
+			return ibanSearchMWService.fetchBankDetailsWithIban(channelTraceId, bankDetailRequest.getValue(), requestMetaData );
+		}
+		if("swift".equals(bankDetailRequest.getType())) {
+			validateSwiftCode(bankDetailRequest.getValue());
+			return fetchBySwiftAndBicCode(channelTraceId, bankDetailRequest, requestMetaData);
+		}
+
+		List<BankResultsDto> bankResults = routingCodeSearchMWService.fetchBankDetailsWithRoutingCode(channelTraceId, bankDetailRequest, requestMetaData);
+		if(Objects.isNull(bankResults) || (Objects.nonNull(bankResults) && bankResults.isEmpty())) {
+			GenericExceptionHandler.handleError(INVALID_ROUTING_CODE, INVALID_ROUTING_CODE.getErrorMessage());
+		}
+
+		return bankResults;
+	}
+
+	private List<BankResultsDto> fetchBySwiftAndBicCode(String channelTraceId, BankDetailRequestDto bankDetailRequest, RequestMetaData requestMetaData) {
+		List<BankResultsDto> bankDetails = null;
+		try {
+			bankDetails = routingCodeSearchMWService.fetchBankDetailsWithRoutingCode(channelTraceId, bankDetailRequest, requestMetaData);
+		}
+		catch(GenericException gex) {
+			try {
+				bankDetails = bicCodeSearchService.fetchBankDetailsWithBic(bankDetailRequest.getCountryCode(), requestMetaData ).stream()
+						.filter(bankResult ->
+								StringUtils.isNotBlank(bankResult.getSwiftCode()) &&
+										StringUtils.isNotBlank(bankDetailRequest.getValue()) &&
+										bankResult.getSwiftCode().equals(bankDetailRequest.getValue()))
+						.collect(Collectors.toList());
+			}
+			catch(GenericException ge) {
+				GenericExceptionHandler.handleError(SWIFT_AND_BIC_SEARCH_FAILED, SWIFT_AND_BIC_SEARCH_FAILED.getErrorMessage(), ge.getErrorDetails());
+			}
+		}
+
+		if(null == bankDetails || bankDetails.isEmpty()) {
+			GenericExceptionHandler.handleError(INVALID_SWIFT_CODE, INVALID_SWIFT_CODE.getErrorMessage());
+		}
 		return bankDetails;
 	}
 
 	private List<BankResultsDto> getLocalIbanBankDetails(String iban) {
-    	validateIban(iban);
+		validateIban(iban);
 
-        String bankcode = iban.substring(4, 7);
+		String bankcode = iban.substring(4, 7);
 		BankDetails bank = bankRepository.findByBankCode(bankcode).orElseThrow(() -> genericException(BANK_NOT_FOUND_WITH_IBAN));
-        
-        BankResultsDto bankResults = new BankResultsDto();
-        bankResults.setSwiftCode(bank.getSwiftCode());
-        bankResults.setBankName(bank.getBankName());
-        updateAccountNumber(bankResults,iban,bankcode);
+
+		BankResultsDto bankResults = new BankResultsDto();
+		bankResults.setSwiftCode(bank.getSwiftCode());
+		bankResults.setBankName(bank.getBankName());
+		updateAccountNumber(bankResults,iban,bankcode);
 		return Arrays.asList(bankResults);
 	}
 
@@ -151,28 +173,15 @@ public class BankDetailService {
 		if(code.length() != 8 && code.length() != 11) {
 			GenericExceptionHandler.handleError(INVALID_SWIFT_CODE, INVALID_SWIFT_CODE.getErrorMessage());
 		}
-		
+
 	}
 
-	public BankResultsDto getBankDeatilsByIfsc(final String channelTraceId, final String ifscCode, final RequestMetaData requestMetaData) {
-        return ifscCodeSearchMWService.getBankDetailByIfscCode(channelTraceId, ifscCode, requestMetaData);
-    }
+	private BankResultsDto modifyBankResult(BankResultsDto bankResult) {
+		bankResult = updateCountryInBankResults(bankResult);
+		bankResult = updateSwiftCode(bankResult);
 
-	public List<BankResultsDto> getBankDetails(@Valid BankDetailRequestDto bankDetailRequest, RequestMetaData metaData) {
-		List<BankResultsDto> results = getBankDetails(metaData.getChannelTraceId(), bankDetailRequest, metaData);
-		
-		if(null != results) {
-		
-			if(null == ALL_COUNTRIES_MAP) {
-				ALL_COUNTRIES_MAP = mobCommonService.getCountryCodeMap();
-			}
-			
-			return results.stream()
-			.map(bankResult -> updateCountryInBankResults(bankResult))
-			.collect(Collectors.toList());
-		}
-		
-		throw genericException(INTERNAL_ERROR);
+		return bankResult;
+
 	}
 
 	private BankResultsDto updateCountryInBankResults(BankResultsDto bankResult) {
@@ -181,6 +190,25 @@ public class BankDetailService {
 				bankResult.setBankCountry(ALL_COUNTRIES_MAP.get(bankResult.getCountryCode()));
 			}
 		}
+		return bankResult;
+	}
+
+	private BankResultsDto updateSwiftCode(BankResultsDto bankResult) {
+		if(null != bankResult && null != bankResult.getSwiftCode()){
+			try{
+				validateSwiftCode(bankResult.getSwiftCode());
+				//reset swift code if it matches routing code
+				if(StringUtils.isNotBlank(bankResult.getRoutingCode()) && bankResult.getSwiftCode().equals(bankResult.getRoutingCode())){
+					bankResult.setSwiftCode(null);
+				}
+				return bankResult;
+			}
+			catch(GenericException ex){
+				log.error("Invalid swift code returned by accuity -> {}" , CustomHtmlEscapeUtil.htmlEscape(bankResult.getSwiftCode()) ,ex);
+			}
+		}
+		//swift is invalid hence reset it
+		bankResult.setSwiftCode(null);
 		return bankResult;
 	}
 
