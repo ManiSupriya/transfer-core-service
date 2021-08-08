@@ -147,7 +147,7 @@ public class WithinMashreqPayLaterStrategy extends WithinMashreqStrategy {
 		order.setSourceBranchCode(fundTransferRequest.getSourceBranchCode());
 		order.setDestinationAccountNumber(fundTransferRequest.getToAccount());
 		order.setTransactionCode(fundTransferRequest.getTransactionCode());
-		order.setTransactionValue(Money.valueOf(request.getAmount(), fundTransferRequest.getTxnCurrency()));
+		order.setTransactionValue(Money.valueOf(request.getAmount(), request.getTxnCurrency()));
 		order.setPaymentNote(request.getPaymentNote());
 		order.setSourceAccount(request.getFromAccount());
 		order.setEmail(metadata.getEmail());

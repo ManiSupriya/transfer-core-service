@@ -78,8 +78,6 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     @Value("${app.uae.transaction.code:096}")
     private String transactionCode;
     protected final String MASHREQ = "Mashreq";
-    @Value("${app.uae.address}")
-    private String address;
     
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, RequestMetaData metadata, UserDTO userDTO) {
@@ -179,6 +177,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
             /**added this here to avoid the impact; In some cases, amount is not updating while generating request
              * this is done to enable transactions with TXN currency as  */
             fundTransferRequest.setAmount(request.getAmount());
+            fundTransferRequest.setTxnCurrency(request.getTxnCurrency());
             postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest);
         }
 	}
@@ -274,8 +273,6 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
                 .internalAccFlag(INTERNAL_ACCOUNT_FLAG)
                 .dealNumber(request.getDealNumber())
                 .dealRate(request.getDealRate())
-                .beneficiaryAddressTwo(address)
-                .txnCurrency(request.getTxnCurrency())
                 .limitTransactionRefNo(validationResult.getTransactionRefNo())
                 .paymentNote(request.getPaymentNote())
                 .build();
