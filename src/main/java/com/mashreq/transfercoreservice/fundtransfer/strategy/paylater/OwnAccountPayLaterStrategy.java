@@ -1,9 +1,10 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy.paylater;
 
+import static com.mashreq.transfercoreservice.notification.model.NotificationType.OWN_ACCOUNT_PL_SI_CREATION;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import com.mashreq.transfercoreservice.common.HtmlEscapeCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +13,7 @@ import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
-import com.mashreq.transfercoreservice.fundtransfer.dto.ChargeBearer;
+import com.mashreq.transfercoreservice.common.HtmlEscapeCache;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
@@ -48,8 +49,6 @@ import com.mashreq.transfercoreservice.paylater.utils.OrderExecutionDateResolver
 import com.mashreq.transfercoreservice.paylater.utils.SequenceNumberGenerator;
 
 import lombok.extern.slf4j.Slf4j;
-
-import static com.mashreq.transfercoreservice.notification.model.NotificationType.OWN_ACCOUNT_PL_SI_CREATION;
 
 @Slf4j
 @Service
@@ -128,7 +127,6 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 		order.setCreatedBy(metadata.getUsername());
 		order.setCreatedOn(LocalDateTime.now());
 		order.setChannel(metadata.getChannel());
-		order.setChargeBearer(ChargeBearer.valueOf(request.getChargeBearer()));
 		order.setCif(metadata.getPrimaryCif());
 		order.setUserType(metadata.getUserType());
 		order.setCustomerSegment(metadata.getSegment());

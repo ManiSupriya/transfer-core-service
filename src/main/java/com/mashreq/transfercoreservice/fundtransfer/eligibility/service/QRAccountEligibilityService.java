@@ -131,21 +131,17 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 
 		validationContext.add("from-account", selectedCreditCard);
 
-		final BigDecimal transferAmountInSrcCurrency = request.getAmount();
+		final BigDecimal transferAmountInSrcCurrency = getAmountInSrcCurrency(request, requestMetaData);
 
-		String trxCurrency = StringUtils.isBlank(request.getTxnCurrency()) ? AED : request.getTxnCurrency();
-
-		request.setTxnCurrency(trxCurrency);
 		validationContext.add("transfer-amount-in-source-currency", transferAmountInSrcCurrency);
 		responseHandler(ccBalanceValidator.validate(request, requestMetaData, validationContext));
-
-		final BigDecimal limitUsageAmount = transferAmountInSrcCurrency;
+		Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
 		limitValidatorFactory.getValidator(requestMetaData).validate(
 				userDTO,
 				getServiceType() == ServiceType.QRT ? "QROC" : request.getServiceType(),
-				limitUsageAmount,
+				transferAmountInSrcCurrency,
 				requestMetaData,
-				null);
+				bendId);
 
 		log.info("Fund transfer CC QR Deals verified {}", htmlEscape(requestMetaData.getPrimaryCif()));
 		BigDecimal utilizedAmount = qrDealDetails.getUtilizedLimitAmount();
@@ -153,7 +149,7 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 			utilizedAmount = new BigDecimal("0");
 		}
 		BigDecimal balancedAmount = qrDealDetails.getTotalLimitAmount().subtract(utilizedAmount);
-		int result = balancedAmount.compareTo(request.getAmount());
+		int result = balancedAmount.compareTo(transferAmountInSrcCurrency);
 		if(result == -1){
 			logAndThrow(FundTransferEventType.FUND_TRANSFER_CC_CALL, TransferErrorCode.FT_CC_BALANCE_NOT_SUFFICIENT, requestMetaData);
 		}
@@ -237,15 +233,19 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 	private void assertCardNumberBelongsToUser(FundTransferEligibiltyRequestDTO fundOrderCreateRequest, RequestMetaData metaData) {
 		if (userSessionCacheService.isCardNumberBelongsToCif(fundOrderCreateRequest.getCardNo(), metaData.getUserCacheKey())) {
 			log.info("setting payment mode to card");
-			String cardNumber = encryptionService.decrypt(fundOrderCreateRequest.getCardNo());
-			if (org.springframework.util.StringUtils.isEmpty(cardNumber)) {
-				log.info("card number is empty");
-				auditEventPublisher.publishFailureEvent(ACCOUNT_BELONGS_TO_CIF, metaData, null,
-						ACCOUNT_NOT_BELONG_TO_CIF.getErrorMessage(), ACCOUNT_NOT_BELONG_TO_CIF.getErrorMessage(), null);
-				GenericExceptionHandler.handleError(ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF, ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF.getErrorMessage());
-			}
+			checkValidCardNo(fundOrderCreateRequest.getCardNo(), metaData);
 			auditEventPublisher.publishSuccessEvent(ACCOUNT_BELONGS_TO_CIF, metaData, "card belongs to the cif");
 			return;
+		}
+	}
+
+	private void checkValidCardNo(String cardNo, RequestMetaData metaData) {
+		String cardNumber = encryptionService.decrypt(cardNo);
+		if (org.springframework.util.StringUtils.isEmpty(cardNumber)) {
+			log.info("card number is empty");
+			auditEventPublisher.publishFailureEvent(ACCOUNT_BELONGS_TO_CIF, metaData, null,
+					ACCOUNT_NOT_BELONG_TO_CIF.getErrorMessage(), ACCOUNT_NOT_BELONG_TO_CIF.getErrorMessage(), null);
+			GenericExceptionHandler.handleError(ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF, ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF.getErrorMessage());
 		}
 	}
 
@@ -261,5 +261,27 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 			}
 		}
 		return cardDetailsDTO;
+	}
+
+	private BigDecimal getAmountInSrcCurrency(FundTransferEligibiltyRequestDTO request, RequestMetaData requestMetaData) {
+		BigDecimal amtToBePaidInSrcCurrency;
+
+		final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
+
+		if(StringUtils.isNotBlank(request.getCardNo())){
+			checkValidCardNo(request.getCardNo(), requestMetaData);
+			currencyRequest.setAccountNumber(encryptionService.decrypt(request.getCardNo()));
+		}
+		else{
+			currencyRequest.setAccountNumber(request.getFromAccount());
+		}
+
+		currencyRequest.setAccountCurrencyAmount(request.getAmount());
+		currencyRequest.setAccountCurrency(request.getTxnCurrency());
+		currencyRequest.setTransactionCurrency(AED);
+		currencyRequest.setDealNumber(request.getDealNumber());
+		CurrencyConversionDto conversionResultInSourceAcctCurrency = maintenanceService.convertBetweenCurrencies(currencyRequest);
+		amtToBePaidInSrcCurrency = conversionResultInSourceAcctCurrency.getTransactionAmount();
+		return amtToBePaidInSrcCurrency;
 	}
 }
