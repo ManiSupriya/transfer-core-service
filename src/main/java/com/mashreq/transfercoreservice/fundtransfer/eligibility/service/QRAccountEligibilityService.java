@@ -102,7 +102,7 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 		final AccountDetailsDTO sourceAccountDetailsDTO = getAccountDetailsBasedOnAccountNumber(accountsFromCore,
 				request.getFromAccount());
 		final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), sourceAccountDetailsDTO,
-				new BigDecimal(response.getAccountCurrencyAmount()));
+				new BigDecimal(response.getDebitAmountWithoutCharges()));
 
 		limitValidatorFactory.getValidator(metaData).validate(
 				userDTO,
