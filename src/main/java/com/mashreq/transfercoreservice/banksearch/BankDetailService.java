@@ -177,31 +177,30 @@ public class BankDetailService {
 	}
 
 	private BankResultsDto modifyBankResult(BankResultsDto bankResult) {
-		bankResult = updateCountryInBankResults(bankResult);
-		bankResult = updateSwiftCode(bankResult);
+		updateCountryInBankResults(bankResult);
+		updateSwiftCode(bankResult);
+		updateRoutingCode(bankResult);
 
 		return bankResult;
-
 	}
 
-	private BankResultsDto updateCountryInBankResults(BankResultsDto bankResult) {
+	private void updateCountryInBankResults(BankResultsDto bankResult) {
 		if(null != bankResult && null != ALL_COUNTRIES_MAP) {
 			if(StringUtils.isBlank(bankResult.getBankCountry())) {
 				bankResult.setBankCountry(ALL_COUNTRIES_MAP.get(bankResult.getCountryCode()));
 			}
 		}
-		return bankResult;
 	}
 
-	private BankResultsDto updateSwiftCode(BankResultsDto bankResult) {
+	private void updateSwiftCode(BankResultsDto bankResult) {
 		if(null != bankResult && null != bankResult.getSwiftCode()){
 			try{
-				validateSwiftCode(bankResult.getSwiftCode());
 				//reset swift code if it matches routing code
+				validateSwiftCode(bankResult.getSwiftCode());
 				if(StringUtils.isNotBlank(bankResult.getRoutingCode()) && bankResult.getSwiftCode().equals(bankResult.getRoutingCode())){
 					bankResult.setSwiftCode(null);
 				}
-				return bankResult;
+				return;
 			}
 			catch(GenericException ex){
 				log.error("Invalid swift code returned by accuity -> {}" , CustomHtmlEscapeUtil.htmlEscape(bankResult.getSwiftCode()) ,ex);
@@ -209,7 +208,23 @@ public class BankDetailService {
 		}
 		//swift is invalid hence reset it
 		bankResult.setSwiftCode(null);
-		return bankResult;
+	}
+
+	private void updateRoutingCode(BankResultsDto bankResult) {
+		if(null != bankResult && null != bankResult.getRoutingCode()){
+			try{
+				//reset routing code if it matches swift code
+				if(StringUtils.isNotBlank(bankResult.getSwiftCode()) && bankResult.getRoutingCode().equals(bankResult.getSwiftCode())){
+					bankResult.setRoutingCode(null);
+				}
+				return;
+			}
+			catch(GenericException ex){
+				log.error("Invalid routing code returned by accuity -> {}" , CustomHtmlEscapeUtil.htmlEscape(bankResult.getRoutingCode()) ,ex);
+			}
+		}
+		//routing code is invalid hence reset it
+		bankResult.setRoutingCode(null);
 	}
 
 }
