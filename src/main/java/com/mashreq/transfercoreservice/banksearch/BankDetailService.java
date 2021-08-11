@@ -200,6 +200,7 @@ public class BankDetailService {
 				//reset swift code if it matches routing code
 				if(StringUtils.isNotBlank(bankResult.getRoutingCode()) && bankResult.getSwiftCode().equals(bankResult.getRoutingCode())){
 					bankResult.setSwiftCode(null);
+					bankResult.setRoutingCode(null);
 				}
 				return bankResult;
 			}
@@ -209,6 +210,7 @@ public class BankDetailService {
 		}
 		//swift is invalid hence reset it
 		bankResult.setSwiftCode(null);
+		bankResult.setRoutingCode(null);
 		return bankResult;
 	}
 
