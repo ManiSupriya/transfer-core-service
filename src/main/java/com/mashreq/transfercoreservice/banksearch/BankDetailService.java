@@ -196,6 +196,7 @@ public class BankDetailService {
 		if(null != bankResult && null != bankResult.getSwiftCode()){
 			try{
 				//reset swift code if it matches routing code
+				validateSwiftCode(bankResult.getSwiftCode());
 				if(StringUtils.isNotBlank(bankResult.getRoutingCode()) && bankResult.getSwiftCode().equals(bankResult.getRoutingCode())){
 					bankResult.setSwiftCode(null);
 				}
