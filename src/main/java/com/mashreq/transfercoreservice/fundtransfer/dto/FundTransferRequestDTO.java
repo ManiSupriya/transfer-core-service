@@ -90,4 +90,5 @@ public class FundTransferRequestDTO {
     @Pattern(regexp = "^$|[a-zA-Z0-9-]+",message="Not a valid SWIFT code")
     private String intermediaryBankSwiftCode;
     
+    private String destinationAccountCurrency;
 }

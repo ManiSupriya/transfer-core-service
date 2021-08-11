@@ -220,7 +220,7 @@ public class FundTransferMWService {
 		else {
 			if (StringUtils.isNotBlank(request.getTxnCurrency())
 					&& request.getTxnCurrency().equalsIgnoreCase(request.getSourceCurrency())) {
-			    if( StringUtils.isNotBlank(request.getBeneficiaryAddressTwo()) && request.getBeneficiaryAddressTwo().equalsIgnoreCase(UAE_COUNTRY))
+			    if( StringUtils.isNotBlank(request.getBeneficiaryBankCountry()) && request.getBeneficiaryBankCountry().equalsIgnoreCase(UAE_COUNTRY))
                     creditLeg.setAmount(request.getAmount());
 			    else
                     debitLeg.setAmount(request.getAmount());

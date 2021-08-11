@@ -174,6 +174,10 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
             fundTransferRequest.setTransferType(MASHREQ);
             fundTransferRequest.setNotificationType(NotificationType.LOCAL);
             fundTransferRequest.setStatus(MwResponseStatus.S.getName());
+            /**added this here to avoid the impact; In some cases, amount is not updating while generating request
+             * this is done to enable transactions with TXN currency as  */
+            fundTransferRequest.setAmount(request.getAmount());
+            fundTransferRequest.setTxnCurrency(request.getTxnCurrency());
             postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest);
         }
 	}
@@ -202,6 +206,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         validateAccountContext.add("debit-account-details", fromAccountDetails);
         validateAccountContext.add("validate-debit-freeze", Boolean.TRUE);
         freezeValidator.validate(request, metadata,validateAccountContext);
+        request.setDestinationAccountCurrency(toAccountDetails.getCurrency());
 	}
     
     protected CustomerNotification populateCustomerNotification(String transactionRefNo, String currency, BigDecimal amount, String beneficiaryName, String creditAccount) {
@@ -250,8 +255,10 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     }
     private FundTransferRequest prepareFundTransferRequestPayload(RequestMetaData metadata, FundTransferRequestDTO request,
                                                                   AccountDetailsDTO sourceAccount, BeneficiaryDto beneficiaryDto, LimitValidatorResponse validationResult) {
-        return FundTransferRequest.builder()
-                .amount(request.getAmount())
+    	FundTransferRequest trnsrequest = 
+         FundTransferRequest.builder()
+                .amount(!sourceAccount.getCurrency().equals(request.getTxnCurrency()) ? request.getAmount() : null)
+                .srcAmount(sourceAccount.getCurrency().equals(request.getTxnCurrency()) ? request.getAmount() : null)
                 .channel(metadata.getChannel())
                 .channelTraceId(metadata.getChannelTraceId())
                 .fromAccount(request.getFromAccount())
@@ -260,16 +267,21 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
                 .sourceCurrency(sourceAccount.getCurrency())
                 .sourceBranchCode(sourceAccount.getBranchCode())
                 .beneficiaryFullName(beneficiaryDto.getFullName())
-                .destinationCurrency(request.getTxnCurrency())
+                /** added if condition to avoid impact on existing logic, as per actual logic , destination currency should not be null*/
+                .destinationCurrency(StringUtils.isNotBlank(request.getDestinationAccountCurrency()) ? request.getDestinationAccountCurrency() : request.getTxnCurrency())
                 .transactionCode(WITHIN_MASHREQ_TRANSACTION_CODE)
                 .internalAccFlag(INTERNAL_ACCOUNT_FLAG)
                 .dealNumber(request.getDealNumber())
                 .dealRate(request.getDealRate())
-                .txnCurrency(request.getTxnCurrency())
                 .limitTransactionRefNo(validationResult.getTransactionRefNo())
                 .paymentNote(request.getPaymentNote())
                 .build();
-
+    	if(sourceAccount.getCurrency().equals(request.getTxnCurrency())) {
+    		trnsrequest.setSrcAmount(request.getAmount());
+    	}else {
+    		trnsrequest.setAmount(request.getAmount());
+    	}
+    	return trnsrequest;
     }
 
     

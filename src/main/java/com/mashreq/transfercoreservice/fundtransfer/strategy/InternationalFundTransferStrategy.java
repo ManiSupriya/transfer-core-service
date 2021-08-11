@@ -10,6 +10,7 @@ import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.AddressLineSeparatorUtil;
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
@@ -231,27 +232,8 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
 
     private FundTransferRequest prepareFundTransferRequestPayload(RequestMetaData metadata, FundTransferRequestDTO request,
                                                                   AccountDetailsDTO accountDetails, BeneficiaryDto beneficiaryDto, LimitValidatorResponse validationResult) {
-
-        String beneFullName =StringUtils.isNotBlank(beneficiaryDto.getFullName())&& beneficiaryDto.getFullName().length() > maxLength?beneficiaryDto.getFullName().substring(maxLength)+" ":"";
-        String add1 =StringUtils.isNotBlank(beneficiaryDto.getAddressLine1())?beneficiaryDto.getAddressLine1()+" ":"";
-        String add2 =StringUtils.isNotBlank(beneficiaryDto.getAddressLine2())?beneficiaryDto.getAddressLine2()+" ":"";
-        String add3 =StringUtils.isNotBlank(beneficiaryDto.getAddressLine3())?beneficiaryDto.getAddressLine3():"";
-
-
-    	String finalAdd1= StringUtils.left(beneFullName+add1,maxLength);
-        String finalAdd2 = null;
-    	if(StringUtils.isNotBlank(finalAdd1) && finalAdd1.length()>maxLength)
-            finalAdd2 = StringUtils.left(finalAdd1.substring(maxLength)+add2+add3,maxLength);
-    	else
-            finalAdd2 = StringUtils.left(add2+add3,maxLength);
-    	//TODO: update address two as well
-    	/*if(StringUtils.isNotBlank(beneficiaryDto.getAddressLine2()) && StringUtils.isNotBlank(beneficiaryDto.getAddressLine3())){
-    		address3 = StringUtils.left(beneficiaryDto.getAddressLine2().concat(SPACE_CHAR+beneficiaryDto.getAddressLine3()), maxLength);
-    	} else if(StringUtils.isNotBlank(beneficiaryDto.getAddressLine2()) && StringUtils.isBlank(beneficiaryDto.getAddressLine3())){
-    		address3 = StringUtils.left(beneficiaryDto.getAddressLine2(), maxLength);
-    	} else if(StringUtils.isBlank(beneficiaryDto.getAddressLine2()) && StringUtils.isNotBlank(beneficiaryDto.getAddressLine3())){
-    		address3 = StringUtils.left(beneficiaryDto.getAddressLine3(), maxLength);
-    	}*/
+    	/** applying logic to separate address and full name to four lines with specified max length*/
+    	String[] addresslines = AddressLineSeparatorUtil.separateAddressLineForSwift(maxLength,beneficiaryDto.getFullName(),beneficiaryDto.getAddressLine1(),beneficiaryDto.getAddressLine2(),beneficiaryDto.getAddressLine3());
     	/** updating beneficiary final name from beneficiary dto if it is present 
     	 * added this because in new money transfer journey there is no option in UI for user to input this values during money transfer
     	 * this is handled in beneficiary module only */
@@ -273,8 +255,9 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .sourceCurrency(accountDetails.getCurrency())
                 .sourceBranchCode(accountDetails.getBranchCode())
                 .beneficiaryFullName(StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength? StringUtils.left(beneficiaryDto.getFullName(), maxLength): beneficiaryDto.getFullName())
-                .beneficiaryAddressOne(finalAdd1)
-                .beneficiaryAddressThree(finalAdd2)
+                .beneficiaryAddressOne(addresslines[0])
+                .beneficiaryAddressTwo(addresslines[1])
+                .beneficiaryAddressThree(addresslines[2])
                 .destinationCurrency(request.getTxnCurrency())
                 .transactionCode(TRANSACTIONCODE)
                 .dealNumber(request.getDealNumber())
@@ -307,14 +290,13 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 return request.toBuilder()
                         .awInstBICCode(routingSuffixMap.get(beneficiaryDto.getBankCountryISO()) + beneficiaryDto.getRoutingCode())
                         .awInstName(beneficiaryDto.getSwiftCode())
-                        .beneficiaryAddressTwo(StringUtils.isNotBlank(countryMasterDto.getName())?countryMasterDto.getName().toUpperCase():countryMasterDto.getName())
                         .build();
             }
         }
         return request.toBuilder()
                 .awInstBICCode(beneficiaryDto.getSwiftCode())
                 .awInstName(beneficiaryDto.getBankName())
-                .beneficiaryAddressTwo(countryDto.isPresent()&&StringUtils.isNotBlank(countryDto.get().getName())?countryDto.get().getName().toUpperCase():null)
+                .beneficiaryBankCountry(countryDto.isPresent()&&StringUtils.isNotBlank(countryDto.get().getName())?countryDto.get().getName().toUpperCase():null)
                 .build();
     }
     

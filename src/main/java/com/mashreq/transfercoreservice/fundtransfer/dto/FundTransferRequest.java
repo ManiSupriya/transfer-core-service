@@ -54,4 +54,5 @@ public class FundTransferRequest {
     private String additionaField;
     private String serviceType;
     private String intermediaryBankSwiftCode;
+    private String beneficiaryBankCountry;
 }
