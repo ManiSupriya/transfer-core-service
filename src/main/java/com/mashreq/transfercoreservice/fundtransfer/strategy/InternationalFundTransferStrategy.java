@@ -290,6 +290,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 return request.toBuilder()
                         .awInstBICCode(routingSuffixMap.get(beneficiaryDto.getBankCountryISO()) + beneficiaryDto.getRoutingCode())
                         .awInstName(beneficiaryDto.getSwiftCode())
+                        .beneficiaryBankCountry(StringUtils.isNotBlank(countryMasterDto.getName())?countryMasterDto.getName().toUpperCase():countryMasterDto.getName())
                         .build();
             }
         }
