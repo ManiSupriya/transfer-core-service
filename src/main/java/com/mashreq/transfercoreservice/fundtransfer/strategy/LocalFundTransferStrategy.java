@@ -477,7 +477,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
                 .destinationCurrency(localCurrency)
                 .awInstName(beneficiaryDto.getBankName())
                 .awInstBICCode(beneficiaryDto.getSwiftCode())
-                .beneficiaryAddressTwo(address)
+                .beneficiaryBankCountry(address)
                 .transactionCode(LOCAL_TRANSACTION_CODE)
                 .finalBene(request.getFinalBene())
                 .dealNumber(request.getDealNumber())
