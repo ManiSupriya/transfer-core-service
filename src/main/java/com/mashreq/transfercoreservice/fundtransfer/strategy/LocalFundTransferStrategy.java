@@ -472,7 +472,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
                 .sourceBranchCode(branchCode)
                 .beneficiaryFullName(StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength ? StringUtils.left(beneficiaryDto.getFullName(), maxLength) : beneficiaryDto.getFullName())
                 .beneficiaryAddressOne(StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength ? beneficiaryDto.getFullName().substring(maxLength) : null)
-                .beneficiaryAddressTwo(StringUtils.left(StringUtils.isBlank(beneficiaryDto.getAddressLine1()) ? beneficiaryDto.getBankCountry() : beneficiaryDto.getAddressLine1(), maxLength))
+                .beneficiaryAddressTwo(address)
                 .beneficiaryAddressThree(address3)
                 .destinationCurrency(localCurrency)
                 .awInstName(beneficiaryDto.getBankName())
