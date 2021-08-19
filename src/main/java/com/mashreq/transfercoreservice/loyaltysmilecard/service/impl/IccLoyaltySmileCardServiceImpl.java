@@ -1,14 +1,13 @@
 package com.mashreq.transfercoreservice.loyaltysmilecard.service.impl;
 
 import static com.mashreq.transfercoreservice.common.CommonConstants.SMILE_CARD_LOYALTY;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.EXPIRED_SESSION_ID;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_SESSION_ID;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.NOT_MATCHING_CARD_DETAILS;
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -45,10 +44,12 @@ public class IccLoyaltySmileCardServiceImpl implements IccLoyaltySmileCardServic
 	private final CardService cardService;
 	private final AsyncUserEventPublisher asyncUserEventPublisher;
 	private final EncryptionService encryptionService = new EncryptionService();
-	private static final String MD5_STRING = "MD5";
+	private static final String SHA256_STRING = "SHA-256";
+	private static final String RNG_ALGO = "SHA1PRNG";
+
 	@Override
 	public Response<Object> generateRedeemIDforSmileCard(String cifId, String userCacheKey) {
-		String sessionId = getMd5(cifId+LocalDateTime.now().toString());
+		String sessionId = hash(cifId+LocalDateTime.now().toString());
 		log.info("generting loyalty redeem ID for cif {} ", htmlEscape(sessionId));
 		IccLoyaltySmileCarddto iccLoyaltydto = new IccLoyaltySmileCarddto();
 		iccLoyaltydto.setCif(cifId);
@@ -109,21 +110,35 @@ public class IccLoyaltySmileCardServiceImpl implements IccLoyaltySmileCardServic
 		return Response.builder().status(ResponseStatus.ERROR).build();
 	}
 
-	
-	public static String getMd5(String input) 
-	{
+	public static String hash(String input) {
+		String generatedHashedValue = null;
 		try {
-			MessageDigest md = MessageDigest.getInstance(MD5_STRING);
-			byte[] messageDigest = md.digest(input.getBytes());
-			BigInteger no = new BigInteger(1, messageDigest);
-			String hashtext = no.toString(16);
-			while (hashtext.length() < 32) {
-				hashtext = "0" + hashtext;
+
+			MessageDigest md = MessageDigest.getInstance(SHA256_STRING);
+			md.update(getSalt());
+
+			byte[] bytes = md.digest(input.getBytes());
+			StringBuilder sb = new StringBuilder();
+
+			for (int i = 0; i < bytes.length; i++) {
+				sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
 			}
-			return hashtext;
-		} catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException(e);
+
+			generatedHashedValue = sb.toString();
+		} catch (Exception e) {
+			log.error("Exception while generating hash for Digital user CIF", e);
+			GenericExceptionHandler.handleError(INTERNAL_ERROR, INTERNAL_ERROR.getErrorMessage());
 		}
-	} 
+		return generatedHashedValue;
+	}
+
+	private static byte[] getSalt() throws NoSuchAlgorithmException {
+
+		SecureRandom sr = SecureRandom.getInstance(RNG_ALGO);
+		byte[] salt = new byte[16];
+		sr.nextBytes(salt);
+		return salt;
+
+	}
 
 }
