@@ -2,11 +2,7 @@ package com.mashreq.transfercoreservice.banksearch;
 
 import static com.mashreq.transfercoreservice.common.UAEIbanValidator.validateIban;
 import static com.mashreq.transfercoreservice.errors.ExceptionUtils.genericException;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BANK_NOT_FOUND_WITH_IBAN;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_ROUTING_CODE;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INTERNAL_ERROR;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_SWIFT_CODE;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.SWIFT_AND_BIC_SEARCH_FAILED;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -120,6 +116,21 @@ public class BankDetailService {
 		return bankResults;
 	}
 
+	private void updateBankCode(BankResultsDto bankResult) {
+		//update bank code in bank results. This is currently used for PK beneficiary to fetch accountTitle by calling remittanceEnquiry.
+		try {
+			String swiftCode = bankResult.getSwiftCode();
+			if (StringUtils.isNotBlank(swiftCode)) {
+				//fetching first 8 character for swift code as bank ms has swift code with 8 and 11 character both
+				String bankCode = bankRepository.getBankCode(bankResult.getCountryCode(), swiftCode)
+						.orElseThrow(() -> genericException(BANK_NOT_FOUND_WITH_SWIFT));
+				bankResult.setBankCode(bankCode);
+			}
+		} catch (Exception ex) {
+			log.error("Bank not found with swift code in bank ms", ex);
+		}
+	}
+
 	private List<BankResultsDto> fetchBySwiftAndBicCode(String channelTraceId, BankDetailRequestDto bankDetailRequest, RequestMetaData requestMetaData) {
 		List<BankResultsDto> bankDetails = null;
 		try {
@@ -179,7 +190,7 @@ public class BankDetailService {
 	private BankResultsDto modifyBankResult(BankResultsDto bankResult) {
 		updateCountryInBankResults(bankResult);
 		updateSwiftCode(bankResult);
-
+		updateBankCode(bankResult);
 		return bankResult;
 	}
 

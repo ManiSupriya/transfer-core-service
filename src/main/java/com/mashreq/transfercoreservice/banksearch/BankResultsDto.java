@@ -49,6 +49,7 @@ public class BankResultsDto {
     private String routingNo;
     private String street;
     private String swiftOver;
+    private String bankCode;
 
     public BankResultsDto(AccuityDetailsTypes type) {
         setBankName(type.getBankName());
