@@ -33,5 +33,6 @@ public class BankDetailRequestDto {
     
     private String bankBranch;
 
+    private String journeyType;
 
 }
