@@ -3,6 +3,7 @@ package com.mashreq.transfercoreservice.client.service;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.QUICK_REMIT_EXTERNAL_SERVICE_ERROR;
 import static java.util.Objects.isNull;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
@@ -31,11 +32,13 @@ public class QuickRemitService {
 	private final QuickRemitServiceClient quickRemitServiceClient;
 	private final AsyncUserEventPublisher userEventPublisher;
 
-	public QRExchangeResponse exchange(FundTransferEligibiltyRequestDTO request, Optional<CountryMasterDto> countryDto, RequestMetaData metaData) {
+	public QRExchangeResponse exchange(FundTransferEligibiltyRequestDTO request, Optional<CountryMasterDto> countryDtoOp, RequestMetaData metaData) {
+		CountryMasterDto countryDto = countryDtoOp.get();
+		Objects.requireNonNull(countryDto);
 		Response<QRExchangeResponse> quickRemitResponse = quickRemitServiceClient.exchange(
 				QRExchangeRequest.builder()
 				.benId(Long.valueOf(request.getBeneficiaryId()))
-				.destinationCcy(countryDto.get().getNativeCurrency())
+				.destinationCcy(countryDto.getNativeCurrency())
 				.initiatedFrom("QR")
 				.senderAcNum(
 						StringUtils.isNotBlank(request.getCardNo()) ? 
