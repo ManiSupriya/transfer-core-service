@@ -126,7 +126,7 @@ public class TransferEligibilityProxy {
 			throw ExceptionUtils.genericException(INVALID_CIF);
 		}
 		log.info("Digital User found successfully {} ", digitalUserOptional.get());
-		return digitalUserOptional.isPresent() ? digitalUserOptional.get() : null;
+		return digitalUserOptional.get();
 	}
 
 	private UserDTO createUserDTO(RequestMetaData fundTransferMetadata, DigitalUser digitalUser) {

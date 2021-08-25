@@ -32,30 +32,30 @@ public class QuickRemitService {
 	private final QuickRemitServiceClient quickRemitServiceClient;
 	private final AsyncUserEventPublisher userEventPublisher;
 
-	public QRExchangeResponse exchange(FundTransferEligibiltyRequestDTO request, Optional<CountryMasterDto> countryDtoOp, RequestMetaData metaData) {
-		CountryMasterDto countryDto = countryDtoOp.get();
-		Objects.requireNonNull(countryDto);
-		Response<QRExchangeResponse> quickRemitResponse = quickRemitServiceClient.exchange(
-				QRExchangeRequest.builder()
-				.benId(Long.valueOf(request.getBeneficiaryId()))
-				.destinationCcy(countryDto.getNativeCurrency())
-				.initiatedFrom("QR")
-				.senderAcNum(
-						StringUtils.isNotBlank(request.getCardNo()) ? 
-								request.getCardNo() : request.getFromAccount())
-				.sourceCcy(request.getCurrency())
-				.transactionAmt(request.getAmount())
-				.transactionCcy(request.getTxnCurrency())
-				.build());
+	public QRExchangeResponse exchange(FundTransferEligibiltyRequestDTO request, Optional<CountryMasterDto> countryDto, RequestMetaData metaData) {
+		if(countryDto.isPresent()) {
+			Response<QRExchangeResponse> quickRemitResponse = quickRemitServiceClient.exchange(
+					QRExchangeRequest.builder()
+					.benId(Long.valueOf(request.getBeneficiaryId()))
+					.destinationCcy(countryDto.get().getNativeCurrency())
+					.initiatedFrom("QR")
+					.senderAcNum(
+							StringUtils.isNotBlank(request.getCardNo()) ? 
+									request.getCardNo() : request.getFromAccount())
+					.sourceCcy(request.getCurrency())
+					.transactionAmt(request.getAmount())
+					.transactionCcy(request.getTxnCurrency())
+					.build());
 
-		if (ResponseStatus.ERROR == quickRemitResponse.getStatus() || isNull(quickRemitResponse.getData())) {
-			userEventPublisher.publishFailureEvent(FundTransferEventType.ELIGIBILITY_QUICK_REMIT_EXCHANGE, metaData, "failed to get quick remit eligibility details", 
-					quickRemitResponse.getErrorCode(), quickRemitResponse.getMessage(), quickRemitResponse.getMessage());
-			GenericExceptionHandler.handleError(QUICK_REMIT_EXTERNAL_SERVICE_ERROR, QUICK_REMIT_EXTERNAL_SERVICE_ERROR.getErrorMessage(),
-					getErrorDetails(quickRemitResponse));
+			if (ResponseStatus.ERROR == quickRemitResponse.getStatus() || isNull(quickRemitResponse.getData())) {
+				userEventPublisher.publishFailureEvent(FundTransferEventType.ELIGIBILITY_QUICK_REMIT_EXCHANGE, metaData, "failed to get quick remit eligibility details", 
+						quickRemitResponse.getErrorCode(), quickRemitResponse.getMessage(), quickRemitResponse.getMessage());
+				GenericExceptionHandler.handleError(QUICK_REMIT_EXTERNAL_SERVICE_ERROR, QUICK_REMIT_EXTERNAL_SERVICE_ERROR.getErrorMessage(),
+						getErrorDetails(quickRemitResponse));
+			}
+			return quickRemitResponse.getData();
 		}
-		
-		return quickRemitResponse.getData();
+		return null;
 	}
 
     public static String getErrorDetails(Response response) {
