@@ -14,7 +14,7 @@ spring:
   profiles.active: local
   main.lazy-initialization: false
   datasource:
-    url: ${MSSQL_DB_URL:jdbc:sqlserver://10.196.3.22:1433;databaseName=MOB-uat}
+    url: ${MSSQL_DB_URL:jdbc:sqlserver://10.210.183.231:1433;databaseName=MOB-uat}
     username: ${MSSQL_DB_USERNAME:Mobliquibasedbuse}
     password: ${MSSQL_DB_KEY:Mobliquibasedbuse}
   jpa:
@@ -152,7 +152,7 @@ redis:
 mob-common:
   commonUserEventDataSource:
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
-    jdbcUrl: ${MSSQL_DB_URL:jdbc:sqlserver://10.196.3.22:1433;databaseName=MOB-uat}
+    jdbcUrl: ${MSSQL_DB_URL:jdbc:sqlserver://10.210.183.231:1433;databaseName=MOB-uat}
     username: ${MSSQL_DB_USERNAME:Mobliquibasedbuse}
     password: ${MSSQL_DB_KEY:Mobliquibasedbuse}
     maxPoolSize: 40
