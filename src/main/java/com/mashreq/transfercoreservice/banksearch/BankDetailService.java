@@ -93,9 +93,7 @@ public class BankDetailService {
 			return bicCodeSearchService.fetchBankDetailsWithBic(bankDetailRequest.getCountryCode(), requestMetaData );
 		}
 		if ("iban".equals(bankDetailRequest.getType())) {
-			if(isNotBlank(bankDetailRequest.getJourneyType()) &&
-					bankDetailRequest.getJourneyType().equals("MT") &&
-					isLocalIban(bankDetailRequest.getValue())) {
+			if("MT".equals(bankDetailRequest.getJourneyType()) && isLocalIban(bankDetailRequest.getValue())) {
 				return getLocalIbanBankDetails(bankDetailRequest.getValue());
 			}
 			return ibanSearchMWService.fetchBankDetailsWithIban(channelTraceId, bankDetailRequest.getValue(), requestMetaData );
