@@ -1,7 +1,9 @@
 package com.mashreq.transfercoreservice.banksearch;
 
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -59,6 +61,7 @@ public class BankDetailServiceTest {
 		request.setCountryCode("AE");
 		request.setType("iban");
 		request.setValue("AE280330000010698008304");
+		request.setJourneyType("MT");
 		RequestMetaData metadata = new RequestMetaData();
 		metadata.setChannelTraceId("whrvh3b4h5bh6");
 		BankDetails bankDetails = new BankDetails();
