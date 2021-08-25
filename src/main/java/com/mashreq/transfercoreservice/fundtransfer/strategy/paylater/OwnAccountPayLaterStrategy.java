@@ -1,9 +1,10 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy.paylater;
 
+import static com.mashreq.transfercoreservice.notification.model.NotificationType.OWN_ACCOUNT_PL_SI_CREATION;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import com.mashreq.transfercoreservice.common.HtmlEscapeCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +13,7 @@ import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
-import com.mashreq.transfercoreservice.fundtransfer.dto.ChargeBearer;
+import com.mashreq.transfercoreservice.common.HtmlEscapeCache;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
@@ -49,8 +50,6 @@ import com.mashreq.transfercoreservice.paylater.utils.SequenceNumberGenerator;
 
 import lombok.extern.slf4j.Slf4j;
 
-import static com.mashreq.transfercoreservice.notification.model.NotificationType.OWN_ACCOUNT_PL_SI_CREATION;
-
 @Slf4j
 @Service
 public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
@@ -86,7 +85,7 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 	protected void prepareAndCallPostTransactionActivity(RequestMetaData metadata,
 			FundTransferRequest fundTransferRequest, FundTransferRequestDTO request,
 			FundTransferResponse fundTransferResponse, CurrencyConversionDto conversionResult) {
-		if (isSuccessOrProcessing(fundTransferResponse)) {
+		if (isSuccess(fundTransferResponse)) {
 			fundTransferRequest.setTransferType(OWN_ACCOUNT);
 			fundTransferRequest.setNotificationType(NotificationType.LOCAL);
 			fundTransferRequest.setStatus(MwResponseStatus.S.getName());
@@ -98,7 +97,7 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 	protected void handleSuccessfulTransaction(FundTransferRequestDTO request, RequestMetaData metadata,
 			UserDTO userDTO, BigDecimal transactionAmount, final LimitValidatorResponse validationResult,
 			final FundTransferResponse fundTransferResponse, final FundTransferRequest fundTransferRequest) {
-		if (isSuccessOrProcessing(fundTransferResponse)) {
+		if (isSuccess(fundTransferResponse)) {
 			final CustomerNotification customerNotification = this.populateCustomerNotification(
 					validationResult.getTransactionRefNo(), request, transactionAmount, metadata, fundTransferRequest.getBeneficiaryFullName(), fundTransferRequest.getToAccount());
 			this.getNotificationService().sendNotifications(customerNotification, OWN_ACCOUNT_PL_SI_CREATION, metadata,
@@ -118,7 +117,7 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 		return FundTransferResponse.builder().payOrderInitiated(true).transactionRefNo(fundTransferOrder.getOrderId()).build();
 	}
 
-	private boolean isSuccessOrProcessing(FundTransferResponse response) {
+	private boolean isSuccess(FundTransferResponse response) {
 		return Boolean.TRUE.equals(response.getPayOrderInitiated());
 	}
 
@@ -128,7 +127,6 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 		order.setCreatedBy(metadata.getUsername());
 		order.setCreatedOn(LocalDateTime.now());
 		order.setChannel(metadata.getChannel());
-		order.setChargeBearer(ChargeBearer.valueOf(request.getChargeBearer()));
 		order.setCif(metadata.getPrimaryCif());
 		order.setUserType(metadata.getUserType());
 		order.setCustomerSegment(metadata.getSegment());

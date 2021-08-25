@@ -1,9 +1,10 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy.paylater;
 
+import static com.mashreq.transfercoreservice.notification.model.NotificationType.WITHIN_MASHREQ_PL_SI_CREATION;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import com.mashreq.transfercoreservice.common.HtmlEscapeCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +13,7 @@ import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
-import com.mashreq.transfercoreservice.fundtransfer.dto.ChargeBearer;
+import com.mashreq.transfercoreservice.common.HtmlEscapeCache;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
@@ -50,8 +51,6 @@ import com.mashreq.transfercoreservice.paylater.utils.SequenceNumberGenerator;
 
 import lombok.extern.slf4j.Slf4j;
 
-import static com.mashreq.transfercoreservice.notification.model.NotificationType.WITHIN_MASHREQ_PL_SI_CREATION;
-
 @Slf4j
 @Service
 public class WithinMashreqPayLaterStrategy extends WithinMashreqStrategy {
@@ -86,7 +85,7 @@ public class WithinMashreqPayLaterStrategy extends WithinMashreqStrategy {
 			UserDTO userDTO, final LimitValidatorResponse validationResult,
 			final FundTransferRequest fundTransferRequest, final FundTransferResponse fundTransferResponse) {
 		//TODO: Change this accordingly for pay later
-		if(isSuccessOrProcessing(fundTransferResponse)) {
+		if(isSuccess(fundTransferResponse)) {
         	final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getTxnCurrency(),
 					request.getAmount(),fundTransferRequest.getBeneficiaryFullName(),fundTransferRequest.getToAccount());
             this.getNotificationService().sendNotifications(customerNotification, WITHIN_MASHREQ_PL_SI_CREATION, metadata, userDTO);
@@ -97,7 +96,7 @@ public class WithinMashreqPayLaterStrategy extends WithinMashreqStrategy {
         }
 	}
 	
-	private boolean isSuccessOrProcessing(FundTransferResponse response) {
+	private boolean isSuccess(FundTransferResponse response) {
 		return Boolean.TRUE.equals(response.getPayOrderInitiated());
 	}
 	
@@ -119,7 +118,6 @@ public class WithinMashreqPayLaterStrategy extends WithinMashreqStrategy {
 		order.setCreatedOn(LocalDateTime.now());
 		order.setBeneficiaryId(Long.valueOf(request.getBeneficiaryId()));
 		order.setChannel(metadata.getChannel());
-		order.setChargeBearer(ChargeBearer.valueOf(request.getChargeBearer()));
 		order.setCif(metadata.getPrimaryCif());
 		order.setUserType(metadata.getUserType());
 		order.setCustomerSegment(metadata.getSegment());
@@ -147,7 +145,7 @@ public class WithinMashreqPayLaterStrategy extends WithinMashreqStrategy {
 		order.setSourceBranchCode(fundTransferRequest.getSourceBranchCode());
 		order.setDestinationAccountNumber(fundTransferRequest.getToAccount());
 		order.setTransactionCode(fundTransferRequest.getTransactionCode());
-		order.setTransactionValue(Money.valueOf(request.getAmount(), fundTransferRequest.getTxnCurrency()));
+		order.setTransactionValue(Money.valueOf(request.getAmount(), request.getTxnCurrency()));
 		order.setPaymentNote(request.getPaymentNote());
 		order.setSourceAccount(request.getFromAccount());
 		order.setEmail(metadata.getEmail());

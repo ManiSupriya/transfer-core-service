@@ -135,7 +135,7 @@ public class InternationalPayLaterFundTransferStrategy extends InternationalFund
 	protected void handleSuccessfullTransaction(FundTransferRequestDTO request, RequestMetaData metadata,
 			UserDTO userDTO, final LimitValidatorResponse validationResult,
 			final FundTransferRequest fundTransferRequest, final FundTransferResponse fundTransferResponse) {
-		if(isSuccessOrProcessing(fundTransferResponse)){
+		if(isSuccess(fundTransferResponse)){
         final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),
 				request.getTxnCurrency(),request.getAmount(),fundTransferRequest.getBeneficiaryFullName(),fundTransferRequest.getToAccount());
         getNotificationService().sendNotifications(customerNotification, INFT_PL_SI_CREATION, metadata, userDTO);
@@ -146,7 +146,7 @@ public class InternationalPayLaterFundTransferStrategy extends InternationalFund
         }
 	}
 
-	private boolean isSuccessOrProcessing(FundTransferResponse response) {
+	private boolean isSuccess(FundTransferResponse response) {
 		return Boolean.TRUE.equals(response.getPayOrderInitiated());
 	}
 

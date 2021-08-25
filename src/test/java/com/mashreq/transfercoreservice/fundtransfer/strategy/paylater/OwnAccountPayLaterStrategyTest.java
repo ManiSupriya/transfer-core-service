@@ -96,6 +96,7 @@ public class OwnAccountPayLaterStrategyTest {
 	@Test
 	public void test_successScnenario() {
 		FundTransferRequestDTO request = FundTransferTestUtil.generateFundTransferRequest();
+		request.setChargeBearer(null);
 		request.setServiceType(ServiceType.WYMA.getName());
 		request.setOrderType(FTOrderType.PL.getName());
 		request.setStartDate("2041-12-12");
