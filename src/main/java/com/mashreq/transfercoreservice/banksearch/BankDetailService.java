@@ -174,41 +174,41 @@ public class BankDetailService {
 	}
 
 	private BankResultsDto modifyBankResult(BankResultsDto bankResult) {
-		bankResult = updateCountryInBankResults(bankResult);
-		bankResult = updateSwiftCode(bankResult);
+		updateCountryInBankResults(bankResult);
+		updateSwiftCode(bankResult);
 
 		return bankResult;
-
 	}
 
-	private BankResultsDto updateCountryInBankResults(BankResultsDto bankResult) {
+	private void updateCountryInBankResults(BankResultsDto bankResult) {
 		if(null != bankResult && null != ALL_COUNTRIES_MAP) {
 			if(StringUtils.isBlank(bankResult.getBankCountry())) {
 				bankResult.setBankCountry(ALL_COUNTRIES_MAP.get(bankResult.getCountryCode()));
 			}
 		}
-		return bankResult;
 	}
 
-	private BankResultsDto updateSwiftCode(BankResultsDto bankResult) {
+	private void updateSwiftCode(BankResultsDto bankResult) {
 		if(null != bankResult && null != bankResult.getSwiftCode()){
 			try{
-				validateSwiftCode(bankResult.getSwiftCode());
 				//reset swift code if it matches routing code
+				validateSwiftCode(bankResult.getSwiftCode());
 				if(StringUtils.isNotBlank(bankResult.getRoutingCode()) && bankResult.getSwiftCode().equals(bankResult.getRoutingCode())){
 					bankResult.setSwiftCode(null);
+					bankResult.setRoutingCode(null);
 				}
-				return bankResult;
+				return;
 			}
 			catch(GenericException ex){
 				log.error("Invalid swift code returned by accuity -> {}" , CustomHtmlEscapeUtil.htmlEscape(bankResult.getSwiftCode()) ,ex);
+				//swift is invalid hence reset it
+				bankResult.setSwiftCode(null);
 			}
 		}
 		//swift is invalid hence reset it
 		if(bankResult != null) {
 			bankResult.setSwiftCode(null);
 		}
-		return bankResult;
 	}
 
 }
