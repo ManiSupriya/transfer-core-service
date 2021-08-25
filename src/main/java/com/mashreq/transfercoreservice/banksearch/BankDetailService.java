@@ -2,17 +2,13 @@ package com.mashreq.transfercoreservice.banksearch;
 
 import static com.mashreq.transfercoreservice.common.UAEIbanValidator.validateIban;
 import static com.mashreq.transfercoreservice.errors.ExceptionUtils.genericException;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BANK_NOT_FOUND_WITH_IBAN;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_ROUTING_CODE;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INTERNAL_ERROR;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_SWIFT_CODE;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.SWIFT_AND_BIC_SEARCH_FAILED;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -22,13 +18,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
-import com.mashreq.mobcommons.services.common.MOBCommonService;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.OmwCoreClient;
 import com.mashreq.transfercoreservice.client.dto.CoreBankDetails;
-import com.mashreq.transfercoreservice.client.dto.CountryDto;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.BankDetails;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.MashreqUAEAccountNumberResolver;
@@ -66,7 +60,7 @@ public class BankDetailService {
     public BankResultsDto getBankDetails(final String swiftCode, RequestMetaData requestMetadata) {
     	validateSwiftCode(swiftCode);
     	CoreBankDetails response = omwClient.searchAccounts(
-    			StringUtils.isNotBlank(swiftCode) && swiftCode.length() == 8 ? swiftCode.concat("XXX") : swiftCode,
+    			isNotBlank(swiftCode) && swiftCode.length() == 8 ? swiftCode.concat("XXX") : swiftCode,
     					requestMetadata.getCountry(),
     					soapServiceProperties.getUserId(),
     					requestMetadata.getChannelTraceId());
@@ -102,7 +96,8 @@ public class BankDetailService {
 			return bicCodeSearchService.fetchBankDetailsWithBic(bankDetailRequest.getCountryCode(), requestMetaData );
 		}
 		if ("iban".equals(bankDetailRequest.getType())) {
-			if(isLocalIban(bankDetailRequest.getValue())) {
+			if("MT".equals(bankDetailRequest.getJourneyType()) &&
+					isLocalIban(bankDetailRequest.getValue())) {
 				return getLocalIbanBankDetails(bankDetailRequest.getValue());
 			}
 			return ibanSearchMWService.fetchBankDetailsWithIban(channelTraceId, bankDetailRequest.getValue(), requestMetaData );
@@ -120,6 +115,30 @@ public class BankDetailService {
 		return bankResults;
 	}
 
+	private void updateBankCode(BankResultsDto bankResult) {
+		//update bank code in bank results. This is currently used for PK beneficiary to fetch accountTitle by calling remittanceEnquiry.
+		try {
+			String swiftCode = bankResult.getSwiftCode();
+			if (isNotBlank(swiftCode)) {
+				//fetching first 8 character for swift code as bank ms has swift code with 8 and 11 character both
+				String bankCode = bankRepository.getBankCode(bankResult.getCountryCode(), swiftCode,getModifiedSwiftCode(swiftCode))
+						.orElseThrow(() -> genericException(BANK_NOT_FOUND_WITH_SWIFT));
+				bankResult.setBankCode(bankCode);
+			}
+		} catch (Exception ex) {
+			log.error("Bank not found with swift code in bank ms", ex);
+		}
+	}
+
+	/**
+	 * @param swiftCode
+	 * @return Modified swift code, to compare the value in db
+	 * ie. in database some swift codes are 8 digits and some are 11 digits
+	 */
+	private String getModifiedSwiftCode(String swiftCode) {
+		return swiftCode.length() == 8 ? swiftCode+"XXX" : swiftCode.substring(0, 8) ;
+	}
+
 	private List<BankResultsDto> fetchBySwiftAndBicCode(String channelTraceId, BankDetailRequestDto bankDetailRequest, RequestMetaData requestMetaData) {
 		List<BankResultsDto> bankDetails = null;
 		try {
@@ -129,8 +148,8 @@ public class BankDetailService {
 			try {
 				bankDetails = bicCodeSearchService.fetchBankDetailsWithBic(bankDetailRequest.getCountryCode(), requestMetaData ).stream()
 						.filter(bankResult ->
-								StringUtils.isNotBlank(bankResult.getSwiftCode()) &&
-										StringUtils.isNotBlank(bankDetailRequest.getValue()) &&
+								isNotBlank(bankResult.getSwiftCode()) &&
+										isNotBlank(bankDetailRequest.getValue()) &&
 										bankResult.getSwiftCode().equals(bankDetailRequest.getValue()))
 						.collect(Collectors.toList());
 			}
@@ -179,13 +198,13 @@ public class BankDetailService {
 	private BankResultsDto modifyBankResult(BankResultsDto bankResult) {
 		updateCountryInBankResults(bankResult);
 		updateSwiftCode(bankResult);
-
+		updateBankCode(bankResult);
 		return bankResult;
 	}
 
 	private void updateCountryInBankResults(BankResultsDto bankResult) {
 		if(null != bankResult && null != ALL_COUNTRIES_MAP) {
-			if(StringUtils.isBlank(bankResult.getBankCountry())) {
+			if(StringUtils.isBlank(bankResult.getBankCountry()) && StringUtils.isNotBlank(bankResult.getCountryCode())) {
 				bankResult.setBankCountry(ALL_COUNTRIES_MAP.get(bankResult.getCountryCode()));
 			}
 		}
@@ -196,7 +215,7 @@ public class BankDetailService {
 			try{
 				//reset swift code if it matches routing code
 				validateSwiftCode(bankResult.getSwiftCode());
-				if(StringUtils.isNotBlank(bankResult.getRoutingCode()) && bankResult.getSwiftCode().equals(bankResult.getRoutingCode())){
+				if(isNotBlank(bankResult.getRoutingCode()) && bankResult.getSwiftCode().equals(bankResult.getRoutingCode())){
 					bankResult.setSwiftCode(null);
 					bankResult.setRoutingCode(null);
 				}

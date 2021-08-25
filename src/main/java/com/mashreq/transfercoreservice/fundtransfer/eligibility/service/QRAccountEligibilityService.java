@@ -260,6 +260,9 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 				break;
 			}
 		}
+		if(cardDetailsDTO == null){
+			GenericExceptionHandler.handleError(FT_CC_NOT_BELONG_TO_CIF, FT_CC_NOT_BELONG_TO_CIF.getErrorMessage());
+		}
 		return cardDetailsDTO;
 	}
 
