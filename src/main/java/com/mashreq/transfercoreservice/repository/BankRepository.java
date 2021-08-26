@@ -10,9 +10,9 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.BankDetails;
 @Repository
 public interface BankRepository extends JpaRepository<BankDetails, Long>  {
 
-	@Query(value = "SELECT bankCode from BankDetails where countryCode=:country and " +
+	@Query(value = "SELECT b from BankDetails b where countryCode=:country and " +
 			"(swiftCode = :swiftCode or swiftCode = :swiftCodeLengthModified)")
-    Optional<String> getBankCode(String country, String swiftCode,String swiftCodeLengthModified);
+    Optional<BankDetails> getBankCode(String country, String swiftCode,String swiftCodeLengthModified);
 
 	Optional<BankDetails> findByBankCode(String bankCode);
 

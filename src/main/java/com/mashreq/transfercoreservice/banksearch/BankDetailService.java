@@ -118,9 +118,10 @@ public class BankDetailService {
 			String swiftCode = bankResult.getSwiftCode();
 			if (isNotBlank(swiftCode)) {
 				//fetching first 8 character for swift code as bank ms has swift code with 8 and 11 character both
-				String bankCode = bankRepository.getBankCode(bankResult.getCountryCode(), swiftCode,getModifiedSwiftCode(swiftCode))
+				BankDetails bankDetails = bankRepository.getBankCode(bankResult.getCountryCode(), swiftCode,getModifiedSwiftCode(swiftCode))
 						.orElseThrow(() -> genericException(BANK_NOT_FOUND_WITH_SWIFT));
-				bankResult.setBankCode(bankCode);
+				bankResult.setBankCode(bankDetails.getBankCode());
+				bankResult.setBankNameDb(bankDetails.getBankName());
 			}
 		} catch (Exception ex) {
 			log.error("Bank not found with swift code in bank ms", ex);
