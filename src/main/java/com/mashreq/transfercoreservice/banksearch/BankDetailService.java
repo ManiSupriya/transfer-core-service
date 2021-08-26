@@ -93,7 +93,8 @@ public class BankDetailService {
 			return bicCodeSearchService.fetchBankDetailsWithBic(bankDetailRequest.getCountryCode(), requestMetaData );
 		}
 		if ("iban".equals(bankDetailRequest.getType())) {
-			if("MT".equals(bankDetailRequest.getJourneyType()) && isLocalIban(bankDetailRequest.getValue())) {
+			if("MT".equals(bankDetailRequest.getJourneyType()) &&
+					isLocalIban(bankDetailRequest.getValue())) {
 				return getLocalIbanBankDetails(bankDetailRequest.getValue());
 			}
 			return ibanSearchMWService.fetchBankDetailsWithIban(channelTraceId, bankDetailRequest.getValue(), requestMetaData );
@@ -117,13 +118,22 @@ public class BankDetailService {
 			String swiftCode = bankResult.getSwiftCode();
 			if (isNotBlank(swiftCode)) {
 				//fetching first 8 character for swift code as bank ms has swift code with 8 and 11 character both
-				String bankCode = bankRepository.getBankCode(bankResult.getCountryCode(), swiftCode)
+				String bankCode = bankRepository.getBankCode(bankResult.getCountryCode(), swiftCode,getModifiedSwiftCode(swiftCode))
 						.orElseThrow(() -> genericException(BANK_NOT_FOUND_WITH_SWIFT));
 				bankResult.setBankCode(bankCode);
 			}
 		} catch (Exception ex) {
 			log.error("Bank not found with swift code in bank ms", ex);
 		}
+	}
+
+	/**
+	 * @param swiftCode
+	 * @return Modified swift code, to compare the value in db
+	 * ie. in database some swift codes are 8 digits and some are 11 digits
+	 */
+	private String getModifiedSwiftCode(String swiftCode) {
+		return swiftCode.length() == 8 ? swiftCode+"XXX" : swiftCode.substring(0, 8) ;
 	}
 
 	private List<BankResultsDto> fetchBySwiftAndBicCode(String channelTraceId, BankDetailRequestDto bankDetailRequest, RequestMetaData requestMetaData) {
