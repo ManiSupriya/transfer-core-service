@@ -90,9 +90,9 @@ public class WithinMashreqPayLaterStrategy extends WithinMashreqStrategy {
 					request.getAmount(),fundTransferRequest.getBeneficiaryFullName(),fundTransferRequest.getToAccount());
             this.getNotificationService().sendNotifications(customerNotification, WITHIN_MASHREQ_PL_SI_CREATION, metadata, userDTO);
             fundTransferRequest.setTransferType(MASHREQ);
-            fundTransferRequest.setNotificationType(NotificationType.LOCAL);
+            fundTransferRequest.setNotificationType(WITHIN_MASHREQ_PL_SI_CREATION);
             fundTransferRequest.setStatus(MwResponseStatus.S.getName());
-            this.getPostTransactionService().performPostTransactionActivities(metadata, fundTransferRequest);
+            this.getPostTransactionService().performPostTransactionActivities(metadata, fundTransferRequest, request);
         }
 	}
 	

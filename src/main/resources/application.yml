@@ -165,8 +165,8 @@ app:
         otherFundTransfer: templates/mt-other-accounts
         goldSilverBuySuccess: templates/buy-goldsilver-success
         goldSilverSellSuccess: templates/sell-goldsilver-success
-        plEmailTemplate: templates/plEmailTemplate
-        sIEmailTemplate: templates/sIEmailTemplate
+        plSiFundTransfer: templates/plEmailTemplate
+
     sms:
       mashreqServiceId: ${ALERT_SMS_MASHREQ_PAYMENT_SERVICEID:330}
       neoServiceId: ${ALERT_SMS_NEO_PAYMENT_SERVICEID:350}

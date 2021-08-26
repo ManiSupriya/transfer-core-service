@@ -46,6 +46,11 @@ public class EmailUtil {
     public static final String MASKED_ACCOUNT = "maskedAccount";
     public static final String TO_ACCOUNT_NO = "toAccountNumber";
     public static final String BENEFICIARY_NICK_NAME = "beneficiaryNickname";
+    public static final String BENEFICIARY_BANK_NAME = "beneBankName";
+    public static final String BENEFICIARY_BANK_COUNTRY = "beneBankCountry";
+    public static final String CUSTOMER_CARE_NO = "customerCareNo";
+    public static final String TRANSACTION_DATE = "transactionDate";
+    public static final String TRANSACTION_TYPE = "transactionType";
     public static final String AMOUNT = "amount";
     public static final String CONTACT_HTML_BODY_KEY = "contactHtmlBody";
     public static final String STATUS = "status";

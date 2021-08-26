@@ -142,7 +142,7 @@ public class WithinMashreqStrategyTest implements FundTransferStrategy {
             fundTransferRequest.setTransferType(MASHREQ);
             fundTransferRequest.setNotificationType(NotificationType.LOCAL);
             fundTransferRequest.setStatus(MwResponseStatus.S.getName());
-            postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest);
+            postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest, request);
         }
         
         return fundTransferResponse.toBuilder()
