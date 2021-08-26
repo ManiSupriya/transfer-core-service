@@ -25,6 +25,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class BankResultsDto {
     private String bankName;
+    private String bankNameDb;
     private String bankCountry;
     private String bankState;
     private String bankCity;
