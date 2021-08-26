@@ -5,19 +5,16 @@ import static com.mashreq.transfercoreservice.errors.ExceptionUtils.genericExcep
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
-import com.mashreq.mobcommons.services.CustomHtmlEscapeUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import com.mashreq.mobcommons.services.CustomHtmlEscapeUtil;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
@@ -84,7 +81,7 @@ public class BankDetailService {
 			}
 			
 			return results.stream()
-			.map(bankResult -> modifyBankResult(bankResult))
+			.map(this::modifyBankResult)
 			.collect(Collectors.toList());
 		}
 		
@@ -108,7 +105,7 @@ public class BankDetailService {
 		}
 
 		List<BankResultsDto> bankResults = routingCodeSearchMWService.fetchBankDetailsWithRoutingCode(channelTraceId, bankDetailRequest, requestMetaData);
-		if(Objects.isNull(bankResults) || (Objects.nonNull(bankResults) && bankResults.isEmpty())) {
+		if(Objects.isNull(bankResults) || bankResults.isEmpty()) {
 			GenericExceptionHandler.handleError(INVALID_ROUTING_CODE, INVALID_ROUTING_CODE.getErrorMessage());
 		}
 
@@ -174,7 +171,7 @@ public class BankDetailService {
 		bankResults.setSwiftCode(bank.getSwiftCode());
 		bankResults.setBankName(bank.getBankName());
 		updateAccountNumber(bankResults,iban,bankcode);
-		return Arrays.asList(bankResults);
+		return Collections.singletonList(bankResults);
 	}
 
 	private void updateAccountNumber(BankResultsDto bankResults, String iban, String bankcode) {
@@ -227,7 +224,10 @@ public class BankDetailService {
 				bankResult.setSwiftCode(null);
 			}
 		}
-
+		//swift is invalid hence reset it
+		if(bankResult != null) {
+			bankResult.setSwiftCode(null);
+		}
 	}
 
 }

@@ -85,7 +85,7 @@ public class WithinMashreqPayLaterStrategy extends WithinMashreqStrategy {
 			UserDTO userDTO, final LimitValidatorResponse validationResult,
 			final FundTransferRequest fundTransferRequest, final FundTransferResponse fundTransferResponse) {
 		//TODO: Change this accordingly for pay later
-		if(isSuccessOrProcessing(fundTransferResponse)) {
+		if(isSuccess(fundTransferResponse)) {
         	final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getTxnCurrency(),
 					request.getAmount(),fundTransferRequest.getBeneficiaryFullName(),fundTransferRequest.getToAccount());
             this.getNotificationService().sendNotifications(customerNotification, WITHIN_MASHREQ_PL_SI_CREATION, metadata, userDTO);
@@ -96,7 +96,7 @@ public class WithinMashreqPayLaterStrategy extends WithinMashreqStrategy {
         }
 	}
 	
-	private boolean isSuccessOrProcessing(FundTransferResponse response) {
+	private boolean isSuccess(FundTransferResponse response) {
 		return Boolean.TRUE.equals(response.getPayOrderInitiated());
 	}
 	

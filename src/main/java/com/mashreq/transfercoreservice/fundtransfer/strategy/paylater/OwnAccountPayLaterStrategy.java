@@ -85,7 +85,7 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 	protected void prepareAndCallPostTransactionActivity(RequestMetaData metadata,
 			FundTransferRequest fundTransferRequest, FundTransferRequestDTO request,
 			FundTransferResponse fundTransferResponse, CurrencyConversionDto conversionResult) {
-		if (isSuccessOrProcessing(fundTransferResponse)) {
+		if (isSuccess(fundTransferResponse)) {
 			fundTransferRequest.setTransferType(OWN_ACCOUNT);
 			fundTransferRequest.setNotificationType(NotificationType.LOCAL);
 			fundTransferRequest.setStatus(MwResponseStatus.S.getName());
@@ -97,7 +97,7 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 	protected void handleSuccessfulTransaction(FundTransferRequestDTO request, RequestMetaData metadata,
 			UserDTO userDTO, BigDecimal transactionAmount, final LimitValidatorResponse validationResult,
 			final FundTransferResponse fundTransferResponse, final FundTransferRequest fundTransferRequest) {
-		if (isSuccessOrProcessing(fundTransferResponse)) {
+		if (isSuccess(fundTransferResponse)) {
 			final CustomerNotification customerNotification = this.populateCustomerNotification(
 					validationResult.getTransactionRefNo(), request, transactionAmount, metadata, fundTransferRequest.getBeneficiaryFullName(), fundTransferRequest.getToAccount());
 			this.getNotificationService().sendNotifications(customerNotification, OWN_ACCOUNT_PL_SI_CREATION, metadata,
@@ -117,7 +117,7 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 		return FundTransferResponse.builder().payOrderInitiated(true).transactionRefNo(fundTransferOrder.getOrderId()).build();
 	}
 
-	private boolean isSuccessOrProcessing(FundTransferResponse response) {
+	private boolean isSuccess(FundTransferResponse response) {
 		return Boolean.TRUE.equals(response.getPayOrderInitiated());
 	}
 
