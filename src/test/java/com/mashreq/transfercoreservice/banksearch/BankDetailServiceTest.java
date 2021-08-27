@@ -113,7 +113,7 @@ public class BankDetailServiceTest {
 		Mockito.verify(bankRepository,times(1)).getBankCode(Mockito.anyString(), Mockito.eq(MASHREQ_SWIFT), updatedSwift.capture());
 		assertEquals(1, response.size());
 		assertEquals(accNo, response.get(0).getAccountNo());
-		assertEquals(MASHREQ_SWIFT+"XXX", updatedSwift.getValue());
+		assertEquals("BOMLEA%", updatedSwift.getValue());
 	}
 	
 	@Test
@@ -146,7 +146,7 @@ public class BankDetailServiceTest {
 		Mockito.verify(bankRepository,times(1)).getBankCode(Mockito.anyString(), Mockito.eq(MASHREQ_SWIFT+"XXX"), updatedSwift.capture());
 		assertEquals(1, response.size());
 		assertEquals(accNo, response.get(0).getAccountNo());
-		assertEquals(MASHREQ_SWIFT, updatedSwift.getValue());
+		assertEquals("BOMLEA%", updatedSwift.getValue());
 		
 	}
 }

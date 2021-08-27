@@ -140,7 +140,7 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 		Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
 		limitValidatorFactory.getValidator(requestMetaData).validate(
 				userDTO,
-				getServiceType() == ServiceType.QRT ? "QROC" : request.getServiceType(),
+				getCodeByName(beneficiaryDto.getBankCountryISO()),
 				transferAmountInSrcCurrency,
 				requestMetaData,
 				bendId);
