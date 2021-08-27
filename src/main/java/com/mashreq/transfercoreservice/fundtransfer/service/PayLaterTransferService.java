@@ -162,7 +162,7 @@ public class PayLaterTransferService extends FundTransferServiceDefault{
                 .paidAmount(request.getAmount() == null ? request.getSrcAmount() : request.getAmount())
                 .fromCurrency(request.getCurrency())
                 .toCurrency(request.getTxnCurrency())
-                .status(fundTransferResponse.getPayOrderInitiated() == Boolean.TRUE ?  MwResponseStatus.S.getName() : MwResponseStatus.F.getName())
+                .status(Boolean.TRUE.equals(fundTransferResponse.getPayOrderInitiated()) ?  MwResponseStatus.S.getName() : MwResponseStatus.F.getName())
                 .accountFrom(request.getFromAccount())
                 .financialTransactionNo(request.getFinTxnNo())
                 .transactionRefNo(fundTransferResponse.getTransactionRefNo())
