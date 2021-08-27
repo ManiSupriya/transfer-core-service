@@ -178,7 +178,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
              * this is done to enable transactions with TXN currency as  */
             fundTransferRequest.setAmount(request.getAmount());
             fundTransferRequest.setTxnCurrency(request.getTxnCurrency());
-            postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest);
+            postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest, request);
         }
 	}
 

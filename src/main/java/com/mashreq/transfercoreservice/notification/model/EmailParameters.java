@@ -16,6 +16,7 @@ public class EmailParameters {
     private String fromEmailAddress;
     private String localFundTransfer;
     private String otherFundTransfer;
+    private String plSiFundTransfer;
     private String goldSilverBuySuccess;
     private String goldSilverSellSuccess;
     private String sellGoldSilverSubject;
@@ -30,6 +31,9 @@ public class EmailParameters {
         }
         else if(type.equalsIgnoreCase(NotificationType.GOLD_SILVER_SELL_SUCCESS)){
             return goldSilverSellSuccess;
+        }
+        else if(type.contains("PL") || type.contains("SI")){
+            return plSiFundTransfer;
         }
         else return otherFundTransfer;
     }

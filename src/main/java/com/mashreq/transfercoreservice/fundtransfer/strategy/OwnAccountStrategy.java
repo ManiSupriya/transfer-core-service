@@ -232,7 +232,9 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         freezeValidator.validate(request, metadata,validateAccountContext);
 	}
 
-	protected void prepareAndCallPostTransactionActivity(RequestMetaData metadata, FundTransferRequest fundTransferRequest, FundTransferRequestDTO request, FundTransferResponse fundTransferResponse, CurrencyConversionDto conversionResult) {
+	protected void prepareAndCallPostTransactionActivity(RequestMetaData metadata, FundTransferRequest fundTransferRequest,
+                                                         FundTransferRequestDTO request, FundTransferResponse fundTransferResponse,
+                                                         CurrencyConversionDto conversionResult) {
         boolean isSuccess = MwResponseStatus.S.equals(fundTransferResponse.getResponseDto().getMwResponseStatus());
         if(goldSilverTransfer(request) && isSuccess && StringUtils.isEmpty(request.getTxnCurrency())){
             if(buyRequest(request)){
@@ -245,13 +247,13 @@ public class OwnAccountStrategy implements FundTransferStrategy {
                 fundTransferRequest.setAmount(conversionResult.getTransactionAmount());
                 fundTransferRequest.setTransferType(getTransferType(fundTransferRequest.getSourceCurrency()));
             }
-            postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest);
+            postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest, request);
         }
         else if(isSuccess){
             fundTransferRequest.setTransferType(OWN_ACCOUNT);
             fundTransferRequest.setNotificationType(NotificationType.LOCAL);
             fundTransferRequest.setStatus(MwResponseStatus.S.getName());
-            postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest);
+            postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest, request);
         }
     }
 

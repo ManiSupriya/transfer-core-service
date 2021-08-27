@@ -89,7 +89,7 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 			fundTransferRequest.setTransferType(OWN_ACCOUNT);
 			fundTransferRequest.setNotificationType(NotificationType.LOCAL);
 			fundTransferRequest.setStatus(MwResponseStatus.S.getName());
-			this.getPostTransactionService().performPostTransactionActivities(metadata, fundTransferRequest);
+			this.getPostTransactionService().performPostTransactionActivities(metadata, fundTransferRequest, request);
 		}
 	}
 

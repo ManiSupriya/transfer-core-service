@@ -57,4 +57,14 @@ public class DateUtil {
         SimpleDateFormat sdf = new SimpleDateFormat(format);
         return sdf.format(date);
     }
+
+    public static String instantToDate(Instant instant, String format){
+        if(instant == null){
+            return "";
+        }
+        DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(format)
+                .withZone(ZoneId.systemDefault());
+
+        return DATE_TIME_FORMATTER.format( instant );
+    }
 }
