@@ -4,6 +4,7 @@ import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF;
 import static com.mashreq.transfercoreservice.event.FundTransferEventType.ACCOUNT_BELONGS_TO_CIF;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.QuickRemitType.getCodeByName;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -107,7 +108,7 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 
 		limitValidatorFactory.getValidator(metaData).validate(
 				userDTO,
-				getServiceType() == ServiceType.QRT ? "QROC" : request.getServiceType(),
+				getCodeByName(beneficiaryDto.getBankCountryISO()),
 				limitUsageAmount, metaData, Long.valueOf(request.getBeneficiaryId()));
 		updateExchangeRateDisplay(response);
 		return EligibilityResponse.builder().status(FundsTransferEligibility.ELIGIBLE).data(response).build();
