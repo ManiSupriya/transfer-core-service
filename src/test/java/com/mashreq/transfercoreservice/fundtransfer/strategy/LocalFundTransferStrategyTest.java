@@ -221,6 +221,7 @@ public class LocalFundTransferStrategyTest {
         Assert.assertEquals(actualFundTransferRequest.getAwInstBICCode(),swift);
         Assert.assertEquals(actualFundTransferRequest.getAwInstName(),bankName);
         Assert.assertEquals(actualFundTransferRequest.getBeneficiaryAddressTwo(),address);
+        Assert.assertEquals(actualFundTransferRequest.getBeneficiaryBankCountry(),address);
     }
 
     @Test
@@ -358,6 +359,7 @@ public class LocalFundTransferStrategyTest {
         Assert.assertEquals(actualFundTransferRequest.getAwInstBICCode(),swift);
         Assert.assertEquals(actualFundTransferRequest.getAwInstName(),bankName);
         Assert.assertEquals(actualFundTransferRequest.getBeneficiaryAddressTwo(),address);
+        Assert.assertEquals(actualFundTransferRequest.getBeneficiaryBankCountry(),address);
     }
 
 

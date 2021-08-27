@@ -33,6 +33,7 @@ import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.CardService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.client.service.QuickRemitService;
+import com.mashreq.transfercoreservice.common.ExceptionUtils;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
@@ -160,9 +161,9 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 		if(utilizedAmount == null){
 			utilizedAmount = BigDecimal.ZERO;
 		}
-		BigDecimal balancedAmount = qrDealDetails.getTotalLimitAmount().subtract(utilizedAmount);
+		BigDecimal balancedAmount = qrDealDetails.getTotalLimitAmount() != null ? qrDealDetails.getTotalLimitAmount().subtract(utilizedAmount): BigDecimal.ZERO;
 		int result = balancedAmount.compareTo(transferAmountInSrcCurrency);
-		if(result <0){
+		if(result < 0){
 			logAndThrow(FundTransferEventType.FUND_TRANSFER_CC_CALL, TransferErrorCode.FT_CC_BALANCE_NOT_SUFFICIENT, requestMetaData);
 		}
 		updateExchangeRateDisplay(response);
@@ -239,7 +240,7 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 	private void logAndThrow(FundTransferEventType fundTransferEventType, TransferErrorCode errorCodeSet, RequestMetaData requestMetaData){
 		auditEventPublisher.publishFailureEvent(fundTransferEventType, requestMetaData,"",
 				fundTransferEventType.name(), fundTransferEventType.getDescription(), fundTransferEventType.getDescription());
-		GenericExceptionHandler.handleError(errorCodeSet,errorCodeSet.getErrorMessage());
+		throw ExceptionUtils.genericException(errorCodeSet);
 	}
 
 	private void assertCardNumberBelongsToUser(FundTransferEligibiltyRequestDTO fundOrderCreateRequest, RequestMetaData metaData) {

@@ -86,13 +86,16 @@ public class CurrencyValidator implements ICurrencyValidator {
         log.info("Requested currency [ {} ] service type [ {} ] ", htmlEscape(requestedCurrency), htmlEscape(request.getServiceType()));
 
         AccountDetailsDTO fromAccount = null;
+        BeneficiaryDto beneficiaryDto = null;
+        AccountDetailsDTO toAccount = null;
         if(null != context) {
         	fromAccount = context.get("from-account", AccountDetailsDTO.class);
+        	beneficiaryDto = context.get("beneficiary-dto", BeneficiaryDto.class);
+        	toAccount = context.get("to-account", AccountDetailsDTO.class);
         }
         
         if(WAMA.getName().equals(request.getServiceType()) ) {
-            BeneficiaryDto beneficiaryDto = context.get("beneficiary-dto", BeneficiaryDto.class);
-            if (beneficiaryDto != null && !isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), null)) {
+            if (beneficiaryDto != null && fromAccount!=null && !isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), null)) {
                 log.error("Beneficiary Currency and Requested Currency does not match for service type [ {} ]  ", htmlEscape(request.getServiceType()));
                 auditEventPublisher.publishFailureEvent(FundTransferEventType.CURRENCY_VALIDATION, metadata, null,
                         CURRENCY_IS_INVALID.getCustomErrorCode(), CURRENCY_IS_INVALID.getErrorMessage(), null );
@@ -101,8 +104,7 @@ public class CurrencyValidator implements ICurrencyValidator {
         }
 
         if(WYMA.getName().equals(request.getServiceType()) ) {
-            AccountDetailsDTO toAccount = context.get("to-account", AccountDetailsDTO.class);
-            if (!(requestedCurrency.equals(fromAccount.getCurrency()) || requestedCurrency.equals(toAccount.getCurrency()))) {
+            if ((fromAccount != null && toAccount != null) && ((!requestedCurrency.equals(fromAccount.getCurrency())) || requestedCurrency.equals(toAccount.getCurrency()))) {
                 log.error("To Account Currency and Requested Currency does not match for service type [ {} ]  ", htmlEscape(request.getServiceType()));
                 auditEventPublisher.publishFailureEvent(FundTransferEventType.CURRENCY_VALIDATION, metadata, null,
                         ACCOUNT_CURRENCY_MISMATCH.getCustomErrorCode(), ACCOUNT_CURRENCY_MISMATCH.getErrorMessage(), null);

@@ -108,7 +108,7 @@ public class LocalFundPayLaterTransferStrategy extends LocalFundTransferStrategy
 			UserDTO userDTO, final LimitValidatorResponse validationResult,
 			final FundTransferRequest fundTransferRequest, final FundTransferResponse fundTransferResponse) {
     	//TODO:change notification and post transaction events
-		if(isSuccessOrProcessing(fundTransferResponse)){
+		if(isSuccess(fundTransferResponse)){
             final CustomerNotification customerNotification = this.populateCustomerNotification(validationResult.getTransactionRefNo(),request.getTxnCurrency(),
 					request.getAmount(),fundTransferRequest.getBeneficiaryFullName(),fundTransferRequest.getToAccount());
             getNotificationService().sendNotifications(customerNotification, LOCAL_PL_SI_CREATION, metadata, userDTO);
@@ -119,7 +119,7 @@ public class LocalFundPayLaterTransferStrategy extends LocalFundTransferStrategy
         }
 	}
     
-    private boolean isSuccessOrProcessing(FundTransferResponse response) {
+    private boolean isSuccess(FundTransferResponse response) {
 		return Boolean.TRUE.equals(response.getPayOrderInitiated());
 	}
     

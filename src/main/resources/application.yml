@@ -156,13 +156,17 @@ app:
         emailSubject: ${NOTIFICATION_EMAIL_SUBJECT:%s Transfer request via %s}
         sellGoldSilverSubject: ${NOTIFICATION_EMAIL_SELL_SUBJECT:You sold from %s Edge account via %s}
         buyGoldSilverSubject: ${NOTIFICATION_EMAIL_BUY_SUBJECT:Your recent investment in %s Edge account via %s}
+        payLaterSubject: ${PL_EMAIL_SUBJECT:Pay later request}
+        StandingInstructionSubject: ${SI_EMAIL_SUBJECT:Standing instruction request}
         fromEmailName: ${EMAIL_FROM_NAME_MOB:MashreqDigital}
         fromEmailAddress: ${EMAIL_FROM_ADD_MOB:MashreqDigital@mashreq.com}
         callCenterNo: ${NOTIFICATION_EMAIL_CALL_CENTER_NO:04 424 6666}
-        localFundTransfer: mt-within-own-accounts.ftl
-        otherFundTransfer: mt-other-accounts.ftl
-        goldSilverBuySuccess: buy-goldsilver-success.ftl
-        goldSilverSellSuccess: sell-goldsilver-success.ftl
+        localFundTransfer: templates/mt-within-own-accounts
+        otherFundTransfer: templates/mt-other-accounts
+        goldSilverBuySuccess: templates/buy-goldsilver-success
+        goldSilverSellSuccess: templates/sell-goldsilver-success
+        plEmailTemplate: templates/plEmailTemplate
+        sIEmailTemplate: templates/sIEmailTemplate
     sms:
       mashreqServiceId: ${ALERT_SMS_MASHREQ_PAYMENT_SERVICEID:330}
       neoServiceId: ${ALERT_SMS_NEO_PAYMENT_SERVICEID:350}

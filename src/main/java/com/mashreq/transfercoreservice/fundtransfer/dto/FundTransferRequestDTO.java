@@ -87,5 +87,9 @@ public class FundTransferRequestDTO {
     private String paymentNote;
     
     private String promoCode;
+    /** for SWIFT transfers only */
+    @Pattern(regexp = "^$|[a-zA-Z0-9-]+",message="Not a valid SWIFT code")
+    private String intermediaryBankSwiftCode;
     
+    private String destinationAccountCurrency;
 }

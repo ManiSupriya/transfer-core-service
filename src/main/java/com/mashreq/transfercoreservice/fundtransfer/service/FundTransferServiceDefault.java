@@ -131,8 +131,6 @@ public class FundTransferServiceDefault implements FundTransferService {
         UserDTO userDTO = createUserDTO(metadata, digitalUser);
         final ServiceType serviceType = getServiceByType(request.getServiceType());
 
-        checkDebitAndCreditFreeze(metadata, serviceType, request);
-
         //deal number not applicable if both currencies are same
         if(StringUtils.isNotBlank(request.getTxnCurrency()) && request.getCurrency().equalsIgnoreCase(request.getTxnCurrency()) && (request.getDealNumber()!=null && !request.getDealNumber().isEmpty())) {
         	 auditEventPublisher.publishFailedEsbEvent(FundTransferEventType.DEAL_VALIDATION,
@@ -169,18 +167,6 @@ public class FundTransferServiceDefault implements FundTransferService {
                 .promoCode(request.getPromoCode())
                 .promoApplied(promoApplied)
                 .build();
-    }
-
-    private void checkDebitAndCreditFreeze(RequestMetaData metaData, ServiceType serviceType, FundTransferRequestDTO request) {
-        //debit freeze for all accounts
-        if (org.apache.commons.lang3.StringUtils.isBlank(request.getCardNo())) {
-            mobCommonService.checkDebitFreeze(metaData, request.getFromAccount());
-        }
-
-        //credt freeze for mashreq accounts
-        if(serviceType.equals(WAMA) || serviceType.equals(WYMA)){
-            mobCommonService.checkCreditFreeze(metaData, serviceType, request.getToAccount());
-        }
     }
 
     protected void handleIfTransactionIsSuccess(RequestMetaData metadata, FundTransferRequestDTO request,

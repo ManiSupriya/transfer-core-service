@@ -31,6 +31,7 @@ import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.CardService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
+import com.mashreq.transfercoreservice.common.ExceptionUtils;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.enums.FundsTransferEligibility;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.BeneficiaryValidator;
@@ -167,7 +168,7 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
         }
         BigDecimal balancedAmount = qrDealDetails.getTotalLimitAmount().subtract(utilizedAmount);
         int result = balancedAmount.compareTo(request.getAmount());
-        if(result<0){
+        if(result < 0){
             logAndThrow(FundTransferEventType.FUND_TRANSFER_CC_CALL, TransferErrorCode.FT_CC_BALANCE_NOT_SUFFICIENT, requestMetaData);
         }
     }
@@ -251,6 +252,6 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
     private void logAndThrow(FundTransferEventType fundTransferEventType, TransferErrorCode errorCodeSet, RequestMetaData requestMetaData){
         auditEventPublisher.publishFailureEvent(fundTransferEventType, requestMetaData,"",
                 fundTransferEventType.name(), fundTransferEventType.getDescription(), fundTransferEventType.getDescription());
-        GenericExceptionHandler.handleError(errorCodeSet,errorCodeSet.getErrorMessage());
+        throw ExceptionUtils.genericException(errorCodeSet);
     }
 }

@@ -21,6 +21,8 @@ import java.util.Optional;
 import javax.annotation.PostConstruct;
 
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
+import com.mashreq.transfercoreservice.common.ExceptionUtils;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -122,10 +124,9 @@ public class TransferEligibilityProxy {
 	private DigitalUser getDigitalUser(RequestMetaData fundTransferMetadata) {
 		Optional<DigitalUser> digitalUserOptional = digitalUserRepository.findByCifEquals(fundTransferMetadata.getPrimaryCif());
 		if (!digitalUserOptional.isPresent()) {
-			GenericExceptionHandler.handleError(INVALID_CIF, INVALID_CIF.getErrorMessage());
+			throw ExceptionUtils.genericException(INVALID_CIF);
 		}
 		log.info("Digital User found successfully {} ", digitalUserOptional.get());
-
 		return digitalUserOptional.get();
 	}
 
