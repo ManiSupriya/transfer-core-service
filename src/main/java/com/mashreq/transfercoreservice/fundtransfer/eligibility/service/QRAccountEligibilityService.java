@@ -1,8 +1,10 @@
 package com.mashreq.transfercoreservice.fundtransfer.eligibility.service;
 
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_NOT_BELONG_TO_CIF;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.FT_CC_NOT_BELONG_TO_CIF;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_SEGMENT;
 import static com.mashreq.transfercoreservice.event.FundTransferEventType.ACCOUNT_BELONGS_TO_CIF;
 
 import java.math.BigDecimal;
@@ -10,30 +12,40 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 
-import com.mashreq.encryption.encryptor.EncryptionService;
-import com.mashreq.mobcommons.services.events.publisher.AuditEventPublisher;
-import com.mashreq.ms.exceptions.GenericExceptionHandler;
-import com.mashreq.transfercoreservice.cache.UserSessionCacheService;
-import com.mashreq.transfercoreservice.client.dto.*;
-import com.mashreq.transfercoreservice.client.service.*;
-import com.mashreq.transfercoreservice.errors.TransferErrorCode;
-import com.mashreq.transfercoreservice.event.FundTransferEventType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.QRDealDetails;
-import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CCBalanceValidator;
-import com.mashreq.transfercoreservice.fundtransfer.service.QRDealsService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
+import com.mashreq.encryption.encryptor.EncryptionService;
+import com.mashreq.mobcommons.services.events.publisher.AuditEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
+import com.mashreq.ms.exceptions.GenericExceptionHandler;
+import com.mashreq.transfercoreservice.cache.UserSessionCacheService;
+import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
+import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
+import com.mashreq.transfercoreservice.client.dto.CardDetailsDTO;
+import com.mashreq.transfercoreservice.client.dto.CardType;
+import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
+import com.mashreq.transfercoreservice.client.dto.CountryMasterDto;
+import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
+import com.mashreq.transfercoreservice.client.dto.QRExchangeResponse;
+import com.mashreq.transfercoreservice.client.service.AccountService;
+import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
+import com.mashreq.transfercoreservice.client.service.CardService;
+import com.mashreq.transfercoreservice.client.service.MaintenanceService;
+import com.mashreq.transfercoreservice.client.service.QuickRemitService;
+import com.mashreq.transfercoreservice.errors.TransferErrorCode;
+import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.QRDealDetails;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.enums.FundsTransferEligibility;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.BeneficiaryValidator;
+import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CCBalanceValidator;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CurrencyValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.LimitValidatorFactory;
+import com.mashreq.transfercoreservice.fundtransfer.service.QRDealsService;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
 
 import lombok.RequiredArgsConstructor;
@@ -146,11 +158,11 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 		log.info("Fund transfer CC QR Deals verified {}", htmlEscape(requestMetaData.getPrimaryCif()));
 		BigDecimal utilizedAmount = qrDealDetails.getUtilizedLimitAmount();
 		if(utilizedAmount == null){
-			utilizedAmount = new BigDecimal("0");
+			utilizedAmount = BigDecimal.ZERO;
 		}
 		BigDecimal balancedAmount = qrDealDetails.getTotalLimitAmount().subtract(utilizedAmount);
 		int result = balancedAmount.compareTo(transferAmountInSrcCurrency);
-		if(result == -1){
+		if(result <0){
 			logAndThrow(FundTransferEventType.FUND_TRANSFER_CC_CALL, TransferErrorCode.FT_CC_BALANCE_NOT_SUFFICIENT, requestMetaData);
 		}
 		updateExchangeRateDisplay(response);

@@ -58,12 +58,6 @@ public class AccountBelongsToCifValidator implements Validator<FundTransferEligi
             return prepareValidationResult(Boolean.FALSE);
         }
 
-        if (validateFromAccount != null && validateFromAccount  && !isAccountNumberBelongsToCif(accounts, request.getFromAccount())) {
-            auditEventPublisher.publishFailureEvent(ACCOUNT_BELONGS_TO_CIF, metadata, null,
-                    ACCOUNT_NOT_BELONG_TO_CIF.getErrorMessage(), ACCOUNT_NOT_BELONG_TO_CIF.getCustomErrorCode(), null);
-            return prepareValidationResult(Boolean.FALSE);
-        }
-
         if(validateFromAccount != null && isAccountDormant(accounts, request.getFromAccount())){
             auditEventPublisher.publishFailureEvent(ACCOUNT_IS_DORMENT, metadata, null,
                     ACCOUNT_IS_IN_DORMENT.getErrorMessage(), ACCOUNT_IS_IN_DORMENT.getCustomErrorCode(), null);

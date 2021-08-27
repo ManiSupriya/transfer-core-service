@@ -73,7 +73,7 @@ public class FundTransferController {
     		@Valid @RequestBody FundTransferEligibiltyRequestDTO request) {
 
         log.info("{} transfer eligibility request received for usertype ->{} and serviceType -> {}", htmlEscape(metaData.getUserType()), htmlEscape(request.getServiceType()));
-        if(request.getAmount() == null && request.getSrcAmount() == null){
+        if(request.getAmount() == null){
             GenericExceptionHandler.handleError(TransferErrorCode.INVALID_REQUEST, "Bad Request", "Both debitAmount and credit amount are missing");
         }
         return Response.<Map<ServiceType,EligibilityResponse>>builder()

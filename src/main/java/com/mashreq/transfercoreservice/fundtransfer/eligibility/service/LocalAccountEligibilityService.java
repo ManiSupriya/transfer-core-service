@@ -111,7 +111,9 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
         responseHandler(beneficiaryValidator.validate(request, metaData, validationContext));
 
         //Balance Validation
-        final BigDecimal transferAmountInSrcCurrency = getAmountInSrcCurrency(request, fromAccountDetails);
+        final BigDecimal transferAmountInSrcCurrency = AED.equals(fromAccountDetails.getCurrency()) ?
+        		request.getAmount() : 
+        			getAmountInSrcCurrency(request, fromAccountDetails);
 
         //Limit Validation
         Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
@@ -147,16 +149,13 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
 
         final BigDecimal transferAmountInSrcCurrency = request.getAmount();
 
-        String trxCurrency = StringUtils.isBlank(request.getTxnCurrency()) ? AED : request.getTxnCurrency();
-
-        request.setTxnCurrency(trxCurrency);
         validationContext.add("transfer-amount-in-source-currency", transferAmountInSrcCurrency);
         responseHandler(ccBalanceValidator.validate(request, requestMetaData, validationContext));
 
         final BigDecimal limitUsageAmount = transferAmountInSrcCurrency;
         limitValidatorFactory.getValidator(requestMetaData)
                 .validate(userDTO, request.getServiceType(), limitUsageAmount, requestMetaData, null);
-
+        //Credit card transaction limit validation is happening here, it is getting updated on a monthly basis and inserted into qr_deals_details table.
         QRDealDetails qrDealDetails = qrDealsService.getQRDealDetails(requestMetaData.getPrimaryCif(), beneficiaryDto.getBankCountryISO());
         if(qrDealDetails == null){
             logAndThrow(FundTransferEventType.FUND_TRANSFER_CC_CALL, TransferErrorCode.FT_CC_NO_DEALS, requestMetaData);
@@ -164,11 +163,11 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
         log.info("Fund transfer CC QR Deals verified {}", htmlEscape(requestMetaData.getPrimaryCif()));
         BigDecimal utilizedAmount = qrDealDetails.getUtilizedLimitAmount();
         if(utilizedAmount == null){
-            utilizedAmount = new BigDecimal("0");
+            utilizedAmount = BigDecimal.ZERO;
         }
         BigDecimal balancedAmount = qrDealDetails.getTotalLimitAmount().subtract(utilizedAmount);
         int result = balancedAmount.compareTo(request.getAmount());
-        if(result == -1){
+        if(result<0){
             logAndThrow(FundTransferEventType.FUND_TRANSFER_CC_CALL, TransferErrorCode.FT_CC_BALANCE_NOT_SUFFICIENT, requestMetaData);
         }
     }

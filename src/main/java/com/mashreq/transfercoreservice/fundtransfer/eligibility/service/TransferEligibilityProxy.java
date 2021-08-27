@@ -80,6 +80,7 @@ public class TransferEligibilityProxy {
 
 		for(TransferEligibilityService eligibilityService : transferEligibilityServiceMap.get(serviceType)) {
 			try {
+				/** TODO: remove this change and use service type from eligibilityService itself **/
 				eligibilityService.modifyServiceType(request);
 
 				//common validations across all service types
@@ -143,11 +144,9 @@ public class TransferEligibilityProxy {
 	}
 	private boolean isSourceOfFundEligible(FundTransferEligibiltyRequestDTO request, ServiceType serviceType) {
 		if(StringUtils.isNotBlank(request.getCardNo())){
+			// TODO: validate and remove INSTAREM eligibility
 			return Arrays.asList(QRIN,QRPK,QRT,LOCAL).contains(serviceType);
 		}
-		if(StringUtils.isNotBlank(request.getFromAccount())){
-			return true;
-		}
-		return false;
+		return StringUtils.isNotBlank(request.getFromAccount());
 	}
 }
