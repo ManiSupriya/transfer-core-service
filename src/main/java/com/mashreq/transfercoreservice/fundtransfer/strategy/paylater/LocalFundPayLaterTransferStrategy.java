@@ -113,9 +113,9 @@ public class LocalFundPayLaterTransferStrategy extends LocalFundTransferStrategy
 					request.getAmount(),fundTransferRequest.getBeneficiaryFullName(),fundTransferRequest.getToAccount());
             getNotificationService().sendNotifications(customerNotification, LOCAL_PL_SI_CREATION, metadata, userDTO);
             fundTransferRequest.setTransferType(getTransferType(fundTransferRequest.getTxnCurrency()));
-            fundTransferRequest.setNotificationType(OTHER_ACCOUNT_TRANSACTION);
+            fundTransferRequest.setNotificationType(LOCAL_PL_SI_CREATION);
             fundTransferRequest.setStatus(MwResponseStatus.S.getName());
-            getPostTransactionService().performPostTransactionActivities(metadata, fundTransferRequest);
+            getPostTransactionService().performPostTransactionActivities(metadata, fundTransferRequest, request);
         }
 	}
     

@@ -167,7 +167,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         fundTransferRequest.setTransferType(INTERNATIONAL);
         fundTransferRequest.setNotificationType(OTHER_ACCOUNT_TRANSACTION);
         fundTransferRequest.setStatus(fundTransferResponse.getResponseDto().getMwResponseStatus().getName());
-        postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest);
+        postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest, request);
         }
 	}
 

@@ -140,9 +140,9 @@ public class InternationalPayLaterFundTransferStrategy extends InternationalFund
 				request.getTxnCurrency(),request.getAmount(),fundTransferRequest.getBeneficiaryFullName(),fundTransferRequest.getToAccount());
         getNotificationService().sendNotifications(customerNotification, INFT_PL_SI_CREATION, metadata, userDTO);
         fundTransferRequest.setTransferType(INTERNATIONAL);
-        fundTransferRequest.setNotificationType(OTHER_ACCOUNT_TRANSACTION);
+        fundTransferRequest.setNotificationType(INFT_PL_SI_CREATION);
         fundTransferRequest.setStatus(MwResponseStatus.S.getName());
-        this.getPostTransactionService().performPostTransactionActivities(metadata, fundTransferRequest);
+        this.getPostTransactionService().performPostTransactionActivities(metadata, fundTransferRequest, request);
         }
 	}
 

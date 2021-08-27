@@ -26,21 +26,19 @@ import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
 import com.mashreq.transfercoreservice.notification.service.NotificationService;
 import com.mashreq.transfercoreservice.notification.service.PostTransactionService;
 import com.mashreq.transfercoreservice.repository.CountryRepository;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 import static com.mashreq.transfercoreservice.notification.model.NotificationType.*;
 import static java.lang.Long.valueOf;
 
@@ -203,7 +201,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
             fundTransferRequest.setTransferType(getTransferType(fundTransferRequest.getTxnCurrency()));
             fundTransferRequest.setNotificationType(OTHER_ACCOUNT_TRANSACTION);
             fundTransferRequest.setStatus(fundTransferResponse.getResponseDto().getMwResponseStatus().getName());
-            postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest);
+            postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest, request);
         }
 	}
 
@@ -349,7 +347,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
             fundTransferRequest.setNotificationType(OTHER_ACCOUNT_TRANSACTION);
             fundTransferRequest.setFromAccount(cardDetailsDTO.getCardNoWithMasked());
             fundTransferRequest.setStatus(mwResponseStatus.getName());
-            postTransactionService.performPostTransactionActivities(requestMetaData, fundTransferRequest);
+            postTransactionService.performPostTransactionActivities(requestMetaData, fundTransferRequest, requestDTO);
         }
         return fundTransferResponse;
     }

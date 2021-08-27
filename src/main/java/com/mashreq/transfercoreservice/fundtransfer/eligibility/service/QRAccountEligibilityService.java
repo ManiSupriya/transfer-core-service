@@ -6,6 +6,7 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_N
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.FT_CC_NOT_BELONG_TO_CIF;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_SEGMENT;
 import static com.mashreq.transfercoreservice.event.FundTransferEventType.ACCOUNT_BELONGS_TO_CIF;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.QuickRemitType.getCodeByName;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -119,7 +120,7 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 
 		limitValidatorFactory.getValidator(metaData).validate(
 				userDTO,
-				getServiceType() == ServiceType.QRT ? "QROC" : request.getServiceType(),
+				getCodeByName(beneficiaryDto.getBankCountryISO()),
 				limitUsageAmount, metaData, Long.valueOf(request.getBeneficiaryId()));
 		updateExchangeRateDisplay(response);
 		return EligibilityResponse.builder().status(FundsTransferEligibility.ELIGIBLE).data(response).build();
@@ -151,7 +152,7 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 		Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
 		limitValidatorFactory.getValidator(requestMetaData).validate(
 				userDTO,
-				getServiceType() == ServiceType.QRT ? "QROC" : request.getServiceType(),
+				getCodeByName(beneficiaryDto.getBankCountryISO()),
 				transferAmountInSrcCurrency,
 				requestMetaData,
 				bendId);

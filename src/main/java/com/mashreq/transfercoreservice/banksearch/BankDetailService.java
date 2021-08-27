@@ -137,7 +137,7 @@ public class BankDetailService {
 	 * ie. in database some swift codes are 8 digits and some are 11 digits
 	 */
 	private String getModifiedSwiftCode(String swiftCode) {
-		return swiftCode.length() == 8 ? swiftCode+"XXX" : swiftCode.substring(0, 8) ;
+		return swiftCode.substring(0, 6) + "%" ;
 	}
 
 	private List<BankResultsDto> fetchBySwiftAndBicCode(String channelTraceId, BankDetailRequestDto bankDetailRequest, RequestMetaData requestMetaData) {
