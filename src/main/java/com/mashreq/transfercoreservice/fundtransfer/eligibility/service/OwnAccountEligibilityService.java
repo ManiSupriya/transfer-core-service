@@ -3,10 +3,8 @@ package com.mashreq.transfercoreservice.fundtransfer.eligibility.service;
 import java.math.BigDecimal;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
-import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
@@ -38,7 +36,6 @@ public class OwnAccountEligibilityService implements TransferEligibilityService{
 	private final LimitValidatorFactory limitValidatorFactory;
 	private final AccountService accountService;
 	private final MaintenanceService maintenanceService;
-	private final AsyncUserEventPublisher auditEventPublisher;
 
 	@Override
 	public EligibilityResponse checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request, UserDTO userDTO) {
@@ -59,36 +56,21 @@ public class OwnAccountEligibilityService implements TransferEligibilityService{
 
 		validateAccountContext.add("from-account", fromAccount);
 		validateAccountContext.add("to-account", toAccount);
-		if (request.getSrcAmount() != null && StringUtils.isNotBlank(request.getSrcAmount().toString()))
-			validateAccountContext.add("to-account-currency", toAccount.getCurrency());
-		else
-			validateAccountContext.add("to-account-currency", request.getTxnCurrency());
-
-		BigDecimal transactionAmount = request.getAmount() == null ? request.getSrcAmount() : request.getAmount();
-
-		// added this condition for sell gold since we have amount in srcCurrency
-		CurrencyConversionDto conversionResult = request.getTxnCurrency() != null && request.getAmount() != null
-				&& !isCurrencySame(request.getTxnCurrency(), fromAccount.getCurrency())
-						? getCurrencyExchangeObject(transactionAmount, request, toAccount, fromAccount)
-						: getExchangeObjectForSrcAmount(transactionAmount, toAccount, fromAccount);
-
-		final BigDecimal transferAmountInSrcCurrency = request.getTxnCurrency() != null && request.getAmount() != null
-				&& !isCurrencySame(request.getTxnCurrency(), fromAccount.getCurrency())
-						? conversionResult.getAccountCurrencyAmount()
-						: transactionAmount;
+		validateAccountContext.add("to-account-currency", request.getTxnCurrency());
+		//TODO: ADD currency validation here
+		BigDecimal transferAmountInSrcCurrency;
+		if(isCurrencySame(request.getTxnCurrency(), fromAccount.getCurrency())) {
+			transferAmountInSrcCurrency = request.getAmount();
+		}else {
+			CurrencyConversionDto conversionResult = getCurrencyExchangeObject(request.getAmount(), request, toAccount, fromAccount);
+			transferAmountInSrcCurrency = conversionResult.getAccountCurrencyAmount();
+		}
 
 		validateAccountContext.add("transfer-amount-in-source-currency", transferAmountInSrcCurrency);
 
 		// Limit Validation
 		final BigDecimal limitUsageAmount = getLimitUsageAmount(fromAccount, transferAmountInSrcCurrency);
-		request.setServiceType(getBeneficiaryCode(request));
-		if (goldSilverTransfer(request)) {
-			limitValidatorFactory.getValidator(metaData).validateMin(userDTO, request.getServiceType(),
-					transactionAmount, metaData);
-		}
-		Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId()) ? Long.parseLong(request.getBeneficiaryId())
-				: null;
-		limitValidatorFactory.getValidator(metaData).validate(userDTO, request.getServiceType(), limitUsageAmount, metaData, bendId);
+		limitValidatorFactory.getValidator(metaData).validate(userDTO, request.getServiceType(), limitUsageAmount, metaData, null);
 		log.info("OwnAccountEligibility validation successfully finished");
 		return EligibilityResponse.builder().status(FundsTransferEligibility.ELIGIBLE).build();
 	}
@@ -96,13 +78,6 @@ public class OwnAccountEligibilityService implements TransferEligibilityService{
 	@Override
 	public ServiceType getServiceType() {
 		return ServiceType.WYMA;
-	}
-	
-	private String getBeneficiaryCode(FundTransferEligibiltyRequestDTO request) {
-		if(goldSilverTransfer(request)){
-			return request.getCurrency();
-		}
-		else return request.getServiceType();
 	}
 
 	private BigDecimal getLimitUsageAmount(final AccountDetailsDTO sourceAccountDetailsDTO,
@@ -139,20 +114,5 @@ public class OwnAccountEligibilityService implements TransferEligibilityService{
 		return maintenanceService.convertBetweenCurrencies(currencyRequest);
 
 	}
-
-	private boolean goldSilverTransfer(FundTransferEligibiltyRequestDTO request){
-		return (ServiceType.XAU.getName().equals(request.getCurrency()) || ServiceType.XAG.getName().equals(request.getCurrency()));
-	}
-
-	//convert to sourceAccount from destAccount where amount is in src currency
-	private CurrencyConversionDto getExchangeObjectForSrcAmount(BigDecimal transactionAmount, AccountDetailsDTO destAccount, AccountDetailsDTO sourceAccount) {
-		final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
-		currencyRequest.setAccountNumber(sourceAccount.getNumber());
-		currencyRequest.setAccountCurrency(sourceAccount.getCurrency());
-		currencyRequest.setAccountCurrencyAmount(transactionAmount);
-		currencyRequest.setTransactionCurrency(destAccount.getCurrency());
-		return maintenanceService.convertBetweenCurrencies(currencyRequest);
-	}
-
 
 }

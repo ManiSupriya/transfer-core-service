@@ -7,6 +7,7 @@ import com.mashreq.transfercoreservice.annotations.ValueOfEnum;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.math.BigDecimal;
 
@@ -22,10 +23,8 @@ public class FundTransferEligibiltyRequestDTO {
     private String toAccount;
 
     @TransactionAmount
+    @NotNull(message = "amount cannot be empty")
     private BigDecimal amount;
-
-    @TransactionAmount
-    private BigDecimal srcAmount;
 
     @ValueOfEnum(enumClass = ServiceType.class, message = "Not a valid value for service Type")
     private String serviceType;
@@ -39,11 +38,11 @@ public class FundTransferEligibiltyRequestDTO {
     private String dealNumber;
 
     private String beneficiaryId;
-
+    @NotBlank(message = "txnCurrency cannot be empty")
     private String txnCurrency;
     private String additionalField;
     private String finalBene;
-    AdditionalFields beneRequiredFields;
+    private AdditionalFields beneRequiredFields;
     private BigDecimal dealRate;
     private String cardNo;
 

@@ -54,7 +54,7 @@ public class INFTAccountEligibilityService implements TransferEligibilityService
 
 		final ValidationContext validationContext = new ValidationContext();
 
-		BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
+		BeneficiaryDto beneficiaryDto;
 		if (request.getBeneRequiredFields() != null && ((request.getBeneRequiredFields().getMissingFields() != null
 				&& !request.getBeneRequiredFields().getMissingFields().isEmpty())
 				|| (request.getBeneRequiredFields().getIncorrectFields() != null
@@ -76,14 +76,12 @@ public class INFTAccountEligibilityService implements TransferEligibilityService
 
 		final BigDecimal transferAmountInSrcCurrency = getAmountInSrcCurrency(request, sourceAccountDetailsDTO);
 
-		// Limit Validation
-		Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId()) ? Long.parseLong(request.getBeneficiaryId())
-				: null;
+		// Limit Validation 
 		final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), sourceAccountDetailsDTO,
 				transferAmountInSrcCurrency);
 
 		limitValidatorFactory.getValidator(metaData).validate(userDTO, request.getServiceType(),
-				limitUsageAmount, metaData, bendId);
+				limitUsageAmount, metaData, beneficiaryDto.getId());
 		log.info("INFT transfer eligibility validation successfully finished");
         return EligibilityResponse.builder().status(FundsTransferEligibility.ELIGIBLE).build();
     }
