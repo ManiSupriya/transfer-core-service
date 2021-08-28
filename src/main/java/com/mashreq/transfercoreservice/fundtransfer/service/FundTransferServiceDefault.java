@@ -129,7 +129,6 @@ public class FundTransferServiceDefault implements FundTransferService {
 
         log.info("Creating  User DTO");
         UserDTO userDTO = createUserDTO(metadata, digitalUser);
-        final ServiceType serviceType = getServiceByType(request.getServiceType());
 
         //deal number not applicable if both currencies are same
         if(StringUtils.isNotBlank(request.getTxnCurrency()) && request.getCurrency().equalsIgnoreCase(request.getTxnCurrency()) && (request.getDealNumber()!=null && !request.getDealNumber().isEmpty())) {
