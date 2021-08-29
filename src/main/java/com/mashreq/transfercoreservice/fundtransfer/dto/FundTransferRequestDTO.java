@@ -71,7 +71,7 @@ public class FundTransferRequestDTO {
     private String txnCurrency;
     private String additionalField;
     private String finalBene;
-    AdditionalFields beneRequiredFields;
+    private AdditionalFields beneRequiredFields;
     private BigDecimal dealRate;
     private String cardNo;
     /** added as a part of SI and pay later implementation */

@@ -2,13 +2,18 @@ package com.mashreq.transfercoreservice.banksearch;
 
 import static com.mashreq.transfercoreservice.common.UAEIbanValidator.validateIban;
 import static com.mashreq.transfercoreservice.errors.ExceptionUtils.genericException;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BANK_NOT_FOUND_WITH_IBAN;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BANK_NOT_FOUND_WITH_SWIFT;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_ROUTING_CODE;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_SWIFT_CODE;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.SWIFT_AND_BIC_SEARCH_FAILED;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
-
-import javax.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -71,21 +76,22 @@ public class BankDetailService {
         return ifscCodeSearchMWService.getBankDetailByIfscCode(channelTraceId, ifscCode, requestMetaData);
     }
 
-	public List<BankResultsDto> getBankDetails(@Valid BankDetailRequestDto bankDetailRequest, RequestMetaData metaData) {
+	public List<BankResultsDto> getBankDetails(BankDetailRequestDto bankDetailRequest, RequestMetaData metaData) {
 		List<BankResultsDto> results = getBankDetails(metaData.getChannelTraceId(), bankDetailRequest, metaData);
-		
-		if(null != results) {
-		
-			if(null == ALL_COUNTRIES_MAP) {
-				ALL_COUNTRIES_MAP = mobCommonService.getCountryCodeMap();
+		if ("MT".equals(bankDetailRequest.getJourneyType())) {
+			if (Objects.isNull(results) || results.isEmpty()) {
+				GenericExceptionHandler.handleError(INVALID_ROUTING_CODE, INVALID_ROUTING_CODE.getErrorMessage());
 			}
-			
-			return results.stream()
-			.map(this::modifyBankResult)
-			.collect(Collectors.toList());
+			if (null == ALL_COUNTRIES_MAP) {
+				synchronized (this) {
+					if (null == ALL_COUNTRIES_MAP) {
+						ALL_COUNTRIES_MAP = mobCommonService.getCountryCodeMap();
+					}
+				}
+			}
+			return results.stream().map(this::modifyBankResult).collect(Collectors.toList());
 		}
-		
-		throw genericException(INTERNAL_ERROR);
+		return results;
 	}
 
 	private List<BankResultsDto> getBankDetails(final String channelTraceId, final BankDetailRequestDto bankDetailRequest, final RequestMetaData requestMetaData) {
@@ -101,15 +107,12 @@ public class BankDetailService {
 		}
 		if("swift".equals(bankDetailRequest.getType())) {
 			validateSwiftCode(bankDetailRequest.getValue());
-			return fetchBySwiftAndBicCode(channelTraceId, bankDetailRequest, requestMetaData);
+			if("MT".equals(bankDetailRequest.getJourneyType())) {
+				return fetchBySwiftAndBicCode(channelTraceId, bankDetailRequest, requestMetaData);
+			}
 		}
 
-		List<BankResultsDto> bankResults = routingCodeSearchMWService.fetchBankDetailsWithRoutingCode(channelTraceId, bankDetailRequest, requestMetaData);
-		if(Objects.isNull(bankResults) || bankResults.isEmpty()) {
-			GenericExceptionHandler.handleError(INVALID_ROUTING_CODE, INVALID_ROUTING_CODE.getErrorMessage());
-		}
-
-		return bankResults;
+		return routingCodeSearchMWService.fetchBankDetailsWithRoutingCode(channelTraceId, bankDetailRequest, requestMetaData);
 	}
 
 	private void updateBankCode(BankResultsDto bankResult) {
@@ -144,6 +147,7 @@ public class BankDetailService {
 		}
 		catch(GenericException gex) {
 			try {
+				//TODO:have to create 
 				bankDetails = bicCodeSearchService.fetchBankDetailsWithBic(bankDetailRequest.getCountryCode(), requestMetaData ).stream()
 						.filter(bankResult ->
 								isNotBlank(bankResult.getSwiftCode()) &&
@@ -224,10 +228,6 @@ public class BankDetailService {
 				//swift is invalid hence reset it
 				bankResult.setSwiftCode(null);
 			}
-		}
-		//swift is invalid hence reset it
-		if(bankResult != null) {
-			bankResult.setSwiftCode(null);
 		}
 	}
 

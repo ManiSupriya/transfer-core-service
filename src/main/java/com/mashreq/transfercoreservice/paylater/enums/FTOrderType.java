@@ -7,6 +7,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.annotations.ValidEnum;
 
@@ -36,6 +38,9 @@ public enum FTOrderType implements ValidEnum {
             .collect(Collectors.toMap(FTOrderType::getName, Function.identity()));
 
     public static FTOrderType getFTOrderTypeByName(String name) {
+    	if(StringUtils.isBlank(name)){
+    		return PN;
+    	}
         if (!ftOrderTypeLookup.containsKey(name))
             GenericExceptionHandler.handleError(INVALID_FT_ORDER_TYPE, INVALID_FT_ORDER_TYPE.getErrorMessage());
 

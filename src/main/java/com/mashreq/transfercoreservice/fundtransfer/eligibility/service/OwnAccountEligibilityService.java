@@ -17,6 +17,7 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.enums.FundsTransferEligibility;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.AccountBelongsToCifValidator;
+import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CurrencyValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.LimitValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
 
@@ -36,6 +37,7 @@ public class OwnAccountEligibilityService implements TransferEligibilityService{
 	private final LimitValidatorFactory limitValidatorFactory;
 	private final AccountService accountService;
 	private final MaintenanceService maintenanceService;
+	private final CurrencyValidatorFactory currencyValidatorFactory;
 
 	@Override
 	public EligibilityResponse checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request, UserDTO userDTO) {
@@ -57,7 +59,7 @@ public class OwnAccountEligibilityService implements TransferEligibilityService{
 		validateAccountContext.add("from-account", fromAccount);
 		validateAccountContext.add("to-account", toAccount);
 		validateAccountContext.add("to-account-currency", request.getTxnCurrency());
-		//TODO: ADD currency validation here
+		responseHandler(currencyValidatorFactory.getValidator(metaData).validate(request, metaData));
 		BigDecimal transferAmountInSrcCurrency;
 		if(isCurrencySame(request.getTxnCurrency(), fromAccount.getCurrency())) {
 			transferAmountInSrcCurrency = request.getAmount();
