@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.mashreq.transfercoreservice.common.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -80,14 +81,10 @@ public class BankDetailService {
 		List<BankResultsDto> results = getBankDetails(metaData.getChannelTraceId(), bankDetailRequest, metaData);
 		if ("MT".equals(bankDetailRequest.getJourneyType())) {
 			if (Objects.isNull(results) || results.isEmpty()) {
-				GenericExceptionHandler.handleError(INVALID_ROUTING_CODE, INVALID_ROUTING_CODE.getErrorMessage());
+				throw ExceptionUtils.genericException(INVALID_ROUTING_CODE);
 			}
 			if (null == ALL_COUNTRIES_MAP) {
-				synchronized (this) {
-					if (null == ALL_COUNTRIES_MAP) {
-						ALL_COUNTRIES_MAP = mobCommonService.getCountryCodeMap();
-					}
-				}
+				ALL_COUNTRIES_MAP = mobCommonService.getCountryCodeMap();
 			}
 			return results.stream().map(this::modifyBankResult).collect(Collectors.toList());
 		}
