@@ -84,7 +84,7 @@ public class LimitValidator implements ILimitValidator{
 
     private BigDecimal getMinAmount(String minAmount) {
         if(minAmount == null){
-            return new BigDecimal(0);
+            return BigDecimal.ZERO;
         }
         else return new BigDecimal(minAmount);
     }

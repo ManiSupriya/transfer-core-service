@@ -147,7 +147,7 @@ public class BankDetailService {
 		}
 		catch(GenericException gex) {
 			try {
-				//TODO:have to create 
+				//TODO:have to create separate query for fetching data by swift code.
 				bankDetails = bicCodeSearchService.fetchBankDetailsWithBic(bankDetailRequest.getCountryCode(), requestMetaData ).stream()
 						.filter(bankResult ->
 								isNotBlank(bankResult.getSwiftCode()) &&

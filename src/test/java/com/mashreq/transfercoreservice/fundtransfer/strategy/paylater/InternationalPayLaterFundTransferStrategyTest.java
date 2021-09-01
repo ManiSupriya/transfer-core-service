@@ -120,7 +120,7 @@ public class InternationalPayLaterFundTransferStrategyTest {
 		FundTransferResponse response = internationalPayLaterFundTransferStrategy.execute(request, metadata, userDTO);
 		assertEquals(transactionRefNo, response.getTransactionRefNo());
 		assertEquals(conversionResult.getAccountCurrencyAmount(), response.getDebitAmount());
-		assertTrue(response.getPayOrderInitiated());
+		assertTrue(response.isPayOrderInitiated());
 	}
 
 }

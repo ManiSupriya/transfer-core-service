@@ -268,7 +268,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
                 .sourceBranchCode(sourceAccount.getBranchCode())
                 .beneficiaryFullName(beneficiaryDto.getFullName())
                 /** added if condition to avoid impact on existing logic, as per actual logic , destination currency should not be null*/
-                .destinationCurrency(StringUtils.isNotBlank(request.getDestinationAccountCurrency()) ? request.getDestinationAccountCurrency() : request.getTxnCurrency())
+                .destinationCurrency(StringUtils.defaultIfBlank(request.getDestinationAccountCurrency(), request.getTxnCurrency()))
                 .transactionCode(WITHIN_MASHREQ_TRANSACTION_CODE)
                 .internalAccFlag(INTERNAL_ACCOUNT_FLAG)
                 .dealNumber(request.getDealNumber())
@@ -276,11 +276,6 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
                 .limitTransactionRefNo(validationResult.getTransactionRefNo())
                 .paymentNote(request.getPaymentNote())
                 .build();
-    	if(sourceAccount.getCurrency().equals(request.getTxnCurrency())) {
-    		trnsrequest.setSrcAmount(request.getAmount());
-    	}else {
-    		trnsrequest.setAmount(request.getAmount());
-    	}
     	return trnsrequest;
     }
 

@@ -121,11 +121,11 @@ public class PayLaterTransferService extends FundTransferServiceDefault{
 	}
     
     protected boolean isFailure(FundTransferResponse response) {
-        return Boolean.FALSE.equals(response.getPayOrderInitiated());
+        return !response.isPayOrderInitiated();
     }
 
     protected boolean isSuccessOrProcessing(FundTransferResponse response) {
-        return Boolean.TRUE.equals(response.getPayOrderInitiated());
+        return response.isPayOrderInitiated();
     }
 
     @Override
@@ -162,12 +162,13 @@ public class PayLaterTransferService extends FundTransferServiceDefault{
                 .paidAmount(request.getAmount() == null ? request.getSrcAmount() : request.getAmount())
                 .fromCurrency(request.getCurrency())
                 .toCurrency(request.getTxnCurrency())
-                .status(Boolean.TRUE.equals(fundTransferResponse.getPayOrderInitiated()) ?  MwResponseStatus.S.getName() : MwResponseStatus.F.getName())
+                .status(fundTransferResponse.isPayOrderInitiated() ?  MwResponseStatus.S.getName() : MwResponseStatus.F.getName())
                 .accountFrom(request.getFromAccount())
                 .financialTransactionNo(request.getFinTxnNo())
                 .transactionRefNo(fundTransferResponse.getTransactionRefNo())
                 .valueDate(LocalDateTime.now())
                 .createdDate(Instant.now())
+                //TODO: have to change this to numberutils.isCreatable
                 .beneficiaryId(StringUtils.isNotBlank(request.getBeneficiaryId())?Long.valueOf(request.getBeneficiaryId()):null)
                 .paymentNote(request.getPaymentNote())
                 .build();
