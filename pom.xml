@@ -36,7 +36,7 @@
 
         <!-- dependency management version -->
         <!--		<spring-cloud.version>Hoxton.RELEASE</spring-cloud.version>-->
-        <spring-cloud.version>Greenwich.SR2</spring-cloud.version>
+        <spring-cloud.version>Greenwich.SR3</spring-cloud.version>
 
         <!-- internal modules -->
         <com.mashreq.esbcore>1.0.88</com.mashreq.esbcore>
