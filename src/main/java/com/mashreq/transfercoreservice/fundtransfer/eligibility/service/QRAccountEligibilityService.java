@@ -1,16 +1,14 @@
 package com.mashreq.transfercoreservice.fundtransfer.eligibility.service;
 
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_NOT_BELONG_TO_CIF;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.FT_CC_NOT_BELONG_TO_CIF;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_SEGMENT;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
 import static com.mashreq.transfercoreservice.event.FundTransferEventType.ACCOUNT_BELONGS_TO_CIF;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.QuickRemitType.getCodeByName;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
@@ -91,13 +89,15 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
         
         List<CountryMasterDto> countryList = maintenanceService.getAllCountries("MOB", "AE", Boolean.TRUE);
         final Optional<CountryMasterDto> countryDto = countryList.stream()
-                .filter(country -> country.getCode().equals(beneficiaryDto.getBankCountryISO()))
+                .filter(country -> country.getCode().equals(beneficiaryDto.getBankCountryISO() )
+						&& Boolean.TRUE.equals(country.getQuickRemitEnabled()))
                 .findAny();
 
-        if (countryDto.isPresent()) {
-        	validationContext.add("country", countryDto.get());
+        if (!countryDto.isPresent()) {
+        	GenericExceptionHandler.handleError(QUICK_REM_COUNTRY_CODE_NOT_FOUND, QUICK_REM_COUNTRY_CODE_NOT_FOUND.getErrorMessage());
         }
-        
+
+		validationContext.add("country", countryDto.get());
         responseHandler(currencyValidatorFactory.getValidator(metaData).validate(request, metaData, validationContext));
         
         validationContext.add("beneficiary-dto", beneficiaryDto);
