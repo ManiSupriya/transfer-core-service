@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.fundtransfer.eligibility.service;
 
+import static com.mashreq.transfercoreservice.common.ExceptionUtils.genericException;
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
 import static com.mashreq.transfercoreservice.event.FundTransferEventType.ACCOUNT_BELONGS_TO_CIF;
@@ -94,7 +95,7 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
                 .findAny();
 
         if (!countryDto.isPresent()) {
-        	GenericExceptionHandler.handleError(QUICK_REM_COUNTRY_CODE_NOT_FOUND, QUICK_REM_COUNTRY_CODE_NOT_FOUND.getErrorMessage());
+        	throw genericException(QUICK_REM_COUNTRY_CODE_NOT_FOUND);
         }
 
 		validationContext.add("country", countryDto.get());
@@ -241,7 +242,7 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 	private void logAndThrow(FundTransferEventType fundTransferEventType, TransferErrorCode errorCodeSet, RequestMetaData requestMetaData){
 		auditEventPublisher.publishFailureEvent(fundTransferEventType, requestMetaData,"",
 				fundTransferEventType.name(), fundTransferEventType.getDescription(), fundTransferEventType.getDescription());
-		throw ExceptionUtils.genericException(errorCodeSet);
+		throw genericException(errorCodeSet);
 	}
 
 	private void assertCardNumberBelongsToUser(FundTransferEligibiltyRequestDTO fundOrderCreateRequest, RequestMetaData metaData) {
