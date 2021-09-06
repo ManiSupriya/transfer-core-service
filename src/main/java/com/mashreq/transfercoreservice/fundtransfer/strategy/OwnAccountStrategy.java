@@ -205,8 +205,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 	protected FundTransferResponse processTransfer(RequestMetaData metadata,
 			final LimitValidatorResponse validationResult, final FundTransferRequest fundTransferRequest,
 			FundTransferRequestDTO request) {
-		final FundTransferResponse fundTransferResponse = fundTransferMWService.transfer(fundTransferRequest, metadata,validationResult.getTransactionRefNo());
-		return fundTransferResponse;
+		return fundTransferMWService.transfer(fundTransferRequest, metadata,validationResult.getTransactionRefNo());
 	}
 
 	protected void validateAccountBalance(FundTransferRequestDTO request, RequestMetaData metadata,

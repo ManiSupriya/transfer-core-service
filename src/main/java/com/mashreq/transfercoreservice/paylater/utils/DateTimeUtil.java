@@ -66,11 +66,7 @@ public enum DateTimeUtil {
     	return dateTime.format(DATE_TIME_FORMATTER_ONE);
     }
     
-    /**
-	 * for returning dubai time.
-	 * @return
-	 */
 	public static LocalDateTime getCurrentDateTimeZone() {
-		return LocalDateTime.now(DUBAI_ZONE);
+		return LocalDateTime.now();
 	}
 }

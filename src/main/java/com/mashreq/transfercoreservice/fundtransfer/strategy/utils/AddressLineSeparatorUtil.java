@@ -17,14 +17,11 @@ public class AddressLineSeparatorUtil {
 	public static String[] separateAddressLineForSwift(int maxLength, String fullName, String address1, String address2, String address3) {
 		String[] result = new String[3];
 		/** extracting right part of beneficiary full name */
-		String addr1=null;
-		String addr2=null;
-		String addr3=null;
-		addr1 = prepareFirstLine(maxLength, fullName, address1, result);
+		String addr1 = prepareFirstLine(maxLength, fullName, address1, result);
 		log.debug("First line is :: {}", addr1);
-		addr2 = prepareSecondLine(maxLength, address2, result, addr1);
+		String addr2 = prepareSecondLine(maxLength, address2, result, addr1);
 		log.debug("Second line is :: {}", addr2);
-		addr3 = prepareThirdLine(maxLength, address3, result, addr2);
+		String addr3 = prepareThirdLine(maxLength, address3, result, addr2);
     	log.debug("third line is :: {}", addr3);
     	return result;
 	}

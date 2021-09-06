@@ -36,7 +36,6 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.SameAccountValida
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
-import com.mashreq.transfercoreservice.notification.model.NotificationType;
 import com.mashreq.transfercoreservice.notification.service.NotificationService;
 import com.mashreq.transfercoreservice.notification.service.PostTransactionService;
 import com.mashreq.transfercoreservice.paylater.enums.FTOrderType;
@@ -97,7 +96,7 @@ public class WithinMashreqPayLaterStrategy extends WithinMashreqStrategy {
 	}
 	
 	private boolean isSuccess(FundTransferResponse response) {
-		return Boolean.TRUE.equals(response.getPayOrderInitiated());
+		return response.isPayOrderInitiated();
 	}
 	
 	@Override

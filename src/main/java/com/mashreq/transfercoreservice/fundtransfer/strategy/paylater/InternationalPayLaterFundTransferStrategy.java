@@ -1,12 +1,10 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy.paylater;
 
 import static com.mashreq.transfercoreservice.notification.model.NotificationType.INFT_PL_SI_CREATION;
-import static com.mashreq.transfercoreservice.notification.model.NotificationType.OTHER_ACCOUNT_TRANSACTION;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import com.mashreq.transfercoreservice.common.HtmlEscapeCache;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
@@ -16,6 +14,7 @@ import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
+import com.mashreq.transfercoreservice.common.HtmlEscapeCache;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ChargeBearer;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
@@ -147,7 +146,7 @@ public class InternationalPayLaterFundTransferStrategy extends InternationalFund
 	}
 
 	private boolean isSuccess(FundTransferResponse response) {
-		return Boolean.TRUE.equals(response.getPayOrderInitiated());
+		return response.isPayOrderInitiated();
 	}
 
 	@Override

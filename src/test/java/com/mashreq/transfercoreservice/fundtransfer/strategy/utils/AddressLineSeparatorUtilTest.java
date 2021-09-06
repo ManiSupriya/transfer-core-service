@@ -65,4 +65,6 @@ public class AddressLineSeparatorUtilTest {
 		assertEquals("floor United Arab Emirates",separateAddressLineForSwift[2]);
 		assertEquals(" Emirates Digital Studio DBC third ", separateAddressLineForSwift[1]);
 	}
+	
+	//TODO: write a test case with full name null
 }

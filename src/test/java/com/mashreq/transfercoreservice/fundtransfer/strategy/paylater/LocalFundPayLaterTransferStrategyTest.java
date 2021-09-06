@@ -148,7 +148,7 @@ public class LocalFundPayLaterTransferStrategyTest {
 		FundTransferResponse response = localFundPayLaterTransferStrategy.execute(request, metadata, userDTO);
 		assertEquals(transactionRefNo, response.getTransactionRefNo());
 		assertEquals(request.getAmount(), response.getDebitAmount());
-		assertTrue(response.getPayOrderInitiated());
+		assertTrue(response.isPayOrderInitiated());
 	}
 
 }

@@ -53,7 +53,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
-	private static final String OWN_ACCOUNT_TRANSACTION = "OWN_ACCOUNT_TRANSACTION";
 	private final FundTransferOrderRepository fundTransferOrderRepository;
 	private final SequenceNumberGenerator seqGenerator;
 
@@ -118,7 +117,7 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 	}
 
 	private boolean isSuccess(FundTransferResponse response) {
-		return Boolean.TRUE.equals(response.getPayOrderInitiated());
+		return response.isPayOrderInitiated();
 	}
 
 	private FundTransferOrder createOrderFromRequest(FundTransferRequest fundTransferRequest, RequestMetaData metadata,
