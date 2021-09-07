@@ -14,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.util.HtmlUtils;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
@@ -81,6 +82,7 @@ public class PayLaterTransferServiceTest {
 	public void prepare() {
 		this.payLaterTransferService.init();
 		fundTransferRequestDTO = generateFundTransferRequest();
+		ReflectionTestUtils.setField(payLaterTransferService, "activeProfile", "prod");
 	}
 
 	@Test

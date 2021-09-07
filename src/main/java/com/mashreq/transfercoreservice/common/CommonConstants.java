@@ -40,4 +40,5 @@ public interface CommonConstants {
 	String LICENCE_URL = "http://www.apache.org/licenses/LICENSE-2.0.html";
 	String VERSION = "1.0.0";
 	String LICENCE_TEXT = "Apache 2.0";
+	String PROD_PROFILE = "prod";
 }

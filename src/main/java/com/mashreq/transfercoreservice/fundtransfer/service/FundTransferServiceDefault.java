@@ -1,5 +1,35 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.BAIT_AL_KHAIR;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.DAR_AL_BER;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.DUBAI_CARE;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.INFT;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.LOCAL;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WAMA;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WYMA;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.getServiceByType;
+import static java.time.Duration.between;
+import static java.time.Instant.now;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.EnumMap;
+import java.util.Optional;
+
+import javax.annotation.PostConstruct;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
+
 import com.mashreq.logcore.annotations.TrackExec;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
@@ -12,10 +42,20 @@ import com.mashreq.transfercoreservice.common.CommonConstants;
 import com.mashreq.transfercoreservice.errors.ExternalErrorCodeConfig;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.*;
+import com.mashreq.transfercoreservice.fundtransfer.dto.ChargeBearer;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponseDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
+import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageService;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.*;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.CharityStrategyDefault;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.FundTransferStrategy;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.InternationalFundTransferStrategy;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.LocalFundTransferStrategy;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.OwnAccountStrategy;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.WithinMashreqStrategy;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.model.DigitalUser;
 import com.mashreq.transfercoreservice.promo.service.PromoCodeService;
@@ -27,25 +67,6 @@ import com.mashreq.webcore.dto.response.Response;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.EnumMap;
-import java.util.Optional;
-
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.*;
-import static java.time.Duration.between;
-import static java.time.Instant.now;
-import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 @Slf4j
 @TrackExec
@@ -70,6 +91,10 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final ExternalErrorCodeConfig errorCodeConfig;
     private final PromoCodeService promoCodeService;
     private final MobCommonService mobCommonService;
+    @Value("${spring.profiles.active}")
+    private String activeProfile;
+    @Value("${app.nonProd.defaultOtp}")
+    private String defaultOtp;
 
     @PostConstruct
     public void init() {
@@ -98,6 +123,9 @@ public class FundTransferServiceDefault implements FundTransferService {
     }
 
     protected void verifyOtp(FundTransferRequestDTO request, RequestMetaData metadata) {
+    	if(!CommonConstants.PROD_PROFILE.equals(activeProfile) && defaultOtp.equals(request.getOtp())) {
+    		log.info("OTP relaxed for environment {}",activeProfile);
+    	}
         VerifyOTPRequestDTO verifyOTPRequestDTO = new VerifyOTPRequestDTO();
         verifyOTPRequestDTO.setOtp(request.getOtp());
         verifyOTPRequestDTO.setChallengeToken(request.getChallengeToken());
@@ -118,7 +146,6 @@ public class FundTransferServiceDefault implements FundTransferService {
                     verifyOTP.getErrorDetails(), verifyOTP.getErrorDetails());
         }
         auditEventPublisher.publishSuccessEvent(FundTransferEventType.FUND_TRANSFER_OTP_VALIDATION, metadata, FundTransferEventType.FUND_TRANSFER_OTP_VALIDATION.getDescription());
-
     }
 
     protected FundTransferResponseDTO getFundTransferResponse(RequestMetaData metadata, FundTransferRequestDTO request) {
