@@ -125,6 +125,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     protected void verifyOtp(FundTransferRequestDTO request, RequestMetaData metadata) {
     	if(!CommonConstants.PROD_PROFILE.equals(activeProfile) && defaultOtp.equals(request.getOtp())) {
     		log.info("OTP relaxed for environment {}",activeProfile);
+    		return;
     	}
         VerifyOTPRequestDTO verifyOTPRequestDTO = new VerifyOTPRequestDTO();
         verifyOTPRequestDTO.setOtp(request.getOtp());
