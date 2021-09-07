@@ -92,4 +92,6 @@ public class FundTransferRequestDTO {
     private String intermediaryBankSwiftCode;
     
     private String destinationAccountCurrency;
+    
+    private String journeyVersion="V1";
 }
