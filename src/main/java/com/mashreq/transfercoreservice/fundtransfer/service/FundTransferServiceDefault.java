@@ -93,8 +93,8 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final MobCommonService mobCommonService;
     @Value("${spring.profiles.active}")
     private String activeProfile;
-    @Value("${app.nonProd.defaultOtp}")
-    private String defaultOtp;
+    @Value("${app.nonProd.otpRelaxed}")
+    private boolean otpRelaxed;
 
     @PostConstruct
     public void init() {
@@ -123,7 +123,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     }
 
     protected void verifyOtp(FundTransferRequestDTO request, RequestMetaData metadata) {
-    	if(!CommonConstants.PROD_PROFILE.equals(activeProfile) && defaultOtp.equals(request.getOtp())) {
+    	if(!CommonConstants.PROD_PROFILE.equals(activeProfile) && otpRelaxed) {
     		log.info("OTP relaxed for environment {}",activeProfile);
     		return;
     	}
