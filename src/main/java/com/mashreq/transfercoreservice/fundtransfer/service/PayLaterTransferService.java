@@ -12,7 +12,6 @@ import java.util.EnumMap;
 
 import javax.annotation.PostConstruct;
 
-import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -22,6 +21,7 @@ import com.mashreq.logcore.annotations.TrackExec;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
+import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
 import com.mashreq.transfercoreservice.client.service.OTPService;
 import com.mashreq.transfercoreservice.errors.ExternalErrorCodeConfig;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
@@ -57,7 +57,6 @@ public class PayLaterTransferService extends FundTransferServiceDefault{
 	private final WithinMashreqPayLaterStrategy withinMashreqPayLaterStrategy;
 	private final LocalFundPayLaterTransferStrategy localFundPayLaterTransferStrategy;
 	private final InternationalPayLaterFundTransferStrategy internationalPayLaterFundTransferStrategy;
-	
     @Autowired
 	public PayLaterTransferService(DigitalUserRepository digitalUserRepository,
                                    TransactionRepository transactionRepository, DigitalUserLimitUsageService digitalUserLimitUsageService,
@@ -73,7 +72,8 @@ public class PayLaterTransferService extends FundTransferServiceDefault{
                                    PromoCodeService promoCodeService, MobCommonService mobCommonService) {
 		super(digitalUserRepository, transactionRepository, digitalUserLimitUsageService, ownAccountStrategy,
 				withinMashreqStrategy, localFundTransferStrategy, internationalFundTransferStrategy,
-				charityStrategyDefault, auditEventPublisher, otpService, errorCodeConfig, promoCodeService, mobCommonService);
+				charityStrategyDefault, auditEventPublisher, otpService, errorCodeConfig,
+				promoCodeService, mobCommonService);
 		this.ownAccountPayLaterStrategy = ownAccountPayLaterStrategy;
 		this.withinMashreqPayLaterStrategy = withinMashreqPayLaterStrategy;
 		this.localFundPayLaterTransferStrategy = localFundPayLaterTransferStrategy;

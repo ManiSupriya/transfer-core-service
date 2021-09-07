@@ -13,11 +13,13 @@ import java.util.Optional;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.platform.commons.util.ReflectionUtils;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.util.HtmlUtils;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
@@ -80,6 +82,7 @@ public class FundTransferServiceDefaultTest {
 	 public void prepare() {
 	     this.fundTransferServiceDefault.init();
 	     fundTransferRequestDTO = generateFundTransferRequest();
+	     ReflectionTestUtils.setField(fundTransferServiceDefault, "activeProfile", "prod");
 	 }
 	
 	@Test
