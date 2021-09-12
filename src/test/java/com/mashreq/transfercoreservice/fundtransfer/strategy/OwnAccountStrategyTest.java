@@ -33,6 +33,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import static com.mashreq.transfercoreservice.notification.model.NotificationType.OWN_ACCOUNT_FT;
 import static java.time.Duration.between;
 import static java.time.Instant.now;
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
@@ -149,7 +150,7 @@ public class OwnAccountStrategyTest implements FundTransferStrategy {
             limitValidator.validateMin(userDTO, request.getServiceType(), transactionAmount, metadata);
         }
         Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
-        final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metadata, bendId);
+        final LimitValidatorResponse validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount, metadata, bendId);
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccount, toAccount,conversionResult.getExchangeRate(),validationResult);
 
         fundTransferRequest.setProductId(isMT5AccountProdID(fundTransferRequest));
@@ -157,7 +158,7 @@ public class OwnAccountStrategyTest implements FundTransferStrategy {
 
        if(isSuccessOrProcessing(fundTransferResponse)){
        final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request,transactionAmount,metadata);
-       notificationService.sendNotifications(customerNotification,OWN_ACCOUNT_TRANSACTION,metadata,userDTO);
+       notificationService.sendNotifications(customerNotification,OWN_ACCOUNT_FT,metadata,userDTO);
        }
        
         log.info("Total time taken for {} strategy {} milli seconds ", htmlEscape(request.getServiceType()), htmlEscape(Long.toString(between(start, now()).toMillis())));
@@ -182,13 +183,13 @@ public class OwnAccountStrategyTest implements FundTransferStrategy {
                 fundTransferRequest.setAmount(conversionResult.getTransactionAmount());
                 fundTransferRequest.setTransferType(getTransferType(fundTransferRequest.getSourceCurrency()));
             }
-            postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest);
+            postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest, request);
         }
         else if(isSuccess){
             fundTransferRequest.setTransferType(OWN_ACCOUNT);
             fundTransferRequest.setNotificationType(NotificationType.LOCAL);
             fundTransferRequest.setStatus(MwResponseStatus.S.getName());
-            postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest);
+            postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest, request);
         }
     }
 

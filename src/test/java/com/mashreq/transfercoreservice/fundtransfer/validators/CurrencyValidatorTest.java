@@ -6,6 +6,7 @@ import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryStatus;
 import com.mashreq.transfercoreservice.client.dto.CharityBeneficiaryDto;
+import com.mashreq.transfercoreservice.client.dto.SearchAccountDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
@@ -42,12 +43,13 @@ public class CurrencyValidatorTest {
 
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
         beneficiaryDto.setAccountNumber("019022073766");
-        beneficiaryDto.setBeneficiaryCurrency("USD");
         beneficiaryDto.setStatus(BeneficiaryStatus.ACTIVE.getValue());
 
         mockValidationContext.add("from-account", accountDetailsDTO);
         mockValidationContext.add("beneficiary-dto", beneficiaryDto);
-
+        SearchAccountDto toAccount = new SearchAccountDto();
+        toAccount.setCurrency("USD");
+        mockValidationContext.add("credit-account-details", toAccount);
         //when
         final ValidationResult result = currencyValidator.validate(requestDTO, null, mockValidationContext);
 
@@ -245,12 +247,13 @@ public class CurrencyValidatorTest {
 
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
         beneficiaryDto.setAccountNumber("019022073766");
-        beneficiaryDto.setBeneficiaryCurrency("USD");
         beneficiaryDto.setStatus(BeneficiaryStatus.ACTIVE.getValue());
 
         mockValidationContext.add("from-account", accountDetailsDTO);
         mockValidationContext.add("beneficiary-dto", beneficiaryDto);
-
+        SearchAccountDto toAccount = new SearchAccountDto();
+        toAccount.setCurrency("USD");
+        mockValidationContext.add("credit-account-details", toAccount);
         //when
          
         final ValidationResult result = currencyValidator.validate(requestDTO, null, mockValidationContext);
@@ -303,11 +306,13 @@ public class CurrencyValidatorTest {
 
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
         beneficiaryDto.setAccountNumber("019022073766");
-        beneficiaryDto.setBeneficiaryCurrency("USD");
         beneficiaryDto.setStatus(BeneficiaryStatus.ACTIVE.getValue());
 
         mockValidationContext.add("from-account", accountDetailsDTO);
         mockValidationContext.add("beneficiary-dto", beneficiaryDto);
+        SearchAccountDto toAccount = new SearchAccountDto();
+        toAccount.setCurrency("USD");
+        mockValidationContext.add("credit-account-details", toAccount);
 
         //when
          
@@ -360,7 +365,6 @@ public class CurrencyValidatorTest {
 
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
         beneficiaryDto.setAccountNumber("019022073766");
-        beneficiaryDto.setBeneficiaryCurrency("USD");
         beneficiaryDto.setStatus(BeneficiaryStatus.ACTIVE.getValue());
 
         ValidationContext mockValidationContext = new ValidationContext();

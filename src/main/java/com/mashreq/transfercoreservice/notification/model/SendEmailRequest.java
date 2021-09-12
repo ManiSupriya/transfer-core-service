@@ -14,6 +14,7 @@ public class SendEmailRequest {
     private String fromEmailName;
     private String toEmailAddress;
     private String subject;
+    private String text;
     private String templateName;
     private Map<String,String> templateKeyValues;
     private boolean isEmailPresent;

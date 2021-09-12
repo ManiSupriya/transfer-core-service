@@ -41,7 +41,13 @@ public enum TransferErrorCode implements ErrorCode {
     TRNS_CORE_406("TRNS-CORE-406", "Request parameter is missing"),
     TXN_CURRENCY_INVALID("TN-1027", "Not a valid transfer currency"),
     REFERENCE_NO_INVALID("TN-1028", "Not a valid Reference Number for the account"),
-
+    DESTINATION_ACCOUNT_FREEZED_FOR_CREDIT("TN-1029", "Destination account is freezed for credit"),
+    SOURCE_ACCOUNT_FREEZED_FOR_DEBIT("TN-1030", "Destination account is freezed for credit"),
+    INVALID_FT_ORDER_TYPE("TN-1031", "Invalid funds tranfer order type"),
+    INVALID_SI_FREQUENCY_TYPE("TN-1032", "Invalid frequency type"),
+    TXN_NOT_ALLOWED_FOR_PAY_LATER("TN-1033", "Pay Later not allowed"),
+    INVALID_CHARGE_BEARER("TN-1034", "Invalid Charge Bearer"),
+    PAY_LATER_TRANSACTION_INITIATION_FAILED("TN-1035", "Transaction initiation failed"),
     INVALID_BEN_CODE("LM-1106","Invalid ben code"),
 
     DEAL_VALIDATION_FAILED("TN-1201", "Deal Number validation Failed"),
@@ -79,10 +85,11 @@ public enum TransferErrorCode implements ErrorCode {
     ACCOUNT_NOT_FOUND("TN-4003", "Account not found"),
     CONNECTED_ACCOUNT_EMPTY("TN-4004", "Connected Account is empty"),
     ACCOUNT_RESOURCES_MISMATCH("TN-4005", "There was not enough resources in account "),
+    LOCAL_CURRENCY_MISMATCH("TN-4006", "Local currency does not match with transaction currency"),
 
     IBAN_NOT_FOUND("TN-5100", "IBAN not found"),
     ROUTING_CODE_NOT_FOUND("TN-5102", "Routing Code not found"),
-    INVALID_ROUTING_CODE("TN-5103", "Invalid Routing Option Mode"),
+    INVALID_ROUTING_CODE("TN-5103", "Invalid Routing Code"),
     INVALID_COUNTRY_CODE("TN-5104", "Invalid Country Code"),
     IBAN_LENGTH_NOT_VALID("TN-5105", "IBAN length is not valid"),
     SAME_BANK_IBAN("TN-5106", "Beneficiary Bank is same as sender bank"),
@@ -93,7 +100,7 @@ public enum TransferErrorCode implements ErrorCode {
     INVALID_FLEX_RULE_COUNTRY("TN-5111", "Invalid Country for rule engine"),
     INVALID_SWIFT_CODE("TN-5112", "Invalid Swift code"),
     BIC_SEARCH_FAILED("TN-5113", "BIC Code search failed"),
-
+    SWIFT_AND_BIC_SEARCH_FAILED("TN-5114", "Both Swift and BIC Code search failed"),
 
     EXTERNAL_SERVICE_ERROR("TN-5000", "Something went wrong with external service"),
     FUND_TRANSFER_FAILED("TN-5001", "Fund transfer failed"),
@@ -168,6 +175,31 @@ public enum TransferErrorCode implements ErrorCode {
     ACCOUNT_NO_NOT_MASKED("TN-8010","Account no masked is failed due to length"),
     EMAIL_NOTIFICATION_FAILED("EMAIL_9001","Failed to send email notification"),
     FT_CC_MW_SUCCESS_FAILED_RESPONSE("TN-8011","Transaction pending for processing"),
+    
+    INVALID_USER_TYPE("TN-8022", "Invalid User type"),
+    
+    QUICK_REMIT_EXTERNAL_SERVICE_ERROR("TN-8023", "Something went wrong with quick remit external service"),
+    
+    INVALID_SEGMENT("TN-8024", "Invalid segment"),
+    
+    PAYMENT_ELIGIBILITY_ERROR("TN-8025", "Something went wrong while checking payment eligibility"),
+    
+    IBAN_DETAILS_NOT_FOUND("TN-8026", "IBAN Account details not found"),
+    IBAN_CHECK_DIGIT_VALIDATION_FAILED("TN-8027", "IBAN check digit validation failed"),
+    INVALID_IBAN_LENGTH("TN-8028", "Invalid IBAN | Account number"),
+    
+    BANK_NOT_FOUND_WITH_IBAN("TN-8029", "Bank not found with iban"),
+    PAYMENT_NOT_ELIGIBLE_FOR_QR("TN-8030", "Payment not eligible for quick remit"), 
+    
+    
+    CC_TRX_NOT_ALLOWED("CCTN-4001", "CC transactions are not allowed for service type"),
+    LOCAL_CURRENCY_NOT_ALLOWED_FOR_SWIFT("TN-8031", "AED currency not allowed for Swift transactions"),
+    ACCOUNT_DEBIT_FREEZE("TN-8032", "Account is frozen for debit"),
+    ACCOUNT_CREDIT_FREEZE("TN-8033", "Account is frozen for credit"),
+    PAYMENT_NOT_ELIGIBLE("TN-8034", "Payment not eligible"),
+    INVALID_ACCOUNT_NUMBER("TN-8035", "Invalid Account number."),
+    BANK_NOT_FOUND_WITH_SWIFT("TN-8036", "Bank not found with swift"),
+    INVALID_SERVICE_TYPE("TN-8037", "Invalid Service type."),
     ;
 
 

@@ -22,6 +22,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mashreq.transfercoreservice.notification.model.NotificationType.CHARITY_TRANSACTION;
 import static com.mashreq.transfercoreservice.notification.model.NotificationType.OTHER_ACCOUNT_TRANSACTION;
 import static java.time.Duration.between;
 import static java.time.Instant.now;
@@ -105,7 +106,7 @@ public class CharityStrategyDefault implements FundTransferStrategy {
 
         log.info("Limit Validation start.");
         BigDecimal limitUsageAmount = request.getAmount();
-        final LimitValidatorResponse validationResult = limitValidator.validateWithProc(userDTO, request.getServiceType(), limitUsageAmount, metadata, bendId);
+        final LimitValidatorResponse validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount, metadata, bendId);
         log.info("Limit Validation successful");
         String txnRefNo = validationResult.getTransactionRefNo();
 
@@ -114,7 +115,7 @@ public class CharityStrategyDefault implements FundTransferStrategy {
 		if (isSuccessOrProcessing(fundTransferResponse)) {
 			final CustomerNotification customerNotification = populateCustomerNotification(
 					validationResult.getTransactionRefNo(), request.getCurrency(), request.getAmount());
-			notificationService.sendNotifications(customerNotification, OTHER_ACCOUNT_TRANSACTION, metadata, userDTO);
+			notificationService.sendNotifications(customerNotification, CHARITY_TRANSACTION, metadata, userDTO);
 		}
 
         //final FundTransferResponse fundTransferResponse = coreTransferService.transferFundsBetweenAccounts(request);

@@ -53,6 +53,7 @@
         <jackson.version>2.11.0</jackson.version>
         <properties-maven-plugin.version>1.0.0</properties-maven-plugin.version>
         <jackson.databind.version>2.11.0</jackson.databind.version>
+        <templates.utils.version>1.0.2.RELEASE</templates.utils.version>
     </properties>
 
     <repositories>
@@ -77,10 +78,21 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+	            <groupId>org.springframework</groupId>
+	            <artifactId>spring-core</artifactId>
+	            <version>5.3.7</version>
+        </dependency>
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
+
+        <dependency>
+            <groupId>com.mashreq</groupId>
+            <artifactId>templates-utils</artifactId>
+            <version>${templates.utils.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -198,6 +210,12 @@
             <groupId>com.mashreq.ms</groupId>
             <artifactId>ms-commons</artifactId>
             <version>${com.mashreq.ms.ms-commons}</version>
+            <exclusions>
+	            <exclusion>
+	            	<groupId>net.sf.jasperreports</groupId>
+					<artifactId>jasperreports</artifactId>
+	            </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.springfox</groupId>
@@ -208,17 +226,6 @@
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger-ui</artifactId>
             <version>${springfox.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct</artifactId>
-            <version>${mapstruct.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct-processor</artifactId>
-            <version>${mapstruct.version}</version>
-            <scope>provided</scope>
         </dependency>
 
         <!-- Helpers -->
@@ -307,24 +314,6 @@
             <artifactId>feign-httpclient</artifactId>
             <version>10.9</version>
         </dependency>
-
-        <dependency>
-            <groupId>com.mashreq</groupId>
-            <artifactId>logcore</artifactId>
-            <version>${com.mashreq.logcore}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-databind</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.databind.version}</version>
-        </dependency>
-
     </dependencies>
 
     <build>

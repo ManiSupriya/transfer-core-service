@@ -17,5 +17,7 @@ public class FundTransferResponse {
     private String limitVersionUuid;
     private BigDecimal limitUsageAmount;
     private String transactionRefNo;
+    private boolean payOrderInitiated;
+    private BigDecimal debitAmount;
 
 }

@@ -18,7 +18,7 @@ import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class IBANValidator implements Validator {
+public class IBANValidator implements Validator<FundTransferRequestDTO> {
 
     private static final int START_CHAR = 4;
     private static final int END_CHAR = 7;

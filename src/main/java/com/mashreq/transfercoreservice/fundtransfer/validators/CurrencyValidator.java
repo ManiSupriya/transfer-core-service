@@ -5,6 +5,7 @@ import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CharityBeneficiaryDto;
+import com.mashreq.transfercoreservice.client.dto.SearchAccountDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
@@ -25,7 +26,7 @@ import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class CurrencyValidator implements Validator {
+public class CurrencyValidator implements Validator<FundTransferRequestDTO> {
 
     private final AsyncUserEventPublisher auditEventPublisher;
     @Override
@@ -38,7 +39,8 @@ public class CurrencyValidator implements Validator {
 
         if(WAMA.getName().equals(request.getServiceType()) ) {
             BeneficiaryDto beneficiaryDto = context.get("beneficiary-dto", BeneficiaryDto.class);
-            if (beneficiaryDto != null && !isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), beneficiaryDto.getBeneficiaryCurrency())) {
+            SearchAccountDto toAccount = context.get("credit-account-details", SearchAccountDto.class);
+            if (beneficiaryDto != null && !isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), toAccount.getCurrency())) {
                 log.error("Beneficiary Currency and Requested Currency does not match for service type [ {} ]  ", htmlEscape(request.getServiceType()));
                 auditEventPublisher.publishFailureEvent(FundTransferEventType.CURRENCY_VALIDATION, metadata, null,
                         CURRENCY_IS_INVALID.getCustomErrorCode(), CURRENCY_IS_INVALID.getErrorMessage(), null );

@@ -1,5 +1,27 @@
 package com.mashreq.transfercoreservice.fundtransfer.limits;
 
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.COOLING_LIMIT_AMOUNT_REACHED;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.COOLING_LIMIT_COUNT_REACHED;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.DAILY_AMOUNT_REACHED;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.DAILY_COUNT_REACHED;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.DAY_AMOUNT_LIMIT_REACHED;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_BEN_CODE;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.LIMIT_PACKAGE_NOT_DEFINED;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.MIN_AMOUNT_LIMIT_REACHED;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.MONTHLY_AMOUNT_REACHED;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.MONTHLY_COUNT_REACHED;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.MONTH_AMOUNT_LIMIT_REACHED;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.TRX_AMOUNT_REACHED;
+import static com.mashreq.transfercoreservice.event.FundTransferEventType.LIMIT_VALIDATION;
+import static com.mashreq.transfercoreservice.event.FundTransferEventType.MIN_LIMIT_VALIDATION;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.getCodeByType;
+
+import java.math.BigDecimal;
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
@@ -10,70 +32,19 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.LimitValidatorResponse;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.model.ServiceType;
 import com.mashreq.transfercoreservice.repository.ServiceTypeRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.util.Optional;
-
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
-import static com.mashreq.transfercoreservice.event.FundTransferEventType.LIMIT_VALIDATION;
-import static com.mashreq.transfercoreservice.event.FundTransferEventType.MIN_LIMIT_VALIDATION;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.getCodeByType;
-import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class LimitValidator {
+public class LimitValidator implements ILimitValidator{
 
-    private final MobCommonService mobCommonService;
     private final AsyncUserEventPublisher auditEventPublisher;
     private final ServiceTypeRepository serviceTypeRepository;
     private final LimitCheckService limitCheckService;
-    /**
-     * Method to get the limits and validate against user's consumed limit
-     */
-    public LimitValidatorResultsDto validate(final UserDTO userDTO, final String beneficiaryType, final BigDecimal paidAmount, final RequestMetaData metaData) {
-        log.info("[LimitValidator] limit validator called cif ={} and beneficiaryType={} and paidAmount={}",
-                htmlEscape(userDTO.getCifId()), htmlEscape(beneficiaryType), htmlEscape(paidAmount));
-        LimitValidatorResultsDto limitValidatorResultsDto =
-                mobCommonService.validateAvailableLimit(userDTO.getCifId(), beneficiaryType, paidAmount);
-
-        final String remarks = getRemarks(limitValidatorResultsDto, metaData.getPrimaryCif(), String.valueOf(paidAmount), beneficiaryType);
-        if (!limitValidatorResultsDto.isValid()) {
-
-            if (LimitCheckType.DAILY_AMOUNT.equals(limitValidatorResultsDto.getLimitCheckType())) {
-                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks,
-                        DAY_AMOUNT_LIMIT_REACHED.getCustomErrorCode(), DAY_AMOUNT_LIMIT_REACHED.getErrorMessage(), null);
-                GenericExceptionHandler.handleError(DAY_AMOUNT_LIMIT_REACHED,
-                        DAY_AMOUNT_LIMIT_REACHED.getErrorMessage());
-            } else {
-                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks,
-                        MONTH_AMOUNT_LIMIT_REACHED.getCustomErrorCode(), MONTH_AMOUNT_LIMIT_REACHED.getErrorMessage(), null);
-                GenericExceptionHandler.handleError(MONTH_AMOUNT_LIMIT_REACHED,
-                        MONTH_AMOUNT_LIMIT_REACHED.getErrorMessage());
-            }
-        }
-        auditEventPublisher.publishSuccessEvent(LIMIT_VALIDATION, metaData, remarks);
-        log.info("Limit validation successful");
-        return limitValidatorResultsDto;
-    }
-
-    private String getRemarks(LimitValidatorResultsDto resultsDto, String cif, String paidAmount, String beneficiaryType) {
-        return String.format(
-                "Cif=%s,PaidAmount=%s,BeneType=%s,availableLimitAmount=%s,maxAmountDaily=%s,maxAmountMonthly=%s,limitCheckType=%s",
-                cif,
-                paidAmount,
-                beneficiaryType,
-                resultsDto.getAvailableLimitAmount(),
-                resultsDto.getMaxAmountDaily(),
-                resultsDto.getMaxAmountMonthly(),
-                resultsDto.getLimitCheckType()
-        );
-    }
-
+    
     private String getRemarks(LimitValidatorResponse resultsDto, String cif, String paidAmount, String beneficiaryType) {
         return String.format(
                 "Cif=%s,PaidAmount=%s,BeneType=%s,availableLimitAmount=%s,availableLimitCount=%s,maxAmountDaily=%s,maxAmountMonthly=%s,maxCountMonthly=%s,maxCountDaily=%s," +
@@ -94,6 +65,7 @@ public class LimitValidator {
 
     }
 
+    @Override
     public void validateMin(UserDTO userDTO, final String beneficiaryType, BigDecimal limitUsageAmount, RequestMetaData metadata) {
         log.info("[LimitValidator] Min limit validator called cif ={} and beneficiaryType={} and paidAmount={}",
                 htmlEscape(userDTO.getCifId()), htmlEscape(beneficiaryType), htmlEscape(limitUsageAmount));
@@ -112,7 +84,7 @@ public class LimitValidator {
 
     private BigDecimal getMinAmount(String minAmount) {
         if(minAmount == null){
-            return new BigDecimal(0);
+            return BigDecimal.ZERO;
         }
         else return new BigDecimal(minAmount);
     }
@@ -139,7 +111,8 @@ public class LimitValidator {
 
     }
 
-    public LimitValidatorResponse validateWithProc(final UserDTO userDTO, final String beneficiaryType, final BigDecimal paidAmount, final RequestMetaData metaData,Long benId) {
+    @Override
+    public LimitValidatorResponse validate(final UserDTO userDTO, final String beneficiaryType, final BigDecimal paidAmount, final RequestMetaData metaData,Long benId) {
         log.info("[LimitValidator] limit validator called cif ={} and beneficiaryType={} and paidAmount={} and countryId {} and segmentId {}",
                 htmlEscape(userDTO.getCifId()), htmlEscape(beneficiaryType), htmlEscape(paidAmount), htmlEscape(metaData.getCountry()), htmlEscape(metaData.getSegment()));
         LimitValidatorResponse limitValidatorResultsDto = limitCheckService.validateLimit(userDTO.getCifId(), beneficiaryType, metaData.getCountry(),metaData.getSegment(),benId,paidAmount);

@@ -22,7 +22,7 @@ import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class CCBalanceValidator implements Validator {
+public class CCBalanceValidator implements Validator<FundTransferRequestDTO> {
 
 
     private final AsyncUserEventPublisher auditEventPublisher;

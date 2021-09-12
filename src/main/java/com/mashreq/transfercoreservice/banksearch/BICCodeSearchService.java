@@ -1,5 +1,14 @@
 package com.mashreq.transfercoreservice.banksearch;
 
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BIC_SEARCH_FAILED;
+import static java.util.Objects.isNull;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
@@ -9,18 +18,9 @@ import com.mashreq.transfercoreservice.client.dto.BICCodeSearchResponseDto;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.castor.core.util.StringUtil;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BIC_SEARCH_FAILED;
-import static java.util.Objects.isNull;
 
 @Slf4j
 @Service

@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+
 import static com.mashreq.mobcommons.services.CustomHtmlEscapeUtil.htmlEscape;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.PUSH_NOTIFICATION_FAILED;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.SMS_NOTIFICATION_FAILED;
@@ -63,7 +65,7 @@ public class NotificationService {
         if (!StringUtils.isEmpty(phoneNo)) {
             sendSms(customer, type, metaData, phoneNo);
         }
-        sendPushNotification(customer,type,metaData,phoneNo,userDTO);
+        sendPushNotification(customer, type, metaData, phoneNo, userDTO);
     }
 
     /**
@@ -93,7 +95,8 @@ public class NotificationService {
 
     private void sendPushNotification(CustomerNotification customer, String type, RequestMetaData metaData, String phoneNo, UserDTO userDTO) {
             try {
-                if(pushNotification.sendPushNotification(customer, type, metaData, userDTO)){
+                boolean response  = pushNotification.sendPushNotification(customer, type, metaData, userDTO);
+                if(response){
                     userEventPublisher.publishSuccessEvent(PUSH_NOTIFICATION, metaData, customer.getTxnRef() + " pushSent");
                 }
                 else{
@@ -104,6 +107,4 @@ public class NotificationService {
                 GenericExceptionHandler.logOnly(e, "ErrorCode=" + PUSH_NOTIFICATION_FAILED.getCustomErrorCode() + ",ErrorMessage=" + PUSH_NOTIFICATION_FAILED.getErrorMessage() + ", " + ",type =" + type + ",Error in pushNotification() ," + metaData.getPrimaryCif() + ", ExceptionMessage=" + e.getMessage());
             }
     }
-
-
 }

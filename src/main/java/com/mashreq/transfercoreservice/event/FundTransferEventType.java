@@ -16,6 +16,7 @@ public enum FundTransferEventType implements EventType {
     LOCAL_FUND_TRANSFER_REQUEST("FUND_TRANSFER", "LOCAL FUND transfer request has been received"),
     OWN_ACCOUNT_FUND_TRANSFER_REQUEST("FUND_TRANSFER", "OWN ACCOUNT transfer request has been received"),
     INTERNATIONAL_FUND_TRANSFER_REQUEST("FUND_TRANSFER", "INTERNATIONAL Fund transfer request has been received"),
+    CREDIT_CARD_FUND_TRANSFER_REQUEST("FUND_TRANSFER", "Credit card transaction request received"),
     DAR_AL_BER_FUND_TRANSFER_REQUEST("FUND_TRANSFER", "DAR AL BER Fund transfer request has been received"),
     BAIT_AL_KHAIR_FUND_TRANSFER_REQUEST("FUND_TRANSFER", "BAIT AL KHAIR Fund transfer request has been received"),
     DUBAI_CARE_FUND_TRANSFER_REQUEST("FUND_TRANSFER", "DUBAI CARE Fund transfer request has been received"),
@@ -37,6 +38,9 @@ public enum FundTransferEventType implements EventType {
     CHARITY_ACCOUNT_VALIDATION("FUND_TRANSFER", "Charity Account Validation"),
     ACCOUNT_BELONGS_TO_CIF("FUND_TRANSFER", "Account belongs to cif"),
     ACCOUNT_IS_DORMENT("FUND_TRANSFER", "Account is dorment"),
+    ACCOUNT_IS_UNDER_DEBIT_FREEZE("FUND_TRANSFER", "Account is frozen for debit"),
+    ACCOUNT_IS_UNDER_CREDIT_FREEZE("FUND_TRANSFER", "Account is frozen for credit"),
+    ACCOUNT_FREEZE_VALIDATION("FUND_TRANSFER", "Account belongs to cif"),
     BALANCE_VALIDATION("FUND_TRANSFER", "Balance Validation"),
     DEAL_VALIDATION("FUND_TRANSFER", "Deal Validation"),
     BENEFICIARY_VALIDATION("FUND_TRANSFER", "Beneficiary validation"),
@@ -74,7 +78,10 @@ public enum FundTransferEventType implements EventType {
     PUSH_NOTIFICATION("PUSH_NOTIFICATION","Send push for transfer-core"),
     EMAIL_NOTIFICATION("EMAIL_NOTIFICATION","Send Email for transfer-core"),
     APPLICATION_SETTING_KEY_NOT_FOUND("APPLICATION_SETTING_KEY_NOT_FOUND","Application setting key is not found"),
-    BIC_LIST_SEARCH_CALL("FUND_TRANSFER_ENQUIRY", "Bic code list for country code")
+    BIC_LIST_SEARCH_CALL("FUND_TRANSFER_ENQUIRY", "Bic code list for country code"),
+    
+    ELIGIBILITY_QUICK_REMIT_EXCHANGE("FUND_TRANSFER_ELIGIBILITY", "Quick remit eligibility"),
+    
     ;
 
 

@@ -1,0 +1,69 @@
+package com.mashreq.transfercoreservice.api;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.math.BigDecimal;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import com.mashreq.mobcommons.services.http.RequestMetaData;
+import com.mashreq.ms.exceptions.GenericException;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponseDTO;
+import com.mashreq.transfercoreservice.fundtransfer.eligibility.service.TransferEligibilityProxy;
+import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferFactory;
+import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferServiceDefault;
+import com.mashreq.transfercoreservice.fundtransfer.service.PayLaterTransferService;
+import com.mashreq.webcore.dto.response.Response;
+import com.mashreq.webcore.dto.response.ResponseStatus;
+
+@RunWith(MockitoJUnitRunner.class)
+public class FundTransferControllerTest {
+	@Mock
+	private FundTransferFactory serviceFactory;
+	@Mock
+    private TransferEligibilityProxy transferEligibilityProxy;
+	@Mock
+	private PayLaterTransferService payLaterTransferService;
+	@Mock
+	private FundTransferServiceDefault payNowService;
+	
+	private FundTransferController controller;
+	/** TODO: write integration test to cover contract validations */
+	@Before
+	public void init() {
+		controller = new FundTransferController(serviceFactory,transferEligibilityProxy);
+	}
+	
+	@Test(expected = GenericException.class)
+	public void test_amountandSourceAmountIsNull() {
+		RequestMetaData metaData = getMetaData();
+		controller.transferFunds(metaData , new FundTransferRequestDTO());
+	}
+
+	
+	@Test
+	public void test_withRequestWhichCanbeProcessed() {
+		RequestMetaData metaData = getMetaData();
+		FundTransferRequestDTO request = new FundTransferRequestDTO();
+		request.setOrderType("PL");
+		request.setAmount(BigDecimal.TEN);
+		Mockito.when(serviceFactory.getServiceAppropriateService(Mockito.eq(request))).thenReturn(payLaterTransferService);
+		FundTransferResponseDTO expectedResponse = FundTransferResponseDTO.builder().build();
+		Mockito.when(payLaterTransferService.transferFund(metaData, request)).thenReturn(expectedResponse);
+		Response transferFunds = controller.transferFunds(metaData , request);
+		assertEquals(ResponseStatus.SUCCESS, transferFunds.getStatus());
+		assertEquals(expectedResponse, transferFunds.getData());
+	}
+	
+	private RequestMetaData getMetaData() {
+		RequestMetaData metaData = new RequestMetaData();
+		return metaData;
+	}
+
+}

@@ -28,13 +28,11 @@ import com.mashreq.transfercoreservice.notification.service.PostTransactionServi
 import com.mashreq.transfercoreservice.repository.CountryRepository;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -108,6 +106,9 @@ public class LocalFundTransferStrategyCCTest {
 
     @Mock
     private QRDealsService qrDealsService;
+    
+    @Mock
+	private CCTransactionEligibilityValidator ccTrxValidator;
 
     @Captor
     private ArgumentCaptor<FundTransferRequest> fundTransferRequest;
@@ -141,7 +142,6 @@ public class LocalFundTransferStrategyCCTest {
 
     private BeneficiaryDto buildBeneficiaryDTO(){
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
-        beneficiaryDto.setBeneficiaryCurrency("AED");
         beneficiaryDto.setAccountNumber("AE610240041520084750901");
         beneficiaryDto.setSwiftCode("EBILAEADXXX");
         beneficiaryDto.setBankName("EMIRATES NBD PJSC");
@@ -195,7 +195,8 @@ public class LocalFundTransferStrategyCCTest {
         UserDTO userDTO = new UserDTO();
         setMockObject(requestDTO, metadata, userDTO);
         QRDealDetails qrDealDetails = buildQRDealDetails();
-        when(qrDealsService.getQRDealDetails(metadata.getPrimaryCif(), metadata.getCountry())).thenReturn(qrDealDetails);
+        when(qrDealsService.getQRDealDetails(Mockito.any(), Mockito.any())).thenReturn(qrDealDetails);
+		when(ccTrxValidator.validate(any(), any())).thenReturn(ValidationResult.builder().success(Boolean.TRUE).build());
         final FundTransferResponse response = localFundTransferStrategy.execute(requestDTO, metadata, userDTO);
         CoreFundTransferResponseDto coreFundTransferResponseDto = response.getResponseDto();
         Assert.assertEquals(coreFundTransferResponseDto.getMwResponseStatus().getName(), MwResponseStatus.S.getName());
@@ -208,7 +209,8 @@ public class LocalFundTransferStrategyCCTest {
         RequestMetaData metadata = buildRequestMetaData();
         UserDTO userDTO = new UserDTO();
         setMockObject(requestDTO, metadata, userDTO);
-        when(qrDealsService.getQRDealDetails(metadata.getPrimaryCif(), metadata.getCountry())).thenReturn(null);
+		when(ccTrxValidator.validate(any(), any())).thenReturn(ValidationResult.builder().success(Boolean.TRUE).build());
+//        when(qrDealsService.getQRDealDetails(metadata.getPrimaryCif(), metadata.getCountry())).thenReturn(null);
         Throwable exception = Assertions.assertThrows(Exception.class, () -> localFundTransferStrategy.execute(requestDTO, metadata, userDTO));
         Assert.assertEquals(exception.getMessage(), TransferErrorCode.FT_CC_NO_DEALS.getErrorMessage());
     }
@@ -223,9 +225,10 @@ public class LocalFundTransferStrategyCCTest {
         UserDTO userDTO = new UserDTO();
         setMockObject(requestDTO, metadata, userDTO);
         QRDealDetails qrDealDetails = buildQRDealDetails();
-        when(qrDealsService.getQRDealDetails(metadata.getPrimaryCif(), metadata.getCountry())).thenReturn(qrDealDetails);
+        when(ccTrxValidator.validate(any(), any())).thenReturn(ValidationResult.builder().success(Boolean.TRUE).build());
+        when(qrDealsService.getQRDealDetails(any(), any())).thenReturn(qrDealDetails);
         Throwable exception = Assertions.assertThrows(Exception.class, () -> localFundTransferStrategy.execute(requestDTO, metadata, userDTO));
-        Assert.assertEquals(exception.getMessage(), TransferErrorCode.FT_CC_BALANCE_NOT_SUFFICIENT.getErrorMessage());
+        Assert.assertEquals(TransferErrorCode.FT_CC_BALANCE_NOT_SUFFICIENT.getErrorMessage(), exception.getMessage() );
     }
 
 
@@ -254,7 +257,7 @@ public class LocalFundTransferStrategyCCTest {
         limitValidatorResultsDto.setLimitVersionUuid(limitVersionUuid);
         LimitValidatorResponse limitValidatorResponse = new LimitValidatorResponse();
         limitValidatorResponse.setLimitVersionUuid(limitVersionUuid);
-        when(limitValidator.validateWithProc(eq(userDTO), eq("LOCAL"), any(), eq(metadata), any()))
+        when(limitValidator.validate(eq(userDTO), eq("LOCAL"), any(), eq(metadata), any()))
         .thenReturn(limitValidatorResponse);
         when(dealValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
         Country country = new Country();

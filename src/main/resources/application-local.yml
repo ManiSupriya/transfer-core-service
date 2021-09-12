@@ -1,9 +1,9 @@
 server:
   port: 8067
   http2:
-    enabled: on
+    enabled: true
   compression:
-    enabled: on
+    enabled: true
     mime-types: text/html,text/xml,text/plain,text/css, application/javascript, application/json
     min-response-size: 1024
 
@@ -14,13 +14,13 @@ spring:
   profiles.active: local
   main.lazy-initialization: false
   datasource:
-    url: jdbc:sqlserver://localhost:1433;databaseName=MOB-LOCAL
-    username: ${MSSQL_DEV_USERNAME:SA}
-    password: ${MSSQL_DB_KEY:Asdasdasd123}
+    url: ${MSSQL_DB_URL:jdbc:sqlserver://10.210.183.231:1433;databaseName=MOB-uat}
+    username: ${MSSQL_DB_USERNAME:Mobliquibasedbuse}
+    password: ${MSSQL_DB_KEY:Mobliquibasedbuse}
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
 
 external:
   error-code:
@@ -49,8 +49,7 @@ external:
           VERIFY_OTP_USSM_104: FAILED_TO_DECRYPT
           VERIFY_OTP_10402: DENIED_BY_POLICY_OTP_REUSE_NOT_ALLOWED
           VERIFY_OTP_30001: OBJ_TOKENSTORE_ID_NOT_FOUND
-          LOGOUT_4004: USER_SESSION_ALREADY_INVALIDATED
-          
+          LOGOUT_4004: USER_SESSION_ALREADY_INVALIDATED 
           
   fees-code:
     mapper:
@@ -70,6 +69,7 @@ esb-service:
   read-timeout: ${SOAP_SERVICE_READTIMEOUT:30000}
   max-connection: ${SOAP_SERVICE_MAXCONNECTION:30}
   keep-alive: ${SOAP_SERVICE_KEEPALIVE:30000}
+  access-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiJVQlRlc3Q0QG1hc2hyZXFkZXYuY29tIiwiY2hhbm5lbCI6IjJBRUMzNjRGQTg2MUFBMDY3QkYzOTI2QjZBMUQzMTNBIiwiZW1wbG95ZWVJZCI6bnVsbCwiYnJhbmNoIjoiQUQyQTU2QUVCN0FCRjM1QjYwNEZBODI1NzdEMTVCQUEiLCJhdXRob3JpdGllcyI6WyJVYl9Vc2VyIiwiVUJfUE9XRVIiLCJSZXBvcnRpbmdHcm91cCB7ODJkYWU4MDItNmY2Ni00YTBjLTg5ODAtZDA0ZTRhNDE5OWRlfSIsIlJlcG9ydGluZ0dyb3VwIHs4NzQ0YzU2YS01YWI5LTRhODMtOTk2OS0yZWQ1ZjIxMDViYjN9IiwiVUJVQVQiXSwiZW5hYmxlZCI6dHJ1ZSwiY2xpZW50X2lkIjoiYnJhbmNocG9ydGFsIiwiYnJhbmNoQ29kZSI6IkM3MkI0RDU0OTBFNjIwRTg5NUVEQUFDNzBBOEU5NUMzIiwibmJmIjoxNTgyMjA5NjMxLCJzY29wZSI6WyJyZWFkIiwid3JpdGUiLCJpZGVudGl0eSJdLCJuYW1lIjoiNjYxOERGNENCMjhGMjNGMjNGMzI3M0NFQzZGQ0YyMjMiLCJleHAiOjE1ODIyMTY4MzEsImp0aSI6IjAxYTA3YTZjLWQzMDItNDhmMC1iNDQ2LTQwY2I0MTBlY2FhZSIsImVtYWlsIjpudWxsfQ.hnrskgfb8DuP26VVVrrFcNVRXPk3TKSjslzImlw_dtM
 
 app:
   local:
@@ -86,16 +86,17 @@ app:
     timeInterval: 1
     smilesProductBin: 524179
   services:
-    maintenance: ${MAINTENANCE_SERVICE_URL:http://digital-dev.mashreq.com/api/maintenance-service}
-    customers: ${CUSTOMER_SERVICE_URL:http://localhost:8083}
-    accounts: ${ACCOUNT_SERVICE_URL:http://digital-dev.mashreq.com/api/accounts-service}
-    otp: http://digital-dev.mashreq.com/api/ms-security-iam/
-    cards: ${CARD_SERVICE_URL:http://digital-dev.mashreq.com/api/cards-service}
-    notification: ${NOTIFICATION_SERVICE:http://digital-dev.mashreq.com/api/notification-service}
-    mobcustomer: ${MOB_CUSTOMER_SERVICE:http://localhost:8088}
-    beneficiary: ${BENEFICIARY_CORE_SERVICE:http://digital-dev.mashreq.com/api/beneficiary-core-service}
-    mobcommon: ${MOB_COMMON_SERVICE:http://digital-dev.mashreq.com/api/mob-common-service}
+    maintenance: ${MAINTENANCE_SERVICE_URL:https://digital-uat.mashreq.com/api/maintenance-service}
+    customers: ${CUSTOMER_SERVICE_URL:https://localhost:8083}
+    accounts: ${ACCOUNT_SERVICE_URL:https://digital-uat.mashreq.com/api/accounts-service}
+    otp: https://digital-uat.mashreq.com/api/ms-security-iam/
+    cards: ${CARD_SERVICE_URL:https://digital-uat.mashreq.com/api/cards-service}
+    notification: ${NOTIFICATION_SERVICE:https://digital-uat.mashreq.com/api/notification-service}
+    mobcustomer: ${MOB_CUSTOMER_SERVICE:https://localhost:8088}
+    beneficiary: ${BENEFICIARY_CORE_SERVICE:https://digital-uat.mashreq.com/api/beneficiary-core-service}
+    mobcommon: ${MOB_COMMON_SERVICE:https://digital-uat.mashreq.com/api/mob-common-service}
     beneficiaryservice: https://digital-uat.mashreq.com/api/beneficiary-service
+    quick-remit: https://digital-uat.mashreq.com/api/mob-quickremit-service
   middleware:
     endpoint: http://172.24.70.29:7800/AllOperationsSOAP_HTTP_Service
     timeout: 100000
@@ -105,7 +106,6 @@ app:
     passPhrase: lkoiuytreaghjknvgtsfgdhelaopghen
     narration: Transfer Core Banking
     srvCode: TFT
-
   ftcc:
     merchantId: ${TFTCC_MERCHANT_ID:000008026734}
     terminalId: ${TFTCC_TERMINAL_ID:20091124}
@@ -117,15 +117,33 @@ app:
     productCode: ${TFTCC_PRODUCT_CODE:PACC}
     debitAccountNo: ${TFTCC_DEBIT_ACCOUNT_NO:011099270455}
     bankReferenceNo: ${TFTCC_BANK_REFERENCE_NO:363c5a1abb}
+  nonProd:
+      otpRelaxed: ${OTP_RELAXED:false}
+  
   notification:
     email:
       AE:
         emailSubject: ${NOTIFICATION_EMAIL_SUBJECT:%s Transfer request via %s}
+        payLaterSubject: ${PL_EMAIL_SUBJECT:Pay later request}
+        StandingInstructionSubject: ${SI_EMAIL_SUBJECT:Standing instruction request}
         fromEmailName: ${NOTIFICATION_FROM_EMAIL_NAME:MashreqDigital}
         fromEmailAddress: ${NOTIFICATION_FROM_EMAIL_ADDRESS:MashreqDigital@mashreqbank.com}
         callCenterNo: ${NOTIFICATION_EMAIL_CALL_CENTER_NO:04 424 6666}
-        localFundTransfer: mt-within-own-accounts.ftl
-        otherFundTransfer: mt-other-accounts.ftl
+        localFundTransfer: templates/mt-within-own-accounts
+        otherFundTransfer: templates/mt-other-accounts
+        plSiFundTransfer: templates/plEmailTemplate
+    sms:
+      mashreqServiceId: ${ALERT_SMS_MASHREQ_PAYMENT_SERVICEID:330}
+      neoServiceId: ${ALERT_SMS_NEO_PAYMENT_SERVICEID:350}
+      priority: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_PRIORITY:HIGH}
+      serviceId: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_SERVICEID:91}
+      callCenterNo: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_CALL_CENTER_NO:04 424 6666}
+      ownAccountTransactionInitiated: ${OWN_ACCOUNT_SMS:Request received through {0} for a Fund Transfer of {1} {2} with {3}. Contact {4} if you did not initiate this.}
+      plSiCreation: ${PL_SI_CREATION_SMS:On your request SI/Pay later has been set up for the beneficiary {0}, account number {1}. If not requested, please contact {2}. Thank you for using our services.}
+    push:
+      ownAccountTransactionInitiated: ${OWN_ACCOUNT_PUSH:Request received through {0} for a Fund Transfer of {1} {2} with {3}. Contact {4} if you did not initiate this.}
+      plSiCreation: ${PL_SI_CREATION_SMS:On your request SI/Pay later has been set up for the beneficiary {0}, account number {1}. If not requested, please contact {2}. Thank you for using our services.}
+    
 redis:
   enable: true
   write.ttl: 60
@@ -138,9 +156,9 @@ redis:
 mob-common:
   commonUserEventDataSource:
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
-    jdbcUrl: jdbc:sqlserver://localhost:1433;databaseName=MOB-LOCAL
-    username: SA
-    password: Asdasdasd123
+    jdbcUrl: ${MSSQL_DB_URL:jdbc:sqlserver://10.210.183.231:1433;databaseName=MOB-uat}
+    username: ${MSSQL_DB_USERNAME:Mobliquibasedbuse}
+    password: ${MSSQL_DB_KEY:Mobliquibasedbuse}
     maxPoolSize: 40
     poolName: hikari-user-events-life-pool
     minimumidletime: 600000

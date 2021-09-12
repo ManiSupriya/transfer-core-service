@@ -14,9 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.text.MessageFormat;
 
-import static com.mashreq.transfercoreservice.notification.model.NotificationType.LOCAL_ACCOUNT_TRANSACTION;
-import static com.mashreq.transfercoreservice.notification.model.NotificationType.OTHER_ACCOUNT_TRANSACTION;
-import static com.mashreq.transfercoreservice.notification.model.NotificationType.OWN_ACCOUNT_TRANSACTION;
+import static com.mashreq.transfercoreservice.notification.model.NotificationType.*;
 
 
 @Data
@@ -25,18 +23,16 @@ import static com.mashreq.transfercoreservice.notification.model.NotificationTyp
 public class PushTemplate {
 
     private String ownAccountTransactionInitiated;
+    private String plSiCreation;
 
     public String getPushTemplate(String type, CustomerNotification customerNotification) {
-        if(type.equals(OWN_ACCOUNT_TRANSACTION)){
+        if(type.contains("PL") && type.contains("CREATION")){
+            return MessageFormat.format(plSiCreation, customerNotification.getBeneficiaryName(), customerNotification.getCreditAccount(),customerNotification.getSegment().getCustomerCareNumber());
+        }
+        else
+        {
             return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getChannel(),customerNotification.getCurrency(),customerNotification.getAmount(),customerNotification.getTxnRef(),customerNotification.getSegment().getCustomerCareNumber());
         }
-        if(type.equals(LOCAL_ACCOUNT_TRANSACTION)){
-            return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getChannel(),customerNotification.getCurrency(),customerNotification.getAmount(),customerNotification.getTxnRef(),customerNotification.getSegment().getCustomerCareNumber());
-        }
-        if(type.equals(OTHER_ACCOUNT_TRANSACTION)){
-            return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getChannel(),customerNotification.getCurrency(),customerNotification.getAmount(),customerNotification.getTxnRef(),customerNotification.getSegment().getCustomerCareNumber());
-        }
-        return "";
     }
 
 }

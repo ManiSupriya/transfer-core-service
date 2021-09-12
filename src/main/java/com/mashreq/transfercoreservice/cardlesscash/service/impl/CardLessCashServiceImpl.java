@@ -122,7 +122,7 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 	            GenericExceptionHandler.handleError(TransferErrorCode.BALANCE_NOT_SUFFICIENT, TransferErrorCode.BALANCE_NOT_SUFFICIENT.getErrorMessage());
 	        }
 		 asyncUserEventPublisher.publishSuccessEvent(FundTransferEventType.CARD_LESS_CASH_BALANCE_VALIDATION_SUCCESS, metaData, FundTransferEventType.CARD_LESS_CASH_BALANCE_VALIDATION_SUCCESS.getDescription());
-		 limitValidator.validateWithProc(userDTO, CommonConstants.CARD_LESS_CASH, cardLessCashGenerationRequest.getAmount(), metaData, null);  
+		 limitValidator.validate(userDTO, CommonConstants.CARD_LESS_CASH, cardLessCashGenerationRequest.getAmount(), metaData, null);  
 		 asyncUserEventPublisher.publishSuccessEvent(FundTransferEventType.LIMIT_CHECK_SUCCESS, metaData, FundTransferEventType.LIMIT_CHECK_SUCCESS.getDescription());
 			cardLessCashGenerationResponse = accountService
 					.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest, userMobileNumber, metaData);

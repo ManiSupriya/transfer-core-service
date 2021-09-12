@@ -1,5 +1,17 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
+import static com.mashreq.transfercoreservice.middleware.SoapWebserviceClientFactory.soapClient;
+
+import java.math.BigDecimal;
+import java.security.SecureRandom;
+import java.time.LocalDate;
+import java.util.List;
+
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+
 import com.mashreq.esbcore.bindings.account.mbcdm.FundTransferReqType;
 import com.mashreq.esbcore.bindings.account.mbcdm.FundTransferResType;
 import com.mashreq.esbcore.bindings.accountservices.mbcdm.fundtransfer.EAIServices;
@@ -17,22 +29,11 @@ import com.mashreq.transfercoreservice.middleware.HeaderFactory;
 import com.mashreq.transfercoreservice.middleware.SoapClient;
 import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
+import com.mashreq.transfercoreservice.middleware.enums.TFTAuthorization;
 import com.mashreq.transfercoreservice.middleware.enums.YesNo;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.security.SecureRandom;
-import java.time.LocalDate;
-import java.util.List;
-
-import static com.mashreq.transfercoreservice.middleware.SoapWebserviceClientFactory.soapClient;
-import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 
 @Slf4j
@@ -156,6 +157,11 @@ public class FundTransferMWService {
         fundTransferReqType.setBatchTransactionId(batchTransIdTemporary + "");
         fundTransferReqType.setProductId(request.getProductId());
         fundTransferReqType.setTransTypeCode(request.getPurposeCode());
+        /**
+         * Hard-coding this values as per the request from Business 
+         * All transactions for RETAIL customers are STP only irrespective of any txn currency
+         * Later for SME this value should be calculated dynamically based on the input */
+        fundTransferReqType.setAuthorization(TFTAuthorization.AUTHORIZED.getCode());
 
         List<FundTransferReqType.Transfer> transferList = fundTransferReqType.getTransfer();
         FundTransferReqType.Transfer.CreditLeg creditLeg = new FundTransferReqType.Transfer.CreditLeg();
@@ -172,6 +178,9 @@ public class FundTransferMWService {
         creditLeg.setTransactionCode(request.getTransactionCode());
         creditLeg.setCurrency(request.getDestinationCurrency());
         creditLeg.setChargeBearer(request.getChargeBearer());
+        
+        /** only applicable for SWIFT transfers :: added as part of new DLS enhancement */
+        creditLeg.setIntermBICCode(request.getIntermediaryBankSwiftCode());
         String additionalField=StringUtils.isNotBlank(request.getAdditionaField())?SPACE_CHAR+request.getAdditionaField():"";
         
         log.info("request.getDestinationCurrency() {}", htmlEscape(request.getDestinationCurrency()));
@@ -211,7 +220,7 @@ public class FundTransferMWService {
 		else {
 			if (StringUtils.isNotBlank(request.getTxnCurrency())
 					&& request.getTxnCurrency().equalsIgnoreCase(request.getSourceCurrency())) {
-			    if( StringUtils.isNotBlank(request.getBeneficiaryAddressTwo()) && request.getBeneficiaryAddressTwo().equalsIgnoreCase(UAE_COUNTRY))
+			    if( StringUtils.isNotBlank(request.getBeneficiaryBankCountry()) && request.getBeneficiaryBankCountry().equalsIgnoreCase(UAE_COUNTRY))
                     creditLeg.setAmount(request.getAmount());
 			    else
                     debitLeg.setAmount(request.getAmount());
