@@ -96,7 +96,7 @@ public class QRAccountEligibilityServiceTest {
 	}
 
 	@Test
-	public void checkEligibilityWithNoBeneUpdate(){
+	public void checkEligibility(){
 		FundTransferEligibiltyRequestDTO fundTransferEligibiltyRequestDTO = new FundTransferEligibiltyRequestDTO();
 		fundTransferEligibiltyRequestDTO.setBeneficiaryId("1");
 		fundTransferEligibiltyRequestDTO.setFromAccount("1234567890");
@@ -111,7 +111,6 @@ public class QRAccountEligibilityServiceTest {
 		when(accountService.getAccountsFromCore(any())).thenReturn(TestUtil.getAccountDetails());
 		when(beneficiaryService.getByIdWithoutValidation(any(),any(),any(),any())).thenReturn(TestUtil.getBeneficiaryDto());
 		when(beneficiaryValidator.validate(any(),any(),any())).thenReturn(validationResult);
-		when(maintenanceService.convertBetweenCurrencies(any())).thenReturn(TestUtil.getCurrencyConversionDto());
 		when(maintenanceService.convertCurrency(any())).thenReturn(TestUtil.getCurrencyConversionDto());
 		when(limitValidator.validate(any(),any(),any(),any(),any())).thenReturn(TestUtil.limitValidatorResultsDto());
 		when(quickRemitService.exchange(any(),any(),any())).thenReturn(qrExchangeResponse());
@@ -123,30 +122,27 @@ public class QRAccountEligibilityServiceTest {
 	}
 
 	@Test
-	public void checkEligibilityWithBeneUpdate(){
+	public void checkEligibilityFailure(){
 		FundTransferEligibiltyRequestDTO fundTransferEligibiltyRequestDTO = new FundTransferEligibiltyRequestDTO();
 		fundTransferEligibiltyRequestDTO.setBeneficiaryId("1");
 		fundTransferEligibiltyRequestDTO.setFromAccount("1234567890");
-		fundTransferEligibiltyRequestDTO.setBeneRequiredFields(getAdditionalFields());
 
 		UserDTO userDTO = new UserDTO();
+		QRExchangeResponse qrExchangeResponse = qrExchangeResponse();
+		qrExchangeResponse.setAllowQR(false);
 
 		ValidationResult validationResult = ValidationResult.builder().success(true).build();
 		when(maintenanceService.getAllCountries(any(),any(),any())).thenReturn(TestUtil.getCountryMs());
 		when(currencyValidatorFactory.getValidator(any())).thenReturn(currencyValidator);
-		when(limitValidatorFactory.getValidator(any())).thenReturn(limitValidator);
 		when(currencyValidator.validate(any(),any(),any())).thenReturn(validationResult);
-		when(accountService.getAccountsFromCore(any())).thenReturn(TestUtil.getAccountDetails());
-		when(beneficiaryService.getUpdate(any(),any(),any(),any(),any())).thenReturn(TestUtil.getBeneficiaryDto());
+		when(beneficiaryService.getByIdWithoutValidation(any(),any(),any(),any())).thenReturn(TestUtil.getBeneficiaryDto());
 		when(beneficiaryValidator.validate(any(),any(),any())).thenReturn(validationResult);
-		when(maintenanceService.convertBetweenCurrencies(any())).thenReturn(TestUtil.getCurrencyConversionDto());
-		when(maintenanceService.convertCurrency(any())).thenReturn(TestUtil.getCurrencyConversionDto());
-		when(limitValidator.validate(any(),any(),any(),any(),any())).thenReturn(TestUtil.limitValidatorResultsDto());
+		when(quickRemitService.exchange(any(),any(),any())).thenReturn(qrExchangeResponse);
 
 		EligibilityResponse response = service.checkEligibility(metaData, fundTransferEligibiltyRequestDTO, userDTO);
 
 		assertNotNull(response);
-		assertEquals(response.getStatus(), FundsTransferEligibility.ELIGIBLE);
+		assertEquals(response.getStatus(), FundsTransferEligibility.NOT_ELIGIBLE);
 	}
 
 }
