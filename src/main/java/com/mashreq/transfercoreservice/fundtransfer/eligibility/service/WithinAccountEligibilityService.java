@@ -59,7 +59,7 @@ public class WithinAccountEligibilityService implements TransferEligibilityServi
 
 		validationContext.add("from-account", fromAccountOpt.orElseThrow(() -> ExceptionUtils.genericException(TransferErrorCode.ACCOUNT_NOT_FOUND)));
 
-		BeneficiaryDto beneficiaryDto = beneficiaryService.getById(metaData.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), "V2", metaData);
+		BeneficiaryDto beneficiaryDto = beneficiaryService.getByIdWithoutValidation(metaData.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), "V2", metaData);
 		validationContext.add("beneficiary-dto", beneficiaryDto);
 		responseHandler(beneficiaryValidator.validate(request, metaData, validationContext));
 

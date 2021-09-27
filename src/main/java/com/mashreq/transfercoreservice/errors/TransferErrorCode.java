@@ -196,7 +196,7 @@ public enum TransferErrorCode implements ErrorCode {
     LOCAL_CURRENCY_NOT_ALLOWED_FOR_SWIFT("TN-8031", "AED currency not allowed for Swift transactions"),
     ACCOUNT_DEBIT_FREEZE("TN-8032", "Account is frozen for debit"),
     ACCOUNT_CREDIT_FREEZE("TN-8033", "Account is frozen for credit"),
-    PAYMENT_NOT_ELIGIBLE("TN-8034", "Payment not eligible"),
+    PAYMENT_NOT_ELIGIBLE_FOR_SOURCE_ACCOUNT("TN-8034", "Payment not eligible"),
     INVALID_ACCOUNT_NUMBER("TN-8035", "Invalid Account number."),
     BANK_NOT_FOUND_WITH_SWIFT("TN-8036", "Bank not found with swift"),
     INVALID_SERVICE_TYPE("TN-8037", "Invalid Service type."),

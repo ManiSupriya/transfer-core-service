@@ -120,7 +120,7 @@ public class WithinMashreqPayLaterStrategyTest {
 		Mockito.when(freezeValidator.validate(Mockito.eq(request), Mockito.eq(metadata), Mockito.any())).thenReturn(validationResult);
 		BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
 		beneficiaryDto.setId(Long.valueOf(beneficiaryId));
-		Mockito.when(beneficiaryService.getById(Mockito.eq(metadata.getPrimaryCif()), Mockito.eq(Long.valueOf(request.getBeneficiaryId())), any(),Mockito.eq(metadata)))
+		Mockito.when(beneficiaryService.getByIdWithoutValidation(Mockito.eq(metadata.getPrimaryCif()), Mockito.eq(Long.valueOf(request.getBeneficiaryId())), any(),Mockito.eq(metadata)))
 		.thenReturn(beneficiaryDto );
 		String transactionRefNo = "TRN-test-12234";
 		LimitValidatorResponse limitResponse = LimitValidatorResponse.builder().transactionRefNo(transactionRefNo).build();

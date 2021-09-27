@@ -139,7 +139,7 @@ public class LocalFundPayLaterTransferStrategyTest {
 		LimitValidatorResponse limitResponse = LimitValidatorResponse.builder().transactionRefNo(transactionRefNo).build();
 		BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
 		beneficiaryDto.setId(Long.valueOf(beneficiaryId));
-		Mockito.when(beneficiaryService.getById(Mockito.eq(metadata.getPrimaryCif()), Mockito.eq(Long.valueOf(request.getBeneficiaryId())), any(),Mockito.eq(metadata))).thenReturn(beneficiaryDto);
+		Mockito.when(beneficiaryService.getByIdWithoutValidation(Mockito.eq(metadata.getPrimaryCif()), Mockito.eq(Long.valueOf(request.getBeneficiaryId())), any(),Mockito.eq(metadata))).thenReturn(beneficiaryDto);
 		Mockito.when(limitValidator.validate(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(limitResponse );
 		List<AccountDetailsDTO> accountList  = FundTransferTestUtil.generateAccountsList(metadata,request);
 		Mockito.when(accountService.getAccountsFromCore(Mockito.eq(metadata.getPrimaryCif()))).thenReturn(accountList);

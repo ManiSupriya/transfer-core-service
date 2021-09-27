@@ -132,7 +132,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         final AccountDetailsDTO fromAccountDetails = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
         validationContext.add("from-account", fromAccountDetails);
 
-        final BeneficiaryDto beneficiaryDto = beneficiaryService.getById(metadata.getPrimaryCif(), valueOf(request.getBeneficiaryId()), request.getJourneyVersion(), metadata);
+        final BeneficiaryDto beneficiaryDto = beneficiaryService.getByIdWithoutValidation(metadata.getPrimaryCif(), valueOf(request.getBeneficiaryId()), request.getJourneyVersion(), metadata);
         validationContext.add("beneficiary-dto", beneficiaryDto);
         validationContext.add("to-account-currency", localCurrency);
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
@@ -284,7 +284,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         responseHandler(paymentPurposeValidator.validate(request, requestMetaData, validationContext));
         responseHandler(ccBelongsToCifValidator.validate(request, requestMetaData, validationContext));
 
-        final BeneficiaryDto beneficiaryDto = beneficiaryService.getById(requestMetaData.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), request.getJourneyVersion(), requestMetaData);
+        final BeneficiaryDto beneficiaryDto = beneficiaryService.getByIdWithoutValidation(requestMetaData.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), request.getJourneyVersion(), requestMetaData);
         validationContext.add("beneficiary-dto", beneficiaryDto);
         validationContext.add("to-account-currency", localCurrency);
         responseHandler(beneficiaryValidator.validate(request, requestMetaData, validationContext));

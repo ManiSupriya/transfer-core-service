@@ -9,7 +9,6 @@ import static com.mashreq.transfercoreservice.fundtransfer.dto.QuickRemitType.ge
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
@@ -33,7 +32,6 @@ import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.CardService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.client.service.QuickRemitService;
-import com.mashreq.transfercoreservice.common.ExceptionUtils;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
@@ -86,7 +84,7 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 
 		final ValidationContext validationContext = new ValidationContext();
 		
-		final BeneficiaryDto beneficiaryDto = beneficiaryService.getById(metaData.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), "V2", metaData);
+		final BeneficiaryDto beneficiaryDto = beneficiaryService.getByIdWithoutValidation(metaData.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), "V2", metaData);
         
         List<CountryMasterDto> countryList = maintenanceService.getAllCountries("MOB", "AE", Boolean.TRUE);
         final Optional<CountryMasterDto> countryDto = countryList.stream()
@@ -106,7 +104,9 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 
 		QRExchangeResponse response = quickRemitService.exchange(request, countryDto, metaData);
 		if (!response.isAllowQR()) {
-			return EligibilityResponse.builder().status(FundsTransferEligibility.NOT_ELIGIBLE).data(response).build();
+			return EligibilityResponse.builder()
+					.status(FundsTransferEligibility.NOT_ELIGIBLE)
+					.data(response).build();
 		}
 
 		if(StringUtils.isNotBlank(request.getCardNo())) {

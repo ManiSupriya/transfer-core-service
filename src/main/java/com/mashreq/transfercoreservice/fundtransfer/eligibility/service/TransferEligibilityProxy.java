@@ -117,7 +117,7 @@ public class TransferEligibilityProxy {
 		}
 
 		if(!isSourceOfFundEligible(request, serviceType)){
-			GenericExceptionHandler.handleError(PAYMENT_NOT_ELIGIBLE, PAYMENT_NOT_ELIGIBLE.getErrorMessage());
+			GenericExceptionHandler.handleError(PAYMENT_NOT_ELIGIBLE_FOR_SOURCE_ACCOUNT, PAYMENT_NOT_ELIGIBLE_FOR_SOURCE_ACCOUNT.getErrorMessage());
 		}
 	}
 
