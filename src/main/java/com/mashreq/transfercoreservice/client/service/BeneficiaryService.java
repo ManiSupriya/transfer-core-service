@@ -35,9 +35,11 @@ public class BeneficiaryService {
     private final BeneficiaryClient beneficiaryClient;
     private final AsyncUserEventPublisher userEventPublisher;
 
-    public BeneficiaryDto getById(final String cifId, Long id, RequestMetaData metaData) {
+    public BeneficiaryDto getById(final String cifId, Long id, String journeyVersion, RequestMetaData metaData) {
         log.info("Fetching Beneficiary for id = {}", id);
-        Response<BeneficiaryDto> response = beneficiaryClient.getByIdWithoutValidation(cifId, id);
+        Response<BeneficiaryDto> response = "V2".equals(journeyVersion) ?
+                beneficiaryClient.getByIdWithoutValidationV2(cifId, id):
+                beneficiaryClient.getByIdWithoutValidation(cifId, id);
 
         if (ResponseStatus.ERROR == response.getStatus() || isNull(response.getData())) {
             userEventPublisher.publishFailureEvent(FundTransferEventType.FUNDTRANSFER_BENDETAILS, metaData, "failed to get ben details", response.getErrorCode(), response.getMessage(), response.getMessage());
@@ -48,35 +50,11 @@ public class BeneficiaryService {
         return response.getData();
     }
     
-    public BeneficiaryDto getByIdV2(final String cifId, Long id, RequestMetaData metaData) {
+    public BeneficiaryDto getById(AdditionalFields additionalFields, Long id, String journeyVersion, RequestMetaData metaData, String validationType) {
         log.info("Fetching Beneficiary for id = {}", id);
-        Response<BeneficiaryDto> response = beneficiaryClient.getByIdWithoutValidationV2(cifId, id);
-
-        if (ResponseStatus.ERROR == response.getStatus() || isNull(response.getData())) {
-            userEventPublisher.publishFailureEvent(FundTransferEventType.FUNDTRANSFER_BENDETAILS, metaData, "failed to get ben details", response.getErrorCode(), response.getMessage(), response.getMessage());
-            GenericExceptionHandler.handleError(BENE_EXTERNAL_SERVICE_ERROR, BENE_EXTERNAL_SERVICE_ERROR.getErrorMessage(),
-                    getErrorDetails(response));
-        }
-        log.info("Beneficiary fetched successfully for id = {}", id);
-        return response.getData();
-    }
-    
-    public BeneficiaryDto getById(AdditionalFields additionalFields, Long id, RequestMetaData metaData, String validationType) {
-        log.info("Fetching Beneficiary for id = {}", id);
-        Response<BeneficiaryDto> response = beneficiaryClient.getById(metaData.getPrimaryCif(), validationType, id);
-
-        if (ResponseStatus.ERROR == response.getStatus() || isNull(response.getData())) {
-            userEventPublisher.publishFailureEvent(FundTransferEventType.FUNDTRANSFER_BENDETAILS, metaData, "failed to get ben details", response.getErrorCode(), response.getMessage(), response.getMessage());
-            GenericExceptionHandler.handleError(BENE_EXTERNAL_SERVICE_ERROR, BENE_EXTERNAL_SERVICE_ERROR.getErrorMessage(),
-                    getErrorDetails(response));
-        }
-        log.info("Beneficiary fetched successfully for id = {}", id);
-        return response.getData();
-    }
-    
-    public BeneficiaryDto getByIdV2(AdditionalFields additionalFields, Long id, RequestMetaData metaData, String validationType) {
-        log.info("Fetching Beneficiary for id = {}", id);
-        Response<BeneficiaryDto> response = beneficiaryClient.getByIdV2(metaData.getPrimaryCif(), validationType, id);
+        Response<BeneficiaryDto> response = "V2".equals(journeyVersion) ?
+                beneficiaryClient.getByIdV2(metaData.getPrimaryCif(), validationType, id) :
+                beneficiaryClient.getById(metaData.getPrimaryCif(), validationType, id);
 
         if (ResponseStatus.ERROR == response.getStatus() || isNull(response.getData())) {
             userEventPublisher.publishFailureEvent(FundTransferEventType.FUNDTRANSFER_BENDETAILS, metaData, "failed to get ben details", response.getErrorCode(), response.getMessage(), response.getMessage());
@@ -87,8 +65,13 @@ public class BeneficiaryService {
         return response.getData();
     }
 
-    public BeneficiaryDto getUpdate(AdditionalFields additionalFields, Long id, RequestMetaData metaData, String validationType) {
+    public BeneficiaryDto getUpdate(AdditionalFields additionalFields, Long id, String journeyVersion, RequestMetaData metaData, String validationType) {
         log.info("Fetching Beneficiary Update for id = {}", id);
+
+        if("V2".equals(journeyVersion)){
+            additionalFields.setNewVersion(true);
+        }
+
         Response<BeneficiaryDto> response = beneficiaryClient.update(additionalFields, id, validationType);
 
         if (ResponseStatus.ERROR == response.getStatus() || isNull(response.getData())) {
