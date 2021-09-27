@@ -17,8 +17,6 @@ import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
-import com.mashreq.transfercoreservice.client.dto.SearchAccountDto;
-import com.mashreq.transfercoreservice.client.dto.SearchAccountTypeDto;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
@@ -110,7 +108,7 @@ public class InternationalPayLaterFundTransferStrategyTest {
 		Mockito.when(ccTrxValidator.validate(Mockito.any(), Mockito.any())).thenReturn(validationResult);
 		BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
 		beneficiaryDto.setId(Long.valueOf(beneficiaryId));
-		Mockito.when(beneficiaryService.getById(Mockito.any(), Mockito.eq(Long.valueOf(request.getBeneficiaryId())), Mockito.eq("V2"),Mockito.eq(metadata),Mockito.eq("international"))).thenReturn(beneficiaryDto);
+		Mockito.when(beneficiaryService.getById(Mockito.eq(Long.valueOf(request.getBeneficiaryId())), Mockito.eq("V2"),Mockito.eq(metadata),Mockito.eq("international"))).thenReturn(beneficiaryDto);
 		String transactionRefNo = "TRN-test-12234";
 		LimitValidatorResponse limitResponse = LimitValidatorResponse.builder().transactionRefNo(transactionRefNo).build();
 		Mockito.when(limitValidator.validate(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(limitResponse );

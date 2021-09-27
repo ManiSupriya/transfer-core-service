@@ -31,8 +31,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_NOT_BELONG_TO_CIF;
-import static com.mashreq.transfercoreservice.event.FundTransferEventType.ACCOUNT_BELONGS_TO_CIF;
 import static com.mashreq.transfercoreservice.notification.model.NotificationType.INFT_TRANSACTION;
 import static com.mashreq.transfercoreservice.notification.model.NotificationType.OTHER_ACCOUNT_TRANSACTION;
 
@@ -111,7 +109,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
             log.info("Update missing beneficiary details");
             beneficiaryDto = beneficiaryService.getUpdate(request.getBeneRequiredFields(), Long.valueOf(request.getBeneficiaryId()), request.getJourneyVersion(), metadata, INTERNATIONAL_VALIDATION_TYPE);
         } else {
-            beneficiaryDto = beneficiaryService.getById(request.getBeneRequiredFields(), Long.valueOf(request.getBeneficiaryId()), request.getJourneyVersion(), metadata, INTERNATIONAL_VALIDATION_TYPE);
+            beneficiaryDto = beneficiaryService.getById(Long.valueOf(request.getBeneficiaryId()), request.getJourneyVersion(), metadata, INTERNATIONAL_VALIDATION_TYPE);
         }
         
         

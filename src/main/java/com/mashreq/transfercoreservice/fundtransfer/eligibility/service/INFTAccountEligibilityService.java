@@ -3,11 +3,9 @@ package com.mashreq.transfercoreservice.fundtransfer.eligibility.service;
 import java.math.BigDecimal;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
-import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
@@ -21,11 +19,9 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.enums.FundsTransferEligibility;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.BeneficiaryValidator;
-import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CurrencyValidator;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CurrencyValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.LimitValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
-import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -64,7 +60,7 @@ public class INFTAccountEligibilityService implements TransferEligibilityService
 			beneficiaryDto = beneficiaryService.getUpdate(request.getBeneRequiredFields(),
 					Long.valueOf(request.getBeneficiaryId()), "V2", metaData, INTERNATIONAL_VALIDATION_TYPE);
 		} else {
-			beneficiaryDto = beneficiaryService.getById(metaData.getPrimaryCif(),
+			beneficiaryDto = beneficiaryService.getByIdWithoutValidation(metaData.getPrimaryCif(),
 					Long.valueOf(request.getBeneficiaryId()), "V2", metaData);
 		}
 

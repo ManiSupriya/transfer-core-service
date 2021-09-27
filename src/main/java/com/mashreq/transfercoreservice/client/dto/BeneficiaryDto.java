@@ -71,6 +71,7 @@ public class BeneficiaryDto {
     private String beneficiaryPostalCode;
     private String beneficiaryRelationship;
 
+    private boolean newVersion;
 
 }
 

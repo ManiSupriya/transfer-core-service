@@ -28,7 +28,6 @@ import com.mashreq.transfercoreservice.notification.service.PostTransactionServi
 import com.mashreq.transfercoreservice.repository.CountryRepository;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
@@ -249,7 +248,7 @@ public class LocalFundTransferStrategyCCTest {
 
         when(ccBelongsToCifValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
 
-        when(beneficiaryService.getById(eq(metadata.getPrimaryCif()), any(),any(), any())).thenReturn(beneficiaryDto);
+        when(beneficiaryService.getByIdWithoutValidation(eq(metadata.getPrimaryCif()), any(),any(), any())).thenReturn(beneficiaryDto);
         when(beneficiaryValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
         when(ibanValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
         when(ccBalanceValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());

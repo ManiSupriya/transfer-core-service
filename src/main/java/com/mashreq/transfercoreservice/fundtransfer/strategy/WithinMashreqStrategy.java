@@ -99,7 +99,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         //from account will always be present as it has been validated in the accountBelongsToCifValidator
         validationContext.add("from-account", fromAccountOpt.get());
 
-        BeneficiaryDto beneficiaryDto = beneficiaryService.getById(metadata.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), request.getJourneyVersion(), metadata);
+        BeneficiaryDto beneficiaryDto = beneficiaryService.getByIdWithoutValidation(metadata.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), request.getJourneyVersion(), metadata);
         validationContext.add("beneficiary-dto", beneficiaryDto);
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
         /** validating account freeze conditions */
