@@ -3,21 +3,55 @@ package com.mashreq.transfercoreservice.util;
 import com.mashreq.transfercoreservice.client.dto.*;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
+import com.mashreq.transfercoreservice.fundtransfer.dto.AdditionalFields;
+import com.mashreq.transfercoreservice.fundtransfer.dto.LimitValidatorResponse;
 import com.mashreq.transfercoreservice.model.DigitalUser;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class TestUtil {
+
+    public static List<CountryMasterDto> getCountryMs(){
+        CountryMasterDto countryMasterDto = new CountryMasterDto();
+        countryMasterDto.setCode("IN");
+        countryMasterDto.setQuickRemitEnabled(true);
+        return Arrays.asList(countryMasterDto);
+    }
+
+    public static QRExchangeResponse qrExchangeResponse(){
+        QRExchangeResponse response = new QRExchangeResponse();
+        response.setAccountCurrency("USD");
+        response.setTransactionCurrency("NPR");
+        response.setExchangeRate("0.00872600");
+        response.setDebitAmountWithoutCharges("43.63");
+        response.setTransactionAmount("5000.00");
+        response.setAllowQR(true);
+        return response;
+    }
 
     public static CoreCardDetailsDto getCardDetails() {
         CoreCardDetailsDto coreCardDetailsDto = new CoreCardDetailsDto();
         coreCardDetailsDto.setAccountType("Savings");
         coreCardDetailsDto.setExpiryDate("2020-08-04");
         return coreCardDetailsDto;
+    }
+
+    public static AdditionalFields getAdditionalFields(){
+        AdditionalFields additionalFields = new AdditionalFields();
+        Map<String, String> map = new HashMap<>();
+        map.put("fullName","test");
+        additionalFields.setIncorrectFields(map);
+
+        return additionalFields;
+    }
+
+    public static List<AccountDetailsDTO> getAccountDetails() {
+        AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
+        accountDetailsDTO.setNumber("1234567890");
+        return Arrays.asList(accountDetailsDTO);
     }
 
     public static CustomerDetailsDto getCustomerDetails() {
@@ -64,9 +98,9 @@ public class TestUtil {
         return digitalUser;
     }
 
-    public static LimitValidatorResultsDto limitValidatorResultsDto(){
-        LimitValidatorResultsDto limitValidatorResultsDto = new LimitValidatorResultsDto();
-        limitValidatorResultsDto.setValid(true);
+    public static LimitValidatorResponse limitValidatorResultsDto(){
+        LimitValidatorResponse limitValidatorResultsDto = new LimitValidatorResponse();
+        limitValidatorResultsDto.setIsValid(true);
         return limitValidatorResultsDto;
     }
 
