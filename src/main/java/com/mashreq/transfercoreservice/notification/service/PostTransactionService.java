@@ -184,16 +184,19 @@ public class PostTransactionService {
         builder.params(TO_ACCOUNT_NO, StringUtils.defaultIfBlank(emailUtil.doMask(fundTransferRequest.getToAccount()), DEFAULT_STR));
         builder.params(BENEFICIARY_NICK_NAME, StringUtils.defaultIfBlank(fundTransferRequest.getBeneficiaryFullName(), DEFAULT_STR));
         builder.params(CURRENCY, StringUtils.defaultIfBlank(fundTransferRequest.getTxnCurrency(), DEFAULT_STR) );
-        BigDecimal amount = fundTransferRequest.getAmount();
-        if(amount != null) {
-            builder.params(AMOUNT, EmailUtil.formattedAmount(amount));
-        } else {
+        if(fundTransferRequest.getAmount() != null) {
+            builder.params(AMOUNT, EmailUtil.formattedAmount(fundTransferRequest.getAmount()));
+        }
+        else if(fundTransferRequest.getSrcAmount() != null){
+            builder.params(AMOUNT, EmailUtil.formattedAmount(fundTransferRequest.getSrcAmount()));
+        }
+        else {
             builder.params(AMOUNT, DEFAULT_STR);
         }
         builder.params(STATUS, STATUS_SUCCESS);
 
         if(fundTransferRequest.getNotificationType().contains("PL") || fundTransferRequest.getNotificationType().contains("SI")){
-            final BeneficiaryDto beneficiaryDto = beneficiaryService.getById(requestMetaData.getPrimaryCif(), valueOf(fundTransferRequestDTO.getBeneficiaryId()), requestMetaData);
+            final BeneficiaryDto beneficiaryDto = beneficiaryService.getById(requestMetaData.getPrimaryCif(), valueOf(fundTransferRequestDTO.getBeneficiaryId()), fundTransferRequestDTO.getJourneyVersion(), requestMetaData);
 
             builder.params(BENEFICIARY_BANK_NAME, StringUtils.defaultIfBlank(beneficiaryDto.getBankName(), DEFAULT_STR));
             builder.params(BENEFICIARY_BANK_COUNTRY, StringUtils.defaultIfBlank(beneficiaryDto.getBankCountry(), DEFAULT_STR));

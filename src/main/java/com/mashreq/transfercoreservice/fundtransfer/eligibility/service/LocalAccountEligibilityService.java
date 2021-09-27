@@ -110,7 +110,7 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
         final AccountDetailsDTO fromAccountDetails = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
         validationContext.add("from-account", fromAccountDetails);
 
-        final BeneficiaryDto beneficiaryDto = beneficiaryService.getByIdV2(metaData.getPrimaryCif(), valueOf(request.getBeneficiaryId()), metaData);
+        final BeneficiaryDto beneficiaryDto = beneficiaryService.getById(metaData.getPrimaryCif(), valueOf(request.getBeneficiaryId()), "V2", metaData);
         validationContext.add("beneficiary-dto", beneficiaryDto);
         validationContext.add("to-account-currency", AED);
         responseHandler(beneficiaryValidator.validate(request, metaData, validationContext));
@@ -201,7 +201,7 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
      */
     private BeneficiaryDto validateBeneficiary(FundTransferEligibiltyRequestDTO request, RequestMetaData requestMetaData, ValidationContext validationContext) {
 
-        final BeneficiaryDto beneficiaryDto = beneficiaryService.getByIdV2(requestMetaData.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), requestMetaData);
+        final BeneficiaryDto beneficiaryDto = beneficiaryService.getById(requestMetaData.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), "V2", requestMetaData);
         validationContext.add("beneficiary-dto", beneficiaryDto);
         validationContext.add("to-account-currency", AED);
         responseHandler(beneficiaryValidator.validate(request, requestMetaData, validationContext));

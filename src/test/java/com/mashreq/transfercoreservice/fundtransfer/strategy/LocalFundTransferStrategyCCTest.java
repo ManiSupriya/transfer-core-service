@@ -249,7 +249,7 @@ public class LocalFundTransferStrategyCCTest {
 
         when(ccBelongsToCifValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
 
-        when(beneficiaryService.getById(eq(metadata.getPrimaryCif()), any(), any())).thenReturn(beneficiaryDto);
+        when(beneficiaryService.getById(eq(metadata.getPrimaryCif()), any(),any(), any())).thenReturn(beneficiaryDto);
         when(beneficiaryValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
         when(ibanValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
         when(ccBalanceValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());

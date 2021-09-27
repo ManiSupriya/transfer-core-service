@@ -511,83 +511,100 @@
                       Please find the details below,
                   </p>
                   <table style="margin-bottom:40px">
+
+                  <#if beneficiaryNickname?has_content>
                     <tr>
                         <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
-                                <p style="border: 1px solid rgb(115, 135, 148); 
+                                <p style="border: 1px solid rgb(115, 135, 148);
                                 border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
                         </td>
-                      <td>
-                        <p style="color: #738794;font-size: 16px;">Beneficiary Name:</p>
-                      </td>
-                      <td>
-                        <p style="font-weight:700">${beneficiaryNickname}</p>
-                    </td>
-                    </tr>
-                    <tr>
-                            <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
-                                    <p style="border: 1px solid rgb(115, 135, 148); 
-                                    border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
+                          <td>
+                            <p style="color: #738794;font-size: 16px;">Beneficiary Name:</p>
+                          </td>
+                          <td>
+                            <p style="font-weight:700">${beneficiaryNickname}</p>
                             </td>
-                      <td>
-                        <p style="color: #738794;font-size: 16px;">Debit account:</p>
-                      </td>
-                      <td>
-                        <p style="font-weight:700">${maskedAccount}</p>
-                    </td>
-                    </tr>
-                    <tr>
-                            <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
-                                    <p style="border: 1px solid rgb(115, 135, 148); 
-                                    border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
-                            </td>
-                      <td>
-                        <p style="color: #738794;font-size: 16px;">Amount:</p>
-                      </td>
-                      <td>
-                        <p style="font-weight:700">${currency} ${amount}</p>
-                    </td>
-                    </tr>
-                    <tr>
-                            <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
-                                    <p style="border: 1px solid rgb(115, 135, 148); 
-                                    border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
-                            </td>
-                      <td>
-                        <p style="color: #738794;font-size: 16px;">Bank name:</p>
-                      </td>
-                      <td>
-                        <p style="font-weight:700">${beneBankName}</p>
+                        </tr>
+                    </#if>
+
+                    <#if maskedAccount?has_content>
+                        <tr>
+                                <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
+                                        <p style="border: 1px solid rgb(115, 135, 148);
+                                        border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
+                                </td>
+                          <td>
+                            <p style="color: #738794;font-size: 16px;">Debit account:</p>
+                          </td>
+                          <td>
+                            <p style="font-weight:700">${maskedAccount}</p>
                         </td>
-                    </tr>
-                    <tr>
+                        </tr>
+                    </#if>
+
+                    <#if amount?has_content>
+                        <tr>
                             <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
-                                    <p style="border: 1px solid rgb(115, 135, 148); 
+                                    <p style="border: 1px solid rgb(115, 135, 148);
                                     border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
                             </td>
-                      <td>
-                        <p style="color: #738794;font-size: 16px;">Bank country:</p>
-                      </td>
-                      <td>
-                        <p style="font-weight:700">${beneBankCountry}</p>
-                    </td>
-                    </tr>
-                    
-                    <tr>
-                            <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
-                                    <p style="border: 1px solid rgb(115, 135, 148); 
-                                    border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
+                              <td>
+                                <p style="color: #738794;font-size: 16px;">Amount:</p>
+                              </td>
+                          <td>
+                            <p style="font-weight:700">${currency} ${amount}</p>
+                        </td>
+                        </tr>
+                    </#if>
+
+                    <#if beneBankName?has_content>
+                        <tr>
+                                <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
+                                        <p style="border: 1px solid rgb(115, 135, 148);
+                                        border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
+                                </td>
+                          <td>
+                            <p style="color: #738794;font-size: 16px;">Bank name:</p>
+                          </td>
+                          <td>
+                            <p style="font-weight:700">${beneBankName}</p>
                             </td>
-                      <td>
-                        <p style="color: #738794;font-size: 16px;">Transaction date:</p>
-                      </td>
-                      <td>
-                        <p style="font-weight:700">${transactionDate}</p>
-                    </td>
-                    </tr>
+                        </tr>
+                    </#if>
+
+                    <#if beneBankCountry?has_content>
+                        <tr>
+                                <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
+                                        <p style="border: 1px solid rgb(115, 135, 148);
+                                        border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
+                                </td>
+                          <td>
+                            <p style="color: #738794;font-size: 16px;">Bank country:</p>
+                          </td>
+                          <td>
+                            <p style="font-weight:700">${beneBankCountry}</p>
+                        </td>
+                        </tr>
+                    </#if>
+
+                    <#if transactionDate?has_content>
+                        <tr>
+                                <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
+                                        <p style="border: 1px solid rgb(115, 135, 148);
+                                        border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
+                                </td>
+                          <td>
+                            <p style="color: #738794;font-size: 16px;">Transaction date:</p>
+                          </td>
+                          <td>
+                            <p style="font-weight:700">${transactionDate}</p>
+                        </td>
+                        </tr>
+                    </#if>
                   </table>
                   <h2>Didn't initiate this request?</h2>
                   <table>
-                        
+
                         <tr>
                                 <td style="padding-right: 22px;">
                                   <span>

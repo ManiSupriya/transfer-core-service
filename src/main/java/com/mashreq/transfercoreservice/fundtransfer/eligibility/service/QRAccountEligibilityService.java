@@ -86,7 +86,7 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 
 		final ValidationContext validationContext = new ValidationContext();
 		
-		final BeneficiaryDto beneficiaryDto = beneficiaryService.getByIdV2(metaData.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), metaData);
+		final BeneficiaryDto beneficiaryDto = beneficiaryService.getById(metaData.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), "V2", metaData);
         
         List<CountryMasterDto> countryList = maintenanceService.getAllCountries("MOB", "AE", Boolean.TRUE);
         final Optional<CountryMasterDto> countryDto = countryList.stream()

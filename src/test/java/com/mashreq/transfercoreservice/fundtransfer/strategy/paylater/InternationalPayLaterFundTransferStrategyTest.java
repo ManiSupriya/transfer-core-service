@@ -96,6 +96,7 @@ public class InternationalPayLaterFundTransferStrategyTest {
 		FundTransferRequestDTO request = FundTransferTestUtil.generateFundTransferRequest();
 		request.setServiceType(ServiceType.INFT.getName());
 		request.setOrderType(FTOrderType.PL.getName());
+		request.setJourneyVersion("V2");
 		request.setStartDate("2041-12-12");
 		String beneficiaryId = "123";
 		request.setBeneficiaryId(beneficiaryId );
@@ -109,7 +110,7 @@ public class InternationalPayLaterFundTransferStrategyTest {
 		Mockito.when(ccTrxValidator.validate(Mockito.any(), Mockito.any())).thenReturn(validationResult);
 		BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
 		beneficiaryDto.setId(Long.valueOf(beneficiaryId));
-		Mockito.when(beneficiaryService.getById(Mockito.any(), Mockito.eq(Long.valueOf(request.getBeneficiaryId())), Mockito.eq(metadata),Mockito.eq("international"))).thenReturn(beneficiaryDto);
+		Mockito.when(beneficiaryService.getById(Mockito.any(), Mockito.eq(Long.valueOf(request.getBeneficiaryId())), Mockito.eq("V2"),Mockito.eq(metadata),Mockito.eq("international"))).thenReturn(beneficiaryDto);
 		String transactionRefNo = "TRN-test-12234";
 		LimitValidatorResponse limitResponse = LimitValidatorResponse.builder().transactionRefNo(transactionRefNo).build();
 		Mockito.when(limitValidator.validate(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(limitResponse );

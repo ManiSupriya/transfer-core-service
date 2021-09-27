@@ -38,6 +38,7 @@ import static com.mashreq.transfercoreservice.notification.model.NotificationTyp
 import static java.time.Duration.between;
 import static java.time.Instant.now;
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
+import static org.mockito.ArgumentMatchers.any;
 
 /**
  * @author shahbazkh
@@ -94,7 +95,7 @@ public class WithinMashreqStrategyTest implements FundTransferStrategy {
         //from account will always be present as it has been validated in the accountBelongsToCifValidator
         validationContext.add("from-account", fromAccountOpt.get());
 
-        BeneficiaryDto beneficiaryDto = beneficiaryService.getById(metadata.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), metadata);
+        BeneficiaryDto beneficiaryDto = beneficiaryService.getById(metadata.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()),any(), metadata);
         validationContext.add("beneficiary-dto", beneficiaryDto);
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
         responseHandler(currencyValidator.validate(request, metadata, validationContext));

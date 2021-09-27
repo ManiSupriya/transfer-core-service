@@ -62,10 +62,10 @@ public class INFTAccountEligibilityService implements TransferEligibilityService
 			log.info("Update missing beneficiary details");
 			request.getBeneRequiredFields().setNewVersion(true);
 			beneficiaryDto = beneficiaryService.getUpdate(request.getBeneRequiredFields(),
-					Long.valueOf(request.getBeneficiaryId()), metaData, INTERNATIONAL_VALIDATION_TYPE);
+					Long.valueOf(request.getBeneficiaryId()), "V2", metaData, INTERNATIONAL_VALIDATION_TYPE);
 		} else {
-			beneficiaryDto = beneficiaryService.getByIdV2(metaData.getPrimaryCif(),
-					Long.valueOf(request.getBeneficiaryId()), metaData);
+			beneficiaryDto = beneficiaryService.getById(metaData.getPrimaryCif(),
+					Long.valueOf(request.getBeneficiaryId()), "V2", metaData);
 		}
 
 		validationContext.add("beneficiary-dto", beneficiaryDto);

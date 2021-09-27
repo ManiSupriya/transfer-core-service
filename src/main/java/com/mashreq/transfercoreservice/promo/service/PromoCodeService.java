@@ -40,7 +40,7 @@ public class PromoCodeService {
 	}
 
 	private void validate(FundTransferRequestDTO request, String orderStatus, RequestMetaData metaData) {
-		String countryCode = beneficiaryService.getById(metaData.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), metaData).getBankCountryISO();
+		String countryCode = beneficiaryService.getById(metaData.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), request.getJourneyVersion(), metaData).getBankCountryISO();
 
 		PromoCodeTransactionRequestDto promoReq = PromoCodeTransactionRequestDto.builder()
 				.countryOfResidence(countryCode)
