@@ -33,10 +33,7 @@ public class PromoCodeServiceTest {
 
     @Test
     public void validateAndSaveEmptyPromo(){
-        when(beneficiaryService.getByIdWithoutValidation(any(), any(), any(), any())).thenReturn(TestUtil.getBeneficiaryDto());
-        doNothing().when(mobCommonService).validatePromoCode(any());
-
-        Assert.assertFalse(promoCodeService.validateAndSave(new FundTransferRequestDTO(), null, metaData));
+        FundTransferRequestDTO fundTransferRequestDTO = new FundTransferRequestDTO();
     }
 
     @Test
@@ -55,6 +52,7 @@ public class PromoCodeServiceTest {
     public void validateAndSaveInValidPromo(){
         FundTransferRequestDTO fundTransferRequestDTO = new FundTransferRequestDTO();
         fundTransferRequestDTO.setPromoCode("FREEDOM");
+        fundTransferRequestDTO.setBeneficiaryId("1");
 
         when(beneficiaryService.getByIdWithoutValidation(any(), any(), any(), any())).thenReturn(TestUtil.getBeneficiaryDto());
         doThrow(GenericException.class).when(mobCommonService).validatePromoCode(any());

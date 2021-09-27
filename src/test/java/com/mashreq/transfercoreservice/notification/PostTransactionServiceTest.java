@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
+import com.mashreq.transfercoreservice.client.service.PromoCodeServiceTest;
 import com.mashreq.transfercoreservice.config.notification.EmailConfig;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
@@ -169,6 +170,9 @@ public class PostTransactionServiceTest {
         fundTransferRequest.setAmount(new BigDecimal(10));
         fundTransferRequest.setNotificationType(INFT_PL_SI_CREATION);
 
+        FundTransferRequestDTO fundTransferRequestDTO = new FundTransferRequestDTO();
+        fundTransferRequestDTO.setBeneficiaryId("1");
+
         EmailParameters emailParameters = buildEmailParameters();
         EmailTemplateParameters emailTemplateParameters = buildEmailTemplateParameters();
         HashMap<String, EmailParameters> emailConfigMap = new HashMap<>();
@@ -177,6 +181,6 @@ public class PostTransactionServiceTest {
         when(emailUtil.getEmailTemplateParameters(requestMetaData.getChannel(), requestMetaData.getSegment())).thenReturn(emailTemplateParameters);
         when(emailConfig.getEmail()).thenReturn(emailConfigMap);
         when(beneficiaryService.getByIdWithoutValidation(any(), any(),any(), any())).thenReturn(getBeneficiaryDto());
-        postTransactionService.performPostTransactionActivities(requestMetaData, fundTransferRequest, new FundTransferRequestDTO());
+        postTransactionService.performPostTransactionActivities(requestMetaData, fundTransferRequest, fundTransferRequestDTO);
     }
 }
