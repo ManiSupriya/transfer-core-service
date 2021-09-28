@@ -602,40 +602,13 @@
                         </tr>
                     </#if>
                   </table>
-                  <h2>Didn't initiate this request?</h2>
-                  <table>
 
-                        <tr>
-                                <td style="padding-right: 22px;">
-                                  <span>
-                                    <img
-                                      height="19"
-                                      width="19"
-                                      src="http://www.mashreqbank.com/uae/en/multimedia/edm-images/2021/02-feb/lock.png"
-                                      style="margin: 17px auto"
-                                    />
-                                  </span>
-                                </td>
-                                <td>
-                                    <p>Change your password by signing into your <a href="https://digital.mashreqbank.com/onlinebanking" style="font-weight:700" class="link-secondary">Mashreq Personal Banking account</a></p>
-                                </td>
-                              </tr>
-                    <tr>
-                      <td style="padding-right: 22px;">
-                        <span>
-                          <img
-                            height="19"
-                            width="19"
-                            src="https://www.mashreqbank.com/uae/en/multimedia/edm-images/2021/02-feb/Group-4.png"
-                            style="margin: 17px auto"
-                          />
-                        </span>
-                      </td>
-                      <td>
-                          <p>Inform the bank immediately by calling <strong>${customerCareNo}</strong></p>
-                      </td>
-                    </tr>
-                  </table>
+
+                    <p style="margin-bottom: 40px">
+                      This request was initiated from ${bankName} ${channelType}.
+                    </p>
+
+                    ${contactHtmlBody}
                 </td>
               </tr>
             </table>
