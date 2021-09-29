@@ -106,6 +106,8 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 		if (!response.isAllowQR()) {
 			return EligibilityResponse.builder()
 					.status(FundsTransferEligibility.NOT_ELIGIBLE)
+					.errorCode(PAYMENT_NOT_ELIGIBLE_FOR_QR.getCustomErrorCode())
+					.errorMessage(PAYMENT_NOT_ELIGIBLE_FOR_QR.getErrorMessage())
 					.data(response).build();
 		}
 
