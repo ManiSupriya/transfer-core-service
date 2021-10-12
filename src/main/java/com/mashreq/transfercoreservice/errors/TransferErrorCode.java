@@ -49,6 +49,7 @@ public enum TransferErrorCode implements ErrorCode {
     INVALID_CHARGE_BEARER("TN-1034", "Invalid Charge Bearer"),
     PAY_LATER_TRANSACTION_INITIATION_FAILED("TN-1035", "Transaction initiation failed"),
     INVALID_BEN_CODE("LM-1106","Invalid ben code"),
+    CARD_NUMBER_DOES_NOT_BELONG_TO_CIF("TN-1007", "Card Number does not belong to CIF"),
 
     DEAL_VALIDATION_FAILED("TN-1201", "Deal Number validation Failed"),
     BALANCE_NOT_SUFFICIENT("TN-1200", "Balance is not sufficient"),

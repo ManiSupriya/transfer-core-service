@@ -1,8 +1,8 @@
 package com.mashreq.transfercoreservice.client.service;
 
 import static com.mashreq.transfercoreservice.client.ErrorUtils.getErrorDetails;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_NOT_FOUND;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACC_EXTERNAL_SERVICE_ERROR;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.CARD_NUMBER_DOES_NOT_BELONG_TO_CIF;
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
@@ -166,7 +166,9 @@ public class AccountService {
 	}
 
 	public AccountDetailsDTO getAccountDetailsFromCache(final String accountNumber, RequestMetaData requestMetaData) {
-		userSessionCacheService.isAccountNumberBelongsToCif(accountNumber, requestMetaData.getUserCacheKey());
+		if(!userSessionCacheService.isAccountNumberBelongsToCif(accountNumber, requestMetaData.getUserCacheKey())){
+			GenericExceptionHandler.handleError(ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF,ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF.getErrorMessage());
+		}
 		AccountDetailsDTO accountDetailsDTO = mobRedisService.get(userSessionCacheService.getAccountsDetailsCacheKey(requestMetaData, accountNumber), AccountDetailsDTO.class);
 		if(accountDetailsDTO == null){
 			accountDetailsDTO = getConvertedAccountDetailsFromCore(accountNumber);

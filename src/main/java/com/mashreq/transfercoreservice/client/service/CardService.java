@@ -22,8 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACC_EXTERNAL_SERVICE_ERROR;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.CARDS_EXTERNAL_SERVICE_ERROR;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -101,7 +100,9 @@ public class CardService {
     }
 
     public CardDetailsDTO getCardDetailsFromCache(final String cardNumber, RequestMetaData requestMetaData) {
-        userSessionCacheService.isCardNumberBelongsToCif(cardNumber, requestMetaData.getUserCacheKey());
+        if(!userSessionCacheService.isCardNumberBelongsToCif(cardNumber, requestMetaData.getUserCacheKey())){
+            GenericExceptionHandler.handleError(CARD_NUMBER_DOES_NOT_BELONG_TO_CIF,CARD_NUMBER_DOES_NOT_BELONG_TO_CIF.getErrorMessage());
+        }
         CardDetailsDTO cardDetailsDTO = mobRedisService.get(userSessionCacheService.getCardDetailsCacheKey(requestMetaData, cardNumber), CardDetailsDTO.class);
         if(cardDetailsDTO == null){
             cardDetailsDTO = getCardDetailsFromCore(cardNumber);

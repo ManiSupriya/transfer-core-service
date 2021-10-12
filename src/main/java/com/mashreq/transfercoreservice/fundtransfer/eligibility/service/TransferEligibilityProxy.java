@@ -72,7 +72,7 @@ public class TransferEligibilityProxy {
 		transferEligibilityServiceMap.put(WYMA, Arrays.asList(ownAccountEligibilityService));
 	}
 
-	public Map<ServiceType,EligibilityResponse> getEligibleServiceTypes(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request) {
+	public Map<ServiceType,EligibilityResponse> checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request) {
 		
 		log.info("Starting fund transfer eligibility check for {} ", htmlEscape(request.getServiceType()));
 		
@@ -129,25 +129,25 @@ public class TransferEligibilityProxy {
 	private void checkDebitFreeze(RequestMetaData metaData, String accountNumber, AccountDetailsDTO accountDetailsDTO) {
 		if(null == accountDetailsDTO){
 			mobCommonService.checkDebitFreeze(metaData, accountNumber);
+			return;
 		}
 		if(accountDetailsDTO.isNoDebit()){
 			log.error("[TransferEligibilityProxy] accountNumber {} is debit freeze ", CustomHtmlEscapeUtil.htmlEscape(accountNumber));
 			GenericExceptionHandler.handleError(ACCOUNT_DEBIT_FREEZE,
 					ACCOUNT_DEBIT_FREEZE.getErrorMessage());
 		}
-
 	}
 
 	private void checkCreditFreeze(RequestMetaData metaData, ServiceType serviceType, String accountNumber, AccountDetailsDTO accountDetailsDTO) {
 		if(null == accountDetailsDTO){
 			mobCommonService.checkCreditFreeze(metaData, serviceType, accountNumber);
+			return;
 		}
 		if(accountDetailsDTO.isNoCredit()){
 			log.error("[TransferEligibilityProxy] accountNumber {} is credit freeze ", CustomHtmlEscapeUtil.htmlEscape(accountNumber));
 			GenericExceptionHandler.handleError(ACCOUNT_CREDIT_FREEZE,
 					ACCOUNT_CREDIT_FREEZE.getErrorMessage());
 		}
-
 	}
 
 	private DigitalUser getDigitalUser(RequestMetaData fundTransferMetadata) {
