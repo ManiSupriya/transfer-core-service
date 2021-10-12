@@ -20,6 +20,10 @@ import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 
+import com.mashreq.mobcommons.services.CustomHtmlEscapeUtil;
+import com.mashreq.transfercoreservice.cache.MobRedisService;
+import com.mashreq.transfercoreservice.cache.UserSessionCacheService;
+import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
 import com.mashreq.transfercoreservice.common.ExceptionUtils;
 
@@ -51,8 +55,10 @@ public class TransferEligibilityProxy {
 	private final OwnAccountEligibilityService ownAccountEligibilityService;
 	private final WithinAccountEligibilityService withinAccountEligibilityService;
 	private final QRAccountEligibilityService qrAccountEligibilityService;
+	private final UserSessionCacheService userSessionCacheService;
 	private final DigitalUserRepository digitalUserRepository;
 	private final MobCommonService mobCommonService;
+	private final MobRedisService mobRedisService;
 
 	@PostConstruct
 	public void init() {
@@ -105,20 +111,43 @@ public class TransferEligibilityProxy {
 	}
 
 	private void validate(RequestMetaData metaData, ServiceType serviceType, FundTransferEligibiltyRequestDTO request) {
-
 		//debit freeze for all accounts
 		if (StringUtils.isBlank(request.getCardNo())) {
-			mobCommonService.checkDebitFreeze(metaData, request.getFromAccount());
+			checkDebitFreeze(metaData, request.getFromAccount(),
+					mobRedisService.get(userSessionCacheService.getAccountsDetailsCacheKey(metaData, request.getFromAccount()), AccountDetailsDTO.class));
 		}
-
 		//credit freeze for mashreq accounts
 		if(serviceType.equals(WAMA) || serviceType.equals(WYMA)){
-			mobCommonService.checkCreditFreeze(metaData, serviceType, request.getToAccount());
+			checkCreditFreeze(metaData, serviceType, request.getToAccount(),
+					mobRedisService.get(userSessionCacheService.getAccountsDetailsCacheKey(metaData, request.getToAccount()), AccountDetailsDTO.class));
 		}
-
 		if(!isSourceOfFundEligible(request, serviceType)){
 			GenericExceptionHandler.handleError(PAYMENT_NOT_ELIGIBLE_FOR_SOURCE_ACCOUNT, PAYMENT_NOT_ELIGIBLE_FOR_SOURCE_ACCOUNT.getErrorMessage());
 		}
+	}
+
+	private void checkDebitFreeze(RequestMetaData metaData, String accountNumber, AccountDetailsDTO accountDetailsDTO) {
+		if(null == accountDetailsDTO){
+			mobCommonService.checkDebitFreeze(metaData, accountNumber);
+		}
+		if(accountDetailsDTO.isNoDebit()){
+			log.error("[TransferEligibilityProxy] accountNumber {} is debit freeze ", CustomHtmlEscapeUtil.htmlEscape(accountNumber));
+			GenericExceptionHandler.handleError(ACCOUNT_DEBIT_FREEZE,
+					ACCOUNT_DEBIT_FREEZE.getErrorMessage());
+		}
+
+	}
+
+	private void checkCreditFreeze(RequestMetaData metaData, ServiceType serviceType, String accountNumber, AccountDetailsDTO accountDetailsDTO) {
+		if(null == accountDetailsDTO){
+			mobCommonService.checkCreditFreeze(metaData, serviceType, accountNumber);
+		}
+		if(accountDetailsDTO.isNoCredit()){
+			log.error("[TransferEligibilityProxy] accountNumber {} is credit freeze ", CustomHtmlEscapeUtil.htmlEscape(accountNumber));
+			GenericExceptionHandler.handleError(ACCOUNT_CREDIT_FREEZE,
+					ACCOUNT_CREDIT_FREEZE.getErrorMessage());
+		}
+
 	}
 
 	private DigitalUser getDigitalUser(RequestMetaData fundTransferMetadata) {

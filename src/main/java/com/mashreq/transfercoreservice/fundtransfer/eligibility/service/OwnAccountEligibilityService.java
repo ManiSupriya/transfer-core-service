@@ -29,9 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class OwnAccountEligibilityService implements TransferEligibilityService{
 
-	public static final String OWN_ACCOUNT_TRANSACTION_CODE = "096";
 	public static final String LOCAL_CURRENCY = "AED";
-	public static final String OWN_ACCOUNT = "Own Account";
 
 	private final AccountBelongsToCifValidator accountBelongsToCifValidator;
 	private final LimitValidatorFactory limitValidatorFactory;
@@ -42,24 +40,18 @@ public class OwnAccountEligibilityService implements TransferEligibilityService{
 	@Override
 	public EligibilityResponse checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request, UserDTO userDTO) {
 		log.info("OwnAccountEligibility validation started");
-		final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metaData.getPrimaryCif());
 
 		final ValidationContext validateAccountContext = new ValidationContext();
-		validateAccountContext.add("account-details", accountsFromCore);
-		validateAccountContext.add("validate-to-account", Boolean.TRUE);
-		validateAccountContext.add("validate-from-account", Boolean.TRUE);
 
-		responseHandler(accountBelongsToCifValidator.validate(request, metaData, validateAccountContext));
-
-		final AccountDetailsDTO toAccount = getAccountDetailsBasedOnAccountNumber(accountsFromCore,
-				request.getToAccount());
-		final AccountDetailsDTO fromAccount = getAccountDetailsBasedOnAccountNumber(accountsFromCore,
-				request.getFromAccount());
+		final AccountDetailsDTO toAccount = accountService.getAccountDetailsFromCache(request.getToAccount(), metaData);
+		final AccountDetailsDTO fromAccount = accountService.getAccountDetailsFromCache(request.getFromAccount(), metaData);
 
 		validateAccountContext.add("from-account", fromAccount);
 		validateAccountContext.add("to-account", toAccount);
 		validateAccountContext.add("to-account-currency", request.getTxnCurrency());
+
 		responseHandler(currencyValidatorFactory.getValidator(metaData).validate(request, metaData));
+
 		BigDecimal transferAmountInSrcCurrency;
 		if(isCurrencySame(request.getTxnCurrency(), fromAccount.getCurrency())) {
 			transferAmountInSrcCurrency = request.getAmount();

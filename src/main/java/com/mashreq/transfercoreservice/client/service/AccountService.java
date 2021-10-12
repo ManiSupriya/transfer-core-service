@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.mashreq.transfercoreservice.cache.MobRedisService;
+import com.mashreq.transfercoreservice.cache.UserSessionCacheService;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
@@ -57,6 +59,8 @@ public class AccountService {
 	private final AccountCardLessCashBlockRequestService accountCardLessCashBlockRequestService;
 	private final FeesExternalConfig feeCodeConfig;
 	private final AsyncUserEventPublisher asyncUserEventPublisher;
+	private final UserSessionCacheService userSessionCacheService;
+	private final MobRedisService mobRedisService;
 
 	public List<AccountDetailsDTO> getAccountsFromCore(final String cifId) {
 		log.info("Fetching accounts for cifId {} ", htmlEscape(cifId));
@@ -96,24 +100,8 @@ public class AccountService {
 
 	}
 
-	public List<AccountDetailsDTO> getAccountsFromCoreWithDefaults(final String cifId) {
-		log.info("Fetching accounts for cifId {} ", cifId);
-		try {
-			Response<CifProductsDto> cifProductsResponse = accountClient.searchAccounts(cifId, null);
-
-			if (ResponseStatus.ERROR == cifProductsResponse.getStatus() || isNull(cifProductsResponse.getData())) {
-				log.warn("Not able to fetch accounts, returning empty list instead");
-				return Collections.emptyList();
-			}
-
-			List<AccountDetailsDTO> accounts = convertResponseToAccounts(cifProductsResponse.getData());
-			log.info("{} Accounts fetched for cif id {} ", accounts.size(), cifId);
-			return accounts;
-
-		} catch (Exception e) {
-			log.error("Error occurred while calling account client {} ", e);
-			return Collections.emptyList();
-		}
+	private AccountDetailsDTO getConvertedAccountDetailsFromCore(final String accountNumber) {
+		return convertCoreAccountsToAccountDTO(getAccountDetailsFromCore(accountNumber));
 	}
 
 	private AccountDetailsDTO convertCoreAccountsToAccountDTO(SearchAccountDto coreAccount) {
@@ -175,5 +163,14 @@ public class AccountService {
                 metaData, CommonConstants.CARD_LESS_CASH
                 );
 
+	}
+
+	public AccountDetailsDTO getAccountDetailsFromCache(final String accountNumber, RequestMetaData requestMetaData) {
+		userSessionCacheService.isAccountNumberBelongsToCif(accountNumber, requestMetaData.getUserCacheKey());
+		AccountDetailsDTO accountDetailsDTO = mobRedisService.get(userSessionCacheService.getAccountsDetailsCacheKey(requestMetaData, accountNumber), AccountDetailsDTO.class);
+		if(accountDetailsDTO == null){
+			accountDetailsDTO = getConvertedAccountDetailsFromCore(accountNumber);
+		}
+		return accountDetailsDTO;
 	}
 }

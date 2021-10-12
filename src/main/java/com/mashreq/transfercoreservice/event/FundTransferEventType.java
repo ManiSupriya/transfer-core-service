@@ -81,6 +81,8 @@ public enum FundTransferEventType implements EventType {
     BIC_LIST_SEARCH_CALL("FUND_TRANSFER_ENQUIRY", "Bic code list for country code"),
     
     ELIGIBILITY_QUICK_REMIT_EXCHANGE("FUND_TRANSFER_ELIGIBILITY", "Quick remit eligibility"),
+
+    SET_VALUE_IN_CACHE("FUND_TRANSFER_ELIGIBILITY", "Set value to cache when value not found in cache "),
     
     ;
 

@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.client.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -41,4 +42,10 @@ public class AccountDetailsDTO {
 
     @JsonProperty("branch")
     private String branchCode;
+
+    @JsonIgnore
+    private boolean noDebit;
+
+    @JsonIgnore
+    private boolean noCredit;
 }

@@ -48,23 +48,18 @@ public class WithinAccountEligibilityService implements TransferEligibilityServi
 	public EligibilityResponse checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request,
 			UserDTO userDTO) {
 		log.info("WithinAccountEligibility validation started");
-		final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metaData.getPrimaryCif());
 		final ValidationContext validationContext = new ValidationContext();
-		validationContext.add("account-details", accountsFromCore);
 		validationContext.add("validate-from-account", Boolean.TRUE);
 
-		Optional<AccountDetailsDTO> fromAccountOpt = accountsFromCore.stream()
-				.filter(x -> request.getFromAccount().equals(x.getNumber()))
-				.findFirst();
-
-		validationContext.add("from-account", fromAccountOpt.orElseThrow(() -> ExceptionUtils.genericException(TransferErrorCode.ACCOUNT_NOT_FOUND)));
+		final AccountDetailsDTO accountDetails = accountService.getAccountDetailsFromCache(request.getFromAccount(), metaData);
+		validationContext.add("from-account", accountDetails);
 
 		BeneficiaryDto beneficiaryDto = beneficiaryService.getByIdWithoutValidation(metaData.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), "V2", metaData);
 		validationContext.add("beneficiary-dto", beneficiaryDto);
 		responseHandler(beneficiaryValidator.validate(request, metaData, validationContext));
 
 		final BigDecimal transferAmountInSrcCurrency = isCurrencySame(request) ? request.getAmount()
-				: getAmountInSrcCurrency(request, beneficiaryDto, fromAccountOpt);
+				: getAmountInSrcCurrency(request, beneficiaryDto, accountDetails);
 
 		validationContext.add("transfer-amount-in-source-currency", transferAmountInSrcCurrency);
 
@@ -75,7 +70,7 @@ public class WithinAccountEligibilityService implements TransferEligibilityServi
 		limitValidatorFactory.getValidator(metaData).validate(
 				userDTO, 
 				request.getServiceType(), 
-				getLimitUsageAmount(request.getDealNumber(), fromAccountOpt,transferAmountInSrcCurrency), 
+				getLimitUsageAmount(request.getDealNumber(), accountDetails,transferAmountInSrcCurrency),
 				metaData, 
 				bendId);
 		log.info("WithinAccountEligibility validation successfully finished");
@@ -92,30 +87,22 @@ public class WithinAccountEligibilityService implements TransferEligibilityServi
 	}
 
 	private BigDecimal getAmountInSrcCurrency(FundTransferEligibiltyRequestDTO request, BeneficiaryDto beneficiaryDto,
-			Optional<AccountDetailsDTO> fromAccountOpt) {
-		BigDecimal amtToBePaidInSrcCurrency = null;
-		if(fromAccountOpt.isPresent()) {
-			final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
-			currencyRequest.setAccountNumber(fromAccountOpt.get().getNumber());
-			currencyRequest.setAccountCurrency(fromAccountOpt.get().getCurrency());
-			currencyRequest.setTransactionCurrency(request.getTxnCurrency());
-			currencyRequest.setDealNumber(request.getDealNumber());
-			currencyRequest.setTransactionAmount(request.getAmount());
-			CurrencyConversionDto conversionResultInSourceAcctCurrency = maintenanceService.convertBetweenCurrencies(currencyRequest);
-			amtToBePaidInSrcCurrency = conversionResultInSourceAcctCurrency.getAccountCurrencyAmount();
-		}
-		return amtToBePaidInSrcCurrency;
+			AccountDetailsDTO fromAccount) {
+		final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
+		currencyRequest.setAccountNumber(fromAccount.getNumber());
+		currencyRequest.setAccountCurrency(fromAccount.getCurrency());
+		currencyRequest.setTransactionCurrency(request.getTxnCurrency());
+		currencyRequest.setDealNumber(request.getDealNumber());
+		currencyRequest.setTransactionAmount(request.getAmount());
+		return maintenanceService.convertBetweenCurrencies(currencyRequest).getAccountCurrencyAmount();
 	}
 
 
-	private BigDecimal getLimitUsageAmount(final String dealNumber, final Optional<AccountDetailsDTO> fromAccountOpt,
-			final BigDecimal transferAmountInSrcCurrency) {
-		if(fromAccountOpt.isPresent()) {
-			return LOCAL_CURRENCY.equalsIgnoreCase(fromAccountOpt.get().getCurrency())
-					? transferAmountInSrcCurrency
-							: convertAmountInLocalCurrency(dealNumber, fromAccountOpt.get(), transferAmountInSrcCurrency);
-		}
-		return null;
+	private BigDecimal getLimitUsageAmount(final String dealNumber, final AccountDetailsDTO accountDetails,
+		final BigDecimal transferAmountInSrcCurrency) {
+		return LOCAL_CURRENCY.equalsIgnoreCase(accountDetails.getCurrency())
+				? transferAmountInSrcCurrency
+						: convertAmountInLocalCurrency(dealNumber, accountDetails, transferAmountInSrcCurrency);
 	}
 
 	private BigDecimal convertAmountInLocalCurrency(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO,
