@@ -109,7 +109,6 @@ public class QRAccountEligibilityServiceTest {
 		when(currencyValidatorFactory.getValidator(any())).thenReturn(currencyValidator);
 		when(limitValidatorFactory.getValidator(any())).thenReturn(limitValidator);
 		when(currencyValidator.validate(any(),any(),any())).thenReturn(validationResult);
-		when(accountService.getAccountsFromCore(any())).thenReturn(TestUtil.getAccountDetails());
 		when(beneficiaryService.getByIdWithoutValidation(any(),any(),any(),any())).thenReturn(TestUtil.getBeneficiaryDto());
 		when(beneficiaryValidator.validate(any(),any(),any())).thenReturn(validationResult);
 		when(maintenanceService.convertCurrency(any())).thenReturn(TestUtil.getCurrencyConversionDto());
