@@ -111,6 +111,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     public FundTransferResponseDTO transferFund(RequestMetaData metadata, FundTransferRequestDTO request) {
         final ServiceType serviceType = getServiceByType(request.getServiceType());
         final FundTransferEventType initiatedEvent = FundTransferEventType.getEventTypeByCode(serviceType.getEventPrefix() + FUND_TRANSFER_INITIATION_SUFFIX);
+        verifyTermsAndConditionAcceptance(request,metadata);
         if(!WYMA.getName().equals(serviceType.getName())){
             verifyOtp(request,metadata);
         }
@@ -126,7 +127,6 @@ public class FundTransferServiceDefault implements FundTransferService {
     		log.info("OTP relaxed for environment {}",activeProfile);
     		return;
     	}
-    	verifyTermsAndConditionAcceptance(request,metadata);
         VerifyOTPRequestDTO verifyOTPRequestDTO = new VerifyOTPRequestDTO();
         verifyOTPRequestDTO.setOtp(request.getOtp());
         verifyOTPRequestDTO.setChallengeToken(request.getChallengeToken());
