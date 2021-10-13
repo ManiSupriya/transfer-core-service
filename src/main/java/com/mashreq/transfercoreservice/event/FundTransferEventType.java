@@ -81,7 +81,7 @@ public enum FundTransferEventType implements EventType {
     BIC_LIST_SEARCH_CALL("FUND_TRANSFER_ENQUIRY", "Bic code list for country code"),
     
     ELIGIBILITY_QUICK_REMIT_EXCHANGE("FUND_TRANSFER_ELIGIBILITY", "Quick remit eligibility"),
-    
+    FUNDS_TRANSFER_TERMSANDCONDITIONS_ACCEPTED("FUNDS_TRANSFER_TERMSANDCONDITIONS_ACCEPTED", "Terms and Conditions for Funds Transfer accepted")
     ;
 
 

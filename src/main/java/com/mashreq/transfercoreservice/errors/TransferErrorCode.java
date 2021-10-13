@@ -200,6 +200,7 @@ public enum TransferErrorCode implements ErrorCode {
     INVALID_ACCOUNT_NUMBER("TN-8035", "Invalid Account number."),
     BANK_NOT_FOUND_WITH_SWIFT("TN-8036", "Bank not found with swift"),
     INVALID_SERVICE_TYPE("TN-8037", "Invalid Service type."),
+    TERMSANDCONDITIONS_NOTACCEPTED("TN-8038", "Terms and conditions for funds transfer not accepted")
     ;
 
 
