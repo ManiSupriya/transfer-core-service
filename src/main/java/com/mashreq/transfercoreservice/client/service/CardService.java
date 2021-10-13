@@ -105,6 +105,7 @@ public class CardService {
         }
         CardDetailsDTO cardDetailsDTO = mobRedisService.get(userSessionCacheService.getCardDetailsCacheKey(requestMetaData, cardNumber), CardDetailsDTO.class);
         if(cardDetailsDTO == null){
+            log.info("[CardService] cache miss for card details");
             cardDetailsDTO = getCardDetailsFromCore(cardNumber);
         }
         return cardDetailsDTO;

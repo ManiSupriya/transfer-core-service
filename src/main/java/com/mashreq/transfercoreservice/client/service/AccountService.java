@@ -171,6 +171,7 @@ public class AccountService {
 		}
 		AccountDetailsDTO accountDetailsDTO = mobRedisService.get(userSessionCacheService.getAccountsDetailsCacheKey(requestMetaData, accountNumber), AccountDetailsDTO.class);
 		if(accountDetailsDTO == null){
+			log.info("[AccountService] cache miss for account details");
 			accountDetailsDTO = getConvertedAccountDetailsFromCore(accountNumber);
 		}
 		return accountDetailsDTO;

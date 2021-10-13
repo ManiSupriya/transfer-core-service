@@ -128,6 +128,7 @@ public class TransferEligibilityProxy {
 
 	private void checkDebitFreeze(RequestMetaData metaData, String accountNumber, AccountDetailsDTO accountDetailsDTO) {
 		if(null == accountDetailsDTO){
+			log.info("[TransferEligibilityProxy] cache miss for debit freeze");
 			mobCommonService.checkDebitFreeze(metaData, accountNumber);
 			return;
 		}
@@ -140,6 +141,7 @@ public class TransferEligibilityProxy {
 
 	private void checkCreditFreeze(RequestMetaData metaData, ServiceType serviceType, String accountNumber, AccountDetailsDTO accountDetailsDTO) {
 		if(null == accountDetailsDTO){
+			log.info("[TransferEligibilityProxy] cache miss for credit freeze");
 			mobCommonService.checkCreditFreeze(metaData, serviceType, accountNumber);
 			return;
 		}
