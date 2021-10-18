@@ -25,6 +25,8 @@ import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
+import com.mashreq.ms.exceptions.GenericBusinessException;
+import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.transfercoreservice.model.QuickRemitStatusMaster;
 import com.mashreq.transfercoreservice.repository.QrStatusMsRepository;
 import org.apache.commons.lang.StringUtils;
@@ -183,16 +185,20 @@ public class FundTransferServiceDefault implements FundTransferService {
         }
         
         FundTransferStrategy strategy = fundTransferStrategies.get(getServiceByType(request.getServiceType()));
-        FundTransferResponse response = strategy.execute(request, metadata, userDTO);
 
+        FundTransferResponse response = null;
+        try{
+            response = strategy.execute(request, metadata, userDTO);
+        }
+        catch(GenericException ge){
+            handleFailure(request, response);
+        }
 
         handleIfTransactionIsSuccess(metadata, request, userDTO, response);
 
         TransactionHistory transactionHistory = updateTransactionHistory(metadata, request, userDTO, response);
 
         log.info("Total time taken for {} Fund Transfer {} milli seconds ", htmlEscape(request.getServiceType()), htmlEscape(Long.toString(between(start, now()).toMillis())));
-
-        handleFailure(request, response);
 
         boolean promoApplied = promoCodeService.validateAndSave(request, transactionHistory.getStatus(), metadata);
 
