@@ -12,6 +12,7 @@ import java.util.EnumMap;
 
 import javax.annotation.PostConstruct;
 
+import com.mashreq.transfercoreservice.repository.QrStatusMsRepository;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -69,11 +70,11 @@ public class PayLaterTransferService extends FundTransferServiceDefault{
                                    WithinMashreqPayLaterStrategy withinMashreqPayLaterStrategy,
                                    LocalFundPayLaterTransferStrategy localFundPayLaterTransferStrategy,
                                    InternationalPayLaterFundTransferStrategy internationalPayLaterFundTransferStrategy,
-                                   PromoCodeService promoCodeService, MobCommonService mobCommonService) {
+                                   PromoCodeService promoCodeService, MobCommonService mobCommonService, QrStatusMsRepository qrStatusMsRepository) {
 		super(digitalUserRepository, transactionRepository, digitalUserLimitUsageService, ownAccountStrategy,
 				withinMashreqStrategy, localFundTransferStrategy, internationalFundTransferStrategy,
 				charityStrategyDefault, auditEventPublisher, otpService, errorCodeConfig,
-				promoCodeService, mobCommonService);
+				promoCodeService, mobCommonService, qrStatusMsRepository);
 		this.ownAccountPayLaterStrategy = ownAccountPayLaterStrategy;
 		this.withinMashreqPayLaterStrategy = withinMashreqPayLaterStrategy;
 		this.localFundPayLaterTransferStrategy = localFundPayLaterTransferStrategy;

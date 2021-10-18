@@ -7,9 +7,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Optional;
 
+import com.mashreq.transfercoreservice.repository.QrStatusMsRepository;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -73,6 +75,9 @@ public class FundTransferServiceDefaultTest {
 	 EnumMap<ServiceType, FundTransferStrategy> fundTransferStrategies;
 	 @Mock
 	 InternationalFundTransferStrategy internationalFundTransferStrategy;
+	 @Mock
+	 QrStatusMsRepository qrStatusMsRepository;
+
 	 FundTransferRequestDTO fundTransferRequestDTO;
 	 
 	 @Mock
@@ -80,6 +85,7 @@ public class FundTransferServiceDefaultTest {
 	 
 	 @Before
 	 public void prepare() {
+	 	Mockito.when(qrStatusMsRepository.findAll()).thenReturn(Collections.emptyList());
 	     this.fundTransferServiceDefault.init();
 	     fundTransferRequestDTO = generateFundTransferRequest();
 	     ReflectionTestUtils.setField(fundTransferServiceDefault, "activeProfile", "prod");

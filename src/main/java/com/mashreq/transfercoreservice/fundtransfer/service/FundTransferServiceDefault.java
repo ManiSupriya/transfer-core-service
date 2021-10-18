@@ -18,10 +18,15 @@ import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.EnumMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
+import com.mashreq.transfercoreservice.model.QuickRemitStatusMaster;
+import com.mashreq.transfercoreservice.repository.QrStatusMsRepository;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -91,6 +96,10 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final ExternalErrorCodeConfig errorCodeConfig;
     private final PromoCodeService promoCodeService;
     private final MobCommonService mobCommonService;
+    private final QrStatusMsRepository qrStatusMsRepository;
+
+    private Map<String, QuickRemitStatusMaster> quickRemitStatusMasterMap;
+
     @Value("${spring.profiles.active}")
     private String activeProfile;
     @Value("${app.nonProd.otpRelaxed}")
@@ -106,6 +115,10 @@ public class FundTransferServiceDefault implements FundTransferService {
         fundTransferStrategies.put(BAIT_AL_KHAIR, charityStrategyDefault);
         fundTransferStrategies.put(DUBAI_CARE, charityStrategyDefault);
         fundTransferStrategies.put(DAR_AL_BER, charityStrategyDefault);
+
+        quickRemitStatusMasterMap = qrStatusMsRepository.findAll()
+                .stream()
+                .collect(Collectors.toMap(QuickRemitStatusMaster::getCode, Function.identity()));
     }
 
     @Override
@@ -209,7 +222,15 @@ public class FundTransferServiceDefault implements FundTransferService {
 
 	protected void handleFailure(FundTransferRequestDTO request, FundTransferResponse response) {
 		if (isFailure(response)) {
-            GenericExceptionHandler.handleError(TransferErrorCode.valueOf(errorCodeConfig.getMiddlewareExternalErrorCodesMap().getOrDefault(response.getResponseDto().getMwResponseCode(),"FUND_TRANSFER_FAILED")),
+            if(quickRemitStatusMasterMap.containsKey(response.getResponseDto().getMwResponseCode())){
+                GenericExceptionHandler.handleError(
+                        TransferErrorCode.DYNAMIC_ERROR,
+                        response.getResponseDto().getMwResponseCode(),
+                        response.getResponseDto().getMwResponseDescription()
+                        );
+            }
+            GenericExceptionHandler.handleError(
+                    TransferErrorCode.valueOf(errorCodeConfig.getMiddlewareExternalErrorCodesMap().getOrDefault(response.getResponseDto().getMwResponseCode(),"FUND_TRANSFER_FAILED")),
                     getFailureMessage(TransferErrorCode.valueOf(errorCodeConfig.getMiddlewareExternalErrorCodesMap().getOrDefault(response.getResponseDto().getMwResponseCode(),"FUND_TRANSFER_FAILED")), request, response),
                     response.getResponseDto().getMwResponseCode()+"-"+ response.getResponseDto().getMwResponseDescription());
         }
