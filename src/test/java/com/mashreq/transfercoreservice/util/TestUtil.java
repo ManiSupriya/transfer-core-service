@@ -5,7 +5,10 @@ import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.AdditionalFields;
 import com.mashreq.transfercoreservice.fundtransfer.dto.LimitValidatorResponse;
+import com.mashreq.transfercoreservice.model.Country;
 import com.mashreq.transfercoreservice.model.DigitalUser;
+import com.mashreq.transfercoreservice.model.DigitalUserGroup;
+import com.mashreq.transfercoreservice.model.Segment;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
 
@@ -39,6 +42,15 @@ public class TestUtil {
         return coreCardDetailsDto;
     }
 
+    public static CoreAccountDetailsDTO getCoreAccountDetails() {
+        CoreAccountDetailsDTO coreAccountDetailsDTO = new CoreAccountDetailsDTO();
+        SearchAccountDto searchAccountDto = new SearchAccountDto();
+        searchAccountDto.setNumber("1234567890");
+        searchAccountDto.setAccountType(new SearchAccountTypeDto());
+        coreAccountDetailsDTO.setConnectedAccounts(Arrays.asList(searchAccountDto));
+        return coreAccountDetailsDTO;
+    }
+
     public static AdditionalFields getAdditionalFields(){
         AdditionalFields additionalFields = new AdditionalFields();
         Map<String, String> map = new HashMap<>();
@@ -51,6 +63,7 @@ public class TestUtil {
     public static List<AccountDetailsDTO> getAccountDetails() {
         AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
         accountDetailsDTO.setNumber("1234567890");
+        accountDetailsDTO.setCurrency("AED");
         return Arrays.asList(accountDetailsDTO);
     }
 
@@ -92,9 +105,19 @@ public class TestUtil {
     }
 
     public static DigitalUser getDigitalUser() {
-        DigitalUser digitalUser = new DigitalUser();
+        DigitalUser digitalUser = null;
         digitalUser = new DigitalUser();
         digitalUser.setDeviceInfo("ANDROID");
+
+        DigitalUserGroup digitalUserGroup = new DigitalUserGroup();
+        Segment segment = new Segment();
+        Country country = new Country();
+
+        digitalUserGroup.setSegment(segment);
+        digitalUserGroup.setCountry(country);
+
+        digitalUser.setDigitalUserGroup(digitalUserGroup);
+
         return digitalUser;
     }
 

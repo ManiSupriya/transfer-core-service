@@ -78,7 +78,7 @@ public class FundTransferController {
         }
         return Response.<Map<ServiceType,EligibilityResponse>>builder()
                 .status(ResponseStatus.SUCCESS)
-                .data(transferEligibilityProxy.getEligibleServiceTypes(metaData, request)).build();
+                .data(transferEligibilityProxy.checkEligibility(metaData, request)).build();
     }
 
 }

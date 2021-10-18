@@ -11,6 +11,7 @@ import com.mashreq.encryption.encryptor.EncryptionService;
 import com.mashreq.mobcommons.services.events.publisher.AuditEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.cache.UserSessionCacheService;
+import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.service.*;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
@@ -108,12 +109,12 @@ public class QRAccountEligibilityServiceTest {
 		when(currencyValidatorFactory.getValidator(any())).thenReturn(currencyValidator);
 		when(limitValidatorFactory.getValidator(any())).thenReturn(limitValidator);
 		when(currencyValidator.validate(any(),any(),any())).thenReturn(validationResult);
-		when(accountService.getAccountsFromCore(any())).thenReturn(TestUtil.getAccountDetails());
 		when(beneficiaryService.getByIdWithoutValidation(any(),any(),any(),any())).thenReturn(TestUtil.getBeneficiaryDto());
 		when(beneficiaryValidator.validate(any(),any(),any())).thenReturn(validationResult);
 		when(maintenanceService.convertCurrency(any())).thenReturn(TestUtil.getCurrencyConversionDto());
 		when(limitValidator.validate(any(),any(),any(),any(),any())).thenReturn(TestUtil.limitValidatorResultsDto());
 		when(quickRemitService.exchange(any(),any(),any())).thenReturn(qrExchangeResponse());
+		when(accountService.getAccountDetailsFromCache(any(),any())).thenReturn(new AccountDetailsDTO());
 
 		EligibilityResponse response = service.checkEligibility(metaData, fundTransferEligibiltyRequestDTO, userDTO);
 
