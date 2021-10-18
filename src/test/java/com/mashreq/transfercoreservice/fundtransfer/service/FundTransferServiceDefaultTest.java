@@ -118,8 +118,6 @@ public class FundTransferServiceDefaultTest {
 		VerifyOTPResponseDTO verifyOTPResponseDTO = new VerifyOTPResponseDTO();
 		verifyOTPResponseDTO.setAuthenticated(true);
 
-		Mockito.doNothing().when(asyncUserEventPublisher).publishSuccessEvent(any(), any(), any());
-		when(iamService.verifyOTP(any())).thenReturn(Response.<VerifyOTPResponseDTO>builder().status(ResponseStatus.SUCCESS).data(verifyOTPResponseDTO).build());
 		when(errorCodeConfig.getMiddlewareExternalErrorCodesMap()).thenReturn(Collections.emptyMap());
 
 		Assertions.assertThrows(GenericException.class,()-> fundTransferServiceDefault.handleFailure(fundTransferRequestDTO, fundTransferResponse));
