@@ -118,7 +118,7 @@ public class FundTransferServiceDefault implements FundTransferService {
 
         quickRemitStatusMasterMap = qrStatusMsRepository.findAll()
                 .stream()
-                .collect(Collectors.toMap(QuickRemitStatusMaster::getCode, Function.identity()));
+                .collect(Collectors.toMap(QuickRemitStatusMaster::getStatusCode, Function.identity()));
     }
 
     @Override

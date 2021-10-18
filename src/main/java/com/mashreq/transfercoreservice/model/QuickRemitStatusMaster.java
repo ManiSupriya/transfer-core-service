@@ -11,8 +11,8 @@ public class QuickRemitStatusMaster {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String code;
-    private String desc;
-    private String groupCode;
-    private String gateway;
+    private String statusCode;
+    private String statusDesc;
+    private String statusGroupCode;
+    private String qrGateway;
 }
