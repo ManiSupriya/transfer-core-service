@@ -9,7 +9,6 @@ import static com.mashreq.transfercoreservice.fundtransfer.dto.QuickRemitType.ge
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
@@ -33,7 +32,6 @@ import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.CardService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.client.service.QuickRemitService;
-import com.mashreq.transfercoreservice.common.ExceptionUtils;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
@@ -86,7 +84,7 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 
 		final ValidationContext validationContext = new ValidationContext();
 		
-		final BeneficiaryDto beneficiaryDto = beneficiaryService.getByIdV2(metaData.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), metaData);
+		final BeneficiaryDto beneficiaryDto = beneficiaryService.getByIdWithoutValidation(metaData.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), "V2", metaData);
         
         List<CountryMasterDto> countryList = maintenanceService.getAllCountries("MOB", "AE", Boolean.TRUE);
         final Optional<CountryMasterDto> countryDto = countryList.stream()
@@ -106,16 +104,18 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 
 		QRExchangeResponse response = quickRemitService.exchange(request, countryDto, metaData);
 		if (!response.isAllowQR()) {
-			return EligibilityResponse.builder().status(FundsTransferEligibility.NOT_ELIGIBLE).data(response).build();
+			return EligibilityResponse.builder()
+					.status(FundsTransferEligibility.NOT_ELIGIBLE)
+					.errorCode(PAYMENT_NOT_ELIGIBLE_FOR_QR.getCustomErrorCode())
+					.errorMessage(PAYMENT_NOT_ELIGIBLE_FOR_QR.getErrorMessage())
+					.data(response).build();
 		}
 
 		if(StringUtils.isNotBlank(request.getCardNo())) {
 			return validateQRCCFlow(request, response, metaData, beneficiaryDto, userDTO);
 		}
 
-        final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metaData.getPrimaryCif());
-		final AccountDetailsDTO sourceAccountDetailsDTO = getAccountDetailsBasedOnAccountNumber(accountsFromCore,
-				request.getFromAccount());
+		final AccountDetailsDTO sourceAccountDetailsDTO = accountService.getAccountDetailsFromCache(request.getFromAccount(), metaData);
 		final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), sourceAccountDetailsDTO,
 				new BigDecimal(response.getDebitAmountWithoutCharges()));
 
@@ -136,13 +136,11 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 			logAndThrow(FundTransferEventType.FUND_TRANSFER_CC_CALL, TransferErrorCode.FT_CC_NO_DEALS, requestMetaData);
 		}
 
-		final List<CardDetailsDTO> accountsFromCore = cardService.getCardsFromCore(requestMetaData.getPrimaryCif(), CardType.CC);
+		final CardDetailsDTO selectedCreditCard = cardService.getCardDetailsFromCache(request.getCardNo(), requestMetaData);
+
 		final ValidationContext validationContext = new ValidationContext();
 
-		validationContext.add("account-details", accountsFromCore);
 		validationContext.add("validate-from-account", Boolean.TRUE);
-
-		final CardDetailsDTO selectedCreditCard = getSelectedCreditCard(accountsFromCore, request.getCardNo());
 
 		validationContext.add("from-account", selectedCreditCard);
 

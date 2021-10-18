@@ -1,8 +1,8 @@
 package com.mashreq.transfercoreservice.client.service;
 
 import static com.mashreq.transfercoreservice.client.ErrorUtils.getErrorDetails;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_NOT_FOUND;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACC_EXTERNAL_SERVICE_ERROR;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.CARD_NUMBER_DOES_NOT_BELONG_TO_CIF;
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.mashreq.transfercoreservice.cache.MobRedisService;
+import com.mashreq.transfercoreservice.cache.UserSessionCacheService;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
@@ -57,6 +59,8 @@ public class AccountService {
 	private final AccountCardLessCashBlockRequestService accountCardLessCashBlockRequestService;
 	private final FeesExternalConfig feeCodeConfig;
 	private final AsyncUserEventPublisher asyncUserEventPublisher;
+	private final UserSessionCacheService userSessionCacheService;
+	private final MobRedisService mobRedisService;
 
 	public List<AccountDetailsDTO> getAccountsFromCore(final String cifId) {
 		log.info("Fetching accounts for cifId {} ", htmlEscape(cifId));
@@ -96,24 +100,8 @@ public class AccountService {
 
 	}
 
-	public List<AccountDetailsDTO> getAccountsFromCoreWithDefaults(final String cifId) {
-		log.info("Fetching accounts for cifId {} ", cifId);
-		try {
-			Response<CifProductsDto> cifProductsResponse = accountClient.searchAccounts(cifId, null);
-
-			if (ResponseStatus.ERROR == cifProductsResponse.getStatus() || isNull(cifProductsResponse.getData())) {
-				log.warn("Not able to fetch accounts, returning empty list instead");
-				return Collections.emptyList();
-			}
-
-			List<AccountDetailsDTO> accounts = convertResponseToAccounts(cifProductsResponse.getData());
-			log.info("{} Accounts fetched for cif id {} ", accounts.size(), cifId);
-			return accounts;
-
-		} catch (Exception e) {
-			log.error("Error occurred while calling account client {} ", e);
-			return Collections.emptyList();
-		}
+	private AccountDetailsDTO getConvertedAccountDetailsFromCore(final String accountNumber) {
+		return convertCoreAccountsToAccountDTO(getAccountDetailsFromCore(accountNumber));
 	}
 
 	private AccountDetailsDTO convertCoreAccountsToAccountDTO(SearchAccountDto coreAccount) {
@@ -175,5 +163,17 @@ public class AccountService {
                 metaData, CommonConstants.CARD_LESS_CASH
                 );
 
+	}
+
+	public AccountDetailsDTO getAccountDetailsFromCache(final String accountNumber, RequestMetaData requestMetaData) {
+		if(!userSessionCacheService.isAccountNumberBelongsToCif(accountNumber, requestMetaData.getUserCacheKey())){
+			GenericExceptionHandler.handleError(ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF,ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF.getErrorMessage());
+		}
+		AccountDetailsDTO accountDetailsDTO = mobRedisService.get(userSessionCacheService.getAccountsDetailsCacheKey(requestMetaData, accountNumber), AccountDetailsDTO.class);
+		if(accountDetailsDTO == null){
+			log.info("[AccountService] cache miss for account details");
+			accountDetailsDTO = getConvertedAccountDetailsFromCore(accountNumber);
+		}
+		return accountDetailsDTO;
 	}
 }
