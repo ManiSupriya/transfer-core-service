@@ -83,7 +83,7 @@ public class FundTransferMWService {
         			response.getBody().getExceptionDetails().getErrorCode(), response.getBody().getExceptionDetails().getErrorDescription(), response.getBody().getExceptionDetails().getErrorCode());
         	GenericExceptionHandler.handleError(TransferErrorCode.EXTERNAL_SERVICE_ERROR_MW,
 					TransferErrorCode.EXTERNAL_SERVICE_ERROR_MW.getErrorMessage(),
-					response.getBody().getExceptionDetails().getErrorCode()+"-"+response.getBody().getExceptionDetails().getErrorDescription());
+					response.getBody().getExceptionDetails().getErrorCode()+"|"+response.getBody().getExceptionDetails().getErrorDescription());
         }
         final FundTransferResType.Transfer transfer = response.getBody().getFundTransferRes().getTransfer().get(0);
         final ErrorType exceptionDetails = response.getBody().getExceptionDetails();

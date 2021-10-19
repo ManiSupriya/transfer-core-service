@@ -107,6 +107,8 @@ public class FundTransferServiceDefault implements FundTransferService {
     @Value("${app.nonProd.otpRelaxed}")
     private boolean otpRelaxed;
 
+    private final String FCI_ERROR_CODE_MW = "EAI-FCI-BRK";
+
     @PostConstruct
     public void init() {
         fundTransferStrategies = new EnumMap<>(ServiceType.class);
@@ -191,7 +193,13 @@ public class FundTransferServiceDefault implements FundTransferService {
             response = strategy.execute(request, metadata, userDTO);
         }
         catch(GenericException ge){
-            handleFailure(request, response);
+            //this check is for fetching the middleware error code and description which will come from TFT in error details only.
+            //for TFT CC, no exception is thrown hence it will be handled afterwards.
+            if(StringUtils.isNotBlank(ge.getErrorDetails()) && ge.getErrorDetails().contains("|")){
+                handleFailureWithDetailedErrors(ge.getErrorDetails().split("\\|")[0], ge.getErrorDetails().split("\\|")[1]);
+            }
+            //rethrow the exception if it doesn't have any mapping for detailed errors.
+            throw ge;
         }
 
         handleIfTransactionIsSuccess(metadata, request, userDTO, response);
@@ -201,6 +209,8 @@ public class FundTransferServiceDefault implements FundTransferService {
         log.info("Total time taken for {} Fund Transfer {} milli seconds ", htmlEscape(request.getServiceType()), htmlEscape(Long.toString(between(start, now()).toMillis())));
 
         boolean promoApplied = promoCodeService.validateAndSave(request, transactionHistory.getStatus(), metadata);
+
+        handleFailure(request,response);
 
         return FundTransferResponseDTO.builder()
                 .accountTo(transactionHistory.getAccountTo())
@@ -228,13 +238,7 @@ public class FundTransferServiceDefault implements FundTransferService {
 
 	protected void handleFailure(FundTransferRequestDTO request, FundTransferResponse response) {
 		if (isFailure(response)) {
-            if(quickRemitStatusMasterMap.containsKey(response.getResponseDto().getMwResponseCode())){
-                GenericExceptionHandler.handleError(
-                        TransferErrorCode.DYNAMIC_ERROR,
-                        response.getResponseDto().getMwResponseCode(),
-                        response.getResponseDto().getMwResponseDescription()
-                        );
-            }
+            handleFailureWithDetailedErrors(response.getResponseDto().getMwResponseCode(), response.getResponseDto().getMwResponseDescription());
             GenericExceptionHandler.handleError(
                     TransferErrorCode.valueOf(errorCodeConfig.getMiddlewareExternalErrorCodesMap().getOrDefault(response.getResponseDto().getMwResponseCode(),"FUND_TRANSFER_FAILED")),
                     getFailureMessage(TransferErrorCode.valueOf(errorCodeConfig.getMiddlewareExternalErrorCodesMap().getOrDefault(response.getResponseDto().getMwResponseCode(),"FUND_TRANSFER_FAILED")), request, response),
@@ -242,7 +246,21 @@ public class FundTransferServiceDefault implements FundTransferService {
         }
 	}
 
-	protected TransactionHistory updateTransactionHistory(RequestMetaData metadata, FundTransferRequestDTO request,
+    private void handleFailureWithDetailedErrors(String mwErrorCode, String mwErrorDesc) {
+        if(isPresentInStatusMasterDB(mwErrorCode)){
+            GenericExceptionHandler.handleError(
+                    TransferErrorCode.DYNAMIC_ERROR,
+                    mwErrorCode,
+                    mwErrorDesc
+            );
+        }
+    }
+
+    private boolean isPresentInStatusMasterDB(String mwErrorCode) {
+        return quickRemitStatusMasterMap.containsKey(mwErrorCode) || (null != mwErrorCode && mwErrorCode.startsWith(FCI_ERROR_CODE_MW) && quickRemitStatusMasterMap.containsKey(FCI_ERROR_CODE_MW));
+    }
+
+    protected TransactionHistory updateTransactionHistory(RequestMetaData metadata, FundTransferRequestDTO request,
 			UserDTO userDTO, FundTransferResponse response) {
 		/** Insert payment history irrespective of mw payment fails or success */
         TransactionHistory transactionHistory = generateTransactionHistory(request, response, userDTO, metadata);
@@ -260,12 +278,14 @@ public class FundTransferServiceDefault implements FundTransferService {
 	}
 
 	protected boolean isFailure(FundTransferResponse response) {
-        return MwResponseStatus.F.equals(response.getResponseDto().getMwResponseStatus());
+        return null != response.getResponseDto() && MwResponseStatus.F.equals(response.getResponseDto().getMwResponseStatus());
     }
 
     protected boolean isSuccessOrProcessing(FundTransferResponse response) {
-        return response.getResponseDto().getMwResponseStatus().equals(MwResponseStatus.S) ||
-                response.getResponseDto().getMwResponseStatus().equals(MwResponseStatus.P);
+        return null != response.getResponseDto() && (
+                MwResponseStatus.S.equals(response.getResponseDto().getMwResponseStatus()) ||
+                        MwResponseStatus.P.equals(response.getResponseDto().getMwResponseStatus())
+                );
     }
 
     protected String getFailureMessage(TransferErrorCode fundTransferFailed, FundTransferRequestDTO request, FundTransferResponse response) {
