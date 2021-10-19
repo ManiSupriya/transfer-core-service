@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -12,6 +12,9 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import com.mashreq.transfercoreservice.errors.ExternalErrorCodeConfig;
+import com.mashreq.transfercoreservice.fundtransfer.dto.*;
+import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
+import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageService;
 import com.mashreq.transfercoreservice.model.*;
 import com.mashreq.transfercoreservice.repository.QrStatusMsRepository;
 import org.junit.Assert;
@@ -34,10 +37,6 @@ import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPRequestDTO;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPResponseDTO;
 import com.mashreq.transfercoreservice.client.service.OTPService;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponseDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.FundTransferStrategy;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.InternationalFundTransferStrategy;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
@@ -58,6 +57,8 @@ public class FundTransferServiceDefaultTest {
 	 OTPService iamService;
 	 @Mock
 	 AsyncUserEventPublisher asyncUserEventPublisher;
+	 @Mock
+	 private DigitalUserLimitUsageService digitalUserLimitUsageService;
 	 @Mock
 	 DigitalUser digitalUser;
 	 @InjectMocks
@@ -110,6 +111,20 @@ public class FundTransferServiceDefaultTest {
 	}
 
 	@Test
+	public void handleSuccessTest() {
+		CoreFundTransferResponseDto coreFundTransferResponseDto = new CoreFundTransferResponseDto();
+		coreFundTransferResponseDto.setMwResponseStatus(MwResponseStatus.S);
+		FundTransferResponse fundTransferResponse = FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
+
+		VerifyOTPResponseDTO verifyOTPResponseDTO = new VerifyOTPResponseDTO();
+		verifyOTPResponseDTO.setAuthenticated(true);
+
+		doNothing().when(digitalUserLimitUsageService).insert(any());
+		fundTransferServiceDefault.handleIfTransactionIsSuccess(metaData, fundTransferRequestDTO, new UserDTO(), fundTransferResponse);
+		verify(digitalUserLimitUsageService,times(1)).insert(any());
+	}
+
+	@Test
 	public void handleFailureTest(){
 		CoreFundTransferResponseDto coreFundTransferResponseDto = new CoreFundTransferResponseDto();
 		coreFundTransferResponseDto.setMwResponseStatus(MwResponseStatus.F);
@@ -126,6 +141,12 @@ public class FundTransferServiceDefaultTest {
 		FundTransferResponse fundTransferResponse1 = FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
 
 		Assertions.assertThrows(GenericException.class,()-> fundTransferServiceDefault.handleFailure(fundTransferRequestDTO, fundTransferResponse1));
+
+		coreFundTransferResponseDto.setMwResponseCode("EAI-FCI-BRK-002");
+		FundTransferResponse fundTransferResponse2 = FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
+
+		Assertions.assertThrows(GenericException.class,()-> fundTransferServiceDefault.handleFailure(fundTransferRequestDTO, fundTransferResponse2));
+
 	}
 
 	@Test

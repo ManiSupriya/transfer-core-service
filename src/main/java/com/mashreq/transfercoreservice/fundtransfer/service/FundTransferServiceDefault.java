@@ -107,7 +107,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     @Value("${app.nonProd.otpRelaxed}")
     private boolean otpRelaxed;
 
-    private final String FCI_ERROR_CODE_MW = "EAI-FCI-BRK";
+    private static final String FCI_ERROR_CODE_MW = "EAI-FCI-BRK";
 
     @PostConstruct
     public void init() {
