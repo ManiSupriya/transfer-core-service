@@ -2,15 +2,16 @@ package com.mashreq.transfercoreservice.fundtransfer.eligibility.validators;
 
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_CURRENCY_MISMATCH;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.LOCAL_CURRENCY_MISMATCH;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.CURRENCY_IS_INVALID;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.LOCAL_CURRENCY_MISMATCH;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.INFT;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.LOCAL;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.QRT;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WAMA;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WYMA;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.LOCAL;
 
-import java.util.Objects;
+import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -21,12 +22,13 @@ import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyDto;
 import com.mashreq.transfercoreservice.client.dto.CountryMasterDto;
-import com.mashreq.transfercoreservice.client.service.MaintenanceService;
+import com.mashreq.transfercoreservice.client.mobcommon.MobCommonClient;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
+import com.mashreq.webcore.dto.response.Response;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,8 +39,8 @@ import lombok.extern.slf4j.Slf4j;
 public class CurrencyValidator implements ICurrencyValidator {
 
     private final AsyncUserEventPublisher auditEventPublisher;
-    private final MaintenanceService maintenanceService;
-    private static final String INTERNATIONAL = "INTERNATIONAL";
+    private final MobCommonClient mobCommonClient;
+    private final String function = "inft-all";
     
     @Value("${app.local.currency}")
     private String localCurrency;
@@ -48,37 +50,36 @@ public class CurrencyValidator implements ICurrencyValidator {
     public ValidationResult validate(FundTransferEligibiltyRequestDTO request, RequestMetaData metadata, ValidationContext context) {
 
         log.info("Validating transaction currency {} for service type [ {} ] ", htmlEscape(request.getTxnCurrency()), htmlEscape(request.getServiceType()));
-        
+        CoreCurrencyDto transferCurrency = null;
         if(INFT.getName().equals(request.getServiceType())) {
-        	boolean isValidCurrency = maintenanceService.getAllCurrencies()
-        			.stream()
-        			.filter(Objects::nonNull)
-        			.filter(currency -> INTERNATIONAL.equals(currency.getFunction()))
-        			.map(CoreCurrencyDto::getCode)
-        			.anyMatch(request.getTxnCurrency()::equals);
-        	if(!isValidCurrency) {
-        		log.error("Transaction Currency is not eligigle for service type [ {} ]  ", htmlEscape(request.getServiceType()));
-            	auditEventPublisher.publishFailureEvent(FundTransferEventType.CURRENCY_VALIDATION, metadata, null,
-            			CURRENCY_IS_INVALID.getCustomErrorCode(), CURRENCY_IS_INVALID.getErrorMessage(), null );
+        	transferCurrency = fetchAllTransferSupportedCurrencies(request.getTxnCurrency(),metadata);
+        	if(transferCurrency == null) {
+        		log.error("Not able to find requested currency :: {} in INFTALL currency list", htmlEscape(request.getServiceType()));
+        		return ValidationResult.builder().success(false).transferErrorCode(CURRENCY_IS_INVALID).build();
         	}
-        	return ValidationResult.builder().success(isValidCurrency).transferErrorCode(CURRENCY_IS_INVALID).build();
-
+        	if(!transferCurrency.getSwiftTransferEnabled()) {
+        		logFailure(request, metadata);
+        	}
+        	return ValidationResult.builder().success(transferCurrency.getSwiftTransferEnabled()).transferErrorCode(CURRENCY_IS_INVALID).build();
         }
         
         if(QRT.getName().equals(request.getServiceType())) {
         	final CountryMasterDto countryMasterDto = context.get("country", CountryMasterDto.class);
 
             if (null != countryMasterDto) {
-                if (request.getTxnCurrency().equalsIgnoreCase(countryMasterDto.getNativeCurrency())) {
-                	return ValidationResult.builder().success(true).build();
+                if (!request.getTxnCurrency().equalsIgnoreCase(countryMasterDto.getNativeCurrency())) {
+                	return ValidationResult.builder().success(false).build();
                 }
             }
-    		
-            log.error("Transaction Currency is not eligigle for service type [ {} ]  ", htmlEscape(request.getServiceType()));
-        	auditEventPublisher.publishFailureEvent(FundTransferEventType.CURRENCY_VALIDATION, metadata, null,
-        			CURRENCY_IS_INVALID.getCustomErrorCode(), CURRENCY_IS_INVALID.getErrorMessage(), null );
-        	
-        	return ValidationResult.builder().success(false).transferErrorCode(CURRENCY_IS_INVALID).build();
+            transferCurrency = fetchAllTransferSupportedCurrencies(request.getTxnCurrency(),metadata);
+        	if(transferCurrency == null) {
+        		log.error("Not able to find requested currency :: {} in INFTALL currency list", htmlEscape(request.getServiceType()));
+        		return ValidationResult.builder().success(false).transferErrorCode(CURRENCY_IS_INVALID).build();
+        	}
+        	if(!transferCurrency.getQuickRemitEnabled()) {
+        		logFailure(request, metadata);
+        	}
+        	return ValidationResult.builder().success(transferCurrency.getQuickRemitEnabled()).transferErrorCode(CURRENCY_IS_INVALID).build();
 
         }       
         
@@ -126,7 +127,22 @@ public class CurrencyValidator implements ICurrencyValidator {
         return ValidationResult.builder().success(true).build();
     }
 
-    private boolean isReqCurrencyValid(String requestedCurrency, String fromAccCurrency, String toCurrency) {
+	private void logFailure(FundTransferEligibiltyRequestDTO request, RequestMetaData metadata) {
+		log.error("Transaction Currency is not eligigle for service type [ {} ]  ", htmlEscape(request.getServiceType()));
+		auditEventPublisher.publishFailureEvent(FundTransferEventType.CURRENCY_VALIDATION, metadata, null,
+				CURRENCY_IS_INVALID.getCustomErrorCode(), CURRENCY_IS_INVALID.getErrorMessage(), null );
+	}
+
+    private CoreCurrencyDto fetchAllTransferSupportedCurrencies(String txnCurrency, RequestMetaData metadata) {
+    	Response<List<CoreCurrencyDto>> transferCurrencies = mobCommonClient.getTransferCurrencies(function,metadata.getCountry());
+    	Optional<CoreCurrencyDto> currency = Optional.empty();
+    	if(transferCurrencies != null && transferCurrencies.hasData() && !transferCurrencies.getData().isEmpty()) {
+    		currency = transferCurrencies.getData().stream().filter(cur -> txnCurrency.equals(cur.getCode())).findAny();
+    	}
+		return currency.isPresent()?currency.get() : null;
+	}
+
+	private boolean isReqCurrencyValid(String requestedCurrency, String fromAccCurrency, String toCurrency) {
         return requestedCurrency.equals(fromAccCurrency) || requestedCurrency.equals(toCurrency);
     }
 }

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.mashreq.ms.commons.cache.HeaderNames;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
+import com.mashreq.transfercoreservice.client.dto.CoreCurrencyDto;
 import com.mashreq.transfercoreservice.client.dto.CountryResponseDto;
 import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
@@ -43,7 +44,9 @@ public interface MobCommonClient {
     @PostMapping("/v1/currency/conversion")
     Response<CurrencyConversionDto> convertBetweenCurrencies(@RequestBody CoreCurrencyConversionRequestDto conversionRateRequestDto);
 
-
+    @GetMapping("/v1/currency")
+    Response<List<CoreCurrencyDto>> getTransferCurrencies(@RequestParam(value = "function")String function,@RequestHeader(HeaderNames.COUNTRY_HEADER_NAME) String country);
+    
     @GetMapping("/v1/customer")
     Response<CustomerDetailsDto> getCustomerDetails(@RequestHeader(HeaderNames.CIF_HEADER_NAME) String cifId);
 
