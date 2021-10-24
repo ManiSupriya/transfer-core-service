@@ -115,9 +115,7 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 			return validateQRCCFlow(request, response, metaData, beneficiaryDto, userDTO);
 		}
 
-        final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metaData.getPrimaryCif());
-		final AccountDetailsDTO sourceAccountDetailsDTO = getAccountDetailsBasedOnAccountNumber(accountsFromCore,
-				request.getFromAccount());
+		final AccountDetailsDTO sourceAccountDetailsDTO = accountService.getAccountDetailsFromCache(request.getFromAccount(), metaData);
 		final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), sourceAccountDetailsDTO,
 				new BigDecimal(response.getDebitAmountWithoutCharges()));
 
@@ -138,13 +136,11 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 			logAndThrow(FundTransferEventType.FUND_TRANSFER_CC_CALL, TransferErrorCode.FT_CC_NO_DEALS, requestMetaData);
 		}
 
-		final List<CardDetailsDTO> accountsFromCore = cardService.getCardsFromCore(requestMetaData.getPrimaryCif(), CardType.CC);
+		final CardDetailsDTO selectedCreditCard = cardService.getCardDetailsFromCache(request.getCardNo(), requestMetaData);
+
 		final ValidationContext validationContext = new ValidationContext();
 
-		validationContext.add("account-details", accountsFromCore);
 		validationContext.add("validate-from-account", Boolean.TRUE);
-
-		final CardDetailsDTO selectedCreditCard = getSelectedCreditCard(accountsFromCore, request.getCardNo());
 
 		validationContext.add("from-account", selectedCreditCard);
 
