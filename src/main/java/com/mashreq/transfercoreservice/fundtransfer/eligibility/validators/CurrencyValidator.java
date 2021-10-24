@@ -57,29 +57,27 @@ public class CurrencyValidator implements ICurrencyValidator {
         		log.error("Not able to find requested currency :: {} in INFTALL currency list", htmlEscape(request.getServiceType()));
         		return ValidationResult.builder().success(false).transferErrorCode(CURRENCY_IS_INVALID).build();
         	}
-        	if(!transferCurrency.getSwiftTransferEnabled()) {
+        	if(!transferCurrency.isSwiftTransferEnabled()) {
         		logFailure(request, metadata);
         	}
-        	return ValidationResult.builder().success(transferCurrency.getSwiftTransferEnabled()).transferErrorCode(CURRENCY_IS_INVALID).build();
+        	return ValidationResult.builder().success(transferCurrency.isSwiftTransferEnabled()).transferErrorCode(CURRENCY_IS_INVALID).build();
         }
         
         if(QRT.getName().equals(request.getServiceType())) {
         	final CountryMasterDto countryMasterDto = context.get("country", CountryMasterDto.class);
 
-            if (null != countryMasterDto) {
-                if (!request.getTxnCurrency().equalsIgnoreCase(countryMasterDto.getNativeCurrency())) {
+            if (null != countryMasterDto && !request.getTxnCurrency().equalsIgnoreCase(countryMasterDto.getNativeCurrency())) {
                 	return ValidationResult.builder().success(false).build();
-                }
             }
             transferCurrency = fetchAllTransferSupportedCurrencies(request.getTxnCurrency(),metadata);
         	if(transferCurrency == null) {
         		log.error("Not able to find requested currency :: {} in INFTALL currency list", htmlEscape(request.getServiceType()));
         		return ValidationResult.builder().success(false).transferErrorCode(CURRENCY_IS_INVALID).build();
         	}
-        	if(!transferCurrency.getQuickRemitEnabled()) {
+        	if(!transferCurrency.isQuickRemitEnabled()) {
         		logFailure(request, metadata);
         	}
-        	return ValidationResult.builder().success(transferCurrency.getQuickRemitEnabled()).transferErrorCode(CURRENCY_IS_INVALID).build();
+        	return ValidationResult.builder().success(transferCurrency.isQuickRemitEnabled()).transferErrorCode(CURRENCY_IS_INVALID).build();
 
         }       
         

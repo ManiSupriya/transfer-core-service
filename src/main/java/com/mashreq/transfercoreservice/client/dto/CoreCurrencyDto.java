@@ -13,6 +13,6 @@ public class CoreCurrencyDto {
     private String description;
     private String iso;
     private String function;
-    private Boolean quickRemitEnabled;
-    private Boolean swiftTransferEnabled;
+    private boolean quickRemitEnabled;
+    private boolean swiftTransferEnabled;
 }
