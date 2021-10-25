@@ -519,10 +519,10 @@
                                 border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
                         </td>
                           <td>
-                            <p style="color: #738794;font-size: 16px;">Beneficiary Name:</p>
+                            <p style="color: #738794;font-size: 16px;">Transfer type:</p>
                           </td>
                           <td>
-                            <p style="font-weight:700">${beneficiaryNickname}</p>
+                            <p style="font-weight:700">${transferType}</p>
                             </td>
                         </tr>
                     </#if>
@@ -534,7 +534,7 @@
                                         border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
                                 </td>
                           <td>
-                            <p style="color: #738794;font-size: 16px;">Debit account:</p>
+                            <p style="color: #738794;font-size: 16px;">From ${sourceOfFund}:</p>
                           </td>
                           <td>
                             <p style="font-weight:700">${maskedAccount}</p>
@@ -542,14 +542,30 @@
                         </tr>
                     </#if>
 
-                    <#if amount?has_content>
+                    <#if toAccountNumber?has_content>
+                        <tr>
+                            <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
+                                    <p style="border: 1px solid rgb(115, 135, 148);
+                                    border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
+                            </td>
+                            <td>
+                                <p style="color: #738794;font-size: 16px;">To account:</p>
+                            </td>
+                            <td>
+                                <p style="font-weight:700">${beneficiaryNickname}</p>
+                                <p style="font-weight:700">${toAccountNumber}</p>
+                            </td>
+                        </tr>
+                    </#if>
+
+                    <#if sourceAmount?has_content>
                         <tr>
                             <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
                                     <p style="border: 1px solid rgb(115, 135, 148);
                                     border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
                             </td>
                               <td>
-                                <p style="color: #738794;font-size: 16px;">Amount:</p>
+                                <p style="color: #738794;font-size: 16px;">Transfer amount:</p>
                               </td>
                           <td>
                             <p style="font-weight:700">${currency} ${amount}</p>
@@ -557,32 +573,17 @@
                         </tr>
                     </#if>
 
-                    <#if beneBankName?has_content>
+                    <#if sourceAmount?has_content>
                         <tr>
-                                <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
-                                        <p style="border: 1px solid rgb(115, 135, 148);
-                                        border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
-                                </td>
-                          <td>
-                            <p style="color: #738794;font-size: 16px;">Bank name:</p>
-                          </td>
-                          <td>
-                            <p style="font-weight:700">${beneBankName}</p>
+                            <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
+                                    <p style="border: 1px solid rgb(115, 135, 148);
+                                    border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
                             </td>
-                        </tr>
-                    </#if>
-
-                    <#if beneBankCountry?has_content>
-                        <tr>
-                                <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
-                                        <p style="border: 1px solid rgb(115, 135, 148);
-                                        border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
-                                </td>
+                              <td>
+                                <p style="color: #738794;font-size: 16px;">Amount to be debited:</p>
+                              </td>
                           <td>
-                            <p style="color: #738794;font-size: 16px;">Bank country:</p>
-                          </td>
-                          <td>
-                            <p style="font-weight:700">${beneBankCountry}</p>
+                            <p style="font-weight:700">${accountCurrency} ${sourceAmount}</p>
                         </td>
                         </tr>
                     </#if>
@@ -594,13 +595,84 @@
                                         border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
                                 </td>
                           <td>
-                            <p style="color: #738794;font-size: 16px;">Transaction date:</p>
+                            <p style="color: #738794;font-size: 16px;">Inititation date:</p>
                           </td>
                           <td>
                             <p style="font-weight:700">${transactionDate}</p>
                         </td>
                         </tr>
                     </#if>
+
+                    <#if orderType == "PL" >
+
+                        <#if executionDate?has_content>
+                            <tr>
+                                    <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
+                                            <p style="border: 1px solid rgb(115, 135, 148);
+                                            border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
+                                    </td>
+                              <td>
+                                <p style="color: #738794;font-size: 16px;">Execution date:</p>
+                              </td>
+                              <td>
+                                <p style="font-weight:700">${executionDate}</p>
+                            </td>
+                            </tr>
+                        </#if>
+
+
+                    <#elseif orderType == "SI">
+
+                        <#if startDate?has_content>
+                            <tr>
+                                    <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
+                                            <p style="border: 1px solid rgb(115, 135, 148);
+                                            border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
+                                    </td>
+                              <td>
+                                <p style="color: #738794;font-size: 16px;">SI start date:</p>
+                              </td>
+                              <td>
+                                <p style="font-weight:700">${startDate}</p>
+                            </td>
+                            </tr>
+                        </#if>
+
+                        <#if endDate?has_content>
+                            <tr>
+                                    <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
+                                            <p style="border: 1px solid rgb(115, 135, 148);
+                                            border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
+                                    </td>
+                              <td>
+                                <p style="color: #738794;font-size: 16px;">SI end date:</p>
+                              </td>
+                              <td>
+                                <p style="font-weight:700">${endDate}</p>
+                            </td>
+                            </tr>
+                        </#if>
+
+                        <#if frequency?has_content>
+                            <tr>
+                                    <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
+                                            <p style="border: 1px solid rgb(115, 135, 148);
+                                            border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
+                                    </td>
+                              <td>
+                                <p style="color: #738794;font-size: 16px;">SI frequency:</p>
+                              </td>
+                              <td>
+                                <p style="font-weight:700">${frequency}</p>
+                            </td>
+                            </tr>
+                        </#if>
+
+
+                    </#if>
+
+
+
                   </table>
 
 

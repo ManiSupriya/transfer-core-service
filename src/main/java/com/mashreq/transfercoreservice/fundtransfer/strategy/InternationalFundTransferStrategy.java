@@ -7,6 +7,7 @@ import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurpose
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
+import com.mashreq.transfercoreservice.common.CommonUtils;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
@@ -126,17 +127,16 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         final AccountDetailsDTO sourceAccountDetailsDTO = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
         validationContext.add("from-account", sourceAccountDetailsDTO);
 
-        final BigDecimal transferAmountInSrcCurrency = validateAccountBalance(request, metadata, validationContext,
-				beneficiaryDto, sourceAccountDetailsDTO);
-
+        final CurrencyConversionDto currencyConversionDto = validateAccountBalance(request, metadata, validationContext, beneficiaryDto, sourceAccountDetailsDTO);
+        final BigDecimal transferAmountInSrcCurrency = currencyConversionDto.getAccountCurrencyAmount();
 
         //Limit Validation
         Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
-        final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), sourceAccountDetailsDTO,transferAmountInSrcCurrency);
+        final BigDecimal limitUsageAmount = getLimitUsageAmount(sourceAccountDetailsDTO,transferAmountInSrcCurrency);
         final LimitValidatorResponse validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount, metadata, bendId);
         String txnRefNo = validationResult.getTransactionRefNo();        
 
-        final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, sourceAccountDetailsDTO, beneficiaryDto, validationResult);
+        final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, sourceAccountDetailsDTO, beneficiaryDto, validationResult, currencyConversionDto);
         log.info("International Fund transfer initiated.......");
         final FundTransferResponse fundTransferResponse = processTransaction(metadata, txnRefNo, fundTransferRequest,request);
 
@@ -175,13 +175,13 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
 		return fundTransferResponse;
 	}
 
-	protected BigDecimal validateAccountBalance(FundTransferRequestDTO request, RequestMetaData metadata,
+	protected CurrencyConversionDto validateAccountBalance(FundTransferRequestDTO request, RequestMetaData metadata,
 			final ValidationContext validationContext, BeneficiaryDto beneficiaryDto,
 			final AccountDetailsDTO sourceAccountDetailsDTO) {
-		final BigDecimal transferAmountInSrcCurrency = getAmountInSrcCurrency(request, beneficiaryDto, sourceAccountDetailsDTO);
-        validationContext.add("transfer-amount-in-source-currency", transferAmountInSrcCurrency);
+		final CurrencyConversionDto currencyConversionDto = getAmountInSrcCurrency(request, beneficiaryDto, sourceAccountDetailsDTO);
+        validationContext.add("transfer-amount-in-source-currency", currencyConversionDto.getAccountCurrencyAmount());
         responseHandler(balanceValidator.validate(request, metadata, validationContext));
-		return transferAmountInSrcCurrency;
+		return currencyConversionDto;
 	}
     
     protected CustomerNotification populateCustomerNotification(String transactionRefNo, String currency, BigDecimal amount, String beneficiaryName, String creditAccount) {
@@ -194,42 +194,38 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         return customerNotification;
     }
 
-    private BigDecimal convertAmountInLocalCurrency(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO,
-                                                    final BigDecimal transferAmountInSrcCurrency) {
+    private BigDecimal convertAmountInLocalCurrency(final AccountDetailsDTO sourceAccountDetailsDTO, final BigDecimal transferAmountInSrcCurrency) {
         CoreCurrencyConversionRequestDto currencyConversionRequestDto = new CoreCurrencyConversionRequestDto();
         currencyConversionRequestDto.setAccountNumber(sourceAccountDetailsDTO.getNumber());
         currencyConversionRequestDto.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
         currencyConversionRequestDto.setAccountCurrencyAmount(transferAmountInSrcCurrency);
-        //currencyConversionRequestDto.setDealNumber(dealNumber);
         currencyConversionRequestDto.setTransactionCurrency("AED");
-
         CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(currencyConversionRequestDto);
         return currencyConversionDto.getTransactionAmount();
     }
 
-    private BigDecimal getLimitUsageAmount(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO,
-                                           final BigDecimal transferAmountInSrcCurrency) {
+    private BigDecimal getLimitUsageAmount(final AccountDetailsDTO sourceAccountDetailsDTO, final BigDecimal transferAmountInSrcCurrency) {
         return "AED".equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
                 ? transferAmountInSrcCurrency
-                : convertAmountInLocalCurrency(dealNumber, sourceAccountDetailsDTO, transferAmountInSrcCurrency);
+                : convertAmountInLocalCurrency(sourceAccountDetailsDTO, transferAmountInSrcCurrency);
     }
 
-    protected BigDecimal getAmountInSrcCurrency(FundTransferRequestDTO request, BeneficiaryDto beneficiaryDto,
+    protected CurrencyConversionDto getAmountInSrcCurrency(FundTransferRequestDTO request, BeneficiaryDto beneficiaryDto,
                                               AccountDetailsDTO sourceAccountDetailsDTO) {
-        BigDecimal amtToBePaidInSrcCurrency;
         final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
         currencyRequest.setAccountNumber(sourceAccountDetailsDTO.getNumber());
         currencyRequest.setDealNumber(request.getDealNumber());
         currencyRequest.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
         currencyRequest.setTransactionCurrency(request.getTxnCurrency());
         currencyRequest.setTransactionAmount(request.getAmount());
-        CurrencyConversionDto conversionResultInSourceAcctCurrency = maintenanceService.convertBetweenCurrencies(currencyRequest);
-        amtToBePaidInSrcCurrency = conversionResultInSourceAcctCurrency.getAccountCurrencyAmount();
-        return amtToBePaidInSrcCurrency;
+        CurrencyConversionDto currencyConversionDto =  maintenanceService.convertBetweenCurrencies(currencyRequest);
+        currencyConversionDto.setExchangeRateDisplayTxt(CommonUtils.generateDisplayString(currencyConversionDto, currencyRequest));
+        return currencyConversionDto;
     }
 
     private FundTransferRequest prepareFundTransferRequestPayload(RequestMetaData metadata, FundTransferRequestDTO request,
-                                                                  AccountDetailsDTO accountDetails, BeneficiaryDto beneficiaryDto, LimitValidatorResponse validationResult) {
+                                                                  AccountDetailsDTO accountDetails, BeneficiaryDto beneficiaryDto,
+                                                                  LimitValidatorResponse validationResult, CurrencyConversionDto currencyConversionDto) {
     	/** applying logic to separate address and full name to four lines with specified max length*/
     	String[] addresslines = AddressLineSeparatorUtil.separateAddressLineForSwift(maxLength,beneficiaryDto.getFullName(),beneficiaryDto.getAddressLine1(),beneficiaryDto.getAddressLine2(),beneficiaryDto.getAddressLine3());
     	/** updating beneficiary final name from beneficiary dto if it is present 
@@ -241,6 +237,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     	
     	final FundTransferRequest fundTransferRequest = FundTransferRequest.builder()
                 .productId(INTERNATIONAL_PRODUCT_ID)
+                .srcCcyAmt(currencyConversionDto.getAccountCurrencyAmount())
                 .amount(request.getAmount())
                 .channel(metadata.getChannel())
                 .channelTraceId(metadata.getChannelTraceId())
@@ -267,6 +264,8 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .additionaField(StringUtils.isEmpty(request.getAdditionalField())?request.getPaymentNote():request.getAdditionalField())
                 .paymentNote(request.getPaymentNote())
                 .serviceType(request.getServiceType())
+                .accountClass(accountDetails.getAccountType())
+                .exchangeRateDisplayTxt(currencyConversionDto.getExchangeRateDisplayTxt())
                 .build();
 
         return enrichFundTransferRequestByCountryCode(fundTransferRequest, beneficiaryDto);

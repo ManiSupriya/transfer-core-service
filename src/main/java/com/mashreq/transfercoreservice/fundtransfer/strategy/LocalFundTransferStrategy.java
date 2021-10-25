@@ -12,6 +12,7 @@ import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.CardService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.common.CommonConstants;
+import com.mashreq.transfercoreservice.common.CommonUtils;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
@@ -26,8 +27,7 @@ import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
 import com.mashreq.transfercoreservice.notification.service.NotificationService;
 import com.mashreq.transfercoreservice.notification.service.PostTransactionService;
 import com.mashreq.transfercoreservice.repository.CountryRepository;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,6 +51,14 @@ import static java.lang.Long.valueOf;
 @Getter
 @RequiredArgsConstructor
 public class LocalFundTransferStrategy implements FundTransferStrategy {
+
+    @Data
+    @AllArgsConstructor
+    private class SelectedSourceOfFund{
+        private String currency;
+        private String segment;
+        private String accountClass;
+    }
 
     private static final String INDIVIDUAL_ACCOUNT = "I";
     private static final String SOURCE_OF_FUND_CC = "Credit Card";
@@ -161,16 +169,16 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
    		 }
 
         //Balance Validation
-        final BigDecimal transferAmountInSrcCurrency = validateBalance(request, metadata, validationContext,
-				fromAccountDetails, beneficiaryDto);
-
+        final CurrencyConversionDto currencyConversionDto = validateBalance(request, metadata, validationContext, fromAccountDetails, beneficiaryDto);
 
         //Limit Validation
         Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
-        final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), fromAccountDetails, transferAmountInSrcCurrency);
+        final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), fromAccountDetails, currencyConversionDto.getAccountCurrencyAmount());
         final LimitValidatorResponse validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount, metadata, bendId);
         String txnRefNo = validationResult.getTransactionRefNo();
-        final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountDetails.getCurrency(), fromAccountDetails.getBranchCode(), beneficiaryDto, validationResult);
+
+        SelectedSourceOfFund selectedSourceOfFund = prepareSourceOfFundObj(fromAccountDetails.getCurrency(), fromAccountDetails.getBranchCode(), fromAccountDetails.getAccountType());
+        final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, selectedSourceOfFund, beneficiaryDto, validationResult, currencyConversionDto);
         log.info("Local Fund transfer initiated.......");
 
         final FundTransferResponse fundTransferResponse = processTransaction(metadata, txnRefNo, fundTransferRequest,request);
@@ -178,11 +186,15 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         handleSuccessfulTransaction(request, metadata, userDTO, validationResult, fundTransferRequest,
 				fundTransferResponse);
 
-        return prepareResponse(transferAmountInSrcCurrency, limitUsageAmount, validationResult, txnRefNo, fundTransferResponse);
+        return prepareResponse(currencyConversionDto.getAccountCurrencyAmount(), limitUsageAmount, validationResult, txnRefNo, fundTransferResponse);
 
     }
 
-	protected FundTransferResponse prepareResponse(final BigDecimal transferAmountInSrcCurrency,
+    private SelectedSourceOfFund prepareSourceOfFundObj(String currency, String branchCode, String accountType) {
+        return new SelectedSourceOfFund(currency,branchCode,accountType);
+    }
+
+    protected FundTransferResponse prepareResponse(final BigDecimal transferAmountInSrcCurrency,
 			final BigDecimal limitUsageAmount, final LimitValidatorResponse validationResult, String txnRefNo,
 			final FundTransferResponse fundTransferResponse) {
 		return fundTransferResponse.toBuilder()
@@ -211,13 +223,13 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 		return fundTransferResponse;
 	}
 
-	protected BigDecimal validateBalance(FundTransferRequestDTO request, RequestMetaData metadata,
+	protected CurrencyConversionDto validateBalance(FundTransferRequestDTO request, RequestMetaData metadata,
 			final ValidationContext validationContext, final AccountDetailsDTO fromAccountDetails,
 			final BeneficiaryDto beneficiaryDto) {
-		final BigDecimal transferAmountInSrcCurrency = getAmountInSrcCurrency(request, beneficiaryDto, fromAccountDetails);
-        validationContext.add("transfer-amount-in-source-currency", transferAmountInSrcCurrency);
+		final CurrencyConversionDto currencyConversionDto = getAmountInSrcCurrency(request, fromAccountDetails);
+        validationContext.add("transfer-amount-in-source-currency", currencyConversionDto.getAccountCurrencyAmount());
         responseHandler(balanceValidator.validate(request, metadata, validationContext));
-		return transferAmountInSrcCurrency;
+		return currencyConversionDto;
 	}
 
     /**
@@ -329,9 +341,13 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         if(result == -1){
             logAndThrow(FundTransferEventType.FUND_TRANSFER_CC_CALL, TransferErrorCode.FT_CC_BALANCE_NOT_SUFFICIENT, requestMetaData);
         }
+
+        SelectedSourceOfFund selectedSourceOfFund = prepareSourceOfFundObj(cardDetailsDTO.getCurrency(),cardDetailsDTO.getSegment(), null);
+        CurrencyConversionDto currencyConversionDto = new CurrencyConversionDto();
+        currencyConversionDto.setAccountCurrencyAmount(requestedAmount);
+
         log.info("Fund transfer CC Available Balance is verified {}", htmlEscape(cif));
-        fundTransferRequest = prepareFundTransferRequestPayload(requestMetaData, requestDTO, cardDetailsDTO.getCurrency(),
-                cardDetailsDTO.getSegment(), beneficiaryDto, validationResult);
+        fundTransferRequest = prepareFundTransferRequestPayload(requestMetaData, requestDTO, selectedSourceOfFund, beneficiaryDto, validationResult, currencyConversionDto);
         updateFundTransferRequest(beneficiaryDto, fundTransferRequest, requestDTO, cardDetailsDTO);
         log.info("Fund transfer CC calling MW {}", htmlEscape(cif));
         fundTransferResponse = fundTransferCCMWService.transfer(fundTransferRequest, requestMetaData);
@@ -417,36 +433,35 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     private BigDecimal getLimitUsageAmount(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO, final BigDecimal transferAmountInSrcCurrency) {
         return "AED".equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
                 ? transferAmountInSrcCurrency
-                : convertAmountInLocalCurrency(dealNumber, sourceAccountDetailsDTO, transferAmountInSrcCurrency);
+                : convertAmountInLocalCurrency(sourceAccountDetailsDTO, transferAmountInSrcCurrency);
     }
 
-    private BigDecimal convertAmountInLocalCurrency(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO, final BigDecimal transferAmountInSrcCurrency) {
+    private BigDecimal convertAmountInLocalCurrency(final AccountDetailsDTO sourceAccountDetailsDTO, final BigDecimal transferAmountInSrcCurrency) {
         CoreCurrencyConversionRequestDto currencyConversionRequestDto = new CoreCurrencyConversionRequestDto();
         currencyConversionRequestDto.setAccountNumber(sourceAccountDetailsDTO.getNumber());
         currencyConversionRequestDto.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
         currencyConversionRequestDto.setAccountCurrencyAmount(transferAmountInSrcCurrency);
-        //currencyConversionRequestDto.setDealNumber(dealNumber);
         currencyConversionRequestDto.setTransactionCurrency("AED");
 
         CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(currencyConversionRequestDto);
         return currencyConversionDto.getTransactionAmount();
     }
 
-    protected BigDecimal getAmountInSrcCurrency(FundTransferRequestDTO request, BeneficiaryDto beneficiaryDto, AccountDetailsDTO sourceAccountDetailsDTO) {
-        BigDecimal amtToBePaidInSrcCurrency;
+    protected CurrencyConversionDto getAmountInSrcCurrency(FundTransferRequestDTO request, AccountDetailsDTO sourceAccountDetailsDTO) {
         final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
         currencyRequest.setAccountNumber(sourceAccountDetailsDTO.getNumber());
         currencyRequest.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
         currencyRequest.setTransactionCurrency("AED");
         currencyRequest.setDealNumber(request.getDealNumber());
         currencyRequest.setTransactionAmount(request.getAmount());
-        CurrencyConversionDto conversionResultInSourceAcctCurrency = maintenanceService.convertBetweenCurrencies(currencyRequest);
-        amtToBePaidInSrcCurrency = conversionResultInSourceAcctCurrency.getAccountCurrencyAmount();
-        return amtToBePaidInSrcCurrency;
+        CurrencyConversionDto currencyConversionDto =  maintenanceService.convertBetweenCurrencies(currencyRequest);
+        currencyConversionDto.setExchangeRateDisplayTxt(CommonUtils.generateDisplayString(currencyConversionDto, currencyRequest));
+        return currencyConversionDto;
     }
 
     private FundTransferRequest prepareFundTransferRequestPayload(RequestMetaData metadata, FundTransferRequestDTO request,
-                                                                  String currency, String branchCode, BeneficiaryDto beneficiaryDto, LimitValidatorResponse validationResult) {
+                                                                  SelectedSourceOfFund selectedSourceOfFund, BeneficiaryDto beneficiaryDto,
+                                                                  LimitValidatorResponse validationResult, CurrencyConversionDto currencyConversionDto) {
     	String address3 = null;
     	if(StringUtils.isNotBlank(beneficiaryDto.getAddressLine2()) && StringUtils.isNotBlank(beneficiaryDto.getAddressLine3())){
     		address3 = StringUtils.left(beneficiaryDto.getAddressLine2().concat(SPACE_CHAR+beneficiaryDto.getAddressLine3()), maxLength);
@@ -458,6 +473,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     	return FundTransferRequest.builder()
                 .productId(LOCAL_PRODUCT_ID)
                 .amount(request.getAmount())
+                .srcCcyAmt(currencyConversionDto.getAccountCurrencyAmount())
                 .channel(metadata.getChannel())
                 .channelTraceId(metadata.getChannelTraceId())
                 .fromAccount(request.getFromAccount())
@@ -466,8 +482,8 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
                 .purposeDesc(request.getPurposeDesc())
                 .chargeBearer(request.getChargeBearer())
                 .finTxnNo(request.getFinTxnNo())
-                .sourceCurrency(currency)
-                .sourceBranchCode(branchCode)
+                .sourceCurrency(selectedSourceOfFund.getCurrency())
+                .sourceBranchCode(selectedSourceOfFund.getSegment())
                 .beneficiaryFullName(StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength ? StringUtils.left(beneficiaryDto.getFullName(), maxLength) : beneficiaryDto.getFullName())
                 .beneficiaryAddressOne(StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength ? beneficiaryDto.getFullName().substring(maxLength) : null)
                 .beneficiaryAddressTwo(address)
@@ -485,6 +501,8 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
                 .acwthInst1(request.getAdditionalField()) //TODO Add For testing need to create new field to map
                 .serviceType(request.getServiceType())
                 .paymentNote(request.getPaymentNote())
+                .accountClass(selectedSourceOfFund.getAccountClass())
+                .exchangeRateDisplayTxt(currencyConversionDto.getExchangeRateDisplayTxt())
                 .build();
 
     }

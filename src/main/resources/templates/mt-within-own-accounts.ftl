@@ -518,17 +518,41 @@
                         <p><span style="min-width: 200px;display: inline-block;">Transfer type</span><span style="margin-left: 20px; font-weight: bold;">${transferType}</span></p>
                       </li>
                       <li style="margin-bottom: 16px">
-                        <p><span style="min-width: 200px;display: inline-block;">From ${sourceOfFund}</span><span style="margin-left: 20px; font-weight: bold;">${maskedAccount}</span></p>
+                        <p><span style="min-width: 200px;display: inline-block;">From</span><span style="margin-left: 20px; font-weight: bold;">${maskedAccount}</span></p>
                       </li>
                       <li style="margin-bottom: 16px" >
                         <p>
-                          <span style="min-width: 200px;display: inline-block;">To Account</span><span style="margin-left: 20px;font-weight: bold;">${toAccountNumber}</span>
+                            <span style="min-width: 200px;display: inline-block;">To Account</span>
+                            <span style="margin-left: 20px;font-weight: bold;">${beneficiaryNickname}</span>
                         </p>
-                       
+                        <p>
+                            <span style="min-width: 200px;display: inline-block;"></span>
+                            <span style="margin-left: 20px;font-weight: bold;">${toAccountNumber}</span>
+                        </p>
+                       </li>
+
+                      <#if exchangeRate?has_content>
+                          <li style="margin-bottom: 16px" >
+                            <p><span style="min-width: 200px;display: inline-block;">Rate</span><span style="margin-left: 20px;font-weight: bold;">${exchangeRate}</span></p>
+                          </li>
+                      </#if>
+
+                      <li style="margin-bottom: 16px">
+                        <p><span style="min-width: 200px;display: inline-block;">Transfer amount</span><span style="margin-left: 20px;font-weight: bold;">${currency} ${amount}</span></p>
                       </li>
                       <li style="margin-bottom: 16px">
-                        <p><span style="min-width: 200px;display: inline-block;">Amount</span><span style="margin-left: 20px;font-weight: bold;">${currency} ${amount}</span></p>
+                        <p><span style="min-width: 200px;display: inline-block;">Amount to  be debited</span><span style="margin-left: 20px;font-weight: bold;">${accountCurrency} ${sourceAmount}</span></p>
                       </li>
+                      <li style="margin-bottom: 16px">
+                        <p><span style="min-width: 200px;display: inline-block;">Bank fees</span><span style="margin-left: 20px;font-weight: bold;">${localCurrency} ${bankFees} + VAT</span></p>
+                      </li>
+
+                      <#if fxDealCode?has_content>
+                          <li style="margin-bottom: 16px">
+                            <p><span style="min-width: 200px;display: inline-block;">FX Deal</span><span style="margin-left: 20px;font-weight: bold;">${fxDealCode}</span></p>
+                          </li>
+                      </#if>
+
                       <li style="margin-bottom: 16px">
                         <p><span style="min-width: 200px;display: inline-block;">Status</span><span style="margin-left: 20px;font-weight: bold;">${status}</span></p>
                       </li>

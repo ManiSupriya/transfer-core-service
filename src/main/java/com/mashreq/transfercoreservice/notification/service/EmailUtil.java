@@ -41,6 +41,9 @@ public class EmailUtil {
     public static final String SEGMENT = "segment";
     public static final String CUSTOMER_NAME = "customerName";
     public static final String CURRENCY = "currency";
+    public static final String LOCAL_CURRENCY = "localCurrency";
+    public static final String EXCHANGE_RATE = "exchangeRate";
+    public static final String ACCOUNT_CURRENCY = "accountCurrency";
     public static final String TRANSFER_TYPE = "transferType";
     public static final String SOURCE_OF_FUND = "sourceOfFund";
     public static final String MASKED_ACCOUNT = "maskedAccount";
@@ -50,8 +53,14 @@ public class EmailUtil {
     public static final String BENEFICIARY_BANK_COUNTRY = "beneBankCountry";
     public static final String CUSTOMER_CARE_NO = "customerCareNo";
     public static final String TRANSACTION_DATE = "transactionDate";
+    public static final String EXECUTION_DATE = "executionDate";
+    public static final String START_DATE = "startDate";
+    public static final String END_DATE = "endDate";
+    public static final String FREQUENCY = "frequency";
     public static final String TRANSACTION_TYPE = "transactionType";
     public static final String AMOUNT = "amount";
+    public static final String SOURCE_AMOUNT = "sourceAmount";
+    public static final String BANK_FEES = "bankFees";
     public static final String CONTACT_HTML_BODY_KEY = "contactHtmlBody";
     public static final String STATUS = "status";
     public static final String BANK_NAME = "bankName";
@@ -68,12 +77,15 @@ public class EmailUtil {
     public static final String YOUTUBE = "youtube";
     public static final String CUSTOMER = "Customer";
     public static final String DEFAULT_STR = "";
+    public static final String FX_DEAL_CODE = "fxDealCode";
+    public static final String ORDER_TYPE = "orderType";
     public static final String TXN_AMOUNT="txn_amount";
     public static final String STATUS_SUCCESS="Success";
     public static final String COMMA_SEPARATOR = ",";
     public static final String DECIMAL_POS = "%.2f";
     public static final String SEGMENT_SIGN_OFF_COMPANY_NAME="segmentSignOffCompanyName";
     public static final String EMAIL_TEMPLATE_COPYRIGHT_YEAR_KEY = "copyrightYear";
+    public static final String AED = "AED";
 
 
 

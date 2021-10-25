@@ -5,6 +5,7 @@ import static com.mashreq.transfercoreservice.notification.model.NotificationTyp
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
@@ -70,18 +71,17 @@ public class InternationalPayLaterFundTransferStrategy extends InternationalFund
 	}
 
 	@Override
-	protected BigDecimal validateAccountBalance(FundTransferRequestDTO request, RequestMetaData metadata,
+	protected CurrencyConversionDto validateAccountBalance(FundTransferRequestDTO request, RequestMetaData metadata,
 			final ValidationContext validationContext, BeneficiaryDto beneficiaryDto,
 			final AccountDetailsDTO sourceAccountDetailsDTO) {
-		final BigDecimal transferAmountInSrcCurrency = getAmountInSrcCurrency(request, beneficiaryDto, sourceAccountDetailsDTO);
-		log.info("Skipping balance validation check for loal pay later transaction ");
-		return transferAmountInSrcCurrency;
+		log.info("Skipping balance validation check for pay later transaction ");
+		return getAmountInSrcCurrency(request, beneficiaryDto, sourceAccountDetailsDTO);
 	}
 	
 	@Override
 	protected FundTransferResponse processTransaction(RequestMetaData metadata, String txnRefNo,
 			final FundTransferRequest fundTransferRequest, FundTransferRequestDTO request) {
-		log.info("Persisting funds transfer order for {}");
+		log.info("Persisting funds transfer order");
 		FundTransferOrder fundTransferOrder = this.createOrderFromRequest(fundTransferRequest,metadata,txnRefNo,request);
 		log.info("Persisting funds transfer order for {}", HtmlEscapeCache.htmlEscape(fundTransferOrder));
 		fundTransferOrderRepository.saveAndFlush(fundTransferOrder);
