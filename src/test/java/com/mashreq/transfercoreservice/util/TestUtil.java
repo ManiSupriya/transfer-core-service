@@ -169,4 +169,16 @@ public class TestUtil {
         qrDealDetails.setTotalLimitAmount(BigDecimal.ONE);
         return qrDealDetails;
     }
+
+    public static Map<String, List<String>> getAccountContext() {
+        Map<String, List<String>> map = new HashMap<>();
+        map.put("account-numbers",Arrays.asList("0123456789"));
+        return map;
+    }
+
+    public static Map<String, List<String>> getCardsContext() {
+        Map<String, List<String>> map = new HashMap<>();
+        map.put("card-numbers",Arrays.asList("4444333322221111"));
+        return map;
+    }
 }
