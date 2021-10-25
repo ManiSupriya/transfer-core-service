@@ -26,7 +26,8 @@
         <!-- Sonar | Code coverage | API Doc-->
         <sonar.exclusions>
             **/*Application.java,
-            **/*Dto.java
+            **/*Dto.java,
+            **/com/mashreq/transfercoreservice/client/dto/**,
         </sonar.exclusions>
         <jacoco.version>0.8.3</jacoco.version>
         <jacoco.percentage.instruction>0.60</jacoco.percentage.instruction>
