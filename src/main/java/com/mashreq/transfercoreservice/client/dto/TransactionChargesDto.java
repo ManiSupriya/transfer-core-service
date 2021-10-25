@@ -8,6 +8,7 @@ import lombok.*;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @ApiModel(description = "for transaction charges")
 @Getter
+@Setter
 public class TransactionChargesDto {
 	@ApiModelProperty(notes = "the account class / type in which the charge is applicable")
 	private String accountClass;

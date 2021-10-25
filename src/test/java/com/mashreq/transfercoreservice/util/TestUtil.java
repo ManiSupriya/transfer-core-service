@@ -153,4 +153,13 @@ public class TestUtil {
     public static <T> Response<T> getErrorResponse(T data){
         return Response.<T>builder().status(ResponseStatus.ERROR).data(data).build();
     }
+
+    public static TransactionChargesDto getBankCharges() {
+        TransactionChargesDto transactionChargesDto = new TransactionChargesDto();
+        transactionChargesDto.setCoreBankTransactionFee(0.0);
+        transactionChargesDto.setLocalTransactionCharge(0.0);
+        transactionChargesDto.setInternationalTransactionalCharge(0.0);
+        transactionChargesDto.setAccountClass("SAVACR");
+        return transactionChargesDto;
+    }
 }
