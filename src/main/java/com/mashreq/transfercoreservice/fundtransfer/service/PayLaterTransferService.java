@@ -74,7 +74,7 @@ public class PayLaterTransferService extends FundTransferServiceDefault{
 		super(digitalUserRepository, transactionRepository, digitalUserLimitUsageService, ownAccountStrategy,
 				withinMashreqStrategy, localFundTransferStrategy, internationalFundTransferStrategy,
 				charityStrategyDefault, auditEventPublisher, otpService, errorCodeConfig,
-				promoCodeService, mobCommonService, qrStatusMsRepository);
+				promoCodeService, mobCommonService);
 		this.ownAccountPayLaterStrategy = ownAccountPayLaterStrategy;
 		this.withinMashreqPayLaterStrategy = withinMashreqPayLaterStrategy;
 		this.localFundPayLaterTransferStrategy = localFundPayLaterTransferStrategy;

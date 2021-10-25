@@ -91,8 +91,6 @@ public class FundTransferServiceDefaultTest {
 		 quickRemitStatusMaster.setStatusCode("EAI-FCI-BRK-001");
 		 List<QuickRemitStatusMaster> quickRemitStatusMasters = Arrays.asList(quickRemitStatusMaster);
 
-		 when(qrStatusMsRepository.findAll()).thenReturn(quickRemitStatusMasters);
-
 	     this.fundTransferServiceDefault.init();
 	     fundTransferRequestDTO = generateFundTransferRequest();
 	     ReflectionTestUtils.setField(fundTransferServiceDefault, "activeProfile", "prod");
