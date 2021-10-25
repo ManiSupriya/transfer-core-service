@@ -195,14 +195,17 @@ public class PostTransactionServiceTest {
 
         FundTransferRequest fundTransferRequest = buildFundTransferRequest();
         fundTransferRequest.setAmount(new BigDecimal(10));
-        fundTransferRequest.setNotificationType("LOCAL");
-        fundTransferRequest.setServiceType("LOCAL");
+        fundTransferRequest.setNotificationType(INFT_PL_SI_CREATION);
+        fundTransferRequest.setServiceType("INFT");
 
         FundTransferRequestDTO fundTransferRequestDTO = new FundTransferRequestDTO();
         fundTransferRequestDTO.setBeneficiaryId("1");
 
         EmailParameters emailParameters = buildEmailParameters();
+        emailParameters.setPlSiFundTransfer("plSiFundTransfer");
+
         EmailTemplateParameters emailTemplateParameters = buildEmailTemplateParameters();
+
         HashMap<String, EmailParameters> emailConfigMap = new HashMap<>();
         emailConfigMap.put(requestMetaData.getCountry(), emailParameters);
         emailConfig.setEmail(emailConfigMap);
@@ -210,6 +213,7 @@ public class PostTransactionServiceTest {
         when(bankChargesService.getTransactionCharges(any(),any(),any())).thenReturn(getBankCharges());
         when(emailUtil.getEmailTemplateParameters(requestMetaData.getChannel(), requestMetaData.getSegment())).thenReturn(emailTemplateParameters);
         when(emailConfig.getEmail()).thenReturn(emailConfigMap);
+        when(beneficiaryService.getByIdWithoutValidation(any(), any(),any(), any())).thenReturn(getBeneficiaryDto());
         postTransactionService.performPostTransactionActivities(requestMetaData, fundTransferRequest, fundTransferRequestDTO);
     }
 }

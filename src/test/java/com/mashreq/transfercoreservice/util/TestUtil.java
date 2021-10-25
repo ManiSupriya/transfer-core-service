@@ -5,6 +5,7 @@ import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.AdditionalFields;
 import com.mashreq.transfercoreservice.fundtransfer.dto.LimitValidatorResponse;
+import com.mashreq.transfercoreservice.fundtransfer.dto.QRDealDetails;
 import com.mashreq.transfercoreservice.model.Country;
 import com.mashreq.transfercoreservice.model.DigitalUser;
 import com.mashreq.transfercoreservice.model.DigitalUserGroup;
@@ -161,5 +162,11 @@ public class TestUtil {
         transactionChargesDto.setInternationalTransactionalCharge(0.0);
         transactionChargesDto.setAccountClass("SAVACR");
         return transactionChargesDto;
+    }
+
+    public static QRDealDetails getQRDealsDetails() {
+        QRDealDetails qrDealDetails = new QRDealDetails();
+        qrDealDetails.setTotalLimitAmount(BigDecimal.ONE);
+        return qrDealDetails;
     }
 }

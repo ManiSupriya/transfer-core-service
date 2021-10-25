@@ -225,20 +225,6 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
         return amtToBePaidInSrcCurrency;
     }
 
-    private CardDetailsDTO getSelectedCreditCard(List<CardDetailsDTO> coreCardAccounts, String encryptedCardNo) {
-        CardDetailsDTO cardDetailsDTO = null;
-        String decryptedCardNo;
-        String givenDecryptedCardNo = encryptionService.decrypt(encryptedCardNo);
-        for(CardDetailsDTO currCardDetails : coreCardAccounts){
-            decryptedCardNo = encryptionService.decrypt(currCardDetails.getEncryptedCardNumber());
-            if(decryptedCardNo.equalsIgnoreCase(givenDecryptedCardNo)){
-                cardDetailsDTO = currCardDetails;
-                break;
-            }
-        }
-        return cardDetailsDTO;
-    }
-
     private void logAndThrow(FundTransferEventType fundTransferEventType, TransferErrorCode errorCodeSet, RequestMetaData requestMetaData){
         auditEventPublisher.publishFailureEvent(fundTransferEventType, requestMetaData,"",
                 fundTransferEventType.name(), fundTransferEventType.getDescription(), fundTransferEventType.getDescription());
