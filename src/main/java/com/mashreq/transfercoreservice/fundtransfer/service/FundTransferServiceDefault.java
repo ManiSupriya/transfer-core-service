@@ -159,9 +159,9 @@ public class FundTransferServiceDefault implements FundTransferService {
 
         log.info("Total time taken for {} Fund Transfer {} milli seconds ", htmlEscape(request.getServiceType()), htmlEscape(Long.toString(between(start, now()).toMillis())));
 
-        boolean promoApplied = promoCodeService.validateAndSave(request, transactionHistory.getStatus(), metadata);
-
         handleFailure(request,response);
+
+        boolean promoApplied = promoCodeService.validateAndSave(request, transactionHistory.getStatus(), metadata);
 
         return FundTransferResponseDTO.builder()
                 .accountTo(transactionHistory.getAccountTo())

@@ -70,7 +70,7 @@ public class PayLaterTransferService extends FundTransferServiceDefault{
                                    WithinMashreqPayLaterStrategy withinMashreqPayLaterStrategy,
                                    LocalFundPayLaterTransferStrategy localFundPayLaterTransferStrategy,
                                    InternationalPayLaterFundTransferStrategy internationalPayLaterFundTransferStrategy,
-                                   PromoCodeService promoCodeService, MobCommonService mobCommonService, QrStatusMsRepository qrStatusMsRepository) {
+                                   PromoCodeService promoCodeService, MobCommonService mobCommonService) {
 		super(digitalUserRepository, transactionRepository, digitalUserLimitUsageService, ownAccountStrategy,
 				withinMashreqStrategy, localFundTransferStrategy, internationalFundTransferStrategy,
 				charityStrategyDefault, auditEventPublisher, otpService, errorCodeConfig,
