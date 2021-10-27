@@ -50,7 +50,7 @@ public class CurrencyValidator implements ICurrencyValidator {
     public ValidationResult validate(FundTransferEligibiltyRequestDTO request, RequestMetaData metadata, ValidationContext context) {
 
         log.info("Validating transaction currency {} for service type [ {} ] ", htmlEscape(request.getTxnCurrency()), htmlEscape(request.getServiceType()));
-        CoreCurrencyDto transferCurrency = null;
+        CoreCurrencyDto transferCurrency;
         if(INFT.getName().equals(request.getServiceType())) {
         	transferCurrency = fetchAllTransferSupportedCurrencies(request.getTxnCurrency(),metadata);
         	if(transferCurrency == null) {
@@ -67,7 +67,7 @@ public class CurrencyValidator implements ICurrencyValidator {
         	final CountryMasterDto countryMasterDto = context.get("country", CountryMasterDto.class);
 
             if (null != countryMasterDto && !request.getTxnCurrency().equalsIgnoreCase(countryMasterDto.getNativeCurrency())) {
-                	return ValidationResult.builder().success(false).build();
+                	return ValidationResult.builder().success(false).transferErrorCode(CURRENCY_IS_INVALID).build();
             }
             transferCurrency = fetchAllTransferSupportedCurrencies(request.getTxnCurrency(),metadata);
         	if(transferCurrency == null) {
