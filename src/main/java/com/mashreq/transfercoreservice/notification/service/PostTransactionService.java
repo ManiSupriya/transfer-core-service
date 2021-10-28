@@ -130,7 +130,8 @@ public class PostTransactionService {
 
             String contactHtmlBody;
             String segmentSignOffCompanyName;
-
+            String bankNameInFooter;
+            String bankNameInFooterDesc;
             if(segment != null) {
                 contactLinkText = StringUtils.defaultIfBlank(segment.getEmailContactUsLinkText(), DEFAULT_STR);
                 htmlContent = segment.getEmailContactUsHtmlContent();
@@ -143,9 +144,13 @@ public class PostTransactionService {
 
                 contactHtmlBody = htmlContent;
                 segmentSignOffCompanyName = StringUtils.defaultIfBlank(segment.getEmailSignOffCompany(), DEFAULT_STR);
+                bankNameInFooter = StringUtils.defaultIfBlank(segment.getEmailCprFooter(), DEFAULT_STR);
+                bankNameInFooterDesc = StringUtils.defaultIfBlank(segment.getEmailCprBankDesc(), DEFAULT_STR);
             } else {
                 contactHtmlBody = DEFAULT_STR;
                 segmentSignOffCompanyName = DEFAULT_STR;
+                bankNameInFooter = DEFAULT_STR;
+                bankNameInFooterDesc = DEFAULT_STR;
             }
 
             TemplateRequest.Builder template = TemplateRequest.builder()
@@ -163,7 +168,9 @@ public class PostTransactionService {
                     .params(YOUTUBE_LINK, StringUtils.defaultIfBlank(emailTemplateParameters.getSocialMediaLinks().get(YOUTUBE), DEFAULT_STR))
                     .params(EMAIL_TEMPLATE_COPYRIGHT_YEAR_KEY, String.valueOf(LocalDateTime.now().getYear()))
                     .params(CONTACT_HTML_BODY_KEY, contactHtmlBody)
-                    .params(SEGMENT_SIGN_OFF_COMPANY_NAME, segmentSignOffCompanyName);
+                    .params(SEGMENT_SIGN_OFF_COMPANY_NAME, segmentSignOffCompanyName)
+                    .params(BANK_NAME_FOOTER, bankNameInFooter)
+                    .params(BANK_NAME_FOOTER_DESC, bankNameInFooterDesc);
 
             if(fundTransferRequest.getNotificationType().matches(NotificationType.GOLD_SILVER_BUY_SUCCESS)){
                 getTemplateValuesForBuyGoldSilverBuilder(template, fundTransferRequest);

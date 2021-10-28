@@ -30,6 +30,6 @@ public class Segment extends AbstractAuditingEntity {
     private String emailContactUsHtmlContent;
     private String emailContactUsLinkText;
     private String emailSignOffCompany;
-    // TODO
-//    private List<UserGroups> userGroups;
+    private String emailCprFooter;
+    private String emailCprBankDesc;
 }

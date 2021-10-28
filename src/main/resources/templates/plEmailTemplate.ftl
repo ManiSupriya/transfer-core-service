@@ -699,13 +699,19 @@
                 <td>
                   <p style="margin-bottom: 16px">
                     Best Regards,<br />
-                    Customer service, ${bankName}
+                    ${bankNameInFooter}
                   </p>
-                  <p
-                    style="font-size: 14px; color: #6e6e6e; margin-bottom: 40px"
-                  >
-                  Disclaimer: This is a system generated email. </br>
-                  For any queries, please contact the Bank.
+                    <p
+                      style="
+                        font-size: 14px;
+                        color: #6e6e6e;
+                      "
+                    >
+                     ${bankNameInFooterDesc}
+                    </p>
+                  <p style="font-size: 14px; color: #6e6e6e; margin-bottom: 40px">
+                    Disclaimer: This is a system generated email. </br>
+                    For any queries, please contact the Bank.
                   </p>
                 </td>
               </tr>

@@ -595,7 +595,15 @@
                   <td>
                     <p style="margin-bottom: 16px">
                       Best Regards,<br />
-                      ${segmentSignOffCompanyName} Team
+                      ${bankNameInFooter}
+                    </p>
+                    <p
+                      style="
+                        font-size: 14px;
+                        color: #6e6e6e;
+                      "
+                    >
+                     ${bankNameInFooterDesc}
                     </p>
                     <p
                       style="

@@ -85,6 +85,8 @@ public class EmailUtil {
     public static final String DECIMAL_POS = "%.2f";
     public static final String SEGMENT_SIGN_OFF_COMPANY_NAME="segmentSignOffCompanyName";
     public static final String EMAIL_TEMPLATE_COPYRIGHT_YEAR_KEY = "copyrightYear";
+    public static final String BANK_NAME_FOOTER = "bankNameInFooter";
+    public static final String BANK_NAME_FOOTER_DESC = "bankNameInFooterDesc";
     public static final String AED = "AED";
 
 
