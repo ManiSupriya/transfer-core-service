@@ -525,8 +525,6 @@
                             <span style="min-width: 200px;display: inline-block;">To account</span>
                             <span style="margin-left: 20px;font-weight: bold;">${beneficiaryNickname}</span>
                         </p>
-                      </li>
-                      <li style="margin-bottom: 16px" >
                         <p>
                             <span style="min-width: 200px;display: inline-block;"></span>
                             <span style="margin-left: 20px;font-weight: bold;">${toAccountNumber}</span>
