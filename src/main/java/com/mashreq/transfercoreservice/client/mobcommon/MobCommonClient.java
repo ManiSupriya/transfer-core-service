@@ -45,8 +45,10 @@ public interface MobCommonClient {
     Response<CurrencyConversionDto> convertBetweenCurrencies(@RequestBody CoreCurrencyConversionRequestDto conversionRateRequestDto);
 
     @GetMapping("/v1/currency")
-    Response<List<CoreCurrencyDto>> getTransferCurrencies(@RequestParam(value = "function")String function,@RequestHeader(HeaderNames.COUNTRY_HEADER_NAME) String country);
-    
+	Response<List<CoreCurrencyDto>> getTransferCurrencies(@RequestParam(value = "function") String function,
+			@RequestHeader(HeaderNames.COUNTRY_HEADER_NAME) String country,
+			@RequestParam(value = "currencyCode") String currencyCode);
+
     @GetMapping("/v1/customer")
     Response<CustomerDetailsDto> getCustomerDetails(@RequestHeader(HeaderNames.CIF_HEADER_NAME) String cifId);
 

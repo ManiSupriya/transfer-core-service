@@ -54,7 +54,7 @@ public class SMECurrencyValidatorTest {
 		cur.setQuickRemitEnabled(false);
 		data.add(cur);
 		Response<List<CoreCurrencyDto>> response = Response.<List<CoreCurrencyDto>>builder().data(data ).build();
-		Mockito.when(mobCommonClient.getTransferCurrencies(Mockito.any(), Mockito.eq(metadata.getCountry()))).thenReturn(response );
+		Mockito.when(mobCommonClient.getTransferCurrencies(Mockito.any(), Mockito.eq(metadata.getCountry()),Mockito.eq(request.getTxnCurrency()))).thenReturn(response );
 		ValidationResult result = validator.validate(request, metadata);
 		assertTrue(result.isSuccess());
 	}
@@ -71,7 +71,7 @@ public class SMECurrencyValidatorTest {
 		cur.setQuickRemitEnabled(false);
 		data.add(cur);
 		Response<List<CoreCurrencyDto>> response = Response.<List<CoreCurrencyDto>>builder().data(data ).build();
-		Mockito.when(mobCommonClient.getTransferCurrencies(Mockito.any(), Mockito.eq(metadata.getCountry()))).thenReturn(response );
+		Mockito.when(mobCommonClient.getTransferCurrencies(Mockito.any(), Mockito.eq(metadata.getCountry()),Mockito.eq(request.getTxnCurrency()))).thenReturn(response );
 		ValidationResult result = validator.validate(request, metadata);
 		assertFalse(result.isSuccess());
 		Mockito.verify(auditEventPublisher,Mockito.times(1)).publishFailureEvent(FundTransferEventType.CURRENCY_VALIDATION, metadata, null,
@@ -84,7 +84,7 @@ public class SMECurrencyValidatorTest {
 		request.setServiceType(ServiceType.INFT.getName());
 		request.setTxnCurrency("USD");
 		Response<List<CoreCurrencyDto>> response = Response.<List<CoreCurrencyDto>>builder().data(Collections.emptyList() ).build();
-		Mockito.when(mobCommonClient.getTransferCurrencies(Mockito.any(), Mockito.eq(metadata.getCountry()))).thenReturn(response );
+		Mockito.when(mobCommonClient.getTransferCurrencies(Mockito.any(), Mockito.eq(metadata.getCountry()),Mockito.eq(request.getTxnCurrency()))).thenReturn(response );
 		ValidationResult result = validator.validate(request, metadata);
 		assertFalse(result.isSuccess());
 	}
@@ -94,7 +94,7 @@ public class SMECurrencyValidatorTest {
 		FundTransferEligibiltyRequestDTO request = new FundTransferEligibiltyRequestDTO();
 		request.setServiceType(ServiceType.QRT.getName());
 		request.setTxnCurrency("USD");
-		Mockito.when(mobCommonClient.getTransferCurrencies(Mockito.any(), Mockito.eq(metadata.getCountry())))
+		Mockito.when(mobCommonClient.getTransferCurrencies(Mockito.any(), Mockito.eq(metadata.getCountry()),Mockito.eq(request.getTxnCurrency())))
 				.thenReturn(Response.<List<CoreCurrencyDto>>builder().build());
 		ValidationContext validationContext = new ValidationContext();
 		CountryMasterDto countryMasterDto = new CountryMasterDto();
@@ -109,7 +109,7 @@ public class SMECurrencyValidatorTest {
 		FundTransferEligibiltyRequestDTO request = new FundTransferEligibiltyRequestDTO();
 		request.setServiceType(ServiceType.QRT.getName());
 		request.setTxnCurrency("USD");
-		Mockito.when(mobCommonClient.getTransferCurrencies(Mockito.any(), Mockito.eq(metadata.getCountry())))
+		Mockito.when(mobCommonClient.getTransferCurrencies(Mockito.any(), Mockito.eq(metadata.getCountry()),Mockito.eq(request.getTxnCurrency())))
 				.thenReturn(null);
 		ValidationContext validationContext = new ValidationContext();
 		CountryMasterDto countryMasterDto = new CountryMasterDto();
@@ -130,7 +130,7 @@ public class SMECurrencyValidatorTest {
 		cur.setSwiftTransferEnabled(false);
 		cur.setQuickRemitEnabled(true);
 		data.add(cur);
-		Mockito.when(mobCommonClient.getTransferCurrencies(Mockito.any(), Mockito.eq(metadata.getCountry())))
+		Mockito.when(mobCommonClient.getTransferCurrencies(Mockito.any(), Mockito.eq(metadata.getCountry()),Mockito.eq(request.getTxnCurrency())))
 				.thenReturn(Response.<List<CoreCurrencyDto>>builder().data(data).build());
 		ValidationContext validationContext = new ValidationContext();
 		CountryMasterDto countryMasterDto = new CountryMasterDto();
@@ -151,7 +151,7 @@ public class SMECurrencyValidatorTest {
 		cur.setSwiftTransferEnabled(false);
 		cur.setQuickRemitEnabled(false);
 		data.add(cur);
-		Mockito.when(mobCommonClient.getTransferCurrencies(Mockito.any(), Mockito.eq(metadata.getCountry())))
+		Mockito.when(mobCommonClient.getTransferCurrencies(Mockito.any(), Mockito.eq(metadata.getCountry()),Mockito.eq(request.getTxnCurrency())))
 				.thenReturn(Response.<List<CoreCurrencyDto>>builder().data(data).build());
 		ValidationContext validationContext = new ValidationContext();
 		CountryMasterDto countryMasterDto = new CountryMasterDto();

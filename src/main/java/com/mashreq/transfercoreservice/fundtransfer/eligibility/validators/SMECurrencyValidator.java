@@ -114,11 +114,10 @@ public class SMECurrencyValidator implements ICurrencyValidator {
 	}
 
     private CoreCurrencyDto fetchAllTransferSupportedCurrencies(String txnCurrency, RequestMetaData metadata) {
-    	Response<List<CoreCurrencyDto>> transferCurrencies = mobCommonClient.getTransferCurrencies(function,metadata.getCountry());
-    	Optional<CoreCurrencyDto> currency = Optional.empty();
+    	Response<List<CoreCurrencyDto>> transferCurrencies = mobCommonClient.getTransferCurrencies(function,metadata.getCountry(),txnCurrency);
     	if(transferCurrencies != null && transferCurrencies.hasData() && !transferCurrencies.getData().isEmpty()) {
-    		currency = transferCurrencies.getData().stream().filter(cur -> txnCurrency.equals(cur.getCode())).findAny();
+    		return transferCurrencies.getData().get(0);
     	}
-		return currency.isPresent()?currency.get() : null;
+		return null;
 	}
 }
