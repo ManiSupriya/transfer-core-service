@@ -79,11 +79,9 @@ public enum FundTransferEventType implements EventType {
     EMAIL_NOTIFICATION("EMAIL_NOTIFICATION","Send Email for transfer-core"),
     APPLICATION_SETTING_KEY_NOT_FOUND("APPLICATION_SETTING_KEY_NOT_FOUND","Application setting key is not found"),
     BIC_LIST_SEARCH_CALL("FUND_TRANSFER_ENQUIRY", "Bic code list for country code"),
-    
     ELIGIBILITY_QUICK_REMIT_EXCHANGE("FUND_TRANSFER_ELIGIBILITY", "Quick remit eligibility"),
-
-    SET_VALUE_IN_CACHE("FUND_TRANSFER_ELIGIBILITY", "Set value to cache when value not found in cache "),
-    
+    FUNDS_TRANSFER_TERMSANDCONDITIONS_ACCEPTED("FUNDS_TRANSFER_TERMSANDCONDITIONS_ACCEPTED", "Terms and Conditions for Funds Transfer accepted"),
+    SET_VALUE_IN_CACHE("FUND_TRANSFER_ELIGIBILITY", "Set value to cache when value not found in cache ")
     ;
 
 

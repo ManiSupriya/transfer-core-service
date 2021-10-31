@@ -25,7 +25,6 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -112,6 +111,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     public FundTransferResponseDTO transferFund(RequestMetaData metadata, FundTransferRequestDTO request) {
         final ServiceType serviceType = getServiceByType(request.getServiceType());
         final FundTransferEventType initiatedEvent = FundTransferEventType.getEventTypeByCode(serviceType.getEventPrefix() + FUND_TRANSFER_INITIATION_SUFFIX);
+        verifyTermsAndConditionAcceptance(request,metadata);
         if(!WYMA.getName().equals(serviceType.getName())){
             verifyOtp(request,metadata);
         }
@@ -149,7 +149,22 @@ public class FundTransferServiceDefault implements FundTransferService {
         auditEventPublisher.publishSuccessEvent(FundTransferEventType.FUND_TRANSFER_OTP_VALIDATION, metadata, FundTransferEventType.FUND_TRANSFER_OTP_VALIDATION.getDescription());
     }
 
-    protected FundTransferResponseDTO getFundTransferResponse(RequestMetaData metadata, FundTransferRequestDTO request) {
+    private void verifyTermsAndConditionAcceptance(FundTransferRequestDTO request, RequestMetaData metadata) {
+		if(!"V1".equals(request.getJourneyVersion()) && !request.isTermsAndConditionsAccepted()) {
+			auditEventPublisher.publishFailedEsbEvent(FundTransferEventType.FUNDS_TRANSFER_TERMSANDCONDITIONS_ACCEPTED,
+                    metadata, CommonConstants.FUND_TRANSFER, metadata.getChannelTraceId(),
+                    TransferErrorCode.TERMSANDCONDITIONS_NOTACCEPTED.toString(),
+                    TransferErrorCode.TERMSANDCONDITIONS_NOTACCEPTED.getErrorMessage(),
+                    TransferErrorCode.TERMSANDCONDITIONS_NOTACCEPTED.getErrorMessage());
+            GenericExceptionHandler.handleError(TransferErrorCode.TERMSANDCONDITIONS_NOTACCEPTED,
+            		TransferErrorCode.TERMSANDCONDITIONS_NOTACCEPTED.getErrorMessage(), TransferErrorCode.TERMSANDCONDITIONS_NOTACCEPTED.getErrorMessage());
+		}else {
+			 auditEventPublisher.publishSuccessEvent(FundTransferEventType.FUNDS_TRANSFER_TERMSANDCONDITIONS_ACCEPTED, metadata, FundTransferEventType.FUNDS_TRANSFER_TERMSANDCONDITIONS_ACCEPTED.getDescription());
+		}
+		
+	}
+
+	protected FundTransferResponseDTO getFundTransferResponse(RequestMetaData metadata, FundTransferRequestDTO request) {
         Instant start = now();
         log.info("Starting fund transfer for {} ", htmlEscape(request.getServiceType()));
         log.info("Finding Digital User for CIF-ID {}", htmlEscape(metadata.getPrimaryCif()));
