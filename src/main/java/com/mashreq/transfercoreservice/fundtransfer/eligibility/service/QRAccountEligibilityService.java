@@ -89,7 +89,6 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 		final ValidationContext validationContext = new ValidationContext();
 		
 		final BeneficiaryDto beneficiaryDto = beneficiaryService.getByIdWithoutValidation(metaData.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), "V2", metaData);
-        //TODO: remove this call and fetch the value from mob-common-service
         List<CountryMasterDto> countryList = maintenanceService.getAllCountries("MOB", "AE", Boolean.TRUE);
         final Optional<CountryMasterDto> countryDto = countryList.stream()
                 .filter(country -> country.getCode().equals(beneficiaryDto.getBankCountryISO() )
