@@ -305,6 +305,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
                 .paymentNote(request.getPaymentNote())
                 .accountClass(sourceAccount.getAccountType())
                 .serviceType(request.getServiceType())
+                .exchangeRate(currencyConversionDto.getExchangeRate())
                 .exchangeRateDisplayTxt(currencyConversionDto.getExchangeRateDisplayTxt())
                 .build();
 
