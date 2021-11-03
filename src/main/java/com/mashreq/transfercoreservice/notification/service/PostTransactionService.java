@@ -149,7 +149,7 @@ public class PostTransactionService {
             } else {
                 contactHtmlBody = DEFAULT_STR;
                 segmentSignOffCompanyName = DEFAULT_STR;
-                bankNameInFooter = DEFAULT_STR;
+                bankNameInFooter = emailTemplateParameters.getChannelIdentifier().getChannelName();
                 bankNameInFooterDesc = DEFAULT_STR;
             }
 
