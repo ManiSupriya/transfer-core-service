@@ -558,7 +558,7 @@
                         </tr>
                     </#if>
 
-                    <#if sourceAmount?has_content>
+                    <#if amount?has_content>
                         <tr>
                             <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
                                     <p style="border: 1px solid rgb(115, 135, 148);
@@ -569,21 +569,6 @@
                               </td>
                           <td>
                             <p style="font-weight:700">${currency} ${amount}</p>
-                        </td>
-                        </tr>
-                    </#if>
-
-                    <#if sourceAmount?has_content>
-                        <tr>
-                            <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
-                                    <p style="border: 1px solid rgb(115, 135, 148);
-                                    border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
-                            </td>
-                              <td>
-                                <p style="color: #738794;font-size: 16px;">Amount to be debited:</p>
-                              </td>
-                          <td>
-                            <p style="font-weight:700">${accountCurrency} ${sourceAmount}</p>
                         </td>
                         </tr>
                     </#if>
