@@ -1,9 +1,16 @@
 package com.mashreq.transfercoreservice.api;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.Map;
 
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
+import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,12 +60,23 @@ public class FundTransferControllerTest {
 		FundTransferRequestDTO request = new FundTransferRequestDTO();
 		request.setOrderType("PL");
 		request.setAmount(BigDecimal.TEN);
-		Mockito.when(serviceFactory.getServiceAppropriateService(Mockito.eq(request))).thenReturn(payLaterTransferService);
+		when(serviceFactory.getServiceAppropriateService(Mockito.eq(request))).thenReturn(payLaterTransferService);
 		FundTransferResponseDTO expectedResponse = FundTransferResponseDTO.builder().build();
-		Mockito.when(payLaterTransferService.transferFund(metaData, request)).thenReturn(expectedResponse);
+		when(payLaterTransferService.transferFund(metaData, request)).thenReturn(expectedResponse);
 		Response transferFunds = controller.transferFunds(metaData , request);
 		assertEquals(ResponseStatus.SUCCESS, transferFunds.getStatus());
 		assertEquals(expectedResponse, transferFunds.getData());
+	}
+
+	@Test
+	public void testEligibility() {
+		RequestMetaData metaData = getMetaData();
+		FundTransferEligibiltyRequestDTO request = new FundTransferEligibiltyRequestDTO();
+		request.setAmount(BigDecimal.TEN);
+		when(transferEligibilityProxy.checkEligibility(any(),any())).thenReturn(Collections.emptyMap());
+		Response<Map<ServiceType, EligibilityResponse>> transferFunds = controller.retrieveEligibleServiceType(metaData , request);
+		assertEquals(ResponseStatus.SUCCESS, transferFunds.getStatus());
+		assertEquals(0, transferFunds.getData().size());
 	}
 	
 	private RequestMetaData getMetaData() {

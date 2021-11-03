@@ -158,6 +158,7 @@ public enum TransferErrorCode implements ErrorCode {
     OBJ_TOKENSTORE_ID_NOT_FOUND_STATUS("VERIFY_OTP_30001", "Object TokenStore id not found"),
     USER_SESSION_ALREADY_INVALIDATED_STATUS("LOGOUT_4004", "User session already invalidated in IAM"),
     CARDS_EXTERNAL_SERVICE_ERROR("TN-5020", "Something went wrong with card external service"),
+    BANK_CHARGES_EXTERNAL_SERVICE_ERROR("TN-5021", "Something went wrong with bank charges external service"),
 
     //Middleware error codes
     CONNECTION_TIMEOUT_MW("TN-8002", "Middleware Connection Timeout"),

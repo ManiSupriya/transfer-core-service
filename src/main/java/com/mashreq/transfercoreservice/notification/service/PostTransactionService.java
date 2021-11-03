@@ -6,12 +6,15 @@ import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.templates.freemarker.TemplateEngine;
 import com.mashreq.templates.freemarker.TemplateRequest;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
+import com.mashreq.transfercoreservice.client.dto.TransactionChargesDto;
+import com.mashreq.transfercoreservice.client.service.BankChargesService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.config.notification.EmailConfig;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.model.Segment;
 import com.mashreq.transfercoreservice.notification.model.EmailParameters;
 import com.mashreq.transfercoreservice.notification.model.EmailTemplateParameters;
@@ -28,6 +31,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.getServiceByType;
 import static com.mashreq.transfercoreservice.notification.service.EmailUtil.*;
 import static java.lang.Long.valueOf;
 
@@ -57,6 +61,9 @@ public class PostTransactionService {
     @Autowired
     private BeneficiaryService beneficiaryService;
 
+    @Autowired
+    private BankChargesService bankChargesService;
+
     /**
      * Send Alerts via sms, email and push notification.
      *
@@ -70,6 +77,7 @@ public class PostTransactionService {
         FundTransferEventType eventType = FundTransferEventType.EMAIL_NOTIFICATION;
         TransferErrorCode transferErrorCode = TransferErrorCode.EMAIL_NOTIFICATION_FAILED;
         try {
+            updateBankChargesInFTReq(fundTransferRequest,requestMetaData);
             final PostTransactionActivityContext<SendEmailRequest> emailPostTransactionActivityContext = getEmailPostTransactionActivityContext(requestMetaData, fundTransferRequest, fundTransferRequestDTO);
             postTransactionActivityService.execute(Arrays.asList(emailPostTransactionActivityContext), requestMetaData);
             userEventPublisher.publishSuccessEvent(eventType, requestMetaData, eventType.getDescription());
@@ -79,6 +87,25 @@ public class PostTransactionService {
                     transferErrorCode.getCustomErrorCode(), transferErrorCode.getErrorMessage(), transferErrorCode.getErrorMessage());
         }
 
+    }
+
+    /** updates bank charges in fundTransferRequest based on serviceType
+     * @param fundTransferRequest
+     * @param requestMetaData
+     * @throws NullPointerException - if charges returned from response are null
+     */
+    private void updateBankChargesInFTReq(FundTransferRequest fundTransferRequest, RequestMetaData requestMetaData) {
+        final TransactionChargesDto bankCharges = bankChargesService.getTransactionCharges(fundTransferRequest.getAccountClass(), fundTransferRequest.getTxnCurrency(), requestMetaData);
+        ServiceType serviceType = getServiceByType(fundTransferRequest.getServiceType());
+        switch (serviceType){
+            case WAMA:
+            case WYMA:
+            case LOCAL:
+                fundTransferRequest.setBankFees(bankCharges.getLocalTransactionCharge().toString());
+                break;
+            default:
+                fundTransferRequest.setBankFees(String.valueOf(Double.sum(bankCharges.getCoreBankTransactionFee(), bankCharges.getInternationalTransactionalCharge())));
+        }
     }
 
 
@@ -103,7 +130,8 @@ public class PostTransactionService {
 
             String contactHtmlBody;
             String segmentSignOffCompanyName;
-
+            String bankNameInFooter;
+            String bankNameInFooterDesc;
             if(segment != null) {
                 contactLinkText = StringUtils.defaultIfBlank(segment.getEmailContactUsLinkText(), DEFAULT_STR);
                 htmlContent = segment.getEmailContactUsHtmlContent();
@@ -116,9 +144,13 @@ public class PostTransactionService {
 
                 contactHtmlBody = htmlContent;
                 segmentSignOffCompanyName = StringUtils.defaultIfBlank(segment.getEmailSignOffCompany(), DEFAULT_STR);
+                bankNameInFooter = StringUtils.defaultIfBlank(segment.getEmailCprFooter(), DEFAULT_STR);
+                bankNameInFooterDesc = StringUtils.defaultIfBlank(segment.getEmailCprBankDesc(), DEFAULT_STR);
             } else {
                 contactHtmlBody = DEFAULT_STR;
                 segmentSignOffCompanyName = DEFAULT_STR;
+                bankNameInFooter = emailTemplateParameters.getChannelIdentifier().getChannelName();
+                bankNameInFooterDesc = DEFAULT_STR;
             }
 
             TemplateRequest.Builder template = TemplateRequest.builder()
@@ -136,7 +168,9 @@ public class PostTransactionService {
                     .params(YOUTUBE_LINK, StringUtils.defaultIfBlank(emailTemplateParameters.getSocialMediaLinks().get(YOUTUBE), DEFAULT_STR))
                     .params(EMAIL_TEMPLATE_COPYRIGHT_YEAR_KEY, String.valueOf(LocalDateTime.now().getYear()))
                     .params(CONTACT_HTML_BODY_KEY, contactHtmlBody)
-                    .params(SEGMENT_SIGN_OFF_COMPANY_NAME, segmentSignOffCompanyName);
+                    .params(SEGMENT_SIGN_OFF_COMPANY_NAME, segmentSignOffCompanyName)
+                    .params(BANK_NAME_FOOTER, bankNameInFooter)
+                    .params(BANK_NAME_FOOTER_DESC, bankNameInFooterDesc);
 
             if(fundTransferRequest.getNotificationType().matches(NotificationType.GOLD_SILVER_BUY_SUCCESS)){
                 getTemplateValuesForBuyGoldSilverBuilder(template, fundTransferRequest);
@@ -182,6 +216,15 @@ public class PostTransactionService {
         builder.params(TO_ACCOUNT_NO, StringUtils.defaultIfBlank(emailUtil.doMask(fundTransferRequest.getToAccount()), DEFAULT_STR));
         builder.params(BENEFICIARY_NICK_NAME, StringUtils.defaultIfBlank(fundTransferRequest.getBeneficiaryFullName(), DEFAULT_STR));
         builder.params(CURRENCY, StringUtils.defaultIfBlank(fundTransferRequest.getTxnCurrency(), DEFAULT_STR) );
+
+        builder.params(ACCOUNT_CURRENCY,StringUtils.defaultIfBlank(fundTransferRequest.getSourceCurrency(), DEFAULT_STR));
+        builder.params(SOURCE_AMOUNT,fundTransferRequest.getSrcCcyAmt() != null ? EmailUtil.formattedAmount(fundTransferRequest.getSrcCcyAmt()) : DEFAULT_STR);
+        builder.params(BANK_FEES,StringUtils.defaultIfBlank(fundTransferRequest.getBankFees(), DEFAULT_STR));
+        builder.params(FX_DEAL_CODE,StringUtils.defaultIfBlank(fundTransferRequest.getDealNumber(), DEFAULT_STR));
+        builder.params(ORDER_TYPE,StringUtils.defaultIfBlank(fundTransferRequestDTO.getOrderType(), DEFAULT_STR));
+        builder.params(EXCHANGE_RATE,StringUtils.defaultIfBlank(fundTransferRequest.getExchangeRateDisplayTxt(), DEFAULT_STR));
+        builder.params(LOCAL_CURRENCY,AED);
+
         if(fundTransferRequest.getAmount() != null) {
             builder.params(AMOUNT, EmailUtil.formattedAmount(fundTransferRequest.getAmount()));
         }
@@ -205,22 +248,11 @@ public class PostTransactionService {
             builder.params(TRANSACTION_TYPE, StringUtils.defaultIfBlank(
                     fundTransferRequestDTO.getOrderType().equals("PL") ? "Pay Later" : "Standing Instructions", DEFAULT_STR)
             );
+            builder.params(EXECUTION_DATE,StringUtils.defaultIfBlank(fundTransferRequest.getSourceCurrency(), DEFAULT_STR));
+            builder.params(START_DATE,StringUtils.defaultIfBlank(fundTransferRequestDTO.getStartDate(), DEFAULT_STR));
+            builder.params(END_DATE,StringUtils.defaultIfBlank(fundTransferRequestDTO.getEndDate(), DEFAULT_STR));
+            builder.params(FREQUENCY,StringUtils.defaultIfBlank(fundTransferRequestDTO.getFrequency(), DEFAULT_STR));
+
         }
     }
-
-    // Below code is used for testing
-    /*private FundTransferRequest buildTestData(){
-        FundTransferRequest fundTransferRequest = FundTransferRequest.builder()
-                .sourceOfFund(SOURCE_OF_FUND_ACCOUNT)
-                .amount(new BigDecimal("10.11"))
-                .transferType("Own Account")
-                .NotificationType(NotificationType.OTHER_ACCOUNT_TRANSACTION)
-                .fromAccount("019100341109")
-                .toAccount("019100341109")
-                .beneficiaryFullName("XYZ")
-                .txnCurrency("AED")
-                .build();
-
-        return fundTransferRequest;
-    }*/
 }
