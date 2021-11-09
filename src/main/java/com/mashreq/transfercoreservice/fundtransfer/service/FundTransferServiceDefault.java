@@ -1,34 +1,5 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
-import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.BAIT_AL_KHAIR;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.DAR_AL_BER;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.DUBAI_CARE;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.INFT;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.LOCAL;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WAMA;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WYMA;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.getServiceByType;
-import static java.time.Duration.between;
-import static java.time.Instant.now;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.EnumMap;
-import java.util.Optional;
-
-import javax.annotation.PostConstruct;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Service;
-
 import com.mashreq.logcore.annotations.TrackExec;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
@@ -41,20 +12,10 @@ import com.mashreq.transfercoreservice.common.CommonConstants;
 import com.mashreq.transfercoreservice.errors.ExternalErrorCodeConfig;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.ChargeBearer;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponseDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageService;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.CharityStrategyDefault;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.FundTransferStrategy;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.InternationalFundTransferStrategy;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.LocalFundTransferStrategy;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.OwnAccountStrategy;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.WithinMashreqStrategy;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.*;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.model.DigitalUser;
 import com.mashreq.transfercoreservice.promo.service.PromoCodeService;
@@ -62,10 +23,29 @@ import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionHistory;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionRepository;
 import com.mashreq.webcore.dto.response.Response;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.EnumMap;
+import java.util.Optional;
+
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.*;
+import static java.time.Duration.between;
+import static java.time.Instant.now;
 
 @Slf4j
 @TrackExec
@@ -90,6 +70,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final ExternalErrorCodeConfig errorCodeConfig;
     private final PromoCodeService promoCodeService;
     private final MobCommonService mobCommonService;
+
     @Value("${spring.profiles.active}")
     private String activeProfile;
     @Value("${app.nonProd.otpRelaxed}")
@@ -185,8 +166,8 @@ public class FundTransferServiceDefault implements FundTransferService {
         }
         
         FundTransferStrategy strategy = fundTransferStrategies.get(getServiceByType(request.getServiceType()));
-        FundTransferResponse response = strategy.execute(request, metadata, userDTO);
 
+        FundTransferResponse response = strategy.execute(request, metadata, userDTO);
 
         handleIfTransactionIsSuccess(metadata, request, userDTO, response);
 
@@ -194,7 +175,7 @@ public class FundTransferServiceDefault implements FundTransferService {
 
         log.info("Total time taken for {} Fund Transfer {} milli seconds ", htmlEscape(request.getServiceType()), htmlEscape(Long.toString(between(start, now()).toMillis())));
 
-        handleFailure(request, response);
+        handleFailure(request,response);
 
         boolean promoApplied = promoCodeService.validateAndSave(request, transactionHistory.getStatus(), metadata);
 
@@ -224,13 +205,14 @@ public class FundTransferServiceDefault implements FundTransferService {
 
 	protected void handleFailure(FundTransferRequestDTO request, FundTransferResponse response) {
 		if (isFailure(response)) {
-            GenericExceptionHandler.handleError(TransferErrorCode.valueOf(errorCodeConfig.getMiddlewareExternalErrorCodesMap().getOrDefault(response.getResponseDto().getMwResponseCode(),"FUND_TRANSFER_FAILED")),
+            GenericExceptionHandler.handleError(
+                    TransferErrorCode.valueOf(errorCodeConfig.getMiddlewareExternalErrorCodesMap().getOrDefault(response.getResponseDto().getMwResponseCode(),"FUND_TRANSFER_FAILED")),
                     getFailureMessage(TransferErrorCode.valueOf(errorCodeConfig.getMiddlewareExternalErrorCodesMap().getOrDefault(response.getResponseDto().getMwResponseCode(),"FUND_TRANSFER_FAILED")), request, response),
                     response.getResponseDto().getMwResponseCode()+"-"+ response.getResponseDto().getMwResponseDescription());
         }
 	}
 
-	protected TransactionHistory updateTransactionHistory(RequestMetaData metadata, FundTransferRequestDTO request,
+    protected TransactionHistory updateTransactionHistory(RequestMetaData metadata, FundTransferRequestDTO request,
 			UserDTO userDTO, FundTransferResponse response) {
 		/** Insert payment history irrespective of mw payment fails or success */
         TransactionHistory transactionHistory = generateTransactionHistory(request, response, userDTO, metadata);
@@ -248,12 +230,14 @@ public class FundTransferServiceDefault implements FundTransferService {
 	}
 
 	protected boolean isFailure(FundTransferResponse response) {
-        return MwResponseStatus.F.equals(response.getResponseDto().getMwResponseStatus());
+        return null != response.getResponseDto() && MwResponseStatus.F.equals(response.getResponseDto().getMwResponseStatus());
     }
 
     protected boolean isSuccessOrProcessing(FundTransferResponse response) {
-        return response.getResponseDto().getMwResponseStatus().equals(MwResponseStatus.S) ||
-                response.getResponseDto().getMwResponseStatus().equals(MwResponseStatus.P);
+        return null != response.getResponseDto() && (
+                MwResponseStatus.S.equals(response.getResponseDto().getMwResponseStatus()) ||
+                        MwResponseStatus.P.equals(response.getResponseDto().getMwResponseStatus())
+                );
     }
 
     protected String getFailureMessage(TransferErrorCode fundTransferFailed, FundTransferRequestDTO request, FundTransferResponse response) {

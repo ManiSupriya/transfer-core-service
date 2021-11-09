@@ -3,16 +3,24 @@ package com.mashreq.transfercoreservice.fundtransfer.service;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.util.EnumMap;
-import java.util.Optional;
+import java.util.*;
 
+import com.mashreq.transfercoreservice.errors.ExternalErrorCodeConfig;
+import com.mashreq.transfercoreservice.fundtransfer.dto.*;
+import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
+import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageService;
+import com.mashreq.transfercoreservice.model.*;
+import com.mashreq.transfercoreservice.repository.QrStatusMsRepository;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.junit.platform.commons.util.ReflectionUtils;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -39,10 +47,6 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.FundTransferStrategy;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.InternationalFundTransferStrategy;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
-import com.mashreq.transfercoreservice.model.Country;
-import com.mashreq.transfercoreservice.model.DigitalUser;
-import com.mashreq.transfercoreservice.model.DigitalUserGroup;
-import com.mashreq.transfercoreservice.model.Segment;
 import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
@@ -61,6 +65,8 @@ public class FundTransferServiceDefaultTest {
 	 @Mock
 	 AsyncUserEventPublisher asyncUserEventPublisher;
 	 @Mock
+	 private DigitalUserLimitUsageService digitalUserLimitUsageService;
+	 @Mock
 	 DigitalUser digitalUser;
 	 @InjectMocks
 	 FundTransferServiceDefault fundTransferServiceDefault;
@@ -76,6 +82,11 @@ public class FundTransferServiceDefaultTest {
 	 EnumMap<ServiceType, FundTransferStrategy> fundTransferStrategies;
 	 @Mock
 	 InternationalFundTransferStrategy internationalFundTransferStrategy;
+	 @Mock
+	 QrStatusMsRepository qrStatusMsRepository;
+	 @Mock
+	 ExternalErrorCodeConfig errorCodeConfig;
+
 	 FundTransferRequestDTO fundTransferRequestDTO;
 	 
 	 @Mock
@@ -83,6 +94,10 @@ public class FundTransferServiceDefaultTest {
 	 
 	 @Before
 	 public void prepare() {
+		 QuickRemitStatusMaster quickRemitStatusMaster = new QuickRemitStatusMaster();
+		 quickRemitStatusMaster.setStatusCode("EAI-FCI-BRK-001");
+		 List<QuickRemitStatusMaster> quickRemitStatusMasters = Arrays.asList(quickRemitStatusMaster);
+
 	     this.fundTransferServiceDefault.init();
 	     fundTransferRequestDTO = generateFundTransferRequest();
 	     ReflectionTestUtils.setField(fundTransferServiceDefault, "activeProfile", "prod");
@@ -93,18 +108,58 @@ public class FundTransferServiceDefaultTest {
 		
 		VerifyOTPResponseDTO verifyOTPResponseDTO = new VerifyOTPResponseDTO();
 		verifyOTPResponseDTO.setAuthenticated(true);
-        Mockito.doNothing().when(asyncUserEventPublisher).publishSuccessEvent(Mockito.any(), Mockito.any(), Mockito.any());
-		Mockito.when(iamService.verifyOTP(Mockito.any())).thenReturn(Response.<VerifyOTPResponseDTO>builder().status(ResponseStatus.SUCCESS).data(verifyOTPResponseDTO).build());
+        Mockito.doNothing().when(asyncUserEventPublisher).publishSuccessEvent(any(), any(), any());
+		when(iamService.verifyOTP(any())).thenReturn(Response.<VerifyOTPResponseDTO>builder().status(ResponseStatus.SUCCESS).data(verifyOTPResponseDTO).build());
 		FundTransferResponseDTO fundTransferResponseDTO = fundTransferServiceDefault.transferFund(metaData,
 				fundTransferRequestDTO);
 		Assert.assertNull(fundTransferResponseDTO);
 	}
+
+	@Test
+	public void handleSuccessTest() {
+		CoreFundTransferResponseDto coreFundTransferResponseDto = new CoreFundTransferResponseDto();
+		coreFundTransferResponseDto.setMwResponseStatus(MwResponseStatus.S);
+		FundTransferResponse fundTransferResponse = FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
+
+		VerifyOTPResponseDTO verifyOTPResponseDTO = new VerifyOTPResponseDTO();
+		verifyOTPResponseDTO.setAuthenticated(true);
+
+		doNothing().when(digitalUserLimitUsageService).insert(any());
+		fundTransferServiceDefault.handleIfTransactionIsSuccess(metaData, fundTransferRequestDTO, new UserDTO(), fundTransferResponse);
+		verify(digitalUserLimitUsageService,times(1)).insert(any());
+	}
+
+	@Test
+	public void handleFailureTest(){
+		CoreFundTransferResponseDto coreFundTransferResponseDto = new CoreFundTransferResponseDto();
+		coreFundTransferResponseDto.setMwResponseStatus(MwResponseStatus.F);
+		FundTransferResponse fundTransferResponse = FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
+
+		VerifyOTPResponseDTO verifyOTPResponseDTO = new VerifyOTPResponseDTO();
+		verifyOTPResponseDTO.setAuthenticated(true);
+
+		when(errorCodeConfig.getMiddlewareExternalErrorCodesMap()).thenReturn(Collections.emptyMap());
+
+		Assertions.assertThrows(GenericException.class,()-> fundTransferServiceDefault.handleFailure(fundTransferRequestDTO, fundTransferResponse));
+
+		coreFundTransferResponseDto.setMwResponseCode("EAI-FCI-BRK-001");
+		FundTransferResponse fundTransferResponse1 = FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
+
+		Assertions.assertThrows(GenericException.class,()-> fundTransferServiceDefault.handleFailure(fundTransferRequestDTO, fundTransferResponse1));
+
+		coreFundTransferResponseDto.setMwResponseCode("EAI-FCI-BRK-002");
+		FundTransferResponse fundTransferResponse2 = FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
+
+		Assertions.assertThrows(GenericException.class,()-> fundTransferServiceDefault.handleFailure(fundTransferRequestDTO, fundTransferResponse2));
+
+	}
+
 	@Test
 	public void transferFundTestOTPFailure() {
 		VerifyOTPResponseDTO verifyOTPResponseDTO = new VerifyOTPResponseDTO();
 		verifyOTPResponseDTO.setAuthenticated(false);
-        Mockito.doNothing().when(asyncUserEventPublisher).publishFailedEsbEvent(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-		Mockito.when(iamService.verifyOTP(Mockito.any())).thenReturn(Response.<VerifyOTPResponseDTO>builder().status(ResponseStatus.FAIL).errorCode("TN-5016").errorDetails("Something went wrong with OTP external service").data(verifyOTPResponseDTO).build());
+        Mockito.doNothing().when(asyncUserEventPublisher).publishFailedEsbEvent(any(), any(), any(), any(), any(), any(), any());
+		when(iamService.verifyOTP(any())).thenReturn(Response.<VerifyOTPResponseDTO>builder().status(ResponseStatus.FAIL).errorCode("TN-5016").errorDetails("Something went wrong with OTP external service").data(verifyOTPResponseDTO).build());
 		try {
 			fundTransferServiceDefault.transferFund(metaData,
 					fundTransferRequestDTO);
@@ -159,7 +214,7 @@ public class FundTransferServiceDefaultTest {
         Class<?>[] paramTypes = new Class<?>[2];
 		paramTypes[0] = RequestMetaData.class;
 		paramTypes[1] = FundTransferRequestDTO.class;
-		Mockito.when(metaData.getPrimaryCif()).thenReturn("111");
+		when(metaData.getPrimaryCif()).thenReturn("111");
 		Method method = fundTransferServiceDefault.getClass().getDeclaredMethod("getFundTransferResponse", paramTypes);
 		method.setAccessible(true);
 		try {
@@ -175,7 +230,7 @@ public class FundTransferServiceDefaultTest {
 		Class<?>[] paramTypes = new Class<?>[2];
 		paramTypes[0] = RequestMetaData.class;
 		paramTypes[1] = FundTransferRequestDTO.class;
-		Mockito.when(metaData.getPrimaryCif()).thenReturn("111");
+		when(metaData.getPrimaryCif()).thenReturn("111");
 		Segment segment = new Segment();
 		segment.setId(1L);
 		 Country country = new Country();
@@ -190,7 +245,7 @@ public class FundTransferServiceDefaultTest {
 		coreFundTransferResponseDto.setMwResponseStatus(MwResponseStatus.S);
 		digitalUser.setDigitalUserGroup(digitalUserGroup);
 		Optional<DigitalUser> userOptional = Optional.of(digitalUser);
-		Mockito.when(digitalUserRepository.findByCifEquals(Mockito.anyString())).thenReturn(userOptional);
+		when(digitalUserRepository.findByCifEquals(Mockito.anyString())).thenReturn(userOptional);
 		fundTransferResponse = FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
 		strategy = new InternationalFundTransferStrategy(null, null, null, null, null, null, null, null, null, null, null, null, null,null);
 		Method method = fundTransferServiceDefault.getClass().getDeclaredMethod("getFundTransferResponse", paramTypes);
