@@ -31,7 +31,6 @@ public class OwnAccountEligibilityService implements TransferEligibilityService{
 
 	public static final String LOCAL_CURRENCY = "AED";
 
-	private final AccountBelongsToCifValidator accountBelongsToCifValidator;
 	private final LimitValidatorFactory limitValidatorFactory;
 	private final AccountService accountService;
 	private final MaintenanceService maintenanceService;

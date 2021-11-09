@@ -97,6 +97,7 @@ app:
     mobcommon: ${MOB_COMMON_SERVICE:https://digital-uat.mashreq.com/api/mob-common-service}
     beneficiaryservice: https://digital-uat.mashreq.com/api/beneficiary-service
     quick-remit: https://digital-uat.mashreq.com/api/mob-quickremit-service
+    bank-charges: https://digital-uat.mashreq.com/api/bank-charges-service
   middleware:
     endpoint: http://172.24.70.29:7800/AllOperationsSOAP_HTTP_Service
     timeout: 100000

@@ -12,6 +12,7 @@ import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.common.CommonConstants;
+import com.mashreq.transfercoreservice.common.CommonUtils;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
@@ -105,16 +106,15 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         /** validating account freeze conditions */
         validateAccountFreezeDetails(request, metadata, validationContext);
         responseHandler(currencyValidator.validate(request, metadata, validationContext));
-        final BigDecimal transferAmountInSrcCurrency = isCurrencySame(request)
-                ? request.getAmount()
-                : getAmountInSrcCurrency(request, beneficiaryDto, fromAccountOpt.get());
 
-        validationContext.add("transfer-amount-in-source-currency", transferAmountInSrcCurrency);
+        CurrencyConversionDto currencyConversionDto = getAmountInSrcCurrency(request, fromAccountOpt.get());
+
+        validationContext.add("transfer-amount-in-source-currency", currencyConversionDto.getAccountCurrencyAmount());
         validateAccountBalance(request, metadata, validationContext);
 
         //Limit Validation
         Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
-        final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), fromAccountOpt.get(),transferAmountInSrcCurrency);
+        final BigDecimal limitUsageAmount = getLimitUsageAmount(fromAccountOpt.get(),currencyConversionDto.getAccountCurrencyAmount());
         final LimitValidatorResponse validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount, metadata, bendId);
         String txnRefNo = validationResult.getTransactionRefNo();
 
@@ -134,17 +134,17 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
 						TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SAME_CRNCY.getErrorMessage());
 			}
 			request.setTxnCurrency(trxCurrency);
-         responseHandler(dealValidator.validate(request, metadata, validationContext));   
+            responseHandler(dealValidator.validate(request, metadata, validationContext));
    		 }
 
         log.info("Total time taken for {} strategy {} milli seconds ", htmlEscape(request.getServiceType()), htmlEscape(Long.toString(between(start, now()).toMillis())));
 
-        final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountOpt.get(), beneficiaryDto, validationResult);
+        final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountOpt.get(), beneficiaryDto, validationResult, currencyConversionDto);
         final FundTransferResponse fundTransferResponse = processTransaction(metadata, txnRefNo, fundTransferRequest,request);
         handleSuccessfulTransaction(request, metadata, userDTO, validationResult, fundTransferRequest,
 				fundTransferResponse);
         
-        return prepareResponse(transferAmountInSrcCurrency, limitUsageAmount, validationResult, txnRefNo, fundTransferResponse);
+        return prepareResponse(currencyConversionDto.getAccountCurrencyAmount(), limitUsageAmount, validationResult, txnRefNo, fundTransferResponse);
 
     }
 
@@ -219,45 +219,46 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         return customerNotification;
     }
 
-    private BigDecimal getAmountInSrcCurrency(FundTransferRequestDTO request, BeneficiaryDto beneficiaryDto,
-                                              AccountDetailsDTO sourceAccountDetailsDTO) {
-        BigDecimal amtToBePaidInSrcCurrency;
+    private CurrencyConversionDto getAmountInSrcCurrency(FundTransferRequestDTO request, AccountDetailsDTO sourceAccountDetailsDTO) {
+        if(isCurrencySame(request)){
+            CurrencyConversionDto currencyConversionDto = new CurrencyConversionDto();
+            currencyConversionDto.setExchangeRate(BigDecimal.ONE);
+            currencyConversionDto.setAccountCurrencyAmount(request.getAmount());
+            return currencyConversionDto;
+        }
         final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
-        		currencyRequest.setAccountNumber(sourceAccountDetailsDTO.getNumber());
-        		currencyRequest.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
-        		currencyRequest.setTransactionCurrency(request.getTxnCurrency());
-        		currencyRequest.setDealNumber(request.getDealNumber());
-        		currencyRequest.setTransactionAmount(request.getAmount());
-        CurrencyConversionDto conversionResultInSourceAcctCurrency = maintenanceService.convertBetweenCurrencies(currencyRequest);
-        amtToBePaidInSrcCurrency = conversionResultInSourceAcctCurrency.getAccountCurrencyAmount();
-        return amtToBePaidInSrcCurrency;
+        currencyRequest.setAccountNumber(sourceAccountDetailsDTO.getNumber());
+        currencyRequest.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
+        currencyRequest.setTransactionCurrency(request.getTxnCurrency());
+        currencyRequest.setDealNumber(request.getDealNumber());
+        currencyRequest.setTransactionAmount(request.getAmount());
+        CurrencyConversionDto currencyConversionDto =  maintenanceService.convertBetweenCurrencies(currencyRequest);
+        currencyConversionDto.setExchangeRateDisplayTxt(CommonUtils.generateDisplayString(currencyConversionDto, currencyRequest));
+        return currencyConversionDto;
     }
 
 
-    private BigDecimal getLimitUsageAmount(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO,
-                                           final BigDecimal transferAmountInSrcCurrency) {
+    private BigDecimal getLimitUsageAmount(final AccountDetailsDTO sourceAccountDetailsDTO, final BigDecimal transferAmountInSrcCurrency) {
         return LOCAL_CURRENCY.equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
                 ? transferAmountInSrcCurrency
-                : convertAmountInLocalCurrency(dealNumber, sourceAccountDetailsDTO, transferAmountInSrcCurrency);
+                : convertAmountInLocalCurrency(sourceAccountDetailsDTO, transferAmountInSrcCurrency);
     }
 
-    private BigDecimal convertAmountInLocalCurrency(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO,
-                                                    final BigDecimal transferAmountInSrcCurrency) {
+    private BigDecimal convertAmountInLocalCurrency(final AccountDetailsDTO sourceAccountDetailsDTO, final BigDecimal transferAmountInSrcCurrency) {
         CoreCurrencyConversionRequestDto currencyConversionRequestDto = new CoreCurrencyConversionRequestDto();
         currencyConversionRequestDto.setAccountNumber(sourceAccountDetailsDTO.getNumber());
         currencyConversionRequestDto.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
         currencyConversionRequestDto.setAccountCurrencyAmount(transferAmountInSrcCurrency);
-        //currencyConversionRequestDto.setDealNumber(dealNumber);
         currencyConversionRequestDto.setTransactionCurrency(LOCAL_CURRENCY);
-
-        CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(currencyConversionRequestDto);
-        return currencyConversionDto.getTransactionAmount();
+        return maintenanceService.convertCurrency(currencyConversionRequestDto).getTransactionAmount();
     }
     private FundTransferRequest prepareFundTransferRequestPayload(RequestMetaData metadata, FundTransferRequestDTO request,
-                                                                  AccountDetailsDTO sourceAccount, BeneficiaryDto beneficiaryDto, LimitValidatorResponse validationResult) {
+                                                                  AccountDetailsDTO sourceAccount, BeneficiaryDto beneficiaryDto,
+                                                                  LimitValidatorResponse validationResult, CurrencyConversionDto currencyConversionDto) {
     	FundTransferRequest trnsrequest = 
          FundTransferRequest.builder()
                 .amount(!sourceAccount.getCurrency().equals(request.getTxnCurrency()) ? request.getAmount() : null)
+                .srcCcyAmt(sourceAccount.getCurrency().equals(request.getTxnCurrency()) ? request.getAmount() : currencyConversionDto.getAccountCurrencyAmount())
                 .srcAmount(sourceAccount.getCurrency().equals(request.getTxnCurrency()) ? request.getAmount() : null)
                 .channel(metadata.getChannel())
                 .channelTraceId(metadata.getChannelTraceId())
@@ -269,12 +270,16 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
                 .beneficiaryFullName(beneficiaryDto.getFullName())
                 /** added if condition to avoid impact on existing logic, as per actual logic , destination currency should not be null*/
                 .destinationCurrency(StringUtils.defaultIfBlank(request.getDestinationAccountCurrency(), request.getTxnCurrency()))
+                .txnCurrency(request.getTxnCurrency())
                 .transactionCode(WITHIN_MASHREQ_TRANSACTION_CODE)
                 .internalAccFlag(INTERNAL_ACCOUNT_FLAG)
                 .dealNumber(request.getDealNumber())
                 .dealRate(request.getDealRate())
                 .limitTransactionRefNo(validationResult.getTransactionRefNo())
                 .paymentNote(request.getPaymentNote())
+                .accountClass(sourceAccount.getAccountType())
+                .serviceType(request.getServiceType())
+                .exchangeRateDisplayTxt(currencyConversionDto.getExchangeRateDisplayTxt())
                 .build();
     	return trnsrequest;
     }

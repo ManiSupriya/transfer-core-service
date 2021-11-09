@@ -5,6 +5,7 @@ import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.AdditionalFields;
 import com.mashreq.transfercoreservice.fundtransfer.dto.LimitValidatorResponse;
+import com.mashreq.transfercoreservice.fundtransfer.dto.QRDealDetails;
 import com.mashreq.transfercoreservice.model.Country;
 import com.mashreq.transfercoreservice.model.DigitalUser;
 import com.mashreq.transfercoreservice.model.DigitalUserGroup;
@@ -152,5 +153,32 @@ public class TestUtil {
 
     public static <T> Response<T> getErrorResponse(T data){
         return Response.<T>builder().status(ResponseStatus.ERROR).data(data).build();
+    }
+
+    public static TransactionChargesDto getBankCharges() {
+        TransactionChargesDto transactionChargesDto = new TransactionChargesDto();
+        transactionChargesDto.setCoreBankTransactionFee(0.0);
+        transactionChargesDto.setLocalTransactionCharge(0.0);
+        transactionChargesDto.setInternationalTransactionalCharge(0.0);
+        transactionChargesDto.setAccountClass("SAVACR");
+        return transactionChargesDto;
+    }
+
+    public static QRDealDetails getQRDealsDetails() {
+        QRDealDetails qrDealDetails = new QRDealDetails();
+        qrDealDetails.setTotalLimitAmount(BigDecimal.ONE);
+        return qrDealDetails;
+    }
+
+    public static Map<String, List<String>> getAccountContext() {
+        Map<String, List<String>> map = new HashMap<>();
+        map.put("account-numbers",Arrays.asList("0123456789"));
+        return map;
+    }
+
+    public static Map<String, List<String>> getCardsContext() {
+        Map<String, List<String>> map = new HashMap<>();
+        map.put("card-numbers",Arrays.asList("4444333322221111"));
+        return map;
     }
 }

@@ -55,4 +55,8 @@ public class FundTransferRequest {
     private String serviceType;
     private String intermediaryBankSwiftCode;
     private String beneficiaryBankCountry;
+    private String bankFees;
+    private String accountClass;
+    private BigDecimal srcCcyAmt;
+    private String exchangeRateDisplayTxt;
 }

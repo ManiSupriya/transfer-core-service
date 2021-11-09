@@ -2,7 +2,12 @@ package com.mashreq.transfercoreservice.fundtransfer.eligibility.service;
 
 import static com.mashreq.transfercoreservice.common.ExceptionUtils.genericException;
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_NOT_BELONG_TO_CIF;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.FT_CC_NOT_BELONG_TO_CIF;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_SEGMENT;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.PAYMENT_NOT_ELIGIBLE_FOR_QR;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.QUICK_REM_COUNTRY_CODE_NOT_FOUND;
 import static com.mashreq.transfercoreservice.event.FundTransferEventType.ACCOUNT_BELONGS_TO_CIF;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.QuickRemitType.getCodeByName;
 
@@ -22,7 +27,6 @@ import com.mashreq.transfercoreservice.cache.UserSessionCacheService;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CardDetailsDTO;
-import com.mashreq.transfercoreservice.client.dto.CardType;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
 import com.mashreq.transfercoreservice.client.dto.CountryMasterDto;
 import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
@@ -85,7 +89,6 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 		final ValidationContext validationContext = new ValidationContext();
 		
 		final BeneficiaryDto beneficiaryDto = beneficiaryService.getByIdWithoutValidation(metaData.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), "V2", metaData);
-        
         List<CountryMasterDto> countryList = maintenanceService.getAllCountries("MOB", "AE", Boolean.TRUE);
         final Optional<CountryMasterDto> countryDto = countryList.stream()
                 .filter(country -> country.getCode().equals(beneficiaryDto.getBankCountryISO() )

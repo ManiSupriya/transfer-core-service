@@ -1,15 +1,19 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
+import static com.mashreq.transfercoreservice.common.CommonUtils.generateDisplayString;
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 import static com.mashreq.transfercoreservice.notification.model.NotificationType.OWN_ACCOUNT_FT;
 import static java.time.Duration.between;
 import static java.time.Instant.now;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
+import com.mashreq.transfercoreservice.common.CommonUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -135,7 +139,6 @@ public class OwnAccountStrategy implements FundTransferStrategy {
                 ? getCurrencyExchangeObject(transactionAmount, request, toAccount, fromAccount) :
                 getExchangeObjectForSrcAmount(transactionAmount, toAccount, fromAccount);
 
-
         final BigDecimal transferAmountInSrcCurrency = request.getTxnCurrency() != null && request.getAmount() != null && !isCurrencySame(request.getTxnCurrency(), fromAccount.getCurrency())
                 ? conversionResult.getAccountCurrencyAmount()
                 : transactionAmount;
@@ -170,7 +173,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         }
         Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
         final LimitValidatorResponse validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount, metadata, bendId);
-        final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccount, toAccount,conversionResult.getExchangeRate(),validationResult);
+        final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccount, toAccount,validationResult, conversionResult);
 
        fundTransferRequest.setProductId(isMT5AccountProdID(fundTransferRequest));
        final FundTransferResponse fundTransferResponse = processTransfer(metadata, validationResult, fundTransferRequest,request);
@@ -182,7 +185,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         return prepareResponse(transferAmountInSrcCurrency, limitUsageAmount, validationResult, fundTransferResponse);
     }
 
-	protected FundTransferResponse prepareResponse(final BigDecimal transferAmountInSrcCurrency,
+    protected FundTransferResponse prepareResponse(final BigDecimal transferAmountInSrcCurrency,
 			final BigDecimal limitUsageAmount, final LimitValidatorResponse validationResult,
 			final FundTransferResponse fundTransferResponse) {
 		return fundTransferResponse.toBuilder()
@@ -278,9 +281,11 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     }
 
     private FundTransferRequest prepareFundTransferRequestPayload(RequestMetaData metadata, FundTransferRequestDTO request,
-                                                                  AccountDetailsDTO sourceAccount, AccountDetailsDTO destinationAccount, BigDecimal exchangeRate, LimitValidatorResponse validationResult) {
+                                                                  AccountDetailsDTO sourceAccount, AccountDetailsDTO destinationAccount,
+                                                                  LimitValidatorResponse validationResult, CurrencyConversionDto currencyConversionDto) {
         return FundTransferRequest.builder()
                 .amount(request.getAmount())
+                .srcCcyAmt(sourceAccount.getCurrency().equals(request.getTxnCurrency()) ? request.getAmount() : currencyConversionDto.getAccountCurrencyAmount())
                 .srcAmount(request.getSrcAmount())
                 .channel(metadata.getChannel())
                 .channelTraceId(metadata.getChannelTraceId())
@@ -295,10 +300,13 @@ public class OwnAccountStrategy implements FundTransferStrategy {
                 .internalAccFlag(INTERNAL_ACCOUNT_FLAG)
                 .dealNumber(request.getDealNumber())
                 .dealRate(request.getDealRate())
-                .exchangeRate(exchangeRate)
                 .txnCurrency(request.getTxnCurrency())
                 .limitTransactionRefNo(validationResult.getTransactionRefNo())
                 .paymentNote(request.getPaymentNote())
+                .accountClass(sourceAccount.getAccountType())
+                .serviceType(request.getServiceType())
+                .exchangeRate(currencyConversionDto.getExchangeRate())
+                .exchangeRateDisplayTxt(currencyConversionDto.getExchangeRateDisplayTxt())
                 .build();
 
     }
@@ -308,16 +316,14 @@ public class OwnAccountStrategy implements FundTransferStrategy {
                                            final BigDecimal transferAmountInSrcCurrency) {
         return LOCAL_CURRENCY.equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
                 ? transferAmountInSrcCurrency
-                : convertAmountInLocalCurrency(dealNumber, sourceAccountDetailsDTO, transferAmountInSrcCurrency);
+                : convertAmountInLocalCurrency(sourceAccountDetailsDTO, transferAmountInSrcCurrency);
     }
 
-    protected BigDecimal convertAmountInLocalCurrency(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO,
-                                                    final BigDecimal transferAmountInSrcCurrency) {
+    protected BigDecimal convertAmountInLocalCurrency(final AccountDetailsDTO sourceAccountDetailsDTO, final BigDecimal transferAmountInSrcCurrency) {
         CoreCurrencyConversionRequestDto currencyConversionRequestDto = new CoreCurrencyConversionRequestDto();
         currencyConversionRequestDto.setAccountNumber(sourceAccountDetailsDTO.getNumber());
         currencyConversionRequestDto.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
         currencyConversionRequestDto.setAccountCurrencyAmount(transferAmountInSrcCurrency);
-        //currencyConversionRequestDto.setDealNumber(dealNumber);
         currencyConversionRequestDto.setTransactionCurrency(LOCAL_CURRENCY);
 
         CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(currencyConversionRequestDto);
@@ -328,7 +334,6 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         return destinationCurrency.equalsIgnoreCase(sourceCurrency);
     }
 
-    //convert to sourceAccount from destAccount
     private CurrencyConversionDto getCurrencyExchangeObject(BigDecimal transactionAmount, FundTransferRequestDTO request, AccountDetailsDTO destAccount, AccountDetailsDTO sourceAccount) {
         final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
         currencyRequest.setAccountNumber(sourceAccount.getNumber());
@@ -336,7 +341,9 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         currencyRequest.setTransactionCurrency(destAccount.getCurrency());
         currencyRequest.setDealNumber(request.getDealNumber());
         currencyRequest.setTransactionAmount(transactionAmount);
-        return maintenanceService.convertBetweenCurrencies(currencyRequest);
+        CurrencyConversionDto currencyConversionDto =  maintenanceService.convertBetweenCurrencies(currencyRequest);
+        currencyConversionDto.setExchangeRateDisplayTxt(CommonUtils.generateDisplayString(currencyConversionDto, currencyRequest));
+        return currencyConversionDto;
 
     }
 
@@ -348,7 +355,6 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         return request.getSrcAmount() == null;
     }
 
-    //convert to sourceAccount from destAccount where amount is in src currency
     private CurrencyConversionDto getExchangeObjectForSrcAmount(BigDecimal transactionAmount, AccountDetailsDTO destAccount, AccountDetailsDTO sourceAccount) {
         final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
         currencyRequest.setAccountNumber(sourceAccount.getNumber());

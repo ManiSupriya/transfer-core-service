@@ -37,6 +37,13 @@ import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPRequestDTO;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPResponseDTO;
 import com.mashreq.transfercoreservice.client.service.OTPService;
+import com.mashreq.transfercoreservice.common.CommonConstants;
+import com.mashreq.transfercoreservice.errors.TransferErrorCode;
+import com.mashreq.transfercoreservice.event.FundTransferEventType;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponseDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.FundTransferStrategy;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.InternationalFundTransferStrategy;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
@@ -158,6 +165,46 @@ public class FundTransferServiceDefaultTest {
 					fundTransferRequestDTO);
 		} catch (GenericException genericException) {
 			assertEquals("TN-5016", genericException.getErrorCode());
+		}
+	}
+	
+	@Test
+	public void transferFundTestSuccessFulTermsAndConditionsVerificationOTPFailure() {
+		VerifyOTPResponseDTO verifyOTPResponseDTO = new VerifyOTPResponseDTO();
+		verifyOTPResponseDTO.setAuthenticated(false);
+		Mockito.doNothing().when(asyncUserEventPublisher).publishFailedEsbEvent(Mockito.any(), Mockito.any(),
+				Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+		Mockito.when(iamService.verifyOTP(Mockito.any()))
+				.thenReturn(Response.<VerifyOTPResponseDTO>builder().status(ResponseStatus.FAIL).errorCode("TN-5016")
+						.errorDetails("Something went wrong with OTP external service").data(verifyOTPResponseDTO)
+						.build());
+		try {
+			fundTransferRequestDTO.setTermsAndConditionsAccepted(true);
+			fundTransferRequestDTO.setJourneyVersion("V2");
+			fundTransferServiceDefault.transferFund(metaData, fundTransferRequestDTO);
+			Mockito.verify(asyncUserEventPublisher, Mockito.times(1)).publishSuccessEvent(
+					Mockito.eq(FundTransferEventType.FUNDS_TRANSFER_TERMSANDCONDITIONS_ACCEPTED), Mockito.any(),
+					Mockito.eq(FundTransferEventType.FUNDS_TRANSFER_TERMSANDCONDITIONS_ACCEPTED.getDescription()));
+		} catch (GenericException genericException) {
+			assertEquals("TN-5016", genericException.getErrorCode());
+		}
+	}
+	
+	@Test
+	public void transferFundTestNonAcceptedTermsAndConditions() {
+		Mockito.doNothing().when(asyncUserEventPublisher).publishFailedEsbEvent(Mockito.any(), Mockito.any(),
+				Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+		try {
+			fundTransferRequestDTO.setTermsAndConditionsAccepted(false);
+			fundTransferRequestDTO.setJourneyVersion("V2");
+			fundTransferServiceDefault.transferFund(metaData, fundTransferRequestDTO);
+			Mockito.verify(asyncUserEventPublisher, Mockito.times(1)).publishFailedEsbEvent(FundTransferEventType.FUNDS_TRANSFER_TERMSANDCONDITIONS_ACCEPTED,
+					Mockito.any(), CommonConstants.FUND_TRANSFER,Mockito.any(),
+                    TransferErrorCode.TERMSANDCONDITIONS_NOTACCEPTED.toString(),
+                    TransferErrorCode.TERMSANDCONDITIONS_NOTACCEPTED.getErrorMessage(),
+                    TransferErrorCode.TERMSANDCONDITIONS_NOTACCEPTED.getErrorMessage());
+		} catch (GenericException genericException) {
+			assertEquals(TransferErrorCode.TERMSANDCONDITIONS_NOTACCEPTED.getCustomErrorCode(), genericException.getErrorCode());
 		}
 	}
 	

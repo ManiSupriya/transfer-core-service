@@ -28,6 +28,7 @@ import lombok.Data;
 @ConditionalRequired(fieldName = "startDate", dependentFieldName = "orderType", anyMatch = {"PL","SI"}, message = "start date is mandatory")
 @ConditionalRequired(fieldName = "endDate", dependentFieldName = "orderType", anyMatch = "SI", message = "end date is mandatory")
 @ConditionalRequired(fieldName = "frequency", dependentFieldName = "orderType", anyMatch = "SI", message = "frequency is mandatory")
+@ConditionalRequired(fieldName = "termsAndConditionsAccepted", dependentFieldName = "journeyVersion", anyMatch = "V2", message = "T&C must be accepted")
 public class FundTransferRequestDTO {
 
     @Account
@@ -94,4 +95,5 @@ public class FundTransferRequestDTO {
     private String destinationAccountCurrency;
     
     private String journeyVersion="V1";
+    private boolean termsAndConditionsAccepted; 
 }
