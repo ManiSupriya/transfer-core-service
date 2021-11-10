@@ -323,6 +323,7 @@ public class FundTransferServiceDefault implements FundTransferService {
                 .chargeBearer(StringUtils.isNotEmpty(request.getChargeBearer())? ChargeBearer.valueOf(request.getChargeBearer()):null)
                 .debitAmount(fundTransferResponse.getDebitAmount()!= null ? fundTransferResponse.getDebitAmount().toPlainString():null)
                 .beneficiaryId(StringUtils.isNotBlank(request.getBeneficiaryId())?Long.valueOf(request.getBeneficiaryId()):null)
+                .transferPurpose(request.getPurposeDesc())
                 .build();
     }
 }
