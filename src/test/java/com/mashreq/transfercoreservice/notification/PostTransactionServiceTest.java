@@ -156,6 +156,8 @@ public class PostTransactionServiceTest {
     public void testPostTransactionService() throws JsonProcessingException {
         RequestMetaData requestMetaData = buildRequestMetaData();
         FundTransferRequest fundTransferRequest = buildFundTransferRequest();
+        fundTransferRequest.setChargeBearer("B");
+
         EmailParameters emailParameters = buildEmailParameters();
         EmailTemplateParameters emailTemplateParameters = buildEmailTemplateParameters();
         HashMap<String, EmailParameters> emailConfigMap = new HashMap<>();
@@ -176,6 +178,7 @@ public class PostTransactionServiceTest {
         fundTransferRequest.setSrcAmount(new BigDecimal(10));
         fundTransferRequest.setServiceType("LOCAL");
         fundTransferRequest.setNotificationType("LOCAL");
+        fundTransferRequest.setChargeBearer("O");
 
         EmailParameters emailParameters = buildEmailParameters();
         EmailTemplateParameters emailTemplateParameters = buildEmailTemplateParameters();
@@ -197,6 +200,7 @@ public class PostTransactionServiceTest {
         fundTransferRequest.setAmount(new BigDecimal(10));
         fundTransferRequest.setNotificationType(INFT_PL_SI_CREATION);
         fundTransferRequest.setServiceType("INFT");
+        fundTransferRequest.setChargeBearer("U");
 
         FundTransferRequestDTO fundTransferRequestDTO = new FundTransferRequestDTO();
         fundTransferRequestDTO.setBeneficiaryId("1");

@@ -10,8 +10,10 @@ import com.mashreq.transfercoreservice.client.dto.TransactionChargesDto;
 import com.mashreq.transfercoreservice.client.service.BankChargesService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.config.notification.EmailConfig;
+import com.mashreq.transfercoreservice.errors.ExceptionUtils;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
+import com.mashreq.transfercoreservice.fundtransfer.dto.ChargeBearer;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
@@ -20,8 +22,10 @@ import com.mashreq.transfercoreservice.notification.model.EmailParameters;
 import com.mashreq.transfercoreservice.notification.model.EmailTemplateParameters;
 import com.mashreq.transfercoreservice.notification.model.NotificationType;
 import com.mashreq.transfercoreservice.notification.model.SendEmailRequest;
+import com.mashreq.transfercoreservice.paylater.utils.DateTimeUtil;
 import com.mashreq.transfercoreservice.paylater.utils.DateUtil;
 import lombok.extern.slf4j.Slf4j;
+import net.bytebuddy.description.type.TypeList;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -31,9 +35,13 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CHARGE_BEARER;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ChargeBearer.getChargeBearerByName;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.getServiceByType;
 import static com.mashreq.transfercoreservice.notification.service.EmailUtil.*;
+import static com.mashreq.transfercoreservice.paylater.utils.DateTimeUtil.DATE_TIME_FORMATTER_LONG;
 import static java.lang.Long.valueOf;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 
 @Service
@@ -101,11 +109,33 @@ public class PostTransactionService {
             case WAMA:
             case WYMA:
             case LOCAL:
-                fundTransferRequest.setBankFees(bankCharges.getLocalTransactionCharge().toString());
+                fundTransferRequest.setBankFees(getBankFeesForCustomerByCharge(fundTransferRequest.getChargeBearer(),bankCharges.getLocalTransactionCharge(),0D));
                 break;
             default:
-                fundTransferRequest.setBankFees(String.valueOf(Double.sum(bankCharges.getCoreBankTransactionFee(), bankCharges.getInternationalTransactionalCharge())));
+                fundTransferRequest.setBankFees(getBankFeesForCustomerByCharge(fundTransferRequest.getChargeBearer(),bankCharges.getCoreBankTransactionFee(), bankCharges.getInternationalTransactionalCharge()));
         }
+    }
+
+    private String getBankFeesForCustomerByCharge(String chargeBearer, Double bankCharge, Double correspondentCharge) {
+        if(StringUtils.isBlank(chargeBearer)){
+            throw ExceptionUtils.genericException(INVALID_CHARGE_BEARER,INVALID_CHARGE_BEARER.getErrorMessage());
+        }
+
+        String charges = EMPTY;
+        switch(getChargeBearerByName(chargeBearer)){
+            case U:
+                charges = String.valueOf(bankCharge);
+                break;
+            case O:
+                charges = String.valueOf(Double.sum(bankCharge,correspondentCharge));
+                break;
+            case B:
+                break;
+            default:
+                throw ExceptionUtils.genericException(INVALID_CHARGE_BEARER,INVALID_CHARGE_BEARER.getErrorMessage());
+        }
+        return charges;
+
     }
 
 
@@ -243,12 +273,13 @@ public class PostTransactionService {
             builder.params(BENEFICIARY_BANK_COUNTRY, StringUtils.defaultIfBlank(beneficiaryDto.getBankCountry(), DEFAULT_STR));
             builder.params(CUSTOMER_CARE_NO, StringUtils.defaultIfBlank(segment.getCustomerCareNumber(), DEFAULT_STR));
             builder.params(TRANSACTION_DATE, StringUtils.defaultIfBlank(
-                    DateUtil.instantToDate(Instant.now(), "dd-MM-yyyy HH:mm:ss"), DEFAULT_STR)
+                    DateUtil.instantToDate(Instant.now(), "yyyy-MM-dd HH:mm:ss"), DEFAULT_STR)
             );
             builder.params(TRANSACTION_TYPE, StringUtils.defaultIfBlank(
                     fundTransferRequestDTO.getOrderType().equals("PL") ? "Pay Later" : "Standing Instructions", DEFAULT_STR)
             );
-            builder.params(EXECUTION_DATE,StringUtils.defaultIfBlank(fundTransferRequest.getSourceCurrency(), DEFAULT_STR));
+
+            builder.params(EXECUTION_DATE,StringUtils.defaultIfBlank(fundTransferRequestDTO.getStartDate(), DEFAULT_STR));
             builder.params(START_DATE,StringUtils.defaultIfBlank(fundTransferRequestDTO.getStartDate(), DEFAULT_STR));
             builder.params(END_DATE,StringUtils.defaultIfBlank(fundTransferRequestDTO.getEndDate(), DEFAULT_STR));
             builder.params(FREQUENCY,StringUtils.defaultIfBlank(fundTransferRequestDTO.getFrequency(), DEFAULT_STR));
