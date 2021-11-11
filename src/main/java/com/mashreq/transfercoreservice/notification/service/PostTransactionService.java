@@ -112,7 +112,7 @@ public class PostTransactionService {
                 fundTransferRequest.setBankFees(getBankFeesForCustomerByCharge(fundTransferRequest.getChargeBearer(),bankCharges.getLocalTransactionCharge(),0D));
                 break;
             default:
-                fundTransferRequest.setBankFees(getBankFeesForCustomerByCharge(fundTransferRequest.getChargeBearer(),bankCharges.getCoreBankTransactionFee(), bankCharges.getInternationalTransactionalCharge()));
+                fundTransferRequest.setBankFees(getBankFeesForCustomerByCharge(fundTransferRequest.getChargeBearer(),bankCharges.getInternationalTransactionalCharge(), bankCharges.getCoreBankTransactionFee()));
         }
     }
 
