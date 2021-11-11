@@ -543,9 +543,19 @@
                       <li style="margin-bottom: 16px">
                         <p><span style="min-width: 200px;display: inline-block;">Amount to  be debited</span><span style="margin-left: 20px;font-weight: bold;">${accountCurrency} ${sourceAmount}</span></p>
                       </li>
-                      <li style="margin-bottom: 16px">
-                        <p><span style="min-width: 200px;display: inline-block;">Bank fees</span><span style="margin-left: 20px;font-weight: bold;">${localCurrency} ${bankFees} + 5% VAT</span></p>
-                      </li>
+
+                        <#if bankFees?has_content>
+                            <li style="margin-bottom: 16px">
+                                <p>
+                                    <span style="min-width: 200px;display: inline-block;">Bank fees</span>
+                                    <span style="margin-left: 20px;font-weight: bold;">${localCurrency} ${bankFees}</span>
+                                </p>
+                                <p>
+                                    <span style="min-width: 200px;display: inline-block;"></span>
+                                    <span style="margin-left: 20px;font-size: 14px;color: #6e6e6e;">(The mentioned fees is excluding the correspondent bank charges and 5% VAT)</span>
+                                </p>
+                            </li>
+                        </#if>
 
                       <#if fxDealCode?has_content>
                         <li style="margin-bottom: 16px">

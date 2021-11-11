@@ -18,13 +18,12 @@ public enum DateTimeUtil {
     private static final String SHORT_DATE_FMT = "yyyy-MM-dd";
     private static final String LONG_DATE_FMT = "yyyy-MM-dd HH:mm:ss";
     private static final String REPORT_DATE_FORMAT = "dd/MM/yyyy hh:mm:ss";
-    private static final String BENE_MODIFICATION_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private static final ZoneId DUBAI_ZONE = ZoneId.of("GMT+04");
     private final DateFormat shortDateFmt = new SimpleDateFormat(SHORT_DATE_FMT);
     private final DateFormat longDateFmt = new SimpleDateFormat("yyyyMMddHHmmss");
     private final DateFormat reportDateFmt = new SimpleDateFormat(REPORT_DATE_FORMAT);
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(SHORT_DATE_FMT);
-    public static final DateTimeFormatter DATE_TIME_FORMATTER_ONE = DateTimeFormatter.ofPattern(BENE_MODIFICATION_DATE_FORMAT);
+    public static final DateTimeFormatter DATE_TIME_FORMATTER_LONG = DateTimeFormatter.ofPattern(LONG_DATE_FMT);
     public static DateTimeUtil getInstance() {
         return INSTANCE;
     }
@@ -63,7 +62,7 @@ public enum DateTimeUtil {
     }
     
     public static String getFormattedString(LocalDateTime dateTime) {
-    	return dateTime.format(DATE_TIME_FORMATTER_ONE);
+    	return dateTime.format(DATE_TIME_FORMATTER_LONG);
     }
     
 	public static LocalDateTime getCurrentDateTimeZone() {

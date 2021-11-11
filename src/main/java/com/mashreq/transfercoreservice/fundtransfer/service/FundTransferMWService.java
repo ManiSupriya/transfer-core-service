@@ -77,7 +77,7 @@ public class FundTransferMWService {
         /**
          * Handling Null pointer Exception in case of Host Timeout 
          */
-        if (!isSuccessfull(response) && ObjectUtils.isEmpty(response.getBody().getFundTransferReq())) {
+        if (!isSuccessfull(response) && ObjectUtils.isEmpty(response.getBody().getFundTransferRes())) {
         	log.info("Fund transfer failed to account [ {} ]", htmlEscape(request.getToAccount()));
         	auditEventPublisher.publishFailedEsbEvent(FundTransferEventType.FUND_TRANSFER_MW_CALL, metaData, getRemarks(request), msgId,
         			response.getBody().getExceptionDetails().getErrorCode(), response.getBody().getExceptionDetails().getErrorDescription(), response.getBody().getExceptionDetails().getErrorCode());

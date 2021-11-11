@@ -12,9 +12,9 @@ import com.mashreq.transfercoreservice.annotations.ValidEnum;
 
 public enum ChargeBearer implements ValidEnum {
 
-    O("O"),/** shared */
-    B("B"),/** remitter */
-    U("U");/** receiver */ 
+    O("O"),/** remitter */
+    B("B"),/**  receiver */
+    U("U");/** shared */
 
     private String name;
 
