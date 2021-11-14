@@ -208,7 +208,7 @@ public class FundTransferServiceDefault implements FundTransferService {
             GenericExceptionHandler.handleError(
                     TransferErrorCode.valueOf(errorCodeConfig.getMiddlewareExternalErrorCodesMap().getOrDefault(response.getResponseDto().getMwResponseCode(),"FUND_TRANSFER_FAILED")),
                     getFailureMessage(TransferErrorCode.valueOf(errorCodeConfig.getMiddlewareExternalErrorCodesMap().getOrDefault(response.getResponseDto().getMwResponseCode(),"FUND_TRANSFER_FAILED")), request, response),
-                    response.getResponseDto().getMwResponseCode()+"-"+ response.getResponseDto().getMwResponseDescription());
+                    response.getResponseDto().getMwResponseCode()+"|"+ response.getResponseDto().getMwResponseDescription());
         }
 	}
 
