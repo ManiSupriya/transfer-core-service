@@ -152,7 +152,9 @@ app:
     debitAccountNo: ${TFTCC_DEBIT_ACCOUNT_NO:011099270455}
     bankReferenceNo: ${TFTCC_BANK_REFERENCE_NO:363c5a1abb}
   nonProd:
-      otpRelaxed: ${OTP_RELAXED:false}  
+      otpRelaxed: ${OTP_RELAXED:false}
+  cprRestrictions:
+      enabled: ${ENABLE_CPR_CHANGES:false}
   notification:
     email:
       AE:

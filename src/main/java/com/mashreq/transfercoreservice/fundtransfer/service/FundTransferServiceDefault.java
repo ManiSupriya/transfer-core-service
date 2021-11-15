@@ -75,6 +75,8 @@ public class FundTransferServiceDefault implements FundTransferService {
     private String activeProfile;
     @Value("${app.nonProd.otpRelaxed}")
     private boolean otpRelaxed;
+    @Value("${app.cprRestrictions.enabled}")
+    private boolean cprEnabled;
 
     @PostConstruct
     public void init() {
@@ -131,7 +133,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     }
 
     private void verifyTermsAndConditionAcceptance(FundTransferRequestDTO request, RequestMetaData metadata) {
-		if(!"V1".equals(request.getJourneyVersion()) && !request.isTermsAndConditionsAccepted()) {
+		if(cprEnabled && !"V1".equals(request.getJourneyVersion()) && !request.isTermsAndConditionsAccepted()) {
 			auditEventPublisher.publishFailedEsbEvent(FundTransferEventType.FUNDS_TRANSFER_TERMSANDCONDITIONS_ACCEPTED,
                     metadata, CommonConstants.FUND_TRANSFER, metadata.getChannelTraceId(),
                     TransferErrorCode.TERMSANDCONDITIONS_NOTACCEPTED.toString(),

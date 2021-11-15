@@ -4,24 +4,24 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Optional;
 
-import com.mashreq.transfercoreservice.errors.ExternalErrorCodeConfig;
-import com.mashreq.transfercoreservice.fundtransfer.dto.*;
-import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
-import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageService;
-import com.mashreq.transfercoreservice.model.*;
-import com.mashreq.transfercoreservice.repository.QrStatusMsRepository;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
-import org.junit.platform.commons.util.ReflectionUtils;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -38,16 +38,25 @@ import com.mashreq.transfercoreservice.client.dto.VerifyOTPRequestDTO;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPResponseDTO;
 import com.mashreq.transfercoreservice.client.service.OTPService;
 import com.mashreq.transfercoreservice.common.CommonConstants;
+import com.mashreq.transfercoreservice.errors.ExternalErrorCodeConfig;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponseDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
+import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
+import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageService;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.FundTransferStrategy;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.InternationalFundTransferStrategy;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
+import com.mashreq.transfercoreservice.model.Country;
+import com.mashreq.transfercoreservice.model.DigitalUser;
+import com.mashreq.transfercoreservice.model.DigitalUserGroup;
+import com.mashreq.transfercoreservice.model.QuickRemitStatusMaster;
+import com.mashreq.transfercoreservice.model.Segment;
 import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
+import com.mashreq.transfercoreservice.repository.QrStatusMsRepository;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
 @RunWith(MockitoJUnitRunner.class)
@@ -101,6 +110,7 @@ public class FundTransferServiceDefaultTest {
 	     this.fundTransferServiceDefault.init();
 	     fundTransferRequestDTO = generateFundTransferRequest();
 	     ReflectionTestUtils.setField(fundTransferServiceDefault, "activeProfile", "prod");
+	     ReflectionTestUtils.setField(fundTransferServiceDefault, "cprEnabled", false);
 	 }
 	
 	@Test
@@ -195,6 +205,7 @@ public class FundTransferServiceDefaultTest {
 		Mockito.doNothing().when(asyncUserEventPublisher).publishFailedEsbEvent(Mockito.any(), Mockito.any(),
 				Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
 		try {
+			ReflectionTestUtils.setField(fundTransferServiceDefault, "cprEnabled", true);
 			fundTransferRequestDTO.setTermsAndConditionsAccepted(false);
 			fundTransferRequestDTO.setJourneyVersion("V2");
 			fundTransferServiceDefault.transferFund(metaData, fundTransferRequestDTO);
@@ -205,6 +216,29 @@ public class FundTransferServiceDefaultTest {
                     TransferErrorCode.TERMSANDCONDITIONS_NOTACCEPTED.getErrorMessage());
 		} catch (GenericException genericException) {
 			assertEquals(TransferErrorCode.TERMSANDCONDITIONS_NOTACCEPTED.getCustomErrorCode(), genericException.getErrorCode());
+		}
+	}
+	
+	@Test
+	public void transferFundTestCPRDisabledVerificationOTPFailure() {
+		VerifyOTPResponseDTO verifyOTPResponseDTO = new VerifyOTPResponseDTO();
+		verifyOTPResponseDTO.setAuthenticated(false);
+		Mockito.doNothing().when(asyncUserEventPublisher).publishFailedEsbEvent(Mockito.any(), Mockito.any(),
+				Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+		Mockito.when(iamService.verifyOTP(Mockito.any()))
+				.thenReturn(Response.<VerifyOTPResponseDTO>builder().status(ResponseStatus.FAIL).errorCode("TN-5016")
+						.errorDetails("Something went wrong with OTP external service").data(verifyOTPResponseDTO)
+						.build());
+		try {
+			ReflectionTestUtils.setField(fundTransferServiceDefault, "cprEnabled", true);
+			fundTransferRequestDTO.setTermsAndConditionsAccepted(true);
+			fundTransferRequestDTO.setJourneyVersion("V2");
+			fundTransferServiceDefault.transferFund(metaData, fundTransferRequestDTO);
+			Mockito.verify(asyncUserEventPublisher, Mockito.times(1)).publishSuccessEvent(
+					Mockito.eq(FundTransferEventType.FUNDS_TRANSFER_TERMSANDCONDITIONS_ACCEPTED), Mockito.any(),
+					Mockito.eq(FundTransferEventType.FUNDS_TRANSFER_TERMSANDCONDITIONS_ACCEPTED.getDescription()));
+		} catch (GenericException genericException) {
+			assertEquals("TN-5016", genericException.getErrorCode());
 		}
 	}
 	

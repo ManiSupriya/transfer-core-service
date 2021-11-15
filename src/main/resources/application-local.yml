@@ -86,14 +86,14 @@ app:
     timeInterval: 1
     smilesProductBin: 524179
   services:
-    maintenance: ${MAINTENANCE_SERVICE_URL:https://digital-uat.mashreq.com/api/maintenance-service}
+    maintenance: ${MAINTENANCE_SERVICE_URL:localhost:8091}
     customers: ${CUSTOMER_SERVICE_URL:https://localhost:8083}
     accounts: ${ACCOUNT_SERVICE_URL:https://digital-uat.mashreq.com/api/accounts-service}
     otp: https://digital-uat.mashreq.com/api/ms-security-iam/
     cards: ${CARD_SERVICE_URL:https://digital-uat.mashreq.com/api/cards-service}
     notification: ${NOTIFICATION_SERVICE:https://digital-uat.mashreq.com/api/notification-service}
     mobcustomer: ${MOB_CUSTOMER_SERVICE:https://localhost:8088}
-    beneficiary: ${BENEFICIARY_CORE_SERVICE:https://digital-uat.mashreq.com/api/beneficiary-core-service}
+    beneficiary: ${BENEFICIARY_CORE_SERVICE:localhost:8092}
     mobcommon: ${MOB_COMMON_SERVICE:https://digital-uat.mashreq.com/api/mob-common-service}
     beneficiaryservice: https://digital-uat.mashreq.com/api/beneficiary-service
     quick-remit: https://digital-uat.mashreq.com/api/mob-quickremit-service
@@ -120,7 +120,8 @@ app:
     bankReferenceNo: ${TFTCC_BANK_REFERENCE_NO:363c5a1abb}
   nonProd:
       otpRelaxed: ${OTP_RELAXED:true}
-  
+  cprRestrictions:
+      enabled: ${ENABLE_CPR_CHANGES:false}
   notification:
     email:
       AE:
