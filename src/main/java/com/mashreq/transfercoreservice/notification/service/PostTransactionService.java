@@ -109,14 +109,14 @@ public class PostTransactionService {
             case WAMA:
             case WYMA:
             case LOCAL:
-                fundTransferRequest.setBankFees(getBankFeesForCustomerByCharge(fundTransferRequest.getChargeBearer(),bankCharges.getLocalTransactionCharge(),0D));
+                fundTransferRequest.setBankFees(getBankFeesForCustomerByCharge(fundTransferRequest.getChargeBearer(),bankCharges.getLocalTransactionCharge()));
                 break;
             default:
-                fundTransferRequest.setBankFees(getBankFeesForCustomerByCharge(fundTransferRequest.getChargeBearer(),bankCharges.getInternationalTransactionalCharge(), bankCharges.getCoreBankTransactionFee()));
+                fundTransferRequest.setBankFees(getBankFeesForCustomerByCharge(fundTransferRequest.getChargeBearer(),bankCharges.getInternationalTransactionalCharge()));
         }
     }
 
-    private String getBankFeesForCustomerByCharge(String chargeBearer, Double bankCharge, Double correspondentCharge) {
+    private String getBankFeesForCustomerByCharge(String chargeBearer, Double bankCharge) {
         if(StringUtils.isBlank(chargeBearer)){
             throw ExceptionUtils.genericException(INVALID_CHARGE_BEARER,INVALID_CHARGE_BEARER.getErrorMessage());
         }
@@ -124,10 +124,8 @@ public class PostTransactionService {
         String charges = EMPTY;
         switch(getChargeBearerByName(chargeBearer)){
             case U:
-                charges = String.valueOf(bankCharge);
-                break;
             case O:
-                charges = String.valueOf(Double.sum(bankCharge,correspondentCharge));
+                charges = String.valueOf(bankCharge);
                 break;
             case B:
                 break;
