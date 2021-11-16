@@ -220,4 +220,60 @@ public class PostTransactionServiceTest {
         when(beneficiaryService.getByIdWithoutValidation(any(), any(),any(), any())).thenReturn(getBeneficiaryDto());
         postTransactionService.performPostTransactionActivities(requestMetaData, fundTransferRequest, fundTransferRequestDTO);
     }
+    
+    //postTransactionActivityService
+    
+    @Test
+    public void testPostTransactionServiceWithWAMA() throws JsonProcessingException {
+        RequestMetaData requestMetaData = buildRequestMetaData();
+
+        FundTransferRequest fundTransferRequest = buildFundTransferRequest();
+        fundTransferRequest.setAmount(new BigDecimal(10));
+        fundTransferRequest.setNotificationType(INFT_PL_SI_CREATION);
+        fundTransferRequest.setServiceType("WAMA");
+
+        FundTransferRequestDTO fundTransferRequestDTO = new FundTransferRequestDTO();
+        fundTransferRequestDTO.setBeneficiaryId("1");
+
+        EmailParameters emailParameters = buildEmailParameters();
+        emailParameters.setPlSiFundTransfer("plSiFundTransfer");
+
+        EmailTemplateParameters emailTemplateParameters = buildEmailTemplateParameters();
+
+        HashMap<String, EmailParameters> emailConfigMap = new HashMap<>();
+        emailConfigMap.put(requestMetaData.getCountry(), emailParameters);
+        emailConfig.setEmail(emailConfigMap);
+        when(templateEngine.generate(any())).thenReturn("");
+        when(emailUtil.getEmailTemplateParameters(requestMetaData.getChannel(), requestMetaData.getSegment())).thenReturn(emailTemplateParameters);
+        when(emailConfig.getEmail()).thenReturn(emailConfigMap);
+        when(beneficiaryService.getByIdWithoutValidation(any(), any(),any(), any())).thenReturn(getBeneficiaryDto());
+        postTransactionService.performPostTransactionActivities(requestMetaData, fundTransferRequest, fundTransferRequestDTO);
+    }
+    
+    @Test
+    public void testPostTransactionServiceWithWYMA() throws JsonProcessingException {
+        RequestMetaData requestMetaData = buildRequestMetaData();
+
+        FundTransferRequest fundTransferRequest = buildFundTransferRequest();
+        fundTransferRequest.setAmount(new BigDecimal(10));
+        fundTransferRequest.setNotificationType(INFT_PL_SI_CREATION);
+        fundTransferRequest.setServiceType("WYMA");
+
+        FundTransferRequestDTO fundTransferRequestDTO = new FundTransferRequestDTO();
+        fundTransferRequestDTO.setBeneficiaryId("1");
+
+        EmailParameters emailParameters = buildEmailParameters();
+        emailParameters.setPlSiFundTransfer("plSiFundTransfer");
+
+        EmailTemplateParameters emailTemplateParameters = buildEmailTemplateParameters();
+
+        HashMap<String, EmailParameters> emailConfigMap = new HashMap<>();
+        emailConfigMap.put(requestMetaData.getCountry(), emailParameters);
+        emailConfig.setEmail(emailConfigMap);
+        when(templateEngine.generate(any())).thenReturn("");
+        when(emailUtil.getEmailTemplateParameters(requestMetaData.getChannel(), requestMetaData.getSegment())).thenReturn(emailTemplateParameters);
+        when(emailConfig.getEmail()).thenReturn(emailConfigMap);
+        when(beneficiaryService.getByIdWithoutValidation(any(), any(),any(), any())).thenReturn(getBeneficiaryDto());
+        postTransactionService.performPostTransactionActivities(requestMetaData, fundTransferRequest, fundTransferRequestDTO);
+    }
 }

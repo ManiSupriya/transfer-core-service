@@ -1,5 +1,72 @@
 package com.mashreq.transfercoreservice.notification.service;
 
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CHARGE_BEARER;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ChargeBearer.getChargeBearerByName;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.getServiceByType;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.ACCOUNT_CURRENCY;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.AED;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.AMOUNT;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.BANK_FEES;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.BANK_NAME;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.BANK_NAME_FOOTER;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.BANK_NAME_FOOTER_DESC;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.BENEFICIARY_BANK_COUNTRY;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.BENEFICIARY_BANK_NAME;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.BENEFICIARY_NICK_NAME;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.CHANNEL_TYPE;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.CONTACT_HTML_BODY_KEY;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.CURRENCY;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.CUSTOMER;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.CUSTOMER_CARE_NO;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.CUSTOMER_NAME;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.DEFAULT_STR;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.EMAIL_TEMPLATE_COPYRIGHT_YEAR_KEY;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.END_DATE;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.EXCHANGE_RATE;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.EXECUTION_DATE;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.FACEBOOK;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.FACEBOOK_LINK;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.FREQUENCY;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.FX_DEAL_CODE;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.INSTAGRAM;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.INSTAGRAM_LINK;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.LINKED_IN;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.LINKED_IN_KEY;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.LOCAL_CURRENCY;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.MASKED_ACCOUNT;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.MOBILE;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.MOBILE_BANKING;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.ONLINE_BANKING;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.ORDER_TYPE;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.SEGMENT;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.SEGMENT_SIGN_OFF_COMPANY_NAME;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.SOURCE_AMOUNT;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.SOURCE_OF_FUND;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.SOURCE_OF_FUND_ACCOUNT;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.START_DATE;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.STATUS;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.STATUS_SUCCESS;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.TO_ACCOUNT_NO;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.TRANSACTION_DATE;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.TRANSACTION_TYPE;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.TRANSFER_TYPE;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.TWITTER;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.TWITTER_LINK;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.TXN_AMOUNT;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.YOUTUBE;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.YOUTUBE_LINK;
+import static java.lang.Long.valueOf;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
@@ -13,7 +80,6 @@ import com.mashreq.transfercoreservice.config.notification.EmailConfig;
 import com.mashreq.transfercoreservice.errors.ExceptionUtils;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.ChargeBearer;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
@@ -22,26 +88,9 @@ import com.mashreq.transfercoreservice.notification.model.EmailParameters;
 import com.mashreq.transfercoreservice.notification.model.EmailTemplateParameters;
 import com.mashreq.transfercoreservice.notification.model.NotificationType;
 import com.mashreq.transfercoreservice.notification.model.SendEmailRequest;
-import com.mashreq.transfercoreservice.paylater.utils.DateTimeUtil;
 import com.mashreq.transfercoreservice.paylater.utils.DateUtil;
+
 import lombok.extern.slf4j.Slf4j;
-import net.bytebuddy.description.type.TypeList;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CHARGE_BEARER;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ChargeBearer.getChargeBearerByName;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.getServiceByType;
-import static com.mashreq.transfercoreservice.notification.service.EmailUtil.*;
-import static com.mashreq.transfercoreservice.paylater.utils.DateTimeUtil.DATE_TIME_FORMATTER_LONG;
-import static java.lang.Long.valueOf;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 
 @Service
@@ -103,27 +152,32 @@ public class PostTransactionService {
      * @throws NullPointerException - if charges returned from response are null
      */
     private void updateBankChargesInFTReq(FundTransferRequest fundTransferRequest, RequestMetaData requestMetaData) {
-        final TransactionChargesDto bankCharges = bankChargesService.getTransactionCharges(fundTransferRequest.getAccountClass(), fundTransferRequest.getTxnCurrency(), requestMetaData);
         ServiceType serviceType = getServiceByType(fundTransferRequest.getServiceType());
         switch (serviceType){
-            case WAMA:
-            case WYMA:
+            case WAMA:break;
+            case WYMA:break;
             case LOCAL:
-                fundTransferRequest.setBankFees(getBankFeesForCustomerByCharge(fundTransferRequest.getChargeBearer(),bankCharges.getLocalTransactionCharge()));
+                fundTransferRequest.setBankFees(getBankFeesForCustomerByCharge(fundTransferRequest,requestMetaData,ServiceType.LOCAL));
                 break;
+            case INFT:
+            	fundTransferRequest.setBankFees(getBankFeesForCustomerByCharge(fundTransferRequest,requestMetaData,ServiceType.INFT));
+            	break;
             default:
-                fundTransferRequest.setBankFees(getBankFeesForCustomerByCharge(fundTransferRequest.getChargeBearer(),bankCharges.getInternationalTransactionalCharge()));
+                break;
         }
     }
 
-    private String getBankFeesForCustomerByCharge(String chargeBearer, Double bankCharge) {
-        if(StringUtils.isBlank(chargeBearer)){
+    private String getBankFeesForCustomerByCharge(FundTransferRequest fundTransferRequest, RequestMetaData requestMetaData,ServiceType type) {
+        if(StringUtils.isBlank(fundTransferRequest.getChargeBearer())){
             throw ExceptionUtils.genericException(INVALID_CHARGE_BEARER,INVALID_CHARGE_BEARER.getErrorMessage());
         }
-
+        final TransactionChargesDto bankCharges = bankChargesService.getTransactionCharges(fundTransferRequest.getAccountClass(), fundTransferRequest.getTxnCurrency(), requestMetaData);
         String charges = EMPTY;
-        switch(getChargeBearerByName(chargeBearer)){
+        Double bankCharge = ServiceType.INFT.equals(type) ? bankCharges.getInternationalTransactionalCharge() : bankCharges.getLocalTransactionCharge();
+        switch(getChargeBearerByName(fundTransferRequest.getChargeBearer())){
             case U:
+                charges = String.valueOf(bankCharge);
+                break;
             case O:
                 charges = String.valueOf(bankCharge);
                 break;
