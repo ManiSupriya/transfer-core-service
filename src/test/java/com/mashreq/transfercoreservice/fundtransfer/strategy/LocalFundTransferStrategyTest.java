@@ -19,7 +19,6 @@ import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.notification.service.NotificationService;
 import com.mashreq.transfercoreservice.notification.service.PostTransactionService;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -27,14 +26,14 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 import java.util.*;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LocalFundTransferStrategyTest {
@@ -178,7 +177,7 @@ public class LocalFundTransferStrategyTest {
 
         when(accountBelongsToCifValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
 
-        when(beneficiaryService.getById(eq(metadata.getPrimaryCif()), eq(Long.valueOf(beneId)), any())).thenReturn(beneficiaryDto);
+        when(beneficiaryService.getByIdWithoutValidation(eq(metadata.getPrimaryCif()), eq(Long.valueOf(beneId)), any(), any())).thenReturn(beneficiaryDto);
         when(beneficiaryValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
         when(ibanValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
         when(balanceValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
@@ -312,7 +311,7 @@ public class LocalFundTransferStrategyTest {
 
         when(accountBelongsToCifValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(ValidationResult.builder().success(true).build());
 
-        when(beneficiaryService.getById(eq(metadata.getPrimaryCif()), eq(Long.valueOf(beneId)), any())).thenReturn(beneficiaryDto);
+        when(beneficiaryService.getByIdWithoutValidation(eq(metadata.getPrimaryCif()), eq(Long.valueOf(beneId)),any(), any())).thenReturn(beneficiaryDto);
 
         when(maintenanceService.convertBetweenCurrencies(eq(currencyRequest)))
                 .thenReturn(currencyConversionDto);

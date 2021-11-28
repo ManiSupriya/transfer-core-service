@@ -49,6 +49,7 @@ public enum TransferErrorCode implements ErrorCode {
     INVALID_CHARGE_BEARER("TN-1034", "Invalid Charge Bearer"),
     PAY_LATER_TRANSACTION_INITIATION_FAILED("TN-1035", "Transaction initiation failed"),
     INVALID_BEN_CODE("LM-1106","Invalid ben code"),
+    CARD_NUMBER_DOES_NOT_BELONG_TO_CIF("TN-1007", "Card Number does not belong to CIF"),
 
     DEAL_VALIDATION_FAILED("TN-1201", "Deal Number validation Failed"),
     BALANCE_NOT_SUFFICIENT("TN-1200", "Balance is not sufficient"),
@@ -156,6 +157,8 @@ public enum TransferErrorCode implements ErrorCode {
     DENIED_BY_POLICY_OTP_REUSE_NOT_ALLOWED_STAUS("VERIFY_OTP_10402", "Denied by policy otp reuse not allowed"),
     OBJ_TOKENSTORE_ID_NOT_FOUND_STATUS("VERIFY_OTP_30001", "Object TokenStore id not found"),
     USER_SESSION_ALREADY_INVALIDATED_STATUS("LOGOUT_4004", "User session already invalidated in IAM"),
+    CARDS_EXTERNAL_SERVICE_ERROR("TN-5020", "Something went wrong with card external service"),
+    BANK_CHARGES_EXTERNAL_SERVICE_ERROR("TN-5021", "Something went wrong with bank charges external service"),
 
     //Middleware error codes
     CONNECTION_TIMEOUT_MW("TN-8002", "Middleware Connection Timeout"),
@@ -196,10 +199,11 @@ public enum TransferErrorCode implements ErrorCode {
     LOCAL_CURRENCY_NOT_ALLOWED_FOR_SWIFT("TN-8031", "AED currency not allowed for Swift transactions"),
     ACCOUNT_DEBIT_FREEZE("TN-8032", "Account is frozen for debit"),
     ACCOUNT_CREDIT_FREEZE("TN-8033", "Account is frozen for credit"),
-    PAYMENT_NOT_ELIGIBLE("TN-8034", "Payment not eligible"),
+    PAYMENT_NOT_ELIGIBLE_FOR_SOURCE_ACCOUNT("TN-8034", "Payment not eligible"),
     INVALID_ACCOUNT_NUMBER("TN-8035", "Invalid Account number."),
     BANK_NOT_FOUND_WITH_SWIFT("TN-8036", "Bank not found with swift"),
     INVALID_SERVICE_TYPE("TN-8037", "Invalid Service type."),
+    TERMSANDCONDITIONS_NOTACCEPTED("TN-8038", "Terms and conditions for funds transfer not accepted")
     ;
 
 

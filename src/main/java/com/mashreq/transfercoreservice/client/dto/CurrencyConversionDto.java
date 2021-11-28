@@ -13,4 +13,6 @@ public class CurrencyConversionDto {
 
     //Only send exchange rates
     private BigDecimal exchangeRate;
+
+    private String exchangeRateDisplayTxt;
 }

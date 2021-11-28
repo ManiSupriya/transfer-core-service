@@ -1,19 +1,29 @@
 package com.mashreq.transfercoreservice.client.service;
 
+import com.mashreq.mobcommons.services.http.RequestMetaData;
+import com.mashreq.ms.exceptions.GenericExceptionHandler;
+import com.mashreq.transfercoreservice.cache.MobRedisService;
+import com.mashreq.transfercoreservice.cache.UserSessionCacheService;
 import com.mashreq.transfercoreservice.client.CardClient;
 import com.mashreq.transfercoreservice.client.dto.CardDetailsDTO;
+import com.mashreq.transfercoreservice.client.dto.CardSearchRequestDto;
 import com.mashreq.transfercoreservice.client.dto.CardType;
 import com.mashreq.transfercoreservice.client.dto.CoreCardDetailsDto;
 import com.mashreq.webcore.dto.response.Response;
+import com.mashreq.webcore.dto.response.ResponseStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import static com.mashreq.transfercoreservice.client.ErrorUtils.getErrorDetails;
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
+import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
@@ -27,6 +37,8 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public class CardService {
 
     private final CardClient cardClient;
+    private final UserSessionCacheService userSessionCacheService;
+    private final MobRedisService mobRedisService;
 
     public List<CardDetailsDTO> getCardsFromCore(final String cifId, CardType cardType) {
         log.info("Fetching cards for cifId {} and cardType {} ", htmlEscape(cifId), htmlEscape(getCardType(cardType)));
@@ -46,6 +58,21 @@ public class CardService {
             log.error("Error occurred while calling card client {} ", e);
             return Collections.emptyList();
         }
+    }
+
+    private CardDetailsDTO getCardDetailsFromCore(final String cardNumber) {
+        log.info("[CardService] Fetching card details");
+
+        Response<CoreCardDetailsDto> response = cardClient.getCardDetails(CardSearchRequestDto.builder().cardNumber(cardNumber).build());
+
+        if (ResponseStatus.ERROR == response.getStatus() || isNull(response.getData())) {
+            log.warn("Not able to fetch cards");
+            GenericExceptionHandler.handleError(CARDS_EXTERNAL_SERVICE_ERROR,
+                    CARDS_EXTERNAL_SERVICE_ERROR.getErrorMessage(), getErrorDetails(response));
+        }
+        CardDetailsDTO card = convertCoreCardToCard(response.getData());
+        log.info("[CardService] Cards fetched successfully");
+        return card;
     }
 
     private List<CardDetailsDTO> convertResponseToCards(List<CoreCardDetailsDto> coreCardsDTOs) {
@@ -71,4 +98,17 @@ public class CardService {
     private CardType getCardType(final CardType cardType) {
         return cardType == null ? CardType.CC : cardType;
     }
+
+    public CardDetailsDTO getCardDetailsFromCache(final String cardNumber, RequestMetaData requestMetaData) {
+        if(!userSessionCacheService.isCardNumberBelongsToCif(cardNumber, requestMetaData.getUserCacheKey())){
+            GenericExceptionHandler.handleError(CARD_NUMBER_DOES_NOT_BELONG_TO_CIF,CARD_NUMBER_DOES_NOT_BELONG_TO_CIF.getErrorMessage());
+        }
+        CardDetailsDTO cardDetailsDTO = mobRedisService.get(userSessionCacheService.getCardDetailsCacheKey(requestMetaData, cardNumber), CardDetailsDTO.class);
+        if(cardDetailsDTO == null){
+            log.info("[CardService] cache miss for card details");
+            cardDetailsDTO = getCardDetailsFromCore(cardNumber);
+        }
+        return cardDetailsDTO;
+    }
+
 }

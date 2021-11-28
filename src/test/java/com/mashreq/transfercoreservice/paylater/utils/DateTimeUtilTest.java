@@ -11,7 +11,7 @@ public class DateTimeUtilTest {
 	@Test
 	public void test_convertToDateTime() {
 		DateTimeUtil instance = DateTimeUtil.getInstance();
-		LocalDateTime convertToDateTime = instance.convertToDateTime("2020-03-22 09:15:00",instance.DATE_TIME_FORMATTER_ONE);
+		LocalDateTime convertToDateTime = instance.convertToDateTime("2020-03-22 09:15:00",instance.DATE_TIME_FORMATTER_LONG);
 		convertToDateTime.plusHours(6);
 		assertNotNull(convertToDateTime);
 	}

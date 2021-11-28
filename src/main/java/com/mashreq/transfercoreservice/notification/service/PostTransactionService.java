@@ -1,37 +1,96 @@
 package com.mashreq.transfercoreservice.notification.service;
 
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CHARGE_BEARER;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ChargeBearer.getChargeBearerByName;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.getServiceByType;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.ACCOUNT_CURRENCY;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.AED;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.AMOUNT;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.BANK_FEES;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.BANK_NAME;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.BANK_NAME_FOOTER;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.BANK_NAME_FOOTER_DESC;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.BENEFICIARY_BANK_COUNTRY;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.BENEFICIARY_BANK_NAME;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.BENEFICIARY_NICK_NAME;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.CHANNEL_TYPE;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.CONTACT_HTML_BODY_KEY;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.CURRENCY;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.CUSTOMER;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.CUSTOMER_CARE_NO;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.CUSTOMER_NAME;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.DEFAULT_STR;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.EMAIL_TEMPLATE_COPYRIGHT_YEAR_KEY;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.END_DATE;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.EXCHANGE_RATE;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.EXECUTION_DATE;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.FACEBOOK;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.FACEBOOK_LINK;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.FREQUENCY;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.FX_DEAL_CODE;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.INSTAGRAM;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.INSTAGRAM_LINK;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.LINKED_IN;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.LINKED_IN_KEY;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.LOCAL_CURRENCY;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.MASKED_ACCOUNT;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.MOBILE;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.MOBILE_BANKING;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.ONLINE_BANKING;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.ORDER_TYPE;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.SEGMENT;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.SEGMENT_SIGN_OFF_COMPANY_NAME;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.SOURCE_AMOUNT;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.SOURCE_OF_FUND;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.SOURCE_OF_FUND_ACCOUNT;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.START_DATE;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.STATUS;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.STATUS_SUCCESS;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.TO_ACCOUNT_NO;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.TRANSACTION_DATE;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.TRANSACTION_TYPE;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.TRANSFER_TYPE;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.TWITTER;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.TWITTER_LINK;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.TXN_AMOUNT;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.YOUTUBE;
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.YOUTUBE_LINK;
+import static java.lang.Long.valueOf;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.templates.freemarker.TemplateEngine;
 import com.mashreq.templates.freemarker.TemplateRequest;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
+import com.mashreq.transfercoreservice.client.dto.TransactionChargesDto;
+import com.mashreq.transfercoreservice.client.service.BankChargesService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.config.notification.EmailConfig;
+import com.mashreq.transfercoreservice.errors.ExceptionUtils;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.model.Segment;
 import com.mashreq.transfercoreservice.notification.model.EmailParameters;
 import com.mashreq.transfercoreservice.notification.model.EmailTemplateParameters;
 import com.mashreq.transfercoreservice.notification.model.NotificationType;
 import com.mashreq.transfercoreservice.notification.model.SendEmailRequest;
 import com.mashreq.transfercoreservice.paylater.utils.DateUtil;
+
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Map;
-
-import static com.mashreq.transfercoreservice.notification.service.EmailUtil.*;
-import static java.lang.Long.valueOf;
 
 
 @Service
@@ -59,6 +118,9 @@ public class PostTransactionService {
     @Autowired
     private BeneficiaryService beneficiaryService;
 
+    @Autowired
+    private BankChargesService bankChargesService;
+
     /**
      * Send Alerts via sms, email and push notification.
      *
@@ -72,6 +134,7 @@ public class PostTransactionService {
         FundTransferEventType eventType = FundTransferEventType.EMAIL_NOTIFICATION;
         TransferErrorCode transferErrorCode = TransferErrorCode.EMAIL_NOTIFICATION_FAILED;
         try {
+            updateBankChargesInFTReq(fundTransferRequest,requestMetaData);
             final PostTransactionActivityContext<SendEmailRequest> emailPostTransactionActivityContext = getEmailPostTransactionActivityContext(requestMetaData, fundTransferRequest, fundTransferRequestDTO);
             postTransactionActivityService.execute(Arrays.asList(emailPostTransactionActivityContext), requestMetaData);
             userEventPublisher.publishSuccessEvent(eventType, requestMetaData, eventType.getDescription());
@@ -80,6 +143,50 @@ public class PostTransactionService {
             userEventPublisher.publishFailureEvent(eventType, requestMetaData, eventType.getDescription(),
                     transferErrorCode.getCustomErrorCode(), transferErrorCode.getErrorMessage(), transferErrorCode.getErrorMessage());
         }
+
+    }
+
+    /** updates bank charges in fundTransferRequest based on serviceType
+     * @param fundTransferRequest
+     * @param requestMetaData
+     * @throws NullPointerException - if charges returned from response are null
+     */
+    private void updateBankChargesInFTReq(FundTransferRequest fundTransferRequest, RequestMetaData requestMetaData) {
+        ServiceType serviceType = getServiceByType(fundTransferRequest.getServiceType());
+        switch (serviceType){
+            case WAMA:break;
+            case WYMA:break;
+            case LOCAL:
+                fundTransferRequest.setBankFees(getBankFeesForCustomerByCharge(fundTransferRequest,requestMetaData,ServiceType.LOCAL));
+                break;
+            case INFT:
+            	fundTransferRequest.setBankFees(getBankFeesForCustomerByCharge(fundTransferRequest,requestMetaData,ServiceType.INFT));
+            	break;
+            default:
+                break;
+        }
+    }
+
+    private String getBankFeesForCustomerByCharge(FundTransferRequest fundTransferRequest, RequestMetaData requestMetaData,ServiceType type) {
+        if(StringUtils.isBlank(fundTransferRequest.getChargeBearer())){
+            throw ExceptionUtils.genericException(INVALID_CHARGE_BEARER,INVALID_CHARGE_BEARER.getErrorMessage());
+        }
+        final TransactionChargesDto bankCharges = bankChargesService.getTransactionCharges(fundTransferRequest.getAccountClass(), fundTransferRequest.getTxnCurrency(), requestMetaData);
+        String charges = EMPTY;
+        Double bankCharge = ServiceType.INFT.equals(type) ? bankCharges.getInternationalTransactionalCharge() : bankCharges.getLocalTransactionCharge();
+        switch(getChargeBearerByName(fundTransferRequest.getChargeBearer())){
+            case U:
+                charges = String.valueOf(bankCharge);
+                break;
+            case O:
+                charges = String.valueOf(bankCharge);
+                break;
+            case B:
+                break;
+            default:
+                throw ExceptionUtils.genericException(INVALID_CHARGE_BEARER,INVALID_CHARGE_BEARER.getErrorMessage());
+        }
+        return charges;
 
     }
 
@@ -105,7 +212,8 @@ public class PostTransactionService {
 
             String contactHtmlBody;
             String segmentSignOffCompanyName;
-
+            String bankNameInFooter;
+            String bankNameInFooterDesc;
             if(segment != null) {
                 contactLinkText = StringUtils.defaultIfBlank(segment.getEmailContactUsLinkText(), DEFAULT_STR);
                 htmlContent = segment.getEmailContactUsHtmlContent();
@@ -118,9 +226,13 @@ public class PostTransactionService {
 
                 contactHtmlBody = htmlContent;
                 segmentSignOffCompanyName = StringUtils.defaultIfBlank(segment.getEmailSignOffCompany(), DEFAULT_STR);
+                bankNameInFooter = StringUtils.defaultIfBlank(segment.getEmailCprFooter(), DEFAULT_STR);
+                bankNameInFooterDesc = StringUtils.defaultIfBlank(segment.getEmailCprBankDesc(), DEFAULT_STR);
             } else {
                 contactHtmlBody = DEFAULT_STR;
                 segmentSignOffCompanyName = DEFAULT_STR;
+                bankNameInFooter = emailTemplateParameters.getChannelIdentifier().getChannelName();
+                bankNameInFooterDesc = DEFAULT_STR;
             }
 
             TemplateRequest.Builder template = TemplateRequest.builder()
@@ -138,7 +250,9 @@ public class PostTransactionService {
                     .params(YOUTUBE_LINK, StringUtils.defaultIfBlank(emailTemplateParameters.getSocialMediaLinks().get(YOUTUBE), DEFAULT_STR))
                     .params(EMAIL_TEMPLATE_COPYRIGHT_YEAR_KEY, String.valueOf(LocalDateTime.now().getYear()))
                     .params(CONTACT_HTML_BODY_KEY, contactHtmlBody)
-                    .params(SEGMENT_SIGN_OFF_COMPANY_NAME, segmentSignOffCompanyName);
+                    .params(SEGMENT_SIGN_OFF_COMPANY_NAME, segmentSignOffCompanyName)
+                    .params(BANK_NAME_FOOTER, bankNameInFooter)
+                    .params(BANK_NAME_FOOTER_DESC, bankNameInFooterDesc);
 
             if(fundTransferRequest.getNotificationType().matches(NotificationType.GOLD_SILVER_BUY_SUCCESS)){
                 getTemplateValuesForBuyGoldSilverBuilder(template, fundTransferRequest);
@@ -184,42 +298,44 @@ public class PostTransactionService {
         builder.params(TO_ACCOUNT_NO, StringUtils.defaultIfBlank(emailUtil.doMask(fundTransferRequest.getToAccount()), DEFAULT_STR));
         builder.params(BENEFICIARY_NICK_NAME, StringUtils.defaultIfBlank(fundTransferRequest.getBeneficiaryFullName(), DEFAULT_STR));
         builder.params(CURRENCY, StringUtils.defaultIfBlank(fundTransferRequest.getTxnCurrency(), DEFAULT_STR) );
-        BigDecimal amount = fundTransferRequest.getAmount();
-        if(amount != null) {
-            builder.params(AMOUNT, EmailUtil.formattedAmount(amount));
-        } else {
+
+        builder.params(ACCOUNT_CURRENCY,StringUtils.defaultIfBlank(fundTransferRequest.getSourceCurrency(), DEFAULT_STR));
+        builder.params(SOURCE_AMOUNT,fundTransferRequest.getSrcCcyAmt() != null ? EmailUtil.formattedAmount(fundTransferRequest.getSrcCcyAmt()) : DEFAULT_STR);
+        builder.params(BANK_FEES,StringUtils.defaultIfBlank(fundTransferRequest.getBankFees(), DEFAULT_STR));
+        builder.params(FX_DEAL_CODE,StringUtils.defaultIfBlank(fundTransferRequest.getDealNumber(), DEFAULT_STR));
+        builder.params(ORDER_TYPE,StringUtils.defaultIfBlank(fundTransferRequestDTO.getOrderType(), DEFAULT_STR));
+        builder.params(EXCHANGE_RATE,StringUtils.defaultIfBlank(fundTransferRequest.getExchangeRateDisplayTxt(), DEFAULT_STR));
+        builder.params(LOCAL_CURRENCY,AED);
+
+        if(fundTransferRequest.getAmount() != null) {
+            builder.params(AMOUNT, EmailUtil.formattedAmount(fundTransferRequest.getAmount()));
+        }
+        else if(fundTransferRequest.getSrcAmount() != null){
+            builder.params(AMOUNT, EmailUtil.formattedAmount(fundTransferRequest.getSrcAmount()));
+        }
+        else {
             builder.params(AMOUNT, DEFAULT_STR);
         }
         builder.params(STATUS, STATUS_SUCCESS);
 
         if(fundTransferRequest.getNotificationType().contains("PL") || fundTransferRequest.getNotificationType().contains("SI")){
-            final BeneficiaryDto beneficiaryDto = beneficiaryService.getById(requestMetaData.getPrimaryCif(), valueOf(fundTransferRequestDTO.getBeneficiaryId()), requestMetaData);
+            final BeneficiaryDto beneficiaryDto = beneficiaryService.getByIdWithoutValidation(requestMetaData.getPrimaryCif(), valueOf(fundTransferRequestDTO.getBeneficiaryId()), fundTransferRequestDTO.getJourneyVersion(), requestMetaData);
 
             builder.params(BENEFICIARY_BANK_NAME, StringUtils.defaultIfBlank(beneficiaryDto.getBankName(), DEFAULT_STR));
             builder.params(BENEFICIARY_BANK_COUNTRY, StringUtils.defaultIfBlank(beneficiaryDto.getBankCountry(), DEFAULT_STR));
             builder.params(CUSTOMER_CARE_NO, StringUtils.defaultIfBlank(segment.getCustomerCareNumber(), DEFAULT_STR));
             builder.params(TRANSACTION_DATE, StringUtils.defaultIfBlank(
-                    DateUtil.instantToDate(Instant.now(), "dd-MM-yyyy HH:mm:ss"), DEFAULT_STR)
+                    DateUtil.instantToDate(Instant.now(), "yyyy-MM-dd HH:mm:ss"), DEFAULT_STR)
             );
             builder.params(TRANSACTION_TYPE, StringUtils.defaultIfBlank(
                     fundTransferRequestDTO.getOrderType().equals("PL") ? "Pay Later" : "Standing Instructions", DEFAULT_STR)
             );
+
+            builder.params(EXECUTION_DATE,StringUtils.defaultIfBlank(fundTransferRequestDTO.getStartDate(), DEFAULT_STR));
+            builder.params(START_DATE,StringUtils.defaultIfBlank(fundTransferRequestDTO.getStartDate(), DEFAULT_STR));
+            builder.params(END_DATE,StringUtils.defaultIfBlank(fundTransferRequestDTO.getEndDate(), DEFAULT_STR));
+            builder.params(FREQUENCY,StringUtils.defaultIfBlank(fundTransferRequestDTO.getFrequency(), DEFAULT_STR));
+
         }
     }
-
-    // Below code is used for testing
-    /*private FundTransferRequest buildTestData(){
-        FundTransferRequest fundTransferRequest = FundTransferRequest.builder()
-                .sourceOfFund(SOURCE_OF_FUND_ACCOUNT)
-                .amount(new BigDecimal("10.11"))
-                .transferType("Own Account")
-                .NotificationType(NotificationType.OTHER_ACCOUNT_TRANSACTION)
-                .fromAccount("019100341109")
-                .toAccount("019100341109")
-                .beneficiaryFullName("XYZ")
-                .txnCurrency("AED")
-                .build();
-
-        return fundTransferRequest;
-    }*/
 }

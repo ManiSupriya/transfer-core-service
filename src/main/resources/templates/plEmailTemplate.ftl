@@ -511,114 +511,161 @@
                       Please find the details below,
                   </p>
                   <table style="margin-bottom:40px">
+
+                  <#if transferType?has_content>
                     <tr>
                         <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
-                                <p style="border: 1px solid rgb(115, 135, 148); 
+                                <p style="border: 1px solid rgb(115, 135, 148);
                                 border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
                         </td>
-                      <td>
-                        <p style="color: #738794;font-size: 16px;">Beneficiary Name:</p>
-                      </td>
-                      <td>
-                        <p style="font-weight:700">${beneficiaryNickname}</p>
-                    </td>
-                    </tr>
-                    <tr>
-                            <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
-                                    <p style="border: 1px solid rgb(115, 135, 148); 
-                                    border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
+                          <td>
+                            <p style="color: #738794;font-size: 16px;">Transfer type:</p>
+                          </td>
+                          <td>
+                            <p style="font-weight:700">${transferType}</p>
                             </td>
-                      <td>
-                        <p style="color: #738794;font-size: 16px;">Debit account:</p>
-                      </td>
-                      <td>
-                        <p style="font-weight:700">${maskedAccount}</p>
-                    </td>
-                    </tr>
-                    <tr>
-                            <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
-                                    <p style="border: 1px solid rgb(115, 135, 148); 
-                                    border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
-                            </td>
-                      <td>
-                        <p style="color: #738794;font-size: 16px;">Amount:</p>
-                      </td>
-                      <td>
-                        <p style="font-weight:700">${currency} ${amount}</p>
-                    </td>
-                    </tr>
-                    <tr>
-                            <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
-                                    <p style="border: 1px solid rgb(115, 135, 148); 
-                                    border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
-                            </td>
-                      <td>
-                        <p style="color: #738794;font-size: 16px;">Bank name:</p>
-                      </td>
-                      <td>
-                        <p style="font-weight:700">${beneBankName}</p>
-                        </td>
-                    </tr>
-                    <tr>
-                            <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
-                                    <p style="border: 1px solid rgb(115, 135, 148); 
-                                    border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
-                            </td>
-                      <td>
-                        <p style="color: #738794;font-size: 16px;">Bank country:</p>
-                      </td>
-                      <td>
-                        <p style="font-weight:700">${beneBankCountry}</p>
-                    </td>
-                    </tr>
-                    
-                    <tr>
-                            <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
-                                    <p style="border: 1px solid rgb(115, 135, 148); 
-                                    border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
-                            </td>
-                      <td>
-                        <p style="color: #738794;font-size: 16px;">Transaction date:</p>
-                      </td>
-                      <td>
-                        <p style="font-weight:700">${transactionDate}</p>
-                    </td>
-                    </tr>
-                  </table>
-                  <h2>Didn't initiate this request?</h2>
-                  <table>
-                        
+                        </tr>
+                    </#if>
+
+                    <#if maskedAccount?has_content>
                         <tr>
-                                <td style="padding-right: 22px;">
-                                  <span>
-                                    <img
-                                      height="19"
-                                      width="19"
-                                      src="http://www.mashreqbank.com/uae/en/multimedia/edm-images/2021/02-feb/lock.png"
-                                      style="margin: 17px auto"
-                                    />
-                                  </span>
+                                <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
+                                        <p style="border: 1px solid rgb(115, 135, 148);
+                                        border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
                                 </td>
-                                <td>
-                                    <p>Change your password by signing into your <a href="https://digital.mashreqbank.com/onlinebanking" style="font-weight:700" class="link-secondary">Mashreq Personal Banking account</a></p>
+                          <td>
+                            <p style="color: #738794;font-size: 16px;">From ${sourceOfFund}:</p>
+                          </td>
+                          <td>
+                            <p style="font-weight:700">${maskedAccount}</p>
+                        </td>
+                        </tr>
+                    </#if>
+
+                    <#if toAccountNumber?has_content>
+                        <tr>
+                            <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
+                                    <p style="border: 1px solid rgb(115, 135, 148);
+                                    border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
+                            </td>
+                            <td>
+                                <p style="color: #738794;font-size: 16px;">To account:</p>
+                            </td>
+                            <td>
+                                <p style="font-weight:700">${beneficiaryNickname}</p>
+                                <p style="font-weight:700">${toAccountNumber}</p>
+                            </td>
+                        </tr>
+                    </#if>
+
+                    <#if amount?has_content>
+                        <tr>
+                            <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
+                                    <p style="border: 1px solid rgb(115, 135, 148);
+                                    border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
+                            </td>
+                              <td>
+                                <p style="color: #738794;font-size: 16px;">Transfer amount:</p>
+                              </td>
+                          <td>
+                            <p style="font-weight:700">${currency} ${amount}</p>
+                        </td>
+                        </tr>
+                    </#if>
+
+                    <#if transactionDate?has_content>
+                        <tr>
+                                <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
+                                        <p style="border: 1px solid rgb(115, 135, 148);
+                                        border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
                                 </td>
-                              </tr>
-                    <tr>
-                      <td style="padding-right: 22px;">
-                        <span>
-                          <img
-                            height="19"
-                            width="19"
-                            src="https://www.mashreqbank.com/uae/en/multimedia/edm-images/2021/02-feb/Group-4.png"
-                            style="margin: 17px auto"
-                          />
-                        </span>
-                      </td>
-                      <td>
-                          <p>Inform the bank immediately by calling <strong>${customerCareNo}</strong></p>
-                      </td>
-                    </tr>
+                          <td>
+                            <p style="color: #738794;font-size: 16px;">Initiation date:</p>
+                          </td>
+                          <td>
+                            <p style="font-weight:700">${transactionDate}</p>
+                        </td>
+                        </tr>
+                    </#if>
+
+                    <#if orderType == "PL" >
+
+                        <#if executionDate?has_content>
+                            <tr>
+                                    <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
+                                            <p style="border: 1px solid rgb(115, 135, 148);
+                                            border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
+                                    </td>
+                              <td>
+                                <p style="color: #738794;font-size: 16px;">Execution date:</p>
+                              </td>
+                              <td>
+                                <p style="font-weight:700">${executionDate}</p>
+                            </td>
+                            </tr>
+                        </#if>
+
+
+                    <#elseif orderType == "SI">
+
+                        <#if startDate?has_content>
+                            <tr>
+                                    <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
+                                            <p style="border: 1px solid rgb(115, 135, 148);
+                                            border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
+                                    </td>
+                              <td>
+                                <p style="color: #738794;font-size: 16px;">SI start date:</p>
+                              </td>
+                              <td>
+                                <p style="font-weight:700">${startDate}</p>
+                            </td>
+                            </tr>
+                        </#if>
+
+                        <#if endDate?has_content>
+                            <tr>
+                                    <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
+                                            <p style="border: 1px solid rgb(115, 135, 148);
+                                            border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
+                                    </td>
+                              <td>
+                                <p style="color: #738794;font-size: 16px;">SI end date:</p>
+                              </td>
+                              <td>
+                                <p style="font-weight:700">${endDate}</p>
+                            </td>
+                            </tr>
+                        </#if>
+
+                        <#if frequency?has_content>
+                            <tr>
+                                    <td align="left" style="vertical-align:middle;margin: 0;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse: collapse;border-collapse: collapse;color:#313131;font-size: 14px;">
+                                            <p style="border: 1px solid rgb(115, 135, 148);
+                                            border-radius: 50%;height: 6px;width: 6px;margin-bottom: 10px;"></p>
+                                    </td>
+                              <td>
+                                <p style="color: #738794;font-size: 16px;">SI frequency:</p>
+                              </td>
+                              <td>
+                                <p style="font-weight:700">${frequency}</p>
+                            </td>
+                            </tr>
+                        </#if>
+
+
+                    </#if>
+
+
+
                   </table>
+
+
+                    <p style="margin-bottom: 40px">
+                      This request was initiated from ${bankName} ${channelType}.
+                    </p>
+
+                    ${contactHtmlBody}
                 </td>
               </tr>
             </table>
@@ -637,13 +684,19 @@
                 <td>
                   <p style="margin-bottom: 16px">
                     Best Regards,<br />
-                    Customer service, ${bankName}
+                    ${bankNameInFooter}
                   </p>
-                  <p
-                    style="font-size: 14px; color: #6e6e6e; margin-bottom: 40px"
-                  >
-                  Disclaimer: This is a system generated email. </br>
-                  For any queries, please contact the Bank.
+                    <p
+                      style="
+                        font-size: 14px;
+                        color: #6e6e6e;
+                      "
+                    >
+                     ${bankNameInFooterDesc}
+                    </p>
+                  <p style="font-size: 14px; color: #6e6e6e; margin-bottom: 40px">
+                    Disclaimer: This is a system generated email. </br>
+                    For any queries, please contact the Bank.
                   </p>
                 </td>
               </tr>

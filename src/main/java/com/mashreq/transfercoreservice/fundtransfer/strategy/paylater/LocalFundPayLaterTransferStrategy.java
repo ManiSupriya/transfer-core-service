@@ -5,6 +5,7 @@ import static com.mashreq.transfercoreservice.notification.model.NotificationTyp
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
@@ -123,12 +124,11 @@ public class LocalFundPayLaterTransferStrategy extends LocalFundTransferStrategy
 	}
     
     @Override
-    protected BigDecimal validateBalance(FundTransferRequestDTO request, RequestMetaData metadata,
-			final ValidationContext validationContext, final AccountDetailsDTO fromAccountDetails,
-			final BeneficiaryDto beneficiaryDto) {
+    protected CurrencyConversionDto validateBalance(FundTransferRequestDTO request, RequestMetaData metadata,
+													final ValidationContext validationContext, final AccountDetailsDTO fromAccountDetails,
+													final BeneficiaryDto beneficiaryDto) {
     	log.info("Skipping balance validation check for loal pay later transaction ");
-    	final BigDecimal transferAmountInSrcCurrency = this.getAmountInSrcCurrency(request, beneficiaryDto, fromAccountDetails);
-		return transferAmountInSrcCurrency;
+		return this.getAmountInSrcCurrency(request, fromAccountDetails);
 	}
     
     protected FundTransferResponse processTransaction(RequestMetaData metadata, String txnRefNo,

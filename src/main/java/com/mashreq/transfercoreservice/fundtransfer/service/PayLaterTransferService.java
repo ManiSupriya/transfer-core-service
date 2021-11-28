@@ -12,6 +12,7 @@ import java.util.EnumMap;
 
 import javax.annotation.PostConstruct;
 
+import com.mashreq.transfercoreservice.repository.QrStatusMsRepository;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -93,7 +94,6 @@ public class PayLaterTransferService extends FundTransferServiceDefault{
     @Override
     protected void handleIfTransactionIsSuccess(RequestMetaData metadata, FundTransferRequestDTO request,
 			UserDTO userDTO, FundTransferResponse response) {
-    	//TODO: have to insert the usage while inititation
 		if (isSuccessOrProcessing(response)) {
         	Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
             DigitalUserLimitUsageDTO digitalUserLimitUsageDTO = generateUserLimitUsage(

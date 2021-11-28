@@ -3,11 +3,9 @@ package com.mashreq.transfercoreservice.fundtransfer.eligibility.service;
 import java.math.BigDecimal;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
-import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
@@ -21,11 +19,9 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.enums.FundsTransferEligibility;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.BeneficiaryValidator;
-import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CurrencyValidator;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CurrencyValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.LimitValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
-import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,10 +45,8 @@ public class INFTAccountEligibilityService implements TransferEligibilityService
     	log.info("INFT transfer eligibility validation started");
     	
     	responseHandler(currencyValidatorFactory.getValidator(metaData).validate(request, metaData));
-    	
-		final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metaData.getPrimaryCif());
 
-		final ValidationContext validationContext = new ValidationContext();
+        final ValidationContext validationContext = new ValidationContext();
 
 		BeneficiaryDto beneficiaryDto;
 		if (request.getBeneRequiredFields() != null && ((request.getBeneRequiredFields().getMissingFields() != null
@@ -62,17 +56,16 @@ public class INFTAccountEligibilityService implements TransferEligibilityService
 			log.info("Update missing beneficiary details");
 			request.getBeneRequiredFields().setNewVersion(true);
 			beneficiaryDto = beneficiaryService.getUpdate(request.getBeneRequiredFields(),
-					Long.valueOf(request.getBeneficiaryId()), metaData, INTERNATIONAL_VALIDATION_TYPE);
+					Long.valueOf(request.getBeneficiaryId()), "V2", metaData, INTERNATIONAL_VALIDATION_TYPE);
 		} else {
-			beneficiaryDto = beneficiaryService.getByIdV2(metaData.getPrimaryCif(),
-					Long.valueOf(request.getBeneficiaryId()), metaData);
+			beneficiaryDto = beneficiaryService.getByIdWithoutValidation(metaData.getPrimaryCif(),
+					Long.valueOf(request.getBeneficiaryId()), "V2", metaData);
 		}
 
 		validationContext.add("beneficiary-dto", beneficiaryDto);
 		responseHandler(beneficiaryValidator.validate(request, metaData, validationContext));
 
-		final AccountDetailsDTO sourceAccountDetailsDTO = getAccountDetailsBasedOnAccountNumber(accountsFromCore,
-				request.getFromAccount());
+        final AccountDetailsDTO sourceAccountDetailsDTO = accountService.getAccountDetailsFromCache(request.getFromAccount(), metaData);
 
 		final BigDecimal transferAmountInSrcCurrency = getAmountInSrcCurrency(request, sourceAccountDetailsDTO);
 
