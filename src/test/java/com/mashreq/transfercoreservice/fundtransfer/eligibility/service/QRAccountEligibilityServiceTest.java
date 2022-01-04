@@ -12,6 +12,7 @@ import com.mashreq.mobcommons.services.events.publisher.AuditEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.cache.UserSessionCacheService;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
+import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
 import com.mashreq.transfercoreservice.client.service.*;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
@@ -66,6 +67,8 @@ public class QRAccountEligibilityServiceTest {
 	private CurrencyValidator currencyValidator;
 	@Mock
 	private LimitValidator limitValidator;
+	@Mock
+	private MobCommonService mobCommonService;
 
 	private EncryptionService encryptionService = new EncryptionService();
 	private RequestMetaData metaData = RequestMetaData.builder().build();
@@ -84,7 +87,8 @@ public class QRAccountEligibilityServiceTest {
 				qrDealsService,
 				userEventPublisher,
 				userSessionCacheService,
-				cardService);
+				cardService,
+				mobCommonService);
 	}
 	
 	@Test

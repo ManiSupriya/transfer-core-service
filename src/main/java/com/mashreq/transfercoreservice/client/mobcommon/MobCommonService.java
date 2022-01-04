@@ -49,8 +49,11 @@ public class MobCommonService {
     private final MobCommonClient mobCommonClient;
     private final MobRedisService mobRedisService;
     public static final String MOB_AE_ROUTING_CODE_SUPPORTED_COUNTRIES = "MOB:AE:ROUTING_CODE_SUPPORTED_COUNTRIES";
-    
+    public static final String MOB_AE_FILTERED_COUNTRIES = "MOB:AE:FILTERED_COUNTRIES";
     public static final String MOB_AE_TRANSFER_SUPPORTED_COUNTRIES = "MOB:AE:TRANSFER_SUPPORTED_COUNTRIES";
+
+    private static final TypeReference<Map<String, CountryDto>> FILTERED_COUNTRIES_TYPE = new TypeReference<Map<String, CountryDto>>() {
+    };
     private static final TypeReference<List<TransferSupportedCountryDto>> TRANSFER_SUPPORTED_COUNTRIES_TYPE = new TypeReference<List<TransferSupportedCountryDto>>() {
     };
     public static final String TRUE = "true";
@@ -70,20 +73,6 @@ public class MobCommonService {
         log.info("[MobCommonService] Payment purpose response success in  {} ms ", Duration.between(startTime, now()).toMillis());
         return paymentPurpose.getData();
     }
-
-    public CurrencyConversionDto getConvertBetweenCurrencies(CoreCurrencyConversionRequestDto currencyRequest) {
-        log.info("[MobCommonService] Calling currency conversion service with data {} ", currencyRequest);
-        Instant startTime = now();
-        Response<CurrencyConversionDto> conversionResponse = mobCommonClient.convertBetweenCurrencies(currencyRequest);
-        if (ResponseStatus.ERROR == conversionResponse.getStatus() || isNull(conversionResponse.getData())) {
-            final String errorDetails = getErrorDetails(conversionResponse);
-            log.error("[MobCommonService] Exception in calling mob common for POP ={} ", errorDetails);
-            GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR,
-                    EXTERNAL_SERVICE_ERROR.getErrorMessage(), getErrorDetails(conversionResponse));
-        }
-        log.info("[MobCommonService] Currency Conversion success in  {} ms ", Duration.between(startTime, now()).toMillis());
-        return conversionResponse.getData();
-    }
     
     public DealConversionRateResponseDto getConvertBetweenCurrenciesWithDeal(DealConversionRateRequestDto dealConversionRateRequestDto) {
         log.info("[MobCommonService] Calling deal currency conversion service with data {} ", dealConversionRateRequestDto);
@@ -97,18 +86,6 @@ public class MobCommonService {
         }
         log.info("[MobCommonService] Currency Deal Conversion success in  {} ms ", Duration.between(startTime, now()).toMillis());
         return conversionResponse.getData();
-    }
-
-    public CustomerDetailsDto getCustomerDetails(final String cif) {
-        log.info("[MobCommonService] calling customer service client for getting customer details");
-
-        Response<com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto> response = mobCommonClient.getCustomerDetails(cif);
-        if (ResponseStatus.ERROR == response.getStatus() || isNull(response.getData())) {
-            log.error("Error while calling mob common for customer detail {} {} ", response.getErrorCode(), response.getMessage());
-            GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR, EXTERNAL_SERVICE_ERROR.getErrorMessage(), getErrorDetails(response));
-        }
-        return mobCommonClient.getCustomerDetails(cif).getData();
-
     }
 
     public List<ApplicationSettingDto> getApplicationSettings(String group) {
@@ -217,5 +194,25 @@ public class MobCommonService {
                     ACCOUNT_CREDIT_FREEZE.getErrorMessage());
         }
         log.info("[MobCommonService] Payment purpose response success in  {} ms ", Duration.between(startTime, now()).toMillis());
+    }
+
+    public CountryDto getCountryValidationRules(String countryCode) {
+        log.info("[MobCommonService] Calling MobCommonService to get filtered country validation rules");
+        Instant startTime = now();
+        final Map<String, CountryDto> cache = mobRedisService.get(MOB_AE_FILTERED_COUNTRIES, FILTERED_COUNTRIES_TYPE);
+        if (null != cache && !cache.isEmpty()) {
+            log.info("CACHE HIT for getCountryValidationRules");
+            return cache.get(countryCode);
+
+        } else {
+            log.info("CACHE MISS for getCountryValidationRules");
+            Response<CountryDto> response = mobCommonClient.getCountryValidationRule(countryCode);
+            if (Objects.isNull(response.getData()) || ResponseStatus.ERROR == response.getStatus()) {
+                log.error("Error while fetching filtered country validation rules");
+                GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR, EXTERNAL_SERVICE_ERROR.getCustomErrorCode(), getErrorDetails(response));
+            }
+            log.info("[MobCommonService] MobCommonService response success in nanoseconds {} ", Duration.between(startTime, now()));
+            return response.getData();
+        }
     }
 }
