@@ -1,6 +1,5 @@
 package com.mashreq.transfercoreservice.fundtransfer.eligibility.service;
 
-import static com.mashreq.transfercoreservice.util.TestUtil.getAdditionalFields;
 import static com.mashreq.transfercoreservice.util.TestUtil.qrExchangeResponse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -10,8 +9,10 @@ import static org.mockito.Mockito.when;
 import com.mashreq.encryption.encryptor.EncryptionService;
 import com.mashreq.mobcommons.services.events.publisher.AuditEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
+import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.transfercoreservice.cache.UserSessionCacheService;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
+import com.mashreq.transfercoreservice.client.dto.CountryDto;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
 import com.mashreq.transfercoreservice.client.service.*;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
@@ -24,13 +25,12 @@ import com.mashreq.transfercoreservice.fundtransfer.service.QRDealsService;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 import com.mashreq.transfercoreservice.util.TestUtil;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.transfercoreservice.client.dto.QRExchangeResponse;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -148,6 +148,24 @@ public class QRAccountEligibilityServiceTest {
 
 		assertNotNull(response);
 		assertEquals(response.getStatus(), FundsTransferEligibility.NOT_ELIGIBLE);
+	}
+
+	@Test
+	public void checkEligibilityFailureDueToNonQRCountry(){
+		FundTransferEligibiltyRequestDTO fundTransferEligibiltyRequestDTO = new FundTransferEligibiltyRequestDTO();
+		fundTransferEligibiltyRequestDTO.setBeneficiaryId("1");
+		fundTransferEligibiltyRequestDTO.setFromAccount("1234567890");
+
+		UserDTO userDTO = new UserDTO();
+		CountryDto countryDto = TestUtil.getCountryMs();
+		countryDto.setQuickRemitEnabled(false);
+
+		when(mobCommonService.getCountryValidationRules("IN")).thenReturn(countryDto);
+		when(beneficiaryService.getByIdWithoutValidation(any(),any(),any(),any())).thenReturn(TestUtil.getBeneficiaryDto());
+
+		Assertions.assertThrows(GenericException.class, () ->{
+				service.checkEligibility(metaData, fundTransferEligibiltyRequestDTO, userDTO);
+		});
 	}
 
 }

@@ -25,6 +25,12 @@ public class TestUtil {
         return countryMasterDto;
     }
 
+    public  static Map<String, CountryDto> getCountryMap(){
+        Map<String, CountryDto> countryMap = new HashMap<>();
+        countryMap.put("IN", getCountryMs());
+        return countryMap;
+    }
+
     public static QRExchangeResponse qrExchangeResponse(){
         QRExchangeResponse response = new QRExchangeResponse();
         response.setAccountCurrency("USD");
