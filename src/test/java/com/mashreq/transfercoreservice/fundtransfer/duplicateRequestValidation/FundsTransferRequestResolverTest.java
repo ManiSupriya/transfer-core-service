@@ -6,6 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.mashreq.dedupe.dto.DedupeRequestDto;
+import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 
 public class FundsTransferRequestResolverTest {
@@ -42,5 +43,7 @@ public class FundsTransferRequestResolverTest {
 		/**
 		 * repeating the same logic for identifying unique request from FE */
 		assertEquals(finTxnNo, resolveUniqueRequest.getUniqueIdentifiers());
+		assertEquals(TransferErrorCode.DUPLICATION_FUND_TRANSFER_REQUEST.customErrorCode(), resolveUniqueRequest.getDuplicateRequestErrorCode());
+		assertEquals(TransferErrorCode.DUPLICATION_FUND_TRANSFER_REQUEST.getErrorMessage(), resolveUniqueRequest.getDuplicateRequestErrorDesc());
 	}
 }
