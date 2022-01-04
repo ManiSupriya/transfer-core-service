@@ -45,9 +45,6 @@ public class LocalFundTransferStrategyTest {
     private  IBANValidator ibanValidator;
 
     @Mock
-    private  FinTxnNoValidator finTxnNoValidator;
-
-    @Mock
     private  AccountBelongsToCifValidator accountBelongsToCifValidator;
 
     @Mock
@@ -170,7 +167,6 @@ public class LocalFundTransferStrategyTest {
         //ReflectionTestUtils.setField(localFundTransferStrategy,"transactionCode", "015");
 
         final ValidationResult validationResult = ValidationResult.builder().success(true).build();
-        when(finTxnNoValidator.validate(requestDTO, metadata)).thenReturn(validationResult);
         when(paymentPurposeValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(validationResult);
         when(accountService.getAccountsFromCore(eq(metadata.getPrimaryCif()))).thenReturn(accountsFromCore);
         when(mobCommonService.getPaymentPurposes( eq("LOCAL"), eq(""), eq("I"))).thenReturn(popList);
@@ -304,7 +300,6 @@ public class LocalFundTransferStrategyTest {
         //ReflectionTestUtils.setField(localFundTransferStrategy,"transactionCode", "015");
 
         final ValidationResult validationResult = ValidationResult.builder().success(true).build();
-        when(finTxnNoValidator.validate(requestDTO, metadata)).thenReturn(validationResult);
         when(paymentPurposeValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(validationResult);
         when(accountService.getAccountsFromCore(eq(metadata.getPrimaryCif()))).thenReturn(accountsFromCore);
         when(mobCommonService.getPaymentPurposes( eq("LOCAL"), eq(""),eq("I"))).thenReturn(popList);

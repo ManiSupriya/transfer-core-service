@@ -77,7 +77,6 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
     private final SameAccountValidator sameAccountValidator;
-    private final FinTxnNoValidator finTxnNoValidator;
     private final CurrencyValidator currencyValidator;
     private final LimitValidator limitValidator;
     private final AccountService accountService;
@@ -97,7 +96,6 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 
         Instant start = Instant.now();
         responseHandler(ccTrxValidator.validate(request, metadata));
-        responseHandler(finTxnNoValidator.validate(request, metadata));
         responseHandler(sameAccountValidator.validate(request, metadata));
 
         final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metadata.getPrimaryCif());

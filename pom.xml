@@ -57,6 +57,7 @@
         <properties-maven-plugin.version>1.0.0</properties-maven-plugin.version>
         <jackson.databind.version>2.11.0</jackson.databind.version>
         <templates.utils.version>1.0.2.RELEASE</templates.utils.version>
+        <com.mashreq.dedupe-util>1.0.5-SNAPSHOT</com.mashreq.dedupe-util>
     </properties>
 
     <repositories>
@@ -156,6 +157,11 @@
             <artifactId>encryption</artifactId>
             <version>${com.mashreq.encryption}</version>
         </dependency>
+        <dependency>
+		   <groupId>com.mashreq.dedupe</groupId>
+		   <artifactId>request-dedupe-util</artifactId>
+		   <version>${com.mashreq.dedupe-util}</version>
+		</dependency>
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>

@@ -6,4 +6,5 @@ package com.mashreq.transfercoreservice.api;
  */
 public class Constants {
     public static final String X_REQUEST_METADATA = "X-REQUEST-METADATA";
+    public static final String FUND_TRANSFER_REQUEST = "FUNDS-TRANSFER";
 }
