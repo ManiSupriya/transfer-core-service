@@ -109,7 +109,7 @@ public class QRAccountEligibilityServiceTest {
 		UserDTO userDTO = new UserDTO();
 
 		ValidationResult validationResult = ValidationResult.builder().success(true).build();
-		when(maintenanceService.getAllCountries(any(),any(),any())).thenReturn(TestUtil.getCountryMs());
+		when(mobCommonService.getCountryValidationRules("IN")).thenReturn(TestUtil.getCountryMs());
 		when(currencyValidatorFactory.getValidator(any())).thenReturn(currencyValidator);
 		when(limitValidatorFactory.getValidator(any())).thenReturn(limitValidator);
 		when(currencyValidator.validate(any(),any(),any())).thenReturn(validationResult);
@@ -137,7 +137,7 @@ public class QRAccountEligibilityServiceTest {
 		qrExchangeResponse.setAllowQR(false);
 
 		ValidationResult validationResult = ValidationResult.builder().success(true).build();
-		when(maintenanceService.getAllCountries(any(),any(),any())).thenReturn(TestUtil.getCountryMs());
+		when(mobCommonService.getCountryValidationRules("IN")).thenReturn(TestUtil.getCountryMs());
 		when(currencyValidatorFactory.getValidator(any())).thenReturn(currencyValidator);
 		when(currencyValidator.validate(any(),any(),any())).thenReturn(validationResult);
 		when(beneficiaryService.getByIdWithoutValidation(any(),any(),any(),any())).thenReturn(TestUtil.getBeneficiaryDto());

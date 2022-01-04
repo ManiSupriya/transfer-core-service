@@ -18,11 +18,11 @@ import java.util.*;
 
 public class TestUtil {
 
-    public static List<CountryMasterDto> getCountryMs(){
-        CountryMasterDto countryMasterDto = new CountryMasterDto();
+    public static CountryDto getCountryMs(){
+        CountryDto countryMasterDto = new CountryDto();
         countryMasterDto.setCode("IN");
         countryMasterDto.setQuickRemitEnabled(true);
-        return Arrays.asList(countryMasterDto);
+        return countryMasterDto;
     }
 
     public static QRExchangeResponse qrExchangeResponse(){
