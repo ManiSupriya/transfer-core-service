@@ -1,0 +1,68 @@
+package com.mashreq.transfercoreservice.fundtransfer.service;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.mashreq.ms.exceptions.GenericException;
+import com.mashreq.ms.exceptions.GenericExceptionHandler;
+import com.mashreq.transfercoreservice.cache.MobRedisService;
+import com.mashreq.transfercoreservice.client.dto.CountryDto;
+import com.mashreq.transfercoreservice.client.mobcommon.MobCommonClient;
+import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
+import com.mashreq.transfercoreservice.util.TestUtil;
+import com.mashreq.webcore.dto.response.Response;
+import com.mashreq.webcore.dto.response.ResponseStatus;
+import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.runner.RunWith;
+import org.mockito.*;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Objects;
+
+import static com.mashreq.transfercoreservice.client.ErrorUtils.getErrorDetails;
+import static com.mashreq.transfercoreservice.client.mobcommon.MobCommonService.MOB_AE_FILTERED_COUNTRIES;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.EXTERNAL_SERVICE_ERROR;
+import static java.time.Instant.now;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class MobCommonServiceTest {
+
+    @Mock
+    private MobCommonClient mobCommonClient;
+    @Mock
+    private MobRedisService mobRedisService;
+
+    @InjectMocks
+    private MobCommonService mobCommonService;
+
+    @Test
+    public void testCountryValidationRulesFromCache() {
+        when(mobRedisService.get(any(), ArgumentMatchers.<TypeReference<Map<String, CountryDto>>>any())).thenReturn(TestUtil.getCountryMap());
+
+        CountryDto countryDto = mobCommonService.getCountryValidationRules("IN");
+        Assertions.assertEquals("IN", countryDto.getCode());
+    }
+
+    @Test
+    public void testCountryValidationRulesFromAPISuccess() {
+        when(mobRedisService.get(any(), ArgumentMatchers.<TypeReference<Map<String, CountryDto>>>any())).thenReturn(Collections.emptyMap());
+        when(mobCommonClient.getCountryValidationRule(any())).thenReturn(TestUtil.getSuccessResponse(TestUtil.getCountryMs()));
+        CountryDto countryDto = mobCommonService.getCountryValidationRules("IN");
+        Assertions.assertEquals("IN", countryDto.getCode());
+    }
+
+    @Test
+    public void testCountryValidationRulesFromAPIError() {
+        when(mobRedisService.get(any(), ArgumentMatchers.<TypeReference<Map<String, CountryDto>>>any())).thenReturn(Collections.emptyMap());
+        when(mobCommonClient.getCountryValidationRule(any())).thenReturn(TestUtil.getErrorResponse(TestUtil.getCountryMs()));
+
+        Assertions.assertThrows(GenericException.class, ()->{
+            mobCommonService.getCountryValidationRules("IN");
+        });
+    }
+}

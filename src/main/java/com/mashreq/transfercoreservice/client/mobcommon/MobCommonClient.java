@@ -5,6 +5,7 @@ import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
+import com.mashreq.transfercoreservice.client.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,10 +16,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.mashreq.ms.commons.cache.HeaderNames;
-import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
-import com.mashreq.transfercoreservice.client.dto.CoreCurrencyDto;
-import com.mashreq.transfercoreservice.client.dto.CountryResponseDto;
-import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
 import com.mashreq.transfercoreservice.config.feign.FeignConfig;
@@ -74,4 +71,6 @@ public interface MobCommonClient {
             @RequestParam ServiceType serviceTypeCode,
             @NotNull @PathVariable String accountNumber);
 
+    @GetMapping("/v1/countries/{countryCode}")
+    Response<CountryDto> getCountryValidationRule(@PathVariable String countryCode);
 }
