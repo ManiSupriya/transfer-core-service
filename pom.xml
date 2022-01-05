@@ -34,7 +34,7 @@
         <jacoco.version>0.8.3</jacoco.version>
         <jacoco.percentage.instruction>0.60</jacoco.percentage.instruction>
         <sonar-maven-plugin.version>3.7.0.1746</sonar-maven-plugin.version>
-        <springfox.version>2.9.2</springfox.version>
+        <springfox.version>3.0.0</springfox.version>
         <asciidoctor-maven-plugin.version>2.0.0-RC.1</asciidoctor-maven-plugin.version>
 
         <!-- dependency management version -->
