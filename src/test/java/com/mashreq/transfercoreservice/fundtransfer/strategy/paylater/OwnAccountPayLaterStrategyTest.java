@@ -33,7 +33,6 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.CCTransactionEligibilityValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.CurrencyValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.FinTxnNoValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.SameAccountValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 import com.mashreq.transfercoreservice.notification.service.DigitalUserSegment;
@@ -50,8 +49,6 @@ public class OwnAccountPayLaterStrategyTest {
 	private AccountBelongsToCifValidator accountBelongsToCifValidator;
 	@Mock
 	private SameAccountValidator sameAccountValidator;
-	@Mock
-	private FinTxnNoValidator finTxnNoValidator;
 	@Mock
 	private CurrencyValidator currencyValidator;
 	@Mock
@@ -86,7 +83,7 @@ public class OwnAccountPayLaterStrategyTest {
 	@Before
 	public void init() {
 		payLaterStrategy = new OwnAccountPayLaterStrategy(accountBelongsToCifValidator,sameAccountValidator,
-				finTxnNoValidator,currencyValidator,limitValidator,accountService,
+				currencyValidator,limitValidator,accountService,
 				dealValidator,maintenanceService,fundTransferMWService,balanceValidator,
 				notificationService,auditEventPublisher,digitalUserSegment,freezeValidator,
 				postTransactionService,
@@ -103,7 +100,6 @@ public class OwnAccountPayLaterStrategyTest {
 		RequestMetaData metadata = FundTransferTestUtil.getMetadata();
 		UserDTO userDTO = FundTransferTestUtil.getUserDTO();
 		ValidationResult validationResult = ValidationResult.builder().success(true).build();
-		Mockito.when(finTxnNoValidator.validate(Mockito.eq(request), Mockito.eq(metadata))).thenReturn(validationResult);
 		Mockito.when(sameAccountValidator.validate(Mockito.eq(request), Mockito.eq(metadata))).thenReturn(validationResult);
 		Mockito.when(accountBelongsToCifValidator.validate(Mockito.eq(request), Mockito.eq(metadata), Mockito.any())).thenReturn(validationResult);
 		Mockito.when(freezeValidator.validate(Mockito.eq(request), Mockito.eq(metadata), Mockito.any())).thenReturn(validationResult);

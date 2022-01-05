@@ -33,7 +33,6 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.BeneficiaryValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.CCTransactionEligibilityValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.FinTxnNoValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.PaymentPurposeValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 import com.mashreq.transfercoreservice.notification.service.NotificationService;
@@ -45,8 +44,6 @@ import com.mashreq.transfercoreservice.paylater.utils.SequenceNumberGenerator;
 @RunWith(MockitoJUnitRunner.class)
 public class InternationalPayLaterFundTransferStrategyTest {
 	private InternationalPayLaterFundTransferStrategy internationalPayLaterFundTransferStrategy;
-	@Mock
-	private FinTxnNoValidator finTxnNoValidator;
 	@Mock
 	private AccountService accountService;
 	@Mock
@@ -82,7 +79,7 @@ public class InternationalPayLaterFundTransferStrategyTest {
 	
 	@Before
 	public void init () {
-		internationalPayLaterFundTransferStrategy = new InternationalPayLaterFundTransferStrategy(finTxnNoValidator, accountService, accountBelongsToCifValidator, paymentPurposeValidator, beneficiaryValidator,
+		internationalPayLaterFundTransferStrategy = new InternationalPayLaterFundTransferStrategy( accountService, accountBelongsToCifValidator, paymentPurposeValidator, beneficiaryValidator,
 				balanceValidator, fundTransferMWService, maintenanceService, mobCommonService, dealValidator,
 				notificationService, beneficiaryService, limitValidator,ccTrxValidator,
 				fundTransferOrderRepository,seqGenerator);
@@ -101,7 +98,6 @@ public class InternationalPayLaterFundTransferStrategyTest {
 		RequestMetaData metadata = FundTransferTestUtil.getMetadata();
 		UserDTO userDTO = FundTransferTestUtil.getUserDTO();
 		ValidationResult validationResult = ValidationResult.builder().success(true).build();
-		Mockito.when(finTxnNoValidator.validate(Mockito.eq(request), Mockito.eq(metadata))).thenReturn(validationResult);
 		Mockito.when(accountBelongsToCifValidator.validate(Mockito.eq(request), Mockito.eq(metadata), Mockito.any())).thenReturn(validationResult);
 		Mockito.when(paymentPurposeValidator.validate(Mockito.eq(request), Mockito.eq(metadata), Mockito.any())).thenReturn(validationResult);
 		Mockito.when(beneficiaryValidator.validate(Mockito.eq(request), Mockito.eq(metadata), Mockito.any())).thenReturn(validationResult);

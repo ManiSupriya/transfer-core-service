@@ -14,12 +14,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mashreq.dedupe.annotation.UniqueRequest;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
+import com.mashreq.transfercoreservice.fundtransfer.duplicateRequestValidation.FundsTransferRequestResolver;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.service.TransferEligibilityProxy;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferFactory;
@@ -48,6 +50,7 @@ public class FundTransferController {
             @ApiResponse(code = 500, message = "Something went wrong")
     })
     @PostMapping
+    @UniqueRequest(clazz = FundsTransferRequestResolver.class,flowName = Constants.FUND_TRANSFER_REQUEST,enableIdentifierHashing = false)
     public Response transferFunds(@RequestAttribute("X-REQUEST-METADATA") RequestMetaData metaData,
                                   @Valid @RequestBody FundTransferRequestDTO request) {
         log.info("{} Fund transfer for request received ", htmlEscape(request.getServiceType()));

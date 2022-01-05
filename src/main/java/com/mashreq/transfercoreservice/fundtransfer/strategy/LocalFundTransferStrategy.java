@@ -72,7 +72,6 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     public static final String AED = "AED";
     public static final String NON_AED = "non-AED";
     private final IBANValidator ibanValidator;
-    private final FinTxnNoValidator finTxnNoValidator;
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
     private final CCBelongsToCifValidator ccBelongsToCifValidator;
     private final BeneficiaryValidator beneficiaryValidator;
@@ -123,7 +122,6 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
      * @return
      */
     protected FundTransferResponse executeNonCreditCard(FundTransferRequestDTO request, RequestMetaData metadata, UserDTO userDTO) {
-        responseHandler(finTxnNoValidator.validate(request, metadata));
 
         final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metadata.getPrimaryCif());
         final ValidationContext validationContext = new ValidationContext();
@@ -242,8 +240,6 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     protected FundTransferResponse executeCC(FundTransferRequestDTO request, RequestMetaData requestMetaData, UserDTO userDTO){
 
         FundTransferResponse fundTransferResponse;
-
-        responseHandler(finTxnNoValidator.validate(request, requestMetaData));
 
         final List<CardDetailsDTO> accountsFromCore = cardService.getCardsFromCore(requestMetaData.getPrimaryCif(), CardType.CC);
         final ValidationContext validationContext = new ValidationContext();

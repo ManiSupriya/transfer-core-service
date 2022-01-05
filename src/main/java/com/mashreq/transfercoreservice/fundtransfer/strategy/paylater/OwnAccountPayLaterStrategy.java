@@ -29,7 +29,6 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.CCTransactionEligibilityValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.CurrencyValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.FinTxnNoValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.SameAccountValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
@@ -58,7 +57,7 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 
 	@Autowired
 	public OwnAccountPayLaterStrategy(AccountBelongsToCifValidator accountBelongsToCifValidator,
-			SameAccountValidator sameAccountValidator, FinTxnNoValidator finTxnNoValidator,
+			SameAccountValidator sameAccountValidator,
 			CurrencyValidator currencyValidator, LimitValidator limitValidator, AccountService accountService,
 			DealValidator dealValidator, MaintenanceService maintenanceService,
 			FundTransferMWService fundTransferMWService, BalanceValidator balanceValidator,
@@ -66,7 +65,7 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 			DigitalUserSegment digitalUserSegment, AccountFreezeValidator freezeValidator,
 			PostTransactionService postTransactionService, FundTransferOrderRepository fundTransferOrderRepository,
 			SequenceNumberGenerator seqGenerator, CCTransactionEligibilityValidator ccTrxValidator) {
-		super(accountBelongsToCifValidator, sameAccountValidator, finTxnNoValidator, currencyValidator, limitValidator,
+		super(accountBelongsToCifValidator, sameAccountValidator, currencyValidator, limitValidator,
 				accountService, dealValidator, maintenanceService, fundTransferMWService, balanceValidator,
 				notificationService, auditEventPublisher, digitalUserSegment, freezeValidator,
 				postTransactionService, ccTrxValidator);

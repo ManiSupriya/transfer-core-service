@@ -53,9 +53,6 @@ public class LocalFundTransferStrategyCCTest {
     private  IBANValidator ibanValidator;
 
     @Mock
-    private  FinTxnNoValidator finTxnNoValidator;
-
-    @Mock
     private  BeneficiaryValidator beneficiaryValidator;
 
     @Mock
@@ -240,7 +237,6 @@ public class LocalFundTransferStrategyCCTest {
         String limitVersionUuid = "uuid1234";
         ReflectionTestUtils.setField(localFundTransferStrategy, "localCurrency", srcCurrency);
         ReflectionTestUtils.setField(localFundTransferStrategy, "address", address);
-        when(finTxnNoValidator.validate(requestDTO, metadata)).thenReturn(validationResult);
         when(paymentPurposeValidator.validate(eq(requestDTO), eq(metadata), any())).thenReturn(validationResult);
         when(cardService.getCardsFromCore(eq(metadata.getPrimaryCif()), eq(CardType.CC))).thenReturn(buildCardDetails());
         when(encryptionService.decrypt(eq(CC_NO))).thenReturn(CC_NO);
