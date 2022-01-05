@@ -5,12 +5,12 @@ import static com.mashreq.transfercoreservice.notification.model.NotificationTyp
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
+import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
@@ -31,7 +31,6 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.BeneficiaryValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.CCTransactionEligibilityValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.FinTxnNoValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.PaymentPurposeValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
@@ -53,7 +52,7 @@ import lombok.extern.slf4j.Slf4j;
 public class InternationalPayLaterFundTransferStrategy extends InternationalFundTransferStrategy {
 	private final FundTransferOrderRepository fundTransferOrderRepository;
 	private final SequenceNumberGenerator seqGenerator;
-	public InternationalPayLaterFundTransferStrategy(FinTxnNoValidator finTxnNoValidator, AccountService accountService,
+	public InternationalPayLaterFundTransferStrategy(AccountService accountService,
 			AccountBelongsToCifValidator accountBelongsToCifValidator, PaymentPurposeValidator paymentPurposeValidator,
 			BeneficiaryValidator beneficiaryValidator, BalanceValidator balanceValidator,
 			FundTransferMWService fundTransferMWService, MaintenanceService maintenanceService,
@@ -62,7 +61,7 @@ public class InternationalPayLaterFundTransferStrategy extends InternationalFund
 			CCTransactionEligibilityValidator ccTrxValidator,
 			FundTransferOrderRepository fundTransferOrderRepository,
 			SequenceNumberGenerator seqGenerator) {
-		super(finTxnNoValidator, accountService, accountBelongsToCifValidator, paymentPurposeValidator, beneficiaryValidator,
+		super(accountService, accountBelongsToCifValidator, paymentPurposeValidator, beneficiaryValidator,
 				balanceValidator, fundTransferMWService, maintenanceService, mobCommonService, dealValidator,
 				notificationService, beneficiaryService, limitValidator,
 				ccTrxValidator);

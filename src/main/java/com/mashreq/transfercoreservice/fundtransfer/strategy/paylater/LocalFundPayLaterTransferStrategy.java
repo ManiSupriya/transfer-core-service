@@ -5,7 +5,6 @@ import static com.mashreq.transfercoreservice.notification.model.NotificationTyp
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
@@ -13,6 +12,7 @@ import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
+import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
@@ -39,7 +39,6 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.CCBalanceValidato
 import com.mashreq.transfercoreservice.fundtransfer.validators.CCBelongsToCifValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.CCTransactionEligibilityValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.FinTxnNoValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.IBANValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.PaymentPurposeValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
@@ -65,7 +64,7 @@ import lombok.extern.slf4j.Slf4j;
 public class LocalFundPayLaterTransferStrategy extends LocalFundTransferStrategy {
 	private final FundTransferOrderRepository fundTransferOrderRepository;
 	private final SequenceNumberGenerator seqGenerator;
-	public LocalFundPayLaterTransferStrategy(IBANValidator ibanValidator, FinTxnNoValidator finTxnNoValidator,
+	public LocalFundPayLaterTransferStrategy(IBANValidator ibanValidator,
 			AccountBelongsToCifValidator accountBelongsToCifValidator, CCBelongsToCifValidator ccBelongsToCifValidator,
 			BeneficiaryValidator beneficiaryValidator, AccountService accountService,
 			BeneficiaryService beneficiaryService, LimitValidator limitValidator,
@@ -79,7 +78,7 @@ public class LocalFundPayLaterTransferStrategy extends LocalFundTransferStrategy
 			FundTransferOrderRepository fundTransferOrderRepository,
 			SequenceNumberGenerator seqGenerator,
 			CCTransactionEligibilityValidator ccTrxValidator) {
-		super(ibanValidator, finTxnNoValidator, accountBelongsToCifValidator, ccBelongsToCifValidator, beneficiaryValidator,
+		super(ibanValidator, accountBelongsToCifValidator, ccBelongsToCifValidator, beneficiaryValidator,
 				accountService, beneficiaryService, limitValidator, fundTransferMWService, paymentPurposeValidator,
 				balanceValidator, ccBalanceValidator, maintenanceService, mobCommonService, dealValidator, countryRepository,
 				fundTransferCCMWService, auditEventPublisher, notificationService, qrDealsService, cardService, postTransactionService,ccTrxValidator);

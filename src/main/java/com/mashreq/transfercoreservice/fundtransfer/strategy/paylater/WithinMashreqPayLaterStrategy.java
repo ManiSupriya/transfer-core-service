@@ -31,7 +31,6 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.BeneficiaryValida
 import com.mashreq.transfercoreservice.fundtransfer.validators.CCTransactionEligibilityValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.CurrencyValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.FinTxnNoValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.SameAccountValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
@@ -56,7 +55,7 @@ public class WithinMashreqPayLaterStrategy extends WithinMashreqStrategy {
 	private final FundTransferOrderRepository fundTransferOrderRepository;
 	private final SequenceNumberGenerator seqGenerator;
 	@Autowired
-	public WithinMashreqPayLaterStrategy(SameAccountValidator sameAccountValidator, FinTxnNoValidator finTxnNoValidator,
+	public WithinMashreqPayLaterStrategy(SameAccountValidator sameAccountValidator,
 			AccountBelongsToCifValidator accountBelongsToCifValidator, CurrencyValidator currencyValidator,
 			BeneficiaryValidator beneficiaryValidator, AccountService accountService,
 			BeneficiaryService beneficiaryService, LimitValidator limitValidator, MaintenanceService maintenanceService,
@@ -66,7 +65,7 @@ public class WithinMashreqPayLaterStrategy extends WithinMashreqStrategy {
 			PostTransactionService postTransactionService,
 			FundTransferOrderRepository fundTransferOrderRepository,
 			SequenceNumberGenerator seqGenerator, CCTransactionEligibilityValidator ccTrxValidator) {
-		super(sameAccountValidator, finTxnNoValidator, accountBelongsToCifValidator, currencyValidator, beneficiaryValidator,
+		super(sameAccountValidator, accountBelongsToCifValidator, currencyValidator, beneficiaryValidator,
 				accountService, beneficiaryService, limitValidator, maintenanceService, fundTransferMWService, balanceValidator,
 				dealValidator, auditEventPublisher, notificationService, 
 				freezeValidator, accountNumberResolver, postTransactionService, ccTrxValidator);

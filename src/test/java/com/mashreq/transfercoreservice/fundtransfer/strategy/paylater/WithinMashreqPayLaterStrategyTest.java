@@ -38,7 +38,6 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.BeneficiaryValida
 import com.mashreq.transfercoreservice.fundtransfer.validators.CCTransactionEligibilityValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.CurrencyValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.FinTxnNoValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.SameAccountValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 import com.mashreq.transfercoreservice.notification.service.NotificationService;
@@ -52,8 +51,6 @@ public class WithinMashreqPayLaterStrategyTest {
 	private WithinMashreqPayLaterStrategy withinMashreqPayLaterStrategy;
 	@Mock
 	private SameAccountValidator sameAccountValidator;
-	@Mock
-	private FinTxnNoValidator finTxnNoValidator;
 	@Mock
 	private AccountBelongsToCifValidator accountBelongsToCifValidator;
 	@Mock
@@ -93,7 +90,7 @@ public class WithinMashreqPayLaterStrategyTest {
 	
 	@Before
 	public void init() {
-		withinMashreqPayLaterStrategy = new WithinMashreqPayLaterStrategy(sameAccountValidator,finTxnNoValidator,accountBelongsToCifValidator,currencyValidator,beneficiaryValidator,
+		withinMashreqPayLaterStrategy = new WithinMashreqPayLaterStrategy(sameAccountValidator,accountBelongsToCifValidator,currencyValidator,beneficiaryValidator,
 				accountService,beneficiaryService,limitValidator,maintenanceService,
 				fundTransferMWService, balanceValidator, dealValidator,
 				auditEventPublisher, notificationService, freezeValidator, 
@@ -113,7 +110,6 @@ public class WithinMashreqPayLaterStrategyTest {
 		RequestMetaData metadata = FundTransferTestUtil.getMetadata();
 		UserDTO userDTO = FundTransferTestUtil.getUserDTO();
 		ValidationResult validationResult = ValidationResult.builder().success(true).build();
-		Mockito.when(finTxnNoValidator.validate(Mockito.eq(request), Mockito.eq(metadata))).thenReturn(validationResult);
 		Mockito.when(sameAccountValidator.validate(Mockito.eq(request), Mockito.eq(metadata))).thenReturn(validationResult);
 		Mockito.when(accountBelongsToCifValidator.validate(Mockito.eq(request), Mockito.eq(metadata), Mockito.any())).thenReturn(validationResult);
 		Mockito.when(ccTrxValidator.validate(Mockito.any(), Mockito.any())).thenReturn(validationResult);
