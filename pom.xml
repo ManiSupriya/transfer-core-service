@@ -57,7 +57,7 @@
         <properties-maven-plugin.version>1.0.0</properties-maven-plugin.version>
         <jackson.databind.version>2.11.0</jackson.databind.version>
         <templates.utils.version>1.0.2.RELEASE</templates.utils.version>
-        <com.mashreq.dedupe-util>1.0.5-SNAPSHOT</com.mashreq.dedupe-util>
+        <com.mashreq.dedupe-util>1.0.4</com.mashreq.dedupe-util>
     </properties>
 
     <repositories>

@@ -1,19 +1,15 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
-import static com.mashreq.transfercoreservice.common.CommonUtils.generateDisplayString;
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 import static com.mashreq.transfercoreservice.notification.model.NotificationType.OWN_ACCOUNT_FT;
 import static java.time.Duration.between;
 import static java.time.Instant.now;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
-import com.mashreq.transfercoreservice.common.CommonUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +23,7 @@ import com.mashreq.transfercoreservice.client.dto.SearchAccountDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.common.CommonConstants;
+import com.mashreq.transfercoreservice.common.CommonUtils;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
@@ -43,7 +40,6 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.CCTransactionEligibilityValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.CurrencyValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.FinTxnNoValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.SameAccountValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
