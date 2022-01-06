@@ -51,7 +51,6 @@ public class FundTransferRequest {
     private String txnCurrency;
     private String NotificationType;
     private String finalBene;
-    private String additionaField;
     private String serviceType;
     private String intermediaryBankSwiftCode;
     private String beneficiaryBankCountry;
