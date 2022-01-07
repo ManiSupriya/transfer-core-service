@@ -37,7 +37,7 @@ public class QuickRemitService {
 			Response<QRExchangeResponse> quickRemitResponse = quickRemitServiceClient.exchange(
 					QRExchangeRequest.builder()
 					.benId(Long.valueOf(request.getBeneficiaryId()))
-					.destinationCcy(countryDto.get().getNativeCurrency())
+					.destinationCcy(request.getTxnCurrency())
 					.initiatedFrom("QR")
 					.senderAcNum(
 							StringUtils.isNotBlank(request.getCardNo()) ? 
