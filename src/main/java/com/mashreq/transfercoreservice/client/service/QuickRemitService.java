@@ -3,10 +3,6 @@ package com.mashreq.transfercoreservice.client.service;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.QUICK_REMIT_EXTERNAL_SERVICE_ERROR;
 import static java.util.Objects.isNull;
 
-import java.util.Objects;
-import java.util.Optional;
-
-import com.mashreq.transfercoreservice.client.dto.CountryDto;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +10,7 @@ import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.QuickRemitServiceClient;
-import com.mashreq.transfercoreservice.client.dto.CountryMasterDto;
+import com.mashreq.transfercoreservice.client.dto.CountryDto;
 import com.mashreq.transfercoreservice.client.dto.QRExchangeRequest;
 import com.mashreq.transfercoreservice.client.dto.QRExchangeResponse;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
@@ -37,7 +33,7 @@ public class QuickRemitService {
 		Response<QRExchangeResponse> quickRemitResponse = quickRemitServiceClient.exchange(
 				QRExchangeRequest.builder()
 				.benId(Long.valueOf(request.getBeneficiaryId()))
-				.destinationCcy(countryDto.getNativeCurrency())
+				.destinationCcy(request.getTxnCurrency())
 				.initiatedFrom("QR")
 				.senderAcNum(
 						StringUtils.isNotBlank(request.getCardNo()) ?
