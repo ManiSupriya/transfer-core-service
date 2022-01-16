@@ -25,6 +25,9 @@ public class MobRedisService {
     private ObjectMapper objectMapper;
     @Value("${redis.write.ttl:60}")
     private long ttl;
+    
+    @Value("${dedupe.set.ttl.in.minutes:30}")
+    private Long durationInMinutes;
 
     public MobRedisService() {
     }
@@ -56,5 +59,11 @@ public class MobRedisService {
         log.info("Setting to cache key = {} value = {} ", key, value);
         this.mobRedisTemplate.opsForValue().set(key, value);
         this.mobRedisTemplate.expire(key, ttl, TimeUnit.MINUTES);
+    }
+    
+    public <T> Boolean removeValueFromSet(String key, T value) {
+        log.info("removing to value from set with key = {} value = {} ", key, value);
+        this.mobRedisTemplate.opsForSet().remove(key, value);
+        return this.mobRedisTemplate.expire(key, durationInMinutes, TimeUnit.MINUTES);
     }
 }
