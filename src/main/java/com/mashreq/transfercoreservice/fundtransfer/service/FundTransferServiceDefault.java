@@ -4,8 +4,6 @@ import com.mashreq.logcore.annotations.TrackExec;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
-import com.mashreq.transfercoreservice.api.Constants;
-import com.mashreq.transfercoreservice.cache.MobRedisService;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPRequestDTO;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPResponseDTO;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
@@ -72,7 +70,6 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final ExternalErrorCodeConfig errorCodeConfig;
     private final PromoCodeService promoCodeService;
     private final MobCommonService mobCommonService;
-    private final MobRedisService mobRedisService;
 
     @Value("${spring.profiles.active}")
     private String activeProfile;
@@ -129,17 +126,11 @@ public class FundTransferServiceDefault implements FundTransferService {
                     TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.toString(),
                     TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.getErrorMessage(),
                     TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.getErrorMessage());
-            removeTransctionFromProcessedList(metadata,request);
             GenericExceptionHandler.handleError(TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR,
                     verifyOTP.getErrorDetails(), verifyOTP.getErrorDetails());
         }
         auditEventPublisher.publishSuccessEvent(FundTransferEventType.FUND_TRANSFER_OTP_VALIDATION, metadata, FundTransferEventType.FUND_TRANSFER_OTP_VALIDATION.getDescription());
     }
-
-	private void removeTransctionFromProcessedList(RequestMetaData metadata, FundTransferRequestDTO request) {
-		mobRedisService.removeValueFromSet(metadata.getUserCacheKey() + Constants.DEDUPE_REQUEST,
-				request.getFinTxnNo() + Constants.HYPHEN + Constants.FUND_TRANSFER_REQUEST);
-	}
 
     private void verifyTermsAndConditionAcceptance(FundTransferRequestDTO request, RequestMetaData metadata) {
 		if(cprEnabled && !"V1".equals(request.getJourneyVersion()) && !request.isTermsAndConditionsAccepted()) {
