@@ -40,7 +40,6 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.CCBalanceValidato
 import com.mashreq.transfercoreservice.fundtransfer.validators.CCBelongsToCifValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.CCTransactionEligibilityValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.FinTxnNoValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.IBANValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.PaymentPurposeValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
@@ -56,8 +55,6 @@ public class LocalFundPayLaterTransferStrategyTest {
 	private LocalFundPayLaterTransferStrategy localFundPayLaterTransferStrategy;
 	@Mock
 	private IBANValidator ibanValidator;
-	@Mock
-	private FinTxnNoValidator finTxnNoValidator;
 	@Mock
 	private AccountBelongsToCifValidator accountBelongsToCifValidator;
 	@Mock
@@ -106,7 +103,7 @@ public class LocalFundPayLaterTransferStrategyTest {
 	private CCTransactionEligibilityValidator ccTrxValidator;
 	@Before
 	public void init() {
-		localFundPayLaterTransferStrategy = new  LocalFundPayLaterTransferStrategy(ibanValidator, finTxnNoValidator, accountBelongsToCifValidator, ccBelongsToCifValidator, beneficiaryValidator,
+		localFundPayLaterTransferStrategy = new  LocalFundPayLaterTransferStrategy(ibanValidator, accountBelongsToCifValidator, ccBelongsToCifValidator, beneficiaryValidator,
 				accountService, beneficiaryService, limitValidator, fundTransferMWService, paymentPurposeValidator,
 				balanceValidator, ccBalanceValidator, maintenanceService, mobCommonService, dealValidator, countryRepository,
 				fundTransferCCMWService, auditEventPublisher, notificationService,qrDealsService, cardService, postTransactionService, fundTransferOrderRepository,
@@ -129,7 +126,6 @@ public class LocalFundPayLaterTransferStrategyTest {
 		RequestMetaData metadata = FundTransferTestUtil.getMetadata();
 		UserDTO userDTO = FundTransferTestUtil.getUserDTO();
 		ValidationResult validationResult = ValidationResult.builder().success(true).build();
-		Mockito.when(finTxnNoValidator.validate(Mockito.eq(request), Mockito.eq(metadata))).thenReturn(validationResult);
 		Mockito.when(accountBelongsToCifValidator.validate(Mockito.eq(request), Mockito.eq(metadata), Mockito.any())).thenReturn(validationResult);
 		Mockito.when(paymentPurposeValidator.validate(Mockito.eq(request), Mockito.eq(metadata), Mockito.any())).thenReturn(validationResult);
 		Mockito.when(beneficiaryValidator.validate(Mockito.eq(request), Mockito.eq(metadata), Mockito.any())).thenReturn(validationResult);

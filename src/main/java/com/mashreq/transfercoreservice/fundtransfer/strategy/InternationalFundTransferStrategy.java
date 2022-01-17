@@ -53,7 +53,6 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     public static final String TRANSACTIONCODE = "15";
     public static final String SPACE_CHAR = " ";
     int maxLength = 35;
-    private final FinTxnNoValidator finTxnNoValidator;
     private final AccountService accountService;
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
     private final PaymentPurposeValidator paymentPurposeValidator;
@@ -91,7 +90,6 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, RequestMetaData metadata, UserDTO userDTO) {
     	responseHandler(ccTrxValidator.validate(request, metadata));
-        responseHandler(finTxnNoValidator.validate(request, metadata));
         final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metadata.getPrimaryCif());
 
         final ValidationContext validationContext = new ValidationContext();
@@ -261,8 +259,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
                 .intermediaryBankSwiftCode(request.getIntermediaryBankSwiftCode())
                 .limitTransactionRefNo(validationResult.getTransactionRefNo())
                 .finalBene(request.getFinalBene())
-                .additionaField(StringUtils.isEmpty(request.getAdditionalField())?request.getPaymentNote():request.getAdditionalField())
-                .paymentNote(request.getPaymentNote())
+                .paymentNote(StringUtils.isEmpty(request.getAdditionalField())?request.getPaymentNote():request.getAdditionalField())
                 .serviceType(request.getServiceType())
                 .accountClass(accountDetails.getAccountType())
                 .exchangeRateDisplayTxt(currencyConversionDto.getExchangeRateDisplayTxt())

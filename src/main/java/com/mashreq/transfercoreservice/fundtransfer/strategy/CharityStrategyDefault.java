@@ -1,32 +1,43 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
-import com.mashreq.mobcommons.services.http.RequestMetaData;
-import com.mashreq.transfercoreservice.client.BeneficiaryClient;
-import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
-import com.mashreq.transfercoreservice.client.dto.CharityBeneficiaryDto;
-import com.mashreq.transfercoreservice.client.service.AccountService;
-import com.mashreq.transfercoreservice.fundtransfer.dto.*;
-import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
-import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
-import com.mashreq.transfercoreservice.fundtransfer.validators.*;
-import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
-import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
-import com.mashreq.transfercoreservice.notification.service.NotificationService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Component;
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
+import static com.mashreq.transfercoreservice.notification.model.NotificationType.CHARITY_TRANSACTION;
+import static java.time.Duration.between;
+import static java.time.Instant.now;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-import static com.mashreq.transfercoreservice.notification.model.NotificationType.CHARITY_TRANSACTION;
-import static com.mashreq.transfercoreservice.notification.model.NotificationType.OTHER_ACCOUNT_TRANSACTION;
-import static java.time.Duration.between;
-import static java.time.Instant.now;
-import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.stereotype.Component;
+
+import com.mashreq.mobcommons.services.http.RequestMetaData;
+import com.mashreq.transfercoreservice.client.BeneficiaryClient;
+import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
+import com.mashreq.transfercoreservice.client.dto.CharityBeneficiaryDto;
+import com.mashreq.transfercoreservice.client.service.AccountService;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
+import com.mashreq.transfercoreservice.fundtransfer.dto.LimitValidatorResponse;
+import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
+import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
+import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
+import com.mashreq.transfercoreservice.fundtransfer.validators.AccountBelongsToCifValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.CharityValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.CurrencyValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.SameAccountValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
+import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
+import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
+import com.mashreq.transfercoreservice.notification.service.NotificationService;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author shahbazkh
@@ -41,7 +52,6 @@ public class CharityStrategyDefault implements FundTransferStrategy {
     private static final String INTERNAL_ACCOUNT_FLAG = "N";
 
     private final SameAccountValidator sameAccountValidator;
-    private final FinTxnNoValidator finTxnNoValidator;
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
     private final AccountService accountService;
     private final BeneficiaryClient beneficiaryClient;
@@ -60,8 +70,6 @@ public class CharityStrategyDefault implements FundTransferStrategy {
 
         Instant start = Instant.now();
 
-
-        responseHandler(finTxnNoValidator.validate(request, metadata));
         responseHandler(sameAccountValidator.validate(request, metadata));
 
 

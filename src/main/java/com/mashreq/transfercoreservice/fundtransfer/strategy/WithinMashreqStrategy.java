@@ -59,7 +59,6 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     public static final String LOCAL_CURRENCY = "AED";
 
     private final SameAccountValidator sameAccountValidator;
-    private final FinTxnNoValidator finTxnNoValidator;
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
     private final CurrencyValidator currencyValidator;
     private final BeneficiaryValidator beneficiaryValidator;
@@ -85,7 +84,6 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
 
         Instant start = Instant.now();
         responseHandler(ccTrxValidator.validate(request, metadata));
-        responseHandler(finTxnNoValidator.validate(request, metadata));
         responseHandler(sameAccountValidator.validate(request, metadata));
 
         final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metadata.getPrimaryCif());

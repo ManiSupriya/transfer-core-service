@@ -14,8 +14,9 @@ import static com.mashreq.transfercoreservice.fundtransfer.dto.QuickRemitType.ge
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
-import java.util.Optional;
 
+import com.mashreq.transfercoreservice.client.dto.*;
+import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -24,13 +25,6 @@ import com.mashreq.mobcommons.services.events.publisher.AuditEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.cache.UserSessionCacheService;
-import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
-import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
-import com.mashreq.transfercoreservice.client.dto.CardDetailsDTO;
-import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
-import com.mashreq.transfercoreservice.client.dto.CountryMasterDto;
-import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
-import com.mashreq.transfercoreservice.client.dto.QRExchangeResponse;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.CardService;
@@ -74,9 +68,9 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 	private final UserSessionCacheService userSessionCacheService;
 	private final CardService cardService;
 	private final EncryptionService encryptionService = new EncryptionService();
+	private final MobCommonService mobCommonService;
 
-	public EligibilityResponse checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request,
-			UserDTO userDTO) {
+	public EligibilityResponse checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request,UserDTO userDTO) {
 
 		log.info("Quick remit eligibility initiated");
 		
@@ -89,17 +83,12 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 		final ValidationContext validationContext = new ValidationContext();
 		
 		final BeneficiaryDto beneficiaryDto = beneficiaryService.getByIdWithoutValidation(metaData.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), "V2", metaData);
-        List<CountryMasterDto> countryList = maintenanceService.getAllCountries("MOB", "AE", Boolean.TRUE);
-        final Optional<CountryMasterDto> countryDto = countryList.stream()
-                .filter(country -> country.getCode().equals(beneficiaryDto.getBankCountryISO() )
-						&& Boolean.TRUE.equals(country.getQuickRemitEnabled()))
-                .findAny();
+        CountryDto countryDto = mobCommonService.getCountryValidationRules(beneficiaryDto.getBankCountryISO());
 
-        if (!countryDto.isPresent()) {
+        if (countryDto == null || !countryDto.isQuickRemitEnabled()) {
         	throw genericException(QUICK_REM_COUNTRY_CODE_NOT_FOUND);
         }
 
-		validationContext.add("country", countryDto.get());
         responseHandler(currencyValidatorFactory.getValidator(metaData).validate(request, metaData, validationContext));
         
         validationContext.add("beneficiary-dto", beneficiaryDto);

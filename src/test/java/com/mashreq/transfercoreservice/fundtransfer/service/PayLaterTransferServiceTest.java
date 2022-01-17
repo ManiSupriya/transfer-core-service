@@ -20,6 +20,7 @@ import org.springframework.web.util.HtmlUtils;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericException;
+import com.mashreq.transfercoreservice.cache.MobRedisService;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPRequestDTO;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPResponseDTO;
@@ -73,6 +74,8 @@ public class PayLaterTransferServiceTest {
 	WithinMashreqPayLaterStrategy withinMashreqPayLaterStrategy;
 	@Mock
 	LocalFundPayLaterTransferStrategy localFundPayLaterTransferStrategy;
+	@Mock
+	MobRedisService redisService;
 	FundTransferRequestDTO fundTransferRequestDTO;
 
 	@Mock
