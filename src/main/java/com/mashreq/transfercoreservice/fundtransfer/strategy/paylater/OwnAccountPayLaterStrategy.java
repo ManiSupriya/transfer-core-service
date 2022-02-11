@@ -85,7 +85,7 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 			FundTransferResponse fundTransferResponse, CurrencyConversionDto conversionResult) {
 		if (isSuccess(fundTransferResponse)) {
 			fundTransferRequest.setTransferType(OWN_ACCOUNT);
-			fundTransferRequest.setNotificationType(NotificationType.LOCAL);
+			fundTransferRequest.setNotificationType(OWN_ACCOUNT_PL_SI_CREATION);
 			fundTransferRequest.setStatus(MwResponseStatus.S.getName());
 			this.getPostTransactionService().performPostTransactionActivities(metadata, fundTransferRequest, request);
 		}
