@@ -273,7 +273,6 @@ public class PostTransactionServiceTest {
         when(templateEngine.generate(any())).thenReturn("");
         when(emailUtil.getEmailTemplateParameters(requestMetaData.getChannel(), requestMetaData.getSegment())).thenReturn(emailTemplateParameters);
         when(emailConfig.getEmail()).thenReturn(emailConfigMap);
-        when(beneficiaryService.getByIdWithoutValidation(any(), any(),any(), any())).thenReturn(getBeneficiaryDto());
         postTransactionService.performPostTransactionActivities(requestMetaData, fundTransferRequest, fundTransferRequestDTO);
     }
 }
