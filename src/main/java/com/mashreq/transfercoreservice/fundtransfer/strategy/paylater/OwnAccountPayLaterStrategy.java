@@ -64,11 +64,11 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 			NotificationService notificationService, AsyncUserEventPublisher auditEventPublisher,
 			DigitalUserSegment digitalUserSegment, AccountFreezeValidator freezeValidator,
 			PostTransactionService postTransactionService, FundTransferOrderRepository fundTransferOrderRepository,
-			SequenceNumberGenerator seqGenerator, CCTransactionEligibilityValidator ccTrxValidator) {
+			SequenceNumberGenerator seqGenerator) {
 		super(accountBelongsToCifValidator, sameAccountValidator, currencyValidator, limitValidator,
 				accountService, dealValidator, maintenanceService, fundTransferMWService, balanceValidator,
 				notificationService, auditEventPublisher, digitalUserSegment, freezeValidator,
-				postTransactionService, ccTrxValidator);
+				postTransactionService);
 		this.fundTransferOrderRepository = fundTransferOrderRepository;
 		this.seqGenerator = seqGenerator;
 	}

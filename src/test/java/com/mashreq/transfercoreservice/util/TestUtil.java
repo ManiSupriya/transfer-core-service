@@ -2,10 +2,11 @@ package com.mashreq.transfercoreservice.util;
 
 import com.mashreq.transfercoreservice.client.dto.*;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
-import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.AdditionalFields;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.fundtransfer.dto.LimitValidatorResponse;
 import com.mashreq.transfercoreservice.fundtransfer.dto.QRDealDetails;
+import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.model.Country;
 import com.mashreq.transfercoreservice.model.DigitalUser;
 import com.mashreq.transfercoreservice.model.DigitalUserGroup;
@@ -67,11 +68,16 @@ public class TestUtil {
         return additionalFields;
     }
 
-    public static List<AccountDetailsDTO> getAccountDetails() {
+    public static List<AccountDetailsDTO> getOwnAccountDetails(String fromAcc, String toAcc) {
         AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
-        accountDetailsDTO.setNumber("1234567890");
-        accountDetailsDTO.setCurrency("AED");
-        return Arrays.asList(accountDetailsDTO);
+        accountDetailsDTO.setNumber(fromAcc);
+        accountDetailsDTO.setCurrency("XAU");
+
+        AccountDetailsDTO accountDetailsDTO1 = new AccountDetailsDTO();
+        accountDetailsDTO1.setNumber(toAcc);
+        accountDetailsDTO1.setCurrency("XAG");
+
+        return Arrays.asList(accountDetailsDTO, accountDetailsDTO1);
     }
 
     public static CustomerDetailsDto getCustomerDetails() {
@@ -128,9 +134,10 @@ public class TestUtil {
         return digitalUser;
     }
 
-    public static LimitValidatorResponse limitValidatorResultsDto(){
+    public static LimitValidatorResponse limitValidatorResultsDto(String txnRefNo){
         LimitValidatorResponse limitValidatorResultsDto = new LimitValidatorResponse();
         limitValidatorResultsDto.setIsValid(true);
+        limitValidatorResultsDto.setTransactionRefNo(txnRefNo);
         return limitValidatorResultsDto;
     }
 
@@ -186,5 +193,15 @@ public class TestUtil {
         Map<String, List<String>> map = new HashMap<>();
         map.put("card-numbers",Arrays.asList("4444333322221111"));
         return map;
+    }
+
+    public static FundTransferResponse fundTransferResponse(String txnRefNo, MwResponseStatus status){
+        CoreFundTransferResponseDto coreFundTransferResponseDto = new CoreFundTransferResponseDto();
+        coreFundTransferResponseDto.setMwResponseStatus(status);
+
+        return FundTransferResponse.builder()
+                .transactionRefNo(txnRefNo)
+                .responseDto(coreFundTransferResponseDto)
+                .build();
     }
 }

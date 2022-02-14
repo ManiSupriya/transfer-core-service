@@ -87,12 +87,11 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     private final AccountFreezeValidator freezeValidator;
 
     private final PostTransactionService postTransactionService;
-    private final CCTransactionEligibilityValidator ccTrxValidator;
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, RequestMetaData metadata, UserDTO userDTO) {
 
         Instant start = Instant.now();
-        responseHandler(ccTrxValidator.validate(request, metadata));
+
         responseHandler(sameAccountValidator.validate(request, metadata));
 
         final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metadata.getPrimaryCif());
