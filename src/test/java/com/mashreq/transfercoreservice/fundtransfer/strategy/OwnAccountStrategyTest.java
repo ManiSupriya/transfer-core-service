@@ -72,7 +72,7 @@ public class OwnAccountStrategyTest {
     private static final String cif = "012960001";
 
     @Test
-    public void executeGoldSilverTransfer(){
+    public void executeBuyGoldTransfer(){
         String fromAccount = "1234567890";
         String toAccount = "0987654321";
         String txnRefNo = "MAC11012267055";
@@ -93,17 +93,166 @@ public class OwnAccountStrategyTest {
         when(balanceValidator.validate(any(FundTransferRequestDTO.class),any(),any())).thenReturn(validationResult);
         when(currencyValidator.validate(any(),any(),any())).thenReturn(validationResult);
         when(maintenanceService.convertBetweenCurrencies(any())).thenReturn(TestUtil.getCurrencyConversionDto());
-        when(maintenanceService.convertCurrency(any())).thenReturn(TestUtil.getCurrencyConversionDto());
         when(limitValidator.validate(any(),any(),any(),any(),any())).thenReturn(TestUtil.limitValidatorResultsDto(txnRefNo));
-        when(accountService.getAccountsFromCore(any())).thenReturn(getOwnAccountDetails(fromAccount, toAccount));
+        when(accountService.getAccountsFromCore(any())).thenReturn(getOwnAccountDetails(fromAccount, toAccount, "AED", "XAU"));
         when(accountService.getAccountDetailsFromCore(any())).thenReturn(getCoreAccountDetails().getConnectedAccounts().get(0));
         when(fundTransferMWService.transfer(any(), any(),eq(txnRefNo))).thenReturn(fundTransferResponse(txnRefNo, MwResponseStatus.S));
 
         FundTransferResponse response = service.execute(fundTransferRequestDTO, metaData, userDTO);
-
         assertNotNull(response);
         assertEquals(txnRefNo, response.getTransactionRefNo());
+
+        when(fundTransferMWService.transfer(any(), any(),eq(txnRefNo))).thenReturn(fundTransferResponse(txnRefNo, MwResponseStatus.F));
+        response = service.execute(fundTransferRequestDTO, metaData, userDTO);
+        assertNotNull(response);
     }
+
+    @Test
+    public void executeBuySilverTransfer(){
+        String fromAccount = "1234567890";
+        String toAccount = "0987654321";
+        String txnRefNo = "MAC11012267055";
+
+        FundTransferRequestDTO fundTransferRequestDTO = new FundTransferRequestDTO();
+        fundTransferRequestDTO.setBeneficiaryId("1234");
+        fundTransferRequestDTO.setFromAccount(fromAccount);
+        fundTransferRequestDTO.setToAccount(toAccount);
+        fundTransferRequestDTO.setCurrency("AED");
+        fundTransferRequestDTO.setTxnCurrency("XAG");
+        fundTransferRequestDTO.setDestinationAccountCurrency("XAG");
+
+        UserDTO userDTO = new UserDTO();
+
+        ValidationResult validationResult = ValidationResult.builder().success(true).build();
+        when(sameAccountValidator.validate(any(),any())).thenReturn(validationResult);
+        when(accountBelongsToCifValidator.validate(any(),any(),any())).thenReturn(validationResult);
+        when(balanceValidator.validate(any(FundTransferRequestDTO.class),any(),any())).thenReturn(validationResult);
+        when(currencyValidator.validate(any(),any(),any())).thenReturn(validationResult);
+        when(maintenanceService.convertBetweenCurrencies(any())).thenReturn(TestUtil.getCurrencyConversionDto());
+        when(limitValidator.validate(any(),any(),any(),any(),any())).thenReturn(TestUtil.limitValidatorResultsDto(txnRefNo));
+        when(accountService.getAccountsFromCore(any())).thenReturn(getOwnAccountDetails(fromAccount, toAccount, "AED", "XAG"));
+        when(accountService.getAccountDetailsFromCore(any())).thenReturn(getCoreAccountDetails().getConnectedAccounts().get(0));
+        when(fundTransferMWService.transfer(any(), any(),eq(txnRefNo))).thenReturn(fundTransferResponse(txnRefNo, MwResponseStatus.S));
+
+        FundTransferResponse response = service.execute(fundTransferRequestDTO, metaData, userDTO);
+        assertNotNull(response);
+        assertEquals(txnRefNo, response.getTransactionRefNo());
+
+        when(fundTransferMWService.transfer(any(), any(),eq(txnRefNo))).thenReturn(fundTransferResponse(txnRefNo, MwResponseStatus.F));
+        response = service.execute(fundTransferRequestDTO, metaData, userDTO);
+        assertNotNull(response);
+    }
+
+    @Test
+    public void executeSellGoldTransfer(){
+        String fromAccount = "1234567890";
+        String toAccount = "0987654321";
+        String txnRefNo = "MAC11012267055";
+
+        FundTransferRequestDTO fundTransferRequestDTO = new FundTransferRequestDTO();
+        fundTransferRequestDTO.setBeneficiaryId("1234");
+        fundTransferRequestDTO.setFromAccount(fromAccount);
+        fundTransferRequestDTO.setToAccount(toAccount);
+        fundTransferRequestDTO.setCurrency("XAU");
+        fundTransferRequestDTO.setTxnCurrency("XAU");
+        fundTransferRequestDTO.setDestinationAccountCurrency("AED");
+
+        UserDTO userDTO = new UserDTO();
+
+        ValidationResult validationResult = ValidationResult.builder().success(true).build();
+        when(sameAccountValidator.validate(any(),any())).thenReturn(validationResult);
+        when(accountBelongsToCifValidator.validate(any(),any(),any())).thenReturn(validationResult);
+        when(balanceValidator.validate(any(FundTransferRequestDTO.class),any(),any())).thenReturn(validationResult);
+        when(currencyValidator.validate(any(),any(),any())).thenReturn(validationResult);
+        when(maintenanceService.convertBetweenCurrencies(any())).thenReturn(TestUtil.getCurrencyConversionDto());
+        when(maintenanceService.convertCurrency(any())).thenReturn(TestUtil.getCurrencyConversionDto());
+        when(limitValidator.validate(any(),any(),any(),any(),any())).thenReturn(TestUtil.limitValidatorResultsDto(txnRefNo));
+        when(accountService.getAccountsFromCore(any())).thenReturn(getOwnAccountDetails(fromAccount, toAccount, "XAU", "AED"));
+        when(accountService.getAccountDetailsFromCore(any())).thenReturn(getCoreAccountDetails().getConnectedAccounts().get(0));
+        when(fundTransferMWService.transfer(any(), any(),eq(txnRefNo))).thenReturn(fundTransferResponse(txnRefNo, MwResponseStatus.S));
+
+        FundTransferResponse response = service.execute(fundTransferRequestDTO, metaData, userDTO);
+        assertNotNull(response);
+        assertEquals(txnRefNo, response.getTransactionRefNo());
+
+        when(fundTransferMWService.transfer(any(), any(),eq(txnRefNo))).thenReturn(fundTransferResponse(txnRefNo, MwResponseStatus.F));
+        response = service.execute(fundTransferRequestDTO, metaData, userDTO);
+        assertNotNull(response);
+    }
+
+    @Test
+    public void executeSellSilverTransfer(){
+        String fromAccount = "1234567890";
+        String toAccount = "0987654321";
+        String txnRefNo = "MAC11012267055";
+
+        FundTransferRequestDTO fundTransferRequestDTO = new FundTransferRequestDTO();
+        fundTransferRequestDTO.setBeneficiaryId("1234");
+        fundTransferRequestDTO.setFromAccount(fromAccount);
+        fundTransferRequestDTO.setToAccount(toAccount);
+        fundTransferRequestDTO.setCurrency("XAG");
+        fundTransferRequestDTO.setTxnCurrency("XAG");
+        fundTransferRequestDTO.setDestinationAccountCurrency("AED");
+
+        UserDTO userDTO = new UserDTO();
+
+        ValidationResult validationResult = ValidationResult.builder().success(true).build();
+        when(sameAccountValidator.validate(any(),any())).thenReturn(validationResult);
+        when(accountBelongsToCifValidator.validate(any(),any(),any())).thenReturn(validationResult);
+        when(balanceValidator.validate(any(FundTransferRequestDTO.class),any(),any())).thenReturn(validationResult);
+        when(currencyValidator.validate(any(),any(),any())).thenReturn(validationResult);
+        when(maintenanceService.convertBetweenCurrencies(any())).thenReturn(TestUtil.getCurrencyConversionDto());
+        when(maintenanceService.convertCurrency(any())).thenReturn(TestUtil.getCurrencyConversionDto());
+        when(limitValidator.validate(any(),any(),any(),any(),any())).thenReturn(TestUtil.limitValidatorResultsDto(txnRefNo));
+        when(accountService.getAccountsFromCore(any())).thenReturn(getOwnAccountDetails(fromAccount, toAccount, "XAG", "AED"));
+        when(accountService.getAccountDetailsFromCore(any())).thenReturn(getCoreAccountDetails().getConnectedAccounts().get(0));
+        when(fundTransferMWService.transfer(any(), any(),eq(txnRefNo))).thenReturn(fundTransferResponse(txnRefNo, MwResponseStatus.S));
+
+        FundTransferResponse response = service.execute(fundTransferRequestDTO, metaData, userDTO);
+        assertNotNull(response);
+        assertEquals(txnRefNo, response.getTransactionRefNo());
+
+        when(fundTransferMWService.transfer(any(), any(),eq(txnRefNo))).thenReturn(fundTransferResponse(txnRefNo, MwResponseStatus.F));
+        response = service.execute(fundTransferRequestDTO, metaData, userDTO);
+        assertNotNull(response);
+    }
+
+    @Test
+    public void executeAEDTransfer(){
+        String fromAccount = "1234567890";
+        String toAccount = "0987654321";
+        String txnRefNo = "MAC11012267055";
+
+        FundTransferRequestDTO fundTransferRequestDTO = new FundTransferRequestDTO();
+        fundTransferRequestDTO.setBeneficiaryId("1234");
+        fundTransferRequestDTO.setFromAccount(fromAccount);
+        fundTransferRequestDTO.setToAccount(toAccount);
+        fundTransferRequestDTO.setCurrency("AED");
+        fundTransferRequestDTO.setTxnCurrency("AED");
+        fundTransferRequestDTO.setDestinationAccountCurrency("AED");
+
+        UserDTO userDTO = new UserDTO();
+
+        ValidationResult validationResult = ValidationResult.builder().success(true).build();
+        when(sameAccountValidator.validate(any(),any())).thenReturn(validationResult);
+        when(accountBelongsToCifValidator.validate(any(),any(),any())).thenReturn(validationResult);
+        when(balanceValidator.validate(any(FundTransferRequestDTO.class),any(),any())).thenReturn(validationResult);
+        when(currencyValidator.validate(any(),any(),any())).thenReturn(validationResult);
+        when(maintenanceService.convertBetweenCurrencies(any())).thenReturn(TestUtil.getCurrencyConversionDto());
+        when(limitValidator.validate(any(),any(),any(),any(),any())).thenReturn(TestUtil.limitValidatorResultsDto(txnRefNo));
+        when(accountService.getAccountsFromCore(any())).thenReturn(getOwnAccountDetails(fromAccount, toAccount, "AED", "AED"));
+        when(accountService.getAccountDetailsFromCore(any())).thenReturn(getCoreAccountDetails().getConnectedAccounts().get(0));
+        when(fundTransferMWService.transfer(any(), any(),eq(txnRefNo))).thenReturn(fundTransferResponse(txnRefNo, MwResponseStatus.S));
+
+        FundTransferResponse response = service.execute(fundTransferRequestDTO, metaData, userDTO);
+        assertNotNull(response);
+        assertEquals(txnRefNo, response.getTransactionRefNo());
+
+        when(fundTransferMWService.transfer(any(), any(),eq(txnRefNo))).thenReturn(fundTransferResponse(txnRefNo, MwResponseStatus.F));
+        response = service.execute(fundTransferRequestDTO, metaData, userDTO);
+        assertNotNull(response);
+    }
+
 
 
 }

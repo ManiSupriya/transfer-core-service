@@ -68,14 +68,14 @@ public class TestUtil {
         return additionalFields;
     }
 
-    public static List<AccountDetailsDTO> getOwnAccountDetails(String fromAcc, String toAcc) {
+    public static List<AccountDetailsDTO> getOwnAccountDetails(String fromAcc, String toAcc, String fromCurrency, String toCurrency) {
         AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
         accountDetailsDTO.setNumber(fromAcc);
-        accountDetailsDTO.setCurrency("XAU");
+        accountDetailsDTO.setCurrency(fromCurrency);
 
         AccountDetailsDTO accountDetailsDTO1 = new AccountDetailsDTO();
         accountDetailsDTO1.setNumber(toAcc);
-        accountDetailsDTO1.setCurrency("XAG");
+        accountDetailsDTO1.setCurrency(toCurrency);
 
         return Arrays.asList(accountDetailsDTO, accountDetailsDTO1);
     }
