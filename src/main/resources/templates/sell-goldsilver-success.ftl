@@ -566,27 +566,31 @@
 
                         <div class="content">
                             <table>
-                                <tr>
-                                    <td>
-                                        <p style="margin-bottom: 16px">
-                                            Best Regards,<br />
-                                            ${segmentSignOffCompanyName} Team
-                                        </p>
-                                        <p
-                                                style="
-                        font-size: 14px;
-                        color: #6e6e6e;
-                        margin-bottom: 40px;
-                      "
-                                        >
-                                            Disclaimer: Do not reply to this email, this is a system generated email message.
-                                            <br />
-                                            For any queries, please contact the Bank.
-                                        </p>
-                                    </td>
-                                </tr>
+                              <tr>
+                                <td>
+                                  <p style="margin-bottom: 16px">
+                                    Best Regards,<br />
+                                    ${bankNameInFooter}
+                                  </p>
+                                  <p style="
+                                        font-size: 14px;
+                                        color: #6e6e6e;
+                                      ">
+                                    ${bankNameInFooterDesc}
+                                  </p>
+                                  <p style="
+                                        font-size: 14px;
+                                        color: #6e6e6e;
+                                        margin-bottom: 40px;
+                                      ">
+                                    Disclaimer: This is a system generated email message.
+                                    <br />
+                                    For any queries, please contact the Bank.
+                                  </p>
+                                </td>
+                              </tr>
                             </table>
-                        </div>
+                          </div>
 
                         <!-- social & contact -->
                         <table class="social" style="padding: 16px 24px" width="100%">

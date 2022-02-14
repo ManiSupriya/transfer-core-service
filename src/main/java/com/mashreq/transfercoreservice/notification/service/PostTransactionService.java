@@ -2,7 +2,7 @@ package com.mashreq.transfercoreservice.notification.service;
 
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CHARGE_BEARER;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ChargeBearer.getChargeBearerByName;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.getServiceByType;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.*;
 import static com.mashreq.transfercoreservice.notification.service.EmailUtil.ACCOUNT_CURRENCY;
 import static com.mashreq.transfercoreservice.notification.service.EmailUtil.AED;
 import static com.mashreq.transfercoreservice.notification.service.EmailUtil.AMOUNT;
@@ -61,9 +61,12 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -120,6 +123,11 @@ public class PostTransactionService {
 
     @Autowired
     private BankChargesService bankChargesService;
+
+    @Value("${app.uae.address}")
+    private String address;
+
+    private static final Set<ServiceType> OWN_ACCOUNT_SERVICE_TYPES = new HashSet<>(Arrays.asList(WYMA, XAU, XAG));
 
     /**
      * Send Alerts via sms, email and push notification.
@@ -318,11 +326,19 @@ public class PostTransactionService {
         }
         builder.params(STATUS, STATUS_SUCCESS);
 
-        if(fundTransferRequest.getNotificationType().contains("PL") || fundTransferRequest.getNotificationType().contains("SI")){
-            final BeneficiaryDto beneficiaryDto = beneficiaryService.getByIdWithoutValidation(requestMetaData.getPrimaryCif(), valueOf(fundTransferRequestDTO.getBeneficiaryId()), fundTransferRequestDTO.getJourneyVersion(), requestMetaData);
+        if((fundTransferRequest.getNotificationType().contains("PL") || fundTransferRequest.getNotificationType().contains("SI"))){
 
-            builder.params(BENEFICIARY_BANK_NAME, StringUtils.defaultIfBlank(beneficiaryDto.getBankName(), DEFAULT_STR));
-            builder.params(BENEFICIARY_BANK_COUNTRY, StringUtils.defaultIfBlank(beneficiaryDto.getBankCountry(), DEFAULT_STR));
+            ServiceType serviceType = getServiceByType(fundTransferRequest.getServiceType());
+            if(OWN_ACCOUNT_SERVICE_TYPES.contains(serviceType)){
+                builder.params(BENEFICIARY_BANK_NAME, StringUtils.defaultIfBlank(segment.getEmailCprFooter(), DEFAULT_STR));
+                builder.params(BENEFICIARY_BANK_COUNTRY, StringUtils.defaultIfBlank(address, DEFAULT_STR));
+            }
+            else{
+                final BeneficiaryDto beneficiaryDto = beneficiaryService.getByIdWithoutValidation(requestMetaData.getPrimaryCif(), valueOf(fundTransferRequestDTO.getBeneficiaryId()), fundTransferRequestDTO.getJourneyVersion(), requestMetaData);
+                builder.params(BENEFICIARY_BANK_NAME, StringUtils.defaultIfBlank(beneficiaryDto.getBankName(), DEFAULT_STR));
+                builder.params(BENEFICIARY_BANK_COUNTRY, StringUtils.defaultIfBlank(beneficiaryDto.getBankCountry(), DEFAULT_STR));
+            }
+
             builder.params(CUSTOMER_CARE_NO, StringUtils.defaultIfBlank(segment.getCustomerCareNumber(), DEFAULT_STR));
             builder.params(TRANSACTION_DATE, StringUtils.defaultIfBlank(
                     DateUtil.instantToDate(Instant.now(), "yyyy-MM-dd HH:mm:ss"), DEFAULT_STR)
@@ -335,6 +351,7 @@ public class PostTransactionService {
             builder.params(START_DATE,StringUtils.defaultIfBlank(fundTransferRequestDTO.getStartDate(), DEFAULT_STR));
             builder.params(END_DATE,StringUtils.defaultIfBlank(fundTransferRequestDTO.getEndDate(), DEFAULT_STR));
             builder.params(FREQUENCY,StringUtils.defaultIfBlank(fundTransferRequestDTO.getFrequency(), DEFAULT_STR));
+
 
         }
     }
