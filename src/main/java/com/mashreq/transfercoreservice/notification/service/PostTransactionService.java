@@ -262,15 +262,8 @@ public class PostTransactionService {
                     .params(BANK_NAME_FOOTER, bankNameInFooter)
                     .params(BANK_NAME_FOOTER_DESC, bankNameInFooterDesc);
 
-            if(fundTransferRequest.getNotificationType().matches(NotificationType.GOLD_SILVER_BUY_SUCCESS)){
-                getTemplateValuesForBuyGoldSilverBuilder(template, fundTransferRequest);
-            }
-            else if(fundTransferRequest.getNotificationType().matches(NotificationType.GOLD_SILVER_SELL_SUCCESS)){
-                getTemplateValuesForSellGoldSilverBuilder(template, fundTransferRequest);
-            }
-            else {
-                getTemplateValuesForFundTransferBuilder(template, fundTransferRequest, fundTransferRequestDTO, requestMetaData, segment);
-            }
+
+            getTemplateValuesForFundTransferBuilder(template, fundTransferRequest, fundTransferRequestDTO, requestMetaData, segment);
 
             emailRequest = SendEmailRequest.builder()
                     .fromEmailAddress(emailParameters.getFromEmailAddress())
@@ -282,23 +275,6 @@ public class PostTransactionService {
                     .build();
         }
         return PostTransactionActivityContext.<SendEmailRequest>builder().payload(emailRequest).postTransactionActivity(sendEmailActivity).build();
-    }
-    private void getTemplateValuesForBuyGoldSilverBuilder(TemplateRequest.Builder builder, FundTransferRequest fundTransferRequest) throws Exception {
-        builder.params(MASKED_ACCOUNT, StringUtils.defaultIfBlank(emailUtil.doMask(fundTransferRequest.getFromAccount()), DEFAULT_STR));
-        builder.params(TO_ACCOUNT_NO, StringUtils.defaultIfBlank(emailUtil.doMask(fundTransferRequest.getToAccount()), DEFAULT_STR));
-        builder.params(TXN_AMOUNT, fundTransferRequest.getAmount()!=null?EmailUtil.formattedAmount(fundTransferRequest.getAmount()) : DEFAULT_STR);
-        builder.params(CURRENCY, StringUtils.defaultIfBlank(fundTransferRequest.getSourceCurrency(), DEFAULT_STR) );
-        builder.params(AMOUNT, fundTransferRequest.getSrcAmount()!=null? EmailUtil.formattedAmount(fundTransferRequest.getSrcAmount()): DEFAULT_STR);
-        builder.params(STATUS, STATUS_SUCCESS);
-
-    }
-    private void getTemplateValuesForSellGoldSilverBuilder(TemplateRequest.Builder builder, FundTransferRequest fundTransferRequest) throws Exception {
-        builder.params(MASKED_ACCOUNT, StringUtils.defaultIfBlank(emailUtil.doMask(fundTransferRequest.getFromAccount()), DEFAULT_STR));
-        builder.params(TO_ACCOUNT_NO, StringUtils.defaultIfBlank(emailUtil.doMask(fundTransferRequest.getToAccount()), DEFAULT_STR));
-        builder.params(TXN_AMOUNT, fundTransferRequest.getSrcAmount()!=null? EmailUtil.formattedAmount(fundTransferRequest.getSrcAmount()) : DEFAULT_STR);
-        builder.params(CURRENCY, StringUtils.defaultIfBlank(fundTransferRequest.getDestinationCurrency(), DEFAULT_STR) );
-        builder.params(AMOUNT, fundTransferRequest.getAmount() !=null? EmailUtil.formattedAmount(fundTransferRequest.getAmount()) : DEFAULT_STR);
-        builder.params(STATUS, STATUS_SUCCESS);
     }
     private void getTemplateValuesForFundTransferBuilder(TemplateRequest.Builder builder, FundTransferRequest fundTransferRequest,
                                                          FundTransferRequestDTO fundTransferRequestDTO, RequestMetaData requestMetaData, Segment segment) {
@@ -351,8 +327,6 @@ public class PostTransactionService {
             builder.params(START_DATE,StringUtils.defaultIfBlank(fundTransferRequestDTO.getStartDate(), DEFAULT_STR));
             builder.params(END_DATE,StringUtils.defaultIfBlank(fundTransferRequestDTO.getEndDate(), DEFAULT_STR));
             builder.params(FREQUENCY,StringUtils.defaultIfBlank(fundTransferRequestDTO.getFrequency(), DEFAULT_STR));
-
-
         }
     }
 }
