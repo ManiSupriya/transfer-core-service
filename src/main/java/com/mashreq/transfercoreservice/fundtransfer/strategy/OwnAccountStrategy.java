@@ -233,7 +233,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
                                                          CurrencyConversionDto conversionResult) {
         boolean isSuccess = MwResponseStatus.S.equals(fundTransferResponse.getResponseDto().getMwResponseStatus());
         if(goldSilverTransfer(request) && isSuccess){
-            if(buyGoldOrSilverRequest(request)){
+            if(buyGoldOrSilverRequest(fundTransferRequest)){
                 fundTransferRequest.setNotificationType(NotificationType.GOLD_SILVER_BUY_SUCCESS);
                 fundTransferRequest.setSrcAmount(conversionResult.getAccountCurrencyAmount());
                 fundTransferRequest.setTransferType(getTransferType(fundTransferRequest.getDestinationCurrency()));
@@ -345,8 +345,8 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         return (XAU.getName().equals(request.getTxnCurrency()) || ServiceType.XAG.getName().equals(request.getTxnCurrency()));
     }
 
-    private boolean buyGoldOrSilverRequest(FundTransferRequestDTO request){
-        return (XAU.getName().equals(request.getDestinationAccountCurrency()) || ServiceType.XAG.getName().equals(request.getDestinationAccountCurrency()));
+    private boolean buyGoldOrSilverRequest(FundTransferRequest request){
+        return (XAU.getName().equals(request.getDestinationCurrency()) || ServiceType.XAG.getName().equals(request.getDestinationCurrency()));
     }
 
     private CurrencyConversionDto getExchangeObjectForSrcAmount(BigDecimal transactionAmount, AccountDetailsDTO destAccount, AccountDetailsDTO sourceAccount) {
