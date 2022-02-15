@@ -269,7 +269,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 
     private String getBeneficiaryCode(FundTransferRequestDTO request) {
         if(goldSilverTransfer(request)){
-            return request.getCurrency();
+            return request.getTxnCurrency();
         }
         else return request.getServiceType();
     }
