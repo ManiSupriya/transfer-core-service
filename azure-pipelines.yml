@@ -2,6 +2,7 @@ trigger:
   - master
   - develop
   - release/*
+  - eg-develop*
 
 pr:
   - master
