@@ -43,7 +43,7 @@ esb-service:
   channel: ${SOAP_SERVICE_USERID:MOMMUSER}
   connect-timeout: ${SOAP_SERVICE_CONNECTIONTIMEOUT:15000}
   read-timeout: ${SOAP_SERVICE_READTIMEOUT:30000}
-  max-per-route: ${SOAP_SERVICE_MAXPERROUTE:100}   
+  max-per-route: ${SOAP_SERVICE_MAXPERROUTE:100}
   max-connection: ${SOAP_SERVICE_MAXCONNECTION:100}
   validate-after-inactive: ${SOAP_SERVICE_VALIDATE_INACTIVE:60000}
   user-id: ${USER_ID:MOMMUSER}
@@ -152,9 +152,9 @@ app:
     debitAccountNo: ${TFTCC_DEBIT_ACCOUNT_NO:011099270455}
     bankReferenceNo: ${TFTCC_BANK_REFERENCE_NO:363c5a1abb}
   nonProd:
-      otpRelaxed: ${OTP_RELAXED:false}
+    otpRelaxed: ${OTP_RELAXED:false}
   cprRestrictions:
-      enabled: ${ENABLE_CPR_CHANGES:false}
+    enabled: ${ENABLE_CPR_CHANGES:false}
   notification:
     email:
       AE:
@@ -183,7 +183,7 @@ app:
     push:
       ownAccountTransactionInitiated: ${OWN_ACCOUNT_PUSH:Request received through {0} for a Fund Transfer of {1} {2} with {3}. Contact {4} if you did not initiate this.}
       plSiCreation: ${PL_SI_CREATION_SMS:On your request SI/Pay later has been set up for the beneficiary {0}, account number {1}. If not requested, please contact {2}. Thank you for using our services.}
-          
+
 instarem:
   rules:
     bankCodeType:

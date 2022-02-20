@@ -28,23 +28,28 @@ public class UserSessionCacheService {
     private static final String ACCOUNT_DETAILS = "-ACCOUNT_DETAILS-MT-";
     public static final String CARD_DETAILS = "-CARD-MT-";
     private static final String ACCOUNT_NUMBERS = "account-numbers";
+    public static final String INVESTMENT_ACCOUNT_NUMBERS = "investment-account-number";
     private static final String CARD_NUMBERS = "card-numbers";
     private final MobRedisService redisService;
     private static final TypeReference<Map<String, Object>> ACCOUNT_CONTEXT_TYPE_REFERENCE = new TypeReference<Map<String, Object>>() {};
     private static final TypeReference<Map<String, Object>> CARDS_CONTEXT_TYPE_REFERENCE = new TypeReference<Map<String, Object>>() {};
     
     public boolean isAccountNumberBelongsToCif(final String accountNumber, final String redisKey) {
-        IAMSessionUser iamSessionUser = redisService.get(redisKey, IAMSessionUser.class);
-        assertUserSessionContextPresent(iamSessionUser);
-        final String accountsContextCacheKey = redisKey + ACCOUNTS.getSuffix();
-        Map<String, Object> accountsContext = redisService.get(accountsContextCacheKey, ACCOUNT_CONTEXT_TYPE_REFERENCE);
-
+        Map<String, Object> accountsContext = validateAndReturnContext(redisKey);
         return Optional.ofNullable(accountsContext)
                 .map(x -> x.get(ACCOUNT_NUMBERS))
                 .map(x -> (List<String>) x)
                 .map(x -> x.contains(accountNumber))
                 .orElse(false);
     }
+
+	private Map<String, Object> validateAndReturnContext(final String redisKey) {
+		IAMSessionUser iamSessionUser = redisService.get(redisKey, IAMSessionUser.class);
+        assertUserSessionContextPresent(iamSessionUser);
+        final String accountsContextCacheKey = redisKey + ACCOUNTS.getSuffix();
+        Map<String, Object> accountsContext = redisService.get(accountsContextCacheKey, ACCOUNT_CONTEXT_TYPE_REFERENCE);
+		return accountsContext;
+	}
 
     public boolean isCardNumberBelongsToCif(final String cardNumber, final String redisKey) {
         IAMSessionUser iamSessionUser = redisService.get(redisKey, IAMSessionUser.class);
@@ -75,6 +80,24 @@ public class UserSessionCacheService {
 
     public String getCardDetailsCacheKey(RequestMetaData requestMetaData, String cardNumber) {
         return requestMetaData.getUserCacheKey() + CARD_DETAILS + cardNumber;
+    }
+    
+    public boolean isMTAccountNumberBelongsToCif(final String accountNumber, final String redisKey) {
+    	log.debug("validating whether account belongs to money transfer accounts");
+        Map<String, Object> accountsContext = validateAndReturnContext(redisKey);
+        boolean isOwnAccount = Optional.ofNullable(accountsContext)
+                .map(x -> x.get(ACCOUNT_NUMBERS))
+                .map(x -> (List<String>) x)
+                .map(x -> x.contains(accountNumber))
+                .orElse(false);
+        if(!isOwnAccount) {
+        	return Optional.ofNullable(accountsContext)
+                    .map(x -> x.get(INVESTMENT_ACCOUNT_NUMBERS))
+                    .map(x -> (List<String>) x)
+                    .map(x -> x.contains(accountNumber))
+                    .orElse(false);
+        }
+        return isOwnAccount;
     }
 }
 

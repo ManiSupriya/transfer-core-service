@@ -510,30 +510,79 @@
                                             ${customerName},
                                         </h3>
                                         <p style="margin-bottom: 24px">
-                                            We are happy to tell you that you have <strong>successfully sold ${transferType}</strong> equivalent to ${txn_amount} oz from your ${transferType} Edge Account.
+                                            We are happy to tell you that you have <strong>successfully sold ${transferType}</strong> equivalent to ${amount} oz from your ${transferType} Edge Account.
                                         </p>
                                         <ul style="list-style: circle; padding: 0px 19px;">
                                             <li style="margin-bottom: 16px">
-                                                <p><span style="min-width: 200px;display: inline-block;">Transfer type</span><span style="margin-left: 20px; font-weight: bold;">Selling ${transferType}</span></p>
+                                              <p><span style="min-width: 200px;display: inline-block;">Transfer type</span><span
+                                                  style="margin-left: 20px; font-weight: bold;">${transferType}</span></p>
                                             </li>
-                                            <li style="margin-bottom: 16px" >
+                                            <li style="margin-bottom: 16px">
+                                              <p><span style="min-width: 200px;display: inline-block;">From</span><span
+                                                  style="margin-left: 20px; font-weight: bold;">${maskedAccount}</span></p>
+                                            </li>
+                                            <li style="margin-bottom: 16px">
+                                              <#if beneficiaryNickname?has_content>
                                                 <p>
-                                                    <span style="min-width: 200px;display: inline-block;">From Account</span><span style="margin-left: 20px;font-weight: bold;">${maskedAccount}</span>
+                                                  <span style="min-width: 200px;display: inline-block;">To Account</span>
+                                                  <span style="margin-left: 20px;font-weight: bold;">${beneficiaryNickname}</span>
                                                 </p>
+                                              </#if>
+                                              <p>
+                                                <#if beneficiaryNickname?has_content>
+                                                  <span style="min-width: 200px;display: inline-block;"></span>
+                                                  <#else>
+                                                    <span style="min-width: 200px;display: inline-block;">To Account</span>
+                                                </#if>
+                                                <span style="margin-left: 20px;font-weight: bold;">${toAccountNumber}</span>
+                                              </p>
                                             </li>
+
+                                            <#if exchangeRate?has_content>
+                                              <li style="margin-bottom: 16px">
+                                                <p><span style="min-width: 200px;display: inline-block;">Rate</span><span
+                                                    style="margin-left: 20px;font-weight: bold;">${exchangeRate}</span></p>
+                                              </li>
+                                            </#if>
+
                                             <li style="margin-bottom: 16px">
-                                                <p><span style="min-width: 200px;display: inline-block;">To Account</span><span style="margin-left: 20px;font-weight: bold;">${toAccountNumber}</span></p>
+                                              <p><span style="min-width: 200px;display: inline-block;">Transfer amount</span><span
+                                                  style="margin-left: 20px;font-weight: bold;">${currency} ${amount}</span></p>
                                             </li>
+
+                                            <#if sourceAmount?has_content>
+                                              <li style="margin-bottom: 16px">
+                                                <p><span style="min-width: 200px;display: inline-block;">Amount to be debited</span><span
+                                                    style="margin-left: 20px;font-weight: bold;">${accountCurrency} ${sourceAmount}</span></p>
+                                              </li>
+                                            </#if>
+
+                                            <#if bankFees?has_content>
+                                              <li style="margin-bottom: 16px">
+                                                <p>
+                                                  <span style="min-width: 200px;display: inline-block;">Bank fees</span>
+                                                  <span style="margin-left: 20px;font-weight: bold;">${localCurrency} ${bankFees}</span>
+                                                </p>
+                                                <p>
+                                                  <span style="min-width: 200px;display: inline-block;"></span>
+                                                  <span style="margin-left: 20px;font-size: 14px;color: #6e6e6e;">(The mentioned fees is
+                                                    excluding the correspondent bank charges and 5% VAT)</span>
+                                                </p>
+                                              </li>
+                                            </#if>
+
+                                            <#if fxDealCode?has_content>
+                                              <li style="margin-bottom: 16px">
+                                                <p><span style="min-width: 200px;display: inline-block;">FX Deal</span><span
+                                                    style="margin-left: 20px;font-weight: bold;">${fxDealCode}</span></p>
+                                              </li>
+                                            </#if>
+
                                             <li style="margin-bottom: 16px">
-                                                <p><span style="min-width: 200px;display: inline-block;">Transaction Amount</span><span style="margin-left: 20px; font-weight: bold;">${txn_amount} ${transferType} oz</span></p>
+                                              <p><span style="min-width: 200px;display: inline-block;">Status</span><span
+                                                  style="margin-left: 20px;font-weight: bold;">${status}</span></p>
                                             </li>
-                                            <li style="margin-bottom: 16px">
-                                                <p><span style="min-width: 200px;display: inline-block;">Credit Amount</span><span style="margin-left: 20px; font-weight: bold;">${currency} ${amount}</span></p>
-                                            </li>
-                                            <li style="margin-bottom: 16px">
-                                                <p><span style="min-width: 200px;display: inline-block;">Status</span><span style="margin-left: 20px; font-weight: bold;">${status}</span></p>
-                                            </li>
-                                        </ul>
+                                          </ul>
 
                                         <p style="margin-bottom: 40px">
                                             This request was initiated from ${bankName} ${channelType}.
@@ -566,27 +615,31 @@
 
                         <div class="content">
                             <table>
-                                <tr>
-                                    <td>
-                                        <p style="margin-bottom: 16px">
-                                            Best Regards,<br />
-                                            ${segmentSignOffCompanyName} Team
-                                        </p>
-                                        <p
-                                                style="
-                        font-size: 14px;
-                        color: #6e6e6e;
-                        margin-bottom: 40px;
-                      "
-                                        >
-                                            Disclaimer: Do not reply to this email, this is a system generated email message.
-                                            <br />
-                                            For any queries, please contact the Bank.
-                                        </p>
-                                    </td>
-                                </tr>
+                              <tr>
+                                <td>
+                                  <p style="margin-bottom: 16px">
+                                    Best Regards,<br />
+                                    ${bankNameInFooter}
+                                  </p>
+                                  <p style="
+                                        font-size: 14px;
+                                        color: #6e6e6e;
+                                      ">
+                                    ${bankNameInFooterDesc}
+                                  </p>
+                                  <p style="
+                                        font-size: 14px;
+                                        color: #6e6e6e;
+                                        margin-bottom: 40px;
+                                      ">
+                                    Disclaimer: This is a system generated email message.
+                                    <br />
+                                    For any queries, please contact the Bank.
+                                  </p>
+                                </td>
+                              </tr>
                             </table>
-                        </div>
+                          </div>
 
                         <!-- social & contact -->
                         <table class="social" style="padding: 16px 24px" width="100%">

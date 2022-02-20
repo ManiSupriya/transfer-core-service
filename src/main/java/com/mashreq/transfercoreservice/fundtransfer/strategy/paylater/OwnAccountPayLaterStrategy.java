@@ -64,11 +64,11 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 			NotificationService notificationService, AsyncUserEventPublisher auditEventPublisher,
 			DigitalUserSegment digitalUserSegment, AccountFreezeValidator freezeValidator,
 			PostTransactionService postTransactionService, FundTransferOrderRepository fundTransferOrderRepository,
-			SequenceNumberGenerator seqGenerator, CCTransactionEligibilityValidator ccTrxValidator) {
+			SequenceNumberGenerator seqGenerator) {
 		super(accountBelongsToCifValidator, sameAccountValidator, currencyValidator, limitValidator,
 				accountService, dealValidator, maintenanceService, fundTransferMWService, balanceValidator,
 				notificationService, auditEventPublisher, digitalUserSegment, freezeValidator,
-				postTransactionService, ccTrxValidator);
+				postTransactionService);
 		this.fundTransferOrderRepository = fundTransferOrderRepository;
 		this.seqGenerator = seqGenerator;
 	}
@@ -85,7 +85,7 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 			FundTransferResponse fundTransferResponse, CurrencyConversionDto conversionResult) {
 		if (isSuccess(fundTransferResponse)) {
 			fundTransferRequest.setTransferType(OWN_ACCOUNT);
-			fundTransferRequest.setNotificationType(NotificationType.LOCAL);
+			fundTransferRequest.setNotificationType(OWN_ACCOUNT_PL_SI_CREATION);
 			fundTransferRequest.setStatus(MwResponseStatus.S.getName());
 			this.getPostTransactionService().performPostTransactionActivities(metadata, fundTransferRequest, request);
 		}

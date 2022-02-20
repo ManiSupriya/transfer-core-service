@@ -166,7 +166,7 @@ public class AccountService {
 	}
 
 	public AccountDetailsDTO getAccountDetailsFromCache(final String accountNumber, RequestMetaData requestMetaData) {
-		if(!userSessionCacheService.isAccountNumberBelongsToCif(accountNumber, requestMetaData.getUserCacheKey())){
+		if(!userSessionCacheService.isMTAccountNumberBelongsToCif(accountNumber, requestMetaData.getUserCacheKey())){
 			GenericExceptionHandler.handleError(ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF,ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF.getErrorMessage());
 		}
 		AccountDetailsDTO accountDetailsDTO = mobRedisService.get(userSessionCacheService.getAccountsDetailsCacheKey(requestMetaData, accountNumber), AccountDetailsDTO.class);

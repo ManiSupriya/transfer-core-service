@@ -34,28 +34,6 @@ public class EmailServiceImpl implements MessageService<SendEmailRequest, EmailR
     private final EmailTemplateHelper emailTemplateHelper;
     private final AuditEventPublisher auditEventPublisher;
 
-//    @Override
-//    @Retryable(value = { Exception.class }, maxAttempts = 3, backoff = @Backoff(delay = 5000))
-//    public EmailResponse sendMessage(EmailRequest emailRequest) {
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.setContentType(MediaType.APPLICATION_JSON);
-//        try {
-//            ResponseEntity<EmailResponse> emailResponse = notificationClient.sendEmail(emailRequest);
-//            if (HttpStatus.OK != emailResponse.getStatusCode()) {
-//                log.error("[EmailServiceImpl] - Unable to send email. Notification service returned FAILURE. Request = {}, Response = {}",
-//                        htmlEscape(emailRequest), htmlEscape(emailResponse));
-//                //GenericExceptionHandler.handleError(EXTERNAL_NOTIFICATION_SERVICE_FAILED, EXTERNAL_NOTIFICATION_SERVICE_FAILED.getErrorMessage());
-//            }
-//            log.info("[EmailServiceImpl] - Email sent successfully to address: {}", htmlEscape(emailRequest.getToEmailAddress()));
-//            return emailResponse.getBody();
-//        } catch (Exception ex) {
-//            log.error("[EmailServiceImpl] - Error while calling notification service.", ex);
-//            GenericExceptionHandler.handleError(TransferErrorCode.EMAIL_NOTIFICATION_FAILED, TransferErrorCode.EMAIL_NOTIFICATION_FAILED.getErrorMessage());
-//        }
-//        return null;
-//    }
-
-
     @Override
     @Retryable(value = { Exception.class }, maxAttempts = 3, backoff = @Backoff(delay = 5000))
     public EmailResponse sendMessage(SendEmailRequest emailRequest, RequestMetaData requestMetaData) {
