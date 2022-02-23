@@ -47,6 +47,7 @@ esb-service:
   max-connection: ${SOAP_SERVICE_MAXCONNECTION:100}
   validate-after-inactive: ${SOAP_SERVICE_VALIDATE_INACTIVE:60000}
   user-id: ${USER_ID:MOMMUSER}
+  tft-user-id: ${TFT_USER_ID:MOMMUSER}
   access-token: ${ACCESS_TOKEN}
   service-codes:
     fundTransfer: TFT

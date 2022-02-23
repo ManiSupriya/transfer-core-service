@@ -482,7 +482,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
                 .sourceBranchCode(selectedSourceOfFund.getSegment())
                 .beneficiaryFullName(StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength ? StringUtils.left(beneficiaryDto.getFullName(), maxLength) : beneficiaryDto.getFullName())
                 .beneficiaryAddressOne(StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength ? beneficiaryDto.getFullName().substring(maxLength) : null)
-                .beneficiaryAddressTwo(address)
+                //.beneficiaryAddressTwo(address) Removed for testing
                 .beneficiaryAddressThree(address3)
                 .destinationCurrency(localCurrency)
                 .awInstName(beneficiaryDto.getBankName())
@@ -500,7 +500,6 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
                 .accountClass(selectedSourceOfFund.getAccountClass())
                 .exchangeRateDisplayTxt(currencyConversionDto.getExchangeRateDisplayTxt())
                 .build();
-
     }
 
     

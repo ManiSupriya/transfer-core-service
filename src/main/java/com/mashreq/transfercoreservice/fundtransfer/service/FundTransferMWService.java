@@ -147,7 +147,7 @@ public class FundTransferMWService {
         int batchTransIdTemporary = Math.abs((secureRandom.nextInt() * 9000) + 1000);
 
         EAIServices services = new EAIServices();
-        services.setHeader(headerFactory.getHeader(soapServiceProperties.getServiceCodes().getFundTransfer(),msgId));
+        services.setHeader(headerFactory.getHeader(soapServiceProperties.getServiceCodes().getFundTransfer(),request.getProductId() ,msgId));
         services.setBody(new EAIServices.Body());
         
         //Setting individual components
@@ -207,6 +207,9 @@ public class FundTransferMWService {
         creditLeg.setBenName(request.getBeneficiaryFullName());
         creditLeg.setAWInstName(request.getAwInstName());
         creditLeg.setAWInstBICCode(request.getAwInstBICCode());
+        //creditLeg.setAWInstAddr1(value);
+        //creditLeg.setAWInstAddr2(value);
+       // creditLeg.setAWInstAddr3(value);
         creditLeg.setBenAddr1(request.getBeneficiaryAddressOne());
         creditLeg.setBenAddr2(request.getBeneficiaryAddressTwo());
         creditLeg.setBenAddr3(request.getBeneficiaryAddressThree());
