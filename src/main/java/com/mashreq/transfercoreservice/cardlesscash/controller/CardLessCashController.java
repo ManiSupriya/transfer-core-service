@@ -1,11 +1,21 @@
 package com.mashreq.transfercoreservice.cardlesscash.controller;
 
+import static com.mashreq.mobcommons.utils.ContextCacheKeysSuffix.ACCOUNTS;
 import static com.mashreq.ms.commons.cache.HeaderNames.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.mashreq.transfercoreservice.cache.MobRedisService;
+import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
+import com.mashreq.transfercoreservice.client.service.AccountService;
+import org.apache.commons.collections.MapUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -48,12 +58,17 @@ import lombok.extern.slf4j.Slf4j;
 @Api(tags = {"TransferCore MicroService"})
 @Slf4j
 public class CardLessCashController {
-
+	public static final String ACCOUNT_NUMBERS = "account-numbers";
+	private final AccountService accountService;
+	private final MobRedisService redisService;
     private CardLessCashService cardLessCashService;
     private AsyncUserEventPublisher asyncUserEventPublisher;
     private UserSessionCacheService userSessionCacheService;
+	private static final TypeReference<Map<String, Object>> HASH_MAP_MAP_TYPE_REF = new TypeReference<Map<String, Object>>() {
+	};
 
-    /**
+
+	/**
      * Block the generated CLC(Card Less Cash) request.
      *
      * @param blockRequest CardLessCashBlockRequest
@@ -137,6 +152,10 @@ public class CardLessCashController {
     
     private void assertAccountBelongsToUser(final String accountNumber, RequestMetaData metaData) {
  	   log.info("cardLessCash  Account Details {} Validation with User", htmlEscape(accountNumber));
+		final Map<String, Object> accountContext = redisService.get(metaData.getUserCacheKey()  + ACCOUNTS.getSuffix(), HASH_MAP_MAP_TYPE_REF);
+		if (MapUtils.isEmpty(accountContext)) {
+			setAccountsFromCoreToCache(metaData);
+		}
          if (!userSessionCacheService.isAccountNumberBelongsToCif(accountNumber, metaData.getUserCacheKey())) {
          	asyncUserEventPublisher.publishFailedEsbEvent(FundTransferEventType.CARD_LESS_CASH_ACCOUNT_NUMBER_DOES_NOT_MATCH, metaData, CARD_LESS_CASH, metaData.getChannelTraceId(),
          			TransferErrorCode.ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF.toString(), TransferErrorCode.ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF.getErrorMessage(),
@@ -144,8 +163,19 @@ public class CardLessCashController {
              GenericExceptionHandler.handleError(TransferErrorCode.ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF, TransferErrorCode.ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF.getErrorMessage());
          }
      }
-     
-     private void assertMobileNo(final String mobileNumber, RequestMetaData metaData) {
+	private void setAccountsFromCoreToCache(final RequestMetaData metaData){
+		final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metaData.getPrimaryCif());
+		List<String> accountNumberList = Stream.of(accountsFromCore).flatMap(list -> list.stream())
+				.map(AccountDetailsDTO::getNumber)
+				.collect(Collectors.toList());
+		final Map<String, Object> accountsContext = new HashMap<>();
+		accountsContext.put(ACCOUNT_NUMBERS, accountNumberList);
+		final String accountsContextCacheKey = metaData.getUserCacheKey() + ACCOUNTS.getSuffix();
+		log.info("Setting context {} with value {} ", accountsContextCacheKey, accountsContext);
+		redisService.setWithDefaultTTL(accountsContextCacheKey, accountsContext);
+	}
+
+	private void assertMobileNo(final String mobileNumber, RequestMetaData metaData) {
      	log.info("cardLessCash  mobileNumber {} Validation", htmlEscape(mobileNumber));
      	 /*
          * Bug 35838 - BE|Cardless cash -Getting request failed due to validation of mobile digit number
