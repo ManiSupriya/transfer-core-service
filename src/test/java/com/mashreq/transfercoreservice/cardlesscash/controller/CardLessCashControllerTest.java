@@ -100,7 +100,6 @@ public class CardLessCashControllerTest {
         Mockito.when(cardLessCashService.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest, mobileNo, userId, metaData))
                 .thenReturn(Response.<CardLessCashGenerationResponse>builder().data(cardLessCashGenerationRes)
                         .build());
-        when(mobRedisService.get(any(), ArgumentMatchers.<Class>any())).thenReturn("");
         when(accountService.getAccountsFromCore(any())).thenReturn(getAccountDetailsDTOS());
         Mockito.doReturn(true).when(userSessionCacheService).isAccountNumberBelongsToCif(Mockito.any(), Mockito.any());
         Mockito.doNothing().when(asyncUserEventPublisher).publishStartedEvent(Mockito.any(), Mockito.any(), Mockito.any());
