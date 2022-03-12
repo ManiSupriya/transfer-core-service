@@ -15,6 +15,8 @@ import java.util.stream.Stream;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.mashreq.transfercoreservice.cache.MobRedisService;
 import com.mashreq.transfercoreservice.cache.UserSessionCacheService;
+import com.mashreq.transfercoreservice.common.HtmlEscapeCache;
+import freemarker.template.utility.HtmlEscape;
 import org.apache.commons.collections.MapUtils;
 import org.springframework.stereotype.Service;
 
@@ -96,7 +98,7 @@ public class AccountService {
 		final Map<String, Object> accountsContext = new HashMap<>();
 		accountsContext.put(ACCOUNT_NUMBERS, accountNumberList);
 		final String accountsContextCacheKey = metaData.getUserCacheKey() + ACCOUNTS.getSuffix();
-		log.info("Setting context {} with value {} ", htmlEscape(accountsContextCacheKey), htmlEscape(accountsContext));
+		log.info("Setting account context to cache");
 		redisService.setWithDefaultTTL(accountsContextCacheKey, accountsContext);
 	}
 
