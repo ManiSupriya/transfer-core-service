@@ -96,7 +96,7 @@ public class AccountService {
 		final Map<String, Object> accountsContext = new HashMap<>();
 		accountsContext.put(ACCOUNT_NUMBERS, accountNumberList);
 		final String accountsContextCacheKey = metaData.getUserCacheKey() + ACCOUNTS.getSuffix();
-		log.info("Setting context {} with value {} ", accountsContextCacheKey, accountsContext);
+		log.info("Setting context {} with value {} ", htmlEscape(accountsContextCacheKey), htmlEscape(accountsContext));
 		redisService.setWithDefaultTTL(accountsContextCacheKey, accountsContext);
 	}
 
