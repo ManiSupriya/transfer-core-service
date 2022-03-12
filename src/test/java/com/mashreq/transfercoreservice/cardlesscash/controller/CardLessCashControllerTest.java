@@ -1,6 +1,7 @@
 package com.mashreq.transfercoreservice.cardlesscash.controller;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -8,9 +9,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mashreq.transfercoreservice.client.service.AccountService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -36,6 +39,9 @@ public class CardLessCashControllerTest {
 
     @Mock
     CardLessCashService cardLessCashService;
+
+    @Mock
+    AccountService accountService;
 
     @InjectMocks
     CardLessCashController cardLessCashController;
@@ -88,6 +94,7 @@ public class CardLessCashControllerTest {
         Mockito.when(cardLessCashService.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest, mobileNo, userId, metaData))
                 .thenReturn(Response.<CardLessCashGenerationResponse>builder().data(cardLessCashGenerationRes)
                         .build());
+        Mockito.doNothing().when(accountService).getAccountsIfNotInCache(any());
         Mockito.doReturn(true).when(userSessionCacheService).isAccountNumberBelongsToCif(Mockito.any(), Mockito.any());
         Mockito.doNothing().when(asyncUserEventPublisher).publishStartedEvent(Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.doNothing().when(asyncUserEventPublisher).publishSuccessEvent(Mockito.any(), Mockito.any(), Mockito.any());
@@ -96,7 +103,9 @@ public class CardLessCashControllerTest {
         Assert.assertNotNull(cardLessCashGenerationResponse);
 
     }
-    
+
+
+
     @Test
     public void queryCardLessCashRequestSuccessTest() {
 
