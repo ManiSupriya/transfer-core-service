@@ -6,10 +6,15 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
+import java.util.Map;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.mashreq.transfercoreservice.client.dto.CountryDto;
+import org.apache.commons.collections4.MapUtils;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -40,6 +45,19 @@ public class AccountServiceTest {
 
 	@InjectMocks
 	AccountService accountService;
+
+	@Test
+	public void getAccountsIfNotInCache(){
+		when(mobRedisService.get(any(),
+				ArgumentMatchers.<TypeReference<Map<String, Object>>>any()))
+				.thenReturn(Collections.emptyMap());
+		when(accountClient.searchAccounts(any(),any()))
+				.thenReturn(TestUtil.getSuccessResponse(TestUtil.getAccountDetailsDTOS()));
+		accountService.getAccountsIfNotInCache(RequestMetaData.builder().userCacheKey("USSM-MOL").build());
+		assertNotNull(mobRedisService.get(RequestMetaData.builder().userCacheKey("USSM-MOL").build() + "-ACCOUNTS-CONTEXT",
+				new TypeReference<Map<String, Object>>() {
+				}));
+	}
 
 	@Test
 	public void getAccountDetailsFromCache(){

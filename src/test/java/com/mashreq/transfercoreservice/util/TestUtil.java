@@ -211,4 +211,23 @@ public class TestUtil {
                 .responseDto(coreFundTransferResponseDto)
                 .build();
     }
+
+    public static CifProductsDto getAccountDetailsDTOS() {
+        CifProductsDto cifProductsDto = new CifProductsDto();
+        SearchAccountDto fromAcc1 = new SearchAccountDto();
+        fromAcc1.setNumber("010797697124");
+        fromAcc1.setAccountType(new SearchAccountTypeDto());
+        fromAcc1.getAccountType().setSchemaType("test2");
+        SearchAccountDto fromAcc2 = new SearchAccountDto();
+        fromAcc2.setNumber("019010050532");
+        fromAcc2.setAccountType(new SearchAccountTypeDto());
+        fromAcc2.getAccountType().setSchemaType("test1");
+        SearchAccountDto fromAcc3 = new SearchAccountDto();
+        fromAcc3.setNumber("019010073901");
+        fromAcc3.setAccountType(new SearchAccountTypeDto());
+        fromAcc3.getAccountType().setSchemaType("test");
+        cifProductsDto.setAccounts(Arrays.asList(fromAcc1, fromAcc2, fromAcc3));
+
+        return cifProductsDto;
+    }
 }

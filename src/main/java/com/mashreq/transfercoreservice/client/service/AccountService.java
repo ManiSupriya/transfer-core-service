@@ -1,21 +1,21 @@
 package com.mashreq.transfercoreservice.client.service;
 
+import static com.mashreq.mobcommons.utils.ContextCacheKeysSuffix.ACCOUNTS;
 import static com.mashreq.transfercoreservice.client.ErrorUtils.getErrorDetails;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.CARD_NUMBER_DOES_NOT_BELONG_TO_CIF;
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.mashreq.transfercoreservice.cache.MobRedisService;
 import com.mashreq.transfercoreservice.cache.UserSessionCacheService;
+import org.apache.commons.collections.MapUtils;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
@@ -52,7 +52,11 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class AccountService {
 
+	private static final TypeReference<Map<String, Object>> HASH_MAP_MAP_TYPE_REF = new TypeReference<Map<String, Object>>() {
+	};
 	public static final String TRUE = "true";
+	public static final String ACCOUNT_NUMBERS = "account-numbers";
+	private final MobRedisService redisService;
 	private final AccountClient accountClient;
 	private final AccountCardLessCashQueryService accountCardLessCashQueryService;
 	private final AccountCardLessCashRequestService accountCardLessCashRequestService;
@@ -75,6 +79,25 @@ public class AccountService {
 		log.info("{} Accounts fetched for cif id {} ", htmlEscape(Integer.toString(accounts.size())), htmlEscape(cifId));
 		return accounts;
 
+	}
+   public void getAccountsIfNotInCache(final RequestMetaData metaData) {
+	   final Map<String, Object> accountContext = redisService.get(metaData.getUserCacheKey()  + ACCOUNTS.getSuffix(), HASH_MAP_MAP_TYPE_REF);
+	   if (MapUtils.isEmpty(accountContext)) {
+		   log.info("Account Context is empty, getting from core");
+		   setAccountsFromCoreToCache(metaData);
+	   }
+   }
+
+	private void setAccountsFromCoreToCache(final RequestMetaData metaData){
+		final List<AccountDetailsDTO> accountsFromCore = getAccountsFromCore(metaData.getPrimaryCif());
+		List<String> accountNumberList = Stream.of(accountsFromCore).flatMap(list -> list.stream())
+				.map(AccountDetailsDTO::getNumber)
+				.collect(Collectors.toList());
+		final Map<String, Object> accountsContext = new HashMap<>();
+		accountsContext.put(ACCOUNT_NUMBERS, accountNumberList);
+		final String accountsContextCacheKey = metaData.getUserCacheKey() + ACCOUNTS.getSuffix();
+		log.info("Setting context {} with value {} ", accountsContextCacheKey, accountsContext);
+		redisService.setWithDefaultTTL(accountsContextCacheKey, accountsContext);
 	}
 
 	public SearchAccountDto getAccountDetailsFromCore(final String accountNumber) {
