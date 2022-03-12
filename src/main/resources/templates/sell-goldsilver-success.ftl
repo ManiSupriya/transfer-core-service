@@ -547,7 +547,7 @@
 
                                             <li style="margin-bottom: 16px">
                                               <p><span style="min-width: 200px;display: inline-block;">Transfer amount</span><span
-                                                  style="margin-left: 20px;font-weight: bold;">${currency} ${amount}</span></p>
+                                                  style="margin-left: 20px;font-weight: bold;">${destinationAccCurrency} ${amount}</span></p>
                                             </li>
 
                                             <#if sourceAmount?has_content>

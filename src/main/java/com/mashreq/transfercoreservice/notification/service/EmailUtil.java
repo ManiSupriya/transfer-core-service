@@ -44,6 +44,7 @@ public class EmailUtil {
     public static final String LOCAL_CURRENCY = "localCurrency";
     public static final String EXCHANGE_RATE = "exchangeRate";
     public static final String ACCOUNT_CURRENCY = "accountCurrency";
+    public static final String DESTINATION_ACCOUNT_CURRENCY = "destinationAccCurrency";
     public static final String TRANSFER_TYPE = "transferType";
     public static final String SOURCE_OF_FUND = "sourceOfFund";
     public static final String MASKED_ACCOUNT = "maskedAccount";
