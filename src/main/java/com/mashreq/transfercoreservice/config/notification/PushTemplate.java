@@ -31,7 +31,7 @@ public class PushTemplate {
         }
         else
         {
-            return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getChannel(),customerNotification.getCurrency(),customerNotification.getAmount(),customerNotification.getTxnRef(),customerNotification.getSegment().getCustomerCareNumber());
+            return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getCurrency(),customerNotification.getAmount(),customerNotification.getTxnRef(),customerNotification.getSegment().getCustomerCareNumber());
         }
     }
 
