@@ -56,7 +56,7 @@
         <tomcat.version>9.0.37</tomcat.version>
         <jackson.version>2.12.6</jackson.version>
         <properties-maven-plugin.version>1.0.0</properties-maven-plugin.version>
-        <jackson.databind.version>2.12.6.1</jackson.databind.version>
+        <jackson.databind.version>2.13.2</jackson.databind.version>
         <templates.utils.version>1.0.2.RELEASE</templates.utils.version>
         <com.mashreq.dedupe-util>1.0.4</com.mashreq.dedupe-util>
     </properties>
@@ -74,27 +74,27 @@
         </repository>
     </repositories>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-dependencies</artifactId>
-                <version>${spring-cloud.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-core</artifactId>
-                <version>5.2.20.RELEASE</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-beans</artifactId>
-                <version>5.2.20.RELEASE</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-core</artifactId>
+				<version>5.3.18</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-beans</artifactId>
+				<version>5.3.18</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
     <dependencies>
 
@@ -153,7 +153,7 @@
 		    <artifactId>freemarker</artifactId>
 		    <version>2.3.30</version>
 		</dependency>
-        
+
         <dependency>
             <groupId>org.springframework.retry</groupId>
             <artifactId>spring-retry</artifactId>
