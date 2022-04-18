@@ -252,6 +252,12 @@ async:
     queueCapacity: ${ASYNC_THREAD_QUEUE_CAPACITY:60}
     keepAliveSeconds: ${ASYNC_THREAD_KEEP_ALIVE_SECS:60}
 
+two-factor-authentication:
+  durationInHours: ${TWO_FACTOR_AUTHENTICATION_DURATION_IN_HOURS:24}
+  twofactorAuthRelaxed: ${TWO_FACTOR_AUTHENTICATION_RELAXED:true}
+  maxAmountAllowed: ${TWO_FACTOR_AUTHENTICATION_MAXAMOUNTALLOWED:5000}
+  noOfTransactionsAllowed: ${TWO_FACTOR_AUTHENTICATION_NOOFTRANSACTIONSALLOWED:3}
+
 #error:
 #  map:
 #    ACCOUNT_BELONGS_TO_CIF: ignore
