@@ -29,6 +29,7 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponseDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
+import com.mashreq.transfercoreservice.fundtransfer.dto.TwoFactorAuthRequiredCheckResponseDto;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.FundTransferStrategy;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.paylater.InternationalPayLaterFundTransferStrategy;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.paylater.LocalFundPayLaterTransferStrategy;
@@ -36,6 +37,7 @@ import com.mashreq.transfercoreservice.fundtransfer.strategy.paylater.OwnAccount
 import com.mashreq.transfercoreservice.fundtransfer.strategy.paylater.WithinMashreqPayLaterStrategy;
 import com.mashreq.transfercoreservice.model.DigitalUser;
 import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
+import com.mashreq.transfercoreservice.twofactorauthrequiredvalidation.service.TwoFactorAuthRequiredCheckService;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
 
@@ -73,6 +75,8 @@ public class PayLaterTransferServiceTest {
 	WithinMashreqPayLaterStrategy withinMashreqPayLaterStrategy;
 	@Mock
 	LocalFundPayLaterTransferStrategy localFundPayLaterTransferStrategy;
+	@Mock
+	private TwoFactorAuthRequiredCheckService service;
 	FundTransferRequestDTO fundTransferRequestDTO;
 
 	@Mock
@@ -91,6 +95,7 @@ public class PayLaterTransferServiceTest {
 		verifyOTPResponseDTO.setAuthenticated(true);
 		Mockito.doNothing().when(asyncUserEventPublisher).publishSuccessEvent(Mockito.any(), Mockito.any(),
 				Mockito.any());
+		Mockito.when(service.checkIfTwoFactorAuthenticationRequired(Mockito.any(), Mockito.any())).thenReturn(new TwoFactorAuthRequiredCheckResponseDto());
 		Mockito.when(iamService.verifyOTP(Mockito.any())).thenReturn(Response.<VerifyOTPResponseDTO>builder()
 				.status(ResponseStatus.SUCCESS).data(verifyOTPResponseDTO).build());
 		FundTransferResponseDTO fundTransferResponseDTO = payLaterTransferService.transferFund(metaData,
@@ -105,6 +110,7 @@ public class PayLaterTransferServiceTest {
 		verifyOTPResponseDTO.setAuthenticated(false);
 		Mockito.doNothing().when(asyncUserEventPublisher).publishFailedEsbEvent(Mockito.any(), Mockito.any(),
 				Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+		Mockito.when(service.checkIfTwoFactorAuthenticationRequired(Mockito.any(), Mockito.any())).thenReturn(new TwoFactorAuthRequiredCheckResponseDto());
 		Mockito.when(iamService.verifyOTP(Mockito.any()))
 				.thenReturn(Response.<VerifyOTPResponseDTO>builder().status(ResponseStatus.FAIL).errorCode("TN-5016")
 						.errorDetails("Something went wrong with OTP external service").data(verifyOTPResponseDTO)

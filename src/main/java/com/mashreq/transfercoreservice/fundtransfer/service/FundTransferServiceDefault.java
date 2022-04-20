@@ -22,6 +22,7 @@ import com.mashreq.transfercoreservice.promo.service.PromoCodeService;
 import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionHistory;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionRepository;
+import com.mashreq.transfercoreservice.twofactorauthrequiredvalidation.service.TwoFactorAuthRequiredCheckService;
 import com.mashreq.webcore.dto.response.Response;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +44,7 @@ import java.util.Optional;
 
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.OTP_VERIFY_OTP_REQUIRED;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.*;
 import static java.time.Duration.between;
 import static java.time.Instant.now;
@@ -70,6 +72,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final ExternalErrorCodeConfig errorCodeConfig;
     private final PromoCodeService promoCodeService;
     private final MobCommonService mobCommonService;
+    private final TwoFactorAuthRequiredCheckService service;
 
     @Value("${spring.profiles.active}")
     private String activeProfile;
@@ -95,7 +98,7 @@ public class FundTransferServiceDefault implements FundTransferService {
         final ServiceType serviceType = getServiceByType(request.getServiceType());
         final FundTransferEventType initiatedEvent = FundTransferEventType.getEventTypeByCode(serviceType.getEventPrefix() + FUND_TRANSFER_INITIATION_SUFFIX);
         verifyTermsAndConditionAcceptance(request,metadata);
-        if(!WYMA.getName().equals(serviceType.getName())){
+        if(isOTPVerificationRequired(serviceType, request, metadata)){
             verifyOtp(request,metadata);
         }
         return auditEventPublisher.publishEventLifecycle(
@@ -105,11 +108,33 @@ public class FundTransferServiceDefault implements FundTransferService {
                 getInitiatedRemarks(request));
     }
 
-    protected void verifyOtp(FundTransferRequestDTO request, RequestMetaData metadata) {
+	private boolean isOTPVerificationRequired(final ServiceType serviceType,FundTransferRequestDTO request,RequestMetaData metadata) {
+		if(WYMA.getName().equals(serviceType.getName())){
+			return false;
+		}
+		if(LOCAL.getName().equals(serviceType.getName()) || WAMA.getName().equals(serviceType.getName()) || INFT.getName().equals(serviceType.getName())) {
+			return service.checkIfTwoFactorAuthenticationRequired(metadata, prepareRequest(request)).isTwoFactorAuthRequired();
+		}
+		return true ;
+	}
+
+    private TwoFactorAuthRequiredCheckRequestDto prepareRequest(FundTransferRequestDTO request) {
+    	TwoFactorAuthRequiredCheckRequestDto requestDto = new TwoFactorAuthRequiredCheckRequestDto();
+    	requestDto.setAccountCurrency(request.getCurrency());
+    	requestDto.setAmount(request.getAmount());
+    	requestDto.setBeneficiaryId(request.getBeneficiaryId());
+    	requestDto.setDealNumber(request.getDealNumber());
+    	requestDto.setFromAccount(request.getFromAccount());
+    	requestDto.setTxnCurrency(request.getTxnCurrency());
+		return requestDto;
+	}
+
+	protected void verifyOtp(FundTransferRequestDTO request, RequestMetaData metadata) {
     	if(!CommonConstants.PROD_PROFILE.equals(activeProfile) && otpRelaxed) {
     		log.info("OTP relaxed for environment {}",activeProfile);
     		return;
     	}
+    	throwErrorIfOTPNotPresent(request);
         VerifyOTPRequestDTO verifyOTPRequestDTO = new VerifyOTPRequestDTO();
         verifyOTPRequestDTO.setOtp(request.getOtp());
         verifyOTPRequestDTO.setChallengeToken(request.getChallengeToken());
@@ -132,7 +157,14 @@ public class FundTransferServiceDefault implements FundTransferService {
         auditEventPublisher.publishSuccessEvent(FundTransferEventType.FUND_TRANSFER_OTP_VALIDATION, metadata, FundTransferEventType.FUND_TRANSFER_OTP_VALIDATION.getDescription());
     }
 
-    private void verifyTermsAndConditionAcceptance(FundTransferRequestDTO request, RequestMetaData metadata) {
+    private void throwErrorIfOTPNotPresent(FundTransferRequestDTO request) {
+		if(StringUtils.isBlank(request.getOtp()) || StringUtils.isBlank(request.getDpRandomNumber())) {
+			GenericExceptionHandler.handleError(OTP_VERIFY_OTP_REQUIRED,
+					OTP_VERIFY_OTP_REQUIRED.getErrorMessage(), OTP_VERIFY_OTP_REQUIRED.getErrorMessage());
+		}
+	}
+
+	private void verifyTermsAndConditionAcceptance(FundTransferRequestDTO request, RequestMetaData metadata) {
 		if(cprEnabled && !"V1".equals(request.getJourneyVersion()) && !request.isTermsAndConditionsAccepted()) {
 			auditEventPublisher.publishFailedEsbEvent(FundTransferEventType.FUNDS_TRANSFER_TERMSANDCONDITIONS_ACCEPTED,
                     metadata, CommonConstants.FUND_TRANSFER, metadata.getChannelTraceId(),
