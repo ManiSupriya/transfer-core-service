@@ -155,6 +155,7 @@ public class FundTransferMWService {
 
         //TODO Change this to proper batch id
         fundTransferReqType.setBatchTransactionId(batchTransIdTemporary + "");
+        fundTransferReqType.setPostingGroup(request.getPostingGroup());
         fundTransferReqType.setProductId(request.getProductId());
         fundTransferReqType.setTransTypeCode(request.getPurposeCode());
         /**
