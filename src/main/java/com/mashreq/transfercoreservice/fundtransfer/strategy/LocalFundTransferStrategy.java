@@ -61,7 +61,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     }
 
     private static final String INDIVIDUAL_ACCOUNT = "I";
-    private static final String POSTING_GROUP = "D";
+    private static final String POSTING_GROUP = "U";
     private static final String SOURCE_OF_FUND_CC = "Credit Card";
 
 
