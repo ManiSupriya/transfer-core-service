@@ -56,7 +56,7 @@
         <tomcat.version>9.0.37</tomcat.version>
         <jackson.version>2.12.6</jackson.version>
         <properties-maven-plugin.version>1.0.0</properties-maven-plugin.version>
-        <jackson.databind.version>2.11.0</jackson.databind.version>
+        <jackson.databind.version>2.12.6.1</jackson.databind.version>
         <templates.utils.version>1.0.2.RELEASE</templates.utils.version>
         <com.mashreq.dedupe-util>1.0.4</com.mashreq.dedupe-util>
     </properties>
