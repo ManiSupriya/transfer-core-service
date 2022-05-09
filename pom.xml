@@ -53,7 +53,7 @@
         <apache.commons.bean.utils.version>1.9.4</apache.commons.bean.utils.version>
         <mapstruct.version>1.3.1.Final</mapstruct.version>
         <log4j-api.version>2.13.2</log4j-api.version>
-		<tomcat.version>9.0.37</tomcat.version>
+        <tomcat.version>9.0.37</tomcat.version>
         <jackson.version>2.12.6</jackson.version>
         <properties-maven-plugin.version>1.0.0</properties-maven-plugin.version>
         <jackson.databind.version>2.11.0</jackson.databind.version>
@@ -84,10 +84,15 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
-	            <groupId>org.springframework</groupId>
-	            <artifactId>spring-core</artifactId>
-	            <version>5.3.7</version>
-        </dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-core</artifactId>
+                <version>5.2.20.RELEASE</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>5.2.20.RELEASE</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -159,10 +164,10 @@
             <version>${com.mashreq.encryption}</version>
         </dependency>
         <dependency>
-		   <groupId>com.mashreq.dedupe</groupId>
-		   <artifactId>request-dedupe-util</artifactId>
-		   <version>${com.mashreq.dedupe-util}</version>
-		</dependency>
+            <groupId>com.mashreq.dedupe</groupId>
+            <artifactId>request-dedupe-util</artifactId>
+            <version>${com.mashreq.dedupe-util}</version>
+        </dependency>
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
@@ -210,21 +215,32 @@
                     <artifactId>jackson-databind</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>       
+        </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
+            <version>${jackson.databind.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.13.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.13.2</version>
+        </dependency>
+
         <dependency>
             <groupId>com.mashreq.ms</groupId>
             <artifactId>ms-commons</artifactId>
             <version>${com.mashreq.ms.ms-commons}</version>
             <exclusions>
-	            <exclusion>
-	            	<groupId>net.sf.jasperreports</groupId>
-					<artifactId>jasperreports</artifactId>
-	            </exclusion>
+                <exclusion>
+                    <groupId>net.sf.jasperreports</groupId>
+                    <artifactId>jasperreports</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -278,11 +294,11 @@
             <scope>runtime</scope>
         </dependency>
 
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>31.0.1-jre</version>
-		</dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>31.0.1-jre</version>
+        </dependency>
 
         <!-- Testing -->
         <dependency>
@@ -296,7 +312,7 @@
             <artifactId>snakeyaml</artifactId>
             <version>1.26</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
