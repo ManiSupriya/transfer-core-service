@@ -176,7 +176,7 @@ app:
       priority: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_PRIORITY:HIGH}
       serviceId: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_SERVICEID:91}
       callCenterNo: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_CALL_CENTER_NO:04 424 6666}
-      ownAccountTransactionInitiated: ${OWN_ACCOUNT_SMS:Request received through {0} for a Fund Transfer of {1} {2} with {3}. Contact {4} if you did not initiate this.}
+      ownAccountTransactionInitiated: ${OWN_ACCOUNT_SMS:Request received for Fund Transfer of {0} {1} with Reference number {2}. Contact {3} if you did not initiate this.}
     push:
       ownAccountTransactionInitiated: ${OWN_ACCOUNT_PUSH:Request received through {0} for a Fund Transfer of {1} {2} with {3}. Contact {4} if you did not initiate this.}
       
