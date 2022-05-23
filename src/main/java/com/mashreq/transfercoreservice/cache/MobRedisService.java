@@ -14,6 +14,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.redis.core.RedisTemplate;
 
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
+
 @Component
 @ConditionalOnBean({MobRedisConfig.class})
 public class MobRedisService {
@@ -47,7 +49,8 @@ public class MobRedisService {
     }
 
     public <T> void setWithDefaultTTL(String key, T value) {
-        log.info("Setting to cache key = {} value = {} ", key, value);
+       // log.info("Setting to cache key = {} value = {} ", htmlEscape(key), htmlEscape(value));
+        log.info("Setting to cache key with value");
         this.mobRedisTemplate.opsForValue().set(key, value);
         this.mobRedisTemplate.expire(key, this.ttl, TimeUnit.MINUTES);
     }

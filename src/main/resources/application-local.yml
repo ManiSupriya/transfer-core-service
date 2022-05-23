@@ -86,14 +86,14 @@ app:
     timeInterval: 1
     smilesProductBin: 524179
   services:
-    maintenance: ${MAINTENANCE_SERVICE_URL:localhost:8091}
-    customers: ${CUSTOMER_SERVICE_URL:https://localhost:8083}
+    maintenance: ${MAINTENANCE_SERVICE_URL:https://digital-uat.mashreq.com/api/maintenance-service}
+    customers: ${CUSTOMER_SERVICE_URL:https://digital-uat.mashreq.com/api/customers-service}
     accounts: ${ACCOUNT_SERVICE_URL:https://digital-uat.mashreq.com/api/accounts-service}
     otp: https://digital-uat.mashreq.com/api/ms-security-iam/
     cards: ${CARD_SERVICE_URL:https://digital-uat.mashreq.com/api/cards-service}
     notification: ${NOTIFICATION_SERVICE:https://digital-uat.mashreq.com/api/notification-service}
-    mobcustomer: ${MOB_CUSTOMER_SERVICE:https://localhost:8088}
-    beneficiary: ${BENEFICIARY_CORE_SERVICE:localhost:8092}
+    mobcustomer: ${MOB_CUSTOMER_SERVICE:https://digital-uat.mashreq.com/api/mob-customer-service}
+    beneficiary: ${BENEFICIARY_CORE_SERVICE:https://digital-uat.mashreq.com/api/beneficiary-core-service}
     mobcommon: ${MOB_COMMON_SERVICE:https://digital-uat.mashreq.com/api/mob-common-service}
     beneficiaryservice: https://digital-uat.mashreq.com/api/beneficiary-service
     quick-remit: https://digital-uat.mashreq.com/api/mob-quickremit-service
@@ -140,7 +140,7 @@ app:
       priority: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_PRIORITY:HIGH}
       serviceId: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_SERVICEID:91}
       callCenterNo: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_CALL_CENTER_NO:04 424 6666}
-      ownAccountTransactionInitiated: ${OWN_ACCOUNT_SMS:Request received through {0} for a Fund Transfer of {1} {2} with {3}. Contact {4} if you did not initiate this.}
+      ownAccountTransactionInitiated: ${OWN_ACCOUNT_SMS:Request received for Fund Transfer of {0} {1} with Reference number {2}. Contact {3} if you did not initiate this.}
       plSiCreation: ${PL_SI_CREATION_SMS:On your request SI/Pay later has been set up for the beneficiary {0}, account number {1}. If not requested, please contact {2}. Thank you for using our services.}
     push:
       ownAccountTransactionInitiated: ${OWN_ACCOUNT_PUSH:Request received through {0} for a Fund Transfer of {1} {2} with {3}. Contact {4} if you did not initiate this.}

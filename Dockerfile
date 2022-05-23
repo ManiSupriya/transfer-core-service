@@ -1,4 +1,4 @@
-FROM mashrequae.azurecr.io/jdk8-jre-hardened-font-mob-customer-service:v2
+FROM  mashrequae.azurecr.io/jdk8-jre-hardened-font:v1
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 RUN mkdir -p /opt/appdynamics && \
