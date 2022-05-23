@@ -1,11 +1,13 @@
 package com.mashreq.transfercoreservice.cardlesscash.controller;
 
+
 import static com.mashreq.ms.commons.cache.HeaderNames.*;
 
 import java.util.List;
 
 import javax.validation.Valid;
 
+import com.mashreq.transfercoreservice.client.service.AccountService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -50,10 +52,12 @@ import lombok.extern.slf4j.Slf4j;
 public class CardLessCashController {
 
     private CardLessCashService cardLessCashService;
+	private AccountService accountService;
     private AsyncUserEventPublisher asyncUserEventPublisher;
     private UserSessionCacheService userSessionCacheService;
 
-    /**
+
+	/**
      * Block the generated CLC(Card Less Cash) request.
      *
      * @param blockRequest CardLessCashBlockRequest
@@ -96,7 +100,7 @@ public class CardLessCashController {
 		asyncUserEventPublisher.publishStartedEvent(FundTransferEventType.CARD_LESS_CASH_GENERATION_REQUEST, metaData,
 				CARD_LESS_CASH);
 		assertMobileNo(userMobileNumber, metaData);
-		assertAccountBelongsToUser(cardLessCashGenerationRequest.getAccountNo(), metaData);
+		checkAccountBelongsToUser(cardLessCashGenerationRequest.getAccountNo(), metaData);
 		Response<CardLessCashGenerationResponse> cardLessCashGenerationResponse = cardLessCashService
 				.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest, userMobileNumber, userId, metaData);
 		log.info("cardLessCash generate Response {} ", htmlEscape(cardLessCashGenerationResponse));
@@ -134,7 +138,11 @@ public class CardLessCashController {
 				CARD_LESS_CASH);
 		return cardLessCashQueryResponse;
 	}
-    
+
+	private void checkAccountBelongsToUser(final String accountNumber, RequestMetaData metaData){
+		accountService.getAccountsIfNotInCache(metaData);
+		assertAccountBelongsToUser(accountNumber,metaData);
+	}
     private void assertAccountBelongsToUser(final String accountNumber, RequestMetaData metaData) {
  	   log.info("cardLessCash  Account Details {} Validation with User", htmlEscape(accountNumber));
          if (!userSessionCacheService.isAccountNumberBelongsToCif(accountNumber, metaData.getUserCacheKey())) {
@@ -144,8 +152,9 @@ public class CardLessCashController {
              GenericExceptionHandler.handleError(TransferErrorCode.ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF, TransferErrorCode.ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF.getErrorMessage());
          }
      }
-     
-     private void assertMobileNo(final String mobileNumber, RequestMetaData metaData) {
+
+
+	private void assertMobileNo(final String mobileNumber, RequestMetaData metaData) {
      	log.info("cardLessCash  mobileNumber {} Validation", htmlEscape(mobileNumber));
      	 /*
          * Bug 35838 - BE|Cardless cash -Getting request failed due to validation of mobile digit number

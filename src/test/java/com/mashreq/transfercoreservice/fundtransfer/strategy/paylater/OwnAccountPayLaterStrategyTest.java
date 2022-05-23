@@ -77,8 +77,6 @@ public class OwnAccountPayLaterStrategyTest {
 	private PostTransactionService postTransactionService;
 	@Mock
 	private SequenceNumberGenerator seqGenerator;
-	@Mock
-	private CCTransactionEligibilityValidator ccTrxValidator;
 	
 	@Before
 	public void init() {
@@ -87,7 +85,7 @@ public class OwnAccountPayLaterStrategyTest {
 				dealValidator,maintenanceService,fundTransferMWService,balanceValidator,
 				notificationService,auditEventPublisher,digitalUserSegment,freezeValidator,
 				postTransactionService,
-				fundTransferOrderRepository,seqGenerator,ccTrxValidator);
+				fundTransferOrderRepository,seqGenerator);
 	}
 	
 	@Test
@@ -103,7 +101,6 @@ public class OwnAccountPayLaterStrategyTest {
 		Mockito.when(sameAccountValidator.validate(Mockito.eq(request), Mockito.eq(metadata))).thenReturn(validationResult);
 		Mockito.when(accountBelongsToCifValidator.validate(Mockito.eq(request), Mockito.eq(metadata), Mockito.any())).thenReturn(validationResult);
 		Mockito.when(freezeValidator.validate(Mockito.eq(request), Mockito.eq(metadata), Mockito.any())).thenReturn(validationResult);
-		Mockito.when(ccTrxValidator.validate(Mockito.any(), Mockito.any())).thenReturn(validationResult);
 		String transactionRefNo = "TRN-test-12234";
 		LimitValidatorResponse limitResponse = LimitValidatorResponse.builder().transactionRefNo(transactionRefNo).build();
 		Mockito.when(limitValidator.validate(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(limitResponse );
@@ -123,8 +120,4 @@ public class OwnAccountPayLaterStrategyTest {
 		assertEquals(conversionResult.getAccountCurrencyAmount(), response.getDebitAmount());
 		assertTrue(response.isPayOrderInitiated());
 	}
-
-	
-	
-
 }

@@ -1,6 +1,7 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.XAU;
 import static com.mashreq.transfercoreservice.notification.model.NotificationType.OWN_ACCOUNT_FT;
 import static java.time.Duration.between;
 import static java.time.Instant.now;
@@ -86,12 +87,11 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     private final AccountFreezeValidator freezeValidator;
 
     private final PostTransactionService postTransactionService;
-    private final CCTransactionEligibilityValidator ccTrxValidator;
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, RequestMetaData metadata, UserDTO userDTO) {
 
         Instant start = Instant.now();
-        responseHandler(ccTrxValidator.validate(request, metadata));
+
         responseHandler(sameAccountValidator.validate(request, metadata));
 
         final List<AccountDetailsDTO> accountsFromCore = accountService.getAccountsFromCore(metadata.getPrimaryCif());
@@ -169,10 +169,10 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         final LimitValidatorResponse validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount, metadata, bendId);
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccount, toAccount,validationResult, conversionResult);
 
-       fundTransferRequest.setProductId(isMT5AccountProdID(fundTransferRequest));
-       final FundTransferResponse fundTransferResponse = processTransfer(metadata, validationResult, fundTransferRequest,request);
+        fundTransferRequest.setProductId(isMT5AccountProdID(fundTransferRequest));
+        final FundTransferResponse fundTransferResponse = processTransfer(metadata, validationResult, fundTransferRequest,request);
 
-       handleSuccessfulTransaction(request, metadata, userDTO, transactionAmount, validationResult, fundTransferResponse, fundTransferRequest);
+        handleSuccessfulTransaction(request, metadata, userDTO, transactionAmount, validationResult, fundTransferResponse, fundTransferRequest);
        
         log.info("Total time taken for {} strategy {} milli seconds ", htmlEscape(request.getServiceType()), htmlEscape(Long.toString(between(start, now()).toMillis())));
         prepareAndCallPostTransactionActivity(metadata,fundTransferRequest,request,fundTransferResponse,conversionResult);
@@ -232,8 +232,8 @@ public class OwnAccountStrategy implements FundTransferStrategy {
                                                          FundTransferRequestDTO request, FundTransferResponse fundTransferResponse,
                                                          CurrencyConversionDto conversionResult) {
         boolean isSuccess = MwResponseStatus.S.equals(fundTransferResponse.getResponseDto().getMwResponseStatus());
-        if(goldSilverTransfer(request) && isSuccess && StringUtils.isEmpty(request.getTxnCurrency())){
-            if(buyRequest(request)){
+        if(goldSilverTransfer(request) && isSuccess){
+            if(buyGoldOrSilverRequest(fundTransferRequest)){
                 fundTransferRequest.setNotificationType(NotificationType.GOLD_SILVER_BUY_SUCCESS);
                 fundTransferRequest.setSrcAmount(conversionResult.getAccountCurrencyAmount());
                 fundTransferRequest.setTransferType(getTransferType(fundTransferRequest.getDestinationCurrency()));
@@ -269,7 +269,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 
     private String getBeneficiaryCode(FundTransferRequestDTO request) {
         if(goldSilverTransfer(request)){
-            return request.getCurrency();
+            return request.getTxnCurrency();
         }
         else return request.getServiceType();
     }
@@ -342,11 +342,11 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     }
 
     private boolean goldSilverTransfer(FundTransferRequestDTO request){
-        return (ServiceType.XAU.getName().equals(request.getCurrency()) || ServiceType.XAG.getName().equals(request.getCurrency()));
+        return (XAU.getName().equals(request.getTxnCurrency()) || ServiceType.XAG.getName().equals(request.getTxnCurrency()));
     }
 
-    private boolean buyRequest(FundTransferRequestDTO request){
-        return request.getSrcAmount() == null;
+    private boolean buyGoldOrSilverRequest(FundTransferRequest request){
+        return (XAU.getName().equals(request.getDestinationCurrency()) || ServiceType.XAG.getName().equals(request.getDestinationCurrency()));
     }
 
     private CurrencyConversionDto getExchangeObjectForSrcAmount(BigDecimal transactionAmount, AccountDetailsDTO destAccount, AccountDetailsDTO sourceAccount) {
@@ -359,7 +359,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     }
 
     private String getTransferType(String currency){
-        if(ServiceType.XAU.getName().equals(currency)){
+        if(XAU.getName().equals(currency)){
             return "Gold";
         }
         else if( ServiceType.XAG.getName().equals(currency)){

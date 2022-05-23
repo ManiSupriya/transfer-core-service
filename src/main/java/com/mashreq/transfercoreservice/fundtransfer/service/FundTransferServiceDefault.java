@@ -326,6 +326,7 @@ public class FundTransferServiceDefault implements FundTransferService {
                 .debitAmount(fundTransferResponse.getDebitAmount()!= null ? fundTransferResponse.getDebitAmount().toPlainString():null)
                 .beneficiaryId(StringUtils.isNotBlank(request.getBeneficiaryId())?Long.valueOf(request.getBeneficiaryId()):null)
                 .transferPurpose(request.getPurposeDesc())
+                .dealNumber(request.getDealNumber())
                 .build();
     }
 }
