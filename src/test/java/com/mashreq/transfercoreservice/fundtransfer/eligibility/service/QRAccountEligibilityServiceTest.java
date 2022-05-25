@@ -138,15 +138,7 @@ public class QRAccountEligibilityServiceTest {
 
 		ValidationResult validationResult = ValidationResult.builder().success(true).build();
 		when(mobCommonService.getCountryValidationRules("PK")).thenReturn(TestUtil.getCountryMs());
-		when(currencyValidatorFactory.getValidator(any())).thenReturn(currencyValidator);
-		when(limitValidatorFactory.getValidator(any())).thenReturn(limitValidator);
-		when(currencyValidator.validate(any(),any(),any())).thenReturn(validationResult);
 		when(beneficiaryService.getByIdWithoutValidation(any(),any(),any(),any())).thenReturn(TestUtil.getPKCompanyBeneficiaryDto());
-		when(beneficiaryValidator.validate(any(),any(),any())).thenReturn(validationResult);
-		when(maintenanceService.convertCurrency(any())).thenReturn(TestUtil.getCurrencyConversionDto());
-		when(limitValidator.validate(any(),any(),any(),any(),any())).thenReturn(TestUtil.limitValidatorResultsDto(null));
-		when(quickRemitService.exchange(any(),any(),any())).thenReturn(qrExchangeResponse());
-		when(accountService.getAccountDetailsFromCache(any(),any())).thenReturn(new AccountDetailsDTO());
 
 		Assertions.assertThrows(GenericException.class, () ->{
 			service.checkEligibility(metaData, fundTransferEligibiltyRequestDTO, userDTO);
