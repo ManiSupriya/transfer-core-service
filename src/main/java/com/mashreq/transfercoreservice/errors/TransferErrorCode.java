@@ -136,6 +136,8 @@ public enum TransferErrorCode implements ErrorCode {
     QUICK_REM_SWIFT_CODE_NOT_FOUND("TN-7001", "Swift Code not found for beneficiary"),
     QUICK_REM_COUNTRY_CODE_NOT_FOUND("TN-7002", "Country Code not found for beneficiary"),
 
+    QUICK_REM_NOT_ALLOWED_FOR_COMPANY("TN-7003", "Beneficiary type is not allowed for quick remit"),
+
     BENE_EXTERNAL_SERVICE_ERROR("TN-5010", "Something went wrong with beneficiary external service"),
     ACC_EXTERNAL_SERVICE_ERROR("TN-5011", "Something went wrong with account external service"),
     MOB_COM_EXTERNAL_SERVICE_ERROR("TN-5012", "Something went wrong with mob-common external service"),

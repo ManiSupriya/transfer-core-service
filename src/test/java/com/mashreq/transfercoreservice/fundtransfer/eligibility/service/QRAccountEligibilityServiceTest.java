@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableList;
 import com.mashreq.encryption.encryptor.EncryptionService;
 import com.mashreq.mobcommons.services.events.publisher.AuditEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
@@ -32,6 +33,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import com.mashreq.transfercoreservice.client.dto.QRExchangeResponse;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QRAccountEligibilityServiceTest {
@@ -89,6 +91,7 @@ public class QRAccountEligibilityServiceTest {
 				userSessionCacheService,
 				cardService,
 				mobCommonService);
+		ReflectionTestUtils.setField(service, "countriesWhereQrDisabledForCompany", ImmutableList.of("PK"));
 	}
 	
 	@Test
@@ -124,6 +127,30 @@ public class QRAccountEligibilityServiceTest {
 
 		assertNotNull(response);
 		assertEquals(response.getStatus(), FundsTransferEligibility.ELIGIBLE);
+	}
+	@Test
+	public void checkEligibilityForPKBene(){
+		FundTransferEligibiltyRequestDTO fundTransferEligibiltyRequestDTO = new FundTransferEligibiltyRequestDTO();
+		fundTransferEligibiltyRequestDTO.setBeneficiaryId("1");
+		fundTransferEligibiltyRequestDTO.setFromAccount("1234567890");
+
+		UserDTO userDTO = new UserDTO();
+
+		ValidationResult validationResult = ValidationResult.builder().success(true).build();
+		when(mobCommonService.getCountryValidationRules("PK")).thenReturn(TestUtil.getCountryMs());
+		when(currencyValidatorFactory.getValidator(any())).thenReturn(currencyValidator);
+		when(limitValidatorFactory.getValidator(any())).thenReturn(limitValidator);
+		when(currencyValidator.validate(any(),any(),any())).thenReturn(validationResult);
+		when(beneficiaryService.getByIdWithoutValidation(any(),any(),any(),any())).thenReturn(TestUtil.getPKCompanyBeneficiaryDto());
+		when(beneficiaryValidator.validate(any(),any(),any())).thenReturn(validationResult);
+		when(maintenanceService.convertCurrency(any())).thenReturn(TestUtil.getCurrencyConversionDto());
+		when(limitValidator.validate(any(),any(),any(),any(),any())).thenReturn(TestUtil.limitValidatorResultsDto(null));
+		when(quickRemitService.exchange(any(),any(),any())).thenReturn(qrExchangeResponse());
+		when(accountService.getAccountDetailsFromCache(any(),any())).thenReturn(new AccountDetailsDTO());
+
+		Assertions.assertThrows(GenericException.class, () ->{
+			service.checkEligibility(metaData, fundTransferEligibiltyRequestDTO, userDTO);
+		});
 	}
 
 	@Test

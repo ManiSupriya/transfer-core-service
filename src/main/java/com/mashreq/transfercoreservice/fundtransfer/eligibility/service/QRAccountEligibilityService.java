@@ -8,16 +8,20 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.FT_CC_NOT
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_SEGMENT;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.PAYMENT_NOT_ELIGIBLE_FOR_QR;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.QUICK_REM_COUNTRY_CODE_NOT_FOUND;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.QUICK_REM_NOT_ALLOWED_FOR_COMPANY;
 import static com.mashreq.transfercoreservice.event.FundTransferEventType.ACCOUNT_BELONGS_TO_CIF;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.QuickRemitType.getCodeByName;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Objects;
 
 import com.mashreq.transfercoreservice.client.dto.*;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
+import com.mashreq.transfercoreservice.fundtransfer.dto.QuickRemitType;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.encryption.encryptor.EncryptionService;
@@ -70,6 +74,8 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 	private final EncryptionService encryptionService = new EncryptionService();
 	private final MobCommonService mobCommonService;
 
+	@Value("${app.countriesWhereQrDisabledForCompany}")
+	private List<String> countriesWhereQrDisabledForCompany;
 	public EligibilityResponse checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request,UserDTO userDTO) {
 
 		log.info("Quick remit eligibility initiated");
@@ -88,6 +94,10 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
         if (countryDto == null || !countryDto.isQuickRemitEnabled()) {
         	throw genericException(QUICK_REM_COUNTRY_CODE_NOT_FOUND);
         }
+
+		if (checkIfBeneIsCompany(beneficiaryDto.getBankCountryISO(),beneficiaryDto.getBeneficiaryAccountType())) {
+			throw genericException(QUICK_REM_NOT_ALLOWED_FOR_COMPANY);
+		}
 
         responseHandler(currencyValidatorFactory.getValidator(metaData).validate(request, metaData, validationContext));
         
@@ -117,6 +127,10 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 				limitUsageAmount, metaData, Long.valueOf(request.getBeneficiaryId()));
 		updateExchangeRateDisplay(response);
 		return EligibilityResponse.builder().status(FundsTransferEligibility.ELIGIBLE).data(response).build();
+	}
+
+	private boolean checkIfBeneIsCompany(String countryCode, String accountType) {
+		return countriesWhereQrDisabledForCompany.contains(countryCode) && Objects.equals(accountType, BeneficiaryAccountType.COMPANY.getName());
 	}
 
 	private EligibilityResponse validateQRCCFlow(FundTransferEligibiltyRequestDTO request, QRExchangeResponse response, RequestMetaData requestMetaData, BeneficiaryDto beneficiaryDto, UserDTO userDTO) {
