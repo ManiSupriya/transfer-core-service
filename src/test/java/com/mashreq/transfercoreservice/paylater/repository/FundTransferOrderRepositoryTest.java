@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import com.mashreq.transfercoreservice.paylater.enums.OrderStatus;
 import com.mashreq.transfercoreservice.paylater.model.FundTransferOrder;
 import com.mashreq.transfercoreservice.paylater.model.Money;
 
+@Ignore
 @DataJpaTest
 @RunWith(SpringRunner.class)
 public class FundTransferOrderRepositoryTest {
