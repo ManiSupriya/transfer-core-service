@@ -74,7 +74,7 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 	private final EncryptionService encryptionService = new EncryptionService();
 	private final MobCommonService mobCommonService;
 
-	@Value("${app.countriesWhereQrDisabledForCompany}")
+	@Value("#{'${app.countriesWhereQrDisabledForCompany}'.split(',')}")
 	private List<String> countriesWhereQrDisabledForCompany;
 	public EligibilityResponse checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request,UserDTO userDTO) {
 

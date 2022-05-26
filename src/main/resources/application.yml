@@ -183,7 +183,7 @@ app:
     push:
       ownAccountTransactionInitiated: ${OWN_ACCOUNT_PUSH:Request received through {0} for a Fund Transfer of {1} {2} with {3}. Contact {4} if you did not initiate this.}
       plSiCreation: ${PL_SI_CREATION_SMS:On your request SI/Pay later has been set up for the beneficiary {0}, account number {1}. If not requested, please contact {2}. Thank you for using our services.}
-  countriesWhereQrDisabledForCompany: ['PK']
+  countriesWhereQrDisabledForCompany: ${LIST_OF_COUNTRIES:PK}
 instarem:
   rules:
     bankCodeType:
