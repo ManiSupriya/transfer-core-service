@@ -104,7 +104,7 @@ public class TestUtil {
         beneficiaryDto.setBankCountryISO("PK");
         beneficiaryDto.setId(new Long(121));
         beneficiaryDto.setRoutingCode("X110280");
-        beneficiaryDto.setBeneficiaryAccountType(BeneficiaryAccountType.COMPANY.getName());
+        beneficiaryDto.setBeneficiaryAccountType(BeneficiaryAccountType.COMPANY.name());
         return beneficiaryDto;
     }
 
