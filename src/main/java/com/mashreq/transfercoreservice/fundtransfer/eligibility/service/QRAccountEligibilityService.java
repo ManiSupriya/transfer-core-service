@@ -130,6 +130,7 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 	}
 
 	private boolean checkIfBeneIsCompany(String countryCode, String accountType) {
+		log.info(countryCode +"__"+ accountType+"__"+countriesWhereQrDisabledForCompany.toString());
 		return countriesWhereQrDisabledForCompany.contains(countryCode) && Objects.equals(accountType, BeneficiaryAccountType.COMPANY.getName());
 	}
 
