@@ -32,7 +32,6 @@ public class BeneficiaryValidator implements Validator<FundTransferRequestDTO> {
 
     private static final String QUICK_REMIT = "quick-remit";
     private static final String INFT = "INFT";
-    private static final String LOCAL_CURRENCY = "AED";
     private final AsyncUserEventPublisher auditEventPublisher;
 
 

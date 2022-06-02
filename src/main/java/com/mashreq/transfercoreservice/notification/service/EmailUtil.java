@@ -15,6 +15,7 @@ import com.mashreq.transfercoreservice.notification.model.EmailTemplateParameter
 import com.mashreq.transfercoreservice.notification.model.SocialMediaLinks;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -88,9 +89,6 @@ public class EmailUtil {
     public static final String EMAIL_TEMPLATE_COPYRIGHT_YEAR_KEY = "copyrightYear";
     public static final String BANK_NAME_FOOTER = "bankNameInFooter";
     public static final String BANK_NAME_FOOTER_DESC = "bankNameInFooterDesc";
-    public static final String AED = "AED";
-
-
 
     @Autowired
     private MobCommonService mobCommonService;

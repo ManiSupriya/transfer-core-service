@@ -56,7 +56,6 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
 
     private static final String INTERNAL_ACCOUNT_FLAG = "N";
     public static final String WITHIN_MASHREQ_TRANSACTION_CODE = "096";
-    public static final String LOCAL_CURRENCY = "AED";
 
     private final SameAccountValidator sameAccountValidator;
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
@@ -77,6 +76,8 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     private final CCTransactionEligibilityValidator ccTrxValidator;
     @Value("${app.uae.transaction.code:096}")
     private String transactionCode;
+    @Value("${app.local.currency}")
+    private String localCurrency;
     protected final String MASHREQ = "Mashreq";
     
     @Override
@@ -119,7 +120,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         //Deal Validator
         log.info("Deal Validation Started");
 		if (StringUtils.isNotBlank(request.getDealNumber()) && !request.getDealNumber().isEmpty()) {
-			String trxCurrency = StringUtils.isBlank(request.getTxnCurrency()) ? LOCAL_CURRENCY
+			String trxCurrency = StringUtils.isBlank(request.getTxnCurrency()) ? localCurrency
 					: request.getTxnCurrency();
 			if (StringUtils.equalsIgnoreCase(trxCurrency, request.getCurrency())) {
 				auditEventPublisher.publishFailedEsbEvent(FundTransferEventType.DEAL_VALIDATION, metadata,
@@ -237,7 +238,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
 
 
     private BigDecimal getLimitUsageAmount(final AccountDetailsDTO sourceAccountDetailsDTO, final BigDecimal transferAmountInSrcCurrency) {
-        return LOCAL_CURRENCY.equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
+        return localCurrency.equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
                 ? transferAmountInSrcCurrency
                 : convertAmountInLocalCurrency(sourceAccountDetailsDTO, transferAmountInSrcCurrency);
     }
@@ -247,7 +248,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         currencyConversionRequestDto.setAccountNumber(sourceAccountDetailsDTO.getNumber());
         currencyConversionRequestDto.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
         currencyConversionRequestDto.setAccountCurrencyAmount(transferAmountInSrcCurrency);
-        currencyConversionRequestDto.setTransactionCurrency(LOCAL_CURRENCY);
+        currencyConversionRequestDto.setTransactionCurrency(localCurrency);
         return maintenanceService.convertCurrency(currencyConversionRequestDto).getTransactionAmount();
     }
     private FundTransferRequest prepareFundTransferRequestPayload(RequestMetaData metadata, FundTransferRequestDTO request,

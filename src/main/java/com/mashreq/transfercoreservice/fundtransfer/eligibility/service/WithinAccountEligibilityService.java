@@ -7,6 +7,7 @@ import java.util.Optional;
 import com.mashreq.transfercoreservice.errors.ExceptionUtils;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
@@ -35,14 +36,15 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class WithinAccountEligibilityService implements TransferEligibilityService{
 
-	public static final String LOCAL_CURRENCY = "AED";
-
 	private final BeneficiaryValidator beneficiaryValidator;
 	private final AccountService accountService;
 	private final BeneficiaryService beneficiaryService;
 	private final LimitValidatorFactory limitValidatorFactory;
 	private final MaintenanceService maintenanceService;
 	private final AsyncUserEventPublisher auditEventPublisher;
+
+	@Value("${app.local.currency}")
+	private String localCurrency;
 
 	@Override
 	public EligibilityResponse checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request,
@@ -100,7 +102,7 @@ public class WithinAccountEligibilityService implements TransferEligibilityServi
 
 	private BigDecimal getLimitUsageAmount(final String dealNumber, final AccountDetailsDTO accountDetails,
 		final BigDecimal transferAmountInSrcCurrency) {
-		return LOCAL_CURRENCY.equalsIgnoreCase(accountDetails.getCurrency())
+		return localCurrency.equalsIgnoreCase(accountDetails.getCurrency())
 				? transferAmountInSrcCurrency
 						: convertAmountInLocalCurrency(dealNumber, accountDetails, transferAmountInSrcCurrency);
 	}
@@ -111,7 +113,7 @@ public class WithinAccountEligibilityService implements TransferEligibilityServi
 		currencyConversionRequestDto.setAccountNumber(sourceAccountDetailsDTO.getNumber());
 		currencyConversionRequestDto.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
 		currencyConversionRequestDto.setAccountCurrencyAmount(transferAmountInSrcCurrency);
-		currencyConversionRequestDto.setTransactionCurrency(LOCAL_CURRENCY);
+		currencyConversionRequestDto.setTransactionCurrency(localCurrency);
 
 		CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(currencyConversionRequestDto);
 		return currencyConversionDto.getTransactionAmount();

@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -72,6 +73,9 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
 
     @Autowired
     private PostTransactionService postTransactionService;
+
+    @Value("${app.local.currency}")
+    private String localCurrency;
 
 //    @Value("${app.local.transaction.code:015}")
 //    private String transactionCode;
@@ -197,13 +201,13 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         currencyConversionRequestDto.setAccountNumber(sourceAccountDetailsDTO.getNumber());
         currencyConversionRequestDto.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
         currencyConversionRequestDto.setAccountCurrencyAmount(transferAmountInSrcCurrency);
-        currencyConversionRequestDto.setTransactionCurrency("AED");
+        currencyConversionRequestDto.setTransactionCurrency(localCurrency);
         CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(currencyConversionRequestDto);
         return currencyConversionDto.getTransactionAmount();
     }
 
     private BigDecimal getLimitUsageAmount(final AccountDetailsDTO sourceAccountDetailsDTO, final BigDecimal transferAmountInSrcCurrency) {
-        return "AED".equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
+        return localCurrency.equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
                 ? transferAmountInSrcCurrency
                 : convertAmountInLocalCurrency(sourceAccountDetailsDTO, transferAmountInSrcCurrency);
     }

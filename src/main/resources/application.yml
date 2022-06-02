@@ -110,7 +110,7 @@ external:
 
 app:
   local:
-    currency: 'AED'
+    currency: ${LOCAL_CURRENCY:AED}
     transaction.code: '015'
     transfer.product.id: 'DBLC'
   uae:

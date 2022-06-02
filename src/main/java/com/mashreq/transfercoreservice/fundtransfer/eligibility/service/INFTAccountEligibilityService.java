@@ -3,6 +3,7 @@ package com.mashreq.transfercoreservice.fundtransfer.eligibility.service;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
@@ -39,7 +40,9 @@ public class INFTAccountEligibilityService implements TransferEligibilityService
     private final CurrencyValidatorFactory currencyValidatorFactory;
     private final LimitValidatorFactory limitValidatorFactory;
 
-    
+    @Value("${app.local.currency}")
+    private String localCurrency;
+
     @Override
 	public EligibilityResponse checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request,UserDTO userDTO) {
     	log.info("INFT transfer eligibility validation started");
@@ -90,7 +93,7 @@ public class INFTAccountEligibilityService implements TransferEligibilityService
         currencyConversionRequestDto.setAccountNumber(sourceAccountDetailsDTO.getNumber());
         currencyConversionRequestDto.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
         currencyConversionRequestDto.setAccountCurrencyAmount(transferAmountInSrcCurrency);
-        currencyConversionRequestDto.setTransactionCurrency("AED");
+        currencyConversionRequestDto.setTransactionCurrency(localCurrency);
 
         CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(currencyConversionRequestDto);
         return currencyConversionDto.getTransactionAmount();
@@ -98,7 +101,7 @@ public class INFTAccountEligibilityService implements TransferEligibilityService
 
     private BigDecimal getLimitUsageAmount(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO,
                                            final BigDecimal transferAmountInSrcCurrency) {
-        return "AED".equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
+        return localCurrency.equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
                 ? transferAmountInSrcCurrency
                 : convertAmountInLocalCurrency(sourceAccountDetailsDTO, transferAmountInSrcCurrency);
     }

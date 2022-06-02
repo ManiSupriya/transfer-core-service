@@ -68,9 +68,8 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     private static final String LOCAL_PRODUCT_ID = "DBLC";
     public static final String LOCAL_TRANSACTION_CODE = "15";
     public static final String SPACE_CHAR = " ";
-    int maxLength = 35;
-    public static final String AED = "AED";
-    public static final String NON_AED = "non-AED";
+    public static final int maxLength = 35;
+    public static final String NON = "non-";
     private final IBANValidator ibanValidator;
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
     private final CCBelongsToCifValidator ccBelongsToCifValidator;
@@ -427,7 +426,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     }
 
     private BigDecimal getLimitUsageAmount(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO, final BigDecimal transferAmountInSrcCurrency) {
-        return "AED".equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
+        return localCurrency.equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
                 ? transferAmountInSrcCurrency
                 : convertAmountInLocalCurrency(sourceAccountDetailsDTO, transferAmountInSrcCurrency);
     }
@@ -437,7 +436,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         currencyConversionRequestDto.setAccountNumber(sourceAccountDetailsDTO.getNumber());
         currencyConversionRequestDto.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
         currencyConversionRequestDto.setAccountCurrencyAmount(transferAmountInSrcCurrency);
-        currencyConversionRequestDto.setTransactionCurrency("AED");
+        currencyConversionRequestDto.setTransactionCurrency(localCurrency);
 
         CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(currencyConversionRequestDto);
         return currencyConversionDto.getTransactionAmount();
@@ -447,7 +446,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
         currencyRequest.setAccountNumber(sourceAccountDetailsDTO.getNumber());
         currencyRequest.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
-        currencyRequest.setTransactionCurrency("AED");
+        currencyRequest.setTransactionCurrency(localCurrency);
         currencyRequest.setDealNumber(request.getDealNumber());
         currencyRequest.setTransactionAmount(request.getAmount());
         CurrencyConversionDto currencyConversionDto =  maintenanceService.convertBetweenCurrencies(currencyRequest);
@@ -528,10 +527,10 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
     protected String getTransferType(String txnCurrency){
         StringBuilder stringBuilder = new StringBuilder("Local ");
-        if(AED.equalsIgnoreCase(txnCurrency) || txnCurrency == null){
-            stringBuilder.append(AED);
+        if(localCurrency.equalsIgnoreCase(txnCurrency) || txnCurrency == null){
+            stringBuilder.append(localCurrency);
         } else {
-            stringBuilder.append(NON_AED);
+            stringBuilder.append(NON).append(localCurrency);
         }
         return stringBuilder.toString();
 

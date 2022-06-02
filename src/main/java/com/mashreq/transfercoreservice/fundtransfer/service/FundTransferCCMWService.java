@@ -21,6 +21,7 @@ import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -52,12 +53,11 @@ public class FundTransferCCMWService {
     private static final String SUCCESS_CODE_ENDS_WITH = "-000";
     private static final String PAYMENT_DETAIL_PREFIX = "/REF/ ";
     public static final String SPACE_CHAR = " ";
-    
-    
-	private static final String AED_CURRENCY = "AED";
-
 
     public static final String DEBIT_ACCOUNT_BRANCH = "030";
+
+    @Value("${app.local.currency}")
+    private String localCurrency;
 
     /**
      * used to call the middle ware to process the Credit cards Fund Transfer request
@@ -214,7 +214,7 @@ public class FundTransferCCMWService {
         
         log.info("fundTransferRequest.getDestinationCurrency() {}", htmlEscape(fundTransferRequest.getDestinationCurrency()));
 		if (StringUtils.isNotBlank(fundTransferRequest.getAcwthInst1())) {
-			if (AED_CURRENCY.equalsIgnoreCase(fundTransferRequest.getDestinationCurrency())) {
+			if (localCurrency.equalsIgnoreCase(fundTransferRequest.getDestinationCurrency())) {
 				creditLeg.setPaymentDetails1(PAYMENT_DETAIL_PREFIX + fundTransferRequest.getPurposeDesc() + SPACE_CHAR
 						+ fundTransferRequest.getAcwthInst1());
 			} else {
@@ -222,7 +222,7 @@ public class FundTransferCCMWService {
 						fundTransferRequest.getPurposeDesc() + SPACE_CHAR + fundTransferRequest.getAcwthInst1());
 			}
 		} else {
-			if (AED_CURRENCY.equalsIgnoreCase(fundTransferRequest.getDestinationCurrency())) {
+			if (localCurrency.equalsIgnoreCase(fundTransferRequest.getDestinationCurrency())) {
 				creditLeg.setPaymentDetails1(PAYMENT_DETAIL_PREFIX + fundTransferRequest.getPurposeDesc());
 			} else {
 				creditLeg.setPaymentDetails1(fundTransferRequest.getPurposeDesc());

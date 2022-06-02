@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
@@ -66,7 +67,6 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 
     private static final String INTERNAL_ACCOUNT_FLAG = "N";
     public static final String OWN_ACCOUNT_TRANSACTION_CODE = "096";
-    public static final String LOCAL_CURRENCY = "AED";
     private static final String  OWN_ACCOUNT_TRANSACTION = "OWN_ACCOUNT_TRANSACTION";
     public static final String OWN_ACCOUNT = "Own Account";
     private static final String MB_META = "MBMETA";
@@ -87,6 +87,10 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     private final AccountFreezeValidator freezeValidator;
 
     private final PostTransactionService postTransactionService;
+
+    @Value("${app.local.currency}")
+    private String localCurrency;
+
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, RequestMetaData metadata, UserDTO userDTO) {
 
@@ -140,7 +144,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         //Deal Validator
         log.info("Deal Validation Started");
         if (StringUtils.isNotBlank(request.getDealNumber()) && !request.getDealNumber().isEmpty()) {
-            String trxCurrency = StringUtils.isBlank(request.getTxnCurrency()) ? LOCAL_CURRENCY
+            String trxCurrency = StringUtils.isBlank(request.getTxnCurrency()) ? localCurrency
 					: request.getTxnCurrency();
 			if (StringUtils.equalsIgnoreCase(trxCurrency, request.getCurrency())) {
 				auditEventPublisher.publishFailedEsbEvent(FundTransferEventType.DEAL_VALIDATION, metadata,
@@ -308,7 +312,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
 
     protected BigDecimal getLimitUsageAmount(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO,
                                            final BigDecimal transferAmountInSrcCurrency) {
-        return LOCAL_CURRENCY.equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
+        return localCurrency.equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
                 ? transferAmountInSrcCurrency
                 : convertAmountInLocalCurrency(sourceAccountDetailsDTO, transferAmountInSrcCurrency);
     }
@@ -318,7 +322,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         currencyConversionRequestDto.setAccountNumber(sourceAccountDetailsDTO.getNumber());
         currencyConversionRequestDto.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
         currencyConversionRequestDto.setAccountCurrencyAmount(transferAmountInSrcCurrency);
-        currencyConversionRequestDto.setTransactionCurrency(LOCAL_CURRENCY);
+        currencyConversionRequestDto.setTransactionCurrency(localCurrency);
 
         CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(currencyConversionRequestDto);
         return currencyConversionDto.getTransactionAmount();

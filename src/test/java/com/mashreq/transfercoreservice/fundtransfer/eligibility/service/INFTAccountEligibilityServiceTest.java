@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static com.mashreq.transfercoreservice.util.TestUtil.getAdditionalFields;
 import static org.junit.Assert.assertNotNull;
@@ -57,8 +58,7 @@ public class INFTAccountEligibilityServiceTest {
 				beneficiaryService,
 				currencyValidatorFactory,
 				limitValidatorFactory);
-
-
+		ReflectionTestUtils.setField(service, "localCurrency", "AED");
 	}
 
 	@Test

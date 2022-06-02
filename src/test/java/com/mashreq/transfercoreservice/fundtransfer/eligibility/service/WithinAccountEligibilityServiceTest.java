@@ -18,6 +18,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.util.ReflectionUtils;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -54,6 +56,7 @@ public class WithinAccountEligibilityServiceTest {
 				limitValidatorFactory,
 				maintenanceService,
 				userEventPublisher);
+		ReflectionTestUtils.setField(service, "localCurrency", "AED");
 	}
 
 

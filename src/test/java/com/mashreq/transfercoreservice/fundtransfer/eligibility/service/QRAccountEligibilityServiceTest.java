@@ -32,6 +32,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import com.mashreq.transfercoreservice.client.dto.QRExchangeResponse;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QRAccountEligibilityServiceTest {
@@ -89,6 +90,7 @@ public class QRAccountEligibilityServiceTest {
 				userSessionCacheService,
 				cardService,
 				mobCommonService);
+		ReflectionTestUtils.setField(service, "localCurrency", "AED");
 	}
 	
 	@Test
