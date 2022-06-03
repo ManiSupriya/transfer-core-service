@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -51,12 +52,14 @@ public class OwnAccountEligibilityServiceTest {
 				accountService,
 				maintenanceService,
 				currencyValidatorFactory);
+		ReflectionTestUtils.setField(service, "localCurrency", "AED");
 	}
 
 
 
 	@Test
 	public void checkEligibility(){
+
 		FundTransferEligibiltyRequestDTO fundTransferEligibiltyRequestDTO = new FundTransferEligibiltyRequestDTO();
 		fundTransferEligibiltyRequestDTO.setBeneficiaryId("1");
 		fundTransferEligibiltyRequestDTO.setFromAccount("1234567890");

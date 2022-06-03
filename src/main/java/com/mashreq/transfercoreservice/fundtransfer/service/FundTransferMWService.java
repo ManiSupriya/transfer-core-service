@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.esbcore.bindings.account.mbcdm.FundTransferReqType;
@@ -56,10 +57,9 @@ public class FundTransferMWService {
     
     public static final String INTERNATIONAL = "INFT";
     public static final String LOCAL = "LOCAL";
-    public static final String AED_CURRENCY = "AED";
-    
-    
 
+    @Value("${app.local.currency}")
+    private String localCurrency;
     
     public FundTransferResponse transfer(FundTransferRequest request, RequestMetaData metaData, String msgId) {
         log.info("Fund transfer initiated from account [ {} ]", htmlEscape(request.getFromAccount()));
@@ -187,7 +187,7 @@ public class FundTransferMWService {
 		if (StringUtils.isNotBlank(request.getFinalBene())) {
 			if (INTERNATIONAL.equalsIgnoreCase(request.getServiceType())
 					|| (LOCAL.equalsIgnoreCase(request.getServiceType())
-							&& !AED_CURRENCY.equalsIgnoreCase(request.getDestinationCurrency()))) {
+							&& !localCurrency.equalsIgnoreCase(request.getDestinationCurrency()))) {
 				creditLeg.setPaymentDetails(
 						request.getPurposeDesc() + SPACE_CHAR + request.getFinalBene() + additionalField);
 			}
@@ -198,7 +198,7 @@ public class FundTransferMWService {
 		} else {
 			if (INTERNATIONAL.equalsIgnoreCase(request.getServiceType())
 					|| (LOCAL.equalsIgnoreCase(request.getServiceType())
-							&& !AED_CURRENCY.equalsIgnoreCase(request.getDestinationCurrency()))) {
+							&& !localCurrency.equalsIgnoreCase(request.getDestinationCurrency()))) {
 				creditLeg.setPaymentDetails(request.getPurposeDesc() + additionalField);
 			} else {
 				creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc() + additionalField);

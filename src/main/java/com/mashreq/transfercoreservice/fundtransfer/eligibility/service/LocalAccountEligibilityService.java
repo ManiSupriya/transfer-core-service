@@ -28,6 +28,7 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -42,8 +43,7 @@ import static java.lang.Long.valueOf;
 @Service
 @RequiredArgsConstructor
 public class LocalAccountEligibilityService implements TransferEligibilityService{
-	
-    private static final String AED = "AED";
+
     private final BeneficiaryValidator beneficiaryValidator;
     private final AccountService accountService;
     private final BeneficiaryService beneficiaryService;
@@ -56,6 +56,9 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
     private final QRDealsService qrDealsService;
     private final AuditEventPublisher auditEventPublisher;
     private final UserSessionCacheService userSessionCacheService;
+
+    @Value("${app.local.currency}")
+    private String localCurrency;
 
     @Override
 	public EligibilityResponse checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request,
@@ -79,7 +82,6 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
 	public ServiceType getServiceType() {
 		return ServiceType.LOCAL;
 	}
-    
 
     /**
      * Method is used to initiate the fund transfer request except CC
@@ -100,11 +102,11 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
 
         final BeneficiaryDto beneficiaryDto = beneficiaryService.getByIdWithoutValidation(metaData.getPrimaryCif(), valueOf(request.getBeneficiaryId()), "V2", metaData);
         validationContext.add("beneficiary-dto", beneficiaryDto);
-        validationContext.add("to-account-currency", AED);
+        validationContext.add("to-account-currency", localCurrency);
         responseHandler(beneficiaryValidator.validate(request, metaData, validationContext));
 
         //Balance Validation
-        final BigDecimal transferAmountInSrcCurrency = AED.equals(fromAccountDetails.getCurrency()) ?
+        final BigDecimal transferAmountInSrcCurrency = localCurrency.equals(fromAccountDetails.getCurrency()) ?
         		request.getAmount() : 
         			getAmountInSrcCurrency(request, fromAccountDetails);
 
@@ -189,14 +191,14 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
 
         final BeneficiaryDto beneficiaryDto = beneficiaryService.getByIdWithoutValidation(requestMetaData.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), "V2", requestMetaData);
         validationContext.add("beneficiary-dto", beneficiaryDto);
-        validationContext.add("to-account-currency", AED);
+        validationContext.add("to-account-currency", localCurrency);
         responseHandler(beneficiaryValidator.validate(request, requestMetaData, validationContext));
 
         return beneficiaryDto;
     }
 
     private BigDecimal getLimitUsageAmount(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO, final BigDecimal transferAmountInSrcCurrency) {
-        return AED.equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
+        return localCurrency.equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
                 ? transferAmountInSrcCurrency
                 : convertAmountInLocalCurrency(dealNumber, sourceAccountDetailsDTO, transferAmountInSrcCurrency);
     }
@@ -206,7 +208,7 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
         currencyConversionRequestDto.setAccountNumber(sourceAccountDetailsDTO.getNumber());
         currencyConversionRequestDto.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
         currencyConversionRequestDto.setAccountCurrencyAmount(transferAmountInSrcCurrency);
-        currencyConversionRequestDto.setTransactionCurrency("AED");
+        currencyConversionRequestDto.setTransactionCurrency(localCurrency);
 
         CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(currencyConversionRequestDto);
         return currencyConversionDto.getTransactionAmount();
@@ -217,7 +219,7 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
         final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
         currencyRequest.setAccountNumber(sourceAccountDetailsDTO.getNumber());
         currencyRequest.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
-        currencyRequest.setTransactionCurrency("AED");
+        currencyRequest.setTransactionCurrency(localCurrency);
         currencyRequest.setDealNumber(request.getDealNumber());
         currencyRequest.setTransactionAmount(request.getAmount());
         CurrencyConversionDto conversionResultInSourceAcctCurrency = maintenanceService.convertBetweenCurrencies(currencyRequest);

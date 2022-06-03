@@ -76,6 +76,9 @@ public class PostTransactionService {
     @Value("${app.uae.address}")
     private String address;
 
+    @Value("${app.local.currency}")
+    private String localCurrency;
+
     private static final Set<ServiceType> OWN_ACCOUNT_SERVICE_TYPES = new HashSet<>(Arrays.asList(WYMA, XAU, XAG));
 
     /**
@@ -238,7 +241,7 @@ public class PostTransactionService {
         builder.params(FX_DEAL_CODE,StringUtils.defaultIfBlank(fundTransferRequest.getDealNumber(), DEFAULT_STR));
         builder.params(ORDER_TYPE,StringUtils.defaultIfBlank(fundTransferRequestDTO.getOrderType(), DEFAULT_STR));
         builder.params(EXCHANGE_RATE,StringUtils.defaultIfBlank(fundTransferRequest.getExchangeRateDisplayTxt(), DEFAULT_STR));
-        builder.params(LOCAL_CURRENCY,AED);
+        builder.params(LOCAL_CURRENCY,localCurrency);
 
         if(fundTransferRequest.getAmount() != null) {
             builder.params(AMOUNT, EmailUtil.formattedAmount(fundTransferRequest.getAmount()));

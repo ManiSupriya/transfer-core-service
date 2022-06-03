@@ -45,6 +45,7 @@ import com.mashreq.transfercoreservice.notification.service.PostTransactionServi
 import com.mashreq.transfercoreservice.paylater.enums.FTOrderType;
 import com.mashreq.transfercoreservice.paylater.repository.FundTransferOrderRepository;
 import com.mashreq.transfercoreservice.paylater.utils.SequenceNumberGenerator;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WithinMashreqPayLaterStrategyTest {
@@ -96,6 +97,7 @@ public class WithinMashreqPayLaterStrategyTest {
 				auditEventPublisher, notificationService, freezeValidator, 
 				accountNumberResolver, postTransactionService, 
 				fundTransferOrderRepository, seqGenerator,ccTrxValidator);
+		ReflectionTestUtils.setField(withinMashreqPayLaterStrategy, "localCurrency", "AED");
 	}
 	
 	@Test

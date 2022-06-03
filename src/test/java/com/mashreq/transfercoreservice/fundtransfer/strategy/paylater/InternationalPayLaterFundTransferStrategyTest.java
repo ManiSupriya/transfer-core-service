@@ -84,6 +84,7 @@ public class InternationalPayLaterFundTransferStrategyTest {
 				notificationService, beneficiaryService, limitValidator,ccTrxValidator,
 				fundTransferOrderRepository,seqGenerator);
 		ReflectionTestUtils.setField(internationalPayLaterFundTransferStrategy,"postTransactionService", postTransactionService);
+		ReflectionTestUtils.setField(internationalPayLaterFundTransferStrategy, "localCurrency", "AED");
 	}
 	
 	@Test

@@ -19,11 +19,13 @@ import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.QRDealsService;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 import com.mashreq.transfercoreservice.util.TestUtil;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 
@@ -67,6 +69,11 @@ public class LocalAccountEligibilityServiceTest {
 
 	private EncryptionService encryptionService = new EncryptionService();
 	private RequestMetaData metaData = RequestMetaData.builder().build();
+
+	@Before
+	public void setUp() {
+		ReflectionTestUtils.setField(service, "localCurrency", "AED");
+	}
 
 	@Test
 	public void checkEligibilityWithNoBeneUpdate(){
