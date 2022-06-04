@@ -73,7 +73,7 @@ public class PostTransactionService {
     @Autowired
     private BankChargesService bankChargesService;
 
-    @Value("${app.uae.address}")
+    @Value("${app.local.address}")
     private String address;
 
     @Value("${app.local.currency}")

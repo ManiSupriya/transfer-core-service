@@ -13,7 +13,8 @@ public class MashreqUAEAccountNumberResolver {
     private final Integer uaeIbanLength;
     private final Integer accountNumberLength;
     
-    public MashreqUAEAccountNumberResolver(@Value("${app.uae.iban.length}") Integer uaeIbanLength, @Value("${app.uae.iban.accountNumber}") Integer accountNumberLength) {
+    public MashreqUAEAccountNumberResolver(@Value("${app.local.iban.length}") Integer uaeIbanLength,
+										   @Value("${app.local.iban.accountNumber}") Integer accountNumberLength) {
 		this.accountNumberLength = accountNumberLength;
 		this.uaeIbanLength = uaeIbanLength;
     	

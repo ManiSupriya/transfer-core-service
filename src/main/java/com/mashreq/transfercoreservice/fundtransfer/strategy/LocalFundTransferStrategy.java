@@ -95,8 +95,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     private final CCTransactionEligibilityValidator ccTrxValidator;
     @Value("${app.local.currency}")
     private String localCurrency;
-
-    @Value("${app.uae.address}")
+    @Value("${app.local.address}")
     private String address;
 
 

@@ -74,7 +74,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     private final MashreqUAEAccountNumberResolver accountNumberResolver;
     private final PostTransactionService postTransactionService;
     private final CCTransactionEligibilityValidator ccTrxValidator;
-    @Value("${app.uae.transaction.code:096}")
+    @Value("${app.local.transaction.code:096}")
     private String transactionCode;
     @Value("${app.local.currency}")
     private String localCurrency;
