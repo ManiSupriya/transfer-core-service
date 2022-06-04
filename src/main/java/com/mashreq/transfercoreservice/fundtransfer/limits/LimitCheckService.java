@@ -40,7 +40,9 @@ public class LimitCheckService {
         try {
         	log.info("Segment: {}, Cif: {}, BeneType: {}, country: {}, beneId: {}, amount {} ", htmlEscape(segment), htmlEscape(cifId), htmlEscape(beneficiaryTypeCode), htmlEscape(country), htmlEscape(beneId), htmlEscape(amount));
             JdbcTemplate template = new JdbcTemplate(dataSource);
-            SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(template).withProcedureName("USP_VALIDATE_LIMIT");
+            SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(template)
+                    .withoutProcedureColumnMetaDataAccess()
+                    .withProcedureName("USP_VALIDATE_LIMIT");
             MapSqlParameterSource input = new MapSqlParameterSource();
             input.addValue("cifId", cifId);
             input.addValue("trxType", beneficiaryTypeCode);
