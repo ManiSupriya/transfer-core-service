@@ -1,27 +1,25 @@
 package com.mashreq.transfercoreservice.common;
 
 import com.mashreq.ms.exceptions.GenericException;
-import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class LocalIbanValidatorTest {
+public class LocalIbanValidatorTest {
     private LocalIbanValidator localIbanValidator;
 
     @Test
     void testValidUAEIban() {
         localIbanValidator = new LocalIbanValidator("AE", "033", 23, 12);
         String bankCode = localIbanValidator.validate("AE280330000010698008304");
-        Assert.assertEquals("033", bankCode);
+        assertEquals("033", bankCode);
     }
 
     @Test
     void testValidEgyptIban() {
         localIbanValidator = new LocalIbanValidator("EG", "0046", 29, 12);
         String bankCode = localIbanValidator.validate("EG690046000400000059040009945");
-        Assert.assertEquals("0046", bankCode);
+        assertEquals("0046", bankCode);
     }
 
     @Test
@@ -29,9 +27,9 @@ class LocalIbanValidatorTest {
         localIbanValidator = new LocalIbanValidator("AE", "033", 23, 12);
         try {
             localIbanValidator.validate("AE280330000050698008304");
-            Assert.fail();
+            fail();
         } catch (GenericException ex) {
-            Assert.assertEquals("TN-8027", ex.getErrorCode());
+            assertEquals("TN-8027", ex.getErrorCode());
         }
     }
 
@@ -40,9 +38,9 @@ class LocalIbanValidatorTest {
         localIbanValidator = new LocalIbanValidator("EG", "0046", 29, 12);
         try {
             localIbanValidator.validate("EG690046000400000059040009947");
-            Assert.fail();
+            fail();
         } catch (GenericException ex) {
-            Assert.assertEquals("TN-8027", ex.getErrorCode());
+            assertEquals("TN-8027", ex.getErrorCode());
         }
     }
 
@@ -51,9 +49,9 @@ class LocalIbanValidatorTest {
         localIbanValidator = new LocalIbanValidator("AE", "033", 23, 12);
         try {
             localIbanValidator.validate("AE2803300000506980084");
-            Assert.fail();
+            fail();
         } catch (GenericException ex) {
-            Assert.assertEquals("TN-8028", ex.getErrorCode());
+            assertEquals("TN-8028", ex.getErrorCode());
         }
     }
 
@@ -61,20 +59,27 @@ class LocalIbanValidatorTest {
     void testExtractAccountNumberIfMashreqIban() {
         localIbanValidator = new LocalIbanValidator("AE", "033", 23, 12);
         String accountNumber = localIbanValidator.extractAccountNumberIfMashreqIban("AE280330000010698008304", "033");
-        Assert.assertEquals("010698008304", accountNumber);
+        assertEquals("010698008304", accountNumber);
     }
 
     @Test
     void testExtractAccountNumberNonMashreq() {
         localIbanValidator = new LocalIbanValidator("AE", "033", 23, 12);
         String accountNumber = localIbanValidator.extractAccountNumberIfMashreqIban("AE280370000010698008304", "037");
-        Assert.assertNull(accountNumber);
+        assertNull(accountNumber);
+    }
+
+    @Test
+    void testExtractAccountNumberNullIban() {
+        localIbanValidator = new LocalIbanValidator("AE", "033", 23, 12);
+        String accountNumber = localIbanValidator.extractAccountNumberIfMashreqIban(null, "033");
+        assertNull(accountNumber);
     }
 
     @Test
     void testLocalIban() {
         localIbanValidator = new LocalIbanValidator("AE", "033", 23, 12);
-        Assert.assertTrue(localIbanValidator.isLocalIban("AE280330000010698008304"));
-        Assert.assertFalse(localIbanValidator.isLocalIban("EG690046000400000059040009945"));
+        assertTrue(localIbanValidator.isLocalIban("AE280330000010698008304"));
+        assertFalse(localIbanValidator.isLocalIban("EG690046000400000059040009945"));
     }
 }
