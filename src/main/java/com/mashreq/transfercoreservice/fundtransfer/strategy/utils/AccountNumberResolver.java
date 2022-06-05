@@ -9,12 +9,12 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-public class MashreqUAEAccountNumberResolver {
+public class AccountNumberResolver {
     private final Integer uaeIbanLength;
     private final Integer accountNumberLength;
     
-    public MashreqUAEAccountNumberResolver(@Value("${app.local.iban.length}") Integer uaeIbanLength,
-										   @Value("${app.local.iban.accountNumber}") Integer accountNumberLength) {
+    public AccountNumberResolver( @Value("${app.local.iban.length}") Integer uaeIbanLength,
+								  @Value("${app.local.iban.accountNumber}") Integer accountNumberLength) {
 		this.accountNumberLength = accountNumberLength;
 		this.uaeIbanLength = uaeIbanLength;
     	
@@ -23,7 +23,7 @@ public class MashreqUAEAccountNumberResolver {
     public String generateAccountNumber(String acountIdentifier) {
     	log.info("generating account number for {}",HtmlEscapeCache.htmlEscape(acountIdentifier));
     	if(uaeIbanLength.equals(acountIdentifier.length())){
-    		/**returning last 12 digits*/
+    		/**returning last xx digits*/
     		return acountIdentifier.substring(uaeIbanLength - accountNumberLength, uaeIbanLength);
     	}
 		return acountIdentifier;

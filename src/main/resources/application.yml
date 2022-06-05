@@ -113,14 +113,13 @@ app:
     currency: ${LOCAL_CURRENCY:AED}
     transfer.product.id: 'DBLC'
     transaction.code: '096'
-    country.iso: 'AE'
-    currency.iso: '784'
-    address: 'UNITED ARAB EMIRATES'
+    country.iso: ${LOCAL_COUNTRY_ISO:AE}
+    address: ${LOCAL_ADDRESS:UNITED ARAB EMIRATES}
     iban:
-      length: 23
+      length: ${IBAN_LENGTH:23}
       accountNumber: ${MASHREQ_ACCOUNTNUMBER_LENGTH:12}
     bank:
-      code: '033'
+      code: ${LOCAL_BANK_CODE:033}
   loyalty:
     timeInterval: 1
     smilesProductBin: 524179

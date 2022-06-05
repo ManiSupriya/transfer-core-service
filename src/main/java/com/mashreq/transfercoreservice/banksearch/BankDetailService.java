@@ -1,6 +1,5 @@
 package com.mashreq.transfercoreservice.banksearch;
 
-import static com.mashreq.transfercoreservice.common.UAEIbanValidator.validateIban;
 import static com.mashreq.transfercoreservice.errors.ExceptionUtils.genericException;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BANK_NOT_FOUND_WITH_IBAN;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BANK_NOT_FOUND_WITH_SWIFT;
@@ -16,6 +15,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.mashreq.transfercoreservice.common.ExceptionUtils;
+import com.mashreq.transfercoreservice.common.LocalIbanValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -28,7 +28,7 @@ import com.mashreq.transfercoreservice.client.OmwCoreClient;
 import com.mashreq.transfercoreservice.client.dto.CoreBankDetails;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.BankDetails;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.MashreqUAEAccountNumberResolver;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.AccountNumberResolver;
 import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
 import com.mashreq.transfercoreservice.repository.BankRepository;
 
@@ -53,11 +53,9 @@ public class BankDetailService {
     private final SoapServiceProperties soapServiceProperties;
     private final BICCodeSearchService bicCodeSearchService;
     private final BankRepository bankRepository;
-    private final MashreqUAEAccountNumberResolver accountNumberResolver;
     private final MobCommonService mobCommonService;
-    
-    private final static String LOCAL_IBAN_CODE = "AE";
-    private final static String MASHREQ_UAE_BANK_CODE = "033";
+    private final LocalIbanValidator localIbanValidator;
+
     private static Map<String, String> ALL_COUNTRIES_MAP;
     
     public BankResultsDto getBankDetails(final String swiftCode, RequestMetaData requestMetadata) {
@@ -97,7 +95,7 @@ public class BankDetailService {
 		}
 		if ("iban".equals(bankDetailRequest.getType())) {
 			if("MT".equals(bankDetailRequest.getJourneyType()) &&
-					isLocalIban(bankDetailRequest.getValue())) {
+					localIbanValidator.isLocalIban(bankDetailRequest.getValue())) {
 				return getLocalIbanBankDetails(bankDetailRequest.getValue());
 			}
 			return ibanSearchMWService.fetchBankDetailsWithIban(channelTraceId, bankDetailRequest.getValue(), requestMetaData );
@@ -164,26 +162,19 @@ public class BankDetailService {
 	}
 
 	private List<BankResultsDto> getLocalIbanBankDetails(String iban) {
-		validateIban(iban);
+		String bankCode = localIbanValidator.validate(iban);
 
-		String bankcode = iban.substring(4, 7);
-		BankDetails bank = bankRepository.findByBankCode(bankcode).orElseThrow(() -> genericException(BANK_NOT_FOUND_WITH_IBAN));
+		BankDetails bank = bankRepository.findByBankCode(bankCode).orElseThrow(() -> genericException(BANK_NOT_FOUND_WITH_IBAN));
 
 		BankResultsDto bankResults = new BankResultsDto();
 		bankResults.setSwiftCode(bank.getSwiftCode());
 		bankResults.setBankName(bank.getBankName());
-		updateAccountNumber(bankResults,iban,bankcode);
+		updateAccountNumber(bankResults,iban,bankCode);
 		return Collections.singletonList(bankResults);
 	}
 
 	private void updateAccountNumber(BankResultsDto bankResults, String iban, String bankcode) {
-		if(StringUtils.isNotEmpty(iban) && MASHREQ_UAE_BANK_CODE.equals(bankcode)) {
-			bankResults.setAccountNo(accountNumberResolver.generateAccountNumber(iban));
-		}
-	}
-
-	private boolean isLocalIban(String iban) {
-		return Objects.nonNull(iban) && iban.startsWith(LOCAL_IBAN_CODE);
+		bankResults.setAccountNo(localIbanValidator.extractAccountNumberIfMashreqIban(iban, bankcode));
 	}
 
 	private void validateSwiftCode(String code) {
@@ -191,7 +182,6 @@ public class BankDetailService {
 		if(code.length() != 8 && code.length() != 11) {
 			GenericExceptionHandler.handleError(INVALID_SWIFT_CODE, INVALID_SWIFT_CODE.getErrorMessage());
 		}
-
 	}
 
 	private BankResultsDto modifyBankResult(BankResultsDto bankResult) {

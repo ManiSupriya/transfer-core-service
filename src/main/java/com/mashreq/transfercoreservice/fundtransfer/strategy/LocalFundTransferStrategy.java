@@ -143,6 +143,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
 
         validationContext.add("iban-length", LOCAL_IBAN_LENGTH);
+
         responseHandler(ibanValidator.validate(request, metadata, validationContext));
 
         //Deal Validator

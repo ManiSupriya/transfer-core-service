@@ -18,7 +18,7 @@ import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.MashreqUAEAccountNumberResolver;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.AccountNumberResolver;
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
@@ -71,11 +71,9 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     private final AsyncUserEventPublisher auditEventPublisher;
     private final NotificationService notificationService;
     private final AccountFreezeValidator freezeValidator;
-    private final MashreqUAEAccountNumberResolver accountNumberResolver;
+    private final AccountNumberResolver accountNumberResolver;
     private final PostTransactionService postTransactionService;
     private final CCTransactionEligibilityValidator ccTrxValidator;
-    @Value("${app.local.transaction.code:096}")
-    private String transactionCode;
     @Value("${app.local.currency}")
     private String localCurrency;
     protected final String MASHREQ = "Mashreq";
