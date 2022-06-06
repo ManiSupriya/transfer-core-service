@@ -10,21 +10,21 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class AccountNumberResolver {
-    private final Integer uaeIbanLength;
-    private final Integer accountNumberLength;
+    private final int ibanLength;
+    private final int accountNumberLength;
     
-    public AccountNumberResolver( @Value("${app.local.iban.length}") Integer uaeIbanLength,
+    public AccountNumberResolver( @Value("${app.local.iban.length}") Integer ibanLength,
 								  @Value("${app.local.iban.accountNumber}") Integer accountNumberLength) {
 		this.accountNumberLength = accountNumberLength;
-		this.uaeIbanLength = uaeIbanLength;
+		this.ibanLength = ibanLength;
     	
     }
     
     public String generateAccountNumber(String acountIdentifier) {
     	log.info("generating account number for {}",HtmlEscapeCache.htmlEscape(acountIdentifier));
-    	if(uaeIbanLength.equals(acountIdentifier.length())){
+    	if(ibanLength == acountIdentifier.length()){
     		/**returning last xx digits*/
-    		return acountIdentifier.substring(uaeIbanLength - accountNumberLength, uaeIbanLength);
+    		return acountIdentifier.substring(ibanLength - accountNumberLength, ibanLength);
     	}
 		return acountIdentifier;
     }
