@@ -77,9 +77,6 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     @Value("${app.local.currency}")
     private String localCurrency;
 
-//    @Value("${app.local.transaction.code:015}")
-//    private String transactionCode;
-
     //Todo: Replace with native currency fetched from API call
     @PostConstruct
     private void initRoutingPrefixMap() {

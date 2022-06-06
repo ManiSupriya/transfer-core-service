@@ -23,7 +23,7 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.WithinMashreqStrategy;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.MashreqUAEAccountNumberResolver;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.AccountNumberResolver;
 import com.mashreq.transfercoreservice.fundtransfer.validators.AccountBelongsToCifValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.AccountFreezeValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
@@ -61,7 +61,7 @@ public class WithinMashreqPayLaterStrategy extends WithinMashreqStrategy {
 			BeneficiaryService beneficiaryService, LimitValidator limitValidator, MaintenanceService maintenanceService,
 			FundTransferMWService fundTransferMWService, BalanceValidator balanceValidator, DealValidator dealValidator,
 			AsyncUserEventPublisher auditEventPublisher, NotificationService notificationService,
-			AccountFreezeValidator freezeValidator, MashreqUAEAccountNumberResolver accountNumberResolver,
+			AccountFreezeValidator freezeValidator, AccountNumberResolver accountNumberResolver,
 			PostTransactionService postTransactionService,
 			FundTransferOrderRepository fundTransferOrderRepository,
 			SequenceNumberGenerator seqGenerator, CCTransactionEligibilityValidator ccTrxValidator) {

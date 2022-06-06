@@ -30,7 +30,7 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.MashreqUAEAccountNumberResolver;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.AccountNumberResolver;
 import com.mashreq.transfercoreservice.fundtransfer.validators.AccountBelongsToCifValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.AccountFreezeValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
@@ -79,7 +79,7 @@ public class WithinMashreqPayLaterStrategyTest {
 	@Mock
 	private AccountFreezeValidator freezeValidator;
 	@Mock
-	private MashreqUAEAccountNumberResolver accountNumberResolver;
+	private AccountNumberResolver accountNumberResolver;
 	@Mock
 	private FundTransferOrderRepository fundTransferOrderRepository;
 	@Mock

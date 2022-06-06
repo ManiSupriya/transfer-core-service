@@ -343,6 +343,13 @@
             <version>31.0.1-jre</version>
         </dependency>
 
+        <dependency>
+            <groupId>commons-validator</groupId>
+            <artifactId>commons-validator</artifactId>
+            <version>1.7</version>
+        </dependency>
+
+
         <!-- Testing -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

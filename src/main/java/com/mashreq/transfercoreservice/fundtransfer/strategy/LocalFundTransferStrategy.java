@@ -68,7 +68,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     private static final String LOCAL_PRODUCT_ID = "DBLC";
     public static final String LOCAL_TRANSACTION_CODE = "15";
     public static final String SPACE_CHAR = " ";
-    public static final int maxLength = 35;
+    public static final int MAX_LENGTH = 35;
     public static final String NON = "non-";
     private final IBANValidator ibanValidator;
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
@@ -95,8 +95,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     private final CCTransactionEligibilityValidator ccTrxValidator;
     @Value("${app.local.currency}")
     private String localCurrency;
-
-    @Value("${app.uae.address}")
+    @Value("${app.local.address}")
     private String address;
 
 
@@ -144,6 +143,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
 
         validationContext.add("iban-length", LOCAL_IBAN_LENGTH);
+
         responseHandler(ibanValidator.validate(request, metadata, validationContext));
 
         //Deal Validator
@@ -459,11 +459,11 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
                                                                   LimitValidatorResponse validationResult, CurrencyConversionDto currencyConversionDto) {
     	String address3 = null;
     	if(StringUtils.isNotBlank(beneficiaryDto.getAddressLine2()) && StringUtils.isNotBlank(beneficiaryDto.getAddressLine3())){
-    		address3 = StringUtils.left(beneficiaryDto.getAddressLine2().concat(SPACE_CHAR+beneficiaryDto.getAddressLine3()), maxLength);
+    		address3 = StringUtils.left(beneficiaryDto.getAddressLine2().concat(SPACE_CHAR+beneficiaryDto.getAddressLine3()), MAX_LENGTH);
     	} else if(StringUtils.isNotBlank(beneficiaryDto.getAddressLine2()) && StringUtils.isBlank(beneficiaryDto.getAddressLine3())){
-    		address3 = StringUtils.left(beneficiaryDto.getAddressLine2(), maxLength);
+    		address3 = StringUtils.left(beneficiaryDto.getAddressLine2(), MAX_LENGTH);
     	} else if(StringUtils.isBlank(beneficiaryDto.getAddressLine2()) && StringUtils.isNotBlank(beneficiaryDto.getAddressLine3())){
-    		address3 = StringUtils.left(beneficiaryDto.getAddressLine3(), maxLength);
+    		address3 = StringUtils.left(beneficiaryDto.getAddressLine3(), MAX_LENGTH);
     	}
     	return FundTransferRequest.builder()
                 .productId(LOCAL_PRODUCT_ID)
@@ -479,8 +479,8 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
                 .finTxnNo(request.getFinTxnNo())
                 .sourceCurrency(selectedSourceOfFund.getCurrency())
                 .sourceBranchCode(selectedSourceOfFund.getSegment())
-                .beneficiaryFullName(StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength ? StringUtils.left(beneficiaryDto.getFullName(), maxLength) : beneficiaryDto.getFullName())
-                .beneficiaryAddressOne(StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength ? beneficiaryDto.getFullName().substring(maxLength) : null)
+                .beneficiaryFullName(StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > MAX_LENGTH ? StringUtils.left(beneficiaryDto.getFullName(), MAX_LENGTH) : beneficiaryDto.getFullName())
+                .beneficiaryAddressOne(StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > MAX_LENGTH ? beneficiaryDto.getFullName().substring(MAX_LENGTH) : null)
                 .beneficiaryAddressTwo(address)
                 .beneficiaryAddressThree(address3)
                 .destinationCurrency(localCurrency)

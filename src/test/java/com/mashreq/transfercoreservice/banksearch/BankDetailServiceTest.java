@@ -2,15 +2,13 @@ package com.mashreq.transfercoreservice.banksearch;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.times;
-import static org.mockito.ArgumentMatchers.any;
-
-import java.util.Collections;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.mashreq.transfercoreservice.common.LocalIbanValidator;
 import org.apache.commons.collections4.map.HashedMap;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,7 +22,6 @@ import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.OmwCoreClient;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.BankDetails;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.MashreqUAEAccountNumberResolver;
 import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
 import com.mashreq.transfercoreservice.repository.BankRepository;
 
@@ -51,14 +48,13 @@ public class BankDetailServiceTest {
     private BankRepository bankRepository;
 	@Mock
     private MobCommonService mobCommonService;
-	@Mock
-    private MashreqUAEAccountNumberResolver accountNumberResolver;
-	
+
 	@Before
 	public void init() {
+		LocalIbanValidator localIbanValidator = new LocalIbanValidator("AE", "033", 23, 12);
 		service = new BankDetailService(ibanSearchMWService, routingCodeSearchMWService, ifscCodeSearchMWService,
 				omwClient, bankDetailsMapper, soapServiceProperties, bicCodeSearchService, bankRepository,
-				accountNumberResolver, mobCommonService);
+				mobCommonService, localIbanValidator);
 	}
 	
 	
@@ -77,7 +73,6 @@ public class BankDetailServiceTest {
 		bankDetails.setSwiftCode("BOMLEADX");
 		String accNo = "010698008304";
 		Mockito.when(bankRepository.findByBankCode("033")).thenReturn(Optional.of(bankDetails));
-		Mockito.when(accountNumberResolver.generateAccountNumber(Mockito.anyString())).thenReturn(accNo);
 		List<BankResultsDto> response = service.getBankDetails(request, metadata );
 		assertEquals(1, response.size());
 		assertEquals(accNo, response.get(0).getAccountNo());

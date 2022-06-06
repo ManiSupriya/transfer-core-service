@@ -76,12 +76,13 @@ app:
     currency: 'AED'
     transaction.code: '015'
     transfer.product.id: 'DBLC'
-  uae:
+    country.iso: 'AE'
     address: 'UNITED ARAB EMIRATES'
     iban:
       length: 23
-  bank:
-    code: '033'
+      accountNumber: 12
+      bank:
+        code: '033'
   loyalty:
     timeInterval: 1
     smilesProductBin: 524179
