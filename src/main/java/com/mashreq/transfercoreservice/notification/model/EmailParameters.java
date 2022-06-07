@@ -9,8 +9,6 @@ import lombok.Setter;
 @Getter @Setter
 public class EmailParameters {
 
-
-    private String callCenterNo;
     private String emailSubject;
     private String fromEmailName;
     private String fromEmailAddress;

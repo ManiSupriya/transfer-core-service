@@ -15,7 +15,6 @@ import static com.mashreq.transfercoreservice.notification.model.NotificationTyp
 public class SMSConfig {
     private String priority;
     private String serviceId;
-    private String callCenterNo;
     private String ownAccountTransactionInitiated;
     private String plSiCreation;
     private String mashreqServiceId;
