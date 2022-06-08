@@ -131,7 +131,15 @@ app:
         StandingInstructionSubject: ${SI_EMAIL_SUBJECT:Standing instruction request}
         fromEmailName: ${NOTIFICATION_FROM_EMAIL_NAME:MashreqDigital}
         fromEmailAddress: ${NOTIFICATION_FROM_EMAIL_ADDRESS:MashreqDigital@mashreqbank.com}
-        callCenterNo: ${NOTIFICATION_EMAIL_CALL_CENTER_NO:04 424 6666}
+        localFundTransfer: templates/mt-within-own-accounts
+        otherFundTransfer: templates/mt-other-accounts
+        plSiFundTransfer: templates/plEmailTemplate
+      EG:
+        emailSubject: ${NOTIFICATION_EMAIL_SUBJECT:%s Transfer request via %s}
+        payLaterSubject: ${PL_EMAIL_SUBJECT:Pay later request}
+        StandingInstructionSubject: ${SI_EMAIL_SUBJECT:Standing instruction request}
+        fromEmailName: ${EMAIL_FROM_NAME_MOB:MashreqDigital}
+        fromEmailAddress: ${EMAIL_FROM_ADD_MOB:MashreqDigital@mashreq.com}
         localFundTransfer: templates/mt-within-own-accounts
         otherFundTransfer: templates/mt-other-accounts
         plSiFundTransfer: templates/plEmailTemplate
