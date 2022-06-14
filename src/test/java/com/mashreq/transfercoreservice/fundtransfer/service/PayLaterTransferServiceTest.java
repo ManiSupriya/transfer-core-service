@@ -23,7 +23,6 @@ import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPRequestDTO;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPResponseDTO;
-import com.mashreq.transfercoreservice.client.service.OTPService;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
@@ -47,8 +46,6 @@ public class PayLaterTransferServiceTest {
 	FundTransferResponseDTO fundTransferResponseDTO;
 	@Mock
 	VerifyOTPRequestDTO verifyOTPRequestDTO;
-	@Mock
-	OTPService iamService;
 	@Mock
 	AsyncUserEventPublisher asyncUserEventPublisher;
 	@Mock
@@ -91,8 +88,6 @@ public class PayLaterTransferServiceTest {
 		verifyOTPResponseDTO.setAuthenticated(true);
 		Mockito.doNothing().when(asyncUserEventPublisher).publishSuccessEvent(Mockito.any(), Mockito.any(),
 				Mockito.any());
-		Mockito.when(iamService.verifyOTP(Mockito.any())).thenReturn(Response.<VerifyOTPResponseDTO>builder()
-				.status(ResponseStatus.SUCCESS).data(verifyOTPResponseDTO).build());
 		FundTransferResponseDTO fundTransferResponseDTO = payLaterTransferService.transferFund(metaData,
 				fundTransferRequestDTO);
 		Assert.assertNull(fundTransferResponseDTO);
@@ -103,12 +98,6 @@ public class PayLaterTransferServiceTest {
 	public void transferFundTestOTPFailure() {
 		VerifyOTPResponseDTO verifyOTPResponseDTO = new VerifyOTPResponseDTO();
 		verifyOTPResponseDTO.setAuthenticated(false);
-		Mockito.doNothing().when(asyncUserEventPublisher).publishFailedEsbEvent(Mockito.any(), Mockito.any(),
-				Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-		Mockito.when(iamService.verifyOTP(Mockito.any()))
-				.thenReturn(Response.<VerifyOTPResponseDTO>builder().status(ResponseStatus.FAIL).errorCode("TN-5016")
-						.errorDetails("Something went wrong with OTP external service").data(verifyOTPResponseDTO)
-						.build());
 		try {
 			payLaterTransferService.transferFund(metaData, fundTransferRequestDTO);
 		} catch (GenericException genericException) {

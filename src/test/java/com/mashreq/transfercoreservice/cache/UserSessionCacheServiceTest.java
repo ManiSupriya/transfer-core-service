@@ -1,6 +1,7 @@
 package com.mashreq.transfercoreservice.cache;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.mashreq.mobcommons.cache.MobRedisService;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.mobcommons.utils.ContextCacheKeysSuffix;
 import com.mashreq.ms.commons.cache.IAMSessionUser;

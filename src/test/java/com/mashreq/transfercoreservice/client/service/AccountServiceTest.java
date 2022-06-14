@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.mashreq.mobcommons.cache.MobRedisService;
 import com.mashreq.transfercoreservice.client.dto.CountryDto;
 import org.apache.commons.collections4.MapUtils;
 import org.junit.Test;
@@ -21,7 +22,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericException;
-import com.mashreq.transfercoreservice.cache.MobRedisService;
 import com.mashreq.transfercoreservice.cache.UserSessionCacheService;
 import com.mashreq.transfercoreservice.client.AccountClient;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;

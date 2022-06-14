@@ -8,6 +8,8 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
+import com.mashreq.transactionauth.annotations.RequiresAuthorization;
+import com.mashreq.transactionauth.twofa.TwoFaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -50,6 +52,7 @@ public class FundTransferController {
             @ApiResponse(code = 500, message = "Something went wrong")
     })
     @PostMapping
+    @RequiresAuthorization( serviceTypes = {"WAMA","LOCAL","INFT","DAR_AL_BER","BAIT_AL_KHAIR","DUBAI_CARE","QRIN","QRPK","QRT","QROC","XAU", "XAG"})
     @UniqueRequest(clazz = FundsTransferRequestResolver.class,flowName = Constants.FUND_TRANSFER_REQUEST,enableIdentifierHashing = false)
     public Response transferFunds(@RequestAttribute("X-REQUEST-METADATA") RequestMetaData metaData,
                                   @Valid @RequestBody FundTransferRequestDTO request) {
