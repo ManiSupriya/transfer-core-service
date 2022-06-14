@@ -10,6 +10,7 @@ import javax.validation.Valid;
 
 import com.mashreq.transactionauth.annotations.RequiresAuthorization;
 import com.mashreq.transactionauth.twofa.TwoFaType;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -52,12 +53,18 @@ public class FundTransferController {
             @ApiResponse(code = 500, message = "Something went wrong")
     })
     @PostMapping
-    @RequiresAuthorization( serviceTypes = {"WAMA","LOCAL","INFT","DAR_AL_BER","BAIT_AL_KHAIR","DUBAI_CARE","QRIN","QRPK","QRT","QROC","XAU", "XAG"})
+    @RequiresAuthorization( failOnMissingOtp = false)
     @UniqueRequest(clazz = FundsTransferRequestResolver.class,flowName = Constants.FUND_TRANSFER_REQUEST,enableIdentifierHashing = false)
     public Response transferFunds(@RequestAttribute("X-REQUEST-METADATA") RequestMetaData metaData,
                                   @Valid @RequestBody FundTransferRequestDTO request) {
         log.info("{} Fund transfer for request received ", htmlEscape(request.getServiceType()));
         log.info("Fund transfer meta data created {} ", htmlEscape(metaData));
+        if (!StringUtils.equals(ServiceType.WYMA.getName(),request.getServiceType()) && !metaData.isOtpVerified()) {
+            log.error("2FA authentication failed in update customer profile operation.");
+            GenericExceptionHandler.handleError(TransferErrorCode.TWOFA_AUTH_FAILED,
+                    TransferErrorCode.TWOFA_AUTH_FAILED.getErrorMessage());
+        }
+
         if(request.getAmount() == null && request.getSrcAmount() ==null){
             GenericExceptionHandler.handleError(TransferErrorCode.INVALID_REQUEST, "Bad Request", "Both debitAmount and credit amount are missing");
         }

@@ -60,6 +60,7 @@ public class FundTransferControllerTest {
 		FundTransferRequestDTO request = new FundTransferRequestDTO();
 		request.setOrderType("PL");
 		request.setAmount(BigDecimal.TEN);
+		request.setServiceType("WYMA");
 		when(serviceFactory.getServiceAppropriateService(Mockito.eq(request))).thenReturn(payLaterTransferService);
 		FundTransferResponseDTO expectedResponse = FundTransferResponseDTO.builder().build();
 		when(payLaterTransferService.transferFund(metaData, request)).thenReturn(expectedResponse);
