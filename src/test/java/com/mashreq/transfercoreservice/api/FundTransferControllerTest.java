@@ -69,6 +69,17 @@ public class FundTransferControllerTest {
 		assertEquals(expectedResponse, transferFunds.getData());
 	}
 
+	@Test(expected = GenericException.class)
+	public void test_withRequestWhichCannot_be_processed_due_to_otp() {
+		RequestMetaData metaData = getMetaData();
+		FundTransferRequestDTO request = new FundTransferRequestDTO();
+		request.setOrderType("PL");
+		request.setAmount(BigDecimal.TEN);
+		request.setServiceType("WAMA");
+		controller.transferFunds(metaData , request);
+
+	}
+
 	@Test
 	public void testEligibility() {
 		RequestMetaData metaData = getMetaData();
