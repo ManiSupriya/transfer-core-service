@@ -87,6 +87,8 @@ public enum TransferErrorCode implements ErrorCode {
     CONNECTED_ACCOUNT_EMPTY("TN-4004", "Connected Account is empty"),
     ACCOUNT_RESOURCES_MISMATCH("TN-4005", "There was not enough resources in account "),
     LOCAL_CURRENCY_MISMATCH("TN-4006", "Local currency does not match with transaction currency"),
+    DEBIT_NOT_ALLOWED_FOR_EGP("TN-4007", "Only EGP Debit Account is allowed for selected beneficiary"),
+    CREDIT_NOT_ALLOWED_FOR_EGP("TN-4008", "Only EGP Beneficiary Account is allowed for selected Debit Account"),
 
     IBAN_NOT_FOUND("TN-5100", "IBAN not found"),
     ROUTING_CODE_NOT_FOUND("TN-5102", "Routing Code not found"),
@@ -136,7 +138,7 @@ public enum TransferErrorCode implements ErrorCode {
     QUICK_REM_SWIFT_CODE_NOT_FOUND("TN-7001", "Swift Code not found for beneficiary"),
     QUICK_REM_COUNTRY_CODE_NOT_FOUND("TN-7002", "Country Code not found for beneficiary"),
 
-    QUICK_REM_NOT_ALLOWED_FOR_COMPANY("TN-7003", "Beneficiary type is not allowed for quick remit"),
+    QUICK_REM_NOT_ALLOWED_FOR_COMPANY("TN-7003", "Beneficiary type is not allowed for QuickRemit"),
 
     BENE_EXTERNAL_SERVICE_ERROR("TN-5010", "Something went wrong with beneficiary external service"),
     ACC_EXTERNAL_SERVICE_ERROR("TN-5011", "Something went wrong with account external service"),
