@@ -96,6 +96,17 @@ public class TestUtil {
         beneficiaryDto.setRoutingCode("X110280");
         return beneficiaryDto;
     }
+    public static BeneficiaryDto getPKCompanyBeneficiaryDto() {
+        BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
+        beneficiaryDto.setServiceTypeCode("INFT");
+        beneficiaryDto.setSwiftCode("CITILKLXXXX");
+        beneficiaryDto.setStatus(BeneficiaryStatus.ACTIVE.name());
+        beneficiaryDto.setBankCountryISO("PK");
+        beneficiaryDto.setId(new Long(121));
+        beneficiaryDto.setRoutingCode("X110280");
+        beneficiaryDto.setBeneficiaryAccountType(BeneficiaryAccountType.COMPANY.name());
+        return beneficiaryDto;
+    }
 
     public static BeneficiaryDto getBeneficiaryDtoV2() {
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
