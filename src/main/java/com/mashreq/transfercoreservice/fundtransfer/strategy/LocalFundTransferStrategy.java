@@ -64,7 +64,6 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     private static final String SOURCE_OF_FUND_CC = "Credit Card";
 
 
-    private static final int LOCAL_IBAN_LENGTH = 23;
     private static final String LOCAL_PRODUCT_ID = "DBLC";
     public static final String LOCAL_TRANSACTION_CODE = "15";
     public static final String SPACE_CHAR = " ";
@@ -97,6 +96,8 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     private String localCurrency;
     @Value("${app.local.address}")
     private String address;
+    @Value("${app.local.iban.length}")
+    private int ibanLength;
 
 
 
@@ -142,7 +143,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
 
 
-        validationContext.add("iban-length", LOCAL_IBAN_LENGTH);
+        validationContext.add("iban-length", ibanLength);
 
         responseHandler(ibanValidator.validate(request, metadata, validationContext));
 
@@ -296,7 +297,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         validationContext.add("to-account-currency", localCurrency);
         responseHandler(beneficiaryValidator.validate(request, requestMetaData, validationContext));
 
-        validationContext.add("iban-length", LOCAL_IBAN_LENGTH);
+        validationContext.add("iban-length", ibanLength);
         responseHandler(ibanValidator.validate(request, requestMetaData, validationContext));
 
         //Deal Validator

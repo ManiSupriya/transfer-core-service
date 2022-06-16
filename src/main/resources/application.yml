@@ -109,6 +109,8 @@ external:
         cardLessCashFees: '0'
 
 app:
+  auth:
+    security-service-url: ${IAM_SERVICE_URL:http://ms-security-iam:8080}
   local:
     currency: ${LOCAL_CURRENCY:AED}
     transfer.product.id: 'DBLC'
@@ -127,7 +129,6 @@ app:
     maintenance: ${MAINTENANCE_SERVICE_URL:http://maintenance-service:8080}
     customers: ${CUSTOMER_SERVICE_URL:http://customers-service:8080}
     accounts: ${ACCOUNT_SERVICE_URL:http://accounts-service:8080}
-    otp: ${IAM_SERVICE_URL:http://ms-security-iam:8080}
     cards: ${CARD_SERVICE_URL:http://cards-service:8080}
     notification: ${NOTIFICATION_SERVICE:http://notification-service:8080}
     mobcustomer: ${MOB_CUSTOMER_SERVICE:http://mob-customer-service:8080}
@@ -240,14 +241,22 @@ feign:
     max-connections: ${FEIGN_MAX_CONNECTION:200}
     connection-timeout: ${FEIGN_CONNECTION_TIMEOUT:2000}
 
+
+
 redis:
-  enable: true
-  write.ttl: ${REDIS_TTL:60}
+  enableRedisCache: true
   host: ${REDIS_HOST:kyc-redis}
   port: ${REDIS_PORT:6379}
-  timeout: ${REDIS_TIMEOUT:5000}
   password: ${REDIS_PASSWORD:P@ssword123$}
   ssl: ${REDIS_SSL:false}
+  timeout: ${REDIS_TIMEOUT:5000}
+  maxTotal: ${REDIS_MAX_TOTAL:128}8
+  maxIdle: ${REDIS_MAX_IDLE:128}
+  minIdle: ${REDIS_MIN_IDLE:16}
+  minEvictableIdleTime: ${REDIS_MIN_EVICTABLE_IDLE_TIME:60}
+  timeBetweenEviction: ${REDIS_TIME_BETWEEN_EVICTION_RUNS:30}
+  numTestsPerEvictionRun: ${REDIS_NUM_TESTS_PER_EVICTION_RUN:3}
+  writeTtl: ${REDIS_TTL:60}
 
 async:
   thread:

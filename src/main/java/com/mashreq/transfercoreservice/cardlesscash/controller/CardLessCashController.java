@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.mashreq.transactionauth.annotations.RequiresAuthorization;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -91,6 +92,7 @@ public class CardLessCashController {
             @ApiResponse(code = 401, message = "You are not authorized to view the resource")
     })
     @PostMapping(CardLessCashConstants.URL.CLC_REQUEST_URL)
+	@RequiresAuthorization( serviceTypes = {"CLC"})
 	public Response<CardLessCashGenerationResponse> cardLessCashRemitGenerationRequest(
 			@RequestHeader(X_USSM_USER_LOGIN_ID) final String userId,
 			@RequestHeader(X_USSM_USER_MOBILE_NUMBER) final String userMobileNumber,
