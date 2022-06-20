@@ -2,6 +2,8 @@ package com.mashreq.transfercoreservice.fundtransfer.strategy.paylater;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 
@@ -32,6 +34,7 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.AccountBelongsToC
 import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.BeneficiaryValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.CCTransactionEligibilityValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.CurrencyValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.PaymentPurposeValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
@@ -76,15 +79,19 @@ public class InternationalPayLaterFundTransferStrategyTest {
 	private SequenceNumberGenerator seqGenerator;
 	@Mock
 	private CCTransactionEligibilityValidator ccTrxValidator;
+	@Mock
+	private CurrencyValidator currencyValidator;
 	
 	@Before
 	public void init () {
 		internationalPayLaterFundTransferStrategy = new InternationalPayLaterFundTransferStrategy( accountService, accountBelongsToCifValidator, paymentPurposeValidator, beneficiaryValidator,
 				balanceValidator, fundTransferMWService, maintenanceService, mobCommonService, dealValidator,
 				notificationService, beneficiaryService, limitValidator,ccTrxValidator,
-				fundTransferOrderRepository,seqGenerator);
+				fundTransferOrderRepository,seqGenerator, currencyValidator);
 		ReflectionTestUtils.setField(internationalPayLaterFundTransferStrategy,"postTransactionService", postTransactionService);
 		ReflectionTestUtils.setField(internationalPayLaterFundTransferStrategy, "localCurrency", "AED");
+		
+		when(currencyValidator.validate(any(), any(), any())).thenReturn(ValidationResult.builder().success(true).build());
 	}
 	
 	@Test

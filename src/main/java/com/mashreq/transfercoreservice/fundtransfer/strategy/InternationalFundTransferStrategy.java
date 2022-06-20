@@ -70,6 +70,8 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
 
     private final HashMap<String, String> routingSuffixMap = new HashMap<>();
     private final CCTransactionEligibilityValidator ccTrxValidator;
+    
+    private final CurrencyValidator currencyValidator;
 
     @Autowired
     private PostTransactionService postTransactionService;
@@ -125,6 +127,8 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         //Balance Validation
         final AccountDetailsDTO sourceAccountDetailsDTO = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
         validationContext.add("from-account", sourceAccountDetailsDTO);
+        
+        responseHandler(currencyValidator.validate(request, metadata, validationContext));
 
         final CurrencyConversionDto currencyConversionDto = validateAccountBalance(request, metadata, validationContext, beneficiaryDto, sourceAccountDetailsDTO);
         final BigDecimal transferAmountInSrcCurrency = currencyConversionDto.getAccountCurrencyAmount();
