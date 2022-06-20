@@ -28,7 +28,7 @@ public class LocalCurrencyValidator extends CurrencyValidator {
 
 	private final String localCurrency;
 
-	public LocalCurrencyValidator(String localCurrency,
+	public LocalCurrencyValidator(@Value("${app.local.currency}") String localCurrency,
 			AsyncUserEventPublisher auditEventPublisher) {
 		super(auditEventPublisher);
 		this.localCurrency = localCurrency;
