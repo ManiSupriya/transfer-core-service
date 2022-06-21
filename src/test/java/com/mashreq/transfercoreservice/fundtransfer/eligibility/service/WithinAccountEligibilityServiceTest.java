@@ -13,6 +13,7 @@ import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.Curre
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CurrencyValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.LimitValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.AccountNumberResolver;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 import com.mashreq.transfercoreservice.util.TestUtil;
 import org.junit.Before;
@@ -52,6 +53,9 @@ public class WithinAccountEligibilityServiceTest {
 	
 	@Mock
 	private CurrencyValidator retailCurrencyValidator;
+	
+	@Mock
+	private AccountNumberResolver accountNumberResolver;
 
 	private RequestMetaData metaData = RequestMetaData.builder().build();
 
@@ -64,7 +68,8 @@ public class WithinAccountEligibilityServiceTest {
 				limitValidatorFactory,
 				maintenanceService,
 				userEventPublisher,
-				currencyValidatorFactory);
+				currencyValidatorFactory,
+				accountNumberResolver);
 		ReflectionTestUtils.setField(service, "localCurrency", "AED");
 		
 		when(currencyValidatorFactory.getValidator(any())).thenReturn(retailCurrencyValidator);
@@ -104,6 +109,8 @@ public class WithinAccountEligibilityServiceTest {
 		fundTransferEligibiltyRequestDTO.setFromAccount("1234567890");
 		fundTransferEligibiltyRequestDTO.setCurrency("USD");
 		fundTransferEligibiltyRequestDTO.setTxnCurrency("AED");
+		
+		when(accountNumberResolver.generateAccountNumber(any())).thenReturn("1234567000");
 
 		UserDTO userDTO = new UserDTO();
 
