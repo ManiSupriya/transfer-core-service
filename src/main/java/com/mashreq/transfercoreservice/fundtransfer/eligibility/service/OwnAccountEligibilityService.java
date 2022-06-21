@@ -1,8 +1,10 @@
 package com.mashreq.transfercoreservice.fundtransfer.eligibility.service;
 
 import java.math.BigDecimal;
-import java.util.List;
 
+import com.mashreq.transfercoreservice.fundtransfer.validators.RuleSpecificValidators.RuleSpecificValidatorImpl;
+import com.mashreq.transfercoreservice.fundtransfer.validators.RuleSpecificValidators.RuleSpecificValidatorRequest;
+import com.mashreq.transfercoreservice.fundtransfer.validators.Validator;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
@@ -16,7 +18,6 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.enums.FundsTransferEligibility;
-import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.AccountBelongsToCifValidator;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CurrencyValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.LimitValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
@@ -35,6 +36,7 @@ public class OwnAccountEligibilityService implements TransferEligibilityService{
 	private final AccountService accountService;
 	private final MaintenanceService maintenanceService;
 	private final CurrencyValidatorFactory currencyValidatorFactory;
+	private final RuleSpecificValidatorImpl RuleSpecificValidatorProvider;
 
 	@Override
 	public EligibilityResponse checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request, UserDTO userDTO) {
@@ -61,6 +63,31 @@ public class OwnAccountEligibilityService implements TransferEligibilityService{
 
 		validateAccountContext.add("transfer-amount-in-source-currency", transferAmountInSrcCurrency);
 
+		Validator<RuleSpecificValidatorRequest> sourceCcyValidator =
+				RuleSpecificValidatorProvider.getCcyValidator(
+						fromAccount.getCurrency(),
+						"WYMA"
+				);
+		Validator<RuleSpecificValidatorRequest> destinationCcyValidator =
+				RuleSpecificValidatorProvider.getCcyValidator(
+						toAccount.getCurrency(),
+						"WYMA"
+				);
+		RuleSpecificValidatorRequest validationRequest = null;
+		if (sourceCcyValidator != null || destinationCcyValidator != null) {
+			validationRequest = RuleSpecificValidatorRequest.builder()
+					.destinationAccount(toAccount)
+					.destinationAccountCurrency(toAccount.getCurrency())
+					.sourceAccountCurrency(fromAccount.getCurrency())
+					.txnCurrency(request.getTxnCurrency())
+					.txnAmount(request.getAmount()).build();
+		}
+		final ValidationContext validationContext = new ValidationContext();
+		if (sourceCcyValidator != null) {
+			responseHandler(sourceCcyValidator.validate(validationRequest, metaData, validationContext));
+		} else if (destinationCcyValidator != null) {
+			responseHandler(destinationCcyValidator.validate(validationRequest, metaData, validationContext));
+		}
 		// Limit Validation
 		final BigDecimal limitUsageAmount = getLimitUsageAmount(fromAccount, transferAmountInSrcCurrency);
 		limitValidatorFactory.getValidator(metaData).validate(userDTO, request.getServiceType(), limitUsageAmount, metaData, null);

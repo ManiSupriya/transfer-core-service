@@ -1,8 +1,10 @@
 package com.mashreq.transfercoreservice.fundtransfer.eligibility.service;
 
 import java.math.BigDecimal;
-import java.util.List;
 
+import com.mashreq.transfercoreservice.fundtransfer.validators.RuleSpecificValidators.RuleSpecificValidatorRequest;
+import com.mashreq.transfercoreservice.fundtransfer.validators.RuleSpecificValidators.RuleSpecificValidatorImpl;
+import com.mashreq.transfercoreservice.fundtransfer.validators.Validator;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
@@ -38,6 +40,7 @@ public class INFTAccountEligibilityService implements TransferEligibilityService
     private final BeneficiaryService beneficiaryService;
     private final CurrencyValidatorFactory currencyValidatorFactory;
     private final LimitValidatorFactory limitValidatorFactory;
+    private final RuleSpecificValidatorImpl CountrySpecificValidatorProvider;
 
     
     @Override
@@ -64,6 +67,20 @@ public class INFTAccountEligibilityService implements TransferEligibilityService
 
 		validationContext.add("beneficiary-dto", beneficiaryDto);
 		responseHandler(beneficiaryValidator.validate(request, metaData, validationContext));
+
+        Validator<RuleSpecificValidatorRequest> countrySpecificValidator =
+                CountrySpecificValidatorProvider.getCountryAndTransferTypeValidator(
+                        beneficiaryDto.getBankCountryISO(),
+                        "INFT"
+                );
+
+        if (countrySpecificValidator != null) {
+            RuleSpecificValidatorRequest validationRequest =
+                    RuleSpecificValidatorRequest.builder()
+                            .sourceAccountCurrency(request.getCurrency())
+                            .txnCurrency(request.getTxnCurrency()).build();
+            responseHandler(countrySpecificValidator.validate(validationRequest, metaData, validationContext));
+        }
 
         final AccountDetailsDTO sourceAccountDetailsDTO = accountService.getAccountDetailsFromCache(request.getFromAccount(), metaData);
 

@@ -1,14 +1,5 @@
 package com.mashreq.transfercoreservice.fundtransfer.eligibility.service;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
-
-import com.mashreq.transfercoreservice.errors.ExceptionUtils;
-import com.mashreq.transfercoreservice.errors.TransferErrorCode;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
@@ -25,10 +16,16 @@ import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityR
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.enums.FundsTransferEligibility;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.BeneficiaryValidator;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.LimitValidatorFactory;
+import com.mashreq.transfercoreservice.fundtransfer.validators.RuleSpecificValidators.RuleSpecificValidatorImpl;
+import com.mashreq.transfercoreservice.fundtransfer.validators.RuleSpecificValidators.RuleSpecificValidatorRequest;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
-
+import com.mashreq.transfercoreservice.fundtransfer.validators.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 
 @Slf4j
 @Service
@@ -43,6 +40,7 @@ public class WithinAccountEligibilityService implements TransferEligibilityServi
 	private final LimitValidatorFactory limitValidatorFactory;
 	private final MaintenanceService maintenanceService;
 	private final AsyncUserEventPublisher auditEventPublisher;
+	private final RuleSpecificValidatorImpl RuleSpecificValidatorProvider;
 
 	@Override
 	public EligibilityResponse checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request,
@@ -66,6 +64,30 @@ public class WithinAccountEligibilityService implements TransferEligibilityServi
 		// Limit Validation
 		Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId()) ? Long.parseLong(request.getBeneficiaryId())
 				: null;
+		Validator<RuleSpecificValidatorRequest> sourceCcyValidator =
+				RuleSpecificValidatorProvider.getCcyValidator(
+						request.getCurrency(),
+						"WAMA"
+				);
+		Validator<RuleSpecificValidatorRequest> destinationCcyValidator =
+				RuleSpecificValidatorProvider.getCcyValidator(
+						request.getDestinationAccountCurrency(),
+						"WAMA"
+				);
+		RuleSpecificValidatorRequest validationRequest = null;
+		if (sourceCcyValidator != null || destinationCcyValidator != null) {
+			validationRequest = RuleSpecificValidatorRequest.builder()
+					.beneficiary(beneficiaryDto)
+					.destinationAccountCurrency(request.getDestinationAccountCurrency())
+					.sourceAccountCurrency(request.getCurrency())
+					.txnCurrency(request.getTxnCurrency())
+					.txnAmount(request.getAmount()).build();
+		}
+		if (sourceCcyValidator != null) {
+			responseHandler(sourceCcyValidator.validate(validationRequest, metaData, validationContext));
+		} else if (destinationCcyValidator != null) {
+			responseHandler(destinationCcyValidator.validate(validationRequest, metaData, validationContext));
+		}
 
 		limitValidatorFactory.getValidator(metaData).validate(
 				userDTO, 
