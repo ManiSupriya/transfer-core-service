@@ -25,6 +25,7 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.enums.FundsTransferEligibility;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.BeneficiaryValidator;
+import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CurrencyValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.LimitValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
 
@@ -42,6 +43,7 @@ public class WithinAccountEligibilityService implements TransferEligibilityServi
 	private final LimitValidatorFactory limitValidatorFactory;
 	private final MaintenanceService maintenanceService;
 	private final AsyncUserEventPublisher auditEventPublisher;
+	private final CurrencyValidatorFactory currencyValidatorFactory;
 
 	@Value("${app.local.currency}")
 	private String localCurrency;
@@ -59,6 +61,8 @@ public class WithinAccountEligibilityService implements TransferEligibilityServi
 		BeneficiaryDto beneficiaryDto = beneficiaryService.getByIdWithoutValidation(metaData.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), "V2", metaData);
 		validationContext.add("beneficiary-dto", beneficiaryDto);
 		responseHandler(beneficiaryValidator.validate(request, metaData, validationContext));
+		
+		responseHandler(currencyValidatorFactory.getValidator(metaData).validate(request, metaData));
 
 		final BigDecimal transferAmountInSrcCurrency = isCurrencySame(request) ? request.getAmount()
 				: getAmountInSrcCurrency(request, beneficiaryDto, accountDetails);

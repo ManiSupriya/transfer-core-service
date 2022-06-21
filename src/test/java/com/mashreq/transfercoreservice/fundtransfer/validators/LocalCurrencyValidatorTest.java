@@ -15,6 +15,11 @@ import com.mashreq.transfercoreservice.client.dto.SearchAccountDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 
+/**
+ * 
+ * @author JasarJa
+ *
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class LocalCurrencyValidatorTest { 
 

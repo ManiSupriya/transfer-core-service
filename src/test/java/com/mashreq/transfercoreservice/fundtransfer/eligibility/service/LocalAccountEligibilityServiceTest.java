@@ -86,7 +86,7 @@ public class LocalAccountEligibilityServiceTest {
 		ValidationResult validationResult = ValidationResult.builder().success(true).build();
 		when(currencyValidatorFactory.getValidator(any())).thenReturn(currencyValidator);
 		when(limitValidatorFactory.getValidator(any())).thenReturn(limitValidator);
-		when(currencyValidator.validate(any(),any())).thenReturn(validationResult);
+		when(currencyValidator.validate(any(),any(),any())).thenReturn(validationResult);
 		when(beneficiaryService.getByIdWithoutValidation(any(),any(),any(),any())).thenReturn(TestUtil.getBeneficiaryDto());
 		when(beneficiaryValidator.validate(any(),any(),any())).thenReturn(validationResult);
 		when(maintenanceService.convertBetweenCurrencies(any())).thenReturn(TestUtil.getCurrencyConversionDto());
@@ -112,7 +112,7 @@ public class LocalAccountEligibilityServiceTest {
 		ValidationResult validationResult = ValidationResult.builder().success(true).build();
 		when(currencyValidatorFactory.getValidator(any())).thenReturn(currencyValidator);
 		when(limitValidatorFactory.getValidator(any())).thenReturn(limitValidator);
-		when(currencyValidator.validate(any(),any())).thenReturn(validationResult);
+		when(currencyValidator.validate(any(),any(),any())).thenReturn(validationResult);
 		when(beneficiaryValidator.validate(any(),any(),any())).thenReturn(validationResult);
 		when(maintenanceService.convertBetweenCurrencies(any())).thenReturn(TestUtil.getCurrencyConversionDto());
 		when(maintenanceService.convertCurrency(any())).thenReturn(TestUtil.getCurrencyConversionDto());

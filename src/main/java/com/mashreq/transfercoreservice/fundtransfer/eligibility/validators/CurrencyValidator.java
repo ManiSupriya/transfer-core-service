@@ -10,9 +10,14 @@ import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.QRT;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WAMA;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WYMA;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
@@ -20,11 +25,11 @@ import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyDto;
-import com.mashreq.transfercoreservice.client.dto.CountryMasterDto;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonClient;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 import com.mashreq.webcore.dto.response.Response;
@@ -32,22 +37,37 @@ import com.mashreq.webcore.dto.response.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+@Profile("!egypt")
 @Slf4j
 @Component("currencyValidatorEligibility")
 @RequiredArgsConstructor
 public class CurrencyValidator implements ICurrencyValidator {
 
-    private final AsyncUserEventPublisher auditEventPublisher;
+    final AsyncUserEventPublisher auditEventPublisher;
     private final MobCommonClient mobCommonClient;
     private final String function = "code";
     
     @Value("${app.local.currency}")
     private String localCurrency;
 
+    private final Set<String> applicableServiceTypes = new HashSet<>();
+    
+    @PostConstruct
+    public void init() {
+    	applicableServiceTypes.add(ServiceType.INFT.getName());
+    	applicableServiceTypes.add(ServiceType.QRT.getName());
+    	applicableServiceTypes.add(ServiceType.WAMA.getName());
+    	applicableServiceTypes.add(ServiceType.WYMA.getName());
+    	applicableServiceTypes.add(ServiceType.LOCAL.getName());
+    }
     
     @Override
     public ValidationResult validate(FundTransferEligibiltyRequestDTO request, RequestMetaData metadata, ValidationContext context) {
 
+    	if(!isValidationApplicable(request)) {
+    		return ValidationResult.builder().success(true).build();
+    	}
+    	
         log.info("Validating transaction currency {} for service type [ {} ] ", htmlEscape(request.getTxnCurrency()), htmlEscape(request.getServiceType()));
         CoreCurrencyDto transferCurrency;
         if(INFT.getName().equals(request.getServiceType())) {
@@ -117,6 +137,10 @@ public class CurrencyValidator implements ICurrencyValidator {
         log.info("Currency Validating successful service type [ {} ] ", htmlEscape(request.getServiceType()));
         auditEventPublisher.publishSuccessEvent(FundTransferEventType.CURRENCY_VALIDATION, metadata, null);
         return ValidationResult.builder().success(true).build();
+    }
+    
+    private boolean isValidationApplicable(FundTransferEligibiltyRequestDTO request) {
+    	return applicableServiceTypes.contains(request.getServiceType());
     }
 
 	private void logFailure(FundTransferEligibiltyRequestDTO request, RequestMetaData metadata) {

@@ -9,6 +9,8 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.enums.FundsTransferEligibility;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.BeneficiaryValidator;
+import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CurrencyValidator;
+import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CurrencyValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.LimitValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
@@ -44,6 +46,12 @@ public class WithinAccountEligibilityServiceTest {
 	private LimitValidator limitValidator;
 	@Mock
 	private AuditEventPublisher userEventPublisher;
+	
+	@Mock
+	private CurrencyValidatorFactory currencyValidatorFactory;
+	
+	@Mock
+	private CurrencyValidator retailCurrencyValidator;
 
 	private RequestMetaData metaData = RequestMetaData.builder().build();
 
@@ -55,8 +63,12 @@ public class WithinAccountEligibilityServiceTest {
 				beneficiaryService,
 				limitValidatorFactory,
 				maintenanceService,
-				userEventPublisher);
+				userEventPublisher,
+				currencyValidatorFactory);
 		ReflectionTestUtils.setField(service, "localCurrency", "AED");
+		
+		when(currencyValidatorFactory.getValidator(any())).thenReturn(retailCurrencyValidator);
+		when(retailCurrencyValidator.validate(any(), any())).thenReturn(ValidationResult.builder().success(true).build());
 	}
 
 

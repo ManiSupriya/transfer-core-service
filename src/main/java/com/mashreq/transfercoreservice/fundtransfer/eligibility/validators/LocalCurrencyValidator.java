@@ -1,12 +1,12 @@
-package com.mashreq.transfercoreservice.fundtransfer.validators;
+package com.mashreq.transfercoreservice.fundtransfer.eligibility.validators;
 
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_CURRENCY_MISMATCH;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.CURRENCY_IS_INVALID;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.INFT;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.LOCAL;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WAMA;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WYMA;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.INFT;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
@@ -16,29 +16,31 @@ import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.SearchAccountDto;
+import com.mashreq.transfercoreservice.client.mobcommon.MobCommonClient;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
+import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Profile("egypt")
 @Slf4j
-@Component
+@Component("currencyValidatorEligibility")
 public class LocalCurrencyValidator extends CurrencyValidator {
 
 	private final String localCurrency;
 
-	public LocalCurrencyValidator(@Value("${app.local.currency}") String localCurrency,
-			AsyncUserEventPublisher auditEventPublisher) {
-		super(auditEventPublisher);
+	public LocalCurrencyValidator(AsyncUserEventPublisher auditEventPublisher, MobCommonClient mobCommonClient,
+			@Value("${app.local.currency}") String localCurrency) {
+		super(auditEventPublisher, mobCommonClient);
 		this.localCurrency = localCurrency;
 	}
-
+	
 	@Override
-	public ValidationResult validate(FundTransferRequestDTO request, RequestMetaData metadata,
-			ValidationContext context) {
-
-		log.info("Local account and currency validation for service type [{}] and transaction currency [{}]",
+    public ValidationResult validate(FundTransferEligibiltyRequestDTO request, RequestMetaData metadata, ValidationContext context) {
+		
+		log.info("Local account and currency eligibility validation for service type [{}] and transaction currency [{}]",
 				htmlEscape(request.getServiceType()), htmlEscape(request.getCurrency()));
 		AccountDetailsDTO fromAccount = context.get("from-account", AccountDetailsDTO.class);
 		String requestedCurrency = request.getCurrency();
@@ -102,13 +104,12 @@ public class LocalCurrencyValidator extends CurrencyValidator {
 			}
 
 		}
-
+		
 		return super.validate(request, metadata, context);
 	}
 
-	private boolean isWithinRegionTransfer(FundTransferRequestDTO request) {
+	private boolean isWithinRegionTransfer(FundTransferEligibiltyRequestDTO request) {
 		return WAMA.getName().equals(request.getServiceType()) || WYMA.getName().equals(request.getServiceType())
 				|| LOCAL.getName().equals(request.getServiceType());
 	}
-
 }

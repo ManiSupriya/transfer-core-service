@@ -51,7 +51,7 @@ public class OwnAccountEligibilityService implements TransferEligibilityService{
 		validateAccountContext.add("to-account", toAccount);
 		validateAccountContext.add("to-account-currency", request.getTxnCurrency());
 
-		responseHandler(currencyValidatorFactory.getValidator(metaData).validate(request, metaData));
+		responseHandler(currencyValidatorFactory.getValidator(metaData).validate(request, metaData, validateAccountContext));
 
 		BigDecimal transferAmountInSrcCurrency;
 		if(isCurrencySame(request.getTxnCurrency(), fromAccount.getCurrency())) {
