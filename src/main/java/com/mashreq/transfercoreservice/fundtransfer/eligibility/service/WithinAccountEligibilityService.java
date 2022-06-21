@@ -62,7 +62,7 @@ public class WithinAccountEligibilityService implements TransferEligibilityServi
 		validationContext.add("beneficiary-dto", beneficiaryDto);
 		responseHandler(beneficiaryValidator.validate(request, metaData, validationContext));
 		
-		responseHandler(currencyValidatorFactory.getValidator(metaData).validate(request, metaData));
+		responseHandler(currencyValidatorFactory.getValidator(metaData).validate(request, metaData, validationContext));
 
 		final BigDecimal transferAmountInSrcCurrency = isCurrencySame(request) ? request.getAmount()
 				: getAmountInSrcCurrency(request, beneficiaryDto, accountDetails);

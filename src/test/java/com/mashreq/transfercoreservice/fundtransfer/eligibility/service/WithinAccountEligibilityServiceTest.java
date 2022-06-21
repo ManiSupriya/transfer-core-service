@@ -68,7 +68,7 @@ public class WithinAccountEligibilityServiceTest {
 		ReflectionTestUtils.setField(service, "localCurrency", "AED");
 		
 		when(currencyValidatorFactory.getValidator(any())).thenReturn(retailCurrencyValidator);
-		when(retailCurrencyValidator.validate(any(), any())).thenReturn(ValidationResult.builder().success(true).build());
+		when(retailCurrencyValidator.validate(any(), any(), any())).thenReturn(ValidationResult.builder().success(true).build());
 	}
 
 
