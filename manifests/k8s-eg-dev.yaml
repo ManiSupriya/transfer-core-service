@@ -47,6 +47,8 @@ spec:
           value: $(APPLICATION_NAME)-$(ENVIRONMENT_NAME)
         - name: JAVA_OPTS
           value: -Xms512m -Xmx1200m
+        - name: TZ
+          value: Africa/Cairo
         envFrom:
         - configMapRef:
             name: configmap-appdynamics
