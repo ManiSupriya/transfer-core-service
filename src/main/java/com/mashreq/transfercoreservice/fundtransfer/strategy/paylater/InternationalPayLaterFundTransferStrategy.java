@@ -27,7 +27,6 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.InternationalFundTransferStrategy;
-<<<<<<< HEAD
 import com.mashreq.transfercoreservice.fundtransfer.validators.AccountBelongsToCifValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.BeneficiaryValidator;
@@ -36,8 +35,6 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.CurrencyValidator
 import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.PaymentPurposeValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
-=======
->>>>>>> 1b5229cf (Fix to perform min amount validation")
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
 import com.mashreq.transfercoreservice.notification.service.NotificationService;
