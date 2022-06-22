@@ -71,7 +71,7 @@ public class OwnAccountEligibilityServiceTest {
 		ValidationResult validationResult = ValidationResult.builder().success(true).build();
 		when(limitValidatorFactory.getValidator(any())).thenReturn(limitValidator);
 		when(currencyValidatorFactory.getValidator(any())).thenReturn(currencyValidator);
-		when(currencyValidator.validate(any(),any())).thenReturn(validationResult);
+		when(currencyValidator.validate(any(),any(),any())).thenReturn(validationResult);
 		when(maintenanceService.convertBetweenCurrencies(any())).thenReturn(TestUtil.getCurrencyConversionDto());
 		when(maintenanceService.convertCurrency(any())).thenReturn(TestUtil.getCurrencyConversionDto());
 		when(limitValidator.validate(any(),any(),any(),any(),any())).thenReturn(TestUtil.limitValidatorResultsDto(null));
@@ -97,7 +97,7 @@ public class OwnAccountEligibilityServiceTest {
 		when(maintenanceService.convertBetweenCurrencies(any())).thenReturn(TestUtil.getCurrencyConversionDto());
 		when(limitValidatorFactory.getValidator(any())).thenReturn(limitValidator);
 		when(currencyValidatorFactory.getValidator(any())).thenReturn(currencyValidator);
-		when(currencyValidator.validate(any(),any())).thenReturn(validationResult);
+		when(currencyValidator.validate(any(),any(),any())).thenReturn(validationResult);
 		when(maintenanceService.convertCurrency(any())).thenReturn(TestUtil.getCurrencyConversionDto());
 		when(limitValidator.validate(any(),any(),any(),any(),any())).thenReturn(TestUtil.limitValidatorResultsDto(null));
 		when(accountService.getAccountDetailsFromCache(any(),any())).thenReturn(new AccountDetailsDTO());

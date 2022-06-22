@@ -92,13 +92,15 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
      */
     private void executeNonCreditCard(FundTransferEligibiltyRequestDTO request, RequestMetaData metaData, UserDTO userDTO) {
 
-    	responseHandler(currencyValidatorFactory.getValidator(metaData).validate(request, metaData));
+    	
     	
         final AccountDetailsDTO fromAccountDetails = accountService.getAccountDetailsFromCache(request.getFromAccount(), metaData);
         final ValidationContext validationContext = new ValidationContext();
 
         validationContext.add("validate-from-account", Boolean.TRUE);
         validationContext.add("from-account", fromAccountDetails);
+        
+        responseHandler(currencyValidatorFactory.getValidator(metaData).validate(request, metaData, validationContext));
 
         final BeneficiaryDto beneficiaryDto = beneficiaryService.getByIdWithoutValidation(metaData.getPrimaryCif(), valueOf(request.getBeneficiaryId()), "V2", metaData);
         validationContext.add("beneficiary-dto", beneficiaryDto);

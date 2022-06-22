@@ -92,6 +92,8 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     private final CardService cardService;
     private final PostTransactionService postTransactionService;
     private final CCTransactionEligibilityValidator ccTrxValidator;
+    private final CurrencyValidator currencyValidator;
+    
     @Value("${app.local.currency}")
     private String localCurrency;
     @Value("${app.local.address}")
@@ -146,6 +148,8 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         validationContext.add("iban-length", ibanLength);
 
         responseHandler(ibanValidator.validate(request, metadata, validationContext));
+        
+        responseHandler(currencyValidator.validate(request, metadata, validationContext));
 
         //Deal Validator
         log.info("Deal Validation Started");

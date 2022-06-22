@@ -9,8 +9,11 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.enums.FundsTransferEligibility;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.BeneficiaryValidator;
+import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CurrencyValidator;
+import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CurrencyValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.LimitValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.AccountNumberResolver;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 import com.mashreq.transfercoreservice.util.TestUtil;
 import org.junit.Before;
@@ -44,6 +47,15 @@ public class WithinAccountEligibilityServiceTest {
 	private LimitValidator limitValidator;
 	@Mock
 	private AuditEventPublisher userEventPublisher;
+	
+	@Mock
+	private CurrencyValidatorFactory currencyValidatorFactory;
+	
+	@Mock
+	private CurrencyValidator retailCurrencyValidator;
+	
+	@Mock
+	private AccountNumberResolver accountNumberResolver;
 
 	private RequestMetaData metaData = RequestMetaData.builder().build();
 
@@ -55,8 +67,13 @@ public class WithinAccountEligibilityServiceTest {
 				beneficiaryService,
 				limitValidatorFactory,
 				maintenanceService,
-				userEventPublisher);
+				userEventPublisher,
+				currencyValidatorFactory,
+				accountNumberResolver);
 		ReflectionTestUtils.setField(service, "localCurrency", "AED");
+		
+		when(currencyValidatorFactory.getValidator(any())).thenReturn(retailCurrencyValidator);
+		when(retailCurrencyValidator.validate(any(), any(), any())).thenReturn(ValidationResult.builder().success(true).build());
 	}
 
 
@@ -92,6 +109,8 @@ public class WithinAccountEligibilityServiceTest {
 		fundTransferEligibiltyRequestDTO.setFromAccount("1234567890");
 		fundTransferEligibiltyRequestDTO.setCurrency("USD");
 		fundTransferEligibiltyRequestDTO.setTxnCurrency("AED");
+		
+		when(accountNumberResolver.generateAccountNumber(any())).thenReturn("1234567000");
 
 		UserDTO userDTO = new UserDTO();
 

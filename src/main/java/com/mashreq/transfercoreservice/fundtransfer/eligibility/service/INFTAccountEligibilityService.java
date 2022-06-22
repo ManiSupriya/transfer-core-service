@@ -47,7 +47,7 @@ public class INFTAccountEligibilityService implements TransferEligibilityService
 	public EligibilityResponse checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request,UserDTO userDTO) {
     	log.info("INFT transfer eligibility validation started");
     	
-    	responseHandler(currencyValidatorFactory.getValidator(metaData).validate(request, metaData));
+    	//responseHandler(currencyValidatorFactory.getValidator(metaData).validate(request, metaData));
 
         final ValidationContext validationContext = new ValidationContext();
 
@@ -69,6 +69,9 @@ public class INFTAccountEligibilityService implements TransferEligibilityService
 		responseHandler(beneficiaryValidator.validate(request, metaData, validationContext));
 
         final AccountDetailsDTO sourceAccountDetailsDTO = accountService.getAccountDetailsFromCache(request.getFromAccount(), metaData);
+        
+        validationContext.add("from-account", sourceAccountDetailsDTO);
+        responseHandler(currencyValidatorFactory.getValidator(metaData).validate(request, metaData, validationContext));
 
 		final BigDecimal transferAmountInSrcCurrency = getAmountInSrcCurrency(request, sourceAccountDetailsDTO);
 

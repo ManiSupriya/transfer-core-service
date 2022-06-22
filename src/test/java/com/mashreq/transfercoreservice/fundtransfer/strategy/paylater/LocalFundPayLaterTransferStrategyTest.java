@@ -3,6 +3,7 @@ package com.mashreq.transfercoreservice.fundtransfer.strategy.paylater;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 
@@ -39,6 +40,7 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.BeneficiaryValida
 import com.mashreq.transfercoreservice.fundtransfer.validators.CCBalanceValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.CCBelongsToCifValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.CCTransactionEligibilityValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.CurrencyValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.IBANValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.PaymentPurposeValidator;
@@ -101,18 +103,23 @@ public class LocalFundPayLaterTransferStrategyTest {
 	private SequenceNumberGenerator seqGenerator;
 	@Mock
 	private CCTransactionEligibilityValidator ccTrxValidator;
+	@Mock
+	private CurrencyValidator currencyValidator;
+	
 	@Before
 	public void init() {
 		localFundPayLaterTransferStrategy = new  LocalFundPayLaterTransferStrategy(ibanValidator, accountBelongsToCifValidator, ccBelongsToCifValidator, beneficiaryValidator,
 				accountService, beneficiaryService, limitValidator, fundTransferMWService, paymentPurposeValidator,
 				balanceValidator, ccBalanceValidator, maintenanceService, mobCommonService, dealValidator, countryRepository,
 				fundTransferCCMWService, auditEventPublisher, notificationService,qrDealsService, cardService, postTransactionService, fundTransferOrderRepository,
-				seqGenerator,ccTrxValidator);
+				seqGenerator,ccTrxValidator, currencyValidator);
 		 ReflectionTestUtils.setField(localFundPayLaterTransferStrategy,"cardService", cardService);
 	     ReflectionTestUtils.setField(localFundPayLaterTransferStrategy,"qrDealsService", qrDealsService);
 	     ReflectionTestUtils.setField(localFundPayLaterTransferStrategy,"postTransactionService", postTransactionService);
 	     ReflectionTestUtils.setField(localFundPayLaterTransferStrategy,"address", "test address");
 	     ReflectionTestUtils.setField(localFundPayLaterTransferStrategy,"localCurrency", "AED");
+	     
+	     when(currencyValidator.validate(any(), any(), any())).thenReturn(ValidationResult.builder().success(true).build());
 	}
 	
 	@Test

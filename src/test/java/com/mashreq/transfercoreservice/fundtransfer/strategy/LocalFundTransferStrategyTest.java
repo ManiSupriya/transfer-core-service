@@ -19,6 +19,7 @@ import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.notification.service.NotificationService;
 import com.mashreq.transfercoreservice.notification.service.PostTransactionService;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -94,13 +95,20 @@ public class LocalFundTransferStrategyTest {
 
     @Mock
     private PostTransactionService postTransactionService;
+    
+    @Mock
+    private CurrencyValidator currencyValidator;
 
     @Mock
     private CCTransactionEligibilityValidator ccTransactionEligibilityValidator;
 
     @Captor
     private ArgumentCaptor<FundTransferRequest> fundTransferRequest;
-
+    
+    @Before
+    public void init() {
+    	when(currencyValidator.validate(any(), any(), any())).thenReturn(ValidationResult.builder().success(true).build());
+    }
 
     @Test
     public void test_when_fund_transfer_is_successful_when_source_destination_currency_same() {

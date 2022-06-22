@@ -72,7 +72,7 @@ public class INFTAccountEligibilityServiceTest {
 		ValidationResult validationResult = ValidationResult.builder().success(true).build();
 		when(currencyValidatorFactory.getValidator(any())).thenReturn(currencyValidator);
 		when(limitValidatorFactory.getValidator(any())).thenReturn(limitValidator);
-		when(currencyValidator.validate(any(),any())).thenReturn(validationResult);
+		when(currencyValidator.validate(any(),any(),any())).thenReturn(validationResult);
 		when(beneficiaryService.getByIdWithoutValidation(any(),any(),any(),any())).thenReturn(TestUtil.getBeneficiaryDto());
 		when(beneficiaryValidator.validate(any(),any(),any())).thenReturn(validationResult);
 		when(maintenanceService.convertBetweenCurrencies(any())).thenReturn(TestUtil.getCurrencyConversionDto());
@@ -98,7 +98,7 @@ public class INFTAccountEligibilityServiceTest {
 		ValidationResult validationResult = ValidationResult.builder().success(true).build();
 		when(currencyValidatorFactory.getValidator(any())).thenReturn(currencyValidator);
 		when(limitValidatorFactory.getValidator(any())).thenReturn(limitValidator);
-		when(currencyValidator.validate(any(),any())).thenReturn(validationResult);
+		when(currencyValidator.validate(any(),any(),any())).thenReturn(validationResult);
 		when(beneficiaryService.getUpdate(any(),any(),any(),any(),any())).thenReturn(TestUtil.getBeneficiaryDto());
 		when(beneficiaryValidator.validate(any(),any(),any())).thenReturn(validationResult);
 		when(maintenanceService.convertBetweenCurrencies(any())).thenReturn(TestUtil.getCurrencyConversionDto());

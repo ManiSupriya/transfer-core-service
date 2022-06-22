@@ -9,28 +9,53 @@ import com.mashreq.transfercoreservice.client.dto.SearchAccountDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_CURRENCY_MISMATCH;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.CURRENCY_IS_INVALID;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.*;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.annotation.PostConstruct;
+
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 /**
  * @author shahbazkh
  * @date 3/17/20
  */
-
+@Profile("!egypt")
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class CurrencyValidator implements Validator<FundTransferRequestDTO> {
 
-    private final AsyncUserEventPublisher auditEventPublisher;
+    final AsyncUserEventPublisher auditEventPublisher;
+    private final Set<String> applicableServiceTypes = new HashSet<>();
+    
+    @PostConstruct
+    public void init() {
+    	applicableServiceTypes.add(ServiceType.BAIT_AL_KHAIR.getName());
+    	applicableServiceTypes.add(ServiceType.DUBAI_CARE.getName());
+    	applicableServiceTypes.add(ServiceType.DAR_AL_BER.getName());
+    	applicableServiceTypes.add(ServiceType.WAMA.getName());
+    	applicableServiceTypes.add(ServiceType.WYMA.getName());
+    }
+    
     @Override
     public ValidationResult validate(FundTransferRequestDTO request, RequestMetaData metadata, ValidationContext context) {
+    	
+    	if(!isValidationApplicable(request)) {
+    		return ValidationResult.builder().success(true).build();
+    	}
 
         log.info("Validating currency for service type [ {} ] ", htmlEscape(request.getServiceType()));
         AccountDetailsDTO fromAccount = context.get("from-account", AccountDetailsDTO.class);
@@ -81,5 +106,9 @@ public class CurrencyValidator implements Validator<FundTransferRequestDTO> {
 
     private boolean isReqCurrencyValid(String requestedCurrency, String fromAccCurrency, String toCurrency) {
         return requestedCurrency.equals(fromAccCurrency) || requestedCurrency.equals(toCurrency);
+    }
+    
+    private boolean isValidationApplicable(FundTransferRequestDTO request) {
+    	return applicableServiceTypes.contains(request.getServiceType());
     }
 }
