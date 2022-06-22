@@ -3,9 +3,11 @@ package com.mashreq.transfercoreservice.fundtransfer.strategy.paylater;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 
+import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,15 +33,6 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.AccountNumberResolver;
-import com.mashreq.transfercoreservice.fundtransfer.validators.AccountBelongsToCifValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.AccountFreezeValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.BeneficiaryValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.CCTransactionEligibilityValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.CurrencyValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.SameAccountValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 import com.mashreq.transfercoreservice.notification.service.NotificationService;
 import com.mashreq.transfercoreservice.notification.service.PostTransactionService;
 import com.mashreq.transfercoreservice.paylater.enums.FTOrderType;
@@ -88,6 +81,9 @@ public class WithinMashreqPayLaterStrategyTest {
 	private SequenceNumberGenerator seqGenerator;
 	@Mock
 	private CCTransactionEligibilityValidator ccTrxValidator;
+
+	@Mock
+	private MinTransactionAmountValidator minTransactionAmountValidator;
 	
 	@Before
 	public void init() {
@@ -96,7 +92,7 @@ public class WithinMashreqPayLaterStrategyTest {
 				fundTransferMWService, balanceValidator, dealValidator,
 				auditEventPublisher, notificationService, freezeValidator, 
 				accountNumberResolver, postTransactionService, 
-				fundTransferOrderRepository, seqGenerator,ccTrxValidator);
+				fundTransferOrderRepository, seqGenerator,ccTrxValidator, minTransactionAmountValidator);
 		ReflectionTestUtils.setField(withinMashreqPayLaterStrategy, "localCurrency", "AED");
 	}
 	
@@ -134,6 +130,8 @@ public class WithinMashreqPayLaterStrategyTest {
 		accountType.setAccountType("MBMETA");
 		accountDto.setAccountType(accountType );
 		Mockito.when(accountService.getAccountDetailsFromCore(Mockito.any())).thenReturn(accountDto );
+		when(minTransactionAmountValidator.validate(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(validationResult);
+
 		//Mockito.when(seqGenerator.getNextOrderId()).thenReturn("210512344321");
 		FundTransferResponse response = withinMashreqPayLaterStrategy.execute(request, metadata, userDTO);
 		assertEquals(transactionRefNo, response.getTransactionRefNo());

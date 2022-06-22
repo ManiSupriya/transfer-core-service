@@ -53,6 +53,8 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     public static final String INTERNATIONAL = "International";
     public static final String TRANSACTIONCODE = "15";
     public static final String SPACE_CHAR = " ";
+
+    public static final String TRANSFER_AMOUNT_FOR_MIN_VALIDATION = "transfer-amount-for-min-validation";
     int maxLength = 35;
     private final AccountService accountService;
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
@@ -72,6 +74,8 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     private final CCTransactionEligibilityValidator ccTrxValidator;
     
     private final CurrencyValidator currencyValidator;
+
+    private final MinTransactionAmountValidator minTransactionAmountValidator;
 
     @Autowired
     private PostTransactionService postTransactionService;
@@ -136,6 +140,10 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         //Limit Validation
         Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
         final BigDecimal limitUsageAmount = getLimitUsageAmount(sourceAccountDetailsDTO,transferAmountInSrcCurrency);
+
+        validationContext.add(TRANSFER_AMOUNT_FOR_MIN_VALIDATION, limitUsageAmount );
+        responseHandler(minTransactionAmountValidator.validate(request, metadata, validationContext));
+
         final LimitValidatorResponse validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount, metadata, bendId);
         String txnRefNo = validationResult.getTransactionRefNo();        
 

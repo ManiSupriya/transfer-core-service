@@ -5,6 +5,7 @@ import static com.mashreq.transfercoreservice.notification.model.NotificationTyp
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
@@ -79,12 +80,13 @@ public class LocalFundPayLaterTransferStrategy extends LocalFundTransferStrategy
 			FundTransferOrderRepository fundTransferOrderRepository,
 			SequenceNumberGenerator seqGenerator,
 			CCTransactionEligibilityValidator ccTrxValidator,
-			CurrencyValidator currencyValidator) {
+			CurrencyValidator currencyValidator,MinTransactionAmountValidator minTransactionAmountValidator) {
 		super(ibanValidator, accountBelongsToCifValidator, ccBelongsToCifValidator, beneficiaryValidator,
 				accountService, beneficiaryService, limitValidator, fundTransferMWService, paymentPurposeValidator,
 				balanceValidator, ccBalanceValidator, maintenanceService, mobCommonService, dealValidator, countryRepository,
 				fundTransferCCMWService, auditEventPublisher, notificationService, 
-				qrDealsService, cardService, postTransactionService,ccTrxValidator, currencyValidator);
+				qrDealsService, cardService, postTransactionService,ccTrxValidator, currencyValidator, minTransactionAmountValidator);
+
 		this.fundTransferOrderRepository=fundTransferOrderRepository;
 		this.seqGenerator = seqGenerator;
 	}

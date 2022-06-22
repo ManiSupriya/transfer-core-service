@@ -22,10 +22,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -101,6 +98,9 @@ public class LocalFundTransferStrategyTest {
 
     @Mock
     private CCTransactionEligibilityValidator ccTransactionEligibilityValidator;
+
+    @Mock
+    private MinTransactionAmountValidator minTransactionAmountValidator;
 
     @Captor
     private ArgumentCaptor<FundTransferRequest> fundTransferRequest;
@@ -200,6 +200,8 @@ public class LocalFundTransferStrategyTest {
 
         when(fundTransferMWService.transfer(fundTransferRequest.capture(),any(),any()))
                 .thenReturn(FundTransferResponse.builder().responseDto(coreResponse).limitUsageAmount(limitUsageAmount).limitVersionUuid(limitVersionUuid).build());
+        when(minTransactionAmountValidator.validate(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(validationResult);
+
 
         final FundTransferResponse response = localFundTransferStrategy.execute(requestDTO, metadata, userDTO);
         final FundTransferRequest actualFundTransferRequest = fundTransferRequest.getValue();
@@ -337,6 +339,7 @@ public class LocalFundTransferStrategyTest {
 
         //when(cardService.getCardsFromCore(any(), any())).thenReturn(Collections.emptyList());
         //when(qrDealsService.getQRDealDetails(any(), any())).thenReturn(new QRDealDetails());
+        when(minTransactionAmountValidator.validate(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(validationResult);
 
         final FundTransferResponse response = localFundTransferStrategy.execute(requestDTO, metadata, userDTO);
         final FundTransferRequest actualFundTransferRequest = fundTransferRequest.getValue();

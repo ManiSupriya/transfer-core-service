@@ -68,6 +68,8 @@ public class OwnAccountStrategyTest {
     PostTransactionService postTransactionService;
     @Mock
     private AsyncUserEventPublisher asyncUserEventPublisher;
+    @Mock
+    private MinTransactionAmountValidator minTransactionAmountValidator;
 
     private RequestMetaData metaData = RequestMetaData.builder().build();
 
@@ -250,6 +252,7 @@ public class OwnAccountStrategyTest {
         when(accountService.getAccountsFromCore(any())).thenReturn(getOwnAccountDetails(fromAccount, toAccount, "AED", "AED"));
         when(accountService.getAccountDetailsFromCore(any())).thenReturn(getCoreAccountDetails().getConnectedAccounts().get(0));
         when(fundTransferMWService.transfer(any(), any(),eq(txnRefNo))).thenReturn(fundTransferResponse(txnRefNo, MwResponseStatus.S));
+        when(minTransactionAmountValidator.validate(any(), any(),any())).thenReturn(validationResult);
 
         FundTransferResponse response = service.execute(fundTransferRequestDTO, metaData, userDTO);
         assertNotNull(response);

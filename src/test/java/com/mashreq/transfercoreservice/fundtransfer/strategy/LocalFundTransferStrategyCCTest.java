@@ -106,6 +106,9 @@ public class LocalFundTransferStrategyCCTest {
     @Mock
 	private CCTransactionEligibilityValidator ccTrxValidator;
 
+    @Mock
+    private MinTransactionAmountValidator minTransactionAmountValidator;
+
     @Captor
     private ArgumentCaptor<FundTransferRequest> fundTransferRequest;
 
@@ -191,8 +194,10 @@ public class LocalFundTransferStrategyCCTest {
         UserDTO userDTO = new UserDTO();
         setMockObject(requestDTO, metadata, userDTO);
         QRDealDetails qrDealDetails = buildQRDealDetails();
+        ValidationResult validationResult = ValidationResult.builder().success(Boolean.TRUE).build();
+        when(minTransactionAmountValidator.validate(Mockito.any(),Mockito.any(),Mockito.any())).thenReturn(validationResult);
         when(qrDealsService.getQRDealDetails(Mockito.any(), Mockito.any())).thenReturn(qrDealDetails);
-		when(ccTrxValidator.validate(any(), any())).thenReturn(ValidationResult.builder().success(Boolean.TRUE).build());
+		when(ccTrxValidator.validate(any(), any())).thenReturn(validationResult);
         final FundTransferResponse response = localFundTransferStrategy.execute(requestDTO, metadata, userDTO);
         CoreFundTransferResponseDto coreFundTransferResponseDto = response.getResponseDto();
         Assert.assertEquals(coreFundTransferResponseDto.getMwResponseStatus().getName(), MwResponseStatus.S.getName());
@@ -204,8 +209,10 @@ public class LocalFundTransferStrategyCCTest {
         FundTransferRequestDTO requestDTO = buildFundTransferRequest();
         RequestMetaData metadata = buildRequestMetaData();
         UserDTO userDTO = new UserDTO();
+        ValidationResult validationResult = ValidationResult.builder().success(Boolean.TRUE).build();
         setMockObject(requestDTO, metadata, userDTO);
-		when(ccTrxValidator.validate(any(), any())).thenReturn(ValidationResult.builder().success(Boolean.TRUE).build());
+		when(ccTrxValidator.validate(any(), any())).thenReturn(validationResult);
+        when(minTransactionAmountValidator.validate(any(), any(),any())).thenReturn(validationResult);
 //        when(qrDealsService.getQRDealDetails(metadata.getPrimaryCif(), metadata.getCountry())).thenReturn(null);
         Throwable exception = Assertions.assertThrows(Exception.class, () -> localFundTransferStrategy.execute(requestDTO, metadata, userDTO));
         Assert.assertEquals(exception.getMessage(), TransferErrorCode.FT_CC_NO_DEALS.getErrorMessage());
@@ -221,7 +228,9 @@ public class LocalFundTransferStrategyCCTest {
         UserDTO userDTO = new UserDTO();
         setMockObject(requestDTO, metadata, userDTO);
         QRDealDetails qrDealDetails = buildQRDealDetails();
-        when(ccTrxValidator.validate(any(), any())).thenReturn(ValidationResult.builder().success(Boolean.TRUE).build());
+        ValidationResult validationResult = ValidationResult.builder().success(Boolean.TRUE).build();
+        when(minTransactionAmountValidator.validate(any(),any(),any())).thenReturn(validationResult);
+        when(ccTrxValidator.validate(any(), any())).thenReturn(validationResult);
         when(qrDealsService.getQRDealDetails(any(), any())).thenReturn(qrDealDetails);
         Throwable exception = Assertions.assertThrows(Exception.class, () -> localFundTransferStrategy.execute(requestDTO, metadata, userDTO));
         Assert.assertEquals(TransferErrorCode.FT_CC_BALANCE_NOT_SUFFICIENT.getErrorMessage(), exception.getMessage() );

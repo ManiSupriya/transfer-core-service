@@ -63,7 +63,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     private static final String INDIVIDUAL_ACCOUNT = "I";
     private static final String SOURCE_OF_FUND_CC = "Credit Card";
 
-
+    public static final String TRANSFER_AMOUNT_FOR_MIN_VALIDATION = "transfer-amount-for-min-validation";
     private static final String LOCAL_PRODUCT_ID = "DBLC";
     public static final String LOCAL_TRANSACTION_CODE = "15";
     public static final String SPACE_CHAR = " ";
@@ -93,7 +93,9 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     private final PostTransactionService postTransactionService;
     private final CCTransactionEligibilityValidator ccTrxValidator;
     private final CurrencyValidator currencyValidator;
-    
+    private final MinTransactionAmountValidator minTransactionAmountValidator;
+
+
     @Value("${app.local.currency}")
     private String localCurrency;
     @Value("${app.local.address}")
@@ -176,6 +178,10 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         //Limit Validation
         Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
         final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), fromAccountDetails, currencyConversionDto.getAccountCurrencyAmount());
+
+        validationContext.add(TRANSFER_AMOUNT_FOR_MIN_VALIDATION, limitUsageAmount );
+        responseHandler(minTransactionAmountValidator.validate(request, metadata, validationContext));
+
         final LimitValidatorResponse validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount, metadata, bendId);
         String txnRefNo = validationResult.getTransactionRefNo();
 
@@ -266,6 +272,10 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
         Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
         final BigDecimal limitUsageAmount = transferAmountInSrcCurrency;
+
+        validationContext.add(TRANSFER_AMOUNT_FOR_MIN_VALIDATION, limitUsageAmount );
+        responseHandler(minTransactionAmountValidator.validate(request, requestMetaData, validationContext));
+
         final LimitValidatorResponse validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount, requestMetaData, bendId);
         String txnRefNo = validationResult.getTransactionRefNo();
 
