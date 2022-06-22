@@ -85,7 +85,7 @@ public class CurrencyValidator implements Validator<FundTransferRequestDTO> {
 
         if(WYMA.getName().equals(request.getServiceType()) ) {
             AccountDetailsDTO toAccount = context.get("to-account", AccountDetailsDTO.class);
-            if (!(requestedCurrency.equals(fromAccount.getCurrency()) || !requestedCurrency.equals(toAccount.getCurrency()))) {
+            if (!(requestedCurrency.equals(fromAccount.getCurrency()) || requestedCurrency.equals(toAccount.getCurrency()))) {
                 log.error("To Account Currency and Requested Currency does not match for service type [ {} ]  ", htmlEscape(request.getServiceType()));
                 auditEventPublisher.publishFailureEvent(FundTransferEventType.CURRENCY_VALIDATION, metadata, null,
                         ACCOUNT_CURRENCY_MISMATCH.getCustomErrorCode(), ACCOUNT_CURRENCY_MISMATCH.getErrorMessage(), null);
