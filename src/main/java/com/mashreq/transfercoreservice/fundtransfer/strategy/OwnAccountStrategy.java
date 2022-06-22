@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -36,14 +37,6 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
-import com.mashreq.transfercoreservice.fundtransfer.validators.AccountBelongsToCifValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.AccountFreezeValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.CCTransactionEligibilityValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.CurrencyValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.SameAccountValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
 import com.mashreq.transfercoreservice.notification.model.NotificationType;
@@ -71,6 +64,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     public static final String OWN_ACCOUNT = "Own Account";
     private static final String MB_META = "MBMETA";
     private static final String MB_META_PROD_ID = "MT5I";
+    public static final String TRANSFER_AMOUNT_FOR_MIN_VALIDATION = "transfer-amount-for-min-validation";
 
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
     private final SameAccountValidator sameAccountValidator;
@@ -85,8 +79,9 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     private final AsyncUserEventPublisher auditEventPublisher;
     private final DigitalUserSegment digitalUserSegment;
     private final AccountFreezeValidator freezeValidator;
-
     private final PostTransactionService postTransactionService;
+    private final MinTransactionAmountValidator minTransactionAmountValidator;
+
 
     @Value("${app.local.currency}")
     private String localCurrency;
@@ -166,9 +161,15 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         //Limit Validation
         final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), fromAccount,transferAmountInSrcCurrency);
         request.setServiceType(getBeneficiaryCode(request));
+
         if(goldSilverTransfer(request)){
             limitValidator.validateMin(userDTO, request.getServiceType(), transactionAmount, metadata);
         }
+        else {
+            validateAccountContext.add(TRANSFER_AMOUNT_FOR_MIN_VALIDATION, limitUsageAmount);
+            responseHandler(minTransactionAmountValidator.validate(request, metadata, validateAccountContext));
+        }
+
         Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
         final LimitValidatorResponse validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount, metadata, bendId);
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccount, toAccount,validationResult, conversionResult);

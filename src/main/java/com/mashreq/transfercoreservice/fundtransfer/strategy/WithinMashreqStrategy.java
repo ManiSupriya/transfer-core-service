@@ -57,6 +57,9 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     private static final String INTERNAL_ACCOUNT_FLAG = "N";
     public static final String WITHIN_MASHREQ_TRANSACTION_CODE = "096";
 
+    public static final String TRANSFER_AMOUNT_FOR_MIN_VALIDATION = "transfer-amount-for-min-validation";
+
+
     private final SameAccountValidator sameAccountValidator;
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
     private final CurrencyValidator currencyValidator;
@@ -74,6 +77,9 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     private final AccountNumberResolver accountNumberResolver;
     private final PostTransactionService postTransactionService;
     private final CCTransactionEligibilityValidator ccTrxValidator;
+
+    private final MinTransactionAmountValidator minTransactionAmountValidator;
+
     @Value("${app.local.currency}")
     private String localCurrency;
     protected final String MASHREQ = "Mashreq";
@@ -109,9 +115,14 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         validationContext.add("transfer-amount-in-source-currency", currencyConversionDto.getAccountCurrencyAmount());
         validateAccountBalance(request, metadata, validationContext);
 
+
         //Limit Validation
         Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
         final BigDecimal limitUsageAmount = getLimitUsageAmount(fromAccountOpt.get(),currencyConversionDto.getAccountCurrencyAmount());
+
+        validationContext.add(TRANSFER_AMOUNT_FOR_MIN_VALIDATION, limitUsageAmount);
+        responseHandler(minTransactionAmountValidator.validate(request,metadata,validationContext));
+
         final LimitValidatorResponse validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount, metadata, bendId);
         String txnRefNo = validationResult.getTransactionRefNo();
 

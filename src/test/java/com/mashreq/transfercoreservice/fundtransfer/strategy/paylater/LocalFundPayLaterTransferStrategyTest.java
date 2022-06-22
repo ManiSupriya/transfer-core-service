@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
+import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,6 +35,7 @@ import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferCCMWService;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
 import com.mashreq.transfercoreservice.fundtransfer.service.QRDealsService;
+
 import com.mashreq.transfercoreservice.fundtransfer.validators.AccountBelongsToCifValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.BeneficiaryValidator;
@@ -45,6 +47,7 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.IBANValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.PaymentPurposeValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
+
 import com.mashreq.transfercoreservice.notification.service.NotificationService;
 import com.mashreq.transfercoreservice.notification.service.PostTransactionService;
 import com.mashreq.transfercoreservice.paylater.enums.FTOrderType;
@@ -105,14 +108,16 @@ public class LocalFundPayLaterTransferStrategyTest {
 	private CCTransactionEligibilityValidator ccTrxValidator;
 	@Mock
 	private CurrencyValidator currencyValidator;
-	
+	@Mock
+	private MinTransactionAmountValidator minTransactionAmountValidator;
+
 	@Before
 	public void init() {
 		localFundPayLaterTransferStrategy = new  LocalFundPayLaterTransferStrategy(ibanValidator, accountBelongsToCifValidator, ccBelongsToCifValidator, beneficiaryValidator,
 				accountService, beneficiaryService, limitValidator, fundTransferMWService, paymentPurposeValidator,
 				balanceValidator, ccBalanceValidator, maintenanceService, mobCommonService, dealValidator, countryRepository,
 				fundTransferCCMWService, auditEventPublisher, notificationService,qrDealsService, cardService, postTransactionService, fundTransferOrderRepository,
-				seqGenerator,ccTrxValidator, currencyValidator);
+				seqGenerator,ccTrxValidator, currencyValidator,minTransactionAmountValidator);
 		 ReflectionTestUtils.setField(localFundPayLaterTransferStrategy,"cardService", cardService);
 	     ReflectionTestUtils.setField(localFundPayLaterTransferStrategy,"qrDealsService", qrDealsService);
 	     ReflectionTestUtils.setField(localFundPayLaterTransferStrategy,"postTransactionService", postTransactionService);
@@ -148,6 +153,7 @@ public class LocalFundPayLaterTransferStrategyTest {
 		Mockito.when(accountService.getAccountsFromCore(Mockito.eq(metadata.getPrimaryCif()))).thenReturn(accountList);
 		CurrencyConversionDto conversionResult = FundTransferTestUtil.getConversionResult(request);
 		Mockito.when(maintenanceService.convertBetweenCurrencies(Mockito.any())).thenReturn(conversionResult);
+		Mockito.when(minTransactionAmountValidator.validate(Mockito.any(),Mockito.any(),Mockito.any())).thenReturn(validationResult);
 		//Mockito.when(seqGenerator.getNextOrderId()).thenReturn("210512344321");
 		FundTransferResponse response = localFundPayLaterTransferStrategy.execute(request, metadata, userDTO);
 		assertEquals(transactionRefNo, response.getTransactionRefNo());
