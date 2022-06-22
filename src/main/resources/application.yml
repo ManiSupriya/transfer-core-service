@@ -125,6 +125,8 @@ app:
   loyalty:
     timeInterval: 1
     smilesProductBin: 524179
+  standingInstructions:
+    disabled: ${STANDING_INSTRUCTIONS_DISABLED:false}
   services:
     maintenance: ${MAINTENANCE_SERVICE_URL:http://maintenance-service:8080}
     customers: ${CUSTOMER_SERVICE_URL:http://customers-service:8080}
