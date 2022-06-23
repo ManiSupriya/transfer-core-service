@@ -78,6 +78,7 @@ public class CurrencyValidator implements ICurrencyValidator {
         		return ValidationResult.builder().success(false).transferErrorCode(CURRENCY_IS_INVALID).build();
         	}
         	if(!transferCurrency.isSwiftTransferEnabled()) {
+        		log.error("Swift transfer is disabled for this currency");
         		logFailure(request, metadata);
         	}
         	return ValidationResult.builder().success(transferCurrency.isSwiftTransferEnabled()).transferErrorCode(CURRENCY_IS_INVALID).build();
