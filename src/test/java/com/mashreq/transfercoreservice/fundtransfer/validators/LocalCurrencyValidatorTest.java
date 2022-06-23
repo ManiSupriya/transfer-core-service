@@ -51,6 +51,7 @@ public class LocalCurrencyValidatorTest {
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setServiceType(ServiceType.WAMA.getName());
         requestDTO.setCurrency("EGP");
+        requestDTO.setTxnCurrency("EGP");
 
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
         beneficiaryDto.setAccountNumber("019022073766");
@@ -83,7 +84,8 @@ public class LocalCurrencyValidatorTest {
         ValidationContext mockValidationContext = new ValidationContext();
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setServiceType(ServiceType.WAMA.getName());
-        requestDTO.setCurrency("USD");
+        requestDTO.setCurrency("EGP");
+        requestDTO.setTxnCurrency("USD");
 
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
         beneficiaryDto.setAccountNumber("019022073766");
@@ -116,7 +118,8 @@ public class LocalCurrencyValidatorTest {
         ValidationContext mockValidationContext = new ValidationContext();
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setServiceType(ServiceType.WYMA.getName());
-        requestDTO.setCurrency("USD");
+        requestDTO.setCurrency("EGP");
+        requestDTO.setTxnCurrency("USD");
 
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
         beneficiaryDto.setAccountNumber("019022073766");
@@ -149,7 +152,8 @@ public class LocalCurrencyValidatorTest {
         ValidationContext mockValidationContext = new ValidationContext();
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setServiceType(ServiceType.LOCAL.getName());
-        requestDTO.setCurrency("USD");
+        requestDTO.setCurrency("EGP");
+        requestDTO.setTxnCurrency("USD");
 
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
         beneficiaryDto.setAccountNumber("019022073766");
@@ -183,6 +187,7 @@ public class LocalCurrencyValidatorTest {
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setServiceType(ServiceType.WAMA.getName());
         requestDTO.setCurrency("EGP");
+        requestDTO.setTxnCurrency("EGP");
 
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
         beneficiaryDto.setAccountNumber("019022073766");
@@ -216,6 +221,7 @@ public class LocalCurrencyValidatorTest {
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setServiceType(ServiceType.WAMA.getName());
         requestDTO.setCurrency("EGP");
+        requestDTO.setTxnCurrency("EGP");
 
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
         beneficiaryDto.setAccountNumber("019022073766");
@@ -248,6 +254,7 @@ public class LocalCurrencyValidatorTest {
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setServiceType(ServiceType.LOCAL.getName());
         requestDTO.setCurrency("USD");
+        requestDTO.setTxnCurrency("USD");
 
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
         beneficiaryDto.setAccountNumber("019022073766");

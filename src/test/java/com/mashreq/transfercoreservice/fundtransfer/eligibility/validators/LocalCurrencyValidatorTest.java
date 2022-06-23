@@ -71,6 +71,7 @@ public class LocalCurrencyValidatorTest {
         FundTransferEligibiltyRequestDTO requestDTO = new FundTransferEligibiltyRequestDTO();
         requestDTO.setServiceType(ServiceType.WAMA.getName());
         requestDTO.setCurrency("EGP");
+        requestDTO.setTxnCurrency("EGP");
 
         BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
         beneficiaryDto.setAccountNumber("019022073766");

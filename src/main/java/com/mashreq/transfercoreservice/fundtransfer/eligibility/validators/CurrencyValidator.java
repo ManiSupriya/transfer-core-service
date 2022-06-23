@@ -25,6 +25,7 @@ import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyDto;
+import com.mashreq.transfercoreservice.client.dto.SearchAccountDto;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonClient;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
@@ -95,7 +96,8 @@ public class CurrencyValidator implements ICurrencyValidator {
 
         }       
         
-        String requestedCurrency = request.getCurrency();
+        //String requestedCurrency = request.getCurrency();
+        String requestedCurrency = request.getTxnCurrency();
         log.info("Requested currency [ {} ] service type [ {} ] ", htmlEscape(requestedCurrency), htmlEscape(request.getServiceType()));
 
         AccountDetailsDTO fromAccount = null;
@@ -105,11 +107,13 @@ public class CurrencyValidator implements ICurrencyValidator {
         	fromAccount = context.get("from-account", AccountDetailsDTO.class);
         	beneficiaryDto = context.get("beneficiary-dto", BeneficiaryDto.class);
         	toAccount = context.get("to-account", AccountDetailsDTO.class);
+        	
         }
         
         if(WAMA.getName().equals(request.getServiceType()) ) {
-            if (beneficiaryDto != null && fromAccount!=null && !isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), null)) {
-            	log.error("From account currency {}", fromAccount.getCurrency());
+        	SearchAccountDto wamaToAccount = context.get("credit-account-details", SearchAccountDto.class);
+        	if (beneficiaryDto != null && fromAccount!=null && !isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), wamaToAccount.getCurrency())) {
+            	log.error("From account currency {} and to account currency {}", fromAccount.getCurrency());
                 log.error("Beneficiary Currency [{}] and Requested Currency does not match for service type [ {} ]  ", htmlEscape(request.getServiceType()));
                 auditEventPublisher.publishFailureEvent(FundTransferEventType.CURRENCY_VALIDATION, metadata, null,
                         CURRENCY_IS_INVALID.getCustomErrorCode(), CURRENCY_IS_INVALID.getErrorMessage(), null );
