@@ -59,7 +59,8 @@ public class CurrencyValidator implements Validator<FundTransferRequestDTO> {
 
         log.info("Validating currency for service type [ {} ] ", htmlEscape(request.getServiceType()));
         AccountDetailsDTO fromAccount = context.get("from-account", AccountDetailsDTO.class);
-        String requestedCurrency = request.getCurrency();
+        //String requestedCurrency = request.getCurrency();
+        String requestedCurrency = request.getTxnCurrency();
         log.info("Requested currency [ {} ] service type [ {} ] ", htmlEscape(requestedCurrency), htmlEscape(request.getServiceType()));
 
         if(WAMA.getName().equals(request.getServiceType()) ) {

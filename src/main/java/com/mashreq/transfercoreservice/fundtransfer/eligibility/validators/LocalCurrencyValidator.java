@@ -43,10 +43,10 @@ public class LocalCurrencyValidator extends CurrencyValidator {
 		log.info("Local account and currency eligibility validation for service type [{}] and transaction currency [{}]",
 				htmlEscape(request.getServiceType()), htmlEscape(request.getCurrency()));
 		AccountDetailsDTO fromAccount = context.get("from-account", AccountDetailsDTO.class);
-		String requestedCurrency = request.getCurrency();
+		//String requestedCurrency = request.getCurrency();
+		String requestedCurrency = request.getTxnCurrency();
 
-		// WYMA, WAMA & LOCAL If source account is EGP, transaction should be in EGP
-		// currency
+		// WYMA, WAMA & LOCAL If source account is EGP, transaction should be in EGP currency
 		if (isWithinRegionTransfer(request) && localCurrency.equals(fromAccount.getCurrency())) {
 			if (!localCurrency.equals(requestedCurrency)) {
 				log.error("Transaction currency [{}] not allowed. Transfer is allowed only in local currency [{}] for transation type [{}]",
@@ -57,8 +57,8 @@ public class LocalCurrencyValidator extends CurrencyValidator {
 			}
 		}
 
-		// WYMA - destination should be EGP account
-		if (WYMA.getName().equals(request.getServiceType())) {
+		// WYMA - If source account is EGP, destination should be EGP account
+		if (WYMA.getName().equals(request.getServiceType()) && localCurrency.equals(fromAccount.getCurrency())) {
 			AccountDetailsDTO toAccount = context.get("to-account", AccountDetailsDTO.class);
 			if (!localCurrency.equals(toAccount.getCurrency())) {
 				log.error("Destination account currency [{}] not allowed. For transation type [{}], destination account should be in local currency [{}]",
@@ -70,8 +70,8 @@ public class LocalCurrencyValidator extends CurrencyValidator {
 			}
 		}
 
-		// WAMA - destination should be EGP account
-		if (WAMA.getName().equals(request.getServiceType())) {
+		// WAMA - If source account is EGP, destination should be EGP account
+		if (WAMA.getName().equals(request.getServiceType()) && localCurrency.equals(fromAccount.getCurrency())) {
 			SearchAccountDto toAccount = context.get("credit-account-details", SearchAccountDto.class);
 			if (!localCurrency.equals(toAccount.getCurrency())) {
 				log.error("Destination account currency [{}] not allowed. For transation type [{}], destination account should be in local currency [{}]",

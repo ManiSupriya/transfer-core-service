@@ -25,6 +25,7 @@ import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyDto;
+import com.mashreq.transfercoreservice.client.dto.SearchAccountDto;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonClient;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
@@ -73,7 +74,7 @@ public class CurrencyValidator implements ICurrencyValidator {
         if(INFT.getName().equals(request.getServiceType())) {
         	transferCurrency = fetchAllTransferSupportedCurrencies(request.getTxnCurrency(),metadata);
         	if(transferCurrency == null) {
-        		log.error("Not able to find requested currency :: {} in INFTALL currency list", htmlEscape(request.getServiceType()));
+        		log.error("Not able to find requested currency :: {} in INFTALL currency list", htmlEscape(request.getTxnCurrency()));
         		return ValidationResult.builder().success(false).transferErrorCode(CURRENCY_IS_INVALID).build();
         	}
         	if(!transferCurrency.isSwiftTransferEnabled()) {
@@ -95,7 +96,8 @@ public class CurrencyValidator implements ICurrencyValidator {
 
         }       
         
-        String requestedCurrency = request.getCurrency();
+        //String requestedCurrency = request.getCurrency();
+        String requestedCurrency = request.getTxnCurrency();
         log.info("Requested currency [ {} ] service type [ {} ] ", htmlEscape(requestedCurrency), htmlEscape(request.getServiceType()));
 
         AccountDetailsDTO fromAccount = null;
@@ -105,11 +107,14 @@ public class CurrencyValidator implements ICurrencyValidator {
         	fromAccount = context.get("from-account", AccountDetailsDTO.class);
         	beneficiaryDto = context.get("beneficiary-dto", BeneficiaryDto.class);
         	toAccount = context.get("to-account", AccountDetailsDTO.class);
+        	
         }
         
         if(WAMA.getName().equals(request.getServiceType()) ) {
-            if (beneficiaryDto != null && fromAccount!=null && !isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), null)) {
-                log.error("Beneficiary Currency and Requested Currency does not match for service type [ {} ]  ", htmlEscape(request.getServiceType()));
+        	SearchAccountDto wamaToAccount = context.get("credit-account-details", SearchAccountDto.class);
+        	if (beneficiaryDto != null && fromAccount!=null && !isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), wamaToAccount.getCurrency())) {
+            	log.error("From account currency {} and to account currency {}", fromAccount.getCurrency());
+                log.error("Beneficiary Currency [{}] and Requested Currency does not match for service type [ {} ]  ", htmlEscape(request.getServiceType()));
                 auditEventPublisher.publishFailureEvent(FundTransferEventType.CURRENCY_VALIDATION, metadata, null,
                         CURRENCY_IS_INVALID.getCustomErrorCode(), CURRENCY_IS_INVALID.getErrorMessage(), null );
                 return ValidationResult.builder().success(false).transferErrorCode(CURRENCY_IS_INVALID).build();
@@ -117,8 +122,10 @@ public class CurrencyValidator implements ICurrencyValidator {
         }
 
         if(WYMA.getName().equals(request.getServiceType()) ) {
-            if ((fromAccount != null && toAccount != null) && ((!requestedCurrency.equals(fromAccount.getCurrency())) || requestedCurrency.equals(toAccount.getCurrency()))) {
-                log.error("To Account Currency and Requested Currency does not match for service type [ {} ]  ", htmlEscape(request.getServiceType()));
+            if ((fromAccount != null && toAccount != null) && 
+            		!(requestedCurrency.equals(fromAccount.getCurrency()) || requestedCurrency.equals(toAccount.getCurrency()))) {
+            	log.error("From account currency {} and to account currency {}", fromAccount.getCurrency(), toAccount.getCurrency());
+            	log.error("To Account Currency and Requested Currency does not match for service type [ {} ]  ", htmlEscape(request.getServiceType()));
                 auditEventPublisher.publishFailureEvent(FundTransferEventType.CURRENCY_VALIDATION, metadata, null,
                         ACCOUNT_CURRENCY_MISMATCH.getCustomErrorCode(), ACCOUNT_CURRENCY_MISMATCH.getErrorMessage(), null);
                 return ValidationResult.builder().success(false).transferErrorCode(TransferErrorCode.ACCOUNT_CURRENCY_MISMATCH).build();
@@ -127,7 +134,8 @@ public class CurrencyValidator implements ICurrencyValidator {
         
         if(LOCAL.getName().equals(request.getServiceType()) ) {
             if (!(localCurrency.equals(request.getTxnCurrency()))) {
-                log.error("Transaction Currency and local Currency does not match for service type [ {} ]  ", htmlEscape(request.getServiceType()));
+                log.error("Transaction Currency [{}] and local Currency [{}] does not match for service type [ {} ]  ", 
+                		htmlEscape(request.getTxnCurrency()), htmlEscape(localCurrency), htmlEscape(request.getServiceType()));
                 auditEventPublisher.publishFailureEvent(FundTransferEventType.CURRENCY_VALIDATION, metadata, null,
                 		LOCAL_CURRENCY_MISMATCH.getCustomErrorCode(), LOCAL_CURRENCY_MISMATCH.getErrorMessage(), null);
                 return ValidationResult.builder().success(false).transferErrorCode(TransferErrorCode.LOCAL_CURRENCY_MISMATCH).build();
