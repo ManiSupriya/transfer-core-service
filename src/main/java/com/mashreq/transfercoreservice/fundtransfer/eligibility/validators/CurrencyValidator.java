@@ -118,7 +118,8 @@ public class CurrencyValidator implements ICurrencyValidator {
         }
 
         if(WYMA.getName().equals(request.getServiceType()) ) {
-            if ((fromAccount != null && toAccount != null) && ((!requestedCurrency.equals(fromAccount.getCurrency())) || !requestedCurrency.equals(toAccount.getCurrency()))) {
+            if ((fromAccount != null && toAccount != null) && 
+            		!(requestedCurrency.equals(fromAccount.getCurrency()) || requestedCurrency.equals(toAccount.getCurrency()))) {
             	log.error("From account currency {} and to account currency {}", fromAccount.getCurrency(), toAccount.getCurrency());
             	log.error("To Account Currency and Requested Currency does not match for service type [ {} ]  ", htmlEscape(request.getServiceType()));
                 auditEventPublisher.publishFailureEvent(FundTransferEventType.CURRENCY_VALIDATION, metadata, null,
