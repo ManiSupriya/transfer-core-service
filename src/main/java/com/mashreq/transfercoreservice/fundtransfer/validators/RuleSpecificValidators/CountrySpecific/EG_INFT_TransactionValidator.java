@@ -24,8 +24,8 @@ public class EG_INFT_TransactionValidator implements Validator<RuleSpecificValid
             RequestMetaData metadata,
             ValidationContext context) {
 
-        final boolean debitAccountIssue = request.getTxnCurrency() != CcyCode &&
-                request.getSourceAccountCurrency() == CcyCode;
+        final boolean debitAccountIssue = !request.getTxnCurrency().equalsIgnoreCase(CcyCode) &&
+                request.getSourceAccountCurrency().equalsIgnoreCase(CcyCode);
 
         if (debitAccountIssue) {
             log.info("Validating SourceAccountCurrency is not EGP ");

@@ -27,12 +27,13 @@ public class EGP_WYMA_TransactionValidator implements Validator<RuleSpecificVali
             RequestMetaData metadata,
             ValidationContext context) {
 
-        final boolean debitAccountIssue = request.getDestinationAccountCurrency() == CcyCode &&
-                request.getSourceAccountCurrency() != CcyCode;
+        final boolean isDestinationAccountEGP = request.getDestinationAccountCurrency().equalsIgnoreCase(CcyCode);
+        final boolean isSourceAccountEGP = request.getSourceAccountCurrency().equalsIgnoreCase(CcyCode);
+        final boolean debitAccountIssue = isDestinationAccountEGP && !isSourceAccountEGP;
         final boolean creditAccountIssue = StringUtils.isNotBlank(request.getDestinationAccountCurrency()) &&
-                request.getDestinationAccountCurrency() != CcyCode &&
-                request.getSourceAccountCurrency() == CcyCode;
-        final boolean txnCcyIssue = request.getTxnCurrency() != CcyCode;
+                !isDestinationAccountEGP && isSourceAccountEGP;
+        final boolean txnCcyIssue = (isDestinationAccountEGP || isSourceAccountEGP) &&
+                !request.getTxnCurrency().equalsIgnoreCase(CcyCode);
 
         if (debitAccountIssue) {
             log.info("Validating SourceAccountCurrency is not EGP ");
