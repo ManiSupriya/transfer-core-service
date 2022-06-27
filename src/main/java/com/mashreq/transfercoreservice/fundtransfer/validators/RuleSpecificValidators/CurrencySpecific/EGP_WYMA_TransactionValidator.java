@@ -27,7 +27,7 @@ public class EGP_WYMA_TransactionValidator implements Validator<RuleSpecificVali
             RequestMetaData metadata,
             ValidationContext context) {
 
-        final boolean isDestinationAccountEGP = StringUtils.isNotBlank(request.getDestinationAccountCurrency()).equalsIgnoreCase(CcyCode);
+        final boolean isDestinationAccountEGP = StringUtils.isNotBlank(request.getDestinationAccountCurrency()) && request.getDestinationAccountCurrency().equalsIgnoreCase(CcyCode);
         final boolean isSourceAccountEGP = request.getSourceAccountCurrency().equalsIgnoreCase(CcyCode);
         final boolean debitAccountIssue = isDestinationAccountEGP && !isSourceAccountEGP;
         final boolean creditAccountIssue = StringUtils.isNotBlank(request.getDestinationAccountCurrency()) &&
