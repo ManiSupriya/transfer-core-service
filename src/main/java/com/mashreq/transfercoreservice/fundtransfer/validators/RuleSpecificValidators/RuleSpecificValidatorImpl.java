@@ -15,11 +15,6 @@ public class RuleSpecificValidatorImpl implements RuleSpecificValidator {
     public final Map<String, Validator<RuleSpecificValidatorRequest>> countryValidators;
 
     @Override
-    public Validator<RuleSpecificValidatorRequest> getCountryAndTransferTypeValidator(String countryCode, String transactionType) {
-        return countryValidators.get(countryCode+"_"+transactionType+"_TransactionValidator");
-    }
-
-    @Override
     public Validator<RuleSpecificValidatorRequest> getCcyValidator(String currencyCode, String transactionType) {
         return countryValidators.get(currencyCode+"_"+transactionType+"_TransactionValidator");
     }

@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.DEBIT_NOT_ALLOWED_FOR_EGP;
 
-
 @Slf4j
 @Component("EGP_INFT_TransactionValidator")
 public class EGP_INFT_TransactionValidator implements Validator<RuleSpecificValidatorRequest> {
@@ -33,16 +32,12 @@ public class EGP_INFT_TransactionValidator implements Validator<RuleSpecificVali
         }
         log.info("Validating EGP - EGP success ");
         return prepareValidationResult(Boolean.TRUE, null);
-    }
-
-    ;
+    };
 
     private ValidationResult prepareValidationResult(boolean status, TransferErrorCode errorCode) {
         return status ? ValidationResult.builder().success(true).build() : ValidationResult.builder()
                 .success(false)
                 .transferErrorCode(errorCode)
                 .build();
-    }
-
-    ;
+    };
 }
