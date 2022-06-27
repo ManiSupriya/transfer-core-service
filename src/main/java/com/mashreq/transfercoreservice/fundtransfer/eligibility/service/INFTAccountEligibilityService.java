@@ -69,8 +69,8 @@ public class INFTAccountEligibilityService implements TransferEligibilityService
 		responseHandler(beneficiaryValidator.validate(request, metaData, validationContext));
 
         Validator<RuleSpecificValidatorRequest> countrySpecificValidator =
-                CountrySpecificValidatorProvider.getCountryAndTransferTypeValidator(
-                        beneficiaryDto.getBankCountryISO(),
+                CountrySpecificValidatorProvider.getCcyValidator(
+                        request.getCurrency(),
                         "INFT"
                 );
 

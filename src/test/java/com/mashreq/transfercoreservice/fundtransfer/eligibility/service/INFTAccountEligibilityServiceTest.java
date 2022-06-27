@@ -16,7 +16,7 @@ import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.Curre
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CurrencyValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.LimitValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.RuleSpecificValidators.CountrySpecific.EG_INFT_TransactionValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.RuleSpecificValidators.CurrencySpecific.EGP_INFT_TransactionValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.RuleSpecificValidators.RuleSpecificValidatorImpl;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 import com.mashreq.transfercoreservice.util.TestUtil;
@@ -58,12 +58,12 @@ public class INFTAccountEligibilityServiceTest {
 
     private EncryptionService encryptionService = new EncryptionService();
     private RequestMetaData metaData = RequestMetaData.builder().build();
-    private EG_INFT_TransactionValidator egValidator;
+    private EGP_INFT_TransactionValidator egValidator;
 
 
     @Before
     public void init() {
-        egValidator = new EG_INFT_TransactionValidator();
+        egValidator = new EGP_INFT_TransactionValidator();
         service = new INFTAccountEligibilityService(
                 accountService,
                 beneficiaryValidator,
@@ -138,7 +138,7 @@ public class INFTAccountEligibilityServiceTest {
 
         ValidationResult validationResult = ValidationResult.builder().success(true).build();
         when(currencyValidatorFactory.getValidator(any())).thenReturn(currencyValidator);
-        when(RuleSpecificValidatorImpl.getCountryAndTransferTypeValidator(any(), any())).thenReturn(egValidator);
+        when(RuleSpecificValidatorImpl.getCcyValidator(any(), any())).thenReturn(egValidator);
         when(currencyValidator.validate(any(), any())).thenReturn(validationResult);
         when(beneficiaryService.getByIdWithoutValidation(any(), any(), any(), any())).thenReturn(TestUtil.getEGBeneficiaryDto());
         when(beneficiaryValidator.validate(any(), any(), any())).thenReturn(validationResult);
@@ -162,7 +162,6 @@ public class INFTAccountEligibilityServiceTest {
         ValidationResult validationResult = ValidationResult.builder().success(true).build();
         when(currencyValidatorFactory.getValidator(any())).thenReturn(currencyValidator);
         when(limitValidatorFactory.getValidator(any())).thenReturn(limitValidator);
-        when(RuleSpecificValidatorImpl.getCountryAndTransferTypeValidator(any(), any())).thenReturn(egValidator);
         when(currencyValidator.validate(any(), any())).thenReturn(validationResult);
         when(beneficiaryService.getByIdWithoutValidation(any(), any(), any(), any())).thenReturn(TestUtil.getEGBeneficiaryDto());
         when(beneficiaryValidator.validate(any(), any(), any())).thenReturn(validationResult);
