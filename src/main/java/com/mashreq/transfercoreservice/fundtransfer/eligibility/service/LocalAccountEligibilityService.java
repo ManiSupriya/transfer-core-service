@@ -24,7 +24,10 @@ import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CCBal
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CurrencyValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.LimitValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.service.QRDealsService;
+import com.mashreq.transfercoreservice.fundtransfer.validators.RuleSpecificValidators.RuleSpecificValidatorImpl;
+import com.mashreq.transfercoreservice.fundtransfer.validators.RuleSpecificValidators.RuleSpecificValidatorRequest;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
+import com.mashreq.transfercoreservice.fundtransfer.validators.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -56,10 +59,12 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
     private final QRDealsService qrDealsService;
     private final AuditEventPublisher auditEventPublisher;
     private final UserSessionCacheService userSessionCacheService;
+    private final RuleSpecificValidatorImpl CountrySpecificValidatorProvider;
 
     @Override
 	public EligibilityResponse checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request,
 			UserDTO userDTO) {
+
     	log.info("Local transfer eligibility validation started");
 		if (StringUtils.isNotBlank(request.getCardNo())) {
 			if (isSMESegment(metaData)) {
@@ -103,6 +108,19 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
         validationContext.add("to-account-currency", AED);
         responseHandler(beneficiaryValidator.validate(request, metaData, validationContext));
 
+        Validator<RuleSpecificValidatorRequest> countrySpecificValidator =
+                CountrySpecificValidatorProvider.getCcyValidator(
+                        request.getCurrency(),
+                        "LOCAL"
+                );
+
+        if (countrySpecificValidator != null) {
+            RuleSpecificValidatorRequest validationRequest =
+                    RuleSpecificValidatorRequest.builder()
+                            .sourceAccountCurrency(request.getCurrency())
+                            .txnCurrency(request.getTxnCurrency()).build();
+            responseHandler(countrySpecificValidator.validate(validationRequest, metaData, validationContext));
+        }
         //Balance Validation
         final BigDecimal transferAmountInSrcCurrency = AED.equals(fromAccountDetails.getCurrency()) ?
         		request.getAmount() : 
@@ -143,6 +161,19 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
         validationContext.add("transfer-amount-in-source-currency", transferAmountInSrcCurrency);
         responseHandler(ccBalanceValidator.validate(request, requestMetaData, validationContext));
 
+        Validator<RuleSpecificValidatorRequest> countrySpecificValidator =
+                CountrySpecificValidatorProvider.getCcyValidator(
+                        request.getCurrency(),
+                        "LOCAL"
+                );
+
+        if (countrySpecificValidator != null) {
+            RuleSpecificValidatorRequest validationRequest =
+                    RuleSpecificValidatorRequest.builder()
+                            .sourceAccountCurrency(request.getCurrency())
+                            .txnCurrency(request.getTxnCurrency()).build();
+            responseHandler(countrySpecificValidator.validate(validationRequest, requestMetaData, validationContext));
+        }
         final BigDecimal limitUsageAmount = transferAmountInSrcCurrency;
         limitValidatorFactory.getValidator(requestMetaData)
                 .validate(userDTO, request.getServiceType(), limitUsageAmount, requestMetaData, null);

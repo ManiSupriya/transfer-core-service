@@ -25,6 +25,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import com.mashreq.transfercoreservice.fundtransfer.validators.RuleSpecificValidators.CurrencySpecific.EGP_LOCAL_TransactionValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.RuleSpecificValidators.RuleSpecificValidatorImpl;
+
 import java.math.BigDecimal;
 
 import static com.mashreq.transfercoreservice.util.TestUtil.getAdditionalFields;
@@ -64,10 +67,12 @@ public class LocalAccountEligibilityServiceTest {
 	private CCBalanceValidator ccBalanceValidator;
 	@Mock
 	private QRDealsService qrDealsService;
+	@Mock
+	private RuleSpecificValidatorImpl RuleSpecificValidatorImpl;
 
 	private EncryptionService encryptionService = new EncryptionService();
 	private RequestMetaData metaData = RequestMetaData.builder().build();
-
+	private EGP_LOCAL_TransactionValidator egValidator;
 	@Test
 	public void checkEligibilityWithNoBeneUpdate(){
 		FundTransferEligibiltyRequestDTO fundTransferEligibiltyRequestDTO = new FundTransferEligibiltyRequestDTO();
