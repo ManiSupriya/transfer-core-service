@@ -47,8 +47,6 @@ public class INFTAccountEligibilityService implements TransferEligibilityService
 	public EligibilityResponse checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request,UserDTO userDTO) {
     	log.info("INFT transfer eligibility validation started");
     	
-    	//responseHandler(currencyValidatorFactory.getValidator(metaData).validate(request, metaData));
-
         final ValidationContext validationContext = new ValidationContext();
 
 		BeneficiaryDto beneficiaryDto;

@@ -97,7 +97,6 @@ public class CurrencyValidator implements ICurrencyValidator {
 
         }       
         
-        //String requestedCurrency = request.getCurrency();
         String requestedCurrency = request.getTxnCurrency();
         log.info("Requested currency [ {} ] service type [ {} ] ", htmlEscape(requestedCurrency), htmlEscape(request.getServiceType()));
 

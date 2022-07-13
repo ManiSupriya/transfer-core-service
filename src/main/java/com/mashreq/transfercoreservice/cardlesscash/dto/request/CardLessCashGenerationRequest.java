@@ -1,18 +1,16 @@
 package com.mashreq.transfercoreservice.cardlesscash.dto.request;
 
-import java.math.BigDecimal;
+import com.mashreq.transactionauth.twofa.TwoFaBaseModel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-
-import com.mashreq.transactionauth.twofa.TwoFaBaseModel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import java.math.BigDecimal;
 
 /**
  * This class is to hold the detail for the CLC Generated request.

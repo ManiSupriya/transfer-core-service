@@ -72,32 +72,6 @@ public class LocalIbanValidator {
         }
     }
 
-    private void validateChecksumOld(String ibanNumber) {
-
-        /** Appending "AE" at end */
-        String iban = ibanNumber.substring(2, ibanNumber.length()) + ibanNumber.substring(0, 2);
-        /** Appending First two digits at end */
-        iban = iban.substring(2) + iban.substring(0, 2);
-
-
-        /** Assign the value A-10 and E-14 */
-        iban = iban.substring(0, 19) + "1014" + iban.substring(21, 23);
-
-        /** mod for four times */
-        iban = Integer.toString(Integer.parseInt(iban.substring(0, 9)) % 97) + iban.substring(9);
-        iban = Integer.toString(Integer.parseInt(iban.substring(0, 9)) % 97) + iban.substring(9);
-        iban = Integer.toString(Integer.parseInt(iban.substring(0, 9)) % 97) + iban.substring(9);
-        iban = Integer.toString(Integer.parseInt(iban) % 97);
-
-        /** If Equals "1" - valid IBAN Number */
-        if (!iban.equals("1")) {
-            /** Invalid IBAN Number */
-            log.error("Invalid UAE IBAN number {}", HtmlUtils.htmlEscape(ibanNumber));
-            GenericExceptionHandler.handleError(IBAN_CHECK_DIGIT_VALIDATION_FAILED, IBAN_CHECK_DIGIT_VALIDATION_FAILED.getErrorMessage());
-        }
-    }
-
-    
     private void validateIbanLength(String ibanNumber) {
     	if (null != ibanNumber && ibanNumber.length() == localIbanLength) {
     		return;

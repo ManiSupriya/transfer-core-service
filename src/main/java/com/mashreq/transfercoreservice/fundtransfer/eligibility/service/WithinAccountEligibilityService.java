@@ -66,7 +66,7 @@ public class WithinAccountEligibilityService implements TransferEligibilityServi
 		validationContext.add("beneficiary-dto", beneficiaryDto);
 		responseHandler(beneficiaryValidator.validate(request, metaData, validationContext));
 		
-		getCreditAccountDetails(request, metaData, validationContext);
+		getCreditAccountDetails(request, validationContext);
 		responseHandler(currencyValidatorFactory.getValidator(metaData).validate(request, metaData, validationContext));
 
 		final BigDecimal transferAmountInSrcCurrency = isCurrencySame(request) ? request.getAmount()
@@ -88,7 +88,7 @@ public class WithinAccountEligibilityService implements TransferEligibilityServi
 		return EligibilityResponse.builder().status(FundsTransferEligibility.ELIGIBLE).build();
 	}
 	
-	private void getCreditAccountDetails(FundTransferEligibiltyRequestDTO request, RequestMetaData metadata,
+	private void getCreditAccountDetails(FundTransferEligibiltyRequestDTO request,
 			final ValidationContext validateAccountContext) {
 		SearchAccountDto toAccountDetails = accountService.getAccountDetailsFromCore(accountNumberResolver.generateAccountNumber(request.getToAccount()));
         validateAccountContext.add("credit-account-details", toAccountDetails);
