@@ -111,8 +111,12 @@ public class CurrencyValidator implements ICurrencyValidator {
         }
         
         if(WAMA.getName().equals(request.getServiceType()) ) {
-        	SearchAccountDto wamaToAccount = context.get("credit-account-details", SearchAccountDto.class);
-        	if (beneficiaryDto != null && fromAccount!=null && !isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), wamaToAccount.getCurrency())) {
+            SearchAccountDto wamaToAccount = null;
+            if(null != context) {
+                wamaToAccount = context.get("credit-account-details", SearchAccountDto.class);
+            }
+        	if (beneficiaryDto != null && fromAccount!=null && wamaToAccount != null
+                    && !isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), wamaToAccount.getCurrency())) {
             	log.error("From account currency {} and to account currency {}", fromAccount.getCurrency());
                 log.error("Beneficiary Currency [{}] and Requested Currency does not match for service type [ {} ]  ", htmlEscape(request.getServiceType()));
                 auditEventPublisher.publishFailureEvent(FundTransferEventType.CURRENCY_VALIDATION, metadata, null,

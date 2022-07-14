@@ -48,8 +48,7 @@ public class MinTransactionAmountValidator implements Validator<FundTransferRequ
     }
 
     private Optional<ServiceType> getServiceType(String serviceTypeCode) {
-        Optional<ServiceType> serviceTypeOptional = serviceTypeRepository.findByCodeEquals(serviceTypeCode);
-        return serviceTypeOptional;
+        return serviceTypeRepository.findByCodeEquals(serviceTypeCode);
     }
 
     private String getRemarks(String cif, BigDecimal transferAmount, String serviceType, BigDecimal minAmount) {
