@@ -12,6 +12,7 @@ import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WYMA;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
@@ -97,14 +98,13 @@ public class CurrencyValidator implements ICurrencyValidator {
 
         }       
         
-        //String requestedCurrency = request.getCurrency();
         String requestedCurrency = request.getTxnCurrency();
         log.info("Requested currency [ {} ] service type [ {} ] ", htmlEscape(requestedCurrency), htmlEscape(request.getServiceType()));
 
         AccountDetailsDTO fromAccount = null;
         BeneficiaryDto beneficiaryDto = null;
         AccountDetailsDTO toAccount = null;
-        if(null != context) {
+        if(Objects.nonNull(context)) {
         	fromAccount = context.get("from-account", AccountDetailsDTO.class);
         	beneficiaryDto = context.get("beneficiary-dto", BeneficiaryDto.class);
         	toAccount = context.get("to-account", AccountDetailsDTO.class);
@@ -112,8 +112,12 @@ public class CurrencyValidator implements ICurrencyValidator {
         }
         
         if(WAMA.getName().equals(request.getServiceType()) ) {
-        	SearchAccountDto wamaToAccount = context.get("credit-account-details", SearchAccountDto.class);
-        	if (beneficiaryDto != null && fromAccount!=null && !isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), wamaToAccount.getCurrency())) {
+            SearchAccountDto wamaToAccount = null;
+            if(Objects.nonNull(context)) {
+                wamaToAccount = context.get("credit-account-details", SearchAccountDto.class);
+            }
+        	if (Objects.nonNull(beneficiaryDto) && Objects.nonNull(fromAccount) && Objects.nonNull(wamaToAccount)
+                    && !isReqCurrencyValid(requestedCurrency, fromAccount.getCurrency(), wamaToAccount.getCurrency())) {
             	log.error("From account currency {} and to account currency {}", fromAccount.getCurrency());
                 log.error("Beneficiary Currency [{}] and Requested Currency does not match for service type [ {} ]  ", htmlEscape(request.getServiceType()));
                 auditEventPublisher.publishFailureEvent(FundTransferEventType.CURRENCY_VALIDATION, metadata, null,
@@ -123,7 +127,7 @@ public class CurrencyValidator implements ICurrencyValidator {
         }
 
         if(WYMA.getName().equals(request.getServiceType()) ) {
-            if ((fromAccount != null && toAccount != null) && 
+            if ((Objects.nonNull(fromAccount) && Objects.nonNull(toAccount)) &&
             		!(requestedCurrency.equals(fromAccount.getCurrency()) || requestedCurrency.equals(toAccount.getCurrency()))) {
             	log.error("From account currency {} and to account currency {}", fromAccount.getCurrency(), toAccount.getCurrency());
             	log.error("To Account Currency and Requested Currency does not match for service type [ {} ]  ", htmlEscape(request.getServiceType()));

@@ -43,7 +43,7 @@ public class MinTransactionAmountValidatorTest {
         serviceType.setCode("WAMA");
         serviceType.setMinAmount("5");
         //When
-        Mockito.when(serviceTypeRepository.findByCodeEquals(Mockito.eq("WAMA"))).thenReturn(Optional.of(serviceType));
+        Mockito.when(serviceTypeRepository.findByCodeEquals("WAMA")).thenReturn(Optional.of(serviceType));
         ValidationResult result = minTransactionAmountValidator.validate(request, metadata, context);
 
 
@@ -65,7 +65,7 @@ public class MinTransactionAmountValidatorTest {
         ServiceType serviceType = new ServiceType();
         serviceType.setCode("WAMA");
         //When
-        Mockito.when(serviceTypeRepository.findByCodeEquals(Mockito.eq("WAMA"))).thenReturn(Optional.of(serviceType));
+        Mockito.when(serviceTypeRepository.findByCodeEquals("WAMA")).thenReturn(Optional.of(serviceType));
         ValidationResult result = minTransactionAmountValidator.validate(request, metadata, context);
 
 
@@ -89,7 +89,7 @@ public class MinTransactionAmountValidatorTest {
         serviceType.setMinAmount("5");
 
         //When
-        Mockito.when(serviceTypeRepository.findByCodeEquals(Mockito.eq("WAMA"))).thenReturn(Optional.of(serviceType));
+        Mockito.when(serviceTypeRepository.findByCodeEquals("WAMA")).thenReturn(Optional.of(serviceType));
         ValidationResult result = minTransactionAmountValidator.validate(request, metadata, context);
 
 
@@ -113,7 +113,7 @@ public class MinTransactionAmountValidatorTest {
         serviceType.setMinAmount("5");
 
         //When
-        Mockito.when(serviceTypeRepository.findByCodeEquals(Mockito.eq("WAMA"))).thenReturn(Optional.of(serviceType));
+        Mockito.when(serviceTypeRepository.findByCodeEquals("WAMA")).thenReturn(Optional.of(serviceType));
         ValidationResult result = minTransactionAmountValidator.validate(request, metadata, context);
 
 
