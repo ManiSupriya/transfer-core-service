@@ -3,10 +3,7 @@ package com.mashreq.transfercoreservice.banksearch;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.times;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import com.mashreq.transfercoreservice.common.LocalIbanValidator;
 import org.apache.commons.collections4.map.HashedMap;
@@ -24,6 +21,7 @@ import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.BankDetails;
 import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
 import com.mashreq.transfercoreservice.repository.BankRepository;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BankDetailServiceTest {
@@ -48,23 +46,35 @@ public class BankDetailServiceTest {
     private BankRepository bankRepository;
 	@Mock
     private MobCommonService mobCommonService;
+	@Mock
+	private BankDetailsResolverFactory bankDetailsResolverFactory;
+	@Mock
+	private IbanBasedBankDetailsResolver ibanBasedBankDetailsResolver;
+	@Mock
+	private AccountBasedBankDetailsResolver accountBasedBankDetailsResolver;
+	@Mock
+	private LocalIbanValidator localIbanValidator;
+
 
 	@Before
 	public void init() {
 		LocalIbanValidator localIbanValidator = new LocalIbanValidator("AE", "033", 23, 12);
-		service = new BankDetailService(ibanSearchMWService, routingCodeSearchMWService, ifscCodeSearchMWService,
+		service = new BankDetailService( routingCodeSearchMWService, ifscCodeSearchMWService,
 				omwClient, bankDetailsMapper, soapServiceProperties, bicCodeSearchService, bankRepository,
-				mobCommonService, localIbanValidator);
+				mobCommonService,bankDetailsResolverFactory);
+
+
 	}
 	
 	
 	@Test
-	public void test_accountNumber() {
+	public void test_accountNumber_returned_for_iban_search() {
 		BankDetailRequestDto request = new BankDetailRequestDto();
 		request.setCountryCode("AE");
 		request.setType("iban");
 		request.setValue("AE280330000010698008304");
 		request.setJourneyType("MT");
+
 		RequestMetaData metadata = new RequestMetaData();
 		metadata.setChannelTraceId("whrvh3b4h5bh6");
 		BankDetails bankDetails = new BankDetails();
@@ -72,7 +82,17 @@ public class BankDetailServiceTest {
 		bankDetails.setBankName("Mashreq Bank PSC");
 		bankDetails.setSwiftCode("BOMLEADX");
 		String accNo = "010698008304";
-		Mockito.when(bankRepository.findByBankCode("033")).thenReturn(Optional.of(bankDetails));
+		BankResultsDto resultsDto = new BankResultsDto();
+		List<BankResultsDto> resultsDtos = new ArrayList<>();
+		resultsDto.setIbanNumber("AE280330000010698008304");
+		resultsDto.setAccountNo(accNo);
+		resultsDto.setBankName("Mashreq Bank PSC");
+		resultsDto.setSwiftCode("BOMLEADX");
+		resultsDtos.add(resultsDto);
+		Mockito.when(bankDetailsResolverFactory.getBankDetailsResolver(Mockito.any())).thenReturn(ibanBasedBankDetailsResolver);
+		Mockito.when(ibanBasedBankDetailsResolver.getBankDetails(Mockito.any())).thenReturn(resultsDtos);
+
+
 		List<BankResultsDto> response = service.getBankDetails(request, metadata );
 		assertEquals(1, response.size());
 		assertEquals(accNo, response.get(0).getAccountNo());
@@ -144,4 +164,29 @@ public class BankDetailServiceTest {
 		assertEquals("BOMLEA%", updatedSwift.getValue());
 		
 	}
+
+	/*@Test
+	public void test_bank_search_account() {
+		BankDetailRequestDto request = new BankDetailRequestDto();
+		request.setCountryCode("EG");
+		request.setType("account");
+		request.setValue("0029991234567");
+		request.setBankCode("0036");
+		request.setBranchCode("001");
+		request.setJourneyType("MT");
+		RequestMetaData metadata = new RequestMetaData();
+		metadata.setChannelTraceId("whrvh3b4h5bh6");
+		BankDetails bankDetails = new BankDetails();
+		bankDetails.setBankCode("0036");
+		bankDetails.setBankName("Mashreq Bank PSC");
+		bankDetails.setBranchCode("0001");
+		bankDetails.setSwiftCode("BOMLEADX");
+
+		Mockito.when(bankRepository.findByBankCode("0036")).thenReturn(Optional.of(bankDetails));
+		Mockito.when(egyptIbanResolver.constructIBAN(Mockito.any(),Mockito.any(),Mockito.any())).thenReturn("EG450036000100000029991234567");
+		Mockito.when(ibanSearchMWService.fetchBankDetailsWithIban(Mockito.any(),Mockito.any(),Mockito.any())).thenReturn();
+		List<BankResultsDto> response = service.getBankDetails(request, metadata );
+		//assertEquals(1, response.size());
+		//assertEquals(accNo, response.get(0).getIbanNumber());
+	}*/
 }

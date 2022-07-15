@@ -11,10 +11,10 @@ springdoc:
   api-docs.enabled: on
 
 spring:
-  profiles.active: local
+  profiles.active: egypt
   main.lazy-initialization: false
   datasource:
-    url: ${MSSQL_DB_URL:jdbc:sqlserver://10.210.183.231:1433;databaseName=MOB-UAT}
+    url: ${MSSQL_DB_URL:jdbc:sqlserver://10.210.183.231:1433;databaseName=MOB-DEV-EG}
     username: ${MSSQL_DB_USERNAME:Mobdbuser}
     password: ${MSSQL_DB_KEY:Mobdbuser}
   jpa:
@@ -74,18 +74,18 @@ esb-service:
 
 app:
   auth:
-    security-service-url: ${IAM_SERVICE_URL:https://digital-uat.mashreq.com/api/ms-security-iam/}
+    security-service-url: ${IAM_SERVICE_URL:https://digital-eg-dev.mashreq.com/api/ms-security-iam/}
   local:
-    currency: 'AED'
+    currency: 'EGB'
     transaction.code: '015'
     transfer.product.id: 'DBLC'
-    country.iso: 'AE'
-    address: 'UNITED ARAB EMIRATES'
+    country.iso: 'EG'
+    address: 'EGYPT'
     iban:
-      length: 23
-      accountNumber: 12
+      length: 29
+      accountNumber: 17
     bank:
-      code: '033'
+      code: '0046'
   loyalty:
     timeInterval: 1
     smilesProductBin: 524179
@@ -143,9 +143,9 @@ app:
         StandingInstructionSubject: ${SI_EMAIL_SUBJECT:Standing instruction request}
         fromEmailName: ${EMAIL_FROM_NAME_MOB:MashreqDigital}
         fromEmailAddress: ${EMAIL_FROM_ADD_MOB:MashreqDigital@mashreq.com}
-        localFundTransfer: templates/mt-within-own-accounts-eg
-        otherFundTransfer: templates/mt-other-accounts-eg
-        plSiFundTransfer: templates/plEmailTemplate-eg
+        localFundTransfer: templates/mt-within-own-accounts
+        otherFundTransfer: templates/mt-other-accounts
+        plSiFundTransfer: templates/plEmailTemplate
     sms:
       mashreqServiceId: ${ALERT_SMS_MASHREQ_PAYMENT_SERVICEID:330}
       neoServiceId: ${ALERT_SMS_NEO_PAYMENT_SERVICEID:350}
@@ -171,7 +171,7 @@ redis:
 mob-common:
   commonUserEventDataSource:
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
-    jdbcUrl: ${MSSQL_DB_URL:jdbc:sqlserver://10.210.183.231:1433;databaseName=MOB-UAT}
+    jdbcUrl: ${MSSQL_DB_URL:jdbc:sqlserver://10.210.183.231:1433;databaseName=MOB-DEV-EG}
     username: ${MSSQL_DB_USERNAME:Mobdbuser}
     password: ${MSSQL_DB_KEY:Mobdbuser}
     maxPoolSize: 40

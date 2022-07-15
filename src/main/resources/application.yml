@@ -16,7 +16,7 @@ springdoc:
 
 spring:
   application.name: transfer-core-service
-  profiles.active: ${ACTIVE_PROFILE:local}
+  profiles.active: ${ACTIVE_PROFILE:dev}
   datasource:
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
     url: ${MSSQL_DB_URL}

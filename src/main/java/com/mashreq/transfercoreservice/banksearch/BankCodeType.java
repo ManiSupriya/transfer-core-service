@@ -12,6 +12,7 @@ public enum BankCodeType implements ValidEnum {
     ROUTE_CODE("routing-code"),
     BIC("bic");
 
+
     BankCodeType(final String name) {
         this.name = name;
     }
