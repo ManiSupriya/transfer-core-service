@@ -14,7 +14,7 @@ spring:
   profiles.active: local
   main.lazy-initialization: false
   datasource:
-    url: ${MSSQL_DB_URL:jdbc:sqlserver://10.210.183.231:1433;databaseName=MOB-UAT}
+    url: ${MSSQL_DB_URL:jdbc:sqlserver://10.210.183.231:1433;databaseName=MOB-DEV-EG}
     username: ${MSSQL_DB_USERNAME:Mobdbuser}
     password: ${MSSQL_DB_KEY:Mobdbuser}
   jpa:
@@ -76,16 +76,16 @@ app:
   auth:
     security-service-url: ${IAM_SERVICE_URL:https://digital-uat.mashreq.com/api/ms-security-iam/}
   local:
-    currency: 'AED'
+    currency: 'EGP'
     transaction.code: '015'
     transfer.product.id: 'DBLC'
-    country.iso: 'AE'
-    address: 'UNITED ARAB EMIRATES'
+    country.iso: 'EG'
+    address: 'Egypt'
     iban:
-      length: 23
-      accountNumber: 12
+      length: 29
+      accountNumber: 17
     bank:
-      code: '033'
+      code: '0046'
   loyalty:
     timeInterval: 1
     smilesProductBin: 524179
@@ -161,7 +161,7 @@ app:
 redis:
   enableRedisCache: true
   host: ${REDIS_HOST:localhost}
-  port: ${REDIS_PORT:6379}
+  port: ${REDIS_PORT:7000}
   password: ${REDIS_PASSWORD:}
   ssl: ${REDIS_SSL_FLAG:false}
   timeout: ${REDIS_TIMEOUT:5000}
@@ -171,7 +171,7 @@ redis:
 mob-common:
   commonUserEventDataSource:
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
-    jdbcUrl: ${MSSQL_DB_URL:jdbc:sqlserver://10.210.183.231:1433;databaseName=MOB-UAT}
+    jdbcUrl: ${MSSQL_DB_URL:jdbc:sqlserver://10.210.183.231:1433;databaseName=MOB-DEV-EG}
     username: ${MSSQL_DB_USERNAME:Mobdbuser}
     password: ${MSSQL_DB_KEY:Mobdbuser}
     maxPoolSize: 40

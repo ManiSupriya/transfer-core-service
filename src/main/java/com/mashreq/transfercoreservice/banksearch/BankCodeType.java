@@ -10,7 +10,8 @@ public enum BankCodeType implements ValidEnum {
     IBAN("iban"),
     SWIFT("swift"),
     ROUTE_CODE("routing-code"),
-    BIC("bic");
+    BIC("bic"),
+    ACCOUNT("account");
 
 
     BankCodeType(final String name) {
