@@ -7,6 +7,7 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.BankDetails;
 import com.mashreq.transfercoreservice.repository.BankRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -56,11 +57,13 @@ public class AccountBasedBankDetailsResolver implements BankDetailsResolver {
             bankResults.setSwiftCode(bankDetail.getSwiftCode());
             bankResults.setBankName(bankDetail.getBankName());
             bankResults.setBranchName(bankDetail.getBranchName());
-            bankResults.setAccountNo(localIbanValidator.extractAccountNumberIfMashreqIban(iban, bankCode));
-            bankResults.setIbanNumber(iban);
+            String accountNo = localIbanValidator.extractAccountNumberIfMashreqIban(iban, bankCode);
+            //If mashreq iban return account no otherwise iban
+            if(StringUtils.isBlank(accountNo)){
+                bankResults.setIbanNumber(iban);
+            }else{
+                bankResults.setAccountNo(accountNo);
+            }
             return Collections.singletonList(bankResults);
-
-
     }
-
 }
