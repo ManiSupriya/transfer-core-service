@@ -100,7 +100,7 @@ public class AccountBasedBankDetailsResolverTest {
         List<BankResultsDto> result = accountBasedBankDetailsResolver.getBankDetails(bankResolverRequestDto);
 
         //then
-        Assertions.assertEquals("EG400046000400000059010006621", result.get(0).getIbanNumber());
+        Assertions.assertNull( result.get(0).getIbanNumber());
         Assertions.assertEquals("MSHQEGCAXXX", result.get(0).getSwiftCode());
         Assertions.assertEquals("Mashreq Bank", result.get(0).getBankName());
         Assertions.assertEquals("Main Branch", result.get(0).getBranchName());
