@@ -99,6 +99,71 @@ public class BankDetailServiceTest {
 	}
 
 	@Test
+	public void test_accountNumber_returned_for_account_search() {
+		BankDetailRequestDto request = new BankDetailRequestDto();
+		request.setCountryCode("EG");
+		request.setType("account");
+		request.setValue("0029991234567");
+		request.setJourneyType("MT");
+		request.setBankCode("0036");
+		request.setBranchCode("0001");
+
+		RequestMetaData metadata = new RequestMetaData();
+		metadata.setChannelTraceId("whrvh3b4h5bh6");
+		BankDetails bankDetails = new BankDetails();
+		bankDetails.setBankCode("0036");
+		bankDetails.setBankName("Credit Agricole");
+		bankDetails.setSwiftCode("CREDEGCAXXX");
+		String accNo = "00000029991234567";
+		BankResultsDto resultsDto = new BankResultsDto();
+		List<BankResultsDto> resultsDtos = new ArrayList<>();
+		resultsDto.setIbanNumber("EG450036000100000029991234567");
+		resultsDto.setAccountNo(accNo);
+		resultsDto.setBankName("Credit Agricole");
+		resultsDto.setSwiftCode("CREDEGCAXXX");
+		resultsDtos.add(resultsDto);
+		Mockito.when(bankDetailsResolverFactory.getBankDetailsResolver(Mockito.any())).thenReturn(accountBasedBankDetailsResolver);
+		Mockito.when(accountBasedBankDetailsResolver.getBankDetails(Mockito.any())).thenReturn(resultsDtos);
+
+		List<BankResultsDto> response = service.getBankDetails(request, metadata );
+		assertEquals(1, response.size());
+		assertEquals(accNo, response.get(0).getAccountNo());
+	}
+
+	@Test
+	public void test_iban_returned_for_account_search() {
+		BankDetailRequestDto request = new BankDetailRequestDto();
+		request.setCountryCode("EG");
+		request.setType("account");
+		request.setValue("0029991234567");
+		request.setJourneyType("MT");
+		request.setBankCode("0036");
+		request.setBranchCode("0001");
+
+		RequestMetaData metadata = new RequestMetaData();
+		metadata.setChannelTraceId("whrvh3b4h5bh6");
+		BankDetails bankDetails = new BankDetails();
+		bankDetails.setBankCode("0036");
+		bankDetails.setBankName("Credit Agricole");
+		bankDetails.setSwiftCode("CREDEGCAXXX");
+
+		BankResultsDto resultsDto = new BankResultsDto();
+		List<BankResultsDto> resultsDtos = new ArrayList<>();
+		resultsDto.setIbanNumber("EG450036000100000029991234567");
+		resultsDto.setBankName("Credit Agricole");
+		resultsDto.setSwiftCode("CREDEGCAXXX");
+		resultsDtos.add(resultsDto);
+		Mockito.when(bankDetailsResolverFactory.getBankDetailsResolver(Mockito.any())).thenReturn(accountBasedBankDetailsResolver);
+		Mockito.when(accountBasedBankDetailsResolver.getBankDetails(Mockito.any())).thenReturn(resultsDtos);
+
+		List<BankResultsDto> response = service.getBankDetails(request, metadata );
+		assertEquals(1, response.size());
+		assertEquals("EG450036000100000029991234567", response.get(0).getIbanNumber());
+		assertEquals("CREDEGCAXXX", response.get(0).getSwiftCode());
+		assertEquals("Credit Agricole", response.get(0).getBankName());
+	}
+
+	@Test
 	public void test_swiftCodeUpdateifSwiftCodeIs8Digit() {
 		BankDetailRequestDto request = new BankDetailRequestDto();
 		request.setCountryCode("AE");
