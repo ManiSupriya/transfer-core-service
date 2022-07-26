@@ -1,18 +1,10 @@
-package com.mashreq.transfercoreservice.fundtransfer.eligibility.validators;
+package com.mashreq.transfercoreservice.fundtransfer.validators;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
@@ -20,16 +12,9 @@ import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryStatus;
-import com.mashreq.transfercoreservice.client.dto.CoreCurrencyDto;
-import com.mashreq.transfercoreservice.client.dto.CountryMasterDto;
 import com.mashreq.transfercoreservice.client.dto.SearchAccountDto;
-import com.mashreq.transfercoreservice.client.mobcommon.MobCommonClient;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
-import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
-import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
-import com.mashreq.webcore.dto.response.Response;
 
 /**
  * 
@@ -37,23 +22,21 @@ import com.mashreq.webcore.dto.response.Response;
  *
  */
 @RunWith(MockitoJUnitRunner.class)
-public class LocalCurrencyEligibilityValidatorTest {
-	
+public class EgyptEgyptLocalCurrencyEligibilityValidatorTest {
+
 	@Mock
-	private AsyncUserEventPublisher auditEventPublisher;
-	
-	@Mock
-	private MobCommonClient mobCommonClient;
-	
-	private LocalCurrencyValidator localCurrencyValidator;
-	
-	private RequestMetaData metadata = RequestMetaData.builder().country("EG").build();
-	
-	@Before
+    private AsyncUserEventPublisher auditEventPublisher;
+
+    private EgyptLocalCurrencyValidator egyptLocalCurrencyValidator;
+
+    
+    private RequestMetaData metadata = RequestMetaData.builder().country("EG").build();
+    
+    @Before
     public void init() {
-		localCurrencyValidator = new LocalCurrencyValidator(auditEventPublisher, mobCommonClient, "EGP");
-		localCurrencyValidator.init();
-	}
+    	egyptLocalCurrencyValidator = new EgyptLocalCurrencyValidator( auditEventPublisher, new LocalCurrencyValidations("EGP", auditEventPublisher));
+    	egyptLocalCurrencyValidator.init();
+    }
     
     //START - WYMA transfer test cases
     /**
@@ -76,8 +59,7 @@ public class LocalCurrencyEligibilityValidatorTest {
         		accountDetailsDTO.setNumber("019010073766");
         		accountDetailsDTO.setCurrency("EGP");
         ValidationContext mockValidationContext = new ValidationContext();
-        
-        FundTransferEligibiltyRequestDTO requestDTO = new FundTransferEligibiltyRequestDTO();
+        FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setServiceType(ServiceType.WYMA.getName());
         requestDTO.setTxnCurrency("EGP");
 
@@ -88,7 +70,7 @@ public class LocalCurrencyEligibilityValidatorTest {
         mockValidationContext.add("from-account", accountDetailsDTO);
         mockValidationContext.add("to-account", toAccountDetailsDTO);
 
-        final ValidationResult result = localCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
+        final ValidationResult result = egyptLocalCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
         assertEquals(true, result.isSuccess());
 
     }
@@ -113,8 +95,7 @@ public class LocalCurrencyEligibilityValidatorTest {
         		accountDetailsDTO.setNumber("019010073766");
         		accountDetailsDTO.setCurrency("EGP");
         ValidationContext mockValidationContext = new ValidationContext();
-        
-        FundTransferEligibiltyRequestDTO requestDTO = new FundTransferEligibiltyRequestDTO();
+        FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setServiceType(ServiceType.WYMA.getName());
         requestDTO.setTxnCurrency("USD");
 
@@ -125,7 +106,7 @@ public class LocalCurrencyEligibilityValidatorTest {
         mockValidationContext.add("from-account", accountDetailsDTO);
         mockValidationContext.add("to-account", toAccountDetailsDTO);
 
-        final ValidationResult result = localCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
+        final ValidationResult result = egyptLocalCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
         assertEquals(false, result.isSuccess());
 
     }
@@ -150,8 +131,7 @@ public class LocalCurrencyEligibilityValidatorTest {
         		accountDetailsDTO.setNumber("019010073766");
         		accountDetailsDTO.setCurrency("EGP");
         ValidationContext mockValidationContext = new ValidationContext();
-        
-        FundTransferEligibiltyRequestDTO requestDTO = new FundTransferEligibiltyRequestDTO();
+        FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setServiceType(ServiceType.WYMA.getName());
         requestDTO.setTxnCurrency("USD");
 
@@ -162,7 +142,7 @@ public class LocalCurrencyEligibilityValidatorTest {
         mockValidationContext.add("from-account", accountDetailsDTO);
         mockValidationContext.add("to-account", toAccountDetailsDTO);
 
-        final ValidationResult result = localCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
+        final ValidationResult result = egyptLocalCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
         assertEquals(false, result.isSuccess());
 
     }
@@ -186,8 +166,7 @@ public class LocalCurrencyEligibilityValidatorTest {
         		accountDetailsDTO.setNumber("019010073766");
         		accountDetailsDTO.setCurrency("USD");
         ValidationContext mockValidationContext = new ValidationContext();
-        
-        FundTransferEligibiltyRequestDTO requestDTO = new FundTransferEligibiltyRequestDTO();
+        FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setServiceType(ServiceType.WYMA.getName());
         requestDTO.setTxnCurrency("EGP");
         
@@ -198,7 +177,7 @@ public class LocalCurrencyEligibilityValidatorTest {
         mockValidationContext.add("from-account", accountDetailsDTO);
         mockValidationContext.add("to-account", toAccountDetailsDTO);
         
-        final ValidationResult result = localCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
+        final ValidationResult result = egyptLocalCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
         assertEquals(true, result.isSuccess());
 
     }
@@ -222,8 +201,7 @@ public class LocalCurrencyEligibilityValidatorTest {
         		accountDetailsDTO.setNumber("019010073766");
         		accountDetailsDTO.setCurrency("INR");
         ValidationContext mockValidationContext = new ValidationContext();
-        
-        FundTransferEligibiltyRequestDTO requestDTO = new FundTransferEligibiltyRequestDTO();
+        FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setServiceType(ServiceType.WYMA.getName());
         requestDTO.setTxnCurrency("INR");
 
@@ -234,12 +212,13 @@ public class LocalCurrencyEligibilityValidatorTest {
         mockValidationContext.add("from-account", accountDetailsDTO);
         mockValidationContext.add("to-account", toAccountDetailsDTO);
 
-        final ValidationResult result = localCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
+        final ValidationResult result = egyptLocalCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
         assertEquals(true, result.isSuccess());
 
     }
     
-  //START - WAMA transfer test cases
+    
+    //START - WAMA transfer test cases
     /**
      * Test case - WAMATC1
      * Egypt WAMA transfer. 
@@ -259,8 +238,8 @@ public class LocalCurrencyEligibilityValidatorTest {
         AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
 		accountDetailsDTO.setNumber("019010073766");
 		accountDetailsDTO.setCurrency("EGP");
-		
-		FundTransferEligibiltyRequestDTO requestDTO = new FundTransferEligibiltyRequestDTO();
+        		
+        FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setServiceType(ServiceType.WAMA.getName());
         requestDTO.setTxnCurrency("EGP");
 
@@ -276,7 +255,7 @@ public class LocalCurrencyEligibilityValidatorTest {
         mockValidationContext.add("beneficiary-dto", beneficiaryDto);
         mockValidationContext.add("credit-account-details", toAccount);
 
-        final ValidationResult result = localCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
+        final ValidationResult result = egyptLocalCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
         assertEquals(true, result.isSuccess());
 
     }
@@ -301,9 +280,9 @@ public class LocalCurrencyEligibilityValidatorTest {
 		accountDetailsDTO.setNumber("019010073766");
 		accountDetailsDTO.setCurrency("EGP");
 		
-		FundTransferEligibiltyRequestDTO requestDTO = new FundTransferEligibiltyRequestDTO();
-        requestDTO.setServiceType(ServiceType.WAMA.getName());
-        requestDTO.setTxnCurrency("USD");
+		FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
+		requestDTO.setServiceType(ServiceType.WAMA.getName());
+		requestDTO.setTxnCurrency("USD");
 		
 		BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
 		beneficiaryDto.setAccountNumber("019022073766");
@@ -317,7 +296,7 @@ public class LocalCurrencyEligibilityValidatorTest {
 		mockValidationContext.add("beneficiary-dto", beneficiaryDto);
 		mockValidationContext.add("credit-account-details", toAccount);
 
-        final ValidationResult result = localCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
+        final ValidationResult result = egyptLocalCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
         assertEquals(false, result.isSuccess());
 
     }
@@ -342,9 +321,9 @@ public class LocalCurrencyEligibilityValidatorTest {
 		accountDetailsDTO.setNumber("019010073766");
 		accountDetailsDTO.setCurrency("EGP");
 		
-		FundTransferEligibiltyRequestDTO requestDTO = new FundTransferEligibiltyRequestDTO();
-        requestDTO.setServiceType(ServiceType.WAMA.getName());
-        requestDTO.setTxnCurrency("EGP");
+		FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
+		requestDTO.setServiceType(ServiceType.WAMA.getName());
+		requestDTO.setTxnCurrency("EGP");
 		
 		BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
 		beneficiaryDto.setAccountNumber("019022073766");
@@ -358,7 +337,7 @@ public class LocalCurrencyEligibilityValidatorTest {
 		mockValidationContext.add("beneficiary-dto", beneficiaryDto);
 		mockValidationContext.add("credit-account-details", toAccount);
 
-        final ValidationResult result = localCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
+        final ValidationResult result = egyptLocalCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
         assertEquals(false, result.isSuccess());
 
     }
@@ -382,9 +361,9 @@ public class LocalCurrencyEligibilityValidatorTest {
 		accountDetailsDTO.setNumber("019010073766");
 		accountDetailsDTO.setCurrency("USD");
 		
-		FundTransferEligibiltyRequestDTO requestDTO = new FundTransferEligibiltyRequestDTO();
-        requestDTO.setServiceType(ServiceType.WAMA.getName());
-        requestDTO.setTxnCurrency("EGP");
+		FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
+		requestDTO.setServiceType(ServiceType.WAMA.getName());
+		requestDTO.setTxnCurrency("EGP");
 		
 		BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
 		beneficiaryDto.setAccountNumber("019022073766");
@@ -398,7 +377,7 @@ public class LocalCurrencyEligibilityValidatorTest {
 		mockValidationContext.add("beneficiary-dto", beneficiaryDto);
 		mockValidationContext.add("credit-account-details", toAccount);
 
-        final ValidationResult result = localCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
+        final ValidationResult result = egyptLocalCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
         assertEquals(true, result.isSuccess());
 
     }
@@ -422,9 +401,9 @@ public class LocalCurrencyEligibilityValidatorTest {
 		accountDetailsDTO.setNumber("019010073766");
 		accountDetailsDTO.setCurrency("INR");
 		
-		FundTransferEligibiltyRequestDTO requestDTO = new FundTransferEligibiltyRequestDTO();
-        requestDTO.setServiceType(ServiceType.WAMA.getName());
-        requestDTO.setTxnCurrency("INR");
+		FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
+		requestDTO.setServiceType(ServiceType.WAMA.getName());
+		requestDTO.setTxnCurrency("INR");
 		
 		BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
 		beneficiaryDto.setAccountNumber("019022073766");
@@ -438,12 +417,81 @@ public class LocalCurrencyEligibilityValidatorTest {
 		mockValidationContext.add("beneficiary-dto", beneficiaryDto);
 		mockValidationContext.add("credit-account-details", toAccount);
 
-        final ValidationResult result = localCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
+        final ValidationResult result = egyptLocalCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
         assertEquals(true, result.isSuccess());
 
     }
     
-  //START - INFT transfer test cases
+    //START - LOCAL transfer test cases
+    /**
+     * Test case - LOCALTC1
+     * Egypt LOCAL transfer. 
+     * From account - EGP
+     * Transaction - EGP 
+     * 
+     * Validation
+     * Transaction currency should be EGP
+     * 
+     * Expected: Validation success
+     */
+    @Test
+    public void validate_LOCALTC1() { 
+
+        AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
+        		accountDetailsDTO.setNumber("019010073766");
+        		accountDetailsDTO.setCurrency("EGP");
+        ValidationContext mockValidationContext = new ValidationContext();
+        FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
+        requestDTO.setServiceType(ServiceType.LOCAL.getName());
+        requestDTO.setTxnCurrency("EGP");
+
+        AccountDetailsDTO toAccountDetailsDTO = new AccountDetailsDTO();
+        toAccountDetailsDTO.setNumber("019010073766");
+        toAccountDetailsDTO.setCurrency("EGP");
+        
+        mockValidationContext.add("from-account", accountDetailsDTO);
+        mockValidationContext.add("to-account", toAccountDetailsDTO);
+
+        final ValidationResult result = egyptLocalCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
+        assertEquals(true, result.isSuccess());
+
+    }
+    
+    /**
+     * Test case - LOCALTC2
+     * Egypt LOCAL transfer. 
+     * From account - EGP
+     * Transaction - USD 
+     * 
+     * Validation
+     * Transaction currency should be EGP
+     * 
+     * Expected: Validation failed since transaction currency is not EGP
+     */
+    @Test
+    public void validate_LOCALTC2() { 
+
+        AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
+        		accountDetailsDTO.setNumber("019010073766");
+        		accountDetailsDTO.setCurrency("EGP");
+        ValidationContext mockValidationContext = new ValidationContext();
+        FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
+        requestDTO.setServiceType(ServiceType.LOCAL.getName());
+        requestDTO.setTxnCurrency("USD");
+
+        AccountDetailsDTO toAccountDetailsDTO = new AccountDetailsDTO();
+        toAccountDetailsDTO.setNumber("019010073766");
+        toAccountDetailsDTO.setCurrency("EGP");
+        
+        mockValidationContext.add("from-account", accountDetailsDTO);
+        mockValidationContext.add("to-account", toAccountDetailsDTO);
+
+        final ValidationResult result = egyptLocalCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
+        assertEquals(false, result.isSuccess());
+
+    }
+    
+    //START - INFT transfer test cases
     /**
      * Test case - INFTTC1
      * Egypt INFT transfer. 
@@ -462,25 +510,14 @@ public class LocalCurrencyEligibilityValidatorTest {
         AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
 		accountDetailsDTO.setNumber("019010073766");
 		accountDetailsDTO.setCurrency("USD");
-		
-		FundTransferEligibiltyRequestDTO requestDTO = new FundTransferEligibiltyRequestDTO();
+        ValidationContext mockValidationContext = new ValidationContext();
+        FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setServiceType(ServiceType.INFT.getName());
         requestDTO.setTxnCurrency("USD");
-		
-        ValidationContext mockValidationContext = new ValidationContext();
-        mockValidationContext.add("from-account", accountDetailsDTO);
         
-        CoreCurrencyDto cur = new CoreCurrencyDto();
-		cur.setCode(requestDTO.getTxnCurrency());
-		cur.setSwiftTransferEnabled(true);
-		cur.setQuickRemitEnabled(false);
-		List<CoreCurrencyDto> currencyList = new ArrayList<>();
-		currencyList.add(cur);
-		Response<List<CoreCurrencyDto>> response = Response.<List<CoreCurrencyDto>>builder().data(currencyList).build();
-		Mockito.when(mobCommonClient.getTransferCurrencies(Mockito.any(),
-				Mockito.eq(metadata.getCountry()), Mockito.eq(requestDTO.getTxnCurrency()))).thenReturn(response);
+        mockValidationContext.add("from-account", accountDetailsDTO);
 
-        final ValidationResult result = localCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
+        final ValidationResult result = egyptLocalCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
         assertEquals(true, result.isSuccess());
 
     }
@@ -503,15 +540,14 @@ public class LocalCurrencyEligibilityValidatorTest {
         AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
 		accountDetailsDTO.setNumber("019010073766");
 		accountDetailsDTO.setCurrency("USD");
-		
-		FundTransferEligibiltyRequestDTO requestDTO = new FundTransferEligibiltyRequestDTO();
+        ValidationContext mockValidationContext = new ValidationContext();
+        FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setServiceType(ServiceType.INFT.getName());
         requestDTO.setTxnCurrency("EGP");
         
-        ValidationContext mockValidationContext = new ValidationContext();
         mockValidationContext.add("from-account", accountDetailsDTO);
 
-        final ValidationResult result = localCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
+        final ValidationResult result = egyptLocalCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
         assertEquals(false, result.isSuccess());
 
     }
@@ -534,17 +570,15 @@ public class LocalCurrencyEligibilityValidatorTest {
         AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
 		accountDetailsDTO.setNumber("019010073766");
 		accountDetailsDTO.setCurrency("EGP");
-		
-		FundTransferEligibiltyRequestDTO requestDTO = new FundTransferEligibiltyRequestDTO();
+        ValidationContext mockValidationContext = new ValidationContext();
+        FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
         requestDTO.setServiceType(ServiceType.INFT.getName());
         requestDTO.setTxnCurrency("USD");
         
-        ValidationContext mockValidationContext = new ValidationContext();
         mockValidationContext.add("from-account", accountDetailsDTO);
 
-        final ValidationResult result = localCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
+        final ValidationResult result = egyptLocalCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
         assertEquals(false, result.isSuccess());
 
     }
-    
 }
