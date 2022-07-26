@@ -1,4 +1,4 @@
-package com.mashreq.transfercoreservice.fundtransfer.validators.RuleSpecificValidators;
+package com.mashreq.transfercoreservice.fundtransfer.validators.rulespecificvalidators;
 
 import com.mashreq.transfercoreservice.fundtransfer.validators.Validator;
 

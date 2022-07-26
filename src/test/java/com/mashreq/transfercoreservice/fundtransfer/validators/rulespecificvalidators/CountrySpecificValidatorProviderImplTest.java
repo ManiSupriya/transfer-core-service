@@ -1,8 +1,8 @@
-package com.mashreq.transfercoreservice.fundtransfer.validators.RuleSpecificValidators;
+package com.mashreq.transfercoreservice.fundtransfer.validators.rulespecificvalidators;
 
 import com.google.common.collect.ImmutableMap;
-import com.mashreq.transfercoreservice.fundtransfer.validators.RuleSpecificValidators.CurrencySpecific.EGP_INFT_TransactionValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.RuleSpecificValidators.CurrencySpecific.EGP_WYMA_TransactionValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.rulespecificvalidators.currencyspecific.EGP_INFT_TransactionValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.rulespecificvalidators.currencyspecific.EGP_WYMA_TransactionValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
