@@ -2,6 +2,7 @@ package com.mashreq.transfercoreservice.fundtransfer.eligibility.service;
 
 import com.mashreq.mobcommons.services.events.publisher.AuditEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
+import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.service.*;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
@@ -11,10 +12,14 @@ import com.mashreq.transfercoreservice.fundtransfer.eligibility.enums.FundsTrans
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.BeneficiaryValidator;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.LimitValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.rulespecificvalidators.currencyspecific.EGP_WAMA_TransactionValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.rulespecificvalidators.currencyspecific.EGP_WYMA_TransactionValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.rulespecificvalidators.RuleSpecificValidatorImpl;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 import com.mashreq.transfercoreservice.util.TestUtil;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -22,6 +27,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -44,16 +50,22 @@ public class WithinAccountEligibilityServiceTest {
 	private AuditEventPublisher userEventPublisher;
 
 	private RequestMetaData metaData = RequestMetaData.builder().build();
-
+	@Mock
+	private RuleSpecificValidatorImpl RuleSpecificValidatorProvider;
+	private EGP_WAMA_TransactionValidator egWamaValidator;
+	private EGP_WYMA_TransactionValidator egWymaValidator;
 	@Before
 	public void init() {
+		egWymaValidator = new EGP_WYMA_TransactionValidator();
+		egWamaValidator = new EGP_WAMA_TransactionValidator(egWymaValidator);
 		service = new WithinAccountEligibilityService(
 				beneficiaryValidator,
 				accountService,
 				beneficiaryService,
 				limitValidatorFactory,
 				maintenanceService,
-				userEventPublisher);
+				userEventPublisher,
+				RuleSpecificValidatorProvider);
 	}
 
 
@@ -106,6 +118,59 @@ public class WithinAccountEligibilityServiceTest {
 		assertNotNull(response);
 		assertEquals(response.getStatus(), FundsTransferEligibility.ELIGIBLE);
 	}
+	@Test
+	public void checkEligibilityFailureCase2WithValidatorResponse(){
+		FundTransferEligibiltyRequestDTO fundTransferEligibiltyRequestDTO = new FundTransferEligibiltyRequestDTO();
+		fundTransferEligibiltyRequestDTO.setBeneficiaryId("1");
+		fundTransferEligibiltyRequestDTO.setTxnCurrency("USD");
+		fundTransferEligibiltyRequestDTO.setFromAccount("ASDFGH");
+		fundTransferEligibiltyRequestDTO.setToAccount("QWERTY");
+		fundTransferEligibiltyRequestDTO.setCurrency("EGP");
+		fundTransferEligibiltyRequestDTO.setDestinationAccountCurrency("USD");
 
+		UserDTO userDTO = new UserDTO();
+
+
+		ValidationResult validationResult = ValidationResult.builder().success(true).build();
+		when(RuleSpecificValidatorProvider.getCcyValidator(any(),any())).thenReturn(egWamaValidator);
+		when(accountService.getAccountDetailsFromCache(any(),any())).thenReturn(new AccountDetailsDTO());
+		when(maintenanceService.convertBetweenCurrencies(any())).thenReturn(TestUtil.getCurrencyConversionDto());
+		when(beneficiaryService.getByIdWithoutValidation(any(),any(),any(),any())).thenReturn(TestUtil.getBeneficiaryDto());
+		when(beneficiaryValidator.validate(any(),any(),any())).thenReturn(validationResult);
+
+		Assertions.assertThrows(GenericException.class, () ->{
+			service.checkEligibility(metaData, fundTransferEligibiltyRequestDTO, userDTO);
+		});
+
+	}
+
+	@Test
+	public void checkEligibilityWithValidatorResponse(){
+		FundTransferEligibiltyRequestDTO fundTransferEligibiltyRequestDTO = new FundTransferEligibiltyRequestDTO();
+		fundTransferEligibiltyRequestDTO.setBeneficiaryId("1");
+		fundTransferEligibiltyRequestDTO.setTxnCurrency("EGP");
+		fundTransferEligibiltyRequestDTO.setFromAccount("ASDFGH");
+		fundTransferEligibiltyRequestDTO.setToAccount("QWERTY");
+		fundTransferEligibiltyRequestDTO.setCurrency("EGP");
+		fundTransferEligibiltyRequestDTO.setDestinationAccountCurrency("EGP");
+
+		UserDTO userDTO = new UserDTO();
+
+		ValidationResult validationResult = ValidationResult.builder().success(true).build();
+
+		when(RuleSpecificValidatorProvider.getCcyValidator(any(),any())).thenReturn(egWamaValidator);
+		when(accountService.getAccountDetailsFromCache(any(),any())).thenReturn(new AccountDetailsDTO());
+		when(limitValidatorFactory.getValidator(any())).thenReturn(limitValidator);
+		when(beneficiaryService.getByIdWithoutValidation(any(),any(),any(),any())).thenReturn(TestUtil.getBeneficiaryDto());
+		when(beneficiaryValidator.validate(any(),any(),any())).thenReturn(validationResult);
+		when(maintenanceService.convertCurrency(any())).thenReturn(TestUtil.getCurrencyConversionDto());
+		when(limitValidator.validate(any(),any(),any(),any(),any())).thenReturn(TestUtil.limitValidatorResultsDto(null));
+
+
+		EligibilityResponse response = service.checkEligibility(metaData, fundTransferEligibiltyRequestDTO, userDTO);
+
+		assertNotNull(response);
+		assertEquals(response.getStatus(), FundsTransferEligibility.ELIGIBLE);
+	}
 
 }
