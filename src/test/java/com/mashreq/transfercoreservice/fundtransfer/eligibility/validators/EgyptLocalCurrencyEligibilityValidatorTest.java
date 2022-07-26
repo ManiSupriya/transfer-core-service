@@ -236,6 +236,31 @@ public class EgyptLocalCurrencyEligibilityValidatorTest {
         assertEquals(true, result.isSuccess());
 
     }
+
+    @Test
+    public void validate_WYMATC6() {
+
+        AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
+        accountDetailsDTO.setNumber("019010073766");
+        accountDetailsDTO.setCurrency("EGP");
+        ValidationContext mockValidationContext = new ValidationContext();
+
+        FundTransferEligibiltyRequestDTO requestDTO = new FundTransferEligibiltyRequestDTO();
+        requestDTO.setServiceType(ServiceType.WYMA.getName());
+        requestDTO.setTxnCurrency("EGP");
+
+        AccountDetailsDTO toAccountDetailsDTO = new AccountDetailsDTO();
+        toAccountDetailsDTO.setNumber("019010073766");
+        toAccountDetailsDTO.setCurrency("USD");
+
+        mockValidationContext.add("from-account", accountDetailsDTO);
+        mockValidationContext.add("to-account", toAccountDetailsDTO);
+
+
+        final ValidationResult result = localCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
+        assertEquals(false, result.isSuccess());
+
+    }
     
   //START - WAMA transfer test cases
     /**

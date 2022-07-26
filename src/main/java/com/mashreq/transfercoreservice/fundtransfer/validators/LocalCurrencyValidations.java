@@ -33,18 +33,18 @@ public class LocalCurrencyValidations {
         log.info("Local account and currency validation for service type [{}] and transaction currency [{}]",
                 htmlEscape(request.getServiceType()), htmlEscape(request.getTransactionCurrency()));
         AccountDetailsDTO fromAccount = request.getValidationContext().get("from-account", AccountDetailsDTO.class);
-        //String requestedCurrency = request.getCurrency();
+
         String requestedCurrency = request.getTransactionCurrency();
 
         // WYMA, WAMA & LOCAL If source account is EGP, transaction should be in EGP currency
-        if (isWithinRegionTransfer(request) && localCurrency.equals(fromAccount.getCurrency())) {
-            if (!localCurrency.equals(requestedCurrency)) {
+        if (isWithinRegionTransfer(request) && localCurrency.equals(fromAccount.getCurrency()) && (!localCurrency.equals(requestedCurrency))) {
+
                 log.error("Transaction currency [{}] not allowed. Transfer is allowed only in local currency [{}] for transation type [{}]",
                         requestedCurrency, localCurrency, request.getServiceType());
                 auditEventPublisher.publishFailureEvent(FundTransferEventType.CURRENCY_VALIDATION, request.getRequestMetaData(), null,
                         CURRENCY_IS_INVALID.getCustomErrorCode(), CURRENCY_IS_INVALID.getErrorMessage(), null);
                 return ValidationResult.builder().success(false).transferErrorCode(CURRENCY_IS_INVALID).build();
-            }
+
         }
 
         // WYMA - If source account is EGP, destination should be EGP account

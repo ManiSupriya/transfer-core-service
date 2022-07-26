@@ -32,6 +32,7 @@
             **/*DTO.java,
             **/*Config.java,
             **/com/mashreq/transfercoreservice/client/dto/**,
+            **/*MWService.java
         </sonar.exclusions>
         <jacoco.version>0.8.3</jacoco.version>
         <jacoco.percentage.instruction>0.60</jacoco.percentage.instruction>
