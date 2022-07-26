@@ -109,7 +109,6 @@ public class WithinMashreqStrategyTest {
         Mockito.when(freezeValidator.validate(Mockito.any(), Mockito.any(),Mockito.any())).thenReturn(validationResult);
         Mockito.when(currencyValidator.validate(Mockito.any(), Mockito.any(),Mockito.any())).thenReturn(validationResult);
         Mockito.when(balanceValidator.validate((FundTransferRequestDTO) Mockito.any(), Mockito.eq(requestMetaData), Mockito.any())).thenReturn(validationResult);
-        Mockito.when(maintenanceService.convertBetweenCurrencies(Mockito.any())).thenReturn(new CurrencyConversionDto());
         Mockito.when(maintenanceService.convertCurrency(Mockito.any())).thenReturn(new CurrencyConversionDto());
         Mockito.when(minTransactionAmountValidator.validate(Mockito.any(),Mockito.any(),Mockito.any())).thenReturn(validationResult);
         Mockito.when(limitValidator.validate(Mockito.any(),Mockito.any(),Mockito.any(),Mockito.any(),Mockito.any())).thenReturn(limitValidatorResponse);
@@ -159,8 +158,6 @@ public class WithinMashreqStrategyTest {
         Mockito.when(freezeValidator.validate(Mockito.any(), Mockito.any(),Mockito.any())).thenReturn(validationResult);
         Mockito.when(currencyValidator.validate(Mockito.any(), Mockito.any(),Mockito.any())).thenReturn(validationResult);
         Mockito.when(balanceValidator.validate((FundTransferRequestDTO) Mockito.any(), Mockito.eq(requestMetaData), Mockito.any())).thenReturn(validationResult);
-        Mockito.when(maintenanceService.convertBetweenCurrencies(Mockito.any())).thenReturn(new CurrencyConversionDto());
-        Mockito.when(maintenanceService.convertCurrency(Mockito.any())).thenReturn(new CurrencyConversionDto());
         Mockito.when(minTransactionAmountValidator.validate(Mockito.any(),Mockito.any(),Mockito.any())).thenReturn(validationResult);
         Mockito.when(limitValidator.validate(Mockito.any(),Mockito.any(),Mockito.any(),Mockito.any(),Mockito.any())).thenReturn(limitValidatorResponse);
 
