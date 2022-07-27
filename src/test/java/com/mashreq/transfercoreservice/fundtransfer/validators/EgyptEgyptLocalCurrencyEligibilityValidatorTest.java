@@ -22,19 +22,20 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
  *
  */
 @RunWith(MockitoJUnitRunner.class)
-public class LocalCurrencyValidatorTest { 
+public class EgyptEgyptLocalCurrencyEligibilityValidatorTest {
 
 	@Mock
     private AsyncUserEventPublisher auditEventPublisher;
 
-    private LocalCurrencyValidator localCurrencyValidator;
+    private EgyptLocalCurrencyValidator egyptLocalCurrencyValidator;
+
     
     private RequestMetaData metadata = RequestMetaData.builder().country("EG").build();
     
     @Before
     public void init() {
-    	localCurrencyValidator = new LocalCurrencyValidator("EGP", auditEventPublisher);
-    	localCurrencyValidator.init();
+    	egyptLocalCurrencyValidator = new EgyptLocalCurrencyValidator( auditEventPublisher, new LocalCurrencyValidations("EGP", auditEventPublisher));
+    	egyptLocalCurrencyValidator.init();
     }
     
     //START - WYMA transfer test cases
@@ -69,7 +70,7 @@ public class LocalCurrencyValidatorTest {
         mockValidationContext.add("from-account", accountDetailsDTO);
         mockValidationContext.add("to-account", toAccountDetailsDTO);
 
-        final ValidationResult result = localCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
+        final ValidationResult result = egyptLocalCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
         assertEquals(true, result.isSuccess());
 
     }
@@ -105,7 +106,7 @@ public class LocalCurrencyValidatorTest {
         mockValidationContext.add("from-account", accountDetailsDTO);
         mockValidationContext.add("to-account", toAccountDetailsDTO);
 
-        final ValidationResult result = localCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
+        final ValidationResult result = egyptLocalCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
         assertEquals(false, result.isSuccess());
 
     }
@@ -141,7 +142,7 @@ public class LocalCurrencyValidatorTest {
         mockValidationContext.add("from-account", accountDetailsDTO);
         mockValidationContext.add("to-account", toAccountDetailsDTO);
 
-        final ValidationResult result = localCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
+        final ValidationResult result = egyptLocalCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
         assertEquals(false, result.isSuccess());
 
     }
@@ -176,7 +177,7 @@ public class LocalCurrencyValidatorTest {
         mockValidationContext.add("from-account", accountDetailsDTO);
         mockValidationContext.add("to-account", toAccountDetailsDTO);
         
-        final ValidationResult result = localCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
+        final ValidationResult result = egyptLocalCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
         assertEquals(true, result.isSuccess());
 
     }
@@ -211,7 +212,7 @@ public class LocalCurrencyValidatorTest {
         mockValidationContext.add("from-account", accountDetailsDTO);
         mockValidationContext.add("to-account", toAccountDetailsDTO);
 
-        final ValidationResult result = localCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
+        final ValidationResult result = egyptLocalCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
         assertEquals(true, result.isSuccess());
 
     }
@@ -254,7 +255,7 @@ public class LocalCurrencyValidatorTest {
         mockValidationContext.add("beneficiary-dto", beneficiaryDto);
         mockValidationContext.add("credit-account-details", toAccount);
 
-        final ValidationResult result = localCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
+        final ValidationResult result = egyptLocalCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
         assertEquals(true, result.isSuccess());
 
     }
@@ -295,7 +296,7 @@ public class LocalCurrencyValidatorTest {
 		mockValidationContext.add("beneficiary-dto", beneficiaryDto);
 		mockValidationContext.add("credit-account-details", toAccount);
 
-        final ValidationResult result = localCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
+        final ValidationResult result = egyptLocalCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
         assertEquals(false, result.isSuccess());
 
     }
@@ -336,7 +337,7 @@ public class LocalCurrencyValidatorTest {
 		mockValidationContext.add("beneficiary-dto", beneficiaryDto);
 		mockValidationContext.add("credit-account-details", toAccount);
 
-        final ValidationResult result = localCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
+        final ValidationResult result = egyptLocalCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
         assertEquals(false, result.isSuccess());
 
     }
@@ -376,7 +377,7 @@ public class LocalCurrencyValidatorTest {
 		mockValidationContext.add("beneficiary-dto", beneficiaryDto);
 		mockValidationContext.add("credit-account-details", toAccount);
 
-        final ValidationResult result = localCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
+        final ValidationResult result = egyptLocalCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
         assertEquals(true, result.isSuccess());
 
     }
@@ -416,7 +417,7 @@ public class LocalCurrencyValidatorTest {
 		mockValidationContext.add("beneficiary-dto", beneficiaryDto);
 		mockValidationContext.add("credit-account-details", toAccount);
 
-        final ValidationResult result = localCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
+        final ValidationResult result = egyptLocalCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
         assertEquals(true, result.isSuccess());
 
     }
@@ -451,7 +452,7 @@ public class LocalCurrencyValidatorTest {
         mockValidationContext.add("from-account", accountDetailsDTO);
         mockValidationContext.add("to-account", toAccountDetailsDTO);
 
-        final ValidationResult result = localCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
+        final ValidationResult result = egyptLocalCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
         assertEquals(true, result.isSuccess());
 
     }
@@ -485,7 +486,7 @@ public class LocalCurrencyValidatorTest {
         mockValidationContext.add("from-account", accountDetailsDTO);
         mockValidationContext.add("to-account", toAccountDetailsDTO);
 
-        final ValidationResult result = localCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
+        final ValidationResult result = egyptLocalCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
         assertEquals(false, result.isSuccess());
 
     }
@@ -516,7 +517,7 @@ public class LocalCurrencyValidatorTest {
         
         mockValidationContext.add("from-account", accountDetailsDTO);
 
-        final ValidationResult result = localCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
+        final ValidationResult result = egyptLocalCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
         assertEquals(true, result.isSuccess());
 
     }
@@ -546,7 +547,7 @@ public class LocalCurrencyValidatorTest {
         
         mockValidationContext.add("from-account", accountDetailsDTO);
 
-        final ValidationResult result = localCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
+        final ValidationResult result = egyptLocalCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
         assertEquals(false, result.isSuccess());
 
     }
@@ -576,7 +577,7 @@ public class LocalCurrencyValidatorTest {
         
         mockValidationContext.add("from-account", accountDetailsDTO);
 
-        final ValidationResult result = localCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
+        final ValidationResult result = egyptLocalCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
         assertEquals(false, result.isSuccess());
 
     }

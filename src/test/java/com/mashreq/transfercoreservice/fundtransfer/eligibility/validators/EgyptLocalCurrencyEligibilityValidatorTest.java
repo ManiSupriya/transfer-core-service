@@ -1,14 +1,10 @@
 package com.mashreq.transfercoreservice.fundtransfer.eligibility.validators;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Assert;
+import com.mashreq.transfercoreservice.fundtransfer.validators.LocalCurrencyValidations;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -21,15 +17,15 @@ import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryStatus;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyDto;
-import com.mashreq.transfercoreservice.client.dto.CountryMasterDto;
 import com.mashreq.transfercoreservice.client.dto.SearchAccountDto;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonClient;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 import com.mashreq.webcore.dto.response.Response;
+
+import static org.junit.Assert.*;
 
 /**
  * 
@@ -37,7 +33,7 @@ import com.mashreq.webcore.dto.response.Response;
  *
  */
 @RunWith(MockitoJUnitRunner.class)
-public class LocalCurrencyEligibilityValidatorTest {
+public class EgyptLocalCurrencyEligibilityValidatorTest {
 	
 	@Mock
 	private AsyncUserEventPublisher auditEventPublisher;
@@ -45,13 +41,15 @@ public class LocalCurrencyEligibilityValidatorTest {
 	@Mock
 	private MobCommonClient mobCommonClient;
 	
-	private LocalCurrencyValidator localCurrencyValidator;
+	private EgyptLocalCurrencyEligibilityValidator localCurrencyValidator;
+
 	
 	private RequestMetaData metadata = RequestMetaData.builder().country("EG").build();
 	
 	@Before
     public void init() {
-		localCurrencyValidator = new LocalCurrencyValidator(auditEventPublisher, mobCommonClient, "EGP");
+		localCurrencyValidator = new EgyptLocalCurrencyEligibilityValidator(auditEventPublisher, mobCommonClient ,
+                new LocalCurrencyValidations("EGP", auditEventPublisher));
 		localCurrencyValidator.init();
 	}
     
@@ -238,6 +236,31 @@ public class LocalCurrencyEligibilityValidatorTest {
         assertEquals(true, result.isSuccess());
 
     }
+
+    @Test
+    public void validate_WYMATC6() {
+
+        AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
+        accountDetailsDTO.setNumber("019010073766");
+        accountDetailsDTO.setCurrency("EGP");
+        ValidationContext mockValidationContext = new ValidationContext();
+
+        FundTransferEligibiltyRequestDTO requestDTO = new FundTransferEligibiltyRequestDTO();
+        requestDTO.setServiceType(ServiceType.WYMA.getName());
+        requestDTO.setTxnCurrency("EGP");
+
+        AccountDetailsDTO toAccountDetailsDTO = new AccountDetailsDTO();
+        toAccountDetailsDTO.setNumber("019010073766");
+        toAccountDetailsDTO.setCurrency("USD");
+
+        mockValidationContext.add("from-account", accountDetailsDTO);
+        mockValidationContext.add("to-account", toAccountDetailsDTO);
+
+
+        final ValidationResult result = localCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
+        assertEquals(false, result.isSuccess());
+
+    }
     
   //START - WAMA transfer test cases
     /**
@@ -359,7 +382,7 @@ public class LocalCurrencyEligibilityValidatorTest {
 		mockValidationContext.add("credit-account-details", toAccount);
 
         final ValidationResult result = localCurrencyValidator.validate(requestDTO, metadata, mockValidationContext);
-        assertEquals(false, result.isSuccess());
+        assertFalse( result.isSuccess());
 
     }
     
