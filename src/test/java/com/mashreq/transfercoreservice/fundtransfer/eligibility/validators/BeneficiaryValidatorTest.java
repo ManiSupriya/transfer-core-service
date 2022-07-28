@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.junit.Assert.*;
 
@@ -210,4 +211,28 @@ public class BeneficiaryValidatorTest {
         //then
         assertTrue(result.isSuccess());
     }
+
+    @Test
+    public void test_when_active_beneficiary_for_inft_localcurrency_false() {
+        //given
+        BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
+        beneficiaryDto.setAccountNumber("019010073766");
+        beneficiaryDto.setStatus(BeneficiaryStatus.ACTIVE.name());
+        beneficiaryDto.setServiceTypeCode("LOCAL");
+        FundTransferEligibiltyRequestDTO requestDTO = new FundTransferEligibiltyRequestDTO();
+        requestDTO.setToAccount("019010073766");
+        requestDTO.setServiceType("INFT");
+        requestDTO.setTxnCurrency("AED");
+        ValidationContext mockValidationContext = new ValidationContext();
+        mockValidationContext.add("beneficiary-dto", beneficiaryDto);
+        ReflectionTestUtils.setField(beneficiaryValidator,"localCurrency", "AED");
+
+        //when
+        final ValidationResult result = beneficiaryValidator.validate(requestDTO, null, mockValidationContext);
+
+        //then
+        assertFalse(result.isSuccess());
+    }
+
+
 }
