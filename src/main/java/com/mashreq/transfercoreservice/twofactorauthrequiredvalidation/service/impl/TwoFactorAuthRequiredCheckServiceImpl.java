@@ -6,7 +6,7 @@ import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.TwoFactorAuthRequiredCheckRequestDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.TwoFactorAuthRequiredCheckResponseDto;
 import com.mashreq.transfercoreservice.fundtransfer.repository.TransferLimitRepository;
-import com.mashreq.transfercoreservice.model.TransferLimit;
+import com.mashreq.transfercoreservice.model.TransferDetails;
 import com.mashreq.transfercoreservice.twofactorauthrequiredvalidation.config.TwoFactorAuthRequiredValidationConfig;
 import com.mashreq.transfercoreservice.twofactorauthrequiredvalidation.service.TwoFactorAuthRequiredCheckService;
 import lombok.RequiredArgsConstructor;
@@ -43,18 +43,18 @@ public class TwoFactorAuthRequiredCheckServiceImpl implements TwoFactorAuthRequi
                 return dto;
             }
             /*account number belongs to cif validation needs to be done.*/
-            TransferLimit transferLimit = transferLimitRepository.findTransactionCountAndTotalAmountBetweenDates(
+            TransferDetails transferDetails = transferLimitRepository.findTransactionCountAndTotalAmountBetweenDates(
                     Long.valueOf(requestDto.getBeneficiaryId()),
                     now().minus(config.getDurationInHours(), HOURS), now());
             BigDecimal localCurrencyAmount = maintenanceService.convertToLocalCurrency(requestDto, metaData, localCurrency);
-            dto.setTwoFactorAuthRequired(isLimitExceeded(localCurrencyAmount, transferLimit));
+            dto.setTwoFactorAuthRequired(isLimitExceeded(localCurrencyAmount, transferDetails));
         } catch (Exception e) {
             log.error("Error occurred while evaluating OTP requirement", e);
         }
         return dto;
     }
 
-    private boolean isLimitExceeded(BigDecimal localCurrencyAmount, TransferLimit transferLimit) {
+    private boolean isLimitExceeded(BigDecimal localCurrencyAmount, TransferDetails transferLimit) {
         if (isNull(transferLimit)) {
             return false;
         }
@@ -62,7 +62,7 @@ public class TwoFactorAuthRequiredCheckServiceImpl implements TwoFactorAuthRequi
                 || isTransactionCountExceeded(transferLimit);
     }
 
-    private boolean isTransactionAmountExceeded(BigDecimal localCurrencyAmount, TransferLimit transferLimit) {
+    private boolean isTransactionAmountExceeded(BigDecimal localCurrencyAmount, TransferDetails transferLimit) {
         BigDecimal amount = transferLimit.getAmount();
         if (isNull(amount)) {
             return false;
@@ -71,11 +71,8 @@ public class TwoFactorAuthRequiredCheckServiceImpl implements TwoFactorAuthRequi
         return totalAmount.compareTo(new BigDecimal(config.getMaxAmountAllowed())) > 0;
     }
 
-    private boolean isTransactionCountExceeded(TransferLimit transferLimit) {
-        if (isNull(transferLimit.getId())) {
-            return false;
-        }
-        Long transactionCount = transferLimit.getId();
+    private boolean isTransactionCountExceeded(TransferDetails transferLimit) {
+        long transactionCount = transferLimit.getTransfers();
         return transactionCount >= config.getNoOfTransactionsAllowed();
     }
 }

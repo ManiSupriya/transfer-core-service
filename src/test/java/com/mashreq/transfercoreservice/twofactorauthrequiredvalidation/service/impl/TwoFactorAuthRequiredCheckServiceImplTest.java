@@ -6,7 +6,7 @@ import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.TwoFactorAuthRequiredCheckRequestDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.TwoFactorAuthRequiredCheckResponseDto;
 import com.mashreq.transfercoreservice.fundtransfer.repository.TransferLimitRepository;
-import com.mashreq.transfercoreservice.model.TransferLimit;
+import com.mashreq.transfercoreservice.model.TransferDetails;
 import com.mashreq.transfercoreservice.twofactorauthrequiredvalidation.config.TwoFactorAuthRequiredValidationConfig;
 import org.junit.Before;
 import org.junit.Test;
@@ -75,7 +75,7 @@ public class TwoFactorAuthRequiredCheckServiceImplTest {
         when(beneficiaryService.isRecentlyUpdated(request, metaData, config)).thenReturn(false);
         when(maintenanceService.convertToLocalCurrency(request, metaData, localCurrency)).thenReturn(BigDecimal.TEN);
         when(transferLimitRepository.findTransactionCountAndTotalAmountBetweenDates(any(), any(),
-                any())).thenReturn(buildTransferLimitEntity(5L, new BigDecimal(650)));
+                any())).thenReturn(buildTransferDetails(5L, new BigDecimal(650)));
         // When
         TwoFactorAuthRequiredCheckResponseDto twoFactorAuthenticationRequired = service
                 .checkIfTwoFactorAuthenticationRequired(metaData, request);
@@ -97,7 +97,7 @@ public class TwoFactorAuthRequiredCheckServiceImplTest {
         when(maintenanceService.convertToLocalCurrency(request, metaData, localCurrency))
                 .thenReturn(new BigDecimal(5000));
         when(transferLimitRepository.findTransactionCountAndTotalAmountBetweenDates(any(), any(),
-                any())).thenReturn(buildTransferLimitEntity(5L, new BigDecimal(650)));
+                any())).thenReturn(buildTransferDetails(5L, new BigDecimal(650)));
 
         // When
         TwoFactorAuthRequiredCheckResponseDto twoFactorAuthenticationRequired = service
@@ -130,7 +130,7 @@ public class TwoFactorAuthRequiredCheckServiceImplTest {
         when(beneficiaryService.isRecentlyUpdated(request, metaData, config)).thenReturn(false);
         when(maintenanceService.convertToLocalCurrency(request, metaData, localCurrency)).thenReturn(amount);
         when(transferLimitRepository.findTransactionCountAndTotalAmountBetweenDates(any(), any(),
-                any())).thenReturn(buildTransferLimitEntity(2L, amount));
+                any())).thenReturn(buildTransferDetails(2L, amount));
 
         // When
         TwoFactorAuthRequiredCheckResponseDto twoFactorAuthenticationRequired = service
@@ -188,7 +188,7 @@ public class TwoFactorAuthRequiredCheckServiceImplTest {
         when(beneficiaryService.isRecentlyUpdated(request, metaData, config)).thenReturn(false);
         when(maintenanceService.convertToLocalCurrency(request, metaData, localCurrency)).thenReturn(amount);
         when(transferLimitRepository.findTransactionCountAndTotalAmountBetweenDates(any(), any(),
-                any())).thenReturn(buildTransferLimitEntity(null, null));
+                any())).thenReturn(buildTransferDetails(-1L, null));
 
         // When
         TwoFactorAuthRequiredCheckResponseDto twoFactorAuthenticationRequired = service
@@ -199,10 +199,7 @@ public class TwoFactorAuthRequiredCheckServiceImplTest {
         assertFalse(twoFactorAuthenticationRequired.isTwoFactorAuthRequired());
     }
 
-    private TransferLimit buildTransferLimitEntity(Long limit, BigDecimal amount) {
-        TransferLimit transferLimit = new TransferLimit();
-        transferLimit.setId(limit);
-        transferLimit.setAmount(amount);
-        return transferLimit;
+    private TransferDetails buildTransferDetails(Long limit, BigDecimal amount) {
+        return new TransferDetails(limit, amount);
     }
 }
