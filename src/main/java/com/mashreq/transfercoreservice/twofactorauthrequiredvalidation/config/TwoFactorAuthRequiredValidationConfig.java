@@ -12,7 +12,7 @@ import lombok.Setter;
 @ConfigurationProperties(prefix = "two-factor-authentication")
 public class TwoFactorAuthRequiredValidationConfig {
 	private Integer durationInHours;
-	private Boolean twofactorAuthRelaxed;;
+	private Boolean twofactorAuthRelaxed;
 	private Integer maxAmountAllowed;
 	private Integer noOfTransactionsAllowed;
 

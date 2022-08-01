@@ -1,121 +1,208 @@
 package com.mashreq.transfercoreservice.twofactorauthrequiredvalidation.service.impl;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.math.BigDecimal;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.test.util.ReflectionTestUtils;
-
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.TwoFactorAuthRequiredCheckRequestDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.TwoFactorAuthRequiredCheckResponseDto;
-import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageRepository;
+import com.mashreq.transfercoreservice.fundtransfer.repository.TransferLimitRepository;
+import com.mashreq.transfercoreservice.model.TransferLimit;
 import com.mashreq.transfercoreservice.twofactorauthrequiredvalidation.config.TwoFactorAuthRequiredValidationConfig;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
+
+import java.math.BigDecimal;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TwoFactorAuthRequiredCheckServiceImplTest {
-	private TwoFactorAuthRequiredCheckServiceImpl service;
-	@Mock
-	private TwoFactorAuthRequiredValidationConfig config;
-	@Mock
-	private MaintenanceService maintenanceService;
-	@Mock
-	private BeneficiaryService beneficiaryService;
-	@Mock
-	private DigitalUserLimitUsageRepository digitalUserLimitUsageRepository;
-	
-	private RequestMetaData metaData = RequestMetaData.builder().primaryCif("primaryCif").build();
-	private String localCurrency = "AED";
-	
-	@Before
-	public void init() {
-		service = new TwoFactorAuthRequiredCheckServiceImpl(config, maintenanceService, beneficiaryService,
-				digitalUserLimitUsageRepository);
-		ReflectionTestUtils.setField(service, "localCurrency", localCurrency);
-	}
-	
-	@Test
-	public void test_checkIfTwoFactorAuthenticationRequired_NotRelaxedInConfig() {
-		Mockito.when(config.getTwofactorAuthRelaxed()).thenReturn(false);
-		TwoFactorAuthRequiredCheckResponseDto twoFactorAuthenticationRequired = service
-				.checkIfTwoFactorAuthenticationRequired(metaData, new TwoFactorAuthRequiredCheckRequestDto());
-		assertNotNull(twoFactorAuthenticationRequired);
-		assertTrue(twoFactorAuthenticationRequired.isTwoFactorAuthRequired());
-	}
-	
-	@Test
-	public void test_checkIfTwoFactorAuthenticationRequired_BeneficiaryRecentlyUpdated() {
-		TwoFactorAuthRequiredCheckRequestDto request = new TwoFactorAuthRequiredCheckRequestDto();
-		Mockito.when(config.getTwofactorAuthRelaxed()).thenReturn(true);
-		Mockito.when(beneficiaryService.isRecentlyUpdated(request, metaData, config)).thenReturn(true);
-		TwoFactorAuthRequiredCheckResponseDto twoFactorAuthenticationRequired = service
-				.checkIfTwoFactorAuthenticationRequired(metaData, request);
-		assertNotNull(twoFactorAuthenticationRequired);
-		assertTrue(twoFactorAuthenticationRequired.isTwoFactorAuthRequired());
-	}
+    private TwoFactorAuthRequiredCheckServiceImpl service;
+    @Mock
+    private TwoFactorAuthRequiredValidationConfig config;
+    @Mock
+    private MaintenanceService maintenanceService;
+    @Mock
+    private BeneficiaryService beneficiaryService;
+    @Mock
+    private TransferLimitRepository transferLimitRepository;
 
-	@Test
-	public void test_checkIfTwoFactorAuthenticationRequired_transactionAmountExceeded() {
-		TwoFactorAuthRequiredCheckRequestDto request = new TwoFactorAuthRequiredCheckRequestDto();
-		Mockito.when(config.getTwofactorAuthRelaxed()).thenReturn(true);
-		Mockito.when(config.getMaxAmountAllowed()).thenReturn(1);
-		Mockito.when(beneficiaryService.isRecentlyUpdated(request, metaData, config)).thenReturn(false);
-		Mockito.when(maintenanceService.convertToLocalCurrency(request,metaData,localCurrency)).thenReturn(BigDecimal.TEN);
-		TwoFactorAuthRequiredCheckResponseDto twoFactorAuthenticationRequired = service
-				.checkIfTwoFactorAuthenticationRequired(metaData, request);
-		assertNotNull(twoFactorAuthenticationRequired);
-		assertTrue(twoFactorAuthenticationRequired.isTwoFactorAuthRequired());
-	}
+    private RequestMetaData metaData = RequestMetaData.builder().primaryCif("primaryCif").build();
+    private String localCurrency = "AED";
 
-	@Test
-	public void test_checkIfTwoFactorAuthenticationRequired_transactionCountExceeded() {
-		TwoFactorAuthRequiredCheckRequestDto request = new TwoFactorAuthRequiredCheckRequestDto();
-		request.setBeneficiaryId("222");
-		Mockito.when(config.getTwofactorAuthRelaxed()).thenReturn(true);
-		Mockito.when(config.getMaxAmountAllowed()).thenReturn(10);
-		Mockito.when(config.getNoOfTransactionsAllowed()).thenReturn(3);
-		Mockito.when(beneficiaryService.isRecentlyUpdated(request, metaData, config)).thenReturn(false);
-		Mockito.when(maintenanceService.convertToLocalCurrency(request,metaData,localCurrency)).thenReturn(BigDecimal.TEN);
-		Mockito.when(digitalUserLimitUsageRepository.findCountForBeneficiaryIdBetweendates(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(5l);
-		TwoFactorAuthRequiredCheckResponseDto twoFactorAuthenticationRequired = service
-				.checkIfTwoFactorAuthenticationRequired(metaData, request);
-		assertNotNull(twoFactorAuthenticationRequired);
-		assertTrue(twoFactorAuthenticationRequired.isTwoFactorAuthRequired());
-	}
-	
-	@Test
-	public void test_checkIfTwoFactorAuthenticationRequired_ExceptionCase() {
-		TwoFactorAuthRequiredCheckRequestDto request = new TwoFactorAuthRequiredCheckRequestDto();
-		request.setBeneficiaryId("222");
-		TwoFactorAuthRequiredCheckResponseDto twoFactorAuthenticationRequired = service
-				.checkIfTwoFactorAuthenticationRequired(metaData, request);
-		assertNotNull(twoFactorAuthenticationRequired);
-		assertTrue(twoFactorAuthenticationRequired.isTwoFactorAuthRequired());
-	}
-	
-	@Test
-	public void test_checkIfTwoFactorAuthenticationRequired_NotRequiredCase() {
-		TwoFactorAuthRequiredCheckRequestDto request = new TwoFactorAuthRequiredCheckRequestDto();
-		request.setBeneficiaryId("222");
-		Mockito.when(config.getTwofactorAuthRelaxed()).thenReturn(true);
-		Mockito.when(config.getMaxAmountAllowed()).thenReturn(10);
-		Mockito.when(config.getNoOfTransactionsAllowed()).thenReturn(3);
-		Mockito.when(beneficiaryService.isRecentlyUpdated(request, metaData, config)).thenReturn(false);
-		Mockito.when(maintenanceService.convertToLocalCurrency(request,metaData,localCurrency)).thenReturn(BigDecimal.TEN);
-		Mockito.when(digitalUserLimitUsageRepository.findCountForBeneficiaryIdBetweendates(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(2l);
-		TwoFactorAuthRequiredCheckResponseDto twoFactorAuthenticationRequired = service
-				.checkIfTwoFactorAuthenticationRequired(metaData, request);
-		assertNotNull(twoFactorAuthenticationRequired);
-		assertFalse(twoFactorAuthenticationRequired.isTwoFactorAuthRequired());
-	}
+    @Before
+    public void init() {
+        service = new TwoFactorAuthRequiredCheckServiceImpl(config, maintenanceService, beneficiaryService,
+                transferLimitRepository);
+        ReflectionTestUtils.setField(service, "localCurrency", localCurrency);
+    }
+
+    @Test
+    public void test_checkIfTwoFactorAuthenticationRequired_NotRelaxedInConfig() {
+        when(config.getTwofactorAuthRelaxed()).thenReturn(false);
+        TwoFactorAuthRequiredCheckResponseDto twoFactorAuthenticationRequired = service
+                .checkIfTwoFactorAuthenticationRequired(metaData, new TwoFactorAuthRequiredCheckRequestDto());
+        assertNotNull(twoFactorAuthenticationRequired);
+        assertTrue(twoFactorAuthenticationRequired.isTwoFactorAuthRequired());
+    }
+
+    @Test
+    public void test_checkIfTwoFactorAuthenticationRequired_BeneficiaryRecentlyUpdated() {
+        TwoFactorAuthRequiredCheckRequestDto request = new TwoFactorAuthRequiredCheckRequestDto();
+        when(config.getTwofactorAuthRelaxed()).thenReturn(true);
+        when(beneficiaryService.isRecentlyUpdated(request, metaData, config)).thenReturn(true);
+        TwoFactorAuthRequiredCheckResponseDto twoFactorAuthenticationRequired = service
+                .checkIfTwoFactorAuthenticationRequired(metaData, request);
+        assertNotNull(twoFactorAuthenticationRequired);
+        assertTrue(twoFactorAuthenticationRequired.isTwoFactorAuthRequired());
+    }
+
+    @Test
+    public void test_checkIfTwoFactorAuthenticationRequired_transactionAmountExceeded() {
+        // Given
+        TwoFactorAuthRequiredCheckRequestDto request = new TwoFactorAuthRequiredCheckRequestDto();
+        request.setBeneficiaryId("222");
+        when(config.getTwofactorAuthRelaxed()).thenReturn(true);
+        when(config.getMaxAmountAllowed()).thenReturn(1);
+        when(beneficiaryService.isRecentlyUpdated(request, metaData, config)).thenReturn(false);
+        when(maintenanceService.convertToLocalCurrency(request, metaData, localCurrency)).thenReturn(BigDecimal.TEN);
+        when(transferLimitRepository.findTransactionCountAndTotalAmountBetweenDates(any(), any(),
+                any())).thenReturn(buildTransferLimitEntity(5L, new BigDecimal(650)));
+        // When
+        TwoFactorAuthRequiredCheckResponseDto twoFactorAuthenticationRequired = service
+                .checkIfTwoFactorAuthenticationRequired(metaData, request);
+
+        // Then
+        assertNotNull(twoFactorAuthenticationRequired);
+        assertTrue(twoFactorAuthenticationRequired.isTwoFactorAuthRequired());
+    }
+
+    @Test
+    public void test_checkIfTwoFactorAuthenticationRequired_transactionCountExceeded() {
+        // Given
+        TwoFactorAuthRequiredCheckRequestDto request = new TwoFactorAuthRequiredCheckRequestDto();
+        request.setBeneficiaryId("222");
+        when(config.getTwofactorAuthRelaxed()).thenReturn(true);
+        when(config.getMaxAmountAllowed()).thenReturn(50000);
+        when(config.getNoOfTransactionsAllowed()).thenReturn(3);
+        when(beneficiaryService.isRecentlyUpdated(request, metaData, config)).thenReturn(false);
+        when(maintenanceService.convertToLocalCurrency(request, metaData, localCurrency))
+                .thenReturn(new BigDecimal(5000));
+        when(transferLimitRepository.findTransactionCountAndTotalAmountBetweenDates(any(), any(),
+                any())).thenReturn(buildTransferLimitEntity(5L, new BigDecimal(650)));
+
+        // When
+        TwoFactorAuthRequiredCheckResponseDto twoFactorAuthenticationRequired = service
+                .checkIfTwoFactorAuthenticationRequired(metaData, request);
+
+        // Then
+        assertNotNull(twoFactorAuthenticationRequired);
+        assertTrue(twoFactorAuthenticationRequired.isTwoFactorAuthRequired());
+    }
+
+    @Test
+    public void test_checkIfTwoFactorAuthenticationRequired_ExceptionCase() {
+        TwoFactorAuthRequiredCheckRequestDto request = new TwoFactorAuthRequiredCheckRequestDto();
+        request.setBeneficiaryId("222");
+        TwoFactorAuthRequiredCheckResponseDto twoFactorAuthenticationRequired = service
+                .checkIfTwoFactorAuthenticationRequired(metaData, request);
+        assertNotNull(twoFactorAuthenticationRequired);
+        assertTrue(twoFactorAuthenticationRequired.isTwoFactorAuthRequired());
+    }
+
+    @Test
+    public void test_checkIfTwoFactorAuthenticationRequired_NotRequiredCase() {
+        // Given
+        TwoFactorAuthRequiredCheckRequestDto request = new TwoFactorAuthRequiredCheckRequestDto();
+        request.setBeneficiaryId("222");
+        BigDecimal amount = new BigDecimal(500);
+        when(config.getTwofactorAuthRelaxed()).thenReturn(true);
+        when(config.getMaxAmountAllowed()).thenReturn(10000);
+        when(config.getNoOfTransactionsAllowed()).thenReturn(3);
+        when(beneficiaryService.isRecentlyUpdated(request, metaData, config)).thenReturn(false);
+        when(maintenanceService.convertToLocalCurrency(request, metaData, localCurrency)).thenReturn(amount);
+        when(transferLimitRepository.findTransactionCountAndTotalAmountBetweenDates(any(), any(),
+                any())).thenReturn(buildTransferLimitEntity(2L, amount));
+
+        // When
+        TwoFactorAuthRequiredCheckResponseDto twoFactorAuthenticationRequired = service
+                .checkIfTwoFactorAuthenticationRequired(metaData, request);
+
+        // Then
+        assertNotNull(twoFactorAuthenticationRequired);
+        assertFalse(twoFactorAuthenticationRequired.isTwoFactorAuthRequired());
+    }
+
+    @Test
+    public void should_not_require_otp_when_not_transfer_are_done() {
+        TwoFactorAuthRequiredCheckRequestDto request = new TwoFactorAuthRequiredCheckRequestDto();
+        request.setBeneficiaryId("222");
+        when(config.getTwofactorAuthRelaxed()).thenReturn(true);
+        when(beneficiaryService.isRecentlyUpdated(request, metaData, config)).thenReturn(false);
+        when(maintenanceService.convertToLocalCurrency(request, metaData, localCurrency))
+                .thenReturn(new BigDecimal(5000));
+        when(transferLimitRepository.findTransactionCountAndTotalAmountBetweenDates(any(), any(),
+                any())).thenReturn(null);
+
+        // When
+        TwoFactorAuthRequiredCheckResponseDto twoFactorAuthenticationRequired = service
+                .checkIfTwoFactorAuthenticationRequired(metaData, request);
+
+        // Then
+        assertNotNull(twoFactorAuthenticationRequired);
+        assertFalse(twoFactorAuthenticationRequired.isTwoFactorAuthRequired());
+    }
+
+    @Test
+    public void should_handle_exception_when_otp_requirement_is_verified() {
+        // Given
+        TwoFactorAuthRequiredCheckRequestDto request = new TwoFactorAuthRequiredCheckRequestDto();
+        when(config.getTwofactorAuthRelaxed()).thenReturn(true);
+        when(beneficiaryService.isRecentlyUpdated(request, metaData, config)).thenReturn(false);
+
+        // When
+        TwoFactorAuthRequiredCheckResponseDto twoFactorAuthenticationRequired = service
+                .checkIfTwoFactorAuthenticationRequired(metaData, request);
+
+        // Then
+        assertNotNull(twoFactorAuthenticationRequired);
+        assertTrue(twoFactorAuthenticationRequired.isTwoFactorAuthRequired());
+
+    }
+
+    @Test
+    public void test_checkIfTwoFactorAuthenticationRequired_NotRequired_when_transfer_limit_has_no_data() {
+        // Given
+        TwoFactorAuthRequiredCheckRequestDto request = new TwoFactorAuthRequiredCheckRequestDto();
+        request.setBeneficiaryId("222");
+        BigDecimal amount = new BigDecimal(500);
+        when(config.getTwofactorAuthRelaxed()).thenReturn(true);
+        when(beneficiaryService.isRecentlyUpdated(request, metaData, config)).thenReturn(false);
+        when(maintenanceService.convertToLocalCurrency(request, metaData, localCurrency)).thenReturn(amount);
+        when(transferLimitRepository.findTransactionCountAndTotalAmountBetweenDates(any(), any(),
+                any())).thenReturn(buildTransferLimitEntity(null, null));
+
+        // When
+        TwoFactorAuthRequiredCheckResponseDto twoFactorAuthenticationRequired = service
+                .checkIfTwoFactorAuthenticationRequired(metaData, request);
+
+        // Then
+        assertNotNull(twoFactorAuthenticationRequired);
+        assertFalse(twoFactorAuthenticationRequired.isTwoFactorAuthRequired());
+    }
+
+    private TransferLimit buildTransferLimitEntity(Long limit, BigDecimal amount) {
+        TransferLimit transferLimit = new TransferLimit();
+        transferLimit.setId(limit);
+        transferLimit.setAmount(amount);
+        return transferLimit;
+    }
 }

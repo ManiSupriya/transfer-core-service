@@ -12,12 +12,25 @@ import com.mashreq.transfercoreservice.common.CommonConstants;
 import com.mashreq.transfercoreservice.errors.ExternalErrorCodeConfig;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.*;
+import com.mashreq.transfercoreservice.fundtransfer.dto.ChargeBearer;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponseDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
+import com.mashreq.transfercoreservice.fundtransfer.dto.TransferLimitDto;
+import com.mashreq.transfercoreservice.fundtransfer.dto.TwoFactorAuthRequiredCheckRequestDto;
+import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageService;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.*;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.CharityStrategyDefault;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.FundTransferStrategy;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.InternationalFundTransferStrategy;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.LocalFundTransferStrategy;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.OwnAccountStrategy;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.WithinMashreqStrategy;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.model.DigitalUser;
+import com.mashreq.transfercoreservice.paylater.enums.FTOrderType;
 import com.mashreq.transfercoreservice.promo.service.PromoCodeService;
 import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionHistory;
@@ -45,7 +58,14 @@ import java.util.Optional;
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.OTP_VERIFY_OTP_REQUIRED;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.*;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.BAIT_AL_KHAIR;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.DAR_AL_BER;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.DUBAI_CARE;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.INFT;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.LOCAL;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WAMA;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WYMA;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.getServiceByType;
 import static java.time.Duration.between;
 import static java.time.Instant.now;
 
@@ -73,6 +93,8 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final PromoCodeService promoCodeService;
     private final MobCommonService mobCommonService;
     private final TwoFactorAuthRequiredCheckService service;
+
+    private final TransferLimitService transferLimitService;
 
     @Value("${spring.profiles.active}")
     private String activeProfile;
@@ -234,10 +256,20 @@ public class FundTransferServiceDefault implements FundTransferService {
                     request.getServiceType(), response.getLimitUsageAmount(), userDTO, metadata, response.getLimitVersionUuid(),response.getTransactionRefNo(), bendId );
             log.info("Inserting into limits table {} ", digitalUserLimitUsageDTO);
             digitalUserLimitUsageService.insert(digitalUserLimitUsageDTO);
+            transferLimitService.saveTransferDetails(buildTransactionLimitDto(request.getOrderType(),
+                    response.getLimitUsageAmount(), bendId));
         }
 	}
 
-	protected void handleFailure(FundTransferRequestDTO request, FundTransferResponse response) {
+    private TransferLimitDto buildTransactionLimitDto(String orderType, BigDecimal amount, Long bendId) {
+        return TransferLimitDto.builder()
+                .beneficiaryId(bendId)
+                .amount(amount)
+                .orderType(FTOrderType.getFTOrderTypeByName(orderType))
+                .build();
+    }
+
+    protected void handleFailure(FundTransferRequestDTO request, FundTransferResponse response) {
 		if (isFailure(response)) {
             GenericExceptionHandler.handleError(
                     TransferErrorCode.valueOf(errorCodeConfig.getMiddlewareExternalErrorCodesMap().getOrDefault(response.getResponseDto().getMwResponseCode(),"FUND_TRANSFER_FAILED")),
