@@ -104,8 +104,11 @@ public class FundTransferServiceDefaultTest {
 	 
 	 @Mock
 	 CoreFundTransferResponseDto coreFundTransferResponseDto;
-	 
-	 @Before
+
+	@Mock
+	TransferLimitService transferLimitService;
+
+	@Before
 	 public void prepare() {
 		 QuickRemitStatusMaster quickRemitStatusMaster = new QuickRemitStatusMaster();
 		 quickRemitStatusMaster.setStatusCode("EAI-FCI-BRK-001");
@@ -123,7 +126,6 @@ public class FundTransferServiceDefaultTest {
 		VerifyOTPResponseDTO verifyOTPResponseDTO = new VerifyOTPResponseDTO();
 		verifyOTPResponseDTO.setAuthenticated(true);
         Mockito.doNothing().when(asyncUserEventPublisher).publishSuccessEvent(any(), any(), any());
-		when(iamService.verifyOTP(any())).thenReturn(Response.<VerifyOTPResponseDTO>builder().status(ResponseStatus.SUCCESS).data(verifyOTPResponseDTO).build());
 		mockOtpRequiredApi();
 		FundTransferResponseDTO fundTransferResponseDTO = fundTransferServiceDefault.transferFund(metaData,
 				fundTransferRequestDTO);
@@ -144,6 +146,7 @@ public class FundTransferServiceDefaultTest {
 		verifyOTPResponseDTO.setAuthenticated(true);
 
 		doNothing().when(digitalUserLimitUsageService).insert(any());
+		doNothing().when(transferLimitService).saveTransferDetails(any());
 		fundTransferServiceDefault.handleIfTransactionIsSuccess(metaData, fundTransferRequestDTO, new UserDTO(), fundTransferResponse);
 		verify(digitalUserLimitUsageService,times(1)).insert(any());
 	}
@@ -179,8 +182,6 @@ public class FundTransferServiceDefaultTest {
 		verifyOTPResponseDTO.setAuthenticated(false);
 		mockOtpRequiredApi();
 		fundTransferRequestDTO.setServiceType("WAMA");
-        Mockito.doNothing().when(asyncUserEventPublisher).publishFailedEsbEvent(any(), any(), any(), any(), any(), any(), any());
-		when(iamService.verifyOTP(any())).thenReturn(Response.<VerifyOTPResponseDTO>builder().status(ResponseStatus.FAIL).errorCode("TN-5016").errorDetails("Something went wrong with OTP external service").data(verifyOTPResponseDTO).build());
 		try {
 			fundTransferServiceDefault.transferFund(metaData,
 					fundTransferRequestDTO);
@@ -195,12 +196,6 @@ public class FundTransferServiceDefaultTest {
 		verifyOTPResponseDTO.setAuthenticated(false);
 		mockOtpRequiredApi();
 		fundTransferRequestDTO.setServiceType("LOCAL");
-		Mockito.doNothing().when(asyncUserEventPublisher).publishFailedEsbEvent(Mockito.any(), Mockito.any(),
-				Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-		Mockito.when(iamService.verifyOTP(Mockito.any()))
-				.thenReturn(Response.<VerifyOTPResponseDTO>builder().status(ResponseStatus.FAIL).errorCode("TN-5016")
-						.errorDetails("Something went wrong with OTP external service").data(verifyOTPResponseDTO)
-						.build());
 		try {
 			fundTransferRequestDTO.setTermsAndConditionsAccepted(true);
 			fundTransferRequestDTO.setJourneyVersion("V2");
@@ -238,12 +233,6 @@ public class FundTransferServiceDefaultTest {
 		verifyOTPResponseDTO.setAuthenticated(false);
 		mockOtpRequiredApi();
 		fundTransferRequestDTO.setServiceType("INFT");
-		Mockito.doNothing().when(asyncUserEventPublisher).publishFailedEsbEvent(Mockito.any(), Mockito.any(),
-				Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-		Mockito.when(iamService.verifyOTP(Mockito.any()))
-				.thenReturn(Response.<VerifyOTPResponseDTO>builder().status(ResponseStatus.FAIL).errorCode("TN-5016")
-						.errorDetails("Something went wrong with OTP external service").data(verifyOTPResponseDTO)
-						.build());
 		try {
 			ReflectionTestUtils.setField(fundTransferServiceDefault, "cprEnabled", true);
 			fundTransferRequestDTO.setTermsAndConditionsAccepted(true);
