@@ -6,7 +6,7 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.TwoFactorAuthRequiredChe
 
 public interface TwoFactorAuthRequiredCheckService {
 
-	public TwoFactorAuthRequiredCheckResponseDto checkIfTwoFactorAuthenticationRequired(RequestMetaData metaData,
+	TwoFactorAuthRequiredCheckResponseDto checkIfTwoFactorAuthenticationRequired(RequestMetaData metaData,
 			TwoFactorAuthRequiredCheckRequestDto request);
 
 }
