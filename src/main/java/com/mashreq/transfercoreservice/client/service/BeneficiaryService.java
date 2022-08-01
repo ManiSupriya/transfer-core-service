@@ -1,11 +1,5 @@
 package com.mashreq.transfercoreservice.client.service;
 
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_EXTERNAL_SERVICE_ERROR;
-import static java.util.Objects.isNull;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
-
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
@@ -97,17 +91,18 @@ public class BeneficiaryService {
         return response.getErrorCode() + "," + response.getMessage();
     }
 
-	public boolean isRecentlyUpdated(TwoFactorAuthRequiredCheckRequestDto requestDto, RequestMetaData metaData, TwoFactorAuthRequiredValidationConfig config) {
-		BeneficiaryModificationValidationRequest request = new BeneficiaryModificationValidationRequest();
-		request.setBeneficiaryId(requestDto.getBeneficiaryId());
-		request.setDuration(config.getDurationInHours());
-		request.setDurationType(DURATION_TYPE);
-		Response<BeneficiaryModificationValidationResponse> response = beneficiaryClient.isRecentlyUpdated(metaData.getPrimaryCif(), request);
-		if (ResponseStatus.ERROR == response.getStatus() || isNull(response.getData())) {
-			log.info("Received error response from beneficiary, hence returning otp required");
+    public boolean isRecentlyUpdated(TwoFactorAuthRequiredCheckRequestDto requestDto, RequestMetaData metaData,
+                                     TwoFactorAuthRequiredValidationConfig config) {
+        BeneficiaryModificationValidationRequest request = new BeneficiaryModificationValidationRequest();
+        request.setBeneficiaryId(requestDto.getBeneficiaryId());
+        request.setDuration(config.getDurationInHours());
+        request.setDurationType(DURATION_TYPE);
+        Response<BeneficiaryModificationValidationResponse> response =
+                beneficiaryClient.isRecentlyUpdated(metaData.getPrimaryCif(), request);
+        if (ResponseStatus.ERROR == response.getStatus() || isNull(response.getData())) {
+            log.info("Received error response from beneficiary, hence returning otp required");
             return Boolean.TRUE;
         }
-		return response.getData().isUpdated();
-	}
-
+        return response.getData().isUpdated();
+    }
 }
