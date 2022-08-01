@@ -72,11 +72,12 @@ public class PayLaterTransferService extends FundTransferServiceDefault{
                                    LocalFundPayLaterTransferStrategy localFundPayLaterTransferStrategy,
                                    InternationalPayLaterFundTransferStrategy internationalPayLaterFundTransferStrategy,
                                    PromoCodeService promoCodeService, MobCommonService mobCommonService,
-                                   TwoFactorAuthRequiredCheckService service) {
+                                   TwoFactorAuthRequiredCheckService service,
+                                   TransferLimitService transferLimitService) {
 		super(digitalUserRepository, transactionRepository, digitalUserLimitUsageService, ownAccountStrategy,
 				withinMashreqStrategy, localFundTransferStrategy, internationalFundTransferStrategy,
 				charityStrategyDefault, auditEventPublisher, otpService, errorCodeConfig,
-				promoCodeService, mobCommonService, service);
+				promoCodeService, mobCommonService, service, transferLimitService);
 		this.ownAccountPayLaterStrategy = ownAccountPayLaterStrategy;
 		this.withinMashreqPayLaterStrategy = withinMashreqPayLaterStrategy;
 		this.localFundPayLaterTransferStrategy = localFundPayLaterTransferStrategy;
