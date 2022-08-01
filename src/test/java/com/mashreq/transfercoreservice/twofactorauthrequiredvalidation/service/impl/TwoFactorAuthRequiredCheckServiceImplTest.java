@@ -6,7 +6,7 @@ import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.TwoFactorAuthRequiredCheckRequestDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.TwoFactorAuthRequiredCheckResponseDto;
 import com.mashreq.transfercoreservice.fundtransfer.repository.TransferLimitRepository;
-import com.mashreq.transfercoreservice.model.TransferLimit;
+import com.mashreq.transfercoreservice.model.TransferDetails;
 import com.mashreq.transfercoreservice.twofactorauthrequiredvalidation.config.TwoFactorAuthRequiredValidationConfig;
 import org.junit.Before;
 import org.junit.Test;
