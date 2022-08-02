@@ -96,8 +96,6 @@ public class PayLaterTransferServiceTest {
 		Mockito.doNothing().when(asyncUserEventPublisher).publishSuccessEvent(Mockito.any(), Mockito.any(),
 				Mockito.any());
 		Mockito.when(service.checkIfTwoFactorAuthenticationRequired(Mockito.any(), Mockito.any())).thenReturn(new TwoFactorAuthRequiredCheckResponseDto());
-		Mockito.when(iamService.verifyOTP(Mockito.any())).thenReturn(Response.<VerifyOTPResponseDTO>builder()
-				.status(ResponseStatus.SUCCESS).data(verifyOTPResponseDTO).build());
 		FundTransferResponseDTO fundTransferResponseDTO = payLaterTransferService.transferFund(metaData,
 				fundTransferRequestDTO);
 		Assert.assertNull(fundTransferResponseDTO);
@@ -108,13 +106,7 @@ public class PayLaterTransferServiceTest {
 	public void transferFundTestOTPFailure() {
 		VerifyOTPResponseDTO verifyOTPResponseDTO = new VerifyOTPResponseDTO();
 		verifyOTPResponseDTO.setAuthenticated(false);
-		Mockito.doNothing().when(asyncUserEventPublisher).publishFailedEsbEvent(Mockito.any(), Mockito.any(),
-				Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
 		Mockito.when(service.checkIfTwoFactorAuthenticationRequired(Mockito.any(), Mockito.any())).thenReturn(new TwoFactorAuthRequiredCheckResponseDto());
-		Mockito.when(iamService.verifyOTP(Mockito.any()))
-				.thenReturn(Response.<VerifyOTPResponseDTO>builder().status(ResponseStatus.FAIL).errorCode("TN-5016")
-						.errorDetails("Something went wrong with OTP external service").data(verifyOTPResponseDTO)
-						.build());
 		try {
 			payLaterTransferService.transferFund(metaData, fundTransferRequestDTO);
 		} catch (GenericException genericException) {
