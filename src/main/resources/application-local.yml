@@ -164,3 +164,9 @@ mob-common:
     maxPoolSize: 40
     poolName: hikari-user-events-life-pool
     minimumidletime: 600000
+    
+two-factor-authentication:
+  durationInHours: '24'
+  twofactorAuthRelaxed: 'true'
+  maxAmountAllowed: '5000'
+  noOfTransactionsAllowed: '3'

@@ -12,7 +12,6 @@ import java.util.EnumMap;
 
 import javax.annotation.PostConstruct;
 
-import com.mashreq.transfercoreservice.repository.QrStatusMsRepository;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -46,6 +45,7 @@ import com.mashreq.transfercoreservice.promo.service.PromoCodeService;
 import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionHistory;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionRepository;
+import com.mashreq.transfercoreservice.twofactorauthrequiredvalidation.service.TwoFactorAuthRequiredCheckService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -58,6 +58,7 @@ public class PayLaterTransferService extends FundTransferServiceDefault{
 	private final WithinMashreqPayLaterStrategy withinMashreqPayLaterStrategy;
 	private final LocalFundPayLaterTransferStrategy localFundPayLaterTransferStrategy;
 	private final InternationalPayLaterFundTransferStrategy internationalPayLaterFundTransferStrategy;
+
     @Autowired
 	public PayLaterTransferService(DigitalUserRepository digitalUserRepository,
                                    TransactionRepository transactionRepository, DigitalUserLimitUsageService digitalUserLimitUsageService,
@@ -70,11 +71,13 @@ public class PayLaterTransferService extends FundTransferServiceDefault{
                                    WithinMashreqPayLaterStrategy withinMashreqPayLaterStrategy,
                                    LocalFundPayLaterTransferStrategy localFundPayLaterTransferStrategy,
                                    InternationalPayLaterFundTransferStrategy internationalPayLaterFundTransferStrategy,
-                                   PromoCodeService promoCodeService, MobCommonService mobCommonService) {
+                                   PromoCodeService promoCodeService, MobCommonService mobCommonService,
+                                   TwoFactorAuthRequiredCheckService service,
+                                   TransferLimitService transferLimitService) {
 		super(digitalUserRepository, transactionRepository, digitalUserLimitUsageService, ownAccountStrategy,
 				withinMashreqStrategy, localFundTransferStrategy, internationalFundTransferStrategy,
 				charityStrategyDefault, auditEventPublisher, otpService, errorCodeConfig,
-				promoCodeService, mobCommonService);
+				promoCodeService, mobCommonService, service, transferLimitService);
 		this.ownAccountPayLaterStrategy = ownAccountPayLaterStrategy;
 		this.withinMashreqPayLaterStrategy = withinMashreqPayLaterStrategy;
 		this.localFundPayLaterTransferStrategy = localFundPayLaterTransferStrategy;

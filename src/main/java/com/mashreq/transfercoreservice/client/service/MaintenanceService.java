@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.client.service;
 
+import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.MaintenanceClient;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
@@ -8,6 +9,7 @@ import com.mashreq.transfercoreservice.client.dto.CountryMasterDto;
 import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.DealEnquiryDto;
+import com.mashreq.transfercoreservice.fundtransfer.dto.TwoFactorAuthRequiredCheckRequestDto;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
 import feign.FeignException;
@@ -80,6 +82,34 @@ public class MaintenanceService {
         }
         return response.getData();
     }
+
+	public BigDecimal convertToLocalCurrency(TwoFactorAuthRequiredCheckRequestDto requestDto,
+			RequestMetaData metaData, String localCurrency) {
+		log.info("Converting amount to local currency for validation");
+		if(localCurrency.equals(requestDto.getTxnCurrency())) {
+			return requestDto.getAmount();
+		}
+		return this.convertCurrency(prepareRequest(requestDto,localCurrency)).getAccountCurrencyAmount();
+	}
+
+	private CoreCurrencyConversionRequestDto prepareRequest(TwoFactorAuthRequiredCheckRequestDto requestDto,
+			String localCurrency) {
+		CoreCurrencyConversionRequestDto dto = new CoreCurrencyConversionRequestDto();
+		dto.setAccountCurrency(requestDto.getAccountCurrency());
+		dto.setAccountNumber(requestDto.getFromAccount());
+		dto.setTransactionAmount(requestDto.getAmount());
+		dto.setTransactionCurrency(requestDto.getTxnCurrency());
+		if(canApplyDealForLocalCurrencyConversion(requestDto,localCurrency)) {
+			dto.setDealNumber(requestDto.getDealNumber());
+		}
+		return dto;
+	}
+
+	private boolean canApplyDealForLocalCurrencyConversion(TwoFactorAuthRequiredCheckRequestDto requestDto,
+			String localCurrency) {
+		return (StringUtils.isNotEmpty(requestDto.getDealNumber())
+				&& requestDto.getAccountCurrency().equals(localCurrency));
+	}
 
 
 }

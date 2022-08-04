@@ -18,6 +18,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,6 +46,7 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponseDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
+import com.mashreq.transfercoreservice.fundtransfer.dto.TwoFactorAuthRequiredCheckResponseDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageService;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.FundTransferStrategy;
@@ -57,6 +59,7 @@ import com.mashreq.transfercoreservice.model.QuickRemitStatusMaster;
 import com.mashreq.transfercoreservice.model.Segment;
 import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
 import com.mashreq.transfercoreservice.repository.QrStatusMsRepository;
+import com.mashreq.transfercoreservice.twofactorauthrequiredvalidation.service.TwoFactorAuthRequiredCheckService;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
 @RunWith(MockitoJUnitRunner.class)
@@ -95,13 +98,17 @@ public class FundTransferServiceDefaultTest {
 	 QrStatusMsRepository qrStatusMsRepository;
 	 @Mock
 	 ExternalErrorCodeConfig errorCodeConfig;
-
+	 @Mock
+	 private TwoFactorAuthRequiredCheckService service;
 	 FundTransferRequestDTO fundTransferRequestDTO;
 	 
 	 @Mock
 	 CoreFundTransferResponseDto coreFundTransferResponseDto;
-	 
-	 @Before
+
+	@Mock
+	TransferLimitService transferLimitService;
+
+	@Before
 	 public void prepare() {
 		 QuickRemitStatusMaster quickRemitStatusMaster = new QuickRemitStatusMaster();
 		 quickRemitStatusMaster.setStatusCode("EAI-FCI-BRK-001");
@@ -119,10 +126,14 @@ public class FundTransferServiceDefaultTest {
 		VerifyOTPResponseDTO verifyOTPResponseDTO = new VerifyOTPResponseDTO();
 		verifyOTPResponseDTO.setAuthenticated(true);
         Mockito.doNothing().when(asyncUserEventPublisher).publishSuccessEvent(any(), any(), any());
-		when(iamService.verifyOTP(any())).thenReturn(Response.<VerifyOTPResponseDTO>builder().status(ResponseStatus.SUCCESS).data(verifyOTPResponseDTO).build());
+		mockOtpRequiredApi();
 		FundTransferResponseDTO fundTransferResponseDTO = fundTransferServiceDefault.transferFund(metaData,
 				fundTransferRequestDTO);
 		Assert.assertNull(fundTransferResponseDTO);
+	}
+
+	private void mockOtpRequiredApi() {
+		when(service.checkIfTwoFactorAuthenticationRequired(Mockito.any(), Mockito.any())).thenReturn(new TwoFactorAuthRequiredCheckResponseDto());
 	}
 
 	@Test
@@ -135,6 +146,7 @@ public class FundTransferServiceDefaultTest {
 		verifyOTPResponseDTO.setAuthenticated(true);
 
 		doNothing().when(digitalUserLimitUsageService).insert(any());
+		doNothing().when(transferLimitService).saveTransferDetails(any());
 		fundTransferServiceDefault.handleIfTransactionIsSuccess(metaData, fundTransferRequestDTO, new UserDTO(), fundTransferResponse);
 		verify(digitalUserLimitUsageService,times(1)).insert(any());
 	}
@@ -168,8 +180,8 @@ public class FundTransferServiceDefaultTest {
 	public void transferFundTestOTPFailure() {
 		VerifyOTPResponseDTO verifyOTPResponseDTO = new VerifyOTPResponseDTO();
 		verifyOTPResponseDTO.setAuthenticated(false);
-        Mockito.doNothing().when(asyncUserEventPublisher).publishFailedEsbEvent(any(), any(), any(), any(), any(), any(), any());
-		when(iamService.verifyOTP(any())).thenReturn(Response.<VerifyOTPResponseDTO>builder().status(ResponseStatus.FAIL).errorCode("TN-5016").errorDetails("Something went wrong with OTP external service").data(verifyOTPResponseDTO).build());
+		mockOtpRequiredApi();
+		fundTransferRequestDTO.setServiceType("WAMA");
 		try {
 			fundTransferServiceDefault.transferFund(metaData,
 					fundTransferRequestDTO);
@@ -182,12 +194,8 @@ public class FundTransferServiceDefaultTest {
 	public void transferFundTestSuccessFulTermsAndConditionsVerificationOTPFailure() {
 		VerifyOTPResponseDTO verifyOTPResponseDTO = new VerifyOTPResponseDTO();
 		verifyOTPResponseDTO.setAuthenticated(false);
-		Mockito.doNothing().when(asyncUserEventPublisher).publishFailedEsbEvent(Mockito.any(), Mockito.any(),
-				Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-		Mockito.when(iamService.verifyOTP(Mockito.any()))
-				.thenReturn(Response.<VerifyOTPResponseDTO>builder().status(ResponseStatus.FAIL).errorCode("TN-5016")
-						.errorDetails("Something went wrong with OTP external service").data(verifyOTPResponseDTO)
-						.build());
+		mockOtpRequiredApi();
+		fundTransferRequestDTO.setServiceType("LOCAL");
 		try {
 			fundTransferRequestDTO.setTermsAndConditionsAccepted(true);
 			fundTransferRequestDTO.setJourneyVersion("V2");
@@ -223,12 +231,8 @@ public class FundTransferServiceDefaultTest {
 	public void transferFundTestCPRDisabledVerificationOTPFailure() {
 		VerifyOTPResponseDTO verifyOTPResponseDTO = new VerifyOTPResponseDTO();
 		verifyOTPResponseDTO.setAuthenticated(false);
-		Mockito.doNothing().when(asyncUserEventPublisher).publishFailedEsbEvent(Mockito.any(), Mockito.any(),
-				Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-		Mockito.when(iamService.verifyOTP(Mockito.any()))
-				.thenReturn(Response.<VerifyOTPResponseDTO>builder().status(ResponseStatus.FAIL).errorCode("TN-5016")
-						.errorDetails("Something went wrong with OTP external service").data(verifyOTPResponseDTO)
-						.build());
+		mockOtpRequiredApi();
+		fundTransferRequestDTO.setServiceType("INFT");
 		try {
 			ReflectionTestUtils.setField(fundTransferServiceDefault, "cprEnabled", true);
 			fundTransferRequestDTO.setTermsAndConditionsAccepted(true);
@@ -315,5 +319,63 @@ public class FundTransferServiceDefaultTest {
 		fundTransferRequestDTO.setDpPublicKeyIndex(12);
 		return fundTransferRequestDTO;
 	}
+	
+	@Test
+	public void transferFundTest_withOTPRelaxedLogic() {
+		VerifyOTPResponseDTO verifyOTPResponseDTO = new VerifyOTPResponseDTO();
+		verifyOTPResponseDTO.setAuthenticated(false);
+		TwoFactorAuthRequiredCheckResponseDto validationCheckResponse = new TwoFactorAuthRequiredCheckResponseDto();
+		validationCheckResponse.setTwoFactorAuthRequired(false);
+		when(service.checkIfTwoFactorAuthenticationRequired(Mockito.any(), Mockito.any())).thenReturn(validationCheckResponse);
+		try {
+			ReflectionTestUtils.setField(fundTransferServiceDefault, "cprEnabled", true);
+			fundTransferRequestDTO.setTermsAndConditionsAccepted(true);
+			fundTransferRequestDTO.setJourneyVersion("V2");
+			fundTransferServiceDefault.transferFund(metaData, fundTransferRequestDTO);
+			Mockito.verify(asyncUserEventPublisher, Mockito.times(1)).publishSuccessEvent(
+					Mockito.eq(FundTransferEventType.FUNDS_TRANSFER_TERMSANDCONDITIONS_ACCEPTED), Mockito.any(),
+					Mockito.eq(FundTransferEventType.FUNDS_TRANSFER_TERMSANDCONDITIONS_ACCEPTED.getDescription()));
+		} catch (GenericException genericException) {
+			assertEquals("TN-5016", genericException.getErrorCode());
+		}
+	}
 
+	@Test
+	public void transferFundTest_withOTPNotRelaxedAndOtpandDpRandomNotPresent() {
+		VerifyOTPResponseDTO verifyOTPResponseDTO = new VerifyOTPResponseDTO();
+		verifyOTPResponseDTO.setAuthenticated(false);
+		when(service.checkIfTwoFactorAuthenticationRequired(Mockito.any(), Mockito.any())).thenReturn(new TwoFactorAuthRequiredCheckResponseDto());
+		try {
+			ReflectionTestUtils.setField(fundTransferServiceDefault, "cprEnabled", true);
+			fundTransferRequestDTO.setOtp(null);
+			fundTransferRequestDTO.setDpRandomNumber(StringUtils.EMPTY);
+			fundTransferRequestDTO.setTermsAndConditionsAccepted(true);
+			fundTransferRequestDTO.setJourneyVersion("V2");
+			fundTransferServiceDefault.transferFund(metaData, fundTransferRequestDTO);
+			Mockito.verify(asyncUserEventPublisher, Mockito.times(1)).publishSuccessEvent(
+					Mockito.eq(FundTransferEventType.FUNDS_TRANSFER_TERMSANDCONDITIONS_ACCEPTED), Mockito.any(),
+					Mockito.eq(FundTransferEventType.FUNDS_TRANSFER_TERMSANDCONDITIONS_ACCEPTED.getDescription()));
+		} catch (GenericException genericException) {
+			assertEquals("VERIFY_OTP_10400", genericException.getErrorCode());
+		}
+	}
+	
+	@Test
+	public void transferFundTest_withOTPNotRelaxedAndDpRandomNotPresent() {
+		VerifyOTPResponseDTO verifyOTPResponseDTO = new VerifyOTPResponseDTO();
+		verifyOTPResponseDTO.setAuthenticated(false);
+		when(service.checkIfTwoFactorAuthenticationRequired(Mockito.any(), Mockito.any())).thenReturn(new TwoFactorAuthRequiredCheckResponseDto());
+		try {
+			ReflectionTestUtils.setField(fundTransferServiceDefault, "cprEnabled", true);
+			fundTransferRequestDTO.setDpRandomNumber(StringUtils.EMPTY);
+			fundTransferRequestDTO.setTermsAndConditionsAccepted(true);
+			fundTransferRequestDTO.setJourneyVersion("V2");
+			fundTransferServiceDefault.transferFund(metaData, fundTransferRequestDTO);
+			Mockito.verify(asyncUserEventPublisher, Mockito.times(1)).publishSuccessEvent(
+					Mockito.eq(FundTransferEventType.FUNDS_TRANSFER_TERMSANDCONDITIONS_ACCEPTED), Mockito.any(),
+					Mockito.eq(FundTransferEventType.FUNDS_TRANSFER_TERMSANDCONDITIONS_ACCEPTED.getDescription()));
+		} catch (GenericException genericException) {
+			assertEquals("VERIFY_OTP_10400", genericException.getErrorCode());
+		}
+	}
 }
