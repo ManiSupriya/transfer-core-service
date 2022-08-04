@@ -45,5 +45,5 @@ public class FundTransferEligibiltyRequestDTO {
     private AdditionalFields beneRequiredFields;
     private BigDecimal dealRate;
     private String cardNo;
-
+    private String destinationAccountCurrency;
 }
