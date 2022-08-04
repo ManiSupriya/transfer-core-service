@@ -63,11 +63,11 @@ public class TwoFactorAuthRequiredCheckServiceImpl implements TwoFactorAuthRequi
     }
 
     private boolean isTransactionAmountExceeded(BigDecimal localCurrencyAmount, TransferDetails transferLimit) {
-        BigDecimal amount = transferLimit.getAmount();
-        if (isNull(amount)) {
-            return false;
+        BigDecimal totalAmount = transferLimit.getAmount();
+        if (isNull(totalAmount)) {
+            totalAmount = BigDecimal.ZERO;
         }
-        BigDecimal totalAmount = localCurrencyAmount.add(amount);
+        totalAmount = totalAmount.add(localCurrencyAmount);
         return totalAmount.compareTo(new BigDecimal(config.getMaxAmountAllowed())) > 0;
     }
 
