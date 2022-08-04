@@ -185,6 +185,7 @@ public class TwoFactorAuthRequiredCheckServiceImplTest {
         request.setBeneficiaryId("222");
         BigDecimal amount = new BigDecimal(500);
         when(config.getTwofactorAuthRelaxed()).thenReturn(true);
+        when(config.getMaxAmountAllowed()).thenReturn(5000);
         when(beneficiaryService.isRecentlyUpdated(request, metaData, config)).thenReturn(false);
         when(maintenanceService.convertToLocalCurrency(request, metaData, localCurrency)).thenReturn(amount);
         when(transferLimitRepository.findTransactionCountAndTotalAmountBetweenDates(any(), any(),
