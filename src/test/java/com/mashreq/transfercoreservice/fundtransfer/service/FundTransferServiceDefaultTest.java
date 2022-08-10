@@ -149,6 +149,7 @@ public class FundTransferServiceDefaultTest {
 		doNothing().when(transferLimitService).saveTransferDetails(any());
 		fundTransferServiceDefault.handleIfTransactionIsSuccess(metaData, fundTransferRequestDTO, new UserDTO(), fundTransferResponse);
 		verify(digitalUserLimitUsageService,times(1)).insert(any());
+		verify(transferLimitService,times(1)).saveTransferDetails(any());
 	}
 
 	@Test

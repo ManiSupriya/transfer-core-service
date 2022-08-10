@@ -103,7 +103,8 @@ public class PayLaterTransferService extends FundTransferServiceDefault{
                     request.getServiceType(), response.getLimitUsageAmount(), userDTO, metadata, response.getLimitVersionUuid(),response.getTransactionRefNo(), bendId );
             log.info("Inserting into limits table {} ", digitalUserLimitUsageDTO);
             this.getDigitalUserLimitUsageService().insert(digitalUserLimitUsageDTO);
-        }
+            this.getTransferLimitService().saveTransferDetails(buildTransactionLimitDto(request.getOrderType(),
+                    response.getLimitUsageAmount(), bendId));}
 	}
     
     @Override

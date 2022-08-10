@@ -261,7 +261,7 @@ public class FundTransferServiceDefault implements FundTransferService {
         }
 	}
 
-    private TransferLimitDto buildTransactionLimitDto(String orderType, BigDecimal amount, Long bendId) {
+    protected TransferLimitDto buildTransactionLimitDto(String orderType, BigDecimal amount, Long bendId) {
         return TransferLimitDto.builder()
                 .beneficiaryId(bendId)
                 .amount(amount)
