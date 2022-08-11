@@ -16,6 +16,7 @@ public class SoapServiceProperties {
     private ServiceCodes serviceCodes;
     private String url;
     private String accessToken;
+    private String tftUserId;
 
 
     @Data

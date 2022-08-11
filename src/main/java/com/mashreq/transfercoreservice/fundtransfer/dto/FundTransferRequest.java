@@ -58,4 +58,5 @@ public class FundTransferRequest {
     private String accountClass;
     private BigDecimal srcCcyAmt;
     private String exchangeRateDisplayTxt;
+    private String postingGroup;
 }
