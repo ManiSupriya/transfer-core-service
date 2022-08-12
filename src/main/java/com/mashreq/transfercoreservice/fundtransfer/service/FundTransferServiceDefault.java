@@ -17,7 +17,7 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponseDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.TransferLimitDto;
+import com.mashreq.transfercoreservice.fundtransfer.dto.TransferLimitRequestDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.TwoFactorAuthRequiredCheckRequestDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageDTO;
@@ -31,6 +31,7 @@ import com.mashreq.transfercoreservice.fundtransfer.strategy.WithinMashreqStrate
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.model.DigitalUser;
 import com.mashreq.transfercoreservice.paylater.enums.FTOrderType;
+import com.mashreq.transfercoreservice.paylater.enums.TransferType;
 import com.mashreq.transfercoreservice.promo.service.PromoCodeService;
 import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionHistory;
@@ -261,11 +262,12 @@ public class FundTransferServiceDefault implements FundTransferService {
         }
 	}
 
-    protected TransferLimitDto buildTransactionLimitDto(String orderType, BigDecimal amount, Long bendId) {
-        return TransferLimitDto.builder()
+    protected TransferLimitRequestDto buildTransactionLimitDto(String orderType, BigDecimal amount, Long bendId) {
+        return TransferLimitRequestDto.builder()
                 .beneficiaryId(bendId)
                 .amount(amount)
                 .orderType(FTOrderType.getFTOrderTypeByName(orderType))
+                .transferType(TransferType.SWIFT)
                 .build();
     }
 
