@@ -18,6 +18,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Optional;
 
+import com.mashreq.transfercoreservice.fundtransfer.dto.TransferLimitResponseDto;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -146,7 +147,8 @@ public class FundTransferServiceDefaultTest {
 		verifyOTPResponseDTO.setAuthenticated(true);
 
 		doNothing().when(digitalUserLimitUsageService).insert(any());
-		doNothing().when(transferLimitService).saveTransferDetails(any());
+		when(transferLimitService.saveTransferDetails(any())).thenReturn(new TransferLimitResponseDto(true, null,
+				null));
 		fundTransferServiceDefault.handleIfTransactionIsSuccess(metaData, fundTransferRequestDTO, new UserDTO(), fundTransferResponse);
 		verify(digitalUserLimitUsageService,times(1)).insert(any());
 		verify(transferLimitService,times(1)).saveTransferDetails(any());

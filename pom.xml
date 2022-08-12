@@ -264,8 +264,8 @@
                 	<artifactId>xmlgraphics-commons</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.apache.xmlgraphics</groupId>
-                    <artifactId>batik-bridge</artifactId>
+                    <groupId>xalan</groupId>
+                    <artifactId>xalan</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
