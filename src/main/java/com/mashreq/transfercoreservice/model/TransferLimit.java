@@ -1,6 +1,7 @@
 package com.mashreq.transfercoreservice.model;
 
 import com.mashreq.transfercoreservice.paylater.enums.FTOrderType;
+import com.mashreq.transfercoreservice.paylater.enums.TransferType;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -44,6 +45,10 @@ public class TransferLimit {
     @Enumerated(EnumType.STRING)
     @Column(name = "order_type", length = 2)
     private FTOrderType orderType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "transfer_type")
+    private TransferType transferType;
 
     @Column(nullable = false)
     private BigDecimal amount;
