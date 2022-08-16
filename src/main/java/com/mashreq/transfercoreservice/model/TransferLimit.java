@@ -53,6 +53,9 @@ public class TransferLimit {
     @Column(nullable = false)
     private BigDecimal amount;
 
+    @Column
+    private String transactionRefNo;
+
     @CreatedDate
     @Column(name = "created_date", updatable = false)
     private Instant createdDate = Instant.now();
