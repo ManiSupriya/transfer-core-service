@@ -147,11 +147,11 @@ public class FundTransferServiceDefaultTest {
 		verifyOTPResponseDTO.setAuthenticated(true);
 
 		doNothing().when(digitalUserLimitUsageService).insert(any());
-		when(transferLimitService.saveTransferDetails(any())).thenReturn(new TransferLimitResponseDto(true, null,
+		when(transferLimitService.saveTransferDetails(any(), any())).thenReturn(new TransferLimitResponseDto(true, null,
 				null));
 		fundTransferServiceDefault.handleIfTransactionIsSuccess(metaData, fundTransferRequestDTO, new UserDTO(), fundTransferResponse);
 		verify(digitalUserLimitUsageService,times(1)).insert(any());
-		verify(transferLimitService,times(1)).saveTransferDetails(any());
+		verify(transferLimitService,times(1)).saveTransferDetails(any(), any());
 	}
 
 	@Test

@@ -7,9 +7,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
+import java.util.Optional;
 
 @Repository
 public interface TransferLimitRepository extends JpaRepository<TransferLimit, Long> {
     @Query(nativeQuery = true)
     TransferDetails findTransactionCountAndTotalAmountBetweenDates(Long beneficiaryId, Instant fromDate, Instant toDate);
+
+    Optional<TransferLimit> findByTransactionRefNo(String transactionRefNo);
 }

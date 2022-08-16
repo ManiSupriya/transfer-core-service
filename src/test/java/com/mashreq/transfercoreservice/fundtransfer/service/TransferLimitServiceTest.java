@@ -1,8 +1,8 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
-import com.mashreq.transfercoreservice.fundtransfer.dto.TransferLimitRequestDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.TransferLimitResponseDto;
 import com.mashreq.transfercoreservice.fundtransfer.repository.TransferLimitRepository;
+import com.mashreq.transfercoreservice.model.TransferLimit;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,9 +10,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.math.BigDecimal;
+import java.util.Optional;
 
-import static com.mashreq.transfercoreservice.paylater.enums.FTOrderType.PL;
 import static com.mashreq.transfercoreservice.util.TestUtil.buildTransferLimitRequest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -41,7 +40,7 @@ public class TransferLimitServiceTest {
         // Given
 
         // When
-        service.saveTransferDetails(buildTransferLimitRequest());
+        service.saveTransferDetails(buildTransferLimitRequest(), "WQNI16082285457");
 
         // Then
         verify(repository, times(1)).save(any());
@@ -50,7 +49,6 @@ public class TransferLimitServiceTest {
     @Test
     public void should_validate_and_save_transfer_details() {
         // Given
-        when(transactionRepository.existsPaymentHistoryByTransactionRefNo(any())).thenReturn(true);
 
         // When
         TransferLimitResponseDto responseDto = service.validateAndSaveTransferDetails(buildTransferLimitRequest(),
@@ -63,9 +61,9 @@ public class TransferLimitServiceTest {
     }
 
     @Test
-    public void should_not_save_when_transaction_is_not_present() {
+    public void should_not_save_when_transaction_is_already_present() {
         // Given
-        when(transactionRepository.existsPaymentHistoryByTransactionRefNo(any())).thenReturn(false);
+        when(repository.findByTransactionRefNo(any())).thenReturn(Optional.of(new TransferLimit()));
 
         // When
         TransferLimitResponseDto responseDto = service.validateAndSaveTransferDetails(buildTransferLimitRequest(),
@@ -75,14 +73,14 @@ public class TransferLimitServiceTest {
         verify(repository, never()).save(any());
         assertNotNull(responseDto);
         assertFalse(responseDto.isSuccess());
-        assertEquals("TC-204", responseDto.getErrorCode());
-        assertEquals("Transaction not found", responseDto.getErrorMessage());
+        assertEquals("TC-409", responseDto.getErrorCode());
+        assertEquals("Duplicate entry found for the transaction reference no", responseDto.getErrorMessage());
     }
 
     @Test
     public void should_handle_exception_while_saving_transfer_details() {
         // Given
-        when(transactionRepository.existsPaymentHistoryByTransactionRefNo(any())).thenThrow(new RuntimeException(
+        when(repository.findByTransactionRefNo(any())).thenThrow(new RuntimeException(
                 "Error"));
 
         // When
