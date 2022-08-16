@@ -2,10 +2,12 @@ package com.mashreq.transfercoreservice.fundtransfer.eligibility.validators;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -15,13 +17,14 @@ import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryStatus;
+import com.mashreq.transfercoreservice.client.dto.CoreCurrencyDto;
 import com.mashreq.transfercoreservice.client.dto.SearchAccountDto;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonClient;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.validators.LocalCurrencyValidations;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
+import com.mashreq.webcore.dto.response.Response;
 
 /**
  * 
@@ -49,11 +52,26 @@ public class LocalCurrencyValidationsTest {
 	@Test
     public void validate_invalidinput() { 
 		
+		AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
+		accountDetailsDTO.setNumber("019010073766");
+		accountDetailsDTO.setCurrency(null);
+		
+		String transactionCurrency = null;
+		String serviceType = ServiceType.WYMA.getName();
+		
+		AccountDetailsDTO toAccountDetailsDTO = new AccountDetailsDTO();
+		toAccountDetailsDTO.setNumber("019010073766");
+		toAccountDetailsDTO.setCurrency("EGP");
+		
+		ValidationContext mockValidationContext = new ValidationContext();
+		mockValidationContext.add("from-account", accountDetailsDTO);
+		mockValidationContext.add("to-account", toAccountDetailsDTO);
+		
 		LocalCurrencyValidations.LocalCurrencyValidationRequest validationRequest = LocalCurrencyValidations.LocalCurrencyValidationRequest.builder()
 				.requestMetaData(metadata)
-				.transactionCurrency(null)
-				.validationContext(null)
-				.serviceType(ServiceType.WAMA.getName())
+				.transactionCurrency(transactionCurrency)
+				.validationContext(mockValidationContext)
+				.serviceType(serviceType)
 				.build();
 
         final ValidationResult result = localCurrencyValidations.performLocalCurrencyChecks(validationRequest);
@@ -1004,6 +1022,8 @@ public class LocalCurrencyValidationsTest {
     	
     	String transactionCurrency = "USD";
     	String serviceType = ServiceType.INFT.getName();
+    	
+    	mockTransferEnabledCurrencies(transactionCurrency);
 
         AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
 		accountDetailsDTO.setNumber("019010073766");
@@ -1041,6 +1061,8 @@ public class LocalCurrencyValidationsTest {
     	
     	String transactionCurrency = "EGP";
     	String serviceType = ServiceType.INFT.getName();
+    	
+    	mockTransferEnabledCurrencies(transactionCurrency);
 
         AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
 		accountDetailsDTO.setNumber("019010073766");
@@ -1078,6 +1100,8 @@ public class LocalCurrencyValidationsTest {
     	
     	String transactionCurrency = "USD";
     	String serviceType = ServiceType.INFT.getName();
+    	
+    	mockTransferEnabledCurrencies(transactionCurrency);
 
         AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
 		accountDetailsDTO.setNumber("019010073766");
@@ -1113,6 +1137,8 @@ public class LocalCurrencyValidationsTest {
     	
     	String transactionCurrency = "USD";
     	String serviceType = ServiceType.INFT.getName();
+    	
+    	mockTransferEnabledCurrencies(transactionCurrency);
 
         AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
 		accountDetailsDTO.setNumber("019010073766");
@@ -1131,5 +1157,66 @@ public class LocalCurrencyValidationsTest {
         final ValidationResult result = localCurrencyValidations.performLocalCurrencyChecks(validationRequest);
         assertEquals(false, result.isSuccess());
 
+    }
+    
+    /**
+     * Test case - INFTTC5
+     * Egypt INFT transfer. 
+     * From account - USD
+     * Transaction - USD 
+     * 
+     * Validation
+     * Source account cannot be EGP
+     * Transaction currency cannot be EGP
+     * 
+     * Expected: Validation failed since swift transfer is not enabled for the transaction currency
+     */
+    @Test
+    public void validate_INFTTC5() { 
+    	
+    	String transactionCurrency = "INR";
+    	String serviceType = ServiceType.INFT.getName();
+    	
+    	List<CoreCurrencyDto> data = new ArrayList<>();
+		CoreCurrencyDto cur = new CoreCurrencyDto();
+		cur.setCode(transactionCurrency);
+		cur.setSwiftTransferEnabled(false);
+		cur.setQuickRemitEnabled(false);
+		data.add(cur);
+		Response<List<CoreCurrencyDto>> response = Response.<List<CoreCurrencyDto>>builder().data(data).build();
+		Mockito.when(mobCommonClient.getTransferCurrencies(Mockito.any(),
+				Mockito.eq(metadata.getCountry()), Mockito.eq(transactionCurrency))).thenReturn(response);
+
+        AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
+		accountDetailsDTO.setNumber("019010073766");
+		accountDetailsDTO.setCurrency("INR");
+        
+		ValidationContext mockValidationContext = new ValidationContext();
+        mockValidationContext.add("from-account", accountDetailsDTO);
+        
+        LocalCurrencyValidations.LocalCurrencyValidationRequest validationRequest = LocalCurrencyValidations.LocalCurrencyValidationRequest.builder()
+				.requestMetaData(metadata)
+				.transactionCurrency(transactionCurrency)
+				.validationContext(mockValidationContext)
+				.serviceType(serviceType)
+				.build();
+
+        final ValidationResult result = localCurrencyValidations.performLocalCurrencyChecks(validationRequest);
+        assertEquals(false, result.isSuccess());
+
+    }
+    
+    private void mockTransferEnabledCurrencies(String transactionCurrency) {
+    	
+    	List<CoreCurrencyDto> data = new ArrayList<>();
+		CoreCurrencyDto cur = new CoreCurrencyDto();
+		cur.setCode(transactionCurrency);
+		cur.setSwiftTransferEnabled(true);
+		cur.setQuickRemitEnabled(false);
+		data.add(cur);
+		Response<List<CoreCurrencyDto>> response = Response.<List<CoreCurrencyDto>>builder().data(data).build();
+		Mockito.when(mobCommonClient.getTransferCurrencies(Mockito.any(),
+				Mockito.eq(metadata.getCountry()), Mockito.eq(transactionCurrency))).thenReturn(response);
+		
     }
 }

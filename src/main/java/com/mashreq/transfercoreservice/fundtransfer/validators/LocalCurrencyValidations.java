@@ -119,21 +119,8 @@ public class LocalCurrencyValidations {
         // STORY 91896 INFT - Transaction currency should be same as source account currency
         if (INFT.getName().equals(request.getServiceType())) {
         	
-        	/*//START - Existing validation for uae, same applicable for egypt as well
-        	CoreCurrencyDto transferCurrency = fetchAllTransferSupportedCurrencies(requestedCurrency, request.getRequestMetaData());
-        	if(transferCurrency == null) {
-        		log.error("Not able to find requested currency :: {} in INFTALL currency list", htmlEscape(requestedCurrency));
-        		return ValidationResult.builder().success(false).transferErrorCode(CURRENCY_IS_INVALID).build();
-        	}
-        	if(!transferCurrency.isSwiftTransferEnabled()) {
-        		log.error("Swift transfer is disabled for this currency");
-        		//logFailure(request, metadata);
-        		return ValidationResult.builder().success(false).transferErrorCode(CURRENCY_IS_INVALID).build();
-        	}
-        	//END - Existing validation for uae, same applicable for egypt as well
-        	*/
-        	
-            if (localCurrency.equals(requestedCurrency)) {
+        	// INFT - Transaction currency cannot be EGP
+        	if (localCurrency.equals(requestedCurrency)) {
                 log.error("For transation type [{}], transaction cannot be in local currency [{}]",
                         request.getServiceType(), localCurrency);
                 auditEventPublisher.publishFailureEvent(FundTransferEventType.CURRENCY_VALIDATION, request.getRequestMetaData(), null,
@@ -141,6 +128,7 @@ public class LocalCurrencyValidations {
                 return ValidationResult.builder().success(false).transferErrorCode(CURRENCY_IS_INVALID).build();
             }
 
+        	// INFT - Source account cannot be EGP
             if (localCurrency.equals(fromAccount.getCurrency())) {
                 log.error("For transation type [{}], source account cannot be a local currency [{}] account",
                         request.getServiceType(), localCurrency);
@@ -150,6 +138,20 @@ public class LocalCurrencyValidations {
                 return ValidationResult.builder().success(false).transferErrorCode(ACCOUNT_CURRENCY_MISMATCH).build();
             }
             
+            //START - Existing validation for uae, same applicable for egypt as well
+        	CoreCurrencyDto transferCurrency = fetchAllTransferSupportedCurrencies(requestedCurrency, request.getRequestMetaData());
+        	if(transferCurrency == null) {
+        		log.error("Not able to find requested currency :: [{}] in INFTALL currency list", htmlEscape(requestedCurrency));
+        		return ValidationResult.builder().success(false).transferErrorCode(CURRENCY_IS_INVALID).build();
+        	}
+        	if(!transferCurrency.isSwiftTransferEnabled()) {
+        		log.error("Swift transfer is disabled for this currency [{}]", requestedCurrency);
+        		//logFailure(request, metadata);
+        		return ValidationResult.builder().success(false).transferErrorCode(CURRENCY_IS_INVALID).build();
+        	}
+        	//END - Existing validation for uae, same applicable for egypt as well
+            
+        	//STORY 91896 INFT - Transaction currency should be same as source account currency
             if(!fromAccount.getCurrency().equals(requestedCurrency)) {
             	log.error("For transation type [{}], transaction currency [{}] should be same as source account currency [{}]",
                         request.getServiceType(), requestedCurrency, fromAccount.getCurrency());
