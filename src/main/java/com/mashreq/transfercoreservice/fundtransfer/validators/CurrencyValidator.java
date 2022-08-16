@@ -39,25 +39,11 @@ import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 public class CurrencyValidator implements Validator<FundTransferRequestDTO> {
 
     final AsyncUserEventPublisher auditEventPublisher;
-    private final Set<String> applicableServiceTypes = new HashSet<>();
-    
-    @PostConstruct
-    public void init() {
-    	applicableServiceTypes.add(ServiceType.BAIT_AL_KHAIR.getName());
-    	applicableServiceTypes.add(ServiceType.DUBAI_CARE.getName());
-    	applicableServiceTypes.add(ServiceType.DAR_AL_BER.getName());
-    	applicableServiceTypes.add(ServiceType.WAMA.getName());
-    	applicableServiceTypes.add(ServiceType.WYMA.getName());
-    }
     
     @Override
     public ValidationResult validate(FundTransferRequestDTO request, RequestMetaData metadata, ValidationContext context) {
     	
-    	if(!isValidationApplicable(request)) {
-    		return ValidationResult.builder().success(true).build();
-    	}
-
-        log.info("Validating currency for service type [ {} ] ", htmlEscape(request.getServiceType()));
+    	log.info("Validating currency for service type [ {} ] ", htmlEscape(request.getServiceType()));
         AccountDetailsDTO fromAccount = context.get("from-account", AccountDetailsDTO.class);
         //String requestedCurrency = request.getCurrency();
         String requestedCurrency = request.getTxnCurrency();
@@ -107,9 +93,5 @@ public class CurrencyValidator implements Validator<FundTransferRequestDTO> {
 
     private boolean isReqCurrencyValid(String requestedCurrency, String fromAccCurrency, String toCurrency) {
         return requestedCurrency.equals(fromAccCurrency) || requestedCurrency.equals(toCurrency);
-    }
-    
-    private boolean isValidationApplicable(FundTransferRequestDTO request) {
-    	return applicableServiceTypes.contains(request.getServiceType());
     }
 }

@@ -48,7 +48,6 @@ public class CurrencyValidatorTest {
 		validator = new CurrencyValidator(auditEventPublisher, mobCommonClient);
 		ReflectionTestUtils.setField(validator, "localCurrency", localCurrency);
 		ReflectionTestUtils.setField(validator, "function", currencyFunction);
-		validator.init();
 	}
 
 	@Test
