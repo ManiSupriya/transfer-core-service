@@ -7,7 +7,6 @@ import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.TransferLimitRequestDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.TransferLimitResponseDto;
 import com.mashreq.transfercoreservice.fundtransfer.repository.TransferLimitRepository;
-import com.mashreq.transfercoreservice.transactionqueue.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
