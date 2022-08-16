@@ -258,7 +258,7 @@ public class FundTransferServiceDefault implements FundTransferService {
             log.info("Inserting into limits table {} ", digitalUserLimitUsageDTO);
             digitalUserLimitUsageService.insert(digitalUserLimitUsageDTO);
             transferLimitService.saveTransferDetails(buildTransactionLimitDto(request.getOrderType(),
-                    response.getLimitUsageAmount(), bendId));
+                    response.getLimitUsageAmount(), bendId), response.getTransactionRefNo());
         }
 	}
 

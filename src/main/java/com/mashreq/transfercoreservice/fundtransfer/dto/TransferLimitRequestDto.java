@@ -20,12 +20,13 @@ public class TransferLimitRequestDto {
     private TransferType transferType;
     private BigDecimal amount;
 
-    public TransferLimit toEntity() {
+    public TransferLimit toEntity(String transactionRefNo) {
         TransferLimit limit = new TransferLimit();
         limit.setBeneficiaryId(this.beneficiaryId);
         limit.setAmount(this.amount);
         limit.setOrderType(this.orderType);
         limit.setTransferType(this.transferType);
+        limit.setTransactionRefNo(transactionRefNo);
         return limit;
     }
 }

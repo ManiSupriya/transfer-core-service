@@ -1,22 +1,5 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
-import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.INFT;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.LOCAL;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WAMA;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WYMA;
-
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.EnumMap;
-
-import javax.annotation.PostConstruct;
-
-import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
 import com.mashreq.logcore.annotations.TrackExec;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
@@ -46,8 +29,22 @@ import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionHistory;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionRepository;
 import com.mashreq.transfercoreservice.twofactorauthrequiredvalidation.service.TwoFactorAuthRequiredCheckService;
-
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.EnumMap;
+
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.INFT;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.LOCAL;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WAMA;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WYMA;
 
 @Slf4j
 @TrackExec
@@ -97,14 +94,15 @@ public class PayLaterTransferService extends FundTransferServiceDefault{
     @Override
     protected void handleIfTransactionIsSuccess(RequestMetaData metadata, FundTransferRequestDTO request,
 			UserDTO userDTO, FundTransferResponse response) {
-		if (isSuccessOrProcessing(response)) {
-        	Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
+        if (isSuccessOrProcessing(response)) {
+            Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId()) ? Long.parseLong(request.getBeneficiaryId()) : null;
             DigitalUserLimitUsageDTO digitalUserLimitUsageDTO = generateUserLimitUsage(
-                    request.getServiceType(), response.getLimitUsageAmount(), userDTO, metadata, response.getLimitVersionUuid(),response.getTransactionRefNo(), bendId );
+                    request.getServiceType(), response.getLimitUsageAmount(), userDTO, metadata, response.getLimitVersionUuid(), response.getTransactionRefNo(), bendId);
             log.info("Inserting into limits table {} ", digitalUserLimitUsageDTO);
             this.getDigitalUserLimitUsageService().insert(digitalUserLimitUsageDTO);
             this.getTransferLimitService().saveTransferDetails(buildTransactionLimitDto(request.getOrderType(),
-                    response.getLimitUsageAmount(), bendId));}
+                    response.getLimitUsageAmount(), bendId), response.getTransactionRefNo());
+        }
 	}
     
     @Override
