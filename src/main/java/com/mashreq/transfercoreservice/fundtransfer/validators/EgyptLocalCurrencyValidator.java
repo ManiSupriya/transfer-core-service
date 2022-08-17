@@ -3,6 +3,7 @@ package com.mashreq.transfercoreservice.fundtransfer.validators;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 
@@ -11,12 +12,14 @@ import lombok.extern.slf4j.Slf4j;
 @Profile("egypt")
 @Slf4j
 @Component
-public class EgyptLocalCurrencyValidator implements Validator<FundTransferRequestDTO> {
+public class EgyptLocalCurrencyValidator extends CurrencyValidator {
 
 
 	private final LocalCurrencyValidations localCurrencyValidations;
 
-	public EgyptLocalCurrencyValidator(LocalCurrencyValidations localCurrencyValidations) {
+	public EgyptLocalCurrencyValidator(LocalCurrencyValidations localCurrencyValidations, 
+			AsyncUserEventPublisher auditEventPublisher) {
+		super(auditEventPublisher);
 		this.localCurrencyValidations = localCurrencyValidations;
 	}
 
