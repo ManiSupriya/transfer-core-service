@@ -106,7 +106,7 @@ public class BankDetailServiceTest {
 		request.setValue("0029991234567");
 		request.setJourneyType("MT");
 		request.setBankCode("0036");
-		request.setBranchCode("0001");
+
 
 		RequestMetaData metadata = new RequestMetaData();
 		metadata.setChannelTraceId("whrvh3b4h5bh6");
@@ -138,7 +138,7 @@ public class BankDetailServiceTest {
 		request.setValue("0029991234567");
 		request.setJourneyType("MT");
 		request.setBankCode("0036");
-		request.setBranchCode("0001");
+
 
 		RequestMetaData metadata = new RequestMetaData();
 		metadata.setChannelTraceId("whrvh3b4h5bh6");

@@ -98,7 +98,6 @@ public class BankDetailService {
 					.identifier(bankDetailRequest.getValue())
 					.journeyType(bankDetailRequest.getJourneyType())
 					.bankCode(bankDetailRequest.getBankCode())
-					.branchCode(bankDetailRequest.getBranchCode())
 					.requestMetaData(requestMetaData)
 					.build();
 			return bankDetailsResolverFactory.getBankDetailsResolver(bankDetailRequest.getType()).getBankDetails(resolverRequest);

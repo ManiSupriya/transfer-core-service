@@ -37,6 +37,4 @@ public class BankDetailRequestDto {
 
     private String bankCode;
 
-    private String branchCode;
-
 }

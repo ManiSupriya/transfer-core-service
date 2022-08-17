@@ -1,6 +1,7 @@
 package com.mashreq.transfercoreservice.banksearch;
 
 
+import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.common.LocalIbanValidator;
 import com.mashreq.transfercoreservice.dto.BankResolverRequestDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.BankDetails;
@@ -23,11 +24,9 @@ public class AccountBasedBankDetailsResolverTest {
     @InjectMocks
     private AccountBasedBankDetailsResolver accountBasedBankDetailsResolver;
     @Mock
-    private IbanResolver ibanResolver;
-    @Mock
-    private LocalIbanValidator localIbanValidator;
-    @Mock
     private BankRepository bankRepository;
+    @Mock
+    private AccountService accountService;
 
     @Test
     public void test_account_bank_search_for_local_non_mashreq() {
@@ -35,7 +34,6 @@ public class AccountBasedBankDetailsResolverTest {
 
         BankResolverRequestDto bankResolverRequestDto = BankResolverRequestDto.builder()
                 .identifier("00029991234567")
-                .branchCode("0001")
                 .bankCode("0036")
                 .journeyType("MT")
                 .build();
@@ -53,18 +51,15 @@ public class AccountBasedBankDetailsResolverTest {
         bankDetails2.setSwiftCode("CREDEGCAXXX");
         List<BankDetails> list = Arrays.asList(bankDetails1, bankDetails2);
         //when
-        Mockito.when(ibanResolver.constructIBAN(Mockito.eq("00029991234567"), Mockito.eq("0036"),Mockito.eq("0001"))).thenReturn("EG450036000100000029991234567");
-        Mockito.when(localIbanValidator.isLocalIban(Mockito.any())).thenReturn(true);
-        Mockito.when(localIbanValidator.validate(Mockito.any())).thenReturn("0036");
+        Mockito.when(accountService.isAccountBelongsToMashreq("00029991234567")).thenReturn(false);
         Mockito.when(bankRepository.findByBankCode(Mockito.eq("0036"))).thenReturn(Optional.of(list));
-        Mockito.when(localIbanValidator.extractAccountNumberIfMashreqIban(Mockito.anyString(),Mockito.anyString())).thenReturn(null);
         List<BankResultsDto> result = accountBasedBankDetailsResolver.getBankDetails(bankResolverRequestDto);
 
         //then
-        Assertions.assertEquals("EG450036000100000029991234567", result.get(0).getIbanNumber());
+        Assertions.assertEquals("00029991234567", result.get(0).getIbanNumber());
         Assertions.assertEquals("CREDEGCAXXX", result.get(0).getSwiftCode());
         Assertions.assertEquals("Credit Agricole", result.get(0).getBankName());
-        Assertions.assertEquals("Main Branch", result.get(0).getBranchName());
+
     }
 
 
@@ -74,7 +69,6 @@ public class AccountBasedBankDetailsResolverTest {
 
         BankResolverRequestDto bankResolverRequestDto = BankResolverRequestDto.builder()
                 .identifier("00059010006621")
-                .branchCode("0004")
                 .bankCode("0046")
                 .journeyType("MT")
                 .build();
@@ -92,19 +86,15 @@ public class AccountBasedBankDetailsResolverTest {
         bankDetails2.setSwiftCode("MSHQEGCAXXX");
         List<BankDetails> list = Arrays.asList(bankDetails1, bankDetails2);
         //when
-        Mockito.when(ibanResolver.constructIBAN(Mockito.eq("00059010006621"), Mockito.eq("0046"),Mockito.eq("0004"))).thenReturn("EG400046000400000059010006621");
-        Mockito.when(localIbanValidator.isLocalIban(Mockito.any())).thenReturn(true);
-        Mockito.when(localIbanValidator.validate(Mockito.any())).thenReturn("0046");
+        Mockito.when(accountService.isAccountBelongsToMashreq("00059010006621")).thenReturn(true);
         Mockito.when(bankRepository.findByBankCode(Mockito.eq("0046"))).thenReturn(Optional.of(list));
-        Mockito.when(localIbanValidator.extractAccountNumberIfMashreqIban(Mockito.anyString(),Mockito.anyString())).thenReturn("00000059010006621");
-        List<BankResultsDto> result = accountBasedBankDetailsResolver.getBankDetails(bankResolverRequestDto);
+        BankResultsDto result = accountBasedBankDetailsResolver.getBankDetails(bankResolverRequestDto).get(0);
 
         //then
-        Assertions.assertNull( result.get(0).getIbanNumber());
-        Assertions.assertEquals("MSHQEGCAXXX", result.get(0).getSwiftCode());
-        Assertions.assertEquals("Mashreq Bank", result.get(0).getBankName());
-        Assertions.assertEquals("Main Branch", result.get(0).getBranchName());
-        Assertions.assertEquals("00000059010006621", result.get(0).getAccountNo());
+
+        Assertions.assertEquals("MSHQEGCAXXX", result.getSwiftCode());
+        Assertions.assertEquals("Mashreq Bank", result.getBankName());
+        Assertions.assertEquals("00059010006621", result.getAccountNo());
     }
 
 

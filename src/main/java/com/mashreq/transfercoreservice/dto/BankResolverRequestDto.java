@@ -12,6 +12,6 @@ public class BankResolverRequestDto {
     private RequestMetaData requestMetaData;
     private String identifier;
     private String bankCode;
-    private String branchCode;
+
 
 }

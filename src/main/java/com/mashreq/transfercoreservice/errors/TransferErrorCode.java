@@ -211,7 +211,7 @@ public enum TransferErrorCode implements ErrorCode {
 
     INVALID_TYPE_KEY("TN-8040","Invalid bank resolver type key."),
 
-    BANK_NOT_FOUND_FOR_BRANCH("TN-8041","Unable to find resolve bank details for the given branch code."),
+    BANK_NOT_FOUND_FOR_BANK_CODE("TN-8041","Unable to find resolve bank details for the given bank code."),
 
 
 

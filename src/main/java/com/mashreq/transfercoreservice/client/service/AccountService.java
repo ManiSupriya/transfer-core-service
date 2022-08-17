@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.mashreq.mobcommons.cache.MobRedisService;
+import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.transfercoreservice.cache.UserSessionCacheService;
 import com.mashreq.transfercoreservice.common.HtmlEscapeCache;
 import freemarker.template.utility.HtmlEscape;
@@ -123,6 +124,18 @@ public class AccountService {
 
 		}
 		return searchAccountOpt.get();
+
+	}
+
+	public boolean isAccountBelongsToMashreq(final String accountNo) {
+			Response<CoreAccountDetailsDTO> response = accountClient.getAccountDetails(accountNo);
+
+			if (ResponseStatus.ERROR == response.getStatus() || isNull(response.getData())) {
+				log.warn("Account not found in mashreq accounts");
+				return false;
+			}
+			Optional<SearchAccountDto> searchAccountOpt = response.getData().getConnectedAccounts().stream().findFirst();
+			return searchAccountOpt.isPresent();
 
 	}
 

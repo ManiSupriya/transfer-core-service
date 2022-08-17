@@ -1,7 +1,7 @@
 package com.mashreq.transfercoreservice.banksearch;
 
 
-import com.mashreq.transfercoreservice.common.LocalIbanValidator;
+import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.dto.BankResolverRequestDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.BankDetails;
 import com.mashreq.transfercoreservice.repository.BankRepository;
@@ -14,49 +14,52 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.mashreq.transfercoreservice.errors.ExceptionUtils.genericException;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BANK_NOT_FOUND_FOR_BRANCH;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BANK_NOT_FOUND_WITH_IBAN;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BANK_NOT_FOUND_FOR_BANK_CODE;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_SWIFT_CODE;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class AccountBasedBankDetailsResolver implements BankDetailsResolver {
-
-    private final IbanResolver ibanResolver;
-    private final LocalIbanValidator localIbanValidator;
     private final BankRepository bankRepository;
+    private final AccountService accountService;
 
     @Override
     public List<BankResultsDto> getBankDetails(BankResolverRequestDto bankResolverRequestDto) {
-        String iban = ibanResolver.constructIBAN(bankResolverRequestDto.getIdentifier(), bankResolverRequestDto.getBankCode(),
-                bankResolverRequestDto.getBranchCode());
-        return getBankResultForIban(bankResolverRequestDto.getJourneyType(), iban,
-                bankResolverRequestDto.getBranchCode());
+
+        return getBankResultForIban(bankResolverRequestDto.getJourneyType(), bankResolverRequestDto.getIdentifier(),
+                bankResolverRequestDto.getBankCode());
 
     }
 
-    private List<BankResultsDto> getBankResultForIban(String journeyType, String iban, String branchCode) {
-        if ("MT".equals(journeyType) &&
-                localIbanValidator.isLocalIban(iban)) {
-            String bankCode = localIbanValidator.validate(iban);
-            List<BankDetails> bankDetailsList = bankRepository.findByBankCode(bankCode).orElseThrow(() -> genericException(BANK_NOT_FOUND_WITH_IBAN));
-            BankDetails bankDetail = bankDetailsList.stream().filter(bank -> bankCode.equals(bank.getBankCode()) && branchCode.equals(bank.getBranchCode())).findAny()
-                    .orElseThrow(() -> genericException(BANK_NOT_FOUND_FOR_BRANCH));
+    private List<BankResultsDto> getBankResultForIban(String journeyType, String accountNumber, String bankCode) {
+        if ("MT".equals(journeyType)) {
+            List<BankDetails> bankDetailsList = bankRepository.findByBankCode(bankCode).orElseThrow(() -> genericException(BANK_NOT_FOUND_FOR_BANK_CODE));
+            BankDetails bankDetail = bankDetailsList.stream().filter(bank -> bankCode.equals(bank.getBankCode())).findAny()
+                    .orElseThrow(() -> genericException(BANK_NOT_FOUND_FOR_BANK_CODE));
+
+            //Todo: Remove this If clause once you update all the SWIFT code in bank_ms
+            if(StringUtils.isBlank(bankDetail.getSwiftCode())){
+                throw genericException(INVALID_SWIFT_CODE);
+            }
 
             BankResultsDto bankResults = new BankResultsDto();
             bankResults.setSwiftCode(bankDetail.getSwiftCode());
             bankResults.setBankName(bankDetail.getBankName());
-            bankResults.setBranchName(bankDetail.getBranchName());
-            String accountNo = localIbanValidator.extractAccountNumberIfMashreqIban(iban, bankCode);
-            //If mashreq iban return account no otherwise iban
-            if (StringUtils.isBlank(accountNo)) {
-                bankResults.setIbanNumber(iban);
+
+            boolean accountBelongsToMashreq = accountService.isAccountBelongsToMashreq(accountNumber);
+            log.info("Result of account belongs to mashreq check for AcctNum: {} , isMashreqAcct: {}",
+                    accountNumber, accountBelongsToMashreq);
+            //If mashreq account set in account no otherwise iban
+            if (accountBelongsToMashreq) {
+                bankResults.setAccountNo(accountNumber);
             } else {
-                bankResults.setAccountNo(accountNo);
+                bankResults.setIbanNumber(accountNumber);
             }
             return Collections.singletonList(bankResults);
         }
         return null;
-
     }
+
+
 }
