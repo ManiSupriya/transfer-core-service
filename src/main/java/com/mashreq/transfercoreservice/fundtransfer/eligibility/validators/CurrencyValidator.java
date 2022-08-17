@@ -52,25 +52,10 @@ public class CurrencyValidator implements ICurrencyValidator {
     @Value("${app.local.currency}")
     private String localCurrency;
 
-    private final Set<String> applicableServiceTypes = new HashSet<>();
-    
-    @PostConstruct
-    public void init() {
-    	applicableServiceTypes.add(ServiceType.INFT.getName());
-    	applicableServiceTypes.add(ServiceType.QRT.getName());
-    	applicableServiceTypes.add(ServiceType.WAMA.getName());
-    	applicableServiceTypes.add(ServiceType.WYMA.getName());
-    	applicableServiceTypes.add(ServiceType.LOCAL.getName());
-    }
-    
     @Override
     public ValidationResult validate(FundTransferEligibiltyRequestDTO request, RequestMetaData metadata, ValidationContext context) {
 
-    	if(!isValidationApplicable(request)) {
-    		return ValidationResult.builder().success(true).build();
-    	}
-    	
-        log.info("Validating transaction currency {} for service type [ {} ] ", htmlEscape(request.getTxnCurrency()), htmlEscape(request.getServiceType()));
+    	log.info("Validating transaction currency {} for service type [ {} ] ", htmlEscape(request.getTxnCurrency()), htmlEscape(request.getServiceType()));
         CoreCurrencyDto transferCurrency;
         if(INFT.getName().equals(request.getServiceType())) {
         	transferCurrency = fetchAllTransferSupportedCurrencies(request.getTxnCurrency(),metadata);
@@ -150,10 +135,6 @@ public class CurrencyValidator implements ICurrencyValidator {
         log.info("Currency Validating successful service type [ {} ] ", htmlEscape(request.getServiceType()));
         auditEventPublisher.publishSuccessEvent(FundTransferEventType.CURRENCY_VALIDATION, metadata, null);
         return ValidationResult.builder().success(true).build();
-    }
-    
-    private boolean isValidationApplicable(FundTransferEligibiltyRequestDTO request) {
-    	return applicableServiceTypes.contains(request.getServiceType());
     }
 
 	private void logFailure(FundTransferEligibiltyRequestDTO request, RequestMetaData metadata) {
