@@ -1206,6 +1206,46 @@ public class LocalCurrencyValidationsTest {
 
     }
     
+    /**
+     * Test case - INFTTC6
+     * Egypt INFT transfer. 
+     * From account - USD
+     * Transaction - IVD 
+     * 
+     * Validation
+     * Source account cannot be EGP
+     * Transaction currency cannot be EGP
+     * 
+     * Expected: Validation failed since currency not found
+     */
+    @Test
+    public void validate_INFTTC6() { 
+    	
+    	String transactionCurrency = "IVD";
+    	String serviceType = ServiceType.INFT.getName();
+    	
+		Mockito.when(mobCommonClient.getTransferCurrencies(Mockito.any(),
+				Mockito.eq(metadata.getCountry()), Mockito.eq(transactionCurrency))).thenReturn(null);
+
+        AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
+		accountDetailsDTO.setNumber("019010073766");
+		accountDetailsDTO.setCurrency("INR");
+        
+		ValidationContext mockValidationContext = new ValidationContext();
+        mockValidationContext.add("from-account", accountDetailsDTO);
+        
+        LocalCurrencyValidations.LocalCurrencyValidationRequest validationRequest = LocalCurrencyValidations.LocalCurrencyValidationRequest.builder()
+				.requestMetaData(metadata)
+				.transactionCurrency(transactionCurrency)
+				.validationContext(mockValidationContext)
+				.serviceType(serviceType)
+				.build();
+
+        final ValidationResult result = localCurrencyValidations.performLocalCurrencyChecks(validationRequest);
+        assertEquals(false, result.isSuccess());
+
+    }
+    
     private void mockTransferEnabledCurrencies(String transactionCurrency) {
     	
     	List<CoreCurrencyDto> data = new ArrayList<>();
