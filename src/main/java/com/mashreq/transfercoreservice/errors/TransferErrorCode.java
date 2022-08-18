@@ -205,7 +205,16 @@ public enum TransferErrorCode implements ErrorCode {
     INVALID_SERVICE_TYPE("TN-8037", "Invalid Service type."),
 
     TWOFA_AUTH_FAILED("TN-8039", "2FA authentication failed"),
-    TERMSANDCONDITIONS_NOTACCEPTED("TN-8038", "Terms and conditions for funds transfer not accepted")
+    TERMSANDCONDITIONS_NOTACCEPTED("TN-8038", "Terms and conditions for funds transfer not accepted"),
+
+    IBAN_GENERATION_FAILED("TN-8039","IBAN construction failed."),
+
+    INVALID_TYPE_KEY("TN-8040","Invalid bank resolver type key."),
+
+    BANK_NOT_FOUND_FOR_BANK_CODE("TN-8041","Unable to find resolve bank details for the given bank code."),
+
+
+
     ;
 
 

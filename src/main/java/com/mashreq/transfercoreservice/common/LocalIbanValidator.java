@@ -21,7 +21,7 @@ public class LocalIbanValidator {
     private final String localBankCode;
     private final int localIbanLength;
     private final int accountNumberLength;
-    private final IBANValidator ibanValidator;
+        private final IBANValidator ibanValidator;
 
     private static final int BANK_CODE_INDEX = 4;
 
