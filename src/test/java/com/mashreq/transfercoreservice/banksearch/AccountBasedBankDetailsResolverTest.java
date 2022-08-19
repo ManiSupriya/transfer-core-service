@@ -13,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,7 +32,7 @@ public class AccountBasedBankDetailsResolverTest {
     @Test
     public void test_account_bank_search_for_local_non_mashreq() {
         //Given
-
+        ReflectionTestUtils.setField(accountBasedBankDetailsResolver,"localBankCode","0046");
         BankResolverRequestDto bankResolverRequestDto = BankResolverRequestDto.builder()
                 .identifier("00029991234567")
                 .bankCode("0036")
@@ -51,7 +52,6 @@ public class AccountBasedBankDetailsResolverTest {
         bankDetails2.setSwiftCode("CREDEGCAXXX");
         List<BankDetails> list = Arrays.asList(bankDetails1, bankDetails2);
         //when
-        Mockito.when(accountService.isAccountBelongsToMashreq("00029991234567")).thenReturn(false);
         Mockito.when(bankRepository.findByBankCode(Mockito.eq("0036"))).thenReturn(Optional.of(list));
         List<BankResultsDto> result = accountBasedBankDetailsResolver.getBankDetails(bankResolverRequestDto);
 
@@ -66,7 +66,7 @@ public class AccountBasedBankDetailsResolverTest {
     @Test
     public void test_account_bank_search_for_local_mashreq() {
         //Given
-
+        ReflectionTestUtils.setField(accountBasedBankDetailsResolver,"localBankCode","0046");
         BankResolverRequestDto bankResolverRequestDto = BankResolverRequestDto.builder()
                 .identifier("00059010006621")
                 .bankCode("0046")

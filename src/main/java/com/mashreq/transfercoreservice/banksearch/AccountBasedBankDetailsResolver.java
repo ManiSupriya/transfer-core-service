@@ -8,6 +8,7 @@ import com.mashreq.transfercoreservice.repository.BankRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -24,6 +25,10 @@ public class AccountBasedBankDetailsResolver implements BankDetailsResolver {
     private final BankRepository bankRepository;
     private final AccountService accountService;
 
+    @Value("${app.local.bank.code}")
+    private String localBankCode;
+
+
     @Override
     public List<BankResultsDto> getBankDetails(BankResolverRequestDto bankResolverRequestDto) {
 
@@ -39,7 +44,7 @@ public class AccountBasedBankDetailsResolver implements BankDetailsResolver {
                     .orElseThrow(() -> genericException(BANK_NOT_FOUND_FOR_BANK_CODE));
 
             //Todo: Remove this If clause once you update all the SWIFT code in bank_ms
-            if(StringUtils.isBlank(bankDetail.getSwiftCode())){
+            if (StringUtils.isBlank(bankDetail.getSwiftCode())) {
                 throw genericException(INVALID_SWIFT_CODE);
             }
 
@@ -47,11 +52,10 @@ public class AccountBasedBankDetailsResolver implements BankDetailsResolver {
             bankResults.setSwiftCode(bankDetail.getSwiftCode());
             bankResults.setBankName(bankDetail.getBankName());
 
-            boolean accountBelongsToMashreq = accountService.isAccountBelongsToMashreq(accountNumber);
-            log.info("Result of account belongs to mashreq check for AcctNum: {} , isMashreqAcct: {}",
-                    accountNumber, accountBelongsToMashreq);
-            //If mashreq account set in account no otherwise iban
-            if (accountBelongsToMashreq) {
+
+            if (localBankCode.equals(bankDetail.getBankCode()) && accountService.isAccountBelongsToMashreq(accountNumber)) {
+                log.info("Result of account belongs to mashreq check for AcctNum: {} , isMashreqAcct: {}",
+                        accountNumber, true);
                 bankResults.setAccountNo(accountNumber);
             } else {
                 bankResults.setIbanNumber(accountNumber);

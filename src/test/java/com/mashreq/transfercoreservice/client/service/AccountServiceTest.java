@@ -142,7 +142,7 @@ public class AccountServiceTest {
 		when(accountClient.getAccountDetails(any())).thenReturn(response);
 
 		//Then
-		Assertions.assertFalse(accountService.isAccountBelongsToMashreq(account));
+		Assertions.assertThrows(GenericException.class, () -> accountService.isAccountBelongsToMashreq(account));
 
 	}
 

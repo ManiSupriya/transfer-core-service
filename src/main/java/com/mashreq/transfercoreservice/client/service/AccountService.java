@@ -128,15 +128,7 @@ public class AccountService {
 	}
 
 	public boolean isAccountBelongsToMashreq(final String accountNo) {
-			Response<CoreAccountDetailsDTO> response = accountClient.getAccountDetails(accountNo);
-
-			if (ResponseStatus.ERROR == response.getStatus() || isNull(response.getData())) {
-				log.warn("Account not found in mashreq accounts");
-				return false;
-			}
-			Optional<SearchAccountDto> searchAccountOpt = response.getData().getConnectedAccounts().stream().findFirst();
-			return searchAccountOpt.isPresent();
-
+		return Objects.nonNull(getAccountDetailsFromCore(accountNo));
 	}
 
 	private AccountDetailsDTO getConvertedAccountDetailsFromCore(final String accountNumber) {
