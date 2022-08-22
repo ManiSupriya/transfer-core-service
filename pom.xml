@@ -109,11 +109,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.iban4j</groupId>
-            <artifactId>iban4j</artifactId>
-            <version>3.2.4-RELEASE</version>
-        </dependency>
-        <dependency>
             <groupId>com.mashreq</groupId>
             <artifactId>templates-utils</artifactId>
             <version>${templates.utils.version}</version>

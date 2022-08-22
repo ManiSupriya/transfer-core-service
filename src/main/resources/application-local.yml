@@ -74,7 +74,7 @@ esb-service:
 
 app:
   auth:
-    security-service-url: ${IAM_SERVICE_URL:https://digital-uat.mashreq.com/api/ms-security-iam/}
+    security-service-url: ${IAM_SERVICE_URL:https://digital-eg-dev.mashreq.com/api/ms-security-iam/}
   local:
     currency: 'EGP'
     transaction.code: '015'
@@ -92,13 +92,13 @@ app:
   services:
     maintenance: ${MAINTENANCE_SERVICE_URL:https://digital-uat.mashreq.com/api/maintenance-service}
     customers: ${CUSTOMER_SERVICE_URL:https://digital-uat.mashreq.com/api/customers-service}
-    accounts: ${ACCOUNT_SERVICE_URL:https://digital-uat.mashreq.com/api/accounts-service}
+    accounts: ${ACCOUNT_SERVICE_URL:http://digital-eg-dev.mashreq.com/api/accounts-service}
     otp: https://digital-uat.mashreq.com/api/ms-security-iam/
     cards: ${CARD_SERVICE_URL:https://digital-uat.mashreq.com/api/cards-service}
     notification: ${NOTIFICATION_SERVICE:https://digital-uat.mashreq.com/api/notification-service}
     mobcustomer: ${MOB_CUSTOMER_SERVICE:https://digital-uat.mashreq.com/api/mob-customer-service}
     beneficiary: ${BENEFICIARY_CORE_SERVICE:https://digital-uat.mashreq.com/api/beneficiary-core-service}
-    mobcommon: ${MOB_COMMON_SERVICE:http://localhost:8070}
+    mobcommon: ${MOB_COMMON_SERVICE:http://digital-eg-dev.mashreq.com/api/mob-common-service}
     beneficiaryservice: https://digital-uat.mashreq.com/api/beneficiary-service
     quick-remit: https://digital-uat.mashreq.com/api/mob-quickremit-service
     bank-charges: https://digital-uat.mashreq.com/api/bank-charges-service
