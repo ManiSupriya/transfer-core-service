@@ -51,6 +51,7 @@ public class BankResultsDto {
     private String street;
     private String swiftOver;
     private String bankCode;
+    private String identifierType;
 
     public BankResultsDto(AccuityDetailsTypes type) {
         setBankName(type.getBankName());
@@ -87,6 +88,7 @@ public class BankResultsDto {
         setStreet(ibanDetailsRes.getStreet());
         setSwiftCode(ibanDetailsRes.getSwiftBic());
         setSwiftOver(ibanDetailsRes.getSwiftOver());
+        setIdentifierType(BankCodeType.IBAN.getName());
         if(isRoutingCountry) {
             log.info("[BankResultsDto] setting routing code {} for routing enabled country {} ",ibanDetailsRes.getRoutingNO());
             setRoutingNo(ibanDetailsRes.getRoutingNO());

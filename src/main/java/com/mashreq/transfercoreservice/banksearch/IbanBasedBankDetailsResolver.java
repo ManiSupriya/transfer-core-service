@@ -50,6 +50,7 @@ public class IbanBasedBankDetailsResolver implements BankDetailsResolver {
             bankResults.setBankName(bankDetailsList.get(0).getBankName());
             bankResults.setAccountNo(localIbanValidator.extractAccountNumberIfMashreqIban(iban, bankCode));
             bankResults.setIbanNumber(iban);
+            bankResults.setIdentifierType(BankCodeType.IBAN.getName());
             return Collections.singletonList(bankResults);
 
     }

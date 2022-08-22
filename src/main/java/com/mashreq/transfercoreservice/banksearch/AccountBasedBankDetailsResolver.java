@@ -50,8 +50,9 @@ public class AccountBasedBankDetailsResolver implements BankDetailsResolver {
 
             BankResultsDto bankResults = new BankResultsDto();
             bankResults.setSwiftCode(bankDetail.getSwiftCode());
+            bankResults.setIdentifierType(BankCodeType.ACCOUNT.getName());
             bankResults.setBankName(bankDetail.getBankName());
-
+            bankResults.setBankCode(bankCode);
 
             if (localBankCode.equals(bankDetail.getBankCode()) && accountService.isAccountBelongsToMashreq(accountNumber)) {
                 log.info("Result of account belongs to mashreq check for AcctNum: {} , isMashreqAcct: {}",
