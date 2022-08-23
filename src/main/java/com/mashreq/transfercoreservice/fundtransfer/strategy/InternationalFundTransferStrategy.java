@@ -82,6 +82,8 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
 
     @Value("${app.local.currency}")
     private String localCurrency;
+    @Value("${app.local.country.iso}")
+    private String localCountryIso;
 
     //Todo: Replace with native currency fetched from API call
     @PostConstruct
@@ -282,7 +284,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     }
 
     private FundTransferRequest enrichFundTransferRequestByCountryCode(FundTransferRequest request, BeneficiaryDto beneficiaryDto) {
-        List<CountryMasterDto> countryList = maintenanceService.getAllCountries("MOB", "AE", Boolean.TRUE);
+        List<CountryMasterDto> countryList = maintenanceService.getAllCountries("MOB", localCountryIso, Boolean.TRUE);
         final Optional<CountryMasterDto> countryDto = countryList.stream()
                 .filter(country -> country.getCode().equals(beneficiaryDto.getBankCountryISO()))
                 .findAny();
