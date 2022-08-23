@@ -151,7 +151,8 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         validationContext.add("iban-length", ibanLength);
 
         //IBAN validation has to be skipped if beneficiary account identifier type is "account"
-        if(Objects.isNull(beneficiaryDto.getIdentifierType()) || !"account".equals(beneficiaryDto.getIdentifierType())) {
+        if(Objects.isNull(beneficiaryDto.getIdentifierType()) ||
+                !IdentifierType.ACCOUNT.getName().equals(beneficiaryDto.getIdentifierType())) {
             responseHandler(ibanValidator.validate(request, metadata, validationContext));
         }
 
