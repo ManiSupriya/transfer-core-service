@@ -76,29 +76,29 @@ app:
   auth:
     security-service-url: ${IAM_SERVICE_URL:https://digital-eg-dev.mashreq.com/api/ms-security-iam/}
   local:
-    currency: 'AED'
+    currency: 'EGP'
     transaction.code: '015'
     transfer.product.id: 'DBLC'
-    country.iso: 'AE'
-    address: 'UNITED ARAB EMIRATES'
+    country.iso: 'EG'
+    address: 'Egypt'
     iban:
-      length: 23
-      accountNumber: 12
-      bank:
-        code: '033'
+      length: 29
+      accountNumber: 17
+    bank:
+      code: '0046'
   loyalty:
     timeInterval: 1
     smilesProductBin: 524179
   services:
     maintenance: ${MAINTENANCE_SERVICE_URL:https://digital-uat.mashreq.com/api/maintenance-service}
     customers: ${CUSTOMER_SERVICE_URL:https://digital-uat.mashreq.com/api/customers-service}
-    accounts: ${ACCOUNT_SERVICE_URL:https://digital-uat.mashreq.com/api/accounts-service}
+    accounts: ${ACCOUNT_SERVICE_URL:http://digital-eg-dev.mashreq.com/api/accounts-service}
     otp: https://digital-uat.mashreq.com/api/ms-security-iam/
     cards: ${CARD_SERVICE_URL:https://digital-uat.mashreq.com/api/cards-service}
     notification: ${NOTIFICATION_SERVICE:https://digital-uat.mashreq.com/api/notification-service}
     mobcustomer: ${MOB_CUSTOMER_SERVICE:https://digital-uat.mashreq.com/api/mob-customer-service}
     beneficiary: ${BENEFICIARY_CORE_SERVICE:https://digital-uat.mashreq.com/api/beneficiary-core-service}
-    mobcommon: ${MOB_COMMON_SERVICE:https://digital-uat.mashreq.com/api/mob-common-service}
+    mobcommon: ${MOB_COMMON_SERVICE:http://digital-eg-dev.mashreq.com/api/mob-common-service}
     beneficiaryservice: https://digital-uat.mashreq.com/api/beneficiary-service
     quick-remit: https://digital-uat.mashreq.com/api/mob-quickremit-service
     bank-charges: https://digital-uat.mashreq.com/api/bank-charges-service
@@ -161,7 +161,7 @@ app:
 redis:
   enableRedisCache: true
   host: ${REDIS_HOST:localhost}
-  port: ${REDIS_PORT:6379}
+  port: ${REDIS_PORT:7000}
   password: ${REDIS_PASSWORD:}
   ssl: ${REDIS_SSL_FLAG:false}
   timeout: ${REDIS_TIMEOUT:5000}

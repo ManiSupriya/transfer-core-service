@@ -35,6 +35,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -149,8 +150,12 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
         validationContext.add("iban-length", ibanLength);
 
-        responseHandler(ibanValidator.validate(request, metadata, validationContext));
-        
+        //IBAN validation has to be skipped if beneficiary account identifier type is "account"
+        if(Objects.isNull(beneficiaryDto.getIdentifierType()) ||
+                !IdentifierType.ACCOUNT.getName().equals(beneficiaryDto.getIdentifierType())) {
+            responseHandler(ibanValidator.validate(request, metadata, validationContext));
+        }
+
         responseHandler(currencyValidator.validate(request, metadata, validationContext));
 
         //Deal Validator

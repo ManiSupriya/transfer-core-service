@@ -108,7 +108,6 @@
     </dependencyManagement>
 
     <dependencies>
-
         <dependency>
             <groupId>com.mashreq</groupId>
             <artifactId>templates-utils</artifactId>

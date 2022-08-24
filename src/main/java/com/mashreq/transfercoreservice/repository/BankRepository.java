@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,6 +15,7 @@ public interface BankRepository extends JpaRepository<BankDetails, Long>  {
 			"(swiftCode = :swiftCode or swiftCode like :swiftCodeLengthModified)")
     Optional<BankDetails> getBankCode(String country, String swiftCode,String swiftCodeLengthModified);
 
-	Optional<BankDetails> findByBankCode(String bankCode);
+	Optional<List<BankDetails>> findByBankCode(String bankCode);
+
 
 }
