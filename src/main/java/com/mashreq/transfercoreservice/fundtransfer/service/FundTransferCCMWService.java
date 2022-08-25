@@ -58,6 +58,7 @@ public class FundTransferCCMWService {
 
 
     public static final String DEBIT_ACCOUNT_BRANCH = "030";
+    public static final String MONEY_TRANSFER = "Money transfer";
 
     /**
      * used to call the middle ware to process the Credit cards Fund Transfer request
@@ -263,6 +264,7 @@ public class FundTransferCCMWService {
         debitLeg.setMerchantId(ftCCConfig.getMerchantId());
         debitLeg.setTerminalId(ftCCConfig.getTerminalId());
         debitLeg.setCIFNo(requestMetaData.getPrimaryCif());
+        debitLeg.setLocation(MONEY_TRANSFER);
     }
 
     /**
