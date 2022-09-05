@@ -1079,7 +1079,7 @@ public class LocalCurrencyValidationsTest {
 				.build();
 
         final ValidationResult result = localCurrencyValidations.performLocalCurrencyChecks(validationRequest);
-        assertEquals(false, result.isSuccess());
+        assertEquals(true, result.isSuccess());
 
     }
     
