@@ -1052,9 +1052,9 @@ public class LocalCurrencyValidationsTest {
      * 
      * Validation
      * Source account cannot be EGP
-     * Transaction currency cannot be EGP
+     * Transaction currency can be EGP
      * 
-     * Expected: Validation failed since transaction currency is EGP
+     * Expected: Validation success since transaction currency is EGP
      */
     @Test
     public void validate_INFTTC2() { 
