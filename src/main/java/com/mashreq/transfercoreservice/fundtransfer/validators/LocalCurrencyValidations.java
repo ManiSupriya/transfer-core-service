@@ -118,15 +118,6 @@ public class LocalCurrencyValidations {
         // INFT - Transaction currency cannot be EGP
         // STORY 91896 INFT - Transaction currency should be same as source account currency
         if (INFT.getName().equals(request.getServiceType())) {
-        	
-        	// INFT - Transaction currency cannot be EGP
-        	if (localCurrency.equals(requestedCurrency)) {
-                log.error("For transation type [{}], transaction cannot be in local currency [{}]",
-                        request.getServiceType(), localCurrency);
-                auditEventPublisher.publishFailureEvent(FundTransferEventType.CURRENCY_VALIDATION, request.getRequestMetaData(), null,
-                        CURRENCY_IS_INVALID.getCustomErrorCode(), CURRENCY_IS_INVALID.getErrorMessage(), null);
-                return ValidationResult.builder().success(false).transferErrorCode(CURRENCY_IS_INVALID).build();
-            }
 
         	// INFT - Source account cannot be EGP
             if (localCurrency.equals(fromAccount.getCurrency())) {
@@ -152,7 +143,7 @@ public class LocalCurrencyValidations {
         	//END - Existing validation for uae, same applicable for egypt as well
             
         	//STORY 91896 INFT - Transaction currency should be same as source account currency
-            if(!fromAccount.getCurrency().equals(requestedCurrency)) {
+            if(!fromAccount.getCurrency().equals(requestedCurrency) && !localCurrency.equals(requestedCurrency)) {
             	log.error("For transation type [{}], transaction currency [{}] should be same as source account currency [{}]",
                         request.getServiceType(), requestedCurrency, fromAccount.getCurrency());
                 auditEventPublisher.publishFailureEvent(FundTransferEventType.CURRENCY_VALIDATION, request.getRequestMetaData(), null,
