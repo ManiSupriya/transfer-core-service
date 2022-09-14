@@ -1,11 +1,8 @@
 package com.mashreq.transfercoreservice.notification.service;
 
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CHARGE_BEARER;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ChargeBearer.getChargeBearerByName;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.*;
 import static com.mashreq.transfercoreservice.notification.service.EmailUtil.*;
 import static java.lang.Long.valueOf;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -13,6 +10,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.mashreq.transfercoreservice.fundtransfer.service.TransferBankChargesService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,11 +23,8 @@ import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.templates.freemarker.TemplateEngine;
 import com.mashreq.templates.freemarker.TemplateRequest;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
-import com.mashreq.transfercoreservice.client.dto.TransactionChargesDto;
-import com.mashreq.transfercoreservice.client.service.BankChargesService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.config.notification.EmailConfig;
-import com.mashreq.transfercoreservice.errors.ExceptionUtils;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
@@ -38,7 +33,6 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.model.Segment;
 import com.mashreq.transfercoreservice.notification.model.EmailParameters;
 import com.mashreq.transfercoreservice.notification.model.EmailTemplateParameters;
-import com.mashreq.transfercoreservice.notification.model.NotificationType;
 import com.mashreq.transfercoreservice.notification.model.SendEmailRequest;
 import com.mashreq.transfercoreservice.paylater.utils.DateUtil;
 
@@ -71,7 +65,7 @@ public class PostTransactionService {
     private BeneficiaryService beneficiaryService;
 
     @Autowired
-    private BankChargesService bankChargesService;
+    private TransferBankChargesService transferBankChargesService;
 
     @Value("${app.local.address}")
     private String address;
@@ -103,7 +97,6 @@ public class PostTransactionService {
             userEventPublisher.publishFailureEvent(eventType, requestMetaData, eventType.getDescription(),
                     transferErrorCode.getCustomErrorCode(), transferErrorCode.getErrorMessage(), transferErrorCode.getErrorMessage());
         }
-
     }
 
     /** updates bank charges in fundTransferRequest based on serviceType
@@ -111,45 +104,23 @@ public class PostTransactionService {
      * @param requestMetaData
      * @throws NullPointerException - if charges returned from response are null
      */
-    private void updateBankChargesInFTReq(FundTransferRequest fundTransferRequest, RequestMetaData requestMetaData) {
+    public void updateBankChargesInFTReq(FundTransferRequest fundTransferRequest, RequestMetaData requestMetaData) {
         ServiceType serviceType = getServiceByType(fundTransferRequest.getServiceType());
         switch (serviceType){
             case WAMA:break;
             case WYMA:break;
             case LOCAL:
-                fundTransferRequest.setBankFees(getBankFeesForCustomerByCharge(fundTransferRequest,requestMetaData,ServiceType.LOCAL));
+                fundTransferRequest.setBankFees(transferBankChargesService.getBankFeesForCustomerByCharge(fundTransferRequest,
+                        requestMetaData,ServiceType.LOCAL));
                 break;
             case INFT:
-            	fundTransferRequest.setBankFees(getBankFeesForCustomerByCharge(fundTransferRequest,requestMetaData,ServiceType.INFT));
-            	break;
+                fundTransferRequest.setBankFees(transferBankChargesService.getBankFeesForCustomerByCharge(fundTransferRequest,
+                        requestMetaData,ServiceType.INFT));
+                break;
             default:
                 break;
         }
     }
-
-    private String getBankFeesForCustomerByCharge(FundTransferRequest fundTransferRequest, RequestMetaData requestMetaData,ServiceType type) {
-        if(StringUtils.isBlank(fundTransferRequest.getChargeBearer())){
-            throw ExceptionUtils.genericException(INVALID_CHARGE_BEARER,INVALID_CHARGE_BEARER.getErrorMessage());
-        }
-        final TransactionChargesDto bankCharges = bankChargesService.getTransactionCharges(fundTransferRequest.getAccountClass(), fundTransferRequest.getTxnCurrency(), requestMetaData);
-        String charges = EMPTY;
-        Double bankCharge = ServiceType.INFT.equals(type) ? bankCharges.getInternationalTransactionalCharge() : bankCharges.getLocalTransactionCharge();
-        switch(getChargeBearerByName(fundTransferRequest.getChargeBearer())){
-            case U:
-                charges = String.valueOf(bankCharge);
-                break;
-            case O:
-                charges = String.valueOf(bankCharge);
-                break;
-            case B:
-                break;
-            default:
-                throw ExceptionUtils.genericException(INVALID_CHARGE_BEARER,INVALID_CHARGE_BEARER.getErrorMessage());
-        }
-        return charges;
-
-    }
-
 
     private PostTransactionActivityContext<SendEmailRequest> getEmailPostTransactionActivityContext(RequestMetaData requestMetaData,
                                                                                                     FundTransferRequest fundTransferRequest,
