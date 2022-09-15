@@ -314,6 +314,4 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         return response.getResponseDto().getMwResponseStatus().equals(MwResponseStatus.S) ||
                 response.getResponseDto().getMwResponseStatus().equals(MwResponseStatus.P);
     }
-
-
 }
