@@ -95,4 +95,20 @@ public class UAEBankChargesServiceTest {
         assertEquals("TN-1034", genericException.getErrorCode());
         assertEquals("Invalid Charge Bearer", genericException.getMessage());
     }
+
+    @Test
+    public void success_when_get_bank_fees_for_local_transfer(){
+        //given
+        TransactionChargesDto bankCharges = new TransactionChargesDto();
+        bankCharges.setInternationalTransactionalCharge(Double.valueOf("25"));
+        //when
+        when(bankChargesService.getTransactionCharges(anyString(), anyString(), any())).thenReturn(bankCharges);
+        //then
+        String charges = uaeBankChargesService.getBankFeesForCustomerByCharge(FundTransferRequest.builder()
+                .chargeBearer("O")
+                .accountClass("CONV")
+                .txnCurrency("GBP")
+                .build(), RequestMetaData.builder().build(), ServiceType.LOCAL);
+        assertNotNull(charges);
+    }
 }
