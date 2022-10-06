@@ -7,8 +7,8 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: #{Build.Repository.Name}#
-  minReplicas: 1
-  maxReplicas: 4
+  minReplicas: 2
+  maxReplicas: 2
   targetCPUUtilizationPercentage: 80
 ---
 apiVersion: v1
@@ -34,7 +34,7 @@ metadata:
     build-tools: v1
   name: #{Build.Repository.Name}#
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: #{Build.Repository.Name}#
@@ -75,6 +75,20 @@ spec:
         - containerPort: 8080
           name: http
           protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /api/actuator/info
+            port: 8080
+          initialDelaySeconds: 180
+          periodSeconds: 60
+          timeoutSeconds: 5
+        resources:
+          limits:
+            cpu: 500m
+            memory: 1500Mi
+          requests:
+            cpu: 250m
+            memory: 500Mi
         volumeMounts:
         - mountPath: /opt/appd
           name: appd-agent-repo
