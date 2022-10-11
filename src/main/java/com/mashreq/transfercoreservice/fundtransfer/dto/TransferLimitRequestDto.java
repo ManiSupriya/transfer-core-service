@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.fundtransfer.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.mashreq.transfercoreservice.model.TransferLimit;
 import com.mashreq.transfercoreservice.paylater.enums.FTOrderType;
 import com.mashreq.transfercoreservice.paylater.enums.TransferType;
@@ -14,11 +15,14 @@ import java.math.BigDecimal;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class TransferLimitRequestDto {
     private Long beneficiaryId;
     private FTOrderType orderType;
     private TransferType transferType;
     private BigDecimal amount;
+    private String accountCurrency;
+    private String accountNumber;
 
     public TransferLimit toEntity(String transactionRefNo) {
         TransferLimit limit = new TransferLimit();
