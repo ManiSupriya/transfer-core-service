@@ -264,4 +264,9 @@ public class TestUtil {
                 .accountCurrency("AED")
                 .build();
     }
+    public static CurrencyConversionDto buildCurrencyConversionDto() {
+    	CurrencyConversionDto currencyConversionDto = new CurrencyConversionDto();
+    	currencyConversionDto.setTransactionAmount(new BigDecimal(45));
+        return currencyConversionDto;
+    }
 }
