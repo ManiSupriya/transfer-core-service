@@ -20,36 +20,38 @@ import java.math.BigDecimal;
 @RequiredArgsConstructor
 public class TransferLimitService {
 
-    private final TransferLimitRepository repository;
-    private final MaintenanceService maintenanceService;
+	private final TransferLimitRepository repository;
+	private final MaintenanceService maintenanceService;
 
-    public TransferLimitResponseDto validateAndSaveTransferDetails(TransferLimitRequestDto limitRequestDto,
-                                                                   String transactionRefNo) {
-        try {
-            if (repository.findByTransactionRefNo(transactionRefNo).isPresent()) {
-                log.info("Duplicate entry found for the transaction reference no {}", transactionRefNo);
-                return buildErrorMessage("TC-409", "Duplicate entry found for the transaction reference no");
-            }
-            return saveTransferDetails(limitRequestDto, transactionRefNo);
-        } catch (Exception e) {
-            log.error("Error occurred while saving transfer details", e);
-            return buildErrorMessage("TC-500", "Error occurred while saving transfer details");
-        }
-    }
+	public TransferLimitResponseDto validateAndSaveTransferDetails(TransferLimitRequestDto limitRequestDto,
+			String transactionRefNo) {
+		try {
+			if (repository.findByTransactionRefNo(transactionRefNo).isPresent()) {
+				log.info("Duplicate entry found for the transaction reference no {}", transactionRefNo);
+				return buildErrorMessage("TC-409", "Duplicate entry found for the transaction reference no");
+			}
+			BigDecimal convertedAmount = getAmountBasedOnCurrency(limitRequestDto);
+			if (convertedAmount != null) {
+				limitRequestDto.setAmount(convertedAmount);
+			} else {
+				log.error("Error occurred while converting Currency {} into AED", limitRequestDto.getAccountCurrency());
+				return buildErrorMessage("TC-501", "Error occurred while converting currency into AED");
+			}
+			return saveTransferDetails(limitRequestDto, transactionRefNo);
+		} catch (Exception e) {
+			log.error("Error occurred while saving transfer details", e);
+			return buildErrorMessage("TC-500", "Error occurred while saving transfer details");
+		}
+	}
 
-    private TransferLimitResponseDto buildErrorMessage(String errorCode, String errorMessage) {
-        return TransferLimitResponseDto.builder()
-                .success(false)
-                .errorCode(errorCode)
-                .errorMessage(errorMessage)
-                .build();
-    }
-
+	private TransferLimitResponseDto buildErrorMessage(String errorCode, String errorMessage) {
+		return TransferLimitResponseDto.builder().success(false).errorCode(errorCode).errorMessage(errorMessage)
+				.build();
+	}
 
 	public TransferLimitResponseDto saveTransferDetails(TransferLimitRequestDto limitDto, String transactionRefNo) {
 		log.info("Storing transferred/configured amount {} for beneficiary {}", htmlEscape(limitDto.getAmount()),
 				htmlEscape(limitDto.getBeneficiaryId()));
-		limitDto.setAmount(getAmountBasedOnCurrency(limitDto));
 		log.info("Storing coverted amount {} for beneficiary {}", htmlEscape(limitDto.getAmount()),
 				htmlEscape(limitDto.getBeneficiaryId()));
 		repository.save(limitDto.toEntity(transactionRefNo));
@@ -69,6 +71,9 @@ public class TransferLimitService {
 		currencyConversionRequestDto.setTransactionCurrency("AED");
 
 		CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(currencyConversionRequestDto);
+		if (currencyConversionDto == null) {
+			return null;
+		}
 		return currencyConversionDto.getTransactionAmount();
 	}
 }

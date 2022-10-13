@@ -1,6 +1,7 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
 import static com.mashreq.transfercoreservice.util.TestUtil.buildTransferLimitRequest;
+import static com.mashreq.transfercoreservice.util.TestUtil.buildCurrencyConversionDto;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -72,7 +73,8 @@ public class TransferLimitServiceTest {
     	TransferLimitRequestDto transferLimitRequestDto = buildTransferLimitRequest();
     	transferLimitRequestDto.setAccountCurrency("USD");
         // When
-    	when(maintenanceService.convertCurrency(any())).thenReturn(new CurrencyConversionDto());
+    	
+    	when(maintenanceService.convertCurrency(any())).thenReturn(buildCurrencyConversionDto());
         TransferLimitResponseDto responseDto = service.validateAndSaveTransferDetails(transferLimitRequestDto,
                 "WQNI11082285105");
 
@@ -81,6 +83,42 @@ public class TransferLimitServiceTest {
         verify(repository, times(1)).save(any());
         assertNotNull(responseDto);
         assertTrue(responseDto.isSuccess());
+    }
+    
+    @Test
+    public void should_validate_and_save_transfer_details_NON_AED_currency_empty() {
+        // Given
+    	TransferLimitRequestDto transferLimitRequestDto = buildTransferLimitRequest();
+    	transferLimitRequestDto.setAccountCurrency("USD");
+        // When
+    	
+    	when(maintenanceService.convertCurrency(any())).thenReturn(new CurrencyConversionDto());
+        TransferLimitResponseDto responseDto = service.validateAndSaveTransferDetails(transferLimitRequestDto,
+                "WQNI11082285105");
+
+        // Then
+        assertNotNull(responseDto);
+        assertFalse(responseDto.isSuccess());
+        assertEquals("TC-501", responseDto.getErrorCode());
+        assertEquals("Error occurred while converting currency into AED", responseDto.getErrorMessage());
+    }
+    
+    @Test
+    public void should_validate_and_save_transfer_details_NON_AED_currency_null() {
+        // Given
+    	TransferLimitRequestDto transferLimitRequestDto = buildTransferLimitRequest();
+    	transferLimitRequestDto.setAccountCurrency("USD");
+        // When
+    	
+    	when(maintenanceService.convertCurrency(any())).thenReturn(null);
+        TransferLimitResponseDto responseDto = service.validateAndSaveTransferDetails(transferLimitRequestDto,
+                "WQNI11082285105");
+
+        // Then
+        assertNotNull(responseDto);
+        assertFalse(responseDto.isSuccess());
+        assertEquals("TC-501", responseDto.getErrorCode());
+        assertEquals("Error occurred while converting currency into AED", responseDto.getErrorMessage());
     }
     @Test
     public void should_not_save_when_transaction_is_already_present() {

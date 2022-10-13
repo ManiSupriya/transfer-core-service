@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
+import javax.validation.constraints.NotBlank;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -20,8 +22,11 @@ public class TransferLimitRequestDto {
     private Long beneficiaryId;
     private FTOrderType orderType;
     private TransferType transferType;
+    @NotBlank
     private BigDecimal amount;
+    @NotBlank
     private String accountCurrency;
+    @NotBlank
     private String accountNumber;
 
     public TransferLimit toEntity(String transactionRefNo) {
