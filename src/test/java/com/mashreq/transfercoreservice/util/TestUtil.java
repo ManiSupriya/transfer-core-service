@@ -261,6 +261,7 @@ public class TestUtil {
                 .amount(new BigDecimal(599))
                 .orderType(FTOrderType.SI)
                 .transferType(TransferType.QR)
+                .accountCurrency("AED")
                 .build();
     }
 }
