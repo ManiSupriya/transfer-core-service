@@ -50,9 +50,7 @@ public class TransferLimitService {
 	}
 
 	public TransferLimitResponseDto saveTransferDetails(TransferLimitRequestDto limitDto, String transactionRefNo) {
-		log.info("Storing transferred/configured amount {} for beneficiary {}", htmlEscape(limitDto.getAmount()),
-				htmlEscape(limitDto.getBeneficiaryId()));
-		log.info("Storing coverted amount {} for beneficiary {}", htmlEscape(limitDto.getAmount()),
+		log.info("Storing transferred/converted amount {} for beneficiary {}", htmlEscape(limitDto.getAmount()),
 				htmlEscape(limitDto.getBeneficiaryId()));
 		repository.save(limitDto.toEntity(transactionRefNo));
 		return TransferLimitResponseDto.builder().success(true).build();
