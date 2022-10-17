@@ -2,9 +2,11 @@ package com.mashreq.transfercoreservice.fundtransfer.strategy.paylater;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 
+import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,20 +29,13 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
-import com.mashreq.transfercoreservice.fundtransfer.validators.AccountBelongsToCifValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.AccountFreezeValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.CCTransactionEligibilityValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.CurrencyValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.SameAccountValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 import com.mashreq.transfercoreservice.notification.service.DigitalUserSegment;
 import com.mashreq.transfercoreservice.notification.service.NotificationService;
 import com.mashreq.transfercoreservice.notification.service.PostTransactionService;
 import com.mashreq.transfercoreservice.paylater.enums.FTOrderType;
 import com.mashreq.transfercoreservice.paylater.repository.FundTransferOrderRepository;
 import com.mashreq.transfercoreservice.paylater.utils.SequenceNumberGenerator;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OwnAccountPayLaterStrategyTest {
@@ -77,6 +72,8 @@ public class OwnAccountPayLaterStrategyTest {
 	private PostTransactionService postTransactionService;
 	@Mock
 	private SequenceNumberGenerator seqGenerator;
+	@Mock
+	private MinTransactionAmountValidator minTransactionAmountValidator;
 	
 	@Before
 	public void init() {
@@ -85,7 +82,8 @@ public class OwnAccountPayLaterStrategyTest {
 				dealValidator,maintenanceService,fundTransferMWService,balanceValidator,
 				notificationService,auditEventPublisher,digitalUserSegment,freezeValidator,
 				postTransactionService,
-				fundTransferOrderRepository,seqGenerator);
+				fundTransferOrderRepository,seqGenerator, minTransactionAmountValidator);
+		ReflectionTestUtils.setField(payLaterStrategy, "localCurrency", "AED");
 	}
 	
 	@Test
@@ -114,6 +112,8 @@ public class OwnAccountPayLaterStrategyTest {
 		accountType.setAccountType("MBMETA");
 		accountDto.setAccountType(accountType );
 		Mockito.when(accountService.getAccountDetailsFromCore(Mockito.any())).thenReturn(accountDto );
+		when(minTransactionAmountValidator.validate(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(validationResult);
+
 		//Mockito.when(seqGenerator.getNextOrderId()).thenReturn("210512344321");
 		FundTransferResponse response = payLaterStrategy.execute(request, metadata, userDTO);
 		assertEquals(transactionRefNo, response.getTransactionRefNo());

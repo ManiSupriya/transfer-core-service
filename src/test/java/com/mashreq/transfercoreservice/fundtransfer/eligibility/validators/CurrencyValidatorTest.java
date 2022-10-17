@@ -17,8 +17,12 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
+import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
+import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
+import com.mashreq.transfercoreservice.client.dto.BeneficiaryStatus;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyDto;
 import com.mashreq.transfercoreservice.client.dto.CountryMasterDto;
+import com.mashreq.transfercoreservice.client.dto.SearchAccountDto;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonClient;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
@@ -184,5 +188,125 @@ public class CurrencyValidatorTest {
 		validationContext.add("country", countryMasterDto);
 		ValidationResult result = validator.validate(request, metadata, validationContext);
 		assertFalse(result.isSuccess());
+	}
+	
+	@Test
+	public void test_WAMA_success() {
+		
+		AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
+		accountDetailsDTO.setNumber("019010073766");
+		accountDetailsDTO.setCurrency("AED");
+		
+		FundTransferEligibiltyRequestDTO requestDTO = new FundTransferEligibiltyRequestDTO();
+        requestDTO.setServiceType(ServiceType.WAMA.getName());
+        requestDTO.setTxnCurrency("AED");
+
+        BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
+        beneficiaryDto.setAccountNumber("019022073766");
+        beneficiaryDto.setStatus(BeneficiaryStatus.ACTIVE.getValue());
+
+        SearchAccountDto toAccount = new SearchAccountDto();
+        toAccount.setCurrency("AED");
+        
+        ValidationContext mockValidationContext = new ValidationContext();
+		mockValidationContext.add("from-account", accountDetailsDTO);
+        mockValidationContext.add("beneficiary-dto", beneficiaryDto);
+        mockValidationContext.add("credit-account-details", toAccount);
+
+		ValidationResult result = validator.validate(requestDTO, metadata, mockValidationContext);
+		assertTrue(result.isSuccess());
+	}
+	
+	@Test
+	public void test_WAMA_different_txn_currency() {
+		
+		AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
+		accountDetailsDTO.setNumber("019010073766");
+		accountDetailsDTO.setCurrency("AED");
+		
+		FundTransferEligibiltyRequestDTO requestDTO = new FundTransferEligibiltyRequestDTO();
+        requestDTO.setServiceType(ServiceType.WAMA.getName());
+        requestDTO.setTxnCurrency("EGP");
+
+        BeneficiaryDto beneficiaryDto = new BeneficiaryDto();
+        beneficiaryDto.setAccountNumber("019022073766");
+        beneficiaryDto.setStatus(BeneficiaryStatus.ACTIVE.getValue());
+
+        SearchAccountDto toAccount = new SearchAccountDto();
+        toAccount.setCurrency("AED");
+        
+        ValidationContext mockValidationContext = new ValidationContext();
+		mockValidationContext.add("from-account", accountDetailsDTO);
+        mockValidationContext.add("beneficiary-dto", beneficiaryDto);
+        mockValidationContext.add("credit-account-details", toAccount);
+
+		ValidationResult result = validator.validate(requestDTO, metadata, mockValidationContext);
+		assertFalse(result.isSuccess());
+	}
+	
+	@Test
+	public void test_WYMA_success() {
+		
+		AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
+		accountDetailsDTO.setNumber("019010073766");
+		accountDetailsDTO.setCurrency("AED");
+		ValidationContext mockValidationContext = new ValidationContext();
+		
+		FundTransferEligibiltyRequestDTO requestDTO = new FundTransferEligibiltyRequestDTO();
+		requestDTO.setServiceType(ServiceType.WYMA.getName());
+		requestDTO.setTxnCurrency("AED");
+		
+		AccountDetailsDTO toAccountDetailsDTO = new AccountDetailsDTO();
+		toAccountDetailsDTO.setNumber("019010073766");
+		toAccountDetailsDTO.setCurrency("AED");
+		
+		mockValidationContext.add("from-account", accountDetailsDTO);
+		mockValidationContext.add("to-account", toAccountDetailsDTO);
+
+		ValidationResult result = validator.validate(requestDTO, metadata, mockValidationContext);
+		assertTrue(result.isSuccess());
+	}
+	
+	@Test
+	public void test_WYMA_different_txn_currency() {
+		
+		AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
+		accountDetailsDTO.setNumber("019010073766");
+		accountDetailsDTO.setCurrency("AED");
+		ValidationContext mockValidationContext = new ValidationContext();
+		
+		FundTransferEligibiltyRequestDTO requestDTO = new FundTransferEligibiltyRequestDTO();
+		requestDTO.setServiceType(ServiceType.WYMA.getName());
+		requestDTO.setTxnCurrency("USD");
+		
+		AccountDetailsDTO toAccountDetailsDTO = new AccountDetailsDTO();
+		toAccountDetailsDTO.setNumber("019010073766");
+		toAccountDetailsDTO.setCurrency("AED");
+		
+		mockValidationContext.add("from-account", accountDetailsDTO);
+		mockValidationContext.add("to-account", toAccountDetailsDTO);
+
+		ValidationResult result = validator.validate(requestDTO, metadata, mockValidationContext);
+		assertFalse(result.isSuccess());
+	}
+	
+	@Test
+	public void test_LOCAL_NonLocal_Currency() {
+		FundTransferEligibiltyRequestDTO request = new FundTransferEligibiltyRequestDTO();
+		request.setServiceType(ServiceType.LOCAL.getName());
+		request.setTxnCurrency("USD");
+		//ValidationContext validationContext = new ValidationContext();
+		ValidationResult result = validator.validate(request, metadata, null);
+		assertFalse(result.isSuccess());
+	}
+	
+	@Test
+	public void test_LOCAL_success() {
+		FundTransferEligibiltyRequestDTO request = new FundTransferEligibiltyRequestDTO();
+		request.setServiceType(ServiceType.LOCAL.getName());
+		request.setTxnCurrency("AED");
+		//ValidationContext validationContext = new ValidationContext();
+		ValidationResult result = validator.validate(request, metadata, null);
+		assertTrue(result.isSuccess());
 	}
 }

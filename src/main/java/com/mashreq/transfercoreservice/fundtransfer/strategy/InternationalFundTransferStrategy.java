@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -52,6 +53,8 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     public static final String INTERNATIONAL = "International";
     public static final String TRANSACTIONCODE = "15";
     public static final String SPACE_CHAR = " ";
+
+    public static final String TRANSFER_AMOUNT_FOR_MIN_VALIDATION = "transfer-amount-for-min-validation";
     int maxLength = 35;
     private final AccountService accountService;
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
@@ -69,12 +72,18 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
 
     private final HashMap<String, String> routingSuffixMap = new HashMap<>();
     private final CCTransactionEligibilityValidator ccTrxValidator;
+    
+    private final CurrencyValidator currencyValidator;
+
+    private final MinTransactionAmountValidator minTransactionAmountValidator;
 
     @Autowired
     private PostTransactionService postTransactionService;
 
-//    @Value("${app.local.transaction.code:015}")
-//    private String transactionCode;
+    @Value("${app.local.currency}")
+    private String localCurrency;
+    @Value("${app.local.country.iso}")
+    private String localCountryIso;
 
     //Todo: Replace with native currency fetched from API call
     @PostConstruct
@@ -124,6 +133,8 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         //Balance Validation
         final AccountDetailsDTO sourceAccountDetailsDTO = getAccountDetailsBasedOnAccountNumber(accountsFromCore, request.getFromAccount());
         validationContext.add("from-account", sourceAccountDetailsDTO);
+        
+        responseHandler(currencyValidator.validate(request, metadata, validationContext));
 
         final CurrencyConversionDto currencyConversionDto = validateAccountBalance(request, metadata, validationContext, beneficiaryDto, sourceAccountDetailsDTO);
         final BigDecimal transferAmountInSrcCurrency = currencyConversionDto.getAccountCurrencyAmount();
@@ -131,6 +142,10 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         //Limit Validation
         Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
         final BigDecimal limitUsageAmount = getLimitUsageAmount(sourceAccountDetailsDTO,transferAmountInSrcCurrency);
+
+        validationContext.add(TRANSFER_AMOUNT_FOR_MIN_VALIDATION, limitUsageAmount );
+        responseHandler(minTransactionAmountValidator.validate(request, metadata, validationContext));
+
         final LimitValidatorResponse validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount, metadata, bendId);
         String txnRefNo = validationResult.getTransactionRefNo();        
 
@@ -197,13 +212,13 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         currencyConversionRequestDto.setAccountNumber(sourceAccountDetailsDTO.getNumber());
         currencyConversionRequestDto.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
         currencyConversionRequestDto.setAccountCurrencyAmount(transferAmountInSrcCurrency);
-        currencyConversionRequestDto.setTransactionCurrency("AED");
+        currencyConversionRequestDto.setTransactionCurrency(localCurrency);
         CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(currencyConversionRequestDto);
         return currencyConversionDto.getTransactionAmount();
     }
 
     private BigDecimal getLimitUsageAmount(final AccountDetailsDTO sourceAccountDetailsDTO, final BigDecimal transferAmountInSrcCurrency) {
-        return "AED".equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
+        return localCurrency.equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
                 ? transferAmountInSrcCurrency
                 : convertAmountInLocalCurrency(sourceAccountDetailsDTO, transferAmountInSrcCurrency);
     }
@@ -269,7 +284,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
     }
 
     private FundTransferRequest enrichFundTransferRequestByCountryCode(FundTransferRequest request, BeneficiaryDto beneficiaryDto) {
-        List<CountryMasterDto> countryList = maintenanceService.getAllCountries("MOB", "AE", Boolean.TRUE);
+        List<CountryMasterDto> countryList = maintenanceService.getAllCountries("MOB", localCountryIso, Boolean.TRUE);
         final Optional<CountryMasterDto> countryDto = countryList.stream()
                 .filter(country -> country.getCode().equals(beneficiaryDto.getBankCountryISO()))
                 .findAny();
@@ -299,6 +314,4 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         return response.getResponseDto().getMwResponseStatus().equals(MwResponseStatus.S) ||
                 response.getResponseDto().getMwResponseStatus().equals(MwResponseStatus.P);
     }
-
-
 }

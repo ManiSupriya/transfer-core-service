@@ -72,6 +72,7 @@ public class BeneficiaryDto {
     private String beneficiaryRelationship;
 
     private boolean newVersion;
+    private String identifierType;
 
 }
 

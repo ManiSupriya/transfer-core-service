@@ -12,6 +12,7 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.LOCAL_CUR
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
@@ -35,8 +36,10 @@ public class BeneficiaryValidator implements Validator<FundTransferEligibiltyReq
 
     private static final String QUICK_REMIT = "quick-remit";
     private static final String INFT = "INFT";
-    private static final String LOCAL_CURRENCY = "AED";
     private final AsyncUserEventPublisher auditEventPublisher;
+
+    @Value("${app.local.currency}")
+    private String localCurrency;
 
 
     @Override
@@ -90,15 +93,16 @@ public class BeneficiaryValidator implements Validator<FundTransferEligibiltyReq
         }
     }
 
-    /** Method to check if beneficiary is local then transaction currency should be NON-AED. Only then INFT is eligible else it is a local transaction
+    /** Method to check if beneficiary is local then transaction currency should be NON local currency.
+     * Only then INFT is eligible else it is a local transaction
      * @param beneficiaryDto
      * @param txnCurrency
      * @param errorCode 
      */
     private ValidationResult validateLocalBeneficiaryCurrency(BeneficiaryDto beneficiaryDto, String txnCurrency, TransferErrorCode errorCode) {
-    	boolean isLocalAedBene = ServiceType.LOCAL.name().equals(beneficiaryDto.getServiceTypeCode()) && LOCAL_CURRENCY.equals(txnCurrency);
+    	boolean isLocalCurrencyBene = ServiceType.LOCAL.name().equals(beneficiaryDto.getServiceTypeCode()) && localCurrency.equals(txnCurrency);
     	
-    	return isLocalAedBene ? 
+    	return isLocalCurrencyBene ?
     			ValidationResult.builder().success(false).transferErrorCode(errorCode).build()  : 
     				ValidationResult.builder().success(true).build();
 		

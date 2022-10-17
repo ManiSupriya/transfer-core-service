@@ -36,7 +36,6 @@ import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPRequestDTO;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPResponseDTO;
-import com.mashreq.transfercoreservice.client.service.OTPService;
 import com.mashreq.transfercoreservice.common.CommonConstants;
 import com.mashreq.transfercoreservice.errors.ExternalErrorCodeConfig;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
@@ -69,8 +68,6 @@ public class FundTransferServiceDefaultTest {
 	FundTransferResponseDTO fundTransferResponseDTO;
 	@Mock
 	VerifyOTPRequestDTO verifyOTPRequestDTO;
-	 @Mock
-	 OTPService iamService;
 	 @Mock
 	 AsyncUserEventPublisher asyncUserEventPublisher;
 	 @Mock
@@ -119,7 +116,6 @@ public class FundTransferServiceDefaultTest {
 		VerifyOTPResponseDTO verifyOTPResponseDTO = new VerifyOTPResponseDTO();
 		verifyOTPResponseDTO.setAuthenticated(true);
         Mockito.doNothing().when(asyncUserEventPublisher).publishSuccessEvent(any(), any(), any());
-		when(iamService.verifyOTP(any())).thenReturn(Response.<VerifyOTPResponseDTO>builder().status(ResponseStatus.SUCCESS).data(verifyOTPResponseDTO).build());
 		FundTransferResponseDTO fundTransferResponseDTO = fundTransferServiceDefault.transferFund(metaData,
 				fundTransferRequestDTO);
 		Assert.assertNull(fundTransferResponseDTO);
@@ -168,8 +164,6 @@ public class FundTransferServiceDefaultTest {
 	public void transferFundTestOTPFailure() {
 		VerifyOTPResponseDTO verifyOTPResponseDTO = new VerifyOTPResponseDTO();
 		verifyOTPResponseDTO.setAuthenticated(false);
-        Mockito.doNothing().when(asyncUserEventPublisher).publishFailedEsbEvent(any(), any(), any(), any(), any(), any(), any());
-		when(iamService.verifyOTP(any())).thenReturn(Response.<VerifyOTPResponseDTO>builder().status(ResponseStatus.FAIL).errorCode("TN-5016").errorDetails("Something went wrong with OTP external service").data(verifyOTPResponseDTO).build());
 		try {
 			fundTransferServiceDefault.transferFund(metaData,
 					fundTransferRequestDTO);
@@ -182,12 +176,7 @@ public class FundTransferServiceDefaultTest {
 	public void transferFundTestSuccessFulTermsAndConditionsVerificationOTPFailure() {
 		VerifyOTPResponseDTO verifyOTPResponseDTO = new VerifyOTPResponseDTO();
 		verifyOTPResponseDTO.setAuthenticated(false);
-		Mockito.doNothing().when(asyncUserEventPublisher).publishFailedEsbEvent(Mockito.any(), Mockito.any(),
-				Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-		Mockito.when(iamService.verifyOTP(Mockito.any()))
-				.thenReturn(Response.<VerifyOTPResponseDTO>builder().status(ResponseStatus.FAIL).errorCode("TN-5016")
-						.errorDetails("Something went wrong with OTP external service").data(verifyOTPResponseDTO)
-						.build());
+
 		try {
 			fundTransferRequestDTO.setTermsAndConditionsAccepted(true);
 			fundTransferRequestDTO.setJourneyVersion("V2");
@@ -223,12 +212,7 @@ public class FundTransferServiceDefaultTest {
 	public void transferFundTestCPRDisabledVerificationOTPFailure() {
 		VerifyOTPResponseDTO verifyOTPResponseDTO = new VerifyOTPResponseDTO();
 		verifyOTPResponseDTO.setAuthenticated(false);
-		Mockito.doNothing().when(asyncUserEventPublisher).publishFailedEsbEvent(Mockito.any(), Mockito.any(),
-				Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-		Mockito.when(iamService.verifyOTP(Mockito.any()))
-				.thenReturn(Response.<VerifyOTPResponseDTO>builder().status(ResponseStatus.FAIL).errorCode("TN-5016")
-						.errorDetails("Something went wrong with OTP external service").data(verifyOTPResponseDTO)
-						.build());
+
 		try {
 			ReflectionTestUtils.setField(fundTransferServiceDefault, "cprEnabled", true);
 			fundTransferRequestDTO.setTermsAndConditionsAccepted(true);
@@ -281,7 +265,7 @@ public class FundTransferServiceDefaultTest {
 		Optional<DigitalUser> userOptional = Optional.of(digitalUser);
 		when(digitalUserRepository.findByCifEquals(Mockito.anyString())).thenReturn(userOptional);
 		fundTransferResponse = FundTransferResponse.builder().responseDto(coreFundTransferResponseDto).build();
-		strategy = new InternationalFundTransferStrategy(null, null, null, null, null, null, null, null, null, null, null, null,null);
+		strategy = new InternationalFundTransferStrategy(null, null, null, null, null, null, null, null, null, null, null, null,null, null,null);
 		Method method = fundTransferServiceDefault.getClass().getDeclaredMethod("getFundTransferResponse", paramTypes);
 		method.setAccessible(true);
 		

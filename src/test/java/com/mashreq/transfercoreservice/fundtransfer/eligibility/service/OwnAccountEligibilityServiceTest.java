@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -63,12 +64,15 @@ public class OwnAccountEligibilityServiceTest {
 				maintenanceService,
 				currencyValidatorFactory,
 				RuleSpecificValidatorProvider);
+				
+		ReflectionTestUtils.setField(service, "localCurrency", "AED");
 	}
 
 
 
 	@Test
 	public void checkEligibility(){
+
 		FundTransferEligibiltyRequestDTO fundTransferEligibiltyRequestDTO = new FundTransferEligibiltyRequestDTO();
 		fundTransferEligibiltyRequestDTO.setBeneficiaryId("1");
 		fundTransferEligibiltyRequestDTO.setFromAccount("1234567890");
@@ -80,7 +84,7 @@ public class OwnAccountEligibilityServiceTest {
 		ValidationResult validationResult = ValidationResult.builder().success(true).build();
 		when(limitValidatorFactory.getValidator(any())).thenReturn(limitValidator);
 		when(currencyValidatorFactory.getValidator(any())).thenReturn(currencyValidator);
-		when(currencyValidator.validate(any(),any())).thenReturn(validationResult);
+		when(currencyValidator.validate(any(),any(),any())).thenReturn(validationResult);
 		when(maintenanceService.convertBetweenCurrencies(any())).thenReturn(TestUtil.getCurrencyConversionDto());
 		when(maintenanceService.convertCurrency(any())).thenReturn(TestUtil.getCurrencyConversionDto());
 		when(limitValidator.validate(any(),any(),any(),any(),any())).thenReturn(TestUtil.limitValidatorResultsDto(null));
@@ -106,7 +110,7 @@ public class OwnAccountEligibilityServiceTest {
 		when(maintenanceService.convertBetweenCurrencies(any())).thenReturn(TestUtil.getCurrencyConversionDto());
 		when(limitValidatorFactory.getValidator(any())).thenReturn(limitValidator);
 		when(currencyValidatorFactory.getValidator(any())).thenReturn(currencyValidator);
-		when(currencyValidator.validate(any(),any())).thenReturn(validationResult);
+		when(currencyValidator.validate(any(),any(),any())).thenReturn(validationResult);
 		when(maintenanceService.convertCurrency(any())).thenReturn(TestUtil.getCurrencyConversionDto());
 		when(limitValidator.validate(any(),any(),any(),any(),any())).thenReturn(TestUtil.limitValidatorResultsDto(null));
 		when(accountService.getAccountDetailsFromCache(any(),any())).thenReturn(new AccountDetailsDTO());

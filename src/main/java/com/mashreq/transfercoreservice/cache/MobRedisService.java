@@ -1,3 +1,4 @@
+/*
 package com.mashreq.transfercoreservice.cache;
 
 import java.util.concurrent.TimeUnit;
@@ -61,3 +62,4 @@ public class MobRedisService {
         this.mobRedisTemplate.expire(key, ttl, TimeUnit.MINUTES);
     }
 }
+*/

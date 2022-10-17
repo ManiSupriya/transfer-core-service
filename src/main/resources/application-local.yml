@@ -14,13 +14,13 @@ spring:
   profiles.active: local
   main.lazy-initialization: false
   datasource:
-    url: ${MSSQL_DB_URL:jdbc:sqlserver://10.210.183.231:1433;databaseName=MOB-uat}
-    username: ${MSSQL_DB_USERNAME:Mobliquibasedbuse}
-    password: ${MSSQL_DB_KEY:Mobliquibasedbuse}
+    url: ${MSSQL_DB_URL:jdbc:sqlserver://10.210.183.231:1433;databaseName=MOB-DEV-EG}
+    username: ${MSSQL_DB_USERNAME:Mobdbuser}
+    password: ${MSSQL_DB_KEY:Mobdbuser}
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
 
 external:
   error-code:
@@ -71,30 +71,34 @@ esb-service:
   keep-alive: ${SOAP_SERVICE_KEEPALIVE:30000}
   access-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiJVQlRlc3Q0QG1hc2hyZXFkZXYuY29tIiwiY2hhbm5lbCI6IjJBRUMzNjRGQTg2MUFBMDY3QkYzOTI2QjZBMUQzMTNBIiwiZW1wbG95ZWVJZCI6bnVsbCwiYnJhbmNoIjoiQUQyQTU2QUVCN0FCRjM1QjYwNEZBODI1NzdEMTVCQUEiLCJhdXRob3JpdGllcyI6WyJVYl9Vc2VyIiwiVUJfUE9XRVIiLCJSZXBvcnRpbmdHcm91cCB7ODJkYWU4MDItNmY2Ni00YTBjLTg5ODAtZDA0ZTRhNDE5OWRlfSIsIlJlcG9ydGluZ0dyb3VwIHs4NzQ0YzU2YS01YWI5LTRhODMtOTk2OS0yZWQ1ZjIxMDViYjN9IiwiVUJVQVQiXSwiZW5hYmxlZCI6dHJ1ZSwiY2xpZW50X2lkIjoiYnJhbmNocG9ydGFsIiwiYnJhbmNoQ29kZSI6IkM3MkI0RDU0OTBFNjIwRTg5NUVEQUFDNzBBOEU5NUMzIiwibmJmIjoxNTgyMjA5NjMxLCJzY29wZSI6WyJyZWFkIiwid3JpdGUiLCJpZGVudGl0eSJdLCJuYW1lIjoiNjYxOERGNENCMjhGMjNGMjNGMzI3M0NFQzZGQ0YyMjMiLCJleHAiOjE1ODIyMTY4MzEsImp0aSI6IjAxYTA3YTZjLWQzMDItNDhmMC1iNDQ2LTQwY2I0MTBlY2FhZSIsImVtYWlsIjpudWxsfQ.hnrskgfb8DuP26VVVrrFcNVRXPk3TKSjslzImlw_dtM
 
+
 app:
+  auth:
+    security-service-url: ${IAM_SERVICE_URL:https://digital-eg-dev.mashreq.com/api/ms-security-iam/}
   local:
-    currency: 'AED'
+    currency: 'EGP'
     transaction.code: '015'
     transfer.product.id: 'DBLC'
-  uae:
-    address: 'UNITED ARAB EMIRATES'
+    country.iso: 'EG'
+    address: 'Egypt'
     iban:
-      length: 23
-  bank:
-    code: '033'
+      length: 29
+      accountNumber: 17
+    bank:
+      code: '0046'
   loyalty:
     timeInterval: 1
     smilesProductBin: 524179
   services:
     maintenance: ${MAINTENANCE_SERVICE_URL:https://digital-uat.mashreq.com/api/maintenance-service}
     customers: ${CUSTOMER_SERVICE_URL:https://digital-uat.mashreq.com/api/customers-service}
-    accounts: ${ACCOUNT_SERVICE_URL:https://digital-uat.mashreq.com/api/accounts-service}
+    accounts: ${ACCOUNT_SERVICE_URL:http://digital-eg-dev.mashreq.com/api/accounts-service}
     otp: https://digital-uat.mashreq.com/api/ms-security-iam/
     cards: ${CARD_SERVICE_URL:https://digital-uat.mashreq.com/api/cards-service}
     notification: ${NOTIFICATION_SERVICE:https://digital-uat.mashreq.com/api/notification-service}
     mobcustomer: ${MOB_CUSTOMER_SERVICE:https://digital-uat.mashreq.com/api/mob-customer-service}
     beneficiary: ${BENEFICIARY_CORE_SERVICE:https://digital-uat.mashreq.com/api/beneficiary-core-service}
-    mobcommon: ${MOB_COMMON_SERVICE:https://digital-uat.mashreq.com/api/mob-common-service}
+    mobcommon: ${MOB_COMMON_SERVICE:http://digital-eg-dev.mashreq.com/api/mob-common-service}
     beneficiaryservice: https://digital-uat.mashreq.com/api/beneficiary-service
     quick-remit: https://digital-uat.mashreq.com/api/mob-quickremit-service
     bank-charges: https://digital-uat.mashreq.com/api/bank-charges-service
@@ -130,10 +134,18 @@ app:
         StandingInstructionSubject: ${SI_EMAIL_SUBJECT:Standing instruction request}
         fromEmailName: ${NOTIFICATION_FROM_EMAIL_NAME:MashreqDigital}
         fromEmailAddress: ${NOTIFICATION_FROM_EMAIL_ADDRESS:MashreqDigital@mashreqbank.com}
-        callCenterNo: ${NOTIFICATION_EMAIL_CALL_CENTER_NO:04 424 6666}
         localFundTransfer: templates/mt-within-own-accounts
         otherFundTransfer: templates/mt-other-accounts
         plSiFundTransfer: templates/plEmailTemplate
+      EG:
+        emailSubject: ${NOTIFICATION_EMAIL_SUBJECT:%s Transfer request via %s}
+        payLaterSubject: ${PL_EMAIL_SUBJECT:Pay later request}
+        StandingInstructionSubject: ${SI_EMAIL_SUBJECT:Standing instruction request}
+        fromEmailName: ${EMAIL_FROM_NAME_MOB:MashreqDigital}
+        fromEmailAddress: ${EMAIL_FROM_ADD_MOB:MashreqDigital@mashreq.com}
+        localFundTransfer: templates/mt-within-own-accounts-eg
+        otherFundTransfer: templates/mt-other-accounts-eg
+        plSiFundTransfer: templates/plEmailTemplate-eg
     sms:
       mashreqServiceId: ${ALERT_SMS_MASHREQ_PAYMENT_SERVICEID:330}
       neoServiceId: ${ALERT_SMS_NEO_PAYMENT_SERVICEID:350}
@@ -147,20 +159,21 @@ app:
       plSiCreation: ${PL_SI_CREATION_SMS:On your request SI/Pay later has been set up for the beneficiary {0}, account number {1}. If not requested, please contact {2}. Thank you for using our services.}
     
 redis:
-  enable: true
-  write.ttl: 60
-  host: localhost
-  port: 6379
-  timeout: 5000
-  password:
+  enableRedisCache: true
+  host: ${REDIS_HOST:localhost}
+  port: ${REDIS_PORT:7000}
+  password: ${REDIS_PASSWORD:}
+  ssl: ${REDIS_SSL_FLAG:false}
+  timeout: ${REDIS_TIMEOUT:5000}
+  writeTtl: ${REDIS_TTL:60}
 
 
 mob-common:
   commonUserEventDataSource:
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
-    jdbcUrl: ${MSSQL_DB_URL:jdbc:sqlserver://10.210.183.231:1433;databaseName=MOB-uat}
-    username: ${MSSQL_DB_USERNAME:Mobliquibasedbuse}
-    password: ${MSSQL_DB_KEY:Mobliquibasedbuse}
+    jdbcUrl: ${MSSQL_DB_URL:jdbc:sqlserver://10.210.183.231:1433;databaseName=MOB-DEV-EG}
+    username: ${MSSQL_DB_USERNAME:Mobdbuser}
+    password: ${MSSQL_DB_KEY:Mobdbuser}
     maxPoolSize: 40
     poolName: hikari-user-events-life-pool
     minimumidletime: 600000

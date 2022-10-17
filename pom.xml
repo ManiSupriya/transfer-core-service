@@ -18,6 +18,7 @@
     </parent>
 
     <properties>
+		<sonar.skip>false</sonar.skip>
         <java.version>1.8</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
@@ -31,6 +32,15 @@
             **/*DTO.java,
             **/*Config.java,
             **/com/mashreq/transfercoreservice/client/dto/**,
+            **/*MWService.java,
+            **/middleware/*,
+            **/event/*,
+            **/cache/*,
+            **/annotations/*,
+            **/repository/*,
+            **/errors/*,
+            **/dto/*,
+            **/config/*
         </sonar.exclusions>
         <jacoco.version>0.8.3</jacoco.version>
         <jacoco.percentage.instruction>0.60</jacoco.percentage.instruction>
@@ -47,7 +57,7 @@
         <com.mashreq.logcore>1.0.4</com.mashreq.logcore>
         <com.mashreq.encryption>1.0.0</com.mashreq.encryption>
         <com.mashreq.ms.ms-commons>1.1.2</com.mashreq.ms.ms-commons>
-        <com.mashreq.mob-commons>0.0.61</com.mashreq.mob-commons>
+        <com.mashreq.mob-commons>2.1.19</com.mashreq.mob-commons>
         <!-- additional deps and plugins versions -->
         <apache.commons.lang.version>3.9</apache.commons.lang.version>
         <apache.commons.bean.utils.version>1.9.4</apache.commons.bean.utils.version>
@@ -59,6 +69,7 @@
         <jackson.databind.version>2.12.6.1</jackson.databind.version>
         <templates.utils.version>1.0.2.RELEASE</templates.utils.version>
         <com.mashreq.dedupe-util>1.0.4</com.mashreq.dedupe-util>
+        <transaction-authorization-client>10.2.18</transaction-authorization-client>
     </properties>
 
     <repositories>
@@ -97,7 +108,6 @@
     </dependencyManagement>
 
     <dependencies>
-
         <dependency>
             <groupId>com.mashreq</groupId>
             <artifactId>templates-utils</artifactId>
@@ -136,6 +146,11 @@
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.mashreq</groupId>
+            <artifactId>transaction-authorization-client</artifactId>
+            <version>${transaction-authorization-client}</version>
         </dependency>
 
         <dependency>
@@ -267,6 +282,10 @@
                     <groupId>xalan</groupId>
                     <artifactId>xalan</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.apache.xmlgraphics</groupId>
+                    <artifactId>batik-dom</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 		<dependency>
@@ -274,6 +293,17 @@
 		    <artifactId>xmlgraphics-commons</artifactId>
 		    <version>2.6</version>
 		</dependency>
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>batik-dom</artifactId>
+            <version>1.14</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>xalan</groupId>
+                    <artifactId>xalan</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
@@ -345,6 +375,13 @@
             <artifactId>guava</artifactId>
             <version>31.0.1-jre</version>
         </dependency>
+
+        <dependency>
+            <groupId>commons-validator</groupId>
+            <artifactId>commons-validator</artifactId>
+            <version>1.7</version>
+        </dependency>
+
 
         <!-- Testing -->
         <dependency>

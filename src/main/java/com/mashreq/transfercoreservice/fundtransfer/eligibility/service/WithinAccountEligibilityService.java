@@ -1,23 +1,39 @@
 package com.mashreq.transfercoreservice.fundtransfer.eligibility.service;
 
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+
+import com.mashreq.transfercoreservice.errors.ExceptionUtils;
+import com.mashreq.transfercoreservice.errors.TransferErrorCode;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
 import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
+import com.mashreq.transfercoreservice.client.dto.SearchAccountDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.enums.FundsTransferEligibility;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.BeneficiaryValidator;
+import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CurrencyValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.LimitValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.validators.rulespecificvalidators.RuleSpecificValidatorImpl;
 import com.mashreq.transfercoreservice.fundtransfer.validators.rulespecificvalidators.RuleSpecificValidatorRequest;
+
+import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.AccountNumberResolver;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
 import com.mashreq.transfercoreservice.fundtransfer.validators.Validator;
 import lombok.RequiredArgsConstructor;
@@ -32,8 +48,6 @@ import java.math.BigDecimal;
 @RequiredArgsConstructor
 public class WithinAccountEligibilityService implements TransferEligibilityService{
 
-	public static final String LOCAL_CURRENCY = "AED";
-
 	private final BeneficiaryValidator beneficiaryValidator;
 	private final AccountService accountService;
 	private final BeneficiaryService beneficiaryService;
@@ -41,6 +55,11 @@ public class WithinAccountEligibilityService implements TransferEligibilityServi
 	private final MaintenanceService maintenanceService;
 	private final AsyncUserEventPublisher auditEventPublisher;
 	private final RuleSpecificValidatorImpl RuleSpecificValidatorProvider;
+	private final CurrencyValidatorFactory currencyValidatorFactory;
+	private final AccountNumberResolver accountNumberResolver;
+
+	@Value("${app.local.currency}")
+	private String localCurrency;
 
 	@Override
 	public EligibilityResponse checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request,
@@ -55,6 +74,9 @@ public class WithinAccountEligibilityService implements TransferEligibilityServi
 		BeneficiaryDto beneficiaryDto = beneficiaryService.getByIdWithoutValidation(metaData.getPrimaryCif(), Long.valueOf(request.getBeneficiaryId()), "V2", metaData);
 		validationContext.add("beneficiary-dto", beneficiaryDto);
 		responseHandler(beneficiaryValidator.validate(request, metaData, validationContext));
+		
+		getCreditAccountDetails(request, validationContext);
+		responseHandler(currencyValidatorFactory.getValidator(metaData).validate(request, metaData, validationContext));
 
 		final BigDecimal transferAmountInSrcCurrency = isCurrencySame(request) ? request.getAmount()
 				: getAmountInSrcCurrency(request, beneficiaryDto, accountDetails);
@@ -98,6 +120,12 @@ public class WithinAccountEligibilityService implements TransferEligibilityServi
 		log.info("WithinAccountEligibility validation successfully finished");
 		return EligibilityResponse.builder().status(FundsTransferEligibility.ELIGIBLE).build();
 	}
+	
+	private void getCreditAccountDetails(FundTransferEligibiltyRequestDTO request,
+			final ValidationContext validateAccountContext) {
+		SearchAccountDto toAccountDetails = accountService.getAccountDetailsFromCore(accountNumberResolver.generateAccountNumber(request.getToAccount()));
+        validateAccountContext.add("credit-account-details", toAccountDetails);
+	}
 
 	@Override
 	public ServiceType getServiceType() {
@@ -122,7 +150,7 @@ public class WithinAccountEligibilityService implements TransferEligibilityServi
 
 	private BigDecimal getLimitUsageAmount(final String dealNumber, final AccountDetailsDTO accountDetails,
 		final BigDecimal transferAmountInSrcCurrency) {
-		return LOCAL_CURRENCY.equalsIgnoreCase(accountDetails.getCurrency())
+		return localCurrency.equalsIgnoreCase(accountDetails.getCurrency())
 				? transferAmountInSrcCurrency
 						: convertAmountInLocalCurrency(dealNumber, accountDetails, transferAmountInSrcCurrency);
 	}
@@ -133,7 +161,7 @@ public class WithinAccountEligibilityService implements TransferEligibilityServi
 		currencyConversionRequestDto.setAccountNumber(sourceAccountDetailsDTO.getNumber());
 		currencyConversionRequestDto.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
 		currencyConversionRequestDto.setAccountCurrencyAmount(transferAmountInSrcCurrency);
-		currencyConversionRequestDto.setTransactionCurrency(LOCAL_CURRENCY);
+		currencyConversionRequestDto.setTransactionCurrency(localCurrency);
 
 		CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(currencyConversionRequestDto);
 		return currencyConversionDto.getTransactionAmount();

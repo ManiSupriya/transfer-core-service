@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.esbcore.bindings.account.mbcdm.FundTransferReqType;
@@ -56,10 +57,12 @@ public class FundTransferMWService {
     
     public static final String INTERNATIONAL = "INFT";
     public static final String LOCAL = "LOCAL";
-    public static final String AED_CURRENCY = "AED";
-    
-    
 
+    @Value("${app.local.currency}")
+    private String localCurrency;
+
+    @Value("${app.local.tftAuthorizationCode}")
+    private String tftAuthorization;
     
     public FundTransferResponse transfer(FundTransferRequest request, RequestMetaData metaData, String msgId) {
         log.info("Fund transfer initiated from account [ {} ]", htmlEscape(request.getFromAccount()));
@@ -162,7 +165,12 @@ public class FundTransferMWService {
          * Hard-coding this values as per the request from Business 
          * All transactions for RETAIL customers are STP only irrespective of any txn currency
          * Later for SME this value should be calculated dynamically based on the input */
-        fundTransferReqType.setAuthorization(TFTAuthorization.AUTHORIZED.getCode());
+
+        /***
+         * Changing it from configuration because in Egypt all transfers are non STP.
+         * By default value is still AUTHORIZED.
+         */
+        fundTransferReqType.setAuthorization(tftAuthorization);
 
         List<FundTransferReqType.Transfer> transferList = fundTransferReqType.getTransfer();
         FundTransferReqType.Transfer.CreditLeg creditLeg = new FundTransferReqType.Transfer.CreditLeg();
@@ -188,7 +196,7 @@ public class FundTransferMWService {
 		if (StringUtils.isNotBlank(request.getFinalBene())) {
 			if (INTERNATIONAL.equalsIgnoreCase(request.getServiceType())
 					|| (LOCAL.equalsIgnoreCase(request.getServiceType())
-							&& !AED_CURRENCY.equalsIgnoreCase(request.getDestinationCurrency()))) {
+							&& !localCurrency.equalsIgnoreCase(request.getDestinationCurrency()))) {
 				creditLeg.setPaymentDetails(
 						request.getPurposeDesc() + SPACE_CHAR + request.getFinalBene() + additionalField);
 			}
@@ -199,7 +207,7 @@ public class FundTransferMWService {
 		} else {
 			if (INTERNATIONAL.equalsIgnoreCase(request.getServiceType())
 					|| (LOCAL.equalsIgnoreCase(request.getServiceType())
-							&& !AED_CURRENCY.equalsIgnoreCase(request.getDestinationCurrency()))) {
+							&& !localCurrency.equalsIgnoreCase(request.getDestinationCurrency()))) {
 				creditLeg.setPaymentDetails(request.getPurposeDesc() + additionalField);
 			} else {
 				creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc() + additionalField);
@@ -267,6 +275,4 @@ public class FundTransferMWService {
     private String generateNarrationForInvestment(String channel, BigDecimal exchangeRate) {
         return NARRATION_PREFIX + channel + NARRATION_SUFFIX + " ExchangeRate " + exchangeRate;
     }
-
-
 }

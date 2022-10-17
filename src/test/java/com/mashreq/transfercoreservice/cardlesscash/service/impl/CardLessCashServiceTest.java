@@ -32,7 +32,6 @@ import com.mashreq.transfercoreservice.client.dto.VerifyOTPRequestDTO;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPResponseDTO;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitValidatorResultsDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
-import com.mashreq.transfercoreservice.client.service.OTPService;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsage;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageRepository;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
@@ -70,8 +69,7 @@ public class CardLessCashServiceTest {
 	 Response<CardLessCashGenerationResponse> coreResponse;	 
 	 @Mock
 	 VerifyOTPRequestDTO verifyOTPRequestDTO;	 
-	 @Mock
-	 OTPService iamService;
+
 	 @Mock
 	 LimitValidator limitValidator;
 	 @Mock
@@ -97,7 +95,7 @@ public class CardLessCashServiceTest {
                 .build();
         cardLessCashBlockResponse.setSuccess(true);
         Mockito.when(accountService.cardLessCashRemitQuery(Mockito.any(), Mockito.any())).thenReturn(generateCardLessCashQueryResponse());
-        cardLessCashService = new CardLessCashServiceImpl(accountService, asyncUserEventPublisher, iamService, digitalUserRepository, digitalUserLimitUsageRepository, balanceValidator, limitValidator, transactionRepository);
+        cardLessCashService = new CardLessCashServiceImpl(accountService, asyncUserEventPublisher, digitalUserRepository, digitalUserLimitUsageRepository, balanceValidator, limitValidator, transactionRepository);
 		try{
 			cardLessCashService.blockCardLessCashRequest(cardLessCashBlockRequest, metaData);
 		}
@@ -137,12 +135,11 @@ public class CardLessCashServiceTest {
 		digitalUser.setDigitalUserGroup(digitalUserGroup);
 		Optional<DigitalUser> digiUser= Optional.of(digitalUser);
 		Mockito.when(digitalUserRepository.findByCifEquals(Mockito.any())).thenReturn(digiUser);
-		Mockito.when(iamService.verifyOTP(Mockito.any())).thenReturn(Response.<VerifyOTPResponseDTO>builder().status(ResponseStatus.SUCCESS).data(verifyOTPResponseDTO).build());
 		Mockito.when(transactionRepository.save(Mockito.any())).thenReturn(null);
 		Mockito.when(balanceValidator.validateBalance(Mockito.any(), Mockito.any())).thenReturn(true);
 		Mockito.when(digitalUserLimitUsageRepository.save(Mockito.any())).thenReturn(digitalUserLimitUsage);
 		limitValidatorResponse.setValid(true);
-		cardLessCashService = new CardLessCashServiceImpl(accountService, asyncUserEventPublisher, iamService, digitalUserRepository, digitalUserLimitUsageRepository, balanceValidator, limitValidator, transactionRepository);
+		cardLessCashService = new CardLessCashServiceImpl(accountService, asyncUserEventPublisher, digitalUserRepository, digitalUserLimitUsageRepository, balanceValidator, limitValidator, transactionRepository);
 		Response<CardLessCashGenerationResponse> cardLessCashGenerationResponse = cardLessCashService
 				.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest, mobileNo, userId, metaData);
 		Assert.assertNotNull(cardLessCashGenerationResponse);
@@ -153,7 +150,7 @@ public class CardLessCashServiceTest {
 
 		Mockito.when(accountService.cardLessCashRemitQuery(generateCardlessCashQueryRequest(), metaData)).thenReturn(generateCardLessCashQueryResponse());
 				;
-		cardLessCashService = new CardLessCashServiceImpl(accountService, asyncUserEventPublisher, iamService, digitalUserRepository, digitalUserLimitUsageRepository, balanceValidator, limitValidator, transactionRepository);
+		cardLessCashService = new CardLessCashServiceImpl(accountService, asyncUserEventPublisher, digitalUserRepository, digitalUserLimitUsageRepository, balanceValidator, limitValidator, transactionRepository);
 		Response<List<CardLessCashQueryResponse>> cardLessCashQueryRes = cardLessCashService
 				.cardLessCashRemitQuery(generateCardlessCashQueryRequest(), metaData);
 		Assert.assertNotNull(cardLessCashQueryRes);
