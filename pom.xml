@@ -21,8 +21,7 @@
         <java.version>1.8</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <tomcat.version>9.0.35</tomcat.version>
-
+        <tomcat.version>9.0.63</tomcat.version>
         <!-- Sonar | Code coverage | API Doc-->
         <sonar.exclusions>
             **/*Application.java,
@@ -53,10 +52,9 @@
         <apache.commons.bean.utils.version>1.9.4</apache.commons.bean.utils.version>
         <mapstruct.version>1.3.1.Final</mapstruct.version>
         <log4j-api.version>2.13.2</log4j-api.version>
-		<tomcat.version>9.0.37</tomcat.version>
         <jackson.version>2.13.2.1</jackson.version>
         <properties-maven-plugin.version>1.0.0</properties-maven-plugin.version>
-        <jackson.databind.version>2.13.2.1</jackson.databind.version>
+        <jackson.databind.version>2.14.0-rc1</jackson.databind.version>
         <templates.utils.version>1.0.2.RELEASE</templates.utils.version>
         <com.mashreq.dedupe-util>1.0.4</com.mashreq.dedupe-util>
     </properties>
@@ -86,24 +84,32 @@
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-core</artifactId>
-				<version>5.3.18</version>
+				<version>5.3.20</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-beans</artifactId>
-				<version>5.3.18</version>
+				<version>5.3.20</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
     <dependencies>
-
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>5.3.7</version>
+        </dependency>
         <dependency>
             <groupId>com.mashreq</groupId>
             <artifactId>templates-utils</artifactId>
             <version>${templates.utils.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>1.32</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -117,6 +123,17 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.tomcat.embed</groupId>
+                    <artifactId>tomcat-embed-core</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-core</artifactId>
+            <version>${tomcat.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -267,6 +284,14 @@
                     <groupId>xalan</groupId>
                     <artifactId>xalan</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.apache.xmlgraphics</groupId>
+                    <artifactId>batik-util</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.xmlgraphics</groupId>
+                    <artifactId>batik-xml</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 		<dependency>
@@ -283,6 +308,16 @@
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger-ui</artifactId>
             <version>${springfox.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>batik-util</artifactId>
+            <version>1.14</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>batik-xml</artifactId>
+            <version>1.14</version>
         </dependency>
 
         <!-- Helpers -->
