@@ -43,7 +43,7 @@
         <spring-cloud.version>Greenwich.SR2</spring-cloud.version>
 
         <!-- internal modules -->
-        <com.mashreq.esbcore>1.0.88</com.mashreq.esbcore>
+        <com.mashreq.esbcore>2.2.16</com.mashreq.esbcore>
         <com.mashreq.logcore>1.0.4</com.mashreq.logcore>
         <com.mashreq.encryption>1.0.0</com.mashreq.encryption>
         <com.mashreq.ms.ms-commons>1.1.2</com.mashreq.ms.ms-commons>
@@ -356,7 +356,7 @@
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
-            <version>1.26</version>
+            <version>1.31</version>
         </dependency>
 
         <dependency>

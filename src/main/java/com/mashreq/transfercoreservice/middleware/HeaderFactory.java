@@ -40,4 +40,19 @@ public class HeaderFactory {
             return null;
         }
     }
+    
+    public HeaderType getHeader(String service,String product, String msgId) {
+        HeaderType header = new HeaderType();
+        header.setSrcAppId(soapServiceProperties.getAppId());
+        header.setOrgId(soapServiceProperties.getOriginId());
+        if("DBFC".equals(product)||"DBLC".equals(product)) {
+        	header.setUserId(soapServiceProperties.getTftUserId());
+        }else {
+        	header.setUserId(soapServiceProperties.getUserId());
+        }
+        header.setSrcMsgId(msgId);
+        header.setSrcAppTimestamp(getCurrentTimeStamp());
+        header.setSrvCode(service);
+        return header;
+    }
 }
