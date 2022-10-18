@@ -47,7 +47,7 @@
         <apache.commons.bean.utils.version>1.9.4</apache.commons.bean.utils.version>
         <mapstruct.version>1.3.1.Final</mapstruct.version>
         <log4j-api.version>2.13.2</log4j-api.version>
-        <jackson.version>2.12.6</jackson.version>
+        <jackson.version>2.13.2.1</jackson.version>
         <properties-maven-plugin.version>1.0.0</properties-maven-plugin.version>
         <jackson.databind.version>2.14.0-rc1</jackson.databind.version>
         <templates.utils.version>1.0.2.RELEASE</templates.utils.version>
@@ -91,6 +91,11 @@
             <groupId>com.mashreq</groupId>
             <artifactId>templates-utils</artifactId>
             <version>${templates.utils.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>1.32</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
