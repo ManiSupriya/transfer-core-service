@@ -267,7 +267,7 @@
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.xmlgraphics</groupId>
-                    <artifactId>batik-bridge</artifactId>
+                    <artifactId>batik-script</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.xmlgraphics</groupId>
@@ -282,7 +282,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
-            <artifactId>batik-bridge</artifactId>
+            <artifactId>batik-script</artifactId>
             <version>1.16</version>
         </dependency>
         <dependency>
