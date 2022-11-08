@@ -208,7 +208,9 @@ public class FundTransferCCMWService {
         creditLeg.setCreditAmount(convertToString(fundTransferRequest.getAmount()));
         creditLeg.setCreditCurrency(fundTransferRequest.getDestinationCurrency());
         creditLeg.setAuthStatus(ftCCConfig.getAuthStatus());
-        creditLeg.setUltimateBeneficiary1(fundTransferRequest.getBeneficiaryFullName());
+        creditLeg.setUltimateBeneficiary1(StringUtils.defaultIfBlank(
+                fundTransferRequest.getToAccount(),fundTransferRequest.getBeneficiaryFullName()
+        ));
         creditLeg.setUltimateBeneficiary2(fundTransferRequest.getBeneficiaryFullName());
         creditLeg.setUltimateBeneficiary4(fundTransferRequest.getBeneficiaryFullName());
         creditLeg.setChargeBearer(fundTransferRequest.getChargeBearer());
