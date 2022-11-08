@@ -253,7 +253,7 @@ redis:
   password: ${REDIS_PASSWORD:P@ssword123$}
   ssl: ${REDIS_SSL:false}
   timeout: ${REDIS_TIMEOUT:5000}
-  maxTotal: ${REDIS_MAX_TOTAL:128}8
+  maxTotal: ${REDIS_MAX_TOTAL:128}
   maxIdle: ${REDIS_MAX_IDLE:128}
   minIdle: ${REDIS_MIN_IDLE:16}
   minEvictableIdleTime: ${REDIS_MIN_EVICTABLE_IDLE_TIME:60}
