@@ -5,6 +5,7 @@ import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponseDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentStatusResponseDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.service.TransferEligibilityProxy;
@@ -84,7 +85,15 @@ public class FundTransferControllerTest {
 		assertEquals(ResponseStatus.SUCCESS, transferFunds.getStatus());
 		assertEquals(0, transferFunds.getData().size());
 	}
-	
+	@Test
+	public void testEnrolment() {
+		RequestMetaData metaData = getMetaData();
+		NpssEnrolmentStatusResponseDTO response = new NpssEnrolmentStatusResponseDTO();
+		when(npssEnrolmentService.checkEnrolment(any())).thenReturn(response);
+		Response enrolmentResponse = controller.retrieveNpssEnrolment(metaData);
+		assertEquals(ResponseStatus.SUCCESS, enrolmentResponse.getStatus());
+	}
+
 	private RequestMetaData getMetaData() {
 		RequestMetaData metaData = new RequestMetaData();
 		return metaData;

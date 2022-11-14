@@ -25,7 +25,7 @@ public class NpssEnrolmentServiceTest {
     public void testEnrolmentFail() {
         RequestMetaData metaData = getMetaData("012960010");
         when(npssEnrolmentRepository.getEnrolmentStatus(any())).thenReturn(null);
-        NpssEnrolmentStatusResponseDTO response = npssEnrolmentService.checkEnrolment(metaData);
+        npssEnrolmentService.checkEnrolment(metaData);
     }
 
 //    @Test
