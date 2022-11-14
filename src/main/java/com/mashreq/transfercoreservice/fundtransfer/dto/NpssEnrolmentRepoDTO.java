@@ -26,5 +26,5 @@ public class NpssEnrolmentRepoDTO {
     @Column(nullable = false)
     private String enrollment_status;
     @Column(nullable = false)
-    private LocalDateTime created_date;
+    private LocalDateTime accepted_date;
 }
