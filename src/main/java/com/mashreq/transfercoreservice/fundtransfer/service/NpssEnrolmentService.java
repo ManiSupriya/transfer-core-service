@@ -3,6 +3,7 @@ package com.mashreq.transfercoreservice.fundtransfer.service;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentRepoDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentStatusResponseDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentUpdateResponseDTO;
 import com.mashreq.transfercoreservice.repository.NpssEnrolmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,10 +27,11 @@ public class NpssEnrolmentService {
         }
         return NpssEnrolmentStatusResponseDTO.builder().askForEnrolment(false).build();
     }
-//    public NpssEnrolmentStatusResponseDTO updateUserEnrolment(RequestMetaData metaData) {
-//        NpssEnrolmentStatusResponseDTO response = new NpssEnrolmentStatusResponseDTO();
-//        NpssEnrolmentRepoDTO npssEnrolmentRepo = npssEnrolmentRepository.updateEnrolmentStatus(metaData.getPrimaryCif());
-//        response.setAskForEnrolment(npssEnrolmentRepo == null);
-//        return response;
-//    }
+    public NpssEnrolmentUpdateResponseDTO updateEnrolment(RequestMetaData metaData) {
+
+        Optional<NpssEnrolmentRepoDTO> npssEnrolmentResponse = npssEnrolmentRepository.updateEnrolmentStatus(
+                metaData.getPrimaryCif()
+        );
+        return NpssEnrolmentUpdateResponseDTO.builder().userEnrolmentUpdated(true).build();
+    }
 }

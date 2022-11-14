@@ -30,14 +30,16 @@ public class NpssEnrolmentServiceTest {
         npssEnrolmentService.checkEnrolment(metaData);
     }
 
-//    @Test
-//    public void testEnrolmentWithSuccess() {
-//        NpssEnrolmentRepoDTO result = new NpssEnrolmentRepoDTO();
-//        result.setCif_id("012960010");
-//        RequestMetaData metaData = getMetaData("012960010");
-//        when(npssEnrolmentRepository.getEnrolmentStatus(any())).thenReturn(result);
-//        NpssEnrolmentStatusResponseDTO response = npssEnrolmentService.checkEnrolment(metaData);
-//    }
+    @Test
+    public void testEnrolmentWithSuccess() {
+        RequestMetaData metaData = getMetaData("012960010");
+        NpssEnrolmentRepoDTO dbResult = new NpssEnrolmentRepoDTO();
+        dbResult.setCif_id("012960010");
+        dbResult.setEnrollment_status("ENROLLED");
+        Optional<NpssEnrolmentRepoDTO> npssUser = Optional.of(dbResult);
+        Mockito.when(npssEnrolmentRepository.updateEnrolmentStatus(Mockito.any())).thenReturn(npssUser);
+        npssEnrolmentService.updateEnrolment(metaData);
+    }
 
     private RequestMetaData getMetaData(String cif) {
         RequestMetaData metaData = new RequestMetaData();

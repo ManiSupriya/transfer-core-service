@@ -6,6 +6,7 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRe
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponseDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentStatusResponseDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentUpdateResponseDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.service.TransferEligibilityProxy;
@@ -93,7 +94,14 @@ public class FundTransferControllerTest {
 		Response enrolmentResponse = controller.retrieveNpssEnrolment(metaData);
 		assertEquals(ResponseStatus.SUCCESS, enrolmentResponse.getStatus());
 	}
-
+	@Test
+	public void testUpdateEnrolment() {
+		RequestMetaData metaData = getMetaData();
+		NpssEnrolmentUpdateResponseDTO response = NpssEnrolmentUpdateResponseDTO.builder().userEnrolmentUpdated(true).build();
+		when(npssEnrolmentService.updateEnrolment(any())).thenReturn(response);
+		Response enrolmentUpdateResponse = controller.updateNpssEnrolment(metaData);
+		assertEquals(ResponseStatus.SUCCESS, enrolmentUpdateResponse.getStatus());
+	}
 	private RequestMetaData getMetaData() {
 		RequestMetaData metaData = new RequestMetaData();
 		return metaData;
