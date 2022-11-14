@@ -22,8 +22,17 @@ public class NpssEnrolmentServiceTest {
     private NpssEnrolmentService npssEnrolmentService;
 
     @Test
-    public void testEnrolment() {
+    public void testEnrolmentFail() {
+        RequestMetaData metaData = getMetaData("012960010");
+        when(npssEnrolmentRepository.getEnrolmentStatus(any())).thenReturn(null);
+        NpssEnrolmentStatusResponseDTO response = npssEnrolmentService.checkEnrolment(metaData);
+        Assertions.assertEquals(true, response.getAskForEnrolment());
+    }
+
+    @Test
+    public void testEnrolmentWithSuccess() {
         NpssEnrolmentRepo result = new NpssEnrolmentRepo();
+        result.setCif_id("012960010");
         RequestMetaData metaData = getMetaData("012960010");
         when(npssEnrolmentRepository.getEnrolmentStatus(any())).thenReturn(result);
         NpssEnrolmentStatusResponseDTO response = npssEnrolmentService.checkEnrolment(metaData);
