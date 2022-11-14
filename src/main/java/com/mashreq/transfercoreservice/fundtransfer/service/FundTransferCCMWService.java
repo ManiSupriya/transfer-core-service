@@ -112,20 +112,28 @@ public class FundTransferCCMWService {
     }
 
     /**
-     * Used to validate the middle ware response whether it is a success or failure
+     * Used to build the request model for the middle ware
      *
-     * @param response
+     * @param fundTransferRequest
+     * @param requestMetaData
+     * @param mwSrcMsgId
      * @return
      */
-    private boolean isSuccess(EAIServices response) {
-        log.info("Validate response {}", response);
-        if (!(StringUtils.endsWith(response.getBody().getExceptionDetails().getErrorCode(), SUCCESS_CODE_ENDS_WITH)
-                && SUCCESS.equals(response.getHeader().getStatus()))) {
-            log.error("FT CC Exception during fund transfer. Code: {} , Description: {}", response.getBody()
-                    .getExceptionDetails().getErrorCode(), response.getBody().getExceptionDetails().getData());
-            return false;
-        }
-        return true;
+    public EAIServices generateEAIRequest(FundTransferRequest fundTransferRequest, RequestMetaData requestMetaData, String mwSrcMsgId) {
+
+        EAIServices services = new EAIServices();
+        services.setHeader(headerFactory.getHeader(ftCCConfig.getSrvCode(), mwSrcMsgId));
+        services.setBody(new EAIServices.Body());
+        FundTransferCCReqType fundTransferReqType = new FundTransferCCReqType();
+        FundTransferCCReqType.CreditLeg creditLeg = new FundTransferCCReqType.CreditLeg();
+        FundTransferCCReqType.DebitLeg debitLeg = new FundTransferCCReqType.DebitLeg();
+        buildDebitLeg(fundTransferRequest, requestMetaData, debitLeg);
+        buildCreditLeg(fundTransferRequest, mwSrcMsgId, creditLeg, requestMetaData);
+        fundTransferReqType.setDebitLeg(debitLeg);
+        fundTransferReqType.setCreditLeg(creditLeg);
+        services.getBody().setFundTransferCCReq(fundTransferReqType);
+        log.info("EAI Service request for fund transfer prepared {}", htmlEscape(services));
+        return services;
     }
 
     // TODO need to verify
@@ -158,31 +166,72 @@ public class FundTransferCCMWService {
         return coreFundTransferResponseDto;
     }
 
-    /**
-     * Used to build the request model for the middle ware
-     *
-     * @param fundTransferRequest
-     * @param requestMetaData
-     * @param mwSrcMsgId
-     * @return
-     */
-    public EAIServices generateEAIRequest(FundTransferRequest fundTransferRequest, RequestMetaData requestMetaData, String mwSrcMsgId) {
-
-        EAIServices services = new EAIServices();
-        services.setHeader(headerFactory.getHeader(ftCCConfig.getSrvCode(), mwSrcMsgId));
-        services.setBody(new EAIServices.Body());
-        FundTransferCCReqType fundTransferReqType = new FundTransferCCReqType();
-        FundTransferCCReqType.CreditLeg creditLeg = new FundTransferCCReqType.CreditLeg();
-        FundTransferCCReqType.DebitLeg debitLeg = new FundTransferCCReqType.DebitLeg();
-        buildDebitLeg(fundTransferRequest, requestMetaData, debitLeg);
-        buildCreditLeg(fundTransferRequest, mwSrcMsgId, creditLeg, requestMetaData);
-        fundTransferReqType.setDebitLeg(debitLeg);
-        fundTransferReqType.setCreditLeg(creditLeg);
-        services.getBody().setFundTransferCCReq(fundTransferReqType);
-        log.info("EAI Service request for fund transfer prepared {}", htmlEscape(services));
-        return services;
+    private String getRemarks(FundTransferRequest request) {
+        return String.format("From Account = %s, To Account = %s, Amount = %s, SrcAmount= %s, Destination Currency = %s, Source Currency = %s," +
+                        " Financial Transaction Number = %s, Beneficiary full name = %s, Swift code= %s, Beneficiary bank branch = %s ",
+                request.getFromAccount(),
+                request.getToAccount(),
+                request.getAmount(),
+                request.getSrcAmount(),
+                request.getDestinationCurrency(),
+                request.getSourceCurrency(),
+                request.getFinTxnNo(),
+                request.getBeneficiaryFullName(),
+                request.getAwInstBICCode(),
+                request.getAwInstName());
     }
 
+    /**
+     * Log the failure event and throws an exception with proper error code
+     *
+     * @param requestMetaData
+     * @param auditEventType
+     * @param errorCodeSet
+     * @param exception
+     * @param mwSrcMsgId
+     * @param remarks
+     */
+    private void logPublishFailureEvent(RequestMetaData requestMetaData, FundTransferEventType auditEventType,
+                                        TransferErrorCode errorCodeSet, Exception exception, String mwSrcMsgId, String remarks) {
+        auditEventPublisher.publishFailedEsbEvent(auditEventType, requestMetaData, remarks, mwSrcMsgId,
+                errorCodeSet.name(), errorCodeSet.getErrorMessage(), errorCodeSet.getErrorMessage());
+        if (exception == null) {
+            GenericExceptionHandler.handleError(errorCodeSet, errorCodeSet.getErrorMessage());
+        }
+        GenericExceptionHandler.handleError(errorCodeSet, errorCodeSet.getErrorMessage(), exception);
+    }
+
+    /**
+     * Used to update the expiry month and year from the card expiry date
+     *
+     * @param fundTransferRequest
+     * @param debitLeg
+     */
+    private void updateExpiryDetails(FundTransferRequest fundTransferRequest, FundTransferCCReqType.DebitLeg debitLeg) {
+        String expiryDate = fundTransferRequest.getExpiryDate();
+        String[] splitValues;
+        if (expiryDate != null && expiryDate.trim().length() > 0) {
+            splitValues = expiryDate.split(HYPEN_DELIMITER);
+            if (splitValues.length == 3) {
+                debitLeg.setExpiryYear(splitValues[0]);
+                debitLeg.setExpiryMonth(splitValues[1]);
+            }
+        }
+    }
+
+    /**
+     * Utility which is used to convert from Big decimal to String
+     *
+     * @param bigDecimal
+     * @return
+     */
+    private String convertToString(BigDecimal bigDecimal) {
+        String value = null;
+        if (bigDecimal != null) {
+            value = bigDecimal.toString();
+        }
+        return value;
+    }
     /**
      * Used to build the credit leg as part of middle ware request
      *
@@ -271,70 +320,20 @@ public class FundTransferCCMWService {
     }
 
     /**
-     * Utility which is used to convert from Big decimal to String
+     * Used to validate the middle ware response whether it is a success or failure
      *
-     * @param bigDecimal
+     * @param response
      * @return
      */
-    private String convertToString(BigDecimal bigDecimal) {
-        String value = null;
-        if (bigDecimal != null) {
-            value = bigDecimal.toString();
+    private boolean isSuccess(EAIServices response) {
+        log.info("Validate response {}", response);
+        if (!(StringUtils.endsWith(response.getBody().getExceptionDetails().getErrorCode(), SUCCESS_CODE_ENDS_WITH)
+                && SUCCESS.equals(response.getHeader().getStatus()))) {
+            log.error("FT CC Exception during fund transfer. Code: {} , Description: {}", response.getBody()
+                    .getExceptionDetails().getErrorCode(), response.getBody().getExceptionDetails().getData());
+            return false;
         }
-        return value;
-    }
-
-    /**
-     * Used to update the expiry month and year from the card expiry date
-     *
-     * @param fundTransferRequest
-     * @param debitLeg
-     */
-    private void updateExpiryDetails(FundTransferRequest fundTransferRequest, FundTransferCCReqType.DebitLeg debitLeg) {
-        String expiryDate = fundTransferRequest.getExpiryDate();
-        String[] splitValues;
-        if (expiryDate != null && expiryDate.trim().length() > 0) {
-            splitValues = expiryDate.split(HYPEN_DELIMITER);
-            if (splitValues.length == 3) {
-                debitLeg.setExpiryYear(splitValues[0]);
-                debitLeg.setExpiryMonth(splitValues[1]);
-            }
-        }
-    }
-
-    /**
-     * Log the failure event and throws an exception with proper error code
-     *
-     * @param requestMetaData
-     * @param auditEventType
-     * @param errorCodeSet
-     * @param exception
-     * @param mwSrcMsgId
-     * @param remarks
-     */
-    private void logPublishFailureEvent(RequestMetaData requestMetaData, FundTransferEventType auditEventType,
-                                        TransferErrorCode errorCodeSet, Exception exception, String mwSrcMsgId, String remarks) {
-        auditEventPublisher.publishFailedEsbEvent(auditEventType, requestMetaData, remarks, mwSrcMsgId,
-                errorCodeSet.name(), errorCodeSet.getErrorMessage(), errorCodeSet.getErrorMessage());
-        if (exception == null) {
-            GenericExceptionHandler.handleError(errorCodeSet, errorCodeSet.getErrorMessage());
-        }
-        GenericExceptionHandler.handleError(errorCodeSet, errorCodeSet.getErrorMessage(), exception);
-    }
-
-    private String getRemarks(FundTransferRequest request) {
-        return String.format("From Account = %s, To Account = %s, Amount = %s, SrcAmount= %s, Destination Currency = %s, Source Currency = %s," +
-                        " Financial Transaction Number = %s, Beneficiary full name = %s, Swift code= %s, Beneficiary bank branch = %s ",
-                request.getFromAccount(),
-                request.getToAccount(),
-                request.getAmount(),
-                request.getSrcAmount(),
-                request.getDestinationCurrency(),
-                request.getSourceCurrency(),
-                request.getFinTxnNo(),
-                request.getBeneficiaryFullName(),
-                request.getAwInstBICCode(),
-                request.getAwInstName());
+        return true;
     }
 
 }
