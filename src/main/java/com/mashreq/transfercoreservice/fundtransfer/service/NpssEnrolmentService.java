@@ -21,28 +21,25 @@ public class NpssEnrolmentService {
     private final NpssEnrolmentRepository npssEnrolmentRepository;
 
     public NpssEnrolmentStatusResponseDTO checkEnrolment(RequestMetaData metaData) {
-
         Optional<NpssEnrolmentRepoDTO> npssEnrolmentResponse = npssEnrolmentRepository.getEnrolmentStatus(
                 metaData.getPrimaryCif()
         );
-        try {
-            log.info("Requesting for this CIF {} ", htmlEscape(metaData.getPrimaryCif()));
-            log.info("DataBase response get {}", htmlEscape(npssEnrolmentResponse));
-            log.info("DataBase response isPresent {}", htmlEscape(npssEnrolmentResponse.isPresent()));
-        }catch(Exception err){
-            log.info("Exception", htmlEscape(err));
-        }
-
         if (npssEnrolmentResponse.isPresent()) {
             return NpssEnrolmentStatusResponseDTO.builder().askForEnrolment(false).build();
         }
         return NpssEnrolmentStatusResponseDTO.builder().askForEnrolment(true).build();
     }
     public NpssEnrolmentUpdateResponseDTO updateEnrolment(RequestMetaData metaData) {
-
-        Optional<NpssEnrolmentRepoDTO> npssEnrolmentResponse = npssEnrolmentRepository.updateEnrolmentStatus(
-                metaData.getPrimaryCif()
-        );
-        return NpssEnrolmentUpdateResponseDTO.builder().userEnrolmentUpdated(true).build();
+        NpssEnrolmentRepoDTO npssEnrolmentNewEntry = NpssEnrolmentRepoDTO.builder()
+                .cif_id(metaData.getPrimaryCif())
+                .enrollment_status(NPSS_ENROLLED)
+                .accepted_date(java.time.LocalDateTime.now())
+                .build();
+        try{
+            npssEnrolmentRepository.save(npssEnrolmentNewEntry);
+            return NpssEnrolmentUpdateResponseDTO.builder().userEnrolmentUpdated(true).build();
+        }catch (Exception err){
+            return NpssEnrolmentUpdateResponseDTO.builder().userEnrolmentUpdated(false).build();
+        }
     }
 }

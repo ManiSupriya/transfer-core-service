@@ -10,7 +10,4 @@ import org.springframework.stereotype.Repository;
 public interface NpssEnrolmentRepository extends JpaRepository<NpssEnrolmentRepoDTO, Long>  {
     @Query(value = "SELECT b from NpssEnrolmentRepoDTO b where cif_id=:cif")
     Optional<NpssEnrolmentRepoDTO> getEnrolmentStatus(String cif);
-
-    @Query(value = "SELECT b from NpssEnrolmentRepoDTO b where cif_id=:cif")
-    Optional<NpssEnrolmentRepoDTO> updateEnrolmentStatus(String cif);
 }

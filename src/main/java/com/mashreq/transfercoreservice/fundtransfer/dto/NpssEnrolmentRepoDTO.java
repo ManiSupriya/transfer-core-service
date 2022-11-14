@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name="npss_enrollment")
 @Data
+@Builder
 @NoArgsConstructor
 public class NpssEnrolmentRepoDTO {
     @Id
