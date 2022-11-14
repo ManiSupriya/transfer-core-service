@@ -13,7 +13,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class NpssEnrolmentService {
     private static final String NPSS_ENROLLED = "ENROLLED";
-
     private final NpssEnrolmentRepository npssEnrolmentRepository;
 
     public NpssEnrolmentStatusResponseDTO checkEnrolment(RequestMetaData metaData) {

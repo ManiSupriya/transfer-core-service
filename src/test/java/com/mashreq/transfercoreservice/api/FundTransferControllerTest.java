@@ -1,17 +1,20 @@
 package com.mashreq.transfercoreservice.api;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
-import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.Map;
-
+import com.mashreq.mobcommons.services.http.RequestMetaData;
+import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponseDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
+import com.mashreq.transfercoreservice.fundtransfer.eligibility.service.TransferEligibilityProxy;
+import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferFactory;
+import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferServiceDefault;
 import com.mashreq.transfercoreservice.fundtransfer.service.NpssEnrolmentService;
+import com.mashreq.transfercoreservice.fundtransfer.service.PayLaterTransferService;
+import com.mashreq.webcore.dto.response.Response;
+import com.mashreq.webcore.dto.response.ResponseStatus;
+import lombok.RequiredArgsConstructor;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,18 +22,18 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import com.mashreq.mobcommons.services.http.RequestMetaData;
-import com.mashreq.ms.exceptions.GenericException;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponseDTO;
-import com.mashreq.transfercoreservice.fundtransfer.eligibility.service.TransferEligibilityProxy;
-import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferFactory;
-import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferServiceDefault;
-import com.mashreq.transfercoreservice.fundtransfer.service.PayLaterTransferService;
-import com.mashreq.webcore.dto.response.Response;
-import com.mashreq.webcore.dto.response.ResponseStatus;
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+
 
 @RunWith(MockitoJUnitRunner.class)
+@RequiredArgsConstructor
 public class FundTransferControllerTest {
 	@Mock
 	private FundTransferFactory serviceFactory;
