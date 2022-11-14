@@ -28,14 +28,14 @@ public class NpssEnrolmentServiceTest {
         NpssEnrolmentStatusResponseDTO response = npssEnrolmentService.checkEnrolment(metaData);
     }
 
-    @Test
-    public void testEnrolmentWithSuccess() {
-        NpssEnrolmentRepo result = new NpssEnrolmentRepo();
-        result.setCif_id("012960010");
-        RequestMetaData metaData = getMetaData("012960010");
-        when(npssEnrolmentRepository.getEnrolmentStatus(any())).thenReturn(result);
-        NpssEnrolmentStatusResponseDTO response = npssEnrolmentService.checkEnrolment(metaData);
-    }
+//    @Test
+//    public void testEnrolmentWithSuccess() {
+//        NpssEnrolmentRepo result = new NpssEnrolmentRepo();
+//        result.setCif_id("012960010");
+//        RequestMetaData metaData = getMetaData("012960010");
+//        when(npssEnrolmentRepository.getEnrolmentStatus(any())).thenReturn(result);
+//        NpssEnrolmentStatusResponseDTO response = npssEnrolmentService.checkEnrolment(metaData);
+//    }
 
     private RequestMetaData getMetaData(String cif) {
         RequestMetaData metaData = new RequestMetaData();
