@@ -34,11 +34,9 @@ public class NpssEnrolmentService {
         }
 
         if (npssEnrolmentResponse.isPresent()) {
-            NpssEnrolmentRepoDTO npssEnrollment = npssEnrolmentResponse.get();
-            log.info("DataBase response npssEnrollment {}", htmlEscape(npssEnrollment));
-            return NpssEnrolmentStatusResponseDTO.builder().askForEnrolment(npssEnrollment == null).build();
+            return NpssEnrolmentStatusResponseDTO.builder().askForEnrolment(false).build();
         }
-        return NpssEnrolmentStatusResponseDTO.builder().askForEnrolment(false).build();
+        return NpssEnrolmentStatusResponseDTO.builder().askForEnrolment(true).build();
     }
     public NpssEnrolmentUpdateResponseDTO updateEnrolment(RequestMetaData metaData) {
 
