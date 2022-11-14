@@ -10,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import lombok.Data;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
 
 @Entity
