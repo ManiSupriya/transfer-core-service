@@ -43,7 +43,7 @@ import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 public class FundTransferController {
     private final FundTransferFactory serviceFactory;
     private final TransferEligibilityProxy transferEligibilityProxy;
-    private final NpssEnrolmentService npssEnrolmentService;
+    //private final NpssEnrolmentService npssEnrolmentService;
 
     @ApiOperation(value = "Processes to start payment", response = FundTransferRequestDTO.class)
     @ApiResponses(value = {
