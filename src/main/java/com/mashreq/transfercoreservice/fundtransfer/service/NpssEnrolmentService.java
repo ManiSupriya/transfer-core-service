@@ -2,11 +2,12 @@ package com.mashreq.transfercoreservice.fundtransfer.service;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentRepo;
-import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentResultsDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentStatusResponseDTO;
 import com.mashreq.transfercoreservice.repository.NpssEnrolmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class NpssEnrolmentService {
@@ -15,10 +16,15 @@ public class NpssEnrolmentService {
     private final NpssEnrolmentRepository npssEnrolmentRepository;
 
     public NpssEnrolmentStatusResponseDTO checkEnrolment(RequestMetaData metaData) {
-        NpssEnrolmentResultsDto npssEnrolmentRepo = npssEnrolmentRepository.getEnrolmentStatus(metaData.getPrimaryCif());
-        return NpssEnrolmentStatusResponseDTO.builder().askForEnrolment(
-                npssEnrolmentRepo == null || npssEnrolmentRepo.getEnrollment_status() != NPSS_ENROLLED
-        ).build();
+
+        Optional<NpssEnrolmentRepo> npssEnrolmentResponse = npssEnrolmentRepository.getEnrolmentStatus(metaData.getPrimaryCif());
+        if (npssEnrolmentResponse.isPresent()){
+            NpssEnrolmentRepo npssEnrollment = npssEnrolmentResponse.get();
+            return NpssEnrolmentStatusResponseDTO.builder().askForEnrolment(
+                    npssEnrollment == null || npssEnrollment.getEnrollment_status() != NPSS_ENROLLED
+            ).build();
+        }
+        return NpssEnrolmentStatusResponseDTO.builder().askForEnrolment(false).build();
     }
 //    public NpssEnrolmentStatusResponseDTO updateUserEnrolment(RequestMetaData metaData) {
 //        NpssEnrolmentStatusResponseDTO response = new NpssEnrolmentStatusResponseDTO();
