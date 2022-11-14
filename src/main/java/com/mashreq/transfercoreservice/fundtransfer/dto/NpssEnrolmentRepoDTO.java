@@ -2,7 +2,6 @@ package com.mashreq.transfercoreservice.fundtransfer.dto;
 
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,7 +14,6 @@ import java.time.Instant;
 @Entity
 @Data
 @Builder
-@NoArgsConstructor
 @Table(name="npss_enrollment")
 public class NpssEnrolmentRepoDTO {
     @Id
