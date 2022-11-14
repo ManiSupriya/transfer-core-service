@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Table(name="npss_enrollment")
 @Data
 @NoArgsConstructor
-public class NpssEnrolmentRepo {
+public class NpssEnrolmentRepoDTO {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

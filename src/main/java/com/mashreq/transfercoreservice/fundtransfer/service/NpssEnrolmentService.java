@@ -1,7 +1,7 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
-import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentRepo;
+import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentRepoDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentStatusResponseDTO;
 import com.mashreq.transfercoreservice.repository.NpssEnrolmentRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,18 +17,18 @@ public class NpssEnrolmentService {
 
     public NpssEnrolmentStatusResponseDTO checkEnrolment(RequestMetaData metaData) {
 
-        Optional<NpssEnrolmentRepo> npssEnrolmentResponse = npssEnrolmentRepository.getEnrolmentStatus(
+        Optional<NpssEnrolmentRepoDTO> npssEnrolmentResponse = npssEnrolmentRepository.getEnrolmentStatus(
                 metaData.getPrimaryCif()
         );
         if (npssEnrolmentResponse.isPresent()) {
-            NpssEnrolmentRepo npssEnrollment = npssEnrolmentResponse.get();
+            NpssEnrolmentRepoDTO npssEnrollment = npssEnrolmentResponse.get();
             return NpssEnrolmentStatusResponseDTO.builder().askForEnrolment(npssEnrollment == null).build();
         }
         return NpssEnrolmentStatusResponseDTO.builder().askForEnrolment(false).build();
     }
 //    public NpssEnrolmentStatusResponseDTO updateUserEnrolment(RequestMetaData metaData) {
 //        NpssEnrolmentStatusResponseDTO response = new NpssEnrolmentStatusResponseDTO();
-//        NpssEnrolmentRepo npssEnrolmentRepo = npssEnrolmentRepository.updateEnrolmentStatus(metaData.getPrimaryCif());
+//        NpssEnrolmentRepoDTO npssEnrolmentRepo = npssEnrolmentRepository.updateEnrolmentStatus(metaData.getPrimaryCif());
 //        response.setAskForEnrolment(npssEnrolmentRepo == null);
 //        return response;
 //    }

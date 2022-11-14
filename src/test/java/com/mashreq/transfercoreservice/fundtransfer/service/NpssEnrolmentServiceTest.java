@@ -1,7 +1,7 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
-import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentRepo;
+import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentRepoDTO;
 import com.mashreq.transfercoreservice.repository.NpssEnrolmentRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,17 +22,17 @@ public class NpssEnrolmentServiceTest {
     @Test
     public void testEnrolmentEnrolled() {
         RequestMetaData metaData = getMetaData("012960010");
-        NpssEnrolmentRepo dbResult = new NpssEnrolmentRepo();
+        NpssEnrolmentRepoDTO dbResult = new NpssEnrolmentRepoDTO();
         dbResult.setCif_id("012960010");
         dbResult.setEnrollment_status("ENROLLED");
-        Optional<NpssEnrolmentRepo> npssUser = Optional.of(dbResult);
+        Optional<NpssEnrolmentRepoDTO> npssUser = Optional.of(dbResult);
         Mockito.when(npssEnrolmentRepository.getEnrolmentStatus(Mockito.any())).thenReturn(npssUser);
         npssEnrolmentService.checkEnrolment(metaData);
     }
 
 //    @Test
 //    public void testEnrolmentWithSuccess() {
-//        NpssEnrolmentRepo result = new NpssEnrolmentRepo();
+//        NpssEnrolmentRepoDTO result = new NpssEnrolmentRepoDTO();
 //        result.setCif_id("012960010");
 //        RequestMetaData metaData = getMetaData("012960010");
 //        when(npssEnrolmentRepository.getEnrolmentStatus(any())).thenReturn(result);
