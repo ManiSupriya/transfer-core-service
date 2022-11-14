@@ -25,7 +25,7 @@ public class NpssEnrolmentServiceTest {
         NpssEnrolmentRepo dbResult = new NpssEnrolmentRepo();
         dbResult.setCif_id("012960010");
         dbResult.setEnrollment_status("ENROLLED");
-        Optional<NpssEnrolmentRepo> npssUser = Optional.of(digitalUser);
+        Optional<NpssEnrolmentRepo> npssUser = Optional.of(dbResult);
         Mockito.when(npssEnrolmentRepository.getEnrolmentStatus(Mockito.any())).thenReturn(npssUser);
         npssEnrolmentService.checkEnrolment(metaData);
     }
