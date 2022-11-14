@@ -11,13 +11,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class NpssEnrolmentService {
     private static final String NPSS_ENROLLED = "ENROLLED";
-    private final NpssEnrolmentRepository npssEnrolmentRepository;
 
     public NpssEnrolmentStatusResponseDTO checkEnrolment(RequestMetaData metaData) {
-        NpssEnrolmentStatusResponseDTO response = new NpssEnrolmentStatusResponseDTO();
         NpssEnrolmentRepo npssEnrolmentRepo = npssEnrolmentRepository.getEnrolmentStatus(metaData.getPrimaryCif());
-        response.setAskForEnrolment(npssEnrolmentRepo == null || npssEnrolmentRepo.getEnrollment_status() != NPSS_ENROLLED);
-        return response;
+        return NpssEnrolmentStatusResponseDTO.builder().askForEnrolment(
+                npssEnrolmentRepo == null || npssEnrolmentRepo.getEnrollment_status() != NPSS_ENROLLED
+        ).build();
     }
 //    public NpssEnrolmentStatusResponseDTO updateUserEnrolment(RequestMetaData metaData) {
 //        NpssEnrolmentStatusResponseDTO response = new NpssEnrolmentStatusResponseDTO();
