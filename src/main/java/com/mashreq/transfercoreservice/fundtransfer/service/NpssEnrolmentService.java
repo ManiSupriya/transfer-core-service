@@ -17,12 +17,12 @@ public class NpssEnrolmentService {
 
     public NpssEnrolmentStatusResponseDTO checkEnrolment(RequestMetaData metaData) {
 
-        Optional<NpssEnrolmentRepo> npssEnrolmentResponse = npssEnrolmentRepository.getEnrolmentStatus(metaData.getPrimaryCif());
+        Optional<NpssEnrolmentRepo> npssEnrolmentResponse = npssEnrolmentRepository.getEnrolmentStatus(
+                metaData.getPrimaryCif()
+        );
         if (npssEnrolmentResponse.isPresent()) {
             NpssEnrolmentRepo npssEnrollment = npssEnrolmentResponse.get();
-            return NpssEnrolmentStatusResponseDTO.builder().askForEnrolment(
-                    npssEnrollment == null || npssEnrollment.getEnrollment_status() != NPSS_ENROLLED
-            ).build();
+            return NpssEnrolmentStatusResponseDTO.builder().askForEnrolment(npssEnrollment == null).build();
         }
         return NpssEnrolmentStatusResponseDTO.builder().askForEnrolment(false).build();
     }
