@@ -4,13 +4,14 @@ import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentRepo;
 import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentStatusResponseDTO;
 import com.mashreq.transfercoreservice.repository.NpssEnrolmentRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 public class NpssEnrolmentService {
     private static final String NPSS_ENROLLED = "ENROLLED";
+    @Autowired
+    private final NpssEnrolmentRepository npssEnrolmentRepository;
 
     public NpssEnrolmentStatusResponseDTO checkEnrolment(RequestMetaData metaData) {
         NpssEnrolmentRepo npssEnrolmentRepo = npssEnrolmentRepository.getEnrolmentStatus(metaData.getPrimaryCif());
