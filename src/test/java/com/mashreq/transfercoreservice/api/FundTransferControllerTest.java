@@ -44,7 +44,7 @@ public class FundTransferControllerTest {
 	@Mock
 	private FundTransferServiceDefault payNowService;
 	@Mock
-	private final NpssEnrolmentService npssEnrolmentService;
+	private NpssEnrolmentService npssEnrolmentService;
 	
 	private FundTransferController controller;
 	/** TODO: write integration test to cover contract validations */
