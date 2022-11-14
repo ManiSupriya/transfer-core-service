@@ -88,7 +88,7 @@ public class FundTransferControllerTest {
 	@Test
 	public void testEnrolment() {
 		RequestMetaData metaData = getMetaData();
-		NpssEnrolmentStatusResponseDTO response = new NpssEnrolmentStatusResponseDTO();
+		NpssEnrolmentStatusResponseDTO response = NpssEnrolmentStatusResponseDTO.builder().askForEnrolment(false).build();
 		when(npssEnrolmentService.checkEnrolment(any())).thenReturn(response);
 		Response enrolmentResponse = controller.retrieveNpssEnrolment(metaData);
 		assertEquals(ResponseStatus.SUCCESS, enrolmentResponse.getStatus());
