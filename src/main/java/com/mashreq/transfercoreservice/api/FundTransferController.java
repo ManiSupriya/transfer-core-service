@@ -43,7 +43,7 @@ import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 public class FundTransferController {
     private final FundTransferFactory serviceFactory;
     private final TransferEligibilityProxy transferEligibilityProxy;
-    //private final NpssEnrolmentService npssEnrolmentService;
+    private final NpssEnrolmentService npssEnrolmentService;
 
     @ApiOperation(value = "Processes to start payment", response = FundTransferRequestDTO.class)
     @ApiResponses(value = {
@@ -85,18 +85,18 @@ public class FundTransferController {
                 .data(transferEligibilityProxy.checkEligibility(metaData, request)).build();
     }
 
-//    @ApiOperation(
-//            value = "check npss enrolment of the user",
-//            response = NpssEnrolmentStatusResponseDTO.class)
-//    @ApiResponses(value = { @ApiResponse(code = 200, message = "successfully processed"),
-//            @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
-//            @ApiResponse(code = 500, message = "Something went wrong") })
-//    @GetMapping("/enrolmentStatus")
-//    public Response retrieveNpssEnrolment(@RequestAttribute("X-REQUEST-METADATA") RequestMetaData metaData) {
-//        log.info("check npss enrolment of the user {} ", htmlEscape(metaData.getUserType()));
-//        return Response.builder()
-//                .status(ResponseStatus.SUCCESS)
-//                .data(npssEnrolmentService.checkEnrolment(metaData)).build();
-//    }
+    @ApiOperation(
+            value = "check npss enrolment of the user",
+            response = NpssEnrolmentStatusResponseDTO.class)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "successfully processed"),
+            @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
+            @ApiResponse(code = 500, message = "Something went wrong") })
+    @GetMapping("/enrolmentStatus")
+    public Response retrieveNpssEnrolment(@RequestAttribute("X-REQUEST-METADATA") RequestMetaData metaData) {
+        log.info("check npss enrolment of the user {} ", htmlEscape(metaData.getUserType()));
+        return Response.builder()
+                .status(ResponseStatus.SUCCESS)
+                .data(npssEnrolmentService.checkEnrolment(metaData)).build();
+    }
 
 }

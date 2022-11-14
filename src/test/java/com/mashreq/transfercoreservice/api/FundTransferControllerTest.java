@@ -11,6 +11,7 @@ import java.util.Map;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
+import com.mashreq.transfercoreservice.fundtransfer.service.NpssEnrolmentService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,12 +40,14 @@ public class FundTransferControllerTest {
 	private PayLaterTransferService payLaterTransferService;
 	@Mock
 	private FundTransferServiceDefault payNowService;
+	@Mock
+	private final NpssEnrolmentService npssEnrolmentService;
 	
 	private FundTransferController controller;
 	/** TODO: write integration test to cover contract validations */
 	@Before
 	public void init() {
-		controller = new FundTransferController(serviceFactory,transferEligibilityProxy);
+		controller = new FundTransferController(serviceFactory,transferEligibilityProxy,npssEnrolmentService);
 	}
 	
 	@Test(expected = GenericException.class)
