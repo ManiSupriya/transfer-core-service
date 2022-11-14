@@ -32,7 +32,7 @@ public class NpssEnrolmentService {
         NpssEnrolmentRepoDTO npssEnrolmentNewEntry = NpssEnrolmentRepoDTO.builder()
                 .cif_id(metaData.getPrimaryCif())
                 .enrollment_status(NPSS_ENROLLED)
-                .accepted_date(Instant.now())
+                .accepted_date("2020-12-23 15:40:45.2756145")//(Instant.now())
                 .build();
         try{
             npssEnrolmentRepository.save(npssEnrolmentNewEntry);
