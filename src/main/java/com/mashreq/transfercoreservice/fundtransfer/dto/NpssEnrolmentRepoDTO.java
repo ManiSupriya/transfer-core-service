@@ -22,10 +22,10 @@ public class NpssEnrolmentRepoDTO {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column
     private String cif_id;
-    @Column(nullable = false)
+    @Column
     private String enrollment_status;
-    @Column(nullable = false)
+    @Column
     private Instant accepted_date;
 }
