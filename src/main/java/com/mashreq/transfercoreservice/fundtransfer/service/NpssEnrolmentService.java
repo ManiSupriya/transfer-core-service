@@ -9,9 +9,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.Optional;
-
-import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 @Slf4j
 @Service
@@ -33,7 +32,7 @@ public class NpssEnrolmentService {
         NpssEnrolmentRepoDTO npssEnrolmentNewEntry = NpssEnrolmentRepoDTO.builder()
                 .cif_id(metaData.getPrimaryCif())
                 .enrollment_status(NPSS_ENROLLED)
-                .accepted_date(java.time.LocalDateTime.now())
+                .accepted_date(Instant.now())
                 .build();
         try{
             npssEnrolmentRepository.save(npssEnrolmentNewEntry);

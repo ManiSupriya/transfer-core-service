@@ -1,6 +1,8 @@
 package com.mashreq.transfercoreservice.fundtransfer.dto;
 
-import java.time.LocalDateTime;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -8,16 +10,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import java.time.Instant;
 
 @Entity
-@Table(name="npss_enrollment")
 @Data
 @Builder
 @NoArgsConstructor
+@Table(name="npss_enrollment")
 public class NpssEnrolmentRepoDTO {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,5 +27,5 @@ public class NpssEnrolmentRepoDTO {
     @Column(nullable = false)
     private String enrollment_status;
     @Column(nullable = false)
-    private LocalDateTime accepted_date;
+    private Instant accepted_date;
 }
