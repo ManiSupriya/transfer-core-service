@@ -100,7 +100,7 @@ public class FundTransferController {
                 .data(npssEnrolmentService.checkEnrolment(metaData)).build();
     }
     @ApiOperation(
-            value = "check npss enrolment of the user",
+            value = "update npss enrolment of the user",
             response = NpssEnrolmentUpdateResponseDTO.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "successfully processed"),
             @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
