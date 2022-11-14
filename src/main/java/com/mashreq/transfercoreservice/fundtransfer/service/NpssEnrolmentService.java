@@ -27,15 +27,15 @@ public class NpssEnrolmentService {
         );
         try {
             log.info("Requesting for this CIF {} ", htmlEscape(metaData.getPrimaryCif()));
-            log.info("DataBase response get", htmlEscape(npssEnrolmentResponse));
-            log.info("DataBase response isPresent", htmlEscape(npssEnrolmentResponse.isPresent()));
+            log.info("DataBase response get {}", htmlEscape(npssEnrolmentResponse));
+            log.info("DataBase response isPresent {}", htmlEscape(npssEnrolmentResponse.isPresent()));
         }catch(Exception err){
             log.info("Exception", htmlEscape(err));
         }
 
         if (npssEnrolmentResponse.isPresent()) {
             NpssEnrolmentRepoDTO npssEnrollment = npssEnrolmentResponse.get();
-            log.info("DataBase response npssEnrollment", htmlEscape(npssEnrollment));
+            log.info("DataBase response npssEnrollment {}", htmlEscape(npssEnrollment));
             return NpssEnrolmentStatusResponseDTO.builder().askForEnrolment(npssEnrollment == null).build();
         }
         return NpssEnrolmentStatusResponseDTO.builder().askForEnrolment(false).build();
