@@ -27,5 +27,5 @@ public class NpssEnrolmentRepoDTO {
     @Column
     private String enrollment_status;
     @Column
-    private String accepted_date;
+    private Instant accepted_date;
 }
