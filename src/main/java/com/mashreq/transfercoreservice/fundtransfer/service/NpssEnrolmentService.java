@@ -27,8 +27,8 @@ public class NpssEnrolmentService {
         );
         try {
             log.info("Requesting for this CIF {} ", htmlEscape(metaData.getPrimaryCif()));
+            log.info("DataBase response get", htmlEscape(npssEnrolmentResponse));
             log.info("DataBase response isPresent", htmlEscape(npssEnrolmentResponse.isPresent()));
-            log.info("DataBase response get", htmlEscape(npssEnrolmentResponse.get()));
         }catch(Exception err){
             log.info("Exception", htmlEscape(err));
         }
