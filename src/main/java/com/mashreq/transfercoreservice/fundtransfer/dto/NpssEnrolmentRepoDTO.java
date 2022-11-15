@@ -11,6 +11,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.time.Instant;
 
 @Entity
 @Data
@@ -29,5 +30,5 @@ public class NpssEnrolmentRepoDTO {
     @Column
     private String created_date;
     @Column
-    private String accepted_date;
+    private Instant accepted_date;
 }
