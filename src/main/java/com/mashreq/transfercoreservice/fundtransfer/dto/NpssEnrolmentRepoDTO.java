@@ -23,7 +23,7 @@ public class NpssEnrolmentRepoDTO {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column
+    @Column(unique = true)
     private String cif_id;
     @Column
     private String enrollment_status;
