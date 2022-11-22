@@ -12,7 +12,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
@@ -39,7 +38,7 @@ public class DigitalLimitUsageControllerTest {
 		RequestMetaData metaData = getMetaData();
 		when(digitalUserService.getDigitalUser(any())).thenReturn(getDigitalUser());
 		doNothing().when(digitalUserLimitUsageService).insert(any());
-		assertNotNull(digitalLimitUsageController.saveDigitalLimitUsage(metaData , new DigitalUserLimitUsageDTO()));
+		digitalLimitUsageController.saveDigitalLimitUsage(metaData , new DigitalUserLimitUsageDTO());
 	}
 
 	private DigitalUser getDigitalUser() {

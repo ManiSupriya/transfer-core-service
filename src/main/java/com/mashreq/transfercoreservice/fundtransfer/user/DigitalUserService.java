@@ -1,4 +1,3 @@
-
 package com.mashreq.transfercoreservice.fundtransfer.user;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
@@ -21,11 +20,12 @@ public class DigitalUserService {
 
     public DigitalUser getDigitalUser(RequestMetaData fundTransferMetadata) {
         Optional<DigitalUser> digitalUserOptional = digitalUserRepository.findByCifEquals(fundTransferMetadata.getPrimaryCif());
-        if (!digitalUserOptional.isPresent()) {
+        if (digitalUserOptional.isPresent()) {
+            log.info("Digital User found successfully {} ", digitalUserOptional.get());
+            return digitalUserOptional.get();
+        } else {
             GenericExceptionHandler.handleError(INVALID_CIF, INVALID_CIF.getErrorMessage());
+            return null;
         }
-        log.info("Digital User found successfully {} ", digitalUserOptional.get());
-
-        return digitalUserOptional.get();
     }
 }
