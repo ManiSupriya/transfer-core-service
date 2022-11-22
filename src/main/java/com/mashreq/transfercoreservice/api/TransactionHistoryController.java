@@ -3,6 +3,7 @@ package com.mashreq.transfercoreservice.api;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.commons.cache.HeaderNames;
+import com.mashreq.transfercoreservice.dto.TransactionHistoryDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionHistoryService;
 import com.mashreq.webcore.dto.response.Response;
@@ -16,6 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
+
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 @Slf4j
 @RestController
@@ -40,5 +43,22 @@ public class TransactionHistoryController {
                 .status(ResponseStatus.SUCCESS)
                 .data(transactionHistoryService.getCharityPaid(cifId, serviceType))
                 .build();
+    }
+
+    @ApiOperation(value = "Save Transaction History", response = FundTransferRequestDTO.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully saved Transaction"),
+            @ApiResponse(code = 401, message = "Unauthorized  error")
+    })
+    @PostMapping("/save/transaction")
+    public Response saveTransactionHistory(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData requestMetaData, TransactionHistoryDto transactionHistoryDto) {
+
+        log.info("Inserting into Transaction History table {} ", htmlEscape(requestMetaData.getPrimaryCif()));
+
+        return Response.builder()
+                .status(ResponseStatus.SUCCESS)
+                .data(transactionHistoryService.saveTransactionHistory(transactionHistoryDto, requestMetaData))
+                .message("Transaction Saved Successfully in Transaction History.")
+                        .build();
     }
 }
