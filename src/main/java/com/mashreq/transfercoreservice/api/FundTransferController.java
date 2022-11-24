@@ -4,12 +4,9 @@ package com.mashreq.transfercoreservice.api;
 import com.mashreq.dedupe.annotation.UniqueRequest;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
+import com.mashreq.transfercoreservice.dto.HandleTransactionRequestDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentStatusResponseDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentUpdateResponseDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
+import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.duplicateRequestValidation.FundsTransferRequestResolver;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.service.TransferEligibilityProxy;
@@ -23,12 +20,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -111,5 +103,20 @@ public class FundTransferController {
         return Response.builder()
                 .status(ResponseStatus.SUCCESS)
                 .data(npssEnrolmentService.updateEnrolment(metaData)).build();
+    }
+
+    @ApiOperation(value = "Handle Successful  Transaction of NPSS", response = HandleTransactionRequestDto.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully Handled Successful Transaction for NPSS"),
+            @ApiResponse(code = 401, message = "Unauthorized error")
+    })
+    @PostMapping("/npss/handle-transaction")
+    public Response handleTransaction(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData requestMetaData, HandleTransactionRequestDto handleTransactionRequestDto) {
+
+        npssEnrolmentService.handleTransaction(requestMetaData,handleTransactionRequestDto);
+        return Response.builder()
+                .status(ResponseStatus.SUCCESS)
+                .message("Transaction Handled Successfully.")
+                .build();
     }
 }
