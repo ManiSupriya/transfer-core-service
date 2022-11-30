@@ -1,16 +1,22 @@
 package com.mashreq.transfercoreservice.api;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
-import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.Map;
-
+import com.mashreq.mobcommons.services.http.RequestMetaData;
+import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponseDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentStatusResponseDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentUpdateResponseDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
+import com.mashreq.transfercoreservice.fundtransfer.eligibility.service.TransferEligibilityProxy;
+import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferFactory;
+import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferServiceDefault;
+import com.mashreq.transfercoreservice.fundtransfer.service.NpssEnrolmentService;
+import com.mashreq.transfercoreservice.fundtransfer.service.PayLaterTransferService;
+import com.mashreq.webcore.dto.response.Response;
+import com.mashreq.webcore.dto.response.ResponseStatus;
+import lombok.RequiredArgsConstructor;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,18 +24,18 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import com.mashreq.mobcommons.services.http.RequestMetaData;
-import com.mashreq.ms.exceptions.GenericException;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponseDTO;
-import com.mashreq.transfercoreservice.fundtransfer.eligibility.service.TransferEligibilityProxy;
-import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferFactory;
-import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferServiceDefault;
-import com.mashreq.transfercoreservice.fundtransfer.service.PayLaterTransferService;
-import com.mashreq.webcore.dto.response.Response;
-import com.mashreq.webcore.dto.response.ResponseStatus;
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+
 
 @RunWith(MockitoJUnitRunner.class)
+@RequiredArgsConstructor
 public class FundTransferControllerTest {
 	@Mock
 	private FundTransferFactory serviceFactory;
@@ -39,12 +45,14 @@ public class FundTransferControllerTest {
 	private PayLaterTransferService payLaterTransferService;
 	@Mock
 	private FundTransferServiceDefault payNowService;
+	@Mock
+	private NpssEnrolmentService npssEnrolmentService;
 	
 	private FundTransferController controller;
 	/** TODO: write integration test to cover contract validations */
 	@Before
 	public void init() {
-		controller = new FundTransferController(serviceFactory,transferEligibilityProxy);
+		controller = new FundTransferController(serviceFactory,transferEligibilityProxy,npssEnrolmentService);
 	}
 	
 	@Test(expected = GenericException.class)
@@ -78,7 +86,22 @@ public class FundTransferControllerTest {
 		assertEquals(ResponseStatus.SUCCESS, transferFunds.getStatus());
 		assertEquals(0, transferFunds.getData().size());
 	}
-	
+	@Test
+	public void testEnrolment() {
+		RequestMetaData metaData = getMetaData();
+		NpssEnrolmentStatusResponseDTO response = NpssEnrolmentStatusResponseDTO.builder().askForEnrolment(false).build();
+		when(npssEnrolmentService.checkEnrolment(any())).thenReturn(response);
+		Response enrolmentResponse = controller.retrieveNpssEnrolment(metaData);
+		assertEquals(ResponseStatus.SUCCESS, enrolmentResponse.getStatus());
+	}
+	@Test
+	public void testUpdateEnrolment() {
+		RequestMetaData metaData = getMetaData();
+		NpssEnrolmentUpdateResponseDTO response = NpssEnrolmentUpdateResponseDTO.builder().userEnrolmentUpdated(true).build();
+		when(npssEnrolmentService.updateEnrolment(any())).thenReturn(response);
+		Response enrolmentUpdateResponse = controller.updateNpssEnrolment(metaData);
+		assertEquals(ResponseStatus.SUCCESS, enrolmentUpdateResponse.getStatus());
+	}
 	private RequestMetaData getMetaData() {
 		RequestMetaData metaData = new RequestMetaData();
 		return metaData;
