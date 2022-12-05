@@ -5,12 +5,15 @@ import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponseDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.TransferLimitResponseDto;
+import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentStatusResponseDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentUpdateResponseDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.service.TransferEligibilityProxy;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferFactory;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferServiceDefault;
+import com.mashreq.transfercoreservice.fundtransfer.service.NpssEnrolmentService;
 import com.mashreq.transfercoreservice.fundtransfer.service.PayLaterTransferService;
 import com.mashreq.transfercoreservice.fundtransfer.service.TransferLimitService;
 import com.mashreq.transfercoreservice.util.TestUtil;
@@ -35,7 +38,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+
+
 @RunWith(MockitoJUnitRunner.class)
+@RequiredArgsConstructor
 public class FundTransferControllerTest {
 	@Mock
 	private FundTransferFactory serviceFactory;
@@ -45,7 +51,8 @@ public class FundTransferControllerTest {
 	private PayLaterTransferService payLaterTransferService;
 	@Mock
 	private FundTransferServiceDefault payNowService;
-
+	@Mock
+	private NpssEnrolmentService npssEnrolmentService;
 	@Mock
 	TransferLimitService transferLimitService;
 
@@ -53,7 +60,8 @@ public class FundTransferControllerTest {
 	/** TODO: write integration test to cover contract validations */
 	@Before
 	public void init() {
-		controller = new FundTransferController(serviceFactory,transferEligibilityProxy, transferLimitService);
+
+		controller = new FundTransferController(serviceFactory,transferEligibilityProxy, npssEnrolmentService, transferLimitService);
 	}
 
 	@Test(expected = GenericException.class)
@@ -88,6 +96,7 @@ public class FundTransferControllerTest {
 		assertEquals(0, transferFunds.getData().size());
 	}
 
+
 	@Test
 	public void should_save_transfer_details() {
 		// Given
@@ -107,6 +116,24 @@ public class FundTransferControllerTest {
 		assertNotNull(responseDto);
 		assertTrue(responseDto.isSuccess());
 		verify(transferLimitService, times(1)).validateAndSaveTransferDetails(any(), any());
+	}
+
+
+	@Test
+	public void testEnrolment() {
+		RequestMetaData metaData = getMetaData();
+		NpssEnrolmentStatusResponseDTO response = NpssEnrolmentStatusResponseDTO.builder().askForEnrolment(false).build();
+		when(npssEnrolmentService.checkEnrolment(any())).thenReturn(response);
+		Response enrolmentResponse = controller.retrieveNpssEnrolment(metaData);
+		assertEquals(ResponseStatus.SUCCESS, enrolmentResponse.getStatus());
+	}
+	@Test
+	public void testUpdateEnrolment() {
+		RequestMetaData metaData = getMetaData();
+		NpssEnrolmentUpdateResponseDTO response = NpssEnrolmentUpdateResponseDTO.builder().userEnrolmentUpdated(true).build();
+		when(npssEnrolmentService.updateEnrolment(any())).thenReturn(response);
+		Response enrolmentUpdateResponse = controller.updateNpssEnrolment(metaData);
+		assertEquals(ResponseStatus.SUCCESS, enrolmentUpdateResponse.getStatus());
 	}
 
 	private RequestMetaData getMetaData() {
