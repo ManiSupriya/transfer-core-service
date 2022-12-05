@@ -41,7 +41,6 @@ import static org.mockito.Mockito.when;
 
 
 @RunWith(MockitoJUnitRunner.class)
-@RequiredArgsConstructor
 public class FundTransferControllerTest {
 	@Mock
 	private FundTransferFactory serviceFactory;
