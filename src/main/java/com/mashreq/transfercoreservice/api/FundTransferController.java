@@ -1,39 +1,40 @@
 package com.mashreq.transfercoreservice.api;
 
 
-import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
-
-import java.util.List;
-import java.util.Map;
-
-import javax.validation.Valid;
-
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.mashreq.dedupe.annotation.UniqueRequest;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentStatusResponseDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentUpdateResponseDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.duplicateRequestValidation.FundsTransferRequestResolver;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.service.TransferEligibilityProxy;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferFactory;
+import com.mashreq.transfercoreservice.fundtransfer.service.NpssEnrolmentService;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
+import java.util.List;
+import java.util.Map;
+
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 @Slf4j
 @RestController
@@ -43,6 +44,7 @@ import lombok.extern.slf4j.Slf4j;
 public class FundTransferController {
     private final FundTransferFactory serviceFactory;
     private final TransferEligibilityProxy transferEligibilityProxy;
+    private final NpssEnrolmentService npssEnrolmentService;
 
     @ApiOperation(value = "Processes to start payment", response = FundTransferRequestDTO.class)
     @ApiResponses(value = {
@@ -84,4 +86,30 @@ public class FundTransferController {
                 .data(transferEligibilityProxy.checkEligibility(metaData, request)).build();
     }
 
+    @ApiOperation(
+            value = "check npss enrolment of the user",
+            response = NpssEnrolmentStatusResponseDTO.class)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "successfully processed"),
+            @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
+            @ApiResponse(code = 500, message = "Something went wrong") })
+    @GetMapping("/enrolmentStatus")
+    public Response retrieveNpssEnrolment(@RequestAttribute("X-REQUEST-METADATA") RequestMetaData metaData) {
+        log.info("check npss enrolment of the user {} ", htmlEscape(metaData.getUserType()));
+        return Response.builder()
+                .status(ResponseStatus.SUCCESS)
+                .data(npssEnrolmentService.checkEnrolment(metaData)).build();
+    }
+    @ApiOperation(
+            value = "update npss enrolment of the user",
+            response = NpssEnrolmentUpdateResponseDTO.class)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "successfully processed"),
+            @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
+            @ApiResponse(code = 500, message = "Something went wrong") })
+    @GetMapping("/updateEnrolmentStatus")
+    public Response updateNpssEnrolment(@RequestAttribute("X-REQUEST-METADATA") RequestMetaData metaData) {
+        log.info("check npss enrolment of the user {} ", htmlEscape(metaData.getUserType()));
+        return Response.builder()
+                .status(ResponseStatus.SUCCESS)
+                .data(npssEnrolmentService.updateEnrolment(metaData)).build();
+    }
 }
