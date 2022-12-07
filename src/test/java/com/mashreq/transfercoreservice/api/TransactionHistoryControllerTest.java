@@ -43,7 +43,7 @@ public class TransactionHistoryControllerTest {
         RequestMetaData metaData = getMetaData();
         TransactionHistoryDto transactionHistoryDto = TransactionHistoryDto.builder().hostReferenceNo("HOST12345").build();
         when(transactionHistoryService.getTransactionHistory(any(), any())).thenReturn(transactionHistoryDto);
-        Response response = controller.getTransactionHistory(metaData, "Payment12356");
+        Response response = controller.getTransactionHistory("SAmpleCif", "Payment12356");
 		assertNotNull(response);
     }
 

@@ -68,12 +68,12 @@ public class TransactionHistoryController {
             @ApiResponse(code = 500, message = "Something went wrong")
     })
     @GetMapping("/transactionHistory")
-    public Response getTransactionHistory(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData requestMetaData,
+    public Response getTransactionHistory(@RequestParam String cifId,
                                           @RequestParam final String paymentId) {
-        log.info("Getting Transaction History Details for the cif : {} ", htmlEscape(requestMetaData.getPrimaryCif()));
+        log.info("Getting Transaction History Details for the cif : {} ", cifId);
         return Response.builder()
                 .status(ResponseStatus.SUCCESS)
-                .data(transactionHistoryService.getTransactionHistory(paymentId, requestMetaData.getPrimaryCif()))
+                .data(transactionHistoryService.getTransactionHistory(paymentId, cifId))
                 .build();
     }
 
