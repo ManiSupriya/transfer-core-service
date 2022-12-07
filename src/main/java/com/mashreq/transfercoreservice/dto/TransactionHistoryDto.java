@@ -48,4 +48,5 @@ public class TransactionHistoryDto {
     private String debitAmount;
     private String exchangeRate;
     private String paymentNote;
+    private Boolean dispute_status_initiated;
 }
