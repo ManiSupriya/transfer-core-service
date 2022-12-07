@@ -124,6 +124,8 @@ app:
     bank:
       code: ${LOCAL_BANK_CODE:033}
     tftAuthorizationCode: ${TFT_AUTHORIZATION_CODE:A}
+  inft:
+    tftAuthorizationCode: ${TFT_INFT_AUTHORIZATION_CODE:A}
   loyalty:
     timeInterval: 1
     smilesProductBin: 524179
