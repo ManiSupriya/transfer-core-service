@@ -73,7 +73,7 @@ public class TransactionHistoryService {
             transactionHistory = transactionRepository.findByHostReferenceNo(paymentId);
             log.info("The details received from DB is : {} ", transactionHistory);
         } catch (Exception e) {
-            log.error("DB Connectivity Issue : {} ", e.getMessage());
+            log.error("DB Connectivity Issue ", e);
             GenericExceptionHandler.handleError(DB_CONNECTIVITY_ISSUE, DB_CONNECTIVITY_ISSUE.getErrorMessage());
         }
         return TransactionHistoryMapper.getTransactionHistoryDto(transactionHistory);
