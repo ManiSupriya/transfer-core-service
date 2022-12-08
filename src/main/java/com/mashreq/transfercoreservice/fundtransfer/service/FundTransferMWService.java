@@ -63,6 +63,8 @@ public class FundTransferMWService {
 
     @Value("${app.local.tftAuthorizationCode}")
     private String tftAuthorization;
+    @Value("${app.inft.tftAuthorizationCode}")
+    private String tftInftAuthorization;
     
     public FundTransferResponse transfer(FundTransferRequest request, RequestMetaData metaData, String msgId) {
         log.info("Fund transfer initiated from account [ {} ]", htmlEscape(request.getFromAccount()));
@@ -167,10 +169,15 @@ public class FundTransferMWService {
          * Later for SME this value should be calculated dynamically based on the input */
 
         /***
-         * Changing it from configuration because in Egypt all transfers are non STP.
+         * Changing it from configuration because in Egypt
+         * 1- Local transfers are STP
+         * 2- While INFT transfers are non STP.
          * By default value is still AUTHORIZED.
          */
-        fundTransferReqType.setAuthorization(tftAuthorization);
+        if(INTERNATIONAL.equalsIgnoreCase(request.getServiceType()))
+            fundTransferReqType.setAuthorization(tftInftAuthorization);
+        else
+            fundTransferReqType.setAuthorization(tftAuthorization);
 
         List<FundTransferReqType.Transfer> transferList = fundTransferReqType.getTransfer();
         FundTransferReqType.Transfer.CreditLeg creditLeg = new FundTransferReqType.Transfer.CreditLeg();
