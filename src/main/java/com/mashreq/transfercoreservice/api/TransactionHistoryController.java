@@ -67,13 +67,12 @@ public class TransactionHistoryController {
             @ApiResponse(code = 200, message = "Successfully processed"),
             @ApiResponse(code = 500, message = "Something went wrong")
     })
-    @GetMapping("/transactionHistory")
-    public Response getTransactionHistory(@RequestParam String cifId,
-                                          @RequestParam final String paymentId) {
-        log.info("Getting Transaction History Details for the cif : {} ", cifId);
-        return Response.builder()
+    @GetMapping(value = "/transactionHistory")
+    public Response<TransactionHistoryDto> getTransactionHistory(@RequestParam String paymentId) {
+        log.info("Getting Transaction History Details for the paymentId : {} ", paymentId);
+        return Response.<TransactionHistoryDto>builder()
                 .status(ResponseStatus.SUCCESS)
-                .data(transactionHistoryService.getTransactionHistory(paymentId, cifId))
+                .data(transactionHistoryService.getTransactionHistory(paymentId))
                 .build();
     }
 
