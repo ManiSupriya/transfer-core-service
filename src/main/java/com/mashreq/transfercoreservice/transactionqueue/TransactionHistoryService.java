@@ -2,8 +2,10 @@
 package com.mashreq.transfercoreservice.transactionqueue;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
+import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.dto.CharityPaidDto;
 import com.mashreq.transfercoreservice.dto.TransactionHistoryDto;
+import com.mashreq.transfercoreservice.mapper.TransactionHistoryMapper;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +19,7 @@ import java.util.List;
 import static com.mashreq.transfercoreservice.common.CommonConstants.CARD_LESS_CASH;
 import static com.mashreq.transfercoreservice.common.CommonConstants.MOB_CHANNEL;
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.DB_CONNECTIVITY_ISSUE;
 
 @Slf4j
 @Service
@@ -56,8 +59,23 @@ public class TransactionHistoryService {
                 ipAddress(metaData.getDeviceIP()).mwResponseDescription(transactionHistoryDto.getMwResponseDescription()).
                 accountFrom(transactionHistoryDto.getAccountTo()).accountTo(transactionHistoryDto.getAccountTo()).
                 billRefNo(transactionHistoryDto.getBillRefNo()).valueDate(LocalDateTime.now()).createdDate(Instant.now()).
+                hostReferenceNo(transactionHistoryDto.getHostReferenceNo()).
+                disputeStatusInitiated(transactionHistoryDto.getDisputeStatusInitiated()).
                 transactionRefNo(transactionHistoryDto.getTransactionRefNo()).financialTransactionNo(transactionHistoryDto.getFinancialTransactionNo()).build();
         log.info("Inserting into Transaction History table {} ", htmlEscape(transactionHistory.getTransactionRefNo()));
         return transactionRepository.save(transactionHistory).getId();
+    }
+
+    public TransactionHistoryDto getTransactionHistory(final String paymentId) {
+        TransactionHistory transactionHistory = null;
+        try {
+            log.info("Querying Transaction History Details for the cif : {} ", paymentId);
+            transactionHistory = transactionRepository.findByHostReferenceNo(paymentId);
+            log.info("The details received from DB is : {} ", transactionHistory);
+        } catch (Exception e) {
+            log.error("DB Connectivity Issue ", e);
+            GenericExceptionHandler.handleError(DB_CONNECTIVITY_ISSUE, DB_CONNECTIVITY_ISSUE.getErrorMessage());
+        }
+        return TransactionHistoryMapper.getTransactionHistoryDto(transactionHistory);
     }
 }
