@@ -11,7 +11,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Data
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class TransactionHistoryDto {
@@ -48,4 +48,5 @@ public class TransactionHistoryDto {
     private String debitAmount;
     private String exchangeRate;
     private String paymentNote;
+    private Boolean disputeStatusInitiated;
 }

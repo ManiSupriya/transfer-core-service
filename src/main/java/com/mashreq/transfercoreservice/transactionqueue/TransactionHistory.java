@@ -1,20 +1,19 @@
 package com.mashreq.transfercoreservice.transactionqueue;
 
-import lombok.Builder;
-import lombok.Data;
+import com.mashreq.transfercoreservice.fundtransfer.dto.ChargeBearer;
+import lombok.*;
 
 import javax.persistence.*;
-
-import com.mashreq.transfercoreservice.fundtransfer.dto.ChargeBearer;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Entity
-@Data
 @Builder
+@Data
 @Table(name = "transaction_history")
+@AllArgsConstructor
+@NoArgsConstructor
 public class TransactionHistory {
 
     @Id
@@ -57,5 +56,6 @@ public class TransactionHistory {
     private String exchangeRate;
     @Column(name = "payment_note")
     private String paymentNote;
-    
+    @Column(name = "dispute_status_initiated")
+    private Boolean disputeStatusInitiated;
 }

@@ -59,6 +59,21 @@ public class TransactionHistoryController {
                 .status(ResponseStatus.SUCCESS)
                 .data(transactionHistoryService.saveTransactionHistory(transactionHistoryDto, requestMetaData))
                 .message("Transaction Saved Successfully in Transaction History.")
-                        .build();
+                .build();
     }
+
+    @ApiOperation(value = "Get Transaction History from data base", response = TransactionHistoryDto.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully processed"),
+            @ApiResponse(code = 500, message = "Something went wrong")
+    })
+    @GetMapping(value = "/transactionHistory")
+    public Response<TransactionHistoryDto> getTransactionHistory(@RequestParam String paymentId) {
+        log.info("Getting Transaction History Details for the paymentId : {} ", paymentId);
+        return Response.<TransactionHistoryDto>builder()
+                .status(ResponseStatus.SUCCESS)
+                .data(transactionHistoryService.getTransactionHistory(paymentId))
+                .build();
+    }
+
 }
