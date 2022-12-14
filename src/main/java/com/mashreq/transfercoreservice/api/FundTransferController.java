@@ -4,7 +4,7 @@ package com.mashreq.transfercoreservice.api;
 import com.mashreq.dedupe.annotation.UniqueRequest;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
-import com.mashreq.transfercoreservice.dto.HandleTransactionRequestDto;
+import com.mashreq.transfercoreservice.dto.NotificationRequestDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.duplicateRequestValidation.FundsTransferRequestResolver;
@@ -105,15 +105,15 @@ public class FundTransferController {
                 .data(npssEnrolmentService.updateEnrolment(metaData)).build();
     }
 
-    @ApiOperation(value = "Handle Successful  Transaction of NPSS", response = HandleTransactionRequestDto.class)
+    @ApiOperation(value = "Handle Successful  Transaction of NPSS", response = NotificationRequestDto.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully Handled Successful Transaction for NPSS"),
             @ApiResponse(code = 401, message = "Unauthorized error")
     })
     @PostMapping("/npss/handle-transaction")
-    public Response handleTransaction(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData requestMetaData, HandleTransactionRequestDto handleTransactionRequestDto) {
+    public Response handleTransaction(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData requestMetaData, NotificationRequestDto notificationRequestDto) {
 
-        npssEnrolmentService.handleTransaction(requestMetaData,handleTransactionRequestDto);
+        npssEnrolmentService.handleTransaction(requestMetaData,notificationRequestDto);
         return Response.builder()
                 .status(ResponseStatus.SUCCESS)
                 .message("Transaction Handled Successfully.")
