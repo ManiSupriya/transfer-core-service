@@ -56,6 +56,4 @@ public class TransactionHistory {
     private String exchangeRate;
     @Column(name = "payment_note")
     private String paymentNote;
-    @Column(name = "dispute_status_initiated")
-    private Boolean disputeStatusInitiated;
 }
