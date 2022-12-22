@@ -2,6 +2,7 @@ trigger:
   - master
   - develop
   - release/*
+  - egypt-master-merge
 
 pr:
   - master

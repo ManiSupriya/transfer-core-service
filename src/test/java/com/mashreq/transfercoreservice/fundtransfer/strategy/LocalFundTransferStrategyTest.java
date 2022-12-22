@@ -19,12 +19,10 @@ import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.notification.service.NotificationService;
 import com.mashreq.transfercoreservice.notification.service.PostTransactionService;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -94,13 +92,23 @@ public class LocalFundTransferStrategyTest {
 
     @Mock
     private PostTransactionService postTransactionService;
+    
+    @Mock
+    private CurrencyValidator currencyValidator;
 
     @Mock
     private CCTransactionEligibilityValidator ccTransactionEligibilityValidator;
 
+    @Mock
+    private MinTransactionAmountValidator minTransactionAmountValidator;
+
     @Captor
     private ArgumentCaptor<FundTransferRequest> fundTransferRequest;
-
+    
+    @Before
+    public void init() {
+    	when(currencyValidator.validate(any(), any(), any())).thenReturn(ValidationResult.builder().success(true).build());
+    }
 
     @Test
     public void test_when_fund_transfer_is_successful_when_source_destination_currency_same() {
@@ -192,6 +200,8 @@ public class LocalFundTransferStrategyTest {
 
         when(fundTransferMWService.transfer(fundTransferRequest.capture(),any(),any()))
                 .thenReturn(FundTransferResponse.builder().responseDto(coreResponse).limitUsageAmount(limitUsageAmount).limitVersionUuid(limitVersionUuid).build());
+        when(minTransactionAmountValidator.validate(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(validationResult);
+
 
         final FundTransferResponse response = localFundTransferStrategy.execute(requestDTO, metadata, userDTO);
         final FundTransferRequest actualFundTransferRequest = fundTransferRequest.getValue();
@@ -329,6 +339,7 @@ public class LocalFundTransferStrategyTest {
 
         //when(cardService.getCardsFromCore(any(), any())).thenReturn(Collections.emptyList());
         //when(qrDealsService.getQRDealDetails(any(), any())).thenReturn(new QRDealDetails());
+        when(minTransactionAmountValidator.validate(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(validationResult);
 
         final FundTransferResponse response = localFundTransferStrategy.execute(requestDTO, metadata, userDTO);
         final FundTransferRequest actualFundTransferRequest = fundTransferRequest.getValue();

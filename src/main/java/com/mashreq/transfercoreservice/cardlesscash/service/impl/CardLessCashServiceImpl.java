@@ -26,7 +26,6 @@ import com.mashreq.transfercoreservice.cardlesscash.service.CardLessCashService;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPRequestDTO;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPResponseDTO;
 import com.mashreq.transfercoreservice.client.service.AccountService;
-import com.mashreq.transfercoreservice.client.service.OTPService;
 import com.mashreq.transfercoreservice.common.CommonConstants;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
@@ -53,7 +52,6 @@ import lombok.extern.slf4j.Slf4j;
 public class CardLessCashServiceImpl implements CardLessCashService {
 	private final AccountService accountService;
 	private AsyncUserEventPublisher asyncUserEventPublisher;
-	private final OTPService otpService;
 	private final DigitalUserRepository digitalUserRepository;
 	private final DigitalUserLimitUsageRepository digitalUserLimitUsageRepository;
 	private final BalanceValidator balanceValidator;
@@ -93,25 +91,6 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 			RequestMetaData metaData) {
 		log.info("cardLessCash GenerationRequest {} ", cardLessCashGenerationRequest);
 		Response<CardLessCashGenerationResponse> cardLessCashGenerationResponse = null;
-		VerifyOTPRequestDTO verifyOTPRequestDTO = new VerifyOTPRequestDTO();
-		verifyOTPRequestDTO.setOtp(cardLessCashGenerationRequest.getOtp());
-		verifyOTPRequestDTO.setChallengeToken(cardLessCashGenerationRequest.getChallengeToken());
-		verifyOTPRequestDTO.setDpPublicKeyIndex(cardLessCashGenerationRequest.getDpPublicKeyIndex());
-		verifyOTPRequestDTO.setDpRandomNumber(cardLessCashGenerationRequest.getDpRandomNumber());
-		verifyOTPRequestDTO.setLoginId(userId);
-		verifyOTPRequestDTO.setRedisKey(metaData.getUserCacheKey());
-		log.info("cardLessCash Generation otp request{} ", verifyOTPRequestDTO);
-			Response<VerifyOTPResponseDTO> verifyOTP = otpService.verifyOTP(verifyOTPRequestDTO);
-			log.info("cardLessCash Generation otp response{} ", htmlEscape(verifyOTP.getStatus()));
-			if (!verifyOTP.getData().isAuthenticated()) {
-				asyncUserEventPublisher.publishFailedEsbEvent(FundTransferEventType.CARD_LESS_CASH_OTP_DOES_NOT_MATCH,
-						metaData, CARD_LESS_CASH, metaData.getChannelTraceId(),
-						TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.toString(),
-						TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.getErrorMessage(),
-						TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.getErrorMessage());
-				GenericExceptionHandler.handleError(TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR,
-						verifyOTP.getErrorDetails(), verifyOTP.getErrorDetails());
-			}
 		asyncUserEventPublisher.publishSuccessEvent(FundTransferEventType.CARD_LESS_CASH_OTP_VALIDATION, metaData, FundTransferEventType.CARD_LESS_CASH_OTP_VALIDATION.getDescription());
 		DigitalUser digitalUser = getDigitalUser(metaData);
 

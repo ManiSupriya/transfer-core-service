@@ -5,6 +5,7 @@ import static com.mashreq.transfercoreservice.notification.model.NotificationTyp
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,16 +24,7 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.WithinMashreqStrategy;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.MashreqUAEAccountNumberResolver;
-import com.mashreq.transfercoreservice.fundtransfer.validators.AccountBelongsToCifValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.AccountFreezeValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.BeneficiaryValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.CCTransactionEligibilityValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.CurrencyValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.SameAccountValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.AccountNumberResolver;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
 import com.mashreq.transfercoreservice.notification.service.NotificationService;
@@ -56,19 +48,19 @@ public class WithinMashreqPayLaterStrategy extends WithinMashreqStrategy {
 	private final SequenceNumberGenerator seqGenerator;
 	@Autowired
 	public WithinMashreqPayLaterStrategy(SameAccountValidator sameAccountValidator,
-			AccountBelongsToCifValidator accountBelongsToCifValidator, CurrencyValidator currencyValidator,
-			BeneficiaryValidator beneficiaryValidator, AccountService accountService,
-			BeneficiaryService beneficiaryService, LimitValidator limitValidator, MaintenanceService maintenanceService,
-			FundTransferMWService fundTransferMWService, BalanceValidator balanceValidator, DealValidator dealValidator,
-			AsyncUserEventPublisher auditEventPublisher, NotificationService notificationService,
-			AccountFreezeValidator freezeValidator, MashreqUAEAccountNumberResolver accountNumberResolver,
-			PostTransactionService postTransactionService,
-			FundTransferOrderRepository fundTransferOrderRepository,
-			SequenceNumberGenerator seqGenerator, CCTransactionEligibilityValidator ccTrxValidator) {
+										 AccountBelongsToCifValidator accountBelongsToCifValidator, CurrencyValidator currencyValidator,
+										 BeneficiaryValidator beneficiaryValidator, AccountService accountService,
+										 BeneficiaryService beneficiaryService, LimitValidator limitValidator, MaintenanceService maintenanceService,
+										 FundTransferMWService fundTransferMWService, BalanceValidator balanceValidator, DealValidator dealValidator,
+										 AsyncUserEventPublisher auditEventPublisher, NotificationService notificationService,
+										 AccountFreezeValidator freezeValidator, AccountNumberResolver accountNumberResolver,
+										 PostTransactionService postTransactionService,
+										 FundTransferOrderRepository fundTransferOrderRepository,
+										 SequenceNumberGenerator seqGenerator, CCTransactionEligibilityValidator ccTrxValidator, MinTransactionAmountValidator minTransactionAmountValidator) {
 		super(sameAccountValidator, accountBelongsToCifValidator, currencyValidator, beneficiaryValidator,
 				accountService, beneficiaryService, limitValidator, maintenanceService, fundTransferMWService, balanceValidator,
 				dealValidator, auditEventPublisher, notificationService, 
-				freezeValidator, accountNumberResolver, postTransactionService, ccTrxValidator);
+				freezeValidator, accountNumberResolver, postTransactionService, ccTrxValidator, minTransactionAmountValidator);
 		this.fundTransferOrderRepository = fundTransferOrderRepository;
 		this.seqGenerator = seqGenerator;
 	}

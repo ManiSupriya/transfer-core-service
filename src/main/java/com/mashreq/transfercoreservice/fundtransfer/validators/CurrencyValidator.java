@@ -9,32 +9,44 @@ import com.mashreq.transfercoreservice.client.dto.SearchAccountDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_CURRENCY_MISMATCH;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.CURRENCY_IS_INVALID;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.*;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.annotation.PostConstruct;
+
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 /**
  * @author shahbazkh
  * @date 3/17/20
  */
-
+@Profile("!egypt")
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class CurrencyValidator implements Validator<FundTransferRequestDTO> {
 
-    private final AsyncUserEventPublisher auditEventPublisher;
+    final AsyncUserEventPublisher auditEventPublisher;
+    
     @Override
     public ValidationResult validate(FundTransferRequestDTO request, RequestMetaData metadata, ValidationContext context) {
-
-        log.info("Validating currency for service type [ {} ] ", htmlEscape(request.getServiceType()));
+    	
+    	log.info("Validating currency for service type [ {} ] ", htmlEscape(request.getServiceType()));
         AccountDetailsDTO fromAccount = context.get("from-account", AccountDetailsDTO.class);
-        String requestedCurrency = request.getCurrency();
+        //String requestedCurrency = request.getCurrency();
+        String requestedCurrency = request.getTxnCurrency();
         log.info("Requested currency [ {} ] service type [ {} ] ", htmlEscape(requestedCurrency), htmlEscape(request.getServiceType()));
 
         if(WAMA.getName().equals(request.getServiceType()) ) {

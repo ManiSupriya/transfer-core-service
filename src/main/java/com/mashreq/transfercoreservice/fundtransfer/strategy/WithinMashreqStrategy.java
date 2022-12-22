@@ -18,7 +18,7 @@ import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
-import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.MashreqUAEAccountNumberResolver;
+import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.AccountNumberResolver;
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
@@ -56,7 +56,9 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
 
     private static final String INTERNAL_ACCOUNT_FLAG = "N";
     public static final String WITHIN_MASHREQ_TRANSACTION_CODE = "096";
-    public static final String LOCAL_CURRENCY = "AED";
+
+    public static final String TRANSFER_AMOUNT_FOR_MIN_VALIDATION = "transfer-amount-for-min-validation";
+
 
     private final SameAccountValidator sameAccountValidator;
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
@@ -72,11 +74,14 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     private final AsyncUserEventPublisher auditEventPublisher;
     private final NotificationService notificationService;
     private final AccountFreezeValidator freezeValidator;
-    private final MashreqUAEAccountNumberResolver accountNumberResolver;
+    private final AccountNumberResolver accountNumberResolver;
     private final PostTransactionService postTransactionService;
     private final CCTransactionEligibilityValidator ccTrxValidator;
-    @Value("${app.uae.transaction.code:096}")
-    private String transactionCode;
+
+    private final MinTransactionAmountValidator minTransactionAmountValidator;
+
+    @Value("${app.local.currency}")
+    private String localCurrency;
     protected final String MASHREQ = "Mashreq";
     
     @Override
@@ -110,16 +115,21 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         validationContext.add("transfer-amount-in-source-currency", currencyConversionDto.getAccountCurrencyAmount());
         validateAccountBalance(request, metadata, validationContext);
 
+
         //Limit Validation
         Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
         final BigDecimal limitUsageAmount = getLimitUsageAmount(fromAccountOpt.get(),currencyConversionDto.getAccountCurrencyAmount());
+
+        validationContext.add(TRANSFER_AMOUNT_FOR_MIN_VALIDATION, limitUsageAmount);
+        responseHandler(minTransactionAmountValidator.validate(request,metadata,validationContext));
+
         final LimitValidatorResponse validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount, metadata, bendId);
         String txnRefNo = validationResult.getTransactionRefNo();
 
         //Deal Validator
         log.info("Deal Validation Started");
 		if (StringUtils.isNotBlank(request.getDealNumber()) && !request.getDealNumber().isEmpty()) {
-			String trxCurrency = StringUtils.isBlank(request.getTxnCurrency()) ? LOCAL_CURRENCY
+			String trxCurrency = StringUtils.isBlank(request.getTxnCurrency()) ? localCurrency
 					: request.getTxnCurrency();
 			if (StringUtils.equalsIgnoreCase(trxCurrency, request.getCurrency())) {
 				auditEventPublisher.publishFailedEsbEvent(FundTransferEventType.DEAL_VALIDATION, metadata,
@@ -237,7 +247,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
 
 
     private BigDecimal getLimitUsageAmount(final AccountDetailsDTO sourceAccountDetailsDTO, final BigDecimal transferAmountInSrcCurrency) {
-        return LOCAL_CURRENCY.equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
+        return localCurrency.equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
                 ? transferAmountInSrcCurrency
                 : convertAmountInLocalCurrency(sourceAccountDetailsDTO, transferAmountInSrcCurrency);
     }
@@ -247,7 +257,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         currencyConversionRequestDto.setAccountNumber(sourceAccountDetailsDTO.getNumber());
         currencyConversionRequestDto.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
         currencyConversionRequestDto.setAccountCurrencyAmount(transferAmountInSrcCurrency);
-        currencyConversionRequestDto.setTransactionCurrency(LOCAL_CURRENCY);
+        currencyConversionRequestDto.setTransactionCurrency(localCurrency);
         return maintenanceService.convertCurrency(currencyConversionRequestDto).getTransactionAmount();
     }
     private FundTransferRequest prepareFundTransferRequestPayload(RequestMetaData metadata, FundTransferRequestDTO request,

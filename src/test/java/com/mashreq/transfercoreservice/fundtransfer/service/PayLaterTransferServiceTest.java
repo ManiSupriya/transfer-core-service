@@ -23,7 +23,6 @@ import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.transfercoreservice.client.dto.CoreFundTransferResponseDto;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPRequestDTO;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPResponseDTO;
-import com.mashreq.transfercoreservice.client.service.OTPService;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
@@ -35,6 +34,7 @@ import com.mashreq.transfercoreservice.fundtransfer.strategy.paylater.LocalFundP
 import com.mashreq.transfercoreservice.fundtransfer.strategy.paylater.OwnAccountPayLaterStrategy;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.paylater.WithinMashreqPayLaterStrategy;
 import com.mashreq.transfercoreservice.model.DigitalUser;
+import com.mashreq.transfercoreservice.paylater.enums.FTOrderType;
 import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
@@ -47,8 +47,6 @@ public class PayLaterTransferServiceTest {
 	FundTransferResponseDTO fundTransferResponseDTO;
 	@Mock
 	VerifyOTPRequestDTO verifyOTPRequestDTO;
-	@Mock
-	OTPService iamService;
 	@Mock
 	AsyncUserEventPublisher asyncUserEventPublisher;
 	@Mock
@@ -81,18 +79,17 @@ public class PayLaterTransferServiceTest {
 	@Before
 	public void prepare() {
 		this.payLaterTransferService.init();
-		fundTransferRequestDTO = generateFundTransferRequest();
+		fundTransferRequestDTO = generateFundTransferRequest(FTOrderType.PL);
 		ReflectionTestUtils.setField(payLaterTransferService, "activeProfile", "prod");
+		ReflectionTestUtils.setField(payLaterTransferService, "standingInstructionsDisabled", false);
 	}
-
+	
 	@Test
 	public void transferFundTest() {
 		VerifyOTPResponseDTO verifyOTPResponseDTO = new VerifyOTPResponseDTO();
 		verifyOTPResponseDTO.setAuthenticated(true);
 		Mockito.doNothing().when(asyncUserEventPublisher).publishSuccessEvent(Mockito.any(), Mockito.any(),
 				Mockito.any());
-		Mockito.when(iamService.verifyOTP(Mockito.any())).thenReturn(Response.<VerifyOTPResponseDTO>builder()
-				.status(ResponseStatus.SUCCESS).data(verifyOTPResponseDTO).build());
 		FundTransferResponseDTO fundTransferResponseDTO = payLaterTransferService.transferFund(metaData,
 				fundTransferRequestDTO);
 		Assert.assertNull(fundTransferResponseDTO);
@@ -103,12 +100,6 @@ public class PayLaterTransferServiceTest {
 	public void transferFundTestOTPFailure() {
 		VerifyOTPResponseDTO verifyOTPResponseDTO = new VerifyOTPResponseDTO();
 		verifyOTPResponseDTO.setAuthenticated(false);
-		Mockito.doNothing().when(asyncUserEventPublisher).publishFailedEsbEvent(Mockito.any(), Mockito.any(),
-				Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-		Mockito.when(iamService.verifyOTP(Mockito.any()))
-				.thenReturn(Response.<VerifyOTPResponseDTO>builder().status(ResponseStatus.FAIL).errorCode("TN-5016")
-						.errorDetails("Something went wrong with OTP external service").data(verifyOTPResponseDTO)
-						.build());
 		try {
 			payLaterTransferService.transferFund(metaData, fundTransferRequestDTO);
 		} catch (GenericException genericException) {
@@ -120,7 +111,7 @@ public class PayLaterTransferServiceTest {
 	public void getFundTransferResponseInvalidCIFTest() throws NoSuchMethodException, SecurityException,
 			IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		metaData.setPrimaryCif("123456");
-		FundTransferRequestDTO fundTransferRequestDTO = generateFundTransferRequest();
+		FundTransferRequestDTO fundTransferRequestDTO = generateFundTransferRequest(FTOrderType.PL);
 		try {
 			fundTransferRequestDTO.setServiceType("WYMA");
 			payLaterTransferService.transferFund(metaData, fundTransferRequestDTO);
@@ -133,7 +124,7 @@ public class PayLaterTransferServiceTest {
 	public void test_dealnumberNotValid() throws NoSuchMethodException, SecurityException,
 			IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		metaData.setPrimaryCif("123456");
-		FundTransferRequestDTO fundTransferRequestDTO = generateFundTransferRequest();
+		FundTransferRequestDTO fundTransferRequestDTO = generateFundTransferRequest(FTOrderType.PL);
 		try {
 			fundTransferRequestDTO.setServiceType("WYMA");
 			fundTransferRequestDTO.setCurrency("AED");
@@ -143,9 +134,33 @@ public class PayLaterTransferServiceTest {
 			payLaterTransferService.transferFund(metaData, fundTransferRequestDTO);
 		} catch (GenericException e) {
 			assertEquals(TransferErrorCode.DEAL_NUMBER_NOT_APPLICABLE_WITH_SAME_CRNCY.getCustomErrorCode(), e.getErrorCode());
-		}	}
+		}	
+	}
+	
+	@Test
+	public void transferFundTest_SI() {
+		FundTransferRequestDTO fundTransferRequestDTO = generateFundTransferRequest(FTOrderType.SI);
+		Mockito.doNothing().when(asyncUserEventPublisher).publishSuccessEvent(Mockito.any(), Mockito.any(),
+				Mockito.any());
+		FundTransferResponseDTO fundTransferResponseDTO = payLaterTransferService.transferFund(metaData,
+				fundTransferRequestDTO);
+		Assert.assertNull(fundTransferResponseDTO);
+	}
 
-	private FundTransferRequestDTO generateFundTransferRequest() {
+	@Test
+	public void transferFundTest_SI_Disabled() {
+		ReflectionTestUtils.setField(payLaterTransferService, "standingInstructionsDisabled", true);
+		FundTransferRequestDTO fundTransferRequestDTO = generateFundTransferRequest(FTOrderType.SI);
+		
+		try {
+			payLaterTransferService.transferFund(metaData, fundTransferRequestDTO);
+		} catch (GenericException e) {
+			assertEquals(TransferErrorCode.PAY_LATER_TRANSACTION_INITIATION_FAILED.getCustomErrorCode(), e.getErrorCode());
+		}
+	}
+	
+	
+	private FundTransferRequestDTO generateFundTransferRequest(FTOrderType orderTpe) {
 		fundTransferRequestDTO = new FundTransferRequestDTO();
 		fundTransferRequestDTO.setFinalBene("cad internauser");
 		fundTransferRequestDTO.setPurposeCode("PIN");
@@ -164,6 +179,7 @@ public class PayLaterTransferServiceTest {
 		fundTransferRequestDTO.setChargeBearer("B");
 		fundTransferRequestDTO.setDpRandomNumber("EF4EEE95A2022C00344195AD3FAF4206");
 		fundTransferRequestDTO.setDpPublicKeyIndex(12);
+		fundTransferRequestDTO.setOrderType(orderTpe.getName());
 		return fundTransferRequestDTO;
 	}
 

@@ -8,13 +8,14 @@ package com.mashreq.transfercoreservice.fundtransfer.validators.rulespecificvali
         import com.mashreq.transfercoreservice.fundtransfer.validators.Validator;
         import lombok.extern.slf4j.Slf4j;
         import org.apache.commons.lang3.StringUtils;
+        import org.springframework.context.annotation.Profile;
         import org.springframework.stereotype.Component;
 
         import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_CURRENCY_MISMATCH;
         import static com.mashreq.transfercoreservice.errors.TransferErrorCode.CREDIT_NOT_ALLOWED_FOR_EGP;
         import static com.mashreq.transfercoreservice.errors.TransferErrorCode.DEBIT_NOT_ALLOWED_FOR_EGP;
 
-
+@Profile("!egypt")
 @Slf4j
 @Component("EGP_WYMA_TransactionValidator")
 public class EGP_WYMA_TransactionValidator implements Validator<RuleSpecificValidatorRequest> {

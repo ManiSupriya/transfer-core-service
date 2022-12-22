@@ -5,6 +5,8 @@ import java.math.BigDecimal;
 import com.mashreq.transfercoreservice.fundtransfer.validators.rulespecificvalidators.RuleSpecificValidatorImpl;
 import com.mashreq.transfercoreservice.fundtransfer.validators.rulespecificvalidators.RuleSpecificValidatorRequest;
 import com.mashreq.transfercoreservice.fundtransfer.validators.Validator;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
@@ -30,7 +32,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class OwnAccountEligibilityService implements TransferEligibilityService{
 
-	public static final String LOCAL_CURRENCY = "AED";
+	@Value("${app.local.currency}")
+	private String localCurrency;
 
 	private final LimitValidatorFactory limitValidatorFactory;
 	private final AccountService accountService;
@@ -51,7 +54,7 @@ public class OwnAccountEligibilityService implements TransferEligibilityService{
 		validateAccountContext.add("to-account", toAccount);
 		validateAccountContext.add("to-account-currency", request.getTxnCurrency());
 
-		responseHandler(currencyValidatorFactory.getValidator(metaData).validate(request, metaData));
+		responseHandler(currencyValidatorFactory.getValidator(metaData).validate(request, metaData, validateAccountContext));
 
 		BigDecimal transferAmountInSrcCurrency;
 		if(isCurrencySame(request.getTxnCurrency(), fromAccount.getCurrency())) {
@@ -102,7 +105,7 @@ public class OwnAccountEligibilityService implements TransferEligibilityService{
 
 	private BigDecimal getLimitUsageAmount(final AccountDetailsDTO sourceAccountDetailsDTO,
 			final BigDecimal transferAmountInSrcCurrency) {
-		return LOCAL_CURRENCY.equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
+		return localCurrency.equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
 				? transferAmountInSrcCurrency
 						: convertAmountInLocalCurrency(sourceAccountDetailsDTO, transferAmountInSrcCurrency);
 	}
@@ -113,7 +116,7 @@ public class OwnAccountEligibilityService implements TransferEligibilityService{
 		currencyConversionRequestDto.setAccountNumber(sourceAccountDetailsDTO.getNumber());
 		currencyConversionRequestDto.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
 		currencyConversionRequestDto.setAccountCurrencyAmount(transferAmountInSrcCurrency);
-		currencyConversionRequestDto.setTransactionCurrency(LOCAL_CURRENCY);
+		currencyConversionRequestDto.setTransactionCurrency(localCurrency);
 
 		CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(currencyConversionRequestDto);
 		return currencyConversionDto.getTransactionAmount();

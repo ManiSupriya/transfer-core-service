@@ -7,12 +7,14 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.promo.service.PromoCodeService;
 import com.mashreq.transfercoreservice.util.TestUtil;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -30,6 +32,11 @@ public class PromoCodeServiceTest {
     private PromoCodeService promoCodeService;
 
     RequestMetaData metaData = RequestMetaData.builder().build();
+    
+    @Before
+	public void prepare() {
+    	ReflectionTestUtils.setField(promoCodeService, "promocodeDisabled", false);
+    }
 
     @Test
     public void validateAndSaveEmptyPromo(){
@@ -56,6 +63,18 @@ public class PromoCodeServiceTest {
 
         when(beneficiaryService.getByIdWithoutValidation(any(), any(), any(), any())).thenReturn(TestUtil.getBeneficiaryDto());
         doThrow(GenericException.class).when(mobCommonService).validatePromoCode(any());
+
+        Assert.assertFalse(promoCodeService.validateAndSave(fundTransferRequestDTO, null, metaData));
+    }
+    
+    @Test
+    public void validate_promocodeDisabled(){
+    	
+    	ReflectionTestUtils.setField(promoCodeService, "promocodeDisabled", true);
+    	
+        FundTransferRequestDTO fundTransferRequestDTO = new FundTransferRequestDTO();
+        fundTransferRequestDTO.setPromoCode("FREEDOM");
+        fundTransferRequestDTO.setBeneficiaryId("1");
 
         Assert.assertFalse(promoCodeService.validateAndSave(fundTransferRequestDTO, null, metaData));
     }

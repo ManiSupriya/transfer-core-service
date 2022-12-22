@@ -16,7 +16,7 @@ springdoc:
 
 spring:
   application.name: transfer-core-service
-  profiles.active: ${ACTIVE_PROFILE:local}
+  profiles.active: ${ACTIVE_PROFILE:dev}
   datasource:
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
     url: ${MSSQL_DB_URL}
@@ -110,28 +110,33 @@ external:
         cardLessCashFees: '0'
 
 app:
+  auth:
+    security-service-url: ${IAM_SERVICE_URL:http://ms-security-iam:8080}
   local:
-    currency: 'AED'
-    transaction.code: '015'
+    currency: ${LOCAL_CURRENCY:AED}
     transfer.product.id: 'DBLC'
-  uae:
     transaction.code: '096'
-    country.iso: 'AE'
-    currency.iso: '784'
-    address: 'UNITED ARAB EMIRATES'
+    country.iso: ${LOCAL_COUNTRY_ISO:AE}
+    address: ${LOCAL_ADDRESS:UNITED ARAB EMIRATES}
     iban:
-      length: 23
+      length: ${IBAN_LENGTH:23}
       accountNumber: ${MASHREQ_ACCOUNTNUMBER_LENGTH:12}
-  bank:
-    code: '033'
+    bank:
+      code: ${LOCAL_BANK_CODE:033}
+    tftAuthorizationCode: ${TFT_AUTHORIZATION_CODE:A}
+  inft:
+    tftAuthorizationCode: ${TFT_INFT_AUTHORIZATION_CODE:A}
   loyalty:
     timeInterval: 1
     smilesProductBin: 524179
+  standingInstructions:
+    disabled: ${STANDING_INSTRUCTIONS_DISABLED:false}
+  promocode:
+    disabled: ${PROMO_CODE_DISABLED:false}
   services:
     maintenance: ${MAINTENANCE_SERVICE_URL:http://maintenance-service:8080}
     customers: ${CUSTOMER_SERVICE_URL:http://customers-service:8080}
     accounts: ${ACCOUNT_SERVICE_URL:http://accounts-service:8080}
-    otp: ${IAM_SERVICE_URL:http://ms-security-iam:8080}
     cards: ${CARD_SERVICE_URL:http://cards-service:8080}
     notification: ${NOTIFICATION_SERVICE:http://notification-service:8080}
     mobcustomer: ${MOB_CUSTOMER_SERVICE:http://mob-customer-service:8080}
@@ -166,13 +171,20 @@ app:
         StandingInstructionSubject: ${SI_EMAIL_SUBJECT:Standing instruction request}
         fromEmailName: ${EMAIL_FROM_NAME_MOB:MashreqDigital}
         fromEmailAddress: ${EMAIL_FROM_ADD_MOB:MashreqDigital@mashreq.com}
-        callCenterNo: ${NOTIFICATION_EMAIL_CALL_CENTER_NO:04 424 6666}
         localFundTransfer: templates/mt-within-own-accounts
         otherFundTransfer: templates/mt-other-accounts
         goldSilverBuySuccess: templates/buy-goldsilver-success
         goldSilverSellSuccess: templates/sell-goldsilver-success
         plSiFundTransfer: templates/plEmailTemplate
-
+      EG:
+        emailSubject: ${NOTIFICATION_EMAIL_SUBJECT:%s Transfer request via %s}
+        payLaterSubject: ${PL_EMAIL_SUBJECT:Pay later request}
+        StandingInstructionSubject: ${SI_EMAIL_SUBJECT:Standing instruction request}
+        fromEmailName: ${EMAIL_FROM_NAME_MOB:MashreqDigital}
+        fromEmailAddress: ${EMAIL_FROM_ADD_MOB:MashreqDigital@mashreq.com}
+        localFundTransfer: templates/mt-within-own-accounts-eg
+        otherFundTransfer: templates/mt-other-accounts-eg
+        plSiFundTransfer: templates/plEmailTemplate-eg
     sms:
       mashreqServiceId: ${ALERT_SMS_MASHREQ_PAYMENT_SERVICEID:330}
       neoServiceId: ${ALERT_SMS_NEO_PAYMENT_SERVICEID:350}
@@ -199,7 +211,6 @@ instarem:
         code: BRANCH CODE
       AU:
         code: BSB CODE
-
 
 mob-common:
   loggers:
@@ -237,13 +248,19 @@ feign:
     connection-timeout: ${FEIGN_CONNECTION_TIMEOUT:2000}
 
 redis:
-  enable: true
-  write.ttl: ${REDIS_TTL:60}
+  enableRedisCache: true
   host: ${REDIS_HOST:kyc-redis}
   port: ${REDIS_PORT:6379}
-  timeout: ${REDIS_TIMEOUT:5000}
   password: ${REDIS_PASSWORD:P@ssword123$}
   ssl: ${REDIS_SSL:false}
+  timeout: ${REDIS_TIMEOUT:5000}
+  maxTotal: ${REDIS_MAX_TOTAL:128}
+  maxIdle: ${REDIS_MAX_IDLE:128}
+  minIdle: ${REDIS_MIN_IDLE:16}
+  minEvictableIdleTime: ${REDIS_MIN_EVICTABLE_IDLE_TIME:60}
+  timeBetweenEviction: ${REDIS_TIME_BETWEEN_EVICTION_RUNS:30}
+  numTestsPerEvictionRun: ${REDIS_NUM_TESTS_PER_EVICTION_RUN:3}
+  writeTtl: ${REDIS_TTL:60}
 
 async:
   thread:

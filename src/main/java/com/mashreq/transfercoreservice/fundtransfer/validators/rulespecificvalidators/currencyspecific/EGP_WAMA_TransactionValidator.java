@@ -7,9 +7,11 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 import com.mashreq.transfercoreservice.fundtransfer.validators.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 
+@Profile("!egypt")
 @Slf4j
 @RequiredArgsConstructor
 @Component("EGP_WAMA_TransactionValidator")

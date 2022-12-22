@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
+import com.mashreq.transactionauth.twofa.TwoFaBaseModel;
 import com.mashreq.transfercoreservice.annotations.Account;
 import com.mashreq.transfercoreservice.annotations.ConditionalRequired;
 import com.mashreq.transfercoreservice.annotations.TransactionAmount;
@@ -29,7 +30,7 @@ import lombok.Data;
 @ConditionalRequired(fieldName = "endDate", dependentFieldName = "orderType", anyMatch = "SI", message = "end date is mandatory")
 @ConditionalRequired(fieldName = "frequency", dependentFieldName = "orderType", anyMatch = "SI", message = "frequency is mandatory")
 @ConditionalRequired(fieldName = "termsAndConditionsAccepted", dependentFieldName = "journeyVersion", anyMatch = "V2", message = "T&C must be accepted")
-public class FundTransferRequestDTO {
+public class FundTransferRequestDTO extends TwoFaBaseModel {
 
     @Account
     private String fromAccount;
@@ -65,10 +66,6 @@ public class FundTransferRequestDTO {
     private String beneficiaryId;
 
     private String productCode;
-    private String otp;
-    private String challengeToken;
-    private int dpPublicKeyIndex;
-    private String dpRandomNumber;
     private String txnCurrency;
     private String additionalField;
     private String finalBene;

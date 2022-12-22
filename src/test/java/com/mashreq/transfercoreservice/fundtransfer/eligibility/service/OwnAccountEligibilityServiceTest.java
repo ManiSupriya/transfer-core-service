@@ -22,8 +22,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,6 +37,7 @@ import static org.mockito.Mockito.when;
 @RequiredArgsConstructor
 public class OwnAccountEligibilityServiceTest {
 
+	@InjectMocks
 	private OwnAccountEligibilityService service;
 	@Mock
 	private AccountService accountService;
@@ -57,18 +60,12 @@ public class OwnAccountEligibilityServiceTest {
 	@Before
 	public void init() {
 		egWymaValidator = new EGP_WYMA_TransactionValidator();
-		service = new OwnAccountEligibilityService(
-				limitValidatorFactory,
-				accountService,
-				maintenanceService,
-				currencyValidatorFactory,
-				RuleSpecificValidatorProvider);
+		ReflectionTestUtils.setField(service, "localCurrency", "AED");
 	}
-
-
 
 	@Test
 	public void checkEligibility(){
+
 		FundTransferEligibiltyRequestDTO fundTransferEligibiltyRequestDTO = new FundTransferEligibiltyRequestDTO();
 		fundTransferEligibiltyRequestDTO.setBeneficiaryId("1");
 		fundTransferEligibiltyRequestDTO.setFromAccount("1234567890");
@@ -80,7 +77,7 @@ public class OwnAccountEligibilityServiceTest {
 		ValidationResult validationResult = ValidationResult.builder().success(true).build();
 		when(limitValidatorFactory.getValidator(any())).thenReturn(limitValidator);
 		when(currencyValidatorFactory.getValidator(any())).thenReturn(currencyValidator);
-		when(currencyValidator.validate(any(),any())).thenReturn(validationResult);
+		when(currencyValidator.validate(any(),any(),any())).thenReturn(validationResult);
 		when(maintenanceService.convertBetweenCurrencies(any())).thenReturn(TestUtil.getCurrencyConversionDto());
 		when(maintenanceService.convertCurrency(any())).thenReturn(TestUtil.getCurrencyConversionDto());
 		when(limitValidator.validate(any(),any(),any(),any(),any())).thenReturn(TestUtil.limitValidatorResultsDto(null));
@@ -106,7 +103,7 @@ public class OwnAccountEligibilityServiceTest {
 		when(maintenanceService.convertBetweenCurrencies(any())).thenReturn(TestUtil.getCurrencyConversionDto());
 		when(limitValidatorFactory.getValidator(any())).thenReturn(limitValidator);
 		when(currencyValidatorFactory.getValidator(any())).thenReturn(currencyValidator);
-		when(currencyValidator.validate(any(),any())).thenReturn(validationResult);
+		when(currencyValidator.validate(any(),any(),any())).thenReturn(validationResult);
 		when(maintenanceService.convertCurrency(any())).thenReturn(TestUtil.getCurrencyConversionDto());
 		when(limitValidator.validate(any(),any(),any(),any(),any())).thenReturn(TestUtil.limitValidatorResultsDto(null));
 		when(accountService.getAccountDetailsFromCache(any(),any())).thenReturn(new AccountDetailsDTO());
@@ -138,15 +135,15 @@ public class OwnAccountEligibilityServiceTest {
 		when(maintenanceService.convertBetweenCurrencies(any())).thenReturn(TestUtil.getCurrencyConversionDto());
 		when(currencyValidatorFactory.getValidator(any())).thenReturn(currencyValidator);
 		when(RuleSpecificValidatorProvider.getCcyValidator(any(),any())).thenReturn(egWymaValidator);
-		when(currencyValidator.validate(any(),any())).thenReturn(validationResult);
+		when(currencyValidator.validate(any(),any(), any())).thenReturn(validationResult);
 		when(accountService.getAccountDetailsFromCache(eq("ASDFGH"),any())).thenReturn(fromAccount);
 		when(accountService.getAccountDetailsFromCache(eq("QWERTY"),any())).thenReturn(toAccount);
 
 		Assertions.assertThrows(GenericException.class, () ->{
 			service.checkEligibility(metaData, fundTransferEligibiltyRequestDTO, userDTO);
 		});
-
 	}
+
 	@Test
 	public void checkEligibilityFailureCase2WithValidatorResponse(){
 		FundTransferEligibiltyRequestDTO fundTransferEligibiltyRequestDTO = new FundTransferEligibiltyRequestDTO();
@@ -163,19 +160,17 @@ public class OwnAccountEligibilityServiceTest {
 		AccountDetailsDTO fromAccount = new AccountDetailsDTO();
 		fromAccount.setCurrency("EGP");
 
-
 		ValidationResult validationResult = ValidationResult.builder().success(true).build();
 		when(maintenanceService.convertBetweenCurrencies(any())).thenReturn(TestUtil.getCurrencyConversionDto());
 		when(currencyValidatorFactory.getValidator(any())).thenReturn(currencyValidator);
 		when(RuleSpecificValidatorProvider.getCcyValidator(any(),any())).thenReturn(egWymaValidator);
-		when(currencyValidator.validate(any(),any())).thenReturn(validationResult);
+		when(currencyValidator.validate(any(),any(), any())).thenReturn(validationResult);
 		when(accountService.getAccountDetailsFromCache(eq("ASDFGH"),any())).thenReturn(fromAccount);
 		when(accountService.getAccountDetailsFromCache(eq("QWERTY"),any())).thenReturn(toAccount);
 
 		Assertions.assertThrows(GenericException.class, () ->{
 			service.checkEligibility(metaData, fundTransferEligibiltyRequestDTO, userDTO);
 		});
-
 	}
 
 	@Test
@@ -198,17 +193,15 @@ public class OwnAccountEligibilityServiceTest {
 		when(limitValidatorFactory.getValidator(any())).thenReturn(limitValidator);
 		when(RuleSpecificValidatorProvider.getCcyValidator(any(),any())).thenReturn(egWymaValidator);
 		when(currencyValidatorFactory.getValidator(any())).thenReturn(currencyValidator);
-		when(currencyValidator.validate(any(),any())).thenReturn(validationResult);
+		when(currencyValidator.validate(any(),any(),any())).thenReturn(validationResult);
 		when(maintenanceService.convertCurrency(any())).thenReturn(TestUtil.getCurrencyConversionDto());
 		when(limitValidator.validate(any(),any(),any(),any(),any())).thenReturn(TestUtil.limitValidatorResultsDto(null));
 		when(accountService.getAccountDetailsFromCache(eq("ASDFGH"),any())).thenReturn(fromAccount);
 		when(accountService.getAccountDetailsFromCache(eq("QWERTY"),any())).thenReturn(toAccount);
-
 
 		EligibilityResponse response = service.checkEligibility(metaData, fundTransferEligibiltyRequestDTO, userDTO);
 
 		assertNotNull(response);
 		assertEquals(response.getStatus(), FundsTransferEligibility.ELIGIBLE);
 	}
-
 }

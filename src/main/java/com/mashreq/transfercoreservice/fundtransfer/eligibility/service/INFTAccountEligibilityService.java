@@ -5,6 +5,8 @@ import java.math.BigDecimal;
 import com.mashreq.transfercoreservice.fundtransfer.validators.rulespecificvalidators.RuleSpecificValidatorRequest;
 import com.mashreq.transfercoreservice.fundtransfer.validators.rulespecificvalidators.RuleSpecificValidatorImpl;
 import com.mashreq.transfercoreservice.fundtransfer.validators.Validator;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
@@ -42,13 +44,14 @@ public class INFTAccountEligibilityService implements TransferEligibilityService
     private final LimitValidatorFactory limitValidatorFactory;
     private final RuleSpecificValidatorImpl CountrySpecificValidatorProvider;
 
-    
+
+    @Value("${app.local.currency}")
+    private String localCurrency;
+
     @Override
 	public EligibilityResponse checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request,UserDTO userDTO) {
     	log.info("INFT transfer eligibility validation started");
     	
-    	responseHandler(currencyValidatorFactory.getValidator(metaData).validate(request, metaData));
-
         final ValidationContext validationContext = new ValidationContext();
 
 		BeneficiaryDto beneficiaryDto;
@@ -83,6 +86,9 @@ public class INFTAccountEligibilityService implements TransferEligibilityService
         }
 
         final AccountDetailsDTO sourceAccountDetailsDTO = accountService.getAccountDetailsFromCache(request.getFromAccount(), metaData);
+        
+        validationContext.add("from-account", sourceAccountDetailsDTO);
+        responseHandler(currencyValidatorFactory.getValidator(metaData).validate(request, metaData, validationContext));
 
 		final BigDecimal transferAmountInSrcCurrency = getAmountInSrcCurrency(request, sourceAccountDetailsDTO);
 
@@ -107,7 +113,7 @@ public class INFTAccountEligibilityService implements TransferEligibilityService
         currencyConversionRequestDto.setAccountNumber(sourceAccountDetailsDTO.getNumber());
         currencyConversionRequestDto.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
         currencyConversionRequestDto.setAccountCurrencyAmount(transferAmountInSrcCurrency);
-        currencyConversionRequestDto.setTransactionCurrency("AED");
+        currencyConversionRequestDto.setTransactionCurrency(localCurrency);
 
         CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(currencyConversionRequestDto);
         return currencyConversionDto.getTransactionAmount();
@@ -115,7 +121,7 @@ public class INFTAccountEligibilityService implements TransferEligibilityService
 
     private BigDecimal getLimitUsageAmount(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO,
                                            final BigDecimal transferAmountInSrcCurrency) {
-        return "AED".equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
+        return localCurrency.equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
                 ? transferAmountInSrcCurrency
                 : convertAmountInLocalCurrency(sourceAccountDetailsDTO, transferAmountInSrcCurrency);
     }

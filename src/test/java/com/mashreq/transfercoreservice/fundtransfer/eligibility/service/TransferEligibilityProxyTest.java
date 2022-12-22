@@ -1,9 +1,9 @@
 package com.mashreq.transfercoreservice.fundtransfer.eligibility.service;
 
 
+import com.mashreq.mobcommons.cache.MobRedisService;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericException;
-import com.mashreq.transfercoreservice.cache.MobRedisService;
 import com.mashreq.transfercoreservice.cache.UserSessionCacheService;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
@@ -51,7 +51,7 @@ public class TransferEligibilityProxyTest {
 	@Mock
 	private  MobCommonService mobCommonService;
 	@Mock
-	private  MobRedisService mobRedisService;
+	private MobRedisService mobRedisService;
 
 	@InjectMocks
 	private TransferEligibilityProxy transferEligibilityProxy;

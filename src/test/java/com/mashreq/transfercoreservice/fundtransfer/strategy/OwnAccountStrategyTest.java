@@ -18,11 +18,13 @@ import com.mashreq.transfercoreservice.notification.service.DigitalUserSegment;
 import com.mashreq.transfercoreservice.notification.service.NotificationService;
 import com.mashreq.transfercoreservice.notification.service.PostTransactionService;
 import com.mashreq.transfercoreservice.util.TestUtil;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static com.mashreq.transfercoreservice.util.TestUtil.*;
 import static org.junit.Assert.assertNotNull;
@@ -66,10 +68,17 @@ public class OwnAccountStrategyTest {
     PostTransactionService postTransactionService;
     @Mock
     private AsyncUserEventPublisher asyncUserEventPublisher;
+    @Mock
+    private MinTransactionAmountValidator minTransactionAmountValidator;
 
     private RequestMetaData metaData = RequestMetaData.builder().build();
 
     private static final String cif = "012960001";
+
+    @Before
+    public void setUp() {
+        ReflectionTestUtils.setField(service, "localCurrency", "AED");
+    }
 
     @Test
     public void executeBuyGoldTransfer(){
@@ -243,6 +252,7 @@ public class OwnAccountStrategyTest {
         when(accountService.getAccountsFromCore(any())).thenReturn(getOwnAccountDetails(fromAccount, toAccount, "AED", "AED"));
         when(accountService.getAccountDetailsFromCore(any())).thenReturn(getCoreAccountDetails().getConnectedAccounts().get(0));
         when(fundTransferMWService.transfer(any(), any(),eq(txnRefNo))).thenReturn(fundTransferResponse(txnRefNo, MwResponseStatus.S));
+        when(minTransactionAmountValidator.validate(any(), any(),any())).thenReturn(validationResult);
 
         FundTransferResponse response = service.execute(fundTransferRequestDTO, metaData, userDTO);
         assertNotNull(response);

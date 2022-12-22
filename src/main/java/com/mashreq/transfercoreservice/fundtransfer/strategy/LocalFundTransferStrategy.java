@@ -35,6 +35,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -64,14 +65,12 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     private static final String POSTING_GROUP = "U";
     private static final String SOURCE_OF_FUND_CC = "Credit Card";
 
-
-    private static final int LOCAL_IBAN_LENGTH = 23;
+    public static final String TRANSFER_AMOUNT_FOR_MIN_VALIDATION = "transfer-amount-for-min-validation";
     private static final String LOCAL_PRODUCT_ID = "DBLC";
     public static final String LOCAL_TRANSACTION_CODE = "15";
     public static final String SPACE_CHAR = " ";
-    int maxLength = 35;
-    public static final String AED = "AED";
-    public static final String NON_AED = "non-AED";
+    public static final int MAX_LENGTH = 35;
+    public static final String NON = "non-";
     private final IBANValidator ibanValidator;
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
     private final CCBelongsToCifValidator ccBelongsToCifValidator;
@@ -95,11 +94,16 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     private final CardService cardService;
     private final PostTransactionService postTransactionService;
     private final CCTransactionEligibilityValidator ccTrxValidator;
+    private final CurrencyValidator currencyValidator;
+    private final MinTransactionAmountValidator minTransactionAmountValidator;
+
+
     @Value("${app.local.currency}")
     private String localCurrency;
-
-    @Value("${app.uae.address}")
+    @Value("${app.local.address}")
     private String address;
+    @Value("${app.local.iban.length}")
+    private int ibanLength;
 
 
 
@@ -145,8 +149,15 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         responseHandler(beneficiaryValidator.validate(request, metadata, validationContext));
 
 
-        validationContext.add("iban-length", LOCAL_IBAN_LENGTH);
-        responseHandler(ibanValidator.validate(request, metadata, validationContext));
+        validationContext.add("iban-length", ibanLength);
+
+        //IBAN validation has to be skipped if beneficiary account identifier type is "account"
+        if(Objects.isNull(beneficiaryDto.getIdentifierType()) ||
+                !IdentifierType.ACCOUNT.getName().equals(beneficiaryDto.getIdentifierType())) {
+            responseHandler(ibanValidator.validate(request, metadata, validationContext));
+        }
+
+        responseHandler(currencyValidator.validate(request, metadata, validationContext));
 
         //Deal Validator
         log.info("Deal Validation Started");
@@ -173,6 +184,10 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         //Limit Validation
         Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
         final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), fromAccountDetails, currencyConversionDto.getAccountCurrencyAmount());
+
+        validationContext.add(TRANSFER_AMOUNT_FOR_MIN_VALIDATION, limitUsageAmount );
+        responseHandler(minTransactionAmountValidator.validate(request, metadata, validationContext));
+
         final LimitValidatorResponse validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount, metadata, bendId);
         String txnRefNo = validationResult.getTransactionRefNo();
 
@@ -263,6 +278,10 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
         Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
         final BigDecimal limitUsageAmount = transferAmountInSrcCurrency;
+
+        validationContext.add(TRANSFER_AMOUNT_FOR_MIN_VALIDATION, limitUsageAmount );
+        responseHandler(minTransactionAmountValidator.validate(request, requestMetaData, validationContext));
+
         final LimitValidatorResponse validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount, requestMetaData, bendId);
         String txnRefNo = validationResult.getTransactionRefNo();
 
@@ -298,7 +317,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         validationContext.add("to-account-currency", localCurrency);
         responseHandler(beneficiaryValidator.validate(request, requestMetaData, validationContext));
 
-        validationContext.add("iban-length", LOCAL_IBAN_LENGTH);
+        validationContext.add("iban-length", ibanLength);
         responseHandler(ibanValidator.validate(request, requestMetaData, validationContext));
 
         //Deal Validator
@@ -428,7 +447,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
     }
 
     private BigDecimal getLimitUsageAmount(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO, final BigDecimal transferAmountInSrcCurrency) {
-        return "AED".equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
+        return localCurrency.equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
                 ? transferAmountInSrcCurrency
                 : convertAmountInLocalCurrency(sourceAccountDetailsDTO, transferAmountInSrcCurrency);
     }
@@ -438,7 +457,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         currencyConversionRequestDto.setAccountNumber(sourceAccountDetailsDTO.getNumber());
         currencyConversionRequestDto.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
         currencyConversionRequestDto.setAccountCurrencyAmount(transferAmountInSrcCurrency);
-        currencyConversionRequestDto.setTransactionCurrency("AED");
+        currencyConversionRequestDto.setTransactionCurrency(localCurrency);
 
         CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(currencyConversionRequestDto);
         return currencyConversionDto.getTransactionAmount();
@@ -448,7 +467,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         final CoreCurrencyConversionRequestDto currencyRequest = new CoreCurrencyConversionRequestDto();
         currencyRequest.setAccountNumber(sourceAccountDetailsDTO.getNumber());
         currencyRequest.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
-        currencyRequest.setTransactionCurrency("AED");
+        currencyRequest.setTransactionCurrency(localCurrency);
         currencyRequest.setDealNumber(request.getDealNumber());
         currencyRequest.setTransactionAmount(request.getAmount());
         CurrencyConversionDto currencyConversionDto =  maintenanceService.convertBetweenCurrencies(currencyRequest);
@@ -461,11 +480,11 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
                                                                   LimitValidatorResponse validationResult, CurrencyConversionDto currencyConversionDto) {
     	String address3 = null;
     	if(StringUtils.isNotBlank(beneficiaryDto.getAddressLine2()) && StringUtils.isNotBlank(beneficiaryDto.getAddressLine3())){
-    		address3 = StringUtils.left(beneficiaryDto.getAddressLine2().concat(SPACE_CHAR+beneficiaryDto.getAddressLine3()), maxLength);
+    		address3 = StringUtils.left(beneficiaryDto.getAddressLine2().concat(SPACE_CHAR+beneficiaryDto.getAddressLine3()), MAX_LENGTH);
     	} else if(StringUtils.isNotBlank(beneficiaryDto.getAddressLine2()) && StringUtils.isBlank(beneficiaryDto.getAddressLine3())){
-    		address3 = StringUtils.left(beneficiaryDto.getAddressLine2(), maxLength);
+    		address3 = StringUtils.left(beneficiaryDto.getAddressLine2(), MAX_LENGTH);
     	} else if(StringUtils.isBlank(beneficiaryDto.getAddressLine2()) && StringUtils.isNotBlank(beneficiaryDto.getAddressLine3())){
-    		address3 = StringUtils.left(beneficiaryDto.getAddressLine3(), maxLength);
+    		address3 = StringUtils.left(beneficiaryDto.getAddressLine3(), MAX_LENGTH);
     	}
     	return FundTransferRequest.builder()
                 .productId(LOCAL_PRODUCT_ID)
@@ -482,8 +501,8 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
                 .finTxnNo(request.getFinTxnNo())
                 .sourceCurrency(selectedSourceOfFund.getCurrency())
                 .sourceBranchCode(selectedSourceOfFund.getSegment())
-                .beneficiaryFullName(StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength ? StringUtils.left(beneficiaryDto.getFullName(), maxLength) : beneficiaryDto.getFullName())
-                .beneficiaryAddressOne(StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > maxLength ? beneficiaryDto.getFullName().substring(maxLength) : null)
+                .beneficiaryFullName(StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > MAX_LENGTH ? StringUtils.left(beneficiaryDto.getFullName(), MAX_LENGTH) : beneficiaryDto.getFullName())
+                .beneficiaryAddressOne(StringUtils.isNotBlank(beneficiaryDto.getFullName()) && beneficiaryDto.getFullName().length() > MAX_LENGTH ? beneficiaryDto.getFullName().substring(MAX_LENGTH) : null)
                 .beneficiaryAddressTwo(address)
                 .beneficiaryAddressThree(address3)
                 .destinationCurrency(localCurrency)
@@ -529,10 +548,10 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 
     protected String getTransferType(String txnCurrency){
         StringBuilder stringBuilder = new StringBuilder("Local ");
-        if(AED.equalsIgnoreCase(txnCurrency) || txnCurrency == null){
-            stringBuilder.append(AED);
+        if(localCurrency.equalsIgnoreCase(txnCurrency) || txnCurrency == null){
+            stringBuilder.append(localCurrency);
         } else {
-            stringBuilder.append(NON_AED);
+            stringBuilder.append(NON).append(localCurrency);
         }
         return stringBuilder.toString();
 

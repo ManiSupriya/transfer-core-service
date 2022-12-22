@@ -19,12 +19,8 @@ import org.springframework.web.util.HtmlUtils;
 @RunWith(MockitoJUnitRunner.class)
 public class BeneficiaryValidatorTest {
 
-
     @Mock
     private AsyncUserEventPublisher auditEventPublisher;
-    
-    @Mock
-    HtmlUtils htmlutils;
 
     @InjectMocks
     private BeneficiaryValidator beneficiaryValidator;

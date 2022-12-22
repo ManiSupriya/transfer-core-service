@@ -7,7 +7,6 @@ import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPRequestDTO;
 import com.mashreq.transfercoreservice.client.dto.VerifyOTPResponseDTO;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
-import com.mashreq.transfercoreservice.client.service.OTPService;
 import com.mashreq.transfercoreservice.common.CommonConstants;
 import com.mashreq.transfercoreservice.errors.ExternalErrorCodeConfig;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
@@ -66,7 +65,6 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final CharityStrategyDefault charityStrategyDefault;
     private final AsyncUserEventPublisher auditEventPublisher;
     protected EnumMap<ServiceType, FundTransferStrategy> fundTransferStrategies;
-    private final OTPService otpService;
     private final ExternalErrorCodeConfig errorCodeConfig;
     private final PromoCodeService promoCodeService;
     private final MobCommonService mobCommonService;
@@ -95,41 +93,13 @@ public class FundTransferServiceDefault implements FundTransferService {
         final ServiceType serviceType = getServiceByType(request.getServiceType());
         final FundTransferEventType initiatedEvent = FundTransferEventType.getEventTypeByCode(serviceType.getEventPrefix() + FUND_TRANSFER_INITIATION_SUFFIX);
         verifyTermsAndConditionAcceptance(request,metadata);
-        if(!WYMA.getName().equals(serviceType.getName())){
-            verifyOtp(request,metadata);
-        }
+
+        auditEventPublisher.publishSuccessEvent(FundTransferEventType.FUND_TRANSFER_OTP_VALIDATION, metadata, FundTransferEventType.FUND_TRANSFER_OTP_VALIDATION.getDescription());
         return auditEventPublisher.publishEventLifecycle(
                 () -> getFundTransferResponse(metadata, request),
                 initiatedEvent,
                 metadata,
                 getInitiatedRemarks(request));
-    }
-
-    protected void verifyOtp(FundTransferRequestDTO request, RequestMetaData metadata) {
-    	if(!CommonConstants.PROD_PROFILE.equals(activeProfile) && otpRelaxed) {
-    		log.info("OTP relaxed for environment {}",activeProfile);
-    		return;
-    	}
-        VerifyOTPRequestDTO verifyOTPRequestDTO = new VerifyOTPRequestDTO();
-        verifyOTPRequestDTO.setOtp(request.getOtp());
-        verifyOTPRequestDTO.setChallengeToken(request.getChallengeToken());
-        verifyOTPRequestDTO.setDpPublicKeyIndex(request.getDpPublicKeyIndex());
-        verifyOTPRequestDTO.setDpRandomNumber(request.getDpRandomNumber());
-        verifyOTPRequestDTO.setLoginId(metadata.getLoginId());
-        verifyOTPRequestDTO.setRedisKey(metadata.getUserCacheKey());
-        log.info("fund transfer otp request{} ", verifyOTPRequestDTO);
-        Response<VerifyOTPResponseDTO> verifyOTP = otpService.verifyOTP(verifyOTPRequestDTO);
-        log.info("fund transfer otp response{} ", htmlEscape(verifyOTP.getStatus()));
-        if (ObjectUtils.isEmpty(verifyOTP.getData()) || !verifyOTP.getData().isAuthenticated()) {
-            auditEventPublisher.publishFailedEsbEvent(FundTransferEventType.FUND_TRANSFER_OTP_DOES_NOT_MATCH,
-                    metadata, CommonConstants.FUND_TRANSFER, metadata.getChannelTraceId(),
-                    TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.toString(),
-                    TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.getErrorMessage(),
-                    TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.getErrorMessage());
-            GenericExceptionHandler.handleError(TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR,
-                    verifyOTP.getErrorDetails(), verifyOTP.getErrorDetails());
-        }
-        auditEventPublisher.publishSuccessEvent(FundTransferEventType.FUND_TRANSFER_OTP_VALIDATION, metadata, FundTransferEventType.FUND_TRANSFER_OTP_VALIDATION.getDescription());
     }
 
     private void verifyTermsAndConditionAcceptance(FundTransferRequestDTO request, RequestMetaData metadata) {
