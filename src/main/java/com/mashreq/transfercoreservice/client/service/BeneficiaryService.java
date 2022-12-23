@@ -1,25 +1,25 @@
 package com.mashreq.transfercoreservice.client.service;
 
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_EXTERNAL_SERVICE_ERROR;
-import static java.util.Objects.isNull;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
-
-import com.google.common.base.Enums;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.BeneficiaryClient;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
-import com.mashreq.transfercoreservice.errors.TransferErrorCode;
+import com.mashreq.transfercoreservice.client.dto.BeneficiaryModificationValidationRequest;
+import com.mashreq.transfercoreservice.client.dto.BeneficiaryModificationValidationResponse;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.AdditionalFields;
+import com.mashreq.transfercoreservice.fundtransfer.dto.TwoFactorAuthRequiredCheckRequestDto;
+import com.mashreq.transfercoreservice.twofactorauthrequiredvalidation.config.TwoFactorAuthRequiredValidationConfig;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
+
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_EXTERNAL_SERVICE_ERROR;
+import static java.util.Objects.isNull;
 
 /**
  * @author shahbazkh
@@ -32,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 public class BeneficiaryService {
 
     public static final String TRUE = "true";
+	private static final String DURATION_TYPE = "hour";
     private final BeneficiaryClient beneficiaryClient;
     private final AsyncUserEventPublisher userEventPublisher;
 
@@ -90,4 +91,18 @@ public class BeneficiaryService {
         return response.getErrorCode() + "," + response.getMessage();
     }
 
+    public boolean isRecentlyUpdated(TwoFactorAuthRequiredCheckRequestDto requestDto, RequestMetaData metaData,
+                                     TwoFactorAuthRequiredValidationConfig config) {
+        BeneficiaryModificationValidationRequest request = new BeneficiaryModificationValidationRequest();
+        request.setBeneficiaryId(requestDto.getBeneficiaryId());
+        request.setDuration(config.getDurationInHours());
+        request.setDurationType(DURATION_TYPE);
+        Response<BeneficiaryModificationValidationResponse> response =
+                beneficiaryClient.isRecentlyUpdated(metaData.getPrimaryCif(), request);
+        if (ResponseStatus.ERROR == response.getStatus() || isNull(response.getData())) {
+            log.info("Received error response from beneficiary, hence returning otp required");
+            return Boolean.TRUE;
+        }
+        return response.getData().isUpdated();
+    }
 }

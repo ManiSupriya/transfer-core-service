@@ -5,12 +5,19 @@ import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.transfercoreservice.client.BeneficiaryClient;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
+import com.mashreq.transfercoreservice.client.dto.BeneficiaryModificationValidationResponse;
 import com.mashreq.transfercoreservice.fundtransfer.dto.AdditionalFields;
+import com.mashreq.transfercoreservice.fundtransfer.dto.TwoFactorAuthRequiredCheckRequestDto;
+import com.mashreq.transfercoreservice.twofactorauthrequiredvalidation.config.TwoFactorAuthRequiredValidationConfig;
+import com.mashreq.webcore.dto.response.Response;
+import com.mashreq.webcore.dto.response.ResponseStatus;
+
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static com.mashreq.transfercoreservice.util.TestUtil.*;
@@ -25,6 +32,8 @@ public class BeneficiaryServiceTest {
     private BeneficiaryClient beneficiaryClient;
     @Mock
     private AsyncUserEventPublisher userEventPublisher;
+    @Mock
+    private TwoFactorAuthRequiredValidationConfig config;
 
     @InjectMocks
     BeneficiaryService beneficiaryService;
@@ -125,6 +134,34 @@ public class BeneficiaryServiceTest {
         when(beneficiaryClient.update(any(), any(), any())).thenReturn(getEmptyErrorResponse());
 
         Assertions.assertThrows(GenericException.class, () -> beneficiaryService.getUpdate( additionalFields, 1L, "V2", metaData, "international"));
-
     }
+    
+    @Test
+	public void test_isRecentlyUpdated_errorResponse() {
+		TwoFactorAuthRequiredCheckRequestDto requestDto = new TwoFactorAuthRequiredCheckRequestDto();
+		when(config.getDurationInHours()).thenReturn(24);
+		when(beneficiaryClient.isRecentlyUpdated(Mockito.eq(metaData.getPrimaryCif()), Mockito.any()))
+				.thenReturn(Response.<BeneficiaryModificationValidationResponse>builder().build());
+		assertTrue(beneficiaryService.isRecentlyUpdated(requestDto, metaData, config));
+	}
+    
+    @Test
+	public void test_isRecentlyUpdated_emptyData() {
+		TwoFactorAuthRequiredCheckRequestDto requestDto = new TwoFactorAuthRequiredCheckRequestDto();
+		when(config.getDurationInHours()).thenReturn(24);
+		when(beneficiaryClient.isRecentlyUpdated(Mockito.eq(metaData.getPrimaryCif()), Mockito.any()))
+				.thenReturn(Response.<BeneficiaryModificationValidationResponse>builder().status(ResponseStatus.SUCCESS).build());
+		assertTrue(beneficiaryService.isRecentlyUpdated(requestDto, metaData, config));
+	}
+    
+    @Test
+	public void test_isRecentlyUpdated1_withValidResponse() {
+		when(config.getDurationInHours()).thenReturn(24);
+		BeneficiaryModificationValidationResponse data = new BeneficiaryModificationValidationResponse();
+		data.setUpdated(false);
+		when(beneficiaryClient.isRecentlyUpdated(Mockito.eq(metaData.getPrimaryCif()), Mockito.any()))
+				.thenReturn(Response.<BeneficiaryModificationValidationResponse>builder().status(ResponseStatus.SUCCESS)
+						.data(data).build());
+		assertEquals(data.isUpdated(), beneficiaryService.isRecentlyUpdated(new TwoFactorAuthRequiredCheckRequestDto(), metaData, config));
+	}
 }
