@@ -60,12 +60,9 @@ import com.mashreq.transfercoreservice.model.Segment;
 import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
 import com.mashreq.transfercoreservice.repository.QrStatusMsRepository;
 import com.mashreq.transfercoreservice.twofactorauthrequiredvalidation.service.TwoFactorAuthRequiredCheckService;
-import com.mashreq.webcore.dto.response.Response;
-import com.mashreq.webcore.dto.response.ResponseStatus;
+
 @RunWith(MockitoJUnitRunner.class)
 public class FundTransferServiceDefaultTest {
-	
-	
 	@Mock
 	RequestMetaData metaData; 
 	@Mock
@@ -123,7 +120,7 @@ public class FundTransferServiceDefaultTest {
 		
 		VerifyOTPResponseDTO verifyOTPResponseDTO = new VerifyOTPResponseDTO();
 		verifyOTPResponseDTO.setAuthenticated(true);
-        Mockito.doNothing().when(asyncUserEventPublisher).publishSuccessEvent(any(), any(), any())
+        Mockito.doNothing().when(asyncUserEventPublisher).publishSuccessEvent(any(), any(), any());
 
 		FundTransferResponseDTO fundTransferResponseDTO = fundTransferServiceDefault.transferFund(metaData,
 				fundTransferRequestDTO);
@@ -327,7 +324,6 @@ public class FundTransferServiceDefaultTest {
 		verifyOTPResponseDTO.setAuthenticated(false);
 		TwoFactorAuthRequiredCheckResponseDto validationCheckResponse = new TwoFactorAuthRequiredCheckResponseDto();
 		validationCheckResponse.setTwoFactorAuthRequired(false);
-		when(service.checkIfTwoFactorAuthenticationRequired(Mockito.any(), Mockito.any())).thenReturn(validationCheckResponse);
 		try {
 			ReflectionTestUtils.setField(fundTransferServiceDefault, "cprEnabled", true);
 			fundTransferRequestDTO.setTermsAndConditionsAccepted(true);
@@ -345,7 +341,6 @@ public class FundTransferServiceDefaultTest {
 	public void transferFundTest_withOTPNotRelaxedAndOtpandDpRandomNotPresent() {
 		VerifyOTPResponseDTO verifyOTPResponseDTO = new VerifyOTPResponseDTO();
 		verifyOTPResponseDTO.setAuthenticated(false);
-		when(service.checkIfTwoFactorAuthenticationRequired(Mockito.any(), Mockito.any())).thenReturn(new TwoFactorAuthRequiredCheckResponseDto());
 		try {
 			ReflectionTestUtils.setField(fundTransferServiceDefault, "cprEnabled", true);
 			fundTransferRequestDTO.setOtp(null);
@@ -365,7 +360,6 @@ public class FundTransferServiceDefaultTest {
 	public void transferFundTest_withOTPNotRelaxedAndDpRandomNotPresent() {
 		VerifyOTPResponseDTO verifyOTPResponseDTO = new VerifyOTPResponseDTO();
 		verifyOTPResponseDTO.setAuthenticated(false);
-		when(service.checkIfTwoFactorAuthenticationRequired(Mockito.any(), Mockito.any())).thenReturn(new TwoFactorAuthRequiredCheckResponseDto());
 		try {
 			ReflectionTestUtils.setField(fundTransferServiceDefault, "cprEnabled", true);
 			fundTransferRequestDTO.setDpRandomNumber(StringUtils.EMPTY);
