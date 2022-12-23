@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import com.mashreq.logcore.annotations.TrackExec;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
@@ -47,7 +46,7 @@ import com.mashreq.transfercoreservice.promo.service.PromoCodeService;
 import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionHistory;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionRepository;
-
+import com.mashreq.transfercoreservice.twofactorauthrequiredvalidation.service.TwoFactorAuthRequiredCheckService;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -60,7 +59,6 @@ public class PayLaterTransferService extends FundTransferServiceDefault{
 	private final WithinMashreqPayLaterStrategy withinMashreqPayLaterStrategy;
 	private final LocalFundPayLaterTransferStrategy localFundPayLaterTransferStrategy;
 	private final InternationalPayLaterFundTransferStrategy internationalPayLaterFundTransferStrategy;
-	
 	@Value("${app.standingInstructions.disabled}") 
 	private boolean standingInstructionsDisabled;
     
@@ -76,11 +74,13 @@ public class PayLaterTransferService extends FundTransferServiceDefault{
                                    WithinMashreqPayLaterStrategy withinMashreqPayLaterStrategy,
                                    LocalFundPayLaterTransferStrategy localFundPayLaterTransferStrategy,
                                    InternationalPayLaterFundTransferStrategy internationalPayLaterFundTransferStrategy,
-                                   PromoCodeService promoCodeService, MobCommonService mobCommonService) {
+                                   PromoCodeService promoCodeService, MobCommonService mobCommonService,
+                                   TwoFactorAuthRequiredCheckService service,
+                                   TransferLimitService transferLimitService) {
 		super(digitalUserRepository, transactionRepository, digitalUserLimitUsageService, ownAccountStrategy,
 				withinMashreqStrategy, localFundTransferStrategy, internationalFundTransferStrategy,
 				charityStrategyDefault, auditEventPublisher, errorCodeConfig,
-				promoCodeService, mobCommonService);
+				promoCodeService, mobCommonService service, transferLimitService);
 		this.ownAccountPayLaterStrategy = ownAccountPayLaterStrategy;
 		this.withinMashreqPayLaterStrategy = withinMashreqPayLaterStrategy;
 		this.localFundPayLaterTransferStrategy = localFundPayLaterTransferStrategy;
@@ -107,12 +107,14 @@ public class PayLaterTransferService extends FundTransferServiceDefault{
 	@Override
     protected void handleIfTransactionIsSuccess(RequestMetaData metadata, FundTransferRequestDTO request,
 			UserDTO userDTO, FundTransferResponse response) {
-		if (isSuccessOrProcessing(response)) {
-        	Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
+        if (isSuccessOrProcessing(response)) {
+            Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId()) ? Long.parseLong(request.getBeneficiaryId()) : null;
             DigitalUserLimitUsageDTO digitalUserLimitUsageDTO = generateUserLimitUsage(
-                    request.getServiceType(), response.getLimitUsageAmount(), userDTO, metadata, response.getLimitVersionUuid(),response.getTransactionRefNo(), bendId );
+                    request.getServiceType(), response.getLimitUsageAmount(), userDTO, metadata, response.getLimitVersionUuid(), response.getTransactionRefNo(), bendId);
             log.info("Inserting into limits table {} ", digitalUserLimitUsageDTO);
             this.getDigitalUserLimitUsageService().insert(digitalUserLimitUsageDTO);
+            this.getTransferLimitService().saveTransferDetails(buildTransactionLimitDto(request.getOrderType(),
+                    response.getLimitUsageAmount(), bendId), response.getTransactionRefNo());
         }
 	}
     

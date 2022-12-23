@@ -28,6 +28,7 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponseDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
+import com.mashreq.transfercoreservice.fundtransfer.dto.TwoFactorAuthRequiredCheckResponseDto;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.FundTransferStrategy;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.paylater.InternationalPayLaterFundTransferStrategy;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.paylater.LocalFundPayLaterTransferStrategy;
@@ -36,6 +37,7 @@ import com.mashreq.transfercoreservice.fundtransfer.strategy.paylater.WithinMash
 import com.mashreq.transfercoreservice.model.DigitalUser;
 import com.mashreq.transfercoreservice.paylater.enums.FTOrderType;
 import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
+import com.mashreq.transfercoreservice.twofactorauthrequiredvalidation.service.TwoFactorAuthRequiredCheckService;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
 
@@ -71,6 +73,8 @@ public class PayLaterTransferServiceTest {
 	WithinMashreqPayLaterStrategy withinMashreqPayLaterStrategy;
 	@Mock
 	LocalFundPayLaterTransferStrategy localFundPayLaterTransferStrategy;
+	@Mock
+	private TwoFactorAuthRequiredCheckService service;
 	FundTransferRequestDTO fundTransferRequestDTO;
 
 	@Mock

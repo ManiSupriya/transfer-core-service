@@ -42,5 +42,4 @@ public interface MaintenanceClient {
     @GetMapping("/api/currencies/{region}")
     Response<List<CoreCurrencyDto>> getAllCurrencies(@PathVariable final String region);
 
-
 }
