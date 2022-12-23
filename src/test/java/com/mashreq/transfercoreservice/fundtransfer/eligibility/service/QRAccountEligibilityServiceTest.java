@@ -175,7 +175,7 @@ public class QRAccountEligibilityServiceTest {
 						.userCacheKey("userCacheKey").build(),
 				fundTransferEligibiltyRequestDTO, userDTO));
 		assertEquals("TN-8008", genericException.getErrorCode());
-		assertEquals("No credit cards deals are available for the given cif", genericException.getMessage());
+		assertEquals("Credit Card not allowed as a source of fund for this country/beneficiary. Please change the source of funds as account.", genericException.getMessage());
 	}
 
 	@Test
@@ -222,7 +222,7 @@ public class QRAccountEligibilityServiceTest {
 						.primaryCif("012345678").build(),
 				fundTransferEligibiltyRequestDTO, userDTO));
 		assertEquals("TN-8009", genericException.getErrorCode());
-		assertEquals("Limit exceeds for CC fund transfer", genericException.getMessage());
+		assertEquals("Credit card limit is less than the transfer amount, please enter amount with in the available limit.", genericException.getMessage());
 	}
 
 	@Test
