@@ -30,7 +30,7 @@ public class UserSessionCacheService {
     private static final String ACCOUNT_NUMBERS = "account-numbers";
     public static final String INVESTMENT_ACCOUNT_NUMBERS = "investment-account-number";
     private static final String CARD_NUMBERS = "card-numbers";
-    private final MobRedisService redisService;
+    private final MobileRedisService redisService;
     private static final TypeReference<Map<String, Object>> ACCOUNT_CONTEXT_TYPE_REFERENCE = new TypeReference<Map<String, Object>>() {};
     private static final TypeReference<Map<String, Object>> CARDS_CONTEXT_TYPE_REFERENCE = new TypeReference<Map<String, Object>>() {};
     

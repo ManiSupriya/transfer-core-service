@@ -14,12 +14,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.redis.core.RedisTemplate;
 
-import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
-
 @Component
 @ConditionalOnBean({MobRedisConfig.class})
-public class MobRedisService {
-    private static final Logger log = LoggerFactory.getLogger(MobRedisService.class);
+public class MobileRedisService {
+    private static final Logger log = LoggerFactory.getLogger(MobileRedisService.class);
     @Autowired
     @Qualifier("mobRedisTemplate")
     private RedisTemplate<String, Object> mobRedisTemplate;
@@ -28,7 +26,7 @@ public class MobRedisService {
     @Value("${redis.write.ttl:60}")
     private long ttl;
 
-    public MobRedisService() {
+    public MobileRedisService() {
     }
 
     public <T> T get(final String key, final Class<T> clazz) {

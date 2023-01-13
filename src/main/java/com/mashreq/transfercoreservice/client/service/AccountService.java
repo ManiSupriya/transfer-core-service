@@ -13,10 +13,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.mashreq.transfercoreservice.cache.MobRedisService;
+import com.mashreq.transfercoreservice.cache.MobileRedisService;
 import com.mashreq.transfercoreservice.cache.UserSessionCacheService;
-import com.mashreq.transfercoreservice.common.HtmlEscapeCache;
-import freemarker.template.utility.HtmlEscape;
 import org.apache.commons.collections.MapUtils;
 import org.springframework.stereotype.Service;
 
@@ -58,7 +56,7 @@ public class AccountService {
 	};
 	public static final String TRUE = "true";
 	public static final String ACCOUNT_NUMBERS = "account-numbers";
-	private final MobRedisService redisService;
+	private final MobileRedisService redisService;
 	private final AccountClient accountClient;
 	private final AccountCardLessCashQueryService accountCardLessCashQueryService;
 	private final AccountCardLessCashRequestService accountCardLessCashRequestService;
@@ -66,7 +64,7 @@ public class AccountService {
 	private final FeesExternalConfig feeCodeConfig;
 	private final AsyncUserEventPublisher asyncUserEventPublisher;
 	private final UserSessionCacheService userSessionCacheService;
-	private final MobRedisService mobRedisService;
+	private final MobileRedisService mobRedisService;
 
 	public List<AccountDetailsDTO> getAccountsFromCore(final String cifId) {
 		log.info("Fetching accounts for cifId {} ", htmlEscape(cifId));

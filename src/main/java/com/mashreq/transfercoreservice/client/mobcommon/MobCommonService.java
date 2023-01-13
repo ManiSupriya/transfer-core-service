@@ -23,13 +23,10 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
-import com.mashreq.transfercoreservice.cache.MobRedisService;
-import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
+import com.mashreq.transfercoreservice.cache.MobileRedisService;
 import com.mashreq.transfercoreservice.client.dto.CountryDto;
 import com.mashreq.transfercoreservice.client.dto.CountryResponseDto;
-import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.client.dto.TransferSupportedCountryDto;
-import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.DealConversionRateRequestDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.DealConversionRateResponseDto;
@@ -47,7 +44,7 @@ import lombok.extern.slf4j.Slf4j;
 public class MobCommonService {
 
     private final MobCommonClient mobCommonClient;
-    private final MobRedisService mobRedisService;
+    private final MobileRedisService mobRedisService;
     public static final String MOB_AE_ROUTING_CODE_SUPPORTED_COUNTRIES = "MOB:AE:ROUTING_CODE_SUPPORTED_COUNTRIES";
     public static final String MOB_AE_FILTERED_COUNTRIES = "MOB:AE:FILTERED_COUNTRIES";
     public static final String MOB_AE_TRANSFER_SUPPORTED_COUNTRIES = "MOB:AE:TRANSFER_SUPPORTED_COUNTRIES";
