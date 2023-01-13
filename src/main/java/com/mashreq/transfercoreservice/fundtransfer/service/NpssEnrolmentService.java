@@ -35,9 +35,9 @@ public class NpssEnrolmentService {
     private static final String CURRENCY = "AED";
     private static final String ACTIVE = "ACTIVE";
 
-    private static final String SCHEME_TYPE_SA= "SA";
+    private static final String SCHEME_TYPE_SA = "SA";
 
-    private static final String SCHEME_TYPE_CA= "CA";
+    private static final String SCHEME_TYPE_CA = "CA";
     private final NpssEnrolmentRepository npssEnrolmentRepository;
     private final FundTransferServiceDefault fundTransferServiceDefault;
     private final DigitalUserService digitalUserService;
@@ -57,22 +57,12 @@ public class NpssEnrolmentService {
     }
 
     public NpssEnrolmentUpdateResponseDTO updateEnrolment(RequestMetaData metaData) {
-
         // update default account with new entry
         try {
-        updateDefaultAccount(metaData,false);
-        /*NpssEnrolmentRepoDTO npssEnrolmentNewEntry = NpssEnrolmentRepoDTO.builder()
-                .cif_id(metaData.getPrimaryCif())
-                .enrollment_status(NPSS_ENROLLED)
-                .accepted_date(Instant.now())
-                .build();*/
-//                .accepted_date("2020-12-23 15:40:45.2756145")//
-
-
-            //npssEnrolmentRepository.save(npssEnrolmentNewEntry);
+            updateDefaultAccount(metaData, false);
             return NpssEnrolmentUpdateResponseDTO.builder().userEnrolmentUpdated(true).build();
         } catch (Exception err) {
-            log.error("New Entry Enrollment Failed : ",err);
+            log.error("New Entry Enrollment Failed : ", err);
             return NpssEnrolmentUpdateResponseDTO.builder().userEnrolmentUpdated(false).build();
         }
     }
@@ -94,12 +84,15 @@ public class NpssEnrolmentService {
         npssNotificationService.performNotificationActivities(requestMetaData, new NotificationRequestDto(), userDTO);
     }
 
-    public String updateDefaultAccount(RequestMetaData requestMetaData,Boolean isFromScheduler) {
+    public String updateDefaultAccount(RequestMetaData requestMetaData, Boolean isFromScheduler) {
         log.info("update Default Account process started");
         List<NpssEnrolmentRepoDTO> npssEnrolmentResponse = new ArrayList<>();
-        if(isFromScheduler){
+        if (isFromScheduler) {
+            log.info("update Default Account from scheduler");
             npssEnrolmentResponse = npssEnrolmentRepository.findAllByIsDefaultAccountUpdated(Boolean.FALSE);
+            log.info("the records taken from DB {}", npssEnrolmentResponse);
         } else {
+            log.info("update Default Account for a new entry");
             NpssEnrolmentRepoDTO npssEnrolmentNewEntry = NpssEnrolmentRepoDTO.builder()
                     .cif_id(requestMetaData.getPrimaryCif())
                     .enrollment_status(NPSS_ENROLLED)
@@ -108,40 +101,44 @@ public class NpssEnrolmentService {
             npssEnrolmentResponse.add(npssEnrolmentNewEntry);
         }
         npssEnrolmentResponse.forEach(npssEnrolmentRepoDTO -> {
+            log.info("Calling account client to get details : {}", npssEnrolmentRepoDTO.getCif_id());
             List<AccountDetailsDTO> accountDetails = accountService.getAccountsFromCore(npssEnrolmentRepoDTO.getCif_id());
+            log.info("Account details received for : {}", npssEnrolmentRepoDTO.getCif_id());
             List<AccountDetailsRepoDTO> accountDetailsRepo = prepareBankDetails(accountDetails, npssEnrolmentRepoDTO.getCif_id());
             npssEnrolmentRepoDTO.setAccountDetails(accountDetailsRepo);
             npssEnrolmentRepoDTO.set_default_account_updated(Boolean.TRUE);
             try {
                 npssEnrolmentRepository.save(npssEnrolmentRepoDTO);
+                log.info("Default account details successfully saved for  {}", npssEnrolmentRepoDTO.getCif_id());
             } catch (Exception e) {
+                log.error("Exception while saving data ", e);
                 GenericExceptionHandler.handleError(DB_CONNECTIVITY_ISSUE, DB_CONNECTIVITY_ISSUE.getErrorMessage());
             }
 
         });
-        return "";
+        return "Data Saved Successfully";
     }
 
     private List<AccountDetailsRepoDTO> prepareBankDetails(final List<AccountDetailsDTO> accountDetails, final String cifId) {
         AtomicBoolean isDefaultAdded = new AtomicBoolean(Boolean.FALSE);
         final Map<String, List<AccountDetailsDTO>> accountDetailsDTOs = accountDetails.stream()
-                .filter(accountDetail -> {
-                    return accountDetail.getCurrency().equalsIgnoreCase(CURRENCY)
-                            && accountDetail.getStatus().equalsIgnoreCase(ACTIVE);
-                }).collect(Collectors.groupingBy(AccountDetailsDTO::getSchemeType));
+                .filter(accountDetail ->
+                     accountDetail.getCurrency().equalsIgnoreCase(CURRENCY)
+                            && accountDetail.getStatus().equalsIgnoreCase(ACTIVE))
+                .collect(Collectors.groupingBy(AccountDetailsDTO::getSchemeType));
         List<AccountDetailsRepoDTO> accountDetailsRepoDTO = new ArrayList<>();
         if (accountDetailsDTOs.containsKey(SCHEME_TYPE_SA)) {
-            buildAccountDetailsRepoDTO(accountDetailsDTOs.get(SCHEME_TYPE_SA), accountDetailsRepoDTO, cifId,isDefaultAdded);
+            buildAccountDetailsRepoDTO(accountDetailsDTOs.get(SCHEME_TYPE_SA), accountDetailsRepoDTO, cifId, isDefaultAdded);
         }
         if (accountDetailsDTOs.containsKey(SCHEME_TYPE_CA)) {
-            buildAccountDetailsRepoDTO(accountDetailsDTOs.get(SCHEME_TYPE_CA), accountDetailsRepoDTO, cifId,isDefaultAdded);
+            buildAccountDetailsRepoDTO(accountDetailsDTOs.get(SCHEME_TYPE_CA), accountDetailsRepoDTO, cifId, isDefaultAdded);
         }
         buildAccountDetailsRepoDTO(accountDetailsDTOs
                 .entrySet().stream()
                 .filter(accountDetail -> !accountDetail.getKey().equalsIgnoreCase(SCHEME_TYPE_SA)
                         && !accountDetail.getKey().equalsIgnoreCase(SCHEME_TYPE_CA))
                 .map(Map.Entry::getValue).flatMap(List::stream)
-                .collect(Collectors.toList()), accountDetailsRepoDTO, cifId,isDefaultAdded);
+                .collect(Collectors.toList()), accountDetailsRepoDTO, cifId, isDefaultAdded);
         return accountDetailsRepoDTO;
     }
 

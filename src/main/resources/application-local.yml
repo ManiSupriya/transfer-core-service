@@ -77,7 +77,7 @@ app:
     currency: 'AED'
     transaction.code: '015'
     transfer.product.id: 'DBLC'
-    scheduler: 0 */5 * ? * *
+    scheduler: 0 */15 * ? * *
   uae:
     address: 'UNITED ARAB EMIRATES'
     iban:
