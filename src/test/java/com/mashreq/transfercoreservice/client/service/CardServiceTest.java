@@ -2,7 +2,7 @@ package com.mashreq.transfercoreservice.client.service;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericException;
-import com.mashreq.transfercoreservice.cache.MobileRedisService;
+import com.mashreq.transfercoreservice.cache.MobRedisService;
 import com.mashreq.transfercoreservice.cache.UserSessionCacheService;
 import com.mashreq.transfercoreservice.client.CardClient;
 import com.mashreq.transfercoreservice.client.dto.CardDetailsDTO;
@@ -27,7 +27,7 @@ public class CardServiceTest {
     @Mock
     private UserSessionCacheService userSessionCacheService;
     @Mock
-    private MobileRedisService mobRedisService;
+    private MobRedisService mobRedisService;
 
     @InjectMocks
     CardService cardService;

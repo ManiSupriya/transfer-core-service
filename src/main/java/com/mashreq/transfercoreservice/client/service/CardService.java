@@ -2,7 +2,7 @@ package com.mashreq.transfercoreservice.client.service;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
-import com.mashreq.transfercoreservice.cache.MobileRedisService;
+import com.mashreq.transfercoreservice.cache.MobRedisService;
 import com.mashreq.transfercoreservice.cache.UserSessionCacheService;
 import com.mashreq.transfercoreservice.client.CardClient;
 import com.mashreq.transfercoreservice.client.dto.CardDetailsDTO;
@@ -38,7 +38,7 @@ public class CardService {
 
     private final CardClient cardClient;
     private final UserSessionCacheService userSessionCacheService;
-    private final MobileRedisService mobRedisService;
+    private final MobRedisService mobRedisService;
 
     public List<CardDetailsDTO> getCardsFromCore(final String cifId, CardType cardType) {
         log.info("Fetching cards for cifId {} and cardType {} ", htmlEscape(cifId), htmlEscape(getCardType(cardType)));

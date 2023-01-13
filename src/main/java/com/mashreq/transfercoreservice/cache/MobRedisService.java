@@ -16,8 +16,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 @Component
 @ConditionalOnBean({MobRedisConfig.class})
-public class MobileRedisService {
-    private static final Logger log = LoggerFactory.getLogger(MobileRedisService.class);
+public class MobRedisService {
+    private static final Logger log = LoggerFactory.getLogger(MobRedisService.class);
     @Autowired
     @Qualifier("mobRedisTemplate")
     private RedisTemplate<String, Object> mobRedisTemplate;
@@ -26,7 +26,7 @@ public class MobileRedisService {
     @Value("${redis.write.ttl:60}")
     private long ttl;
 
-    public MobileRedisService() {
+    public MobRedisService() {
     }
 
     public <T> T get(final String key, final Class<T> clazz) {

@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
-import com.mashreq.transfercoreservice.cache.MobileRedisService;
+import com.mashreq.transfercoreservice.cache.MobRedisService;
 import com.mashreq.transfercoreservice.client.dto.CountryDto;
 import com.mashreq.transfercoreservice.client.dto.CountryResponseDto;
 import com.mashreq.transfercoreservice.client.dto.TransferSupportedCountryDto;
@@ -44,7 +44,7 @@ import lombok.extern.slf4j.Slf4j;
 public class MobCommonService {
 
     private final MobCommonClient mobCommonClient;
-    private final MobileRedisService mobRedisService;
+    private final MobRedisService mobRedisService;
     public static final String MOB_AE_ROUTING_CODE_SUPPORTED_COUNTRIES = "MOB:AE:ROUTING_CODE_SUPPORTED_COUNTRIES";
     public static final String MOB_AE_FILTERED_COUNTRIES = "MOB:AE:FILTERED_COUNTRIES";
     public static final String MOB_AE_TRANSFER_SUPPORTED_COUNTRIES = "MOB:AE:TRANSFER_SUPPORTED_COUNTRIES";

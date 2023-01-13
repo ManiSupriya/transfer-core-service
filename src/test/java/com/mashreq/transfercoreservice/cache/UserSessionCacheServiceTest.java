@@ -21,7 +21,7 @@ import static org.mockito.Mockito.when;
 public class UserSessionCacheServiceTest {
 
     @Mock
-    private MobileRedisService redisService;
+    private MobRedisService redisService;
     @InjectMocks
     private UserSessionCacheService userSessionCacheService;
 

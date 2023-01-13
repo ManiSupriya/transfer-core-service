@@ -2,7 +2,7 @@ package com.mashreq.transfercoreservice.fundtransfer.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.mashreq.ms.exceptions.GenericException;
-import com.mashreq.transfercoreservice.cache.MobileRedisService;
+import com.mashreq.transfercoreservice.cache.MobRedisService;
 import com.mashreq.transfercoreservice.client.dto.CountryDto;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonClient;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
@@ -26,7 +26,7 @@ public class MobCommonServiceTest {
     @Mock
     private MobCommonClient mobCommonClient;
     @Mock
-    private MobileRedisService mobRedisService;
+    private MobRedisService mobRedisService;
 
     @InjectMocks
     private MobCommonService mobCommonService;

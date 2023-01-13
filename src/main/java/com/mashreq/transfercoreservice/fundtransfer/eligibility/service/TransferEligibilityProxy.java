@@ -21,7 +21,7 @@ import java.util.Optional;
 import javax.annotation.PostConstruct;
 
 import com.mashreq.mobcommons.services.CustomHtmlEscapeUtil;
-import com.mashreq.transfercoreservice.cache.MobileRedisService;
+import com.mashreq.transfercoreservice.cache.MobRedisService;
 import com.mashreq.transfercoreservice.cache.UserSessionCacheService;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
@@ -58,7 +58,7 @@ public class TransferEligibilityProxy {
 	private final UserSessionCacheService userSessionCacheService;
 	private final DigitalUserRepository digitalUserRepository;
 	private final MobCommonService mobCommonService;
-	private final MobileRedisService mobRedisService;
+	private final MobRedisService mobRedisService;
 
 	@PostConstruct
 	public void init() {
