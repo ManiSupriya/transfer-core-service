@@ -60,7 +60,6 @@ public class TransactionHistoryService {
                 accountFrom(transactionHistoryDto.getAccountTo()).accountTo(transactionHistoryDto.getAccountTo()).
                 billRefNo(transactionHistoryDto.getBillRefNo()).valueDate(LocalDateTime.now()).createdDate(Instant.now()).
                 hostReferenceNo(transactionHistoryDto.getHostReferenceNo()).
-                disputeStatusInitiated(transactionHistoryDto.getDisputeStatusInitiated()).
                 transactionRefNo(transactionHistoryDto.getTransactionRefNo()).financialTransactionNo(transactionHistoryDto.getFinancialTransactionNo()).build();
         log.info("Inserting into Transaction History table {} ", htmlEscape(transactionHistory.getTransactionRefNo()));
         return transactionRepository.save(transactionHistory).getId();

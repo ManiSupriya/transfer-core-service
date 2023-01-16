@@ -51,7 +51,7 @@ public class TransferEligibilityProxyTest {
 	@Mock
 	private  MobCommonService mobCommonService;
 	@Mock
-	private  MobRedisService mobRedisService;
+	private MobRedisService mobRedisService;
 
 	@InjectMocks
 	private TransferEligibilityProxy transferEligibilityProxy;
