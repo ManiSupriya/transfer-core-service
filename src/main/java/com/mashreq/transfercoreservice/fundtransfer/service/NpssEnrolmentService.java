@@ -28,7 +28,7 @@ public class NpssEnrolmentService {
     private final FundTransferServiceDefault fundTransferServiceDefault;
     private final DigitalUserService digitalUserService;
     private final DigitalUserLimitUsageService digitalUserLimitUsageService;
-    private final NPSSNotificationService npssNotificationService;
+    private final NpssNotificationService npssNotificationService;
 
 
 
@@ -48,7 +48,6 @@ public class NpssEnrolmentService {
                 .enrollment_status(NPSS_ENROLLED)
                 .accepted_date(Instant.now())
                 .build();
-//                .accepted_date("2020-12-23 15:40:45.2756145")//
 
         try {
             npssEnrolmentRepository.save(npssEnrolmentNewEntry);
@@ -60,18 +59,27 @@ public class NpssEnrolmentService {
 
     public void handleTransaction(RequestMetaData requestMetaData, NotificationRequestDto notificationRequestDto) {
 
+        UserDTO userDTO = getUserDetailsFromMetaData(requestMetaData);
+                digitalUserLimitUsageService.insert(fundTransferServiceDefault.generateUserLimitUsage("LOCAL",
+                notificationRequestDto.getAmount(),userDTO,requestMetaData,notificationRequestDto.getLimitVersionUuid(),notificationRequestDto.getReferenceNumber(),null
+                ));
+        // if(isSuccessOrProcessing(fundTransferResponse)){
+        //TODO: Add Service code for NPSS
+        //  }
+        npssNotificationService.performNotificationActivities(requestMetaData,notificationRequestDto,userDTO);
+    }
+
+    public void performNotificationActivities(RequestMetaData requestMetaData, NotificationRequestDto notificationRequestDto){
+        npssNotificationService.performNotificationActivities(requestMetaData,notificationRequestDto,getUserDetailsFromMetaData(requestMetaData));
+    }
+
+    private UserDTO getUserDetailsFromMetaData(RequestMetaData requestMetaData){
         log.info("Finding Digital User for CIF-ID {}", htmlEscape(requestMetaData.getPrimaryCif()));
         DigitalUser digitalUser = digitalUserService.getDigitalUser(requestMetaData);
 
         log.info("Creating  User DTO");
         UserDTO userDTO = fundTransferServiceDefault.createUserDTO(requestMetaData, digitalUser);
         log.info("Save Digital Limit Usage  for Cif{} ", htmlEscape(requestMetaData.getPrimaryCif()));
-        digitalUserLimitUsageService.insert(fundTransferServiceDefault.generateUserLimitUsage("LOCAL",
-                notificationRequestDto.getAmount(),userDTO,requestMetaData,notificationRequestDto.getLimitVersionUuid(),notificationRequestDto.getTransactionReferenceNo(),null
-                ));
-        // if(isSuccessOrProcessing(fundTransferResponse)){
-        //TODO: Add Service code for NPSS
-        //  }
-        npssNotificationService.performNotificationActivities(requestMetaData,new NotificationRequestDto(),userDTO);
+        return userDTO;
     }
 }

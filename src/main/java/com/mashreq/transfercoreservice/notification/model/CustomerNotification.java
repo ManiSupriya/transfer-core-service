@@ -21,5 +21,6 @@ public class CustomerNotification {
     Segment segment;
     String channel;
     String beneficiaryName;
+    String customerName;
 
 }

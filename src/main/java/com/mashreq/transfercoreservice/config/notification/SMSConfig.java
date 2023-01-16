@@ -21,6 +21,7 @@ public class SMSConfig {
     private String serviceId;
     private String callCenterNo;
     private String ownAccountTransactionInitiated;
+    private String customerEnrolledForNpss;
     private String plSiCreation;
     private String mashreqServiceId;
     private String neoServiceId;
@@ -28,7 +29,10 @@ public class SMSConfig {
     public String getSMSTemplate(String type, CustomerNotification customerNotification) {
         if (type.contains("PL") && type.contains("CREATION")) {
             return MessageFormat.format(plSiCreation, customerNotification.getBeneficiaryName(), emailUtil.doMask(customerNotification.getCreditAccount()), customerNotification.getSegment().getCustomerCareNumber());
-        } else {
+        } else if(type.contains("CUSTOMER_ENROLL_NPSS")){
+            return MessageFormat.format(customerEnrolledForNpss,customerNotification.getCustomerName());
+        }else
+        {
             return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getCurrency(), customerNotification.getAmount(), customerNotification.getTxnRef(), customerNotification.getSegment().getCustomerCareNumber());
         }
     }

@@ -24,11 +24,12 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import static com.mashreq.transfercoreservice.notification.model.NotificationType.LOCAL_FT;
-import static com.mashreq.transfercoreservice.notification.model.NotificationType.OTHER_ACCOUNT_TRANSACTION;
+import static com.mashreq.transfercoreservice.notification.model.NotificationType.*;
 import static com.mashreq.transfercoreservice.notification.service.EmailUtil.*;
 
 /**
@@ -37,7 +38,7 @@ import static com.mashreq.transfercoreservice.notification.service.EmailUtil.*;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class NPSSNotificationService {
+public class NpssNotificationService {
     private final NotificationService notificationService;
     private final EmailConfig emailConfig;
     private final PostTransactionActivityService postTransactionActivityService;
@@ -55,7 +56,7 @@ public class NPSSNotificationService {
         TransferErrorCode transferErrorCode = TransferErrorCode.EMAIL_NOTIFICATION_FAILED;
         try {
             final PostTransactionActivityContext<SendEmailRequest> emailPostTransactionActivityContext = getEmailPostTransactionActivityContext(requestMetaData, notificationRequestDto);
-            postTransactionActivityService.execute(Arrays.asList(emailPostTransactionActivityContext), requestMetaData);
+            postTransactionActivityService.execute(Collections.singletonList(emailPostTransactionActivityContext), requestMetaData);
             userEventPublisher.publishSuccessEvent(eventType, requestMetaData, eventType.getDescription());
         }catch (Exception exception){
             GenericExceptionHandler.logOnly(exception, transferErrorCode.getErrorMessage());
@@ -75,12 +76,12 @@ public class NPSSNotificationService {
         if (StringUtils.isNotBlank(requestMetaData.getEmail())) {
             final EmailParameters emailParameters = emailConfig.getEmail().get(requestMetaData.getCountry());
 
-            final String templateName = emailParameters.getEmailTemplate(notificationRequestDto.getNotificationType());
+            final String templateName = emailParameters.getNpssEmailTemplate(notificationRequestDto.getNotificationType());
             final EmailTemplateParameters emailTemplateParameters = emailUtil.getEmailTemplateParameters(requestMetaData.getChannel(), requestMetaData.getSegment());
             boolean isMobile = requestMetaData.getChannel().contains(MOBILE);
             String channelType = isMobile ? MOBILE_BANKING : ONLINE_BANKING;
             Segment segment = emailTemplateParameters.getSegment();
-            final String subject = emailParameters.getEmailSubject(notificationRequestDto.getNotificationType(),notificationRequestDto.getTransferType(),channelType);
+            final String subject = emailParameters.getNpssEmailSubject(notificationRequestDto.getNotificationType(),"NPSS",channelType);
 
             String contactHtmlBody;
             String segmentSignOffCompanyName;
@@ -109,29 +110,27 @@ public class NPSSNotificationService {
 
             TemplateRequest.Builder template = TemplateRequest.builder()
                     .templateName(templateName)
-                    .params(TRANSFER_TYPE, StringUtils.defaultIfBlank(notificationRequestDto.getTransferType(), DEFAULT_STR))
+                 //   .params(TRANSFER_TYPE, StringUtils.defaultIfBlank(notificationRequestDto.getTransferType(), DEFAULT_STR))
                     .params(SEGMENT, StringUtils.defaultIfBlank(requestMetaData.getSegment(), DEFAULT_STR))
                     .params(CUSTOMER_NAME, StringUtils.defaultIfBlank(emailUtil.capitalizeFully(requestMetaData.getUsername()), CUSTOMER))
-                    .params(SOURCE_OF_FUND, notificationRequestDto.getSourceOfFund() == null ? SOURCE_OF_FUND_ACCOUNT: notificationRequestDto.getSourceOfFund())
-                    .params(BANK_NAME, StringUtils.defaultIfBlank(emailTemplateParameters.getChannelIdentifier().getChannelName(), DEFAULT_STR))
-                    .params(CHANNEL_TYPE, StringUtils.defaultIfBlank(channelType, DEFAULT_STR))
+                //    .params(SOURCE_OF_FUND, notificationRequestDto.getSourceOfFund() == null ? SOURCE_OF_FUND_ACCOUNT: notificationRequestDto.getSourceOfFund())
+                 //   .params(BANK_NAME, StringUtils.defaultIfBlank(emailTemplateParameters.getChannelIdentifier().getChannelName(), DEFAULT_STR))
+                   // .params(CHANNEL_TYPE, StringUtils.defaultIfBlank(channelType, DEFAULT_STR))
                     .params(FACEBOOK_LINK, StringUtils.defaultIfBlank(emailTemplateParameters.getSocialMediaLinks().get(FACEBOOK), DEFAULT_STR))
                     .params(INSTAGRAM_LINK, StringUtils.defaultIfBlank(emailTemplateParameters.getSocialMediaLinks().get(INSTAGRAM), DEFAULT_STR))
                     .params(TWITTER_LINK, StringUtils.defaultIfBlank(emailTemplateParameters.getSocialMediaLinks().get(TWITTER), DEFAULT_STR))
                     .params(LINKED_IN_KEY, StringUtils.defaultIfBlank(emailTemplateParameters.getSocialMediaLinks().get(LINKED_IN), DEFAULT_STR))
                     .params(YOUTUBE_LINK, StringUtils.defaultIfBlank(emailTemplateParameters.getSocialMediaLinks().get(YOUTUBE), DEFAULT_STR))
-                    .params(EMAIL_TEMPLATE_COPYRIGHT_YEAR_KEY, String.valueOf(LocalDateTime.now().getYear()))
                     .params(CONTACT_HTML_BODY_KEY, contactHtmlBody)
                     .params(SEGMENT_SIGN_OFF_COMPANY_NAME, segmentSignOffCompanyName)
                     .params(BANK_NAME_FOOTER, bankNameInFooter)
                     .params(BANK_NAME_FOOTER_DESC, bankNameInFooterDesc);
 
-
-            getTemplateValuesForNotificationBuilder(template, notificationRequestDto, requestMetaData, segment);
+            getTemplateValuesForNotificationBuilder(template, notificationRequestDto);
 
             emailRequest = SendEmailRequest.builder()
                     .fromEmailAddress(emailParameters.getFromEmailAddress())
-                    .toEmailAddress(requestMetaData.getEmail())
+                    .toEmailAddress("krishnako@mashreq.com")
                     .subject(subject)
                     .text(templateEngine.generate(template.configure()))
                     .fromEmailName(emailParameters.getFromEmailName())
@@ -140,81 +139,63 @@ public class NPSSNotificationService {
         }
         return PostTransactionActivityContext.<SendEmailRequest>builder().payload(emailRequest).postTransactionActivity(sendEmailActivity).build();
     }
-    private void getTemplateValuesForNotificationBuilder(TemplateRequest.Builder builder, NotificationRequestDto notificationRequestDto,
-                                                          RequestMetaData requestMetaData, Segment segment) {
-        builder.params(MASKED_ACCOUNT, StringUtils.defaultIfBlank(emailUtil.doMask(notificationRequestDto.getFromAccount()), DEFAULT_STR));
-        builder.params(TO_ACCOUNT_NO, StringUtils.defaultIfBlank(emailUtil.doMask(notificationRequestDto.getToAccount()), DEFAULT_STR));
-        builder.params(BENEFICIARY_NICK_NAME, StringUtils.defaultIfBlank(notificationRequestDto.getBeneficiaryFullName(), DEFAULT_STR));
-        builder.params(CURRENCY, StringUtils.defaultIfBlank(notificationRequestDto.getTxnCurrency(), DEFAULT_STR) );
-        builder.params(DESTINATION_ACCOUNT_CURRENCY,StringUtils.defaultIfBlank(notificationRequestDto.getDestinationCurrency(), DEFAULT_STR));
-        builder.params(ACCOUNT_CURRENCY,StringUtils.defaultIfBlank(notificationRequestDto.getSourceCurrency(), DEFAULT_STR));
-        builder.params(SOURCE_AMOUNT,notificationRequestDto.getSrcCcyAmt() != null ? EmailUtil.formattedAmount(notificationRequestDto.getSrcCcyAmt()) : DEFAULT_STR);
-        builder.params(BANK_FEES,StringUtils.defaultIfBlank(notificationRequestDto.getBankFees(), DEFAULT_STR));
-        builder.params(FX_DEAL_CODE,StringUtils.defaultIfBlank(notificationRequestDto.getDealNumber(), DEFAULT_STR));
-     //   builder.params(ORDER_TYPE,StringUtils.defaultIfBlank(notificationRequestDto.getOrderType(), DEFAULT_STR));
-        builder.params(EXCHANGE_RATE,StringUtils.defaultIfBlank(notificationRequestDto.getExchangeRateDisplayTxt(), DEFAULT_STR));
-        builder.params(LOCAL_CURRENCY,AED);
+    private void getTemplateValuesForNotificationBuilder(TemplateRequest.Builder builder, NotificationRequestDto notificationRequestDto) {
 
         if(notificationRequestDto.getAmount() != null) {
             builder.params(AMOUNT, EmailUtil.formattedAmount(notificationRequestDto.getAmount()));
         }
-        else if(notificationRequestDto.getSrcAmount() != null){
-            builder.params(AMOUNT, EmailUtil.formattedAmount(notificationRequestDto.getSrcAmount()));
+       if(notificationRequestDto.getSentTo()!=null){
+           builder.params(SENT_TO,  StringUtils.defaultIfBlank(notificationRequestDto.getSentTo(), DEFAULT_STR));
+       }
+        if(notificationRequestDto.getTime()!=null){
+            builder.params(TIME,  StringUtils.defaultIfBlank(notificationRequestDto.getTime(), DEFAULT_STR));
         }
-        else {
-            builder.params(AMOUNT, DEFAULT_STR);
+        if(notificationRequestDto.getDate()!=null){
+            builder.params(DATE,  StringUtils.defaultIfBlank(notificationRequestDto.getDate(), DEFAULT_STR));
         }
-        builder.params(STATUS, STATUS_SUCCESS);
-
-/*        if((notificationRequestDto.getNotificationType().contains("PL") || notificationRequestDto.getNotificationType().contains("SI"))){
-
-            ServiceType serviceType = getServiceByType(notificationRequestDto.getServiceType());
-          *//*  if(OWN_ACCOUNT_SERVICE_TYPES.contains(serviceType)){
-                builder.params(BENEFICIARY_BANK_NAME, StringUtils.defaultIfBlank(segment.getEmailCprFooter(), DEFAULT_STR));
-                builder.params(BENEFICIARY_BANK_COUNTRY, StringUtils.defaultIfBlank(address, DEFAULT_STR));
-            }
-            else{
-                final BeneficiaryDto beneficiaryDto = beneficiaryService.getByIdWithoutValidation(requestMetaData.getPrimaryCif(), valueOf(fundTransferRequestDTO.getBeneficiaryId()), fundTransferRequestDTO.getJourneyVersion(), requestMetaData);
-                builder.params(BENEFICIARY_BANK_NAME, StringUtils.defaultIfBlank(beneficiaryDto.getBankName(), DEFAULT_STR));
-                builder.params(BENEFICIARY_BANK_COUNTRY, StringUtils.defaultIfBlank(beneficiaryDto.getBankCountry(), DEFAULT_STR));
-            }*//*
-
-            builder.params(CUSTOMER_CARE_NO, StringUtils.defaultIfBlank(segment.getCustomerCareNumber(), DEFAULT_STR));
-            builder.params(TRANSACTION_DATE, StringUtils.defaultIfBlank(
-                    DateUtil.instantToDate(Instant.now(), "yyyy-MM-dd HH:mm:ss"), DEFAULT_STR)
-            );
-            builder.params(TRANSACTION_TYPE, StringUtils.defaultIfBlank(
-                    fundTransferRequestDTO.getOrderType().equals("PL") ? "Pay Later" : "Standing Instructions", DEFAULT_STR)
-            );
-
-            builder.params(EXECUTION_DATE,StringUtils.defaultIfBlank(fundTransferRequestDTO.getStartDate(), DEFAULT_STR));
-            builder.params(START_DATE,StringUtils.defaultIfBlank(fundTransferRequestDTO.getStartDate(), DEFAULT_STR));
-            builder.params(END_DATE,StringUtils.defaultIfBlank(fundTransferRequestDTO.getEndDate(), DEFAULT_STR));
-            builder.params(FREQUENCY,StringUtils.defaultIfBlank(fundTransferRequestDTO.getFrequency(), DEFAULT_STR));
-        }*/
+        if(notificationRequestDto.getReferenceNumber()!=null){
+            builder.params(REFERENCE_NUMBER,  StringUtils.defaultIfBlank(notificationRequestDto.getReferenceNumber(), DEFAULT_STR));
+        }
+        if(notificationRequestDto.getReasonForFailure()!=null){
+            builder.params(REASON_FOR_FAILURE,  StringUtils.defaultIfBlank(notificationRequestDto.getReasonForFailure(), DEFAULT_STR));
+        }
+        if(notificationRequestDto.getContactName()!=null){
+            builder.params(CONTACT_NAME,  StringUtils.defaultIfBlank(notificationRequestDto.getContactName(), DEFAULT_STR));
+        }
     }
 
-    private CustomerNotification populateCustomerNotification(String transactionRefNo, String currency, BigDecimal amount, String beneficiaryName, String creditAccount) {
+    private CustomerNotification populateCustomerNotification(NotificationRequestDto notificationRequestDto) {
         CustomerNotification customerNotification = new CustomerNotification();
-        customerNotification.setAmount(String.valueOf(amount));
-        customerNotification.setCurrency(currency);
-        customerNotification.setTxnRef(transactionRefNo);
-        customerNotification.setBeneficiaryName(beneficiaryName);
-        customerNotification.setCreditAccount(creditAccount);
+        if (notificationRequestDto.getNotificationType()==CUSTOMER_ENROLMENT) {
+            customerNotification.setCustomerName(notificationRequestDto.getCustomerName());
+        } else {
+            customerNotification.setAmount(String.valueOf(notificationRequestDto.getAmount()));
+            customerNotification.setCurrency("AED");
+            customerNotification.setTxnRef(notificationRequestDto.getReferenceNumber());
+            customerNotification.setBeneficiaryName(notificationRequestDto.getContactName());
+            customerNotification.setCreditAccount(notificationRequestDto.getSentTo());
+        }
         return customerNotification;
     }
 
     public void performNotificationActivities(RequestMetaData requestMetaData, NotificationRequestDto notificationRequestDto ,UserDTO userDTO) {
-        FundTransferRequest fundTransferRequest = null;
-        final CustomerNotification customerNotification = populateCustomerNotification(notificationRequestDto.getTransactionReferenceNo(), fundTransferRequest.getTxnCurrency(),
-                fundTransferRequest.getAmount(), fundTransferRequest.getBeneficiaryFullName(), fundTransferRequest.getToAccount());
-        notificationService.sendNotifications(customerNotification, LOCAL_FT, requestMetaData, userDTO);
+        if(notificationRequestDto.getNotificationType()==PAYMENT_REQUEST_SENT){
+            NotificationRequestDto notificationRtpDto = notificationRequestDto;
+           List<NotificationRequestDto> notificationRequestDtoList = notificationRequestDto.getRtpNotificationList().stream().map(rtp->mapRtpToNotificationRequest()).collect(Collectors.toList());
+        }else{
+            performSendNotifications(requestMetaData,  notificationRequestDto , userDTO);
+        }
 
-        notificationRequestDto.setTransferType("NPSS");
-        notificationRequestDto.setNotificationType(OTHER_ACCOUNT_TRANSACTION);
-        notificationRequestDto.setStatus(notificationRequestDto.getResponseStatus());
-
-        performPostTransactionActivities(requestMetaData, notificationRequestDto);
     }
 
+    private NotificationRequestDto mapRtpToNotificationRequest() {
+        return NotificationRequestDto.builder().build();
+
+    }
+
+    private void performSendNotifications(RequestMetaData requestMetaData, NotificationRequestDto notificationRequestDto ,UserDTO userDTO){
+    final CustomerNotification customerNotification = populateCustomerNotification(notificationRequestDto);
+    notificationService.sendNotifications(customerNotification, notificationRequestDto.getNotificationType(), requestMetaData, userDTO);
+    performPostTransactionActivities(requestMetaData, notificationRequestDto);
+}
 }

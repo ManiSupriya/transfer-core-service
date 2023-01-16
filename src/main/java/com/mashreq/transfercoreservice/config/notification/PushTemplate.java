@@ -24,10 +24,13 @@ public class PushTemplate {
 
     private String ownAccountTransactionInitiated;
     private String plSiCreation;
+    private String customerEnrolledForNpss;
 
     public String getPushTemplate(String type, CustomerNotification customerNotification) {
         if(type.contains("PL") && type.contains("CREATION")){
             return MessageFormat.format(plSiCreation, customerNotification.getBeneficiaryName(), customerNotification.getCreditAccount(),customerNotification.getSegment().getCustomerCareNumber());
+        }else if(type.contains("CUSTOMER_ENROLL_NPSS")){
+            return MessageFormat.format(customerEnrolledForNpss,customerNotification.getCustomerName());
         }
         else
         {

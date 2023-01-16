@@ -119,4 +119,18 @@ public class FundTransferController {
                 .message("Transaction Handled Successfully.")
                 .build();
     }
+
+    @ApiOperation(value = "Handle Successful  Transaction of NPSS")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully Handled Successful Transaction for NPSS"),
+            @ApiResponse(code = 401, message = "Unauthorized error")
+    })
+    @PostMapping("/npss/notifications")
+    public Response handleNotifications(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData requestMetaData, @Valid @RequestBody NotificationRequestDto notificationRequestDto) {
+        npssEnrolmentService.performNotificationActivities(requestMetaData,notificationRequestDto);
+        return Response.builder()
+                .status(ResponseStatus.SUCCESS)
+                .message("Notifications Sent Successfully.")
+                .build();
+    }
 }
