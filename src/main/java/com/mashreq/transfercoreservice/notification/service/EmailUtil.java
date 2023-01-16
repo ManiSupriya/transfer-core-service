@@ -96,7 +96,6 @@ public class EmailUtil {
     public static final String DATE = "date";
     public static final String TIME = "time";
     public static final String REASON_FOR_FAILURE = "reasonForFailure";
-
     @Autowired
     private MobCommonService mobCommonService;
 
