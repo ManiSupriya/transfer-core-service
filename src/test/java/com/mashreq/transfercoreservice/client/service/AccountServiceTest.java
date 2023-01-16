@@ -9,8 +9,6 @@ import java.util.Collections;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.mashreq.transfercoreservice.client.dto.CountryDto;
-import org.apache.commons.collections4.MapUtils;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;

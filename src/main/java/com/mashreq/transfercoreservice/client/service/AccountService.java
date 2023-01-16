@@ -15,8 +15,6 @@ import java.util.stream.Stream;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.mashreq.transfercoreservice.cache.MobRedisService;
 import com.mashreq.transfercoreservice.cache.UserSessionCacheService;
-import com.mashreq.transfercoreservice.common.HtmlEscapeCache;
-import freemarker.template.utility.HtmlEscape;
 import org.apache.commons.collections.MapUtils;
 import org.springframework.stereotype.Service;
 
