@@ -89,7 +89,13 @@ public class EmailUtil {
     public static final String BANK_NAME_FOOTER = "bankNameInFooter";
     public static final String BANK_NAME_FOOTER_DESC = "bankNameInFooterDesc";
     public static final String AED = "AED";
-    
+    public static final String CONTACT_NAME = "contactName";
+    public static final String REFERENCE_NUMBER = "referenceNumber";
+    public static final String SENT_TO = "sentTo";
+    public static final String DATE = "date";
+    public static final String TIME = "time";
+    public static final String REASON_FOR_FAILURE = "reasonForFailure";
+
     @Autowired
     private MobCommonService mobCommonService;
 
