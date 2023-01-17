@@ -14,10 +14,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
@@ -36,7 +33,7 @@ public class DigitalLimitUsageController {
             @ApiResponse(code = 401, message = "Unauthorized error")
     })
     @PostMapping("/save")
-    public Response saveDigitalLimitUsage(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData requestMetaData, DigitalUserLimitUsageDTO digitalUserLimitUsageDTO) {
+    public Response saveDigitalLimitUsage(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData requestMetaData,@RequestBody DigitalUserLimitUsageDTO digitalUserLimitUsageDTO) {
 
         DigitalUser digitalUser = digitalUserService.getDigitalUser(requestMetaData);
         digitalUserLimitUsageDTO.setDigitalUserId(digitalUser.getId());

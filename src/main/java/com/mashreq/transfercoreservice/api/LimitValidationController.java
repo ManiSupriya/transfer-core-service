@@ -12,10 +12,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
@@ -32,14 +29,14 @@ public class LimitValidationController {
             @ApiResponse(code = 401, message = "Unauthorized  error")
     })
     @PostMapping("/validation")
-    public Response validateLimit(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData requestMetaData, LimitValidatorRequestDto limitValidatorRequestDto) {
+    public Response validateLimit(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData requestMetaData,@RequestBody LimitValidatorRequestDto limitValidatorRequestDto) {
 
         log.info("Limit Validation  {} ", htmlEscape(requestMetaData.getPrimaryCif()));
-
+         Long beneId = null!=limitValidatorRequestDto.getBeneId() ? limitValidatorRequestDto.getBeneId() : 0l;
         return Response.builder()
                 .status(ResponseStatus.SUCCESS)
-                .data(limitValidator.validate(limitValidatorRequestDto.getUserDTO(),limitValidatorRequestDto.getBeneficiaryType(),limitValidatorRequestDto.getPaidAmount() ,requestMetaData,limitValidatorRequestDto.getBeneId()))
-                .message("Transaction Saved Successfully in Transaction History.")
+                .data(limitValidator.validate(limitValidatorRequestDto.getUserDTO(),limitValidatorRequestDto.getBeneficiaryType(),limitValidatorRequestDto.getPaidAmount() ,requestMetaData,beneId))
+                .message("Transaction Limit Check Validated Successfully.")
                 .build();
     }
 }
