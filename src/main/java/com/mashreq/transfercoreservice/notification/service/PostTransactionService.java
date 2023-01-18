@@ -38,7 +38,6 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.model.Segment;
 import com.mashreq.transfercoreservice.notification.model.EmailParameters;
 import com.mashreq.transfercoreservice.notification.model.EmailTemplateParameters;
-import com.mashreq.transfercoreservice.notification.model.NotificationType;
 import com.mashreq.transfercoreservice.notification.model.SendEmailRequest;
 import com.mashreq.transfercoreservice.paylater.utils.DateUtil;
 

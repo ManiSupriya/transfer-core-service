@@ -9,7 +9,6 @@ import com.mashreq.transfercoreservice.config.notification.EmailConfig;
 import com.mashreq.transfercoreservice.dto.NotificationRequestDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.model.Segment;
 import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
@@ -23,8 +22,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;

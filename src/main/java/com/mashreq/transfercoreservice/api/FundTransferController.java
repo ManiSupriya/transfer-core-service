@@ -4,6 +4,7 @@ package com.mashreq.transfercoreservice.api;
 import com.mashreq.dedupe.annotation.UniqueRequest;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
+import com.mashreq.transfercoreservice.dto.HandleNotificationRequestDto;
 import com.mashreq.transfercoreservice.dto.NotificationRequestDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
@@ -12,6 +13,7 @@ import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityR
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.service.TransferEligibilityProxy;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferFactory;
 import com.mashreq.transfercoreservice.fundtransfer.service.NpssEnrolmentService;
+import com.mashreq.transfercoreservice.transactionqueue.TransactionHistoryService;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
 import io.swagger.annotations.Api;
@@ -111,9 +113,9 @@ public class FundTransferController {
             @ApiResponse(code = 401, message = "Unauthorized error")
     })
     @PostMapping("/npss/handle-transaction")
-    public Response handleTransaction(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData requestMetaData, NotificationRequestDto notificationRequestDto) {
+    public Response handleTransaction(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData requestMetaData, HandleNotificationRequestDto handleNotificationRequestDto) {
 
-        npssEnrolmentService.handleTransaction(requestMetaData,notificationRequestDto);
+        npssEnrolmentService.handleTransaction(requestMetaData,handleNotificationRequestDto);
         return Response.builder()
                 .status(ResponseStatus.SUCCESS)
                 .message("Transaction Handled Successfully.")

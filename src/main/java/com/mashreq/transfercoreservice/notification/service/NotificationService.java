@@ -12,8 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-
 import static com.mashreq.mobcommons.services.CustomHtmlEscapeUtil.htmlEscape;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.PUSH_NOTIFICATION_FAILED;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.SMS_NOTIFICATION_FAILED;

@@ -4,13 +4,16 @@ import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.service.AccountService;
+import com.mashreq.transfercoreservice.dto.HandleNotificationRequestDto;
 import com.mashreq.transfercoreservice.dto.NotificationRequestDto;
+import com.mashreq.transfercoreservice.dto.TransactionHistoryDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.dto.enums.AccountType;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageService;
 import com.mashreq.transfercoreservice.fundtransfer.user.DigitalUserService;
 import com.mashreq.transfercoreservice.model.DigitalUser;
 import com.mashreq.transfercoreservice.repository.NpssEnrolmentRepository;
+import com.mashreq.transfercoreservice.transactionqueue.TransactionHistoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,6 +28,7 @@ import java.util.stream.Collectors;
 
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.DB_CONNECTIVITY_ISSUE;
+import static com.mashreq.transfercoreservice.notification.model.NotificationType.PAYMENT_SUCCESS;
 
 @Slf4j
 @Service
@@ -44,6 +48,8 @@ public class NpssEnrolmentService {
     private final DigitalUserLimitUsageService digitalUserLimitUsageService;
     private final NpssNotificationService npssNotificationService;
     private final AccountService accountService;
+
+    private final TransactionHistoryService transactionHistoryService;
 
 
     public NpssEnrolmentStatusResponseDTO checkEnrolment(RequestMetaData metaData) {
@@ -67,23 +73,23 @@ public class NpssEnrolmentService {
         }
     }
 
-    public void handleTransaction(RequestMetaData requestMetaData, NotificationRequestDto notificationRequestDto) {
-
+    public void handleTransaction(RequestMetaData requestMetaData, HandleNotificationRequestDto handleNotificationRequestDto) {
         UserDTO userDTO = getUserDetailsFromMetaData(requestMetaData);
-                digitalUserLimitUsageService.insert(fundTransferServiceDefault.generateUserLimitUsage("LOCAL",
-                notificationRequestDto.getAmount(),userDTO,requestMetaData,notificationRequestDto.getLimitVersionUuid(),notificationRequestDto.getReferenceNumber(),null
-                ));
-        // if(isSuccessOrProcessing(fundTransferResponse)){
-        //TODO: Add Service code for NPSS
-        //  }
-        npssNotificationService.performNotificationActivities(requestMetaData,notificationRequestDto,userDTO);
+        if (handleNotificationRequestDto.getNotificationRequestDto().getNotificationType().equals(PAYMENT_SUCCESS)) {
+            digitalUserLimitUsageService.insert(fundTransferServiceDefault.generateUserLimitUsage("LOCAL",
+                    handleNotificationRequestDto.getNotificationRequestDto().getAmount(), userDTO, requestMetaData, handleNotificationRequestDto.getNotificationRequestDto().getLimitVersionUuid(), handleNotificationRequestDto.getNotificationRequestDto().getReferenceNumber(), null
+            ));
+        }
+        transactionHistoryService.saveTransactionHistory(handleNotificationRequestDto.getTransactionHistoryDto(),requestMetaData);
+        npssNotificationService.performNotificationActivities(requestMetaData, handleNotificationRequestDto.getNotificationRequestDto(), userDTO);
     }
 
-    public void performNotificationActivities(RequestMetaData requestMetaData, NotificationRequestDto notificationRequestDto){
-        npssNotificationService.performNotificationActivities(requestMetaData,notificationRequestDto,getUserDetailsFromMetaData(requestMetaData));
+
+    public void performNotificationActivities(RequestMetaData requestMetaData, NotificationRequestDto notificationRequestDto) {
+        npssNotificationService.performNotificationActivities(requestMetaData, notificationRequestDto, getUserDetailsFromMetaData(requestMetaData));
     }
 
-    private UserDTO getUserDetailsFromMetaData(RequestMetaData requestMetaData){
+    private UserDTO getUserDetailsFromMetaData(RequestMetaData requestMetaData) {
         log.info("Finding Digital User for CIF-ID {}", htmlEscape(requestMetaData.getPrimaryCif()));
         DigitalUser digitalUser = digitalUserService.getDigitalUser(requestMetaData);
 
@@ -132,8 +138,8 @@ public class NpssEnrolmentService {
         AtomicBoolean isDefaultAdded = new AtomicBoolean(Boolean.FALSE);
         final Map<String, List<AccountDetailsDTO>> accountDetailsDTOs = accountDetails.stream()
                 .filter(accountDetail ->
-                     accountDetail.getCurrency().equalsIgnoreCase(CURRENCY)
-                            && accountDetail.getStatus().equalsIgnoreCase(ACTIVE))
+                        accountDetail.getCurrency().equalsIgnoreCase(CURRENCY)
+                                && accountDetail.getStatus().equalsIgnoreCase(ACTIVE))
                 .collect(Collectors.groupingBy(AccountDetailsDTO::getSchemeType));
         List<AccountDetailsRepoDTO> accountDetailsRepoDTO = new ArrayList<>();
         if (accountDetailsDTOs.containsKey(SCHEME_TYPE_SA)) {

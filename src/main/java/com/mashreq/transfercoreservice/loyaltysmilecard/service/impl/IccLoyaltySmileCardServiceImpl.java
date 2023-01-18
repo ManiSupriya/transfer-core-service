@@ -4,7 +4,6 @@ import static com.mashreq.transfercoreservice.common.CommonConstants.SMILE_CARD_
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
 
-import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;

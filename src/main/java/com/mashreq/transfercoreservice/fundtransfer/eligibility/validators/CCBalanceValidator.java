@@ -6,7 +6,6 @@ import com.mashreq.transfercoreservice.client.dto.CardDetailsDTO;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 import com.mashreq.transfercoreservice.fundtransfer.validators.Validator;

@@ -38,7 +38,6 @@ import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWServic
 import com.mashreq.transfercoreservice.fundtransfer.validators.AccountBelongsToCifValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.AccountFreezeValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.CCTransactionEligibilityValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.CurrencyValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.SameAccountValidator;

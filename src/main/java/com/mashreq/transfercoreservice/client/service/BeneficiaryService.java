@@ -6,13 +6,11 @@ import static java.util.Objects.isNull;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import com.google.common.base.Enums;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.BeneficiaryClient;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
-import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.AdditionalFields;
 import com.mashreq.webcore.dto.response.Response;
