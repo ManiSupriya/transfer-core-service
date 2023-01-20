@@ -117,6 +117,7 @@ public class NpssEnrolmentService {
         }
         npssEnrolmentResponse.forEach(npssEnrolmentRepoDTO -> {
             log.info("Calling account client to get details : {}", npssEnrolmentRepoDTO.getCif_id());
+            try {
             List<AccountDetailsDTO> accountDetails = accountService.getAccountsFromCore(npssEnrolmentRepoDTO.getCif_id());
             log.info("Account details received for : {}", npssEnrolmentRepoDTO.getCif_id());
             List<AccountDetailsRepoDTO> accountDetailsRepo = prepareBankDetails(accountDetails, npssEnrolmentRepoDTO.getCif_id());
@@ -129,7 +130,9 @@ public class NpssEnrolmentService {
                 log.error("Exception while saving data ", e);
                 GenericExceptionHandler.handleError(DB_CONNECTIVITY_ISSUE, DB_CONNECTIVITY_ISSUE.getErrorMessage());
             }
-
+            } catch (Exception e) {
+                log.error("Account Client Call Failed ", e);
+            }
         });
         return "Data Saved Successfully";
     }
@@ -138,8 +141,8 @@ public class NpssEnrolmentService {
         AtomicBoolean isDefaultAdded = new AtomicBoolean(Boolean.FALSE);
         final Map<String, List<AccountDetailsDTO>> accountDetailsDTOs = accountDetails.stream()
                 .filter(accountDetail ->
-                        accountDetail.getCurrency().equalsIgnoreCase(CURRENCY)
-                                && accountDetail.getStatus().equalsIgnoreCase(ACTIVE))
+                        CURRENCY.equalsIgnoreCase(accountDetail.getCurrency())
+                                && ACTIVE.equalsIgnoreCase(accountDetail.getStatus()))
                 .collect(Collectors.groupingBy(AccountDetailsDTO::getSchemeType));
         List<AccountDetailsRepoDTO> accountDetailsRepoDTO = new ArrayList<>();
         if (accountDetailsDTOs.containsKey(SCHEME_TYPE_SA)) {
