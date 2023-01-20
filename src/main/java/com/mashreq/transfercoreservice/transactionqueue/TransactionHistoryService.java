@@ -55,7 +55,7 @@ public class TransactionHistoryService {
     public Long saveTransactionHistory(TransactionHistoryDto transactionHistoryDto, RequestMetaData metaData) {
         TransactionHistory transactionHistory = TransactionHistory.builder().cif(metaData.getPrimaryCif()).
                 userId(transactionHistoryDto.getUserId()).channel(MOB_CHANNEL).transactionTypeCode(CARD_LESS_CASH).
-                paidAmount(transactionHistoryDto.getPaidAmount()).status(transactionHistoryDto.getStatus().toString()).
+                paidAmount(transactionHistoryDto.getPaidAmount()).status(transactionHistoryDto.getStatus()).
                 ipAddress(metaData.getDeviceIP()).mwResponseDescription(transactionHistoryDto.getMwResponseDescription()).
                 accountFrom(transactionHistoryDto.getAccountTo()).accountTo(transactionHistoryDto.getAccountTo()).
                 billRefNo(transactionHistoryDto.getBillRefNo()).valueDate(LocalDateTime.now()).createdDate(Instant.now()).
