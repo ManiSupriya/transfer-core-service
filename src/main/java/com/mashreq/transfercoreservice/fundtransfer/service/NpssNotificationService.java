@@ -163,7 +163,7 @@ public class NpssNotificationService {
 
     private CustomerNotification populateCustomerNotification(NotificationRequestDto notificationRequestDto) {
         CustomerNotification customerNotification = new CustomerNotification();
-        if (notificationRequestDto.getNotificationType()==CUSTOMER_ENROLMENT) {
+        if (CUSTOMER_ENROLMENT.equalsIgnoreCase(notificationRequestDto.getNotificationType())) {
             customerNotification.setCustomerName(notificationRequestDto.getCustomerName());
         } else {
             customerNotification.setAmount(String.valueOf(notificationRequestDto.getAmount()));
