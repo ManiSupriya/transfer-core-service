@@ -115,6 +115,7 @@ app:
     transaction.code: '015'
     transfer.product.id: 'DBLC'
     scheduler: 0 */15 * ? * *
+    enabled: true
   uae:
     transaction.code: '096'
     country.iso: 'AE'

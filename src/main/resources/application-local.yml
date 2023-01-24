@@ -78,6 +78,7 @@ app:
     transaction.code: '015'
     transfer.product.id: 'DBLC'
     scheduler: 0 */15 * ? * *
+    enabled: true
   uae:
     address: 'UNITED ARAB EMIRATES'
     iban:

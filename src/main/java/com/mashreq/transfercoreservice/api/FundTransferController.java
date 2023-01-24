@@ -144,7 +144,8 @@ public class FundTransferController {
             @ApiResponse(code = 401, message = "Unauthorized error")
     })
     @PostMapping("/npss/handle-transaction")
-    public Response handleTransaction(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData requestMetaData, HandleNotificationRequestDto handleNotificationRequestDto) {
+    public Response handleTransaction(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData requestMetaData,
+                                      @RequestBody HandleNotificationRequestDto handleNotificationRequestDto) {
 
         npssEnrolmentService.handleTransaction(requestMetaData,handleNotificationRequestDto);
         return Response.builder()
