@@ -12,6 +12,8 @@ import org.springframework.stereotype.Repository;
 public interface TransactionRepository extends JpaRepository<TransactionHistory, Long> {
 	
 	boolean existsPaymentHistoryByFinancialTransactionNo(String financialTransactionNo);
+
+	boolean existsPaymentHistoryByTransactionRefNo(String transactionRefNo);
 	
 	 @Query(value = "SELECT SUM(th.paidAmount) as amount FROM TransactionHistory as th WHERE " +
 	            "th.cif = :cif and " +

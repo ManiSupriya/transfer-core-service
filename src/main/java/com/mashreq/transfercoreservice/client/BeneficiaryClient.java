@@ -2,6 +2,8 @@ package com.mashreq.transfercoreservice.client;
 
 import com.mashreq.ms.commons.cache.HeaderNames;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
+import com.mashreq.transfercoreservice.client.dto.BeneficiaryModificationValidationRequest;
+import com.mashreq.transfercoreservice.client.dto.BeneficiaryModificationValidationResponse;
 import com.mashreq.transfercoreservice.client.dto.CharityBeneficiaryDto;
 import com.mashreq.transfercoreservice.config.feign.FeignConfig;
 import com.mashreq.transfercoreservice.fundtransfer.dto.AdditionalFields;
@@ -37,4 +39,6 @@ public interface BeneficiaryClient {
     @GetMapping("/v2/beneficiary/{validation-type}/internal/{id}")
     Response<BeneficiaryDto> getByIdV2(@RequestHeader(HeaderNames.CIF_HEADER_NAME) String cifId, @PathVariable(value = "validation-type") String validationType, @NotNull @PathVariable(value = "id") Long id);
 
+    @PostMapping("/v1/beneficiary/isRecentlyModified")
+    Response<BeneficiaryModificationValidationResponse> isRecentlyUpdated(@RequestHeader(HeaderNames.CIF_HEADER_NAME) String cifId, BeneficiaryModificationValidationRequest request);
 }

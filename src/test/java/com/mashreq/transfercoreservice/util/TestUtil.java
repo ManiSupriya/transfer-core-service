@@ -6,11 +6,14 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.AdditionalFields;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
 import com.mashreq.transfercoreservice.fundtransfer.dto.LimitValidatorResponse;
 import com.mashreq.transfercoreservice.fundtransfer.dto.QRDealDetails;
+import com.mashreq.transfercoreservice.fundtransfer.dto.TransferLimitRequestDto;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.model.Country;
 import com.mashreq.transfercoreservice.model.DigitalUser;
 import com.mashreq.transfercoreservice.model.DigitalUserGroup;
 import com.mashreq.transfercoreservice.model.Segment;
+import com.mashreq.transfercoreservice.paylater.enums.FTOrderType;
+import com.mashreq.transfercoreservice.paylater.enums.TransferType;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
 
@@ -250,5 +253,20 @@ public class TestUtil {
         cifProductsDto.setAccounts(Arrays.asList(fromAcc1, fromAcc2, fromAcc3));
 
         return cifProductsDto;
+    }
+
+    public static TransferLimitRequestDto buildTransferLimitRequest() {
+        return TransferLimitRequestDto.builder()
+                .beneficiaryId(123L)
+                .amount(new BigDecimal(599))
+                .orderType(FTOrderType.SI)
+                .transferType(TransferType.QR)
+                .accountCurrency("AED")
+                .build();
+    }
+    public static CurrencyConversionDto buildCurrencyConversionDto() {
+    	CurrencyConversionDto currencyConversionDto = new CurrencyConversionDto();
+    	currencyConversionDto.setTransactionAmount(new BigDecimal(45));
+        return currencyConversionDto;
     }
 }

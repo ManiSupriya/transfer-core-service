@@ -1,5 +1,20 @@
 package com.mashreq.transfercoreservice.api;
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
+import java.util.List;
+import java.util.Map;
+
+import javax.validation.Valid;
+
+import com.mashreq.transfercoreservice.fundtransfer.dto.TransferLimitRequestDto;
+import com.mashreq.transfercoreservice.fundtransfer.dto.TransferLimitResponseDto;
+import com.mashreq.transfercoreservice.fundtransfer.service.TransferLimitService;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.mashreq.dedupe.annotation.UniqueRequest;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
@@ -24,12 +39,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import java.util.List;
-import java.util.Map;
-
-import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
-
 @Slf4j
 @RestController
 @RequestMapping("/v1/transfer")
@@ -39,6 +48,7 @@ public class FundTransferController {
     private final FundTransferFactory serviceFactory;
     private final TransferEligibilityProxy transferEligibilityProxy;
     private final NpssEnrolmentService npssEnrolmentService;
+    private final TransferLimitService transferLimitService;
 
     @ApiOperation(value = "Processes to start payment", response = FundTransferRequestDTO.class)
     @ApiResponses(value = {
@@ -79,6 +89,27 @@ public class FundTransferController {
                 .status(ResponseStatus.SUCCESS)
                 .data(transferEligibilityProxy.checkEligibility(metaData, request)).build();
     }
+
+
+    @ApiOperation(
+    		value = "API to records the transfer limit",
+    		response = List.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully processed"),
+            @ApiResponse(code = 500, message = "Something went wrong")
+    })
+    @PostMapping("/saveTransferDetails/{transactionRefNo}")
+    public Response<TransferLimitResponseDto> saveTransferDetails(
+    		@RequestAttribute("X-REQUEST-METADATA") RequestMetaData metaData,
+    		@Valid @RequestBody TransferLimitRequestDto request, @PathVariable final String transactionRefNo) {
+
+        log.info("Received transfer details to save {}", htmlEscape(request));
+        return Response.<TransferLimitResponseDto>builder()
+                .status(ResponseStatus.SUCCESS)
+                .data(transferLimitService.validateAndSaveTransferDetails(request, transactionRefNo))
+        .build();
+    }
+
 
     @ApiOperation(
             value = "check npss enrolment of the user",
@@ -135,4 +166,5 @@ public class FundTransferController {
                 .message("Notifications Sent Successfully.")
                 .build();
     }
+
 }
