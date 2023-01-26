@@ -6,9 +6,10 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
-import com.mashreq.transfercoreservice.fundtransfer.dto.TransferLimitRequestDto;
-import com.mashreq.transfercoreservice.fundtransfer.dto.TransferLimitResponseDto;
+import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.service.TransferLimitService;
+import com.mashreq.transfercoreservice.twofactorauthrequiredvalidation.config.TwoFactorAuthRequiredValidationConfig;
+import com.mashreq.transfercoreservice.twofactorauthrequiredvalidation.service.TwoFactorAuthRequiredCheckService;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
@@ -24,11 +25,6 @@ import com.mashreq.dedupe.annotation.UniqueRequest;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentStatusResponseDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentUpdateResponseDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.duplicateRequestValidation.FundsTransferRequestResolver;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.service.TransferEligibilityProxy;
@@ -54,6 +50,7 @@ public class FundTransferController {
     private final TransferEligibilityProxy transferEligibilityProxy;
     private final NpssEnrolmentService npssEnrolmentService;
     private final TransferLimitService transferLimitService;
+    private final TwoFactorAuthRequiredCheckService twoFactorAuthRequiredCheckService;
 
     @ApiOperation(value = "Processes to start payment", response = FundTransferRequestDTO.class)
     @ApiResponses(value = {
@@ -67,10 +64,25 @@ public class FundTransferController {
                                   @Valid @RequestBody FundTransferRequestDTO request) {
         log.info("{} Fund transfer for request received ", htmlEscape(request.getServiceType()));
         log.info("Fund transfer meta data created {} ", htmlEscape(metaData));
-        if (!StringUtils.equals(ServiceType.WYMA.getName(),request.getServiceType()) && !metaData.isOtpVerified()) {
-            log.error("2FA authentication failed in update customer profile operation.");
-            GenericExceptionHandler.handleError(TransferErrorCode.TWOFA_AUTH_FAILED,
-                    TransferErrorCode.TWOFA_AUTH_FAILED.getErrorMessage());
+
+        /*** Introducing one more layer for otp relaxation which was part of UAE MT journey*/
+        TwoFactorAuthRequiredCheckRequestDto twoFactorAuthRequiredCheckRequestDto = TwoFactorAuthRequiredCheckRequestDto.builder()
+                .accountCurrency(request.getCurrency())
+                .amount(request.getAmount())
+                .beneficiaryId(request.getBeneficiaryId())
+                .dealNumber(request.getDealNumber())
+                .txnCurrency(request.getTxnCurrency())
+                .fromAccount(request.getFromAccount())
+                .build();
+        if (!StringUtils.equals(ServiceType.WYMA.getName(),request.getServiceType())
+                && twoFactorAuthRequiredCheckService.checkIfTwoFactorAuthenticationRequired(metaData, twoFactorAuthRequiredCheckRequestDto)
+                .isTwoFactorAuthRequired()) {
+            log.info("Two factor authentication is required");
+            if(!metaData.isOtpVerified()){
+                log.error("2FA authentication failed in update customer profile operation.");
+                GenericExceptionHandler.handleError(TransferErrorCode.TWOFA_AUTH_FAILED,
+                        TransferErrorCode.TWOFA_AUTH_FAILED.getErrorMessage());
+            }
         }
 
         if(request.getAmount() == null && request.getSrcAmount() ==null){

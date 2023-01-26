@@ -2,13 +2,7 @@ package com.mashreq.transfercoreservice.api;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericException;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponseDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.TransferLimitResponseDto;
-import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentStatusResponseDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentUpdateResponseDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
+import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.service.TransferEligibilityProxy;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferFactory;
@@ -16,6 +10,7 @@ import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferServiceD
 import com.mashreq.transfercoreservice.fundtransfer.service.NpssEnrolmentService;
 import com.mashreq.transfercoreservice.fundtransfer.service.PayLaterTransferService;
 import com.mashreq.transfercoreservice.fundtransfer.service.TransferLimitService;
+import com.mashreq.transfercoreservice.twofactorauthrequiredvalidation.service.TwoFactorAuthRequiredCheckService;
 import com.mashreq.transfercoreservice.util.TestUtil;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
@@ -54,18 +49,27 @@ public class FundTransferControllerTest {
 	private NpssEnrolmentService npssEnrolmentService;
 	@Mock
 	TransferLimitService transferLimitService;
+	@Mock
+	TwoFactorAuthRequiredCheckService twoFactorAuthRequiredCheckService;
 
 	private FundTransferController controller;
 	/** TODO: write integration test to cover contract validations */
 	@Before
 	public void init() {
 
-		controller = new FundTransferController(serviceFactory,transferEligibilityProxy, npssEnrolmentService, transferLimitService);
+		controller = new FundTransferController(serviceFactory,transferEligibilityProxy,
+				npssEnrolmentService, transferLimitService, twoFactorAuthRequiredCheckService);
 	}
 
 	@Test(expected = GenericException.class)
 	public void test_amountandSourceAmountIsNull() {
 		RequestMetaData metaData = getMetaData();
+		TwoFactorAuthRequiredCheckResponseDto twoFactorAuthRequiredCheckResponseDto =
+				new TwoFactorAuthRequiredCheckResponseDto();
+		twoFactorAuthRequiredCheckResponseDto.setTwoFactorAuthRequired(false);
+		//when
+		when(twoFactorAuthRequiredCheckService.checkIfTwoFactorAuthenticationRequired(any(),
+				any())).thenReturn(twoFactorAuthRequiredCheckResponseDto);
 		controller.transferFunds(metaData , new FundTransferRequestDTO());
 	}
 
@@ -92,6 +96,13 @@ public class FundTransferControllerTest {
 		request.setOrderType("PL");
 		request.setAmount(BigDecimal.TEN);
 		request.setServiceType("WAMA");
+
+		TwoFactorAuthRequiredCheckResponseDto twoFactorAuthRequiredCheckResponseDto =
+				new TwoFactorAuthRequiredCheckResponseDto();
+		twoFactorAuthRequiredCheckResponseDto.setTwoFactorAuthRequired(true);
+		//when
+		when(twoFactorAuthRequiredCheckService.checkIfTwoFactorAuthenticationRequired(any(),
+				any())).thenReturn(twoFactorAuthRequiredCheckResponseDto);
 		controller.transferFunds(metaData , request);
 
 	}
