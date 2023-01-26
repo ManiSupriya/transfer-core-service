@@ -8,7 +8,6 @@ import javax.validation.Valid;
 
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.service.TransferLimitService;
-import com.mashreq.transfercoreservice.twofactorauthrequiredvalidation.config.TwoFactorAuthRequiredValidationConfig;
 import com.mashreq.transfercoreservice.twofactorauthrequiredvalidation.service.TwoFactorAuthRequiredCheckService;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mashreq.transactionauth.annotations.RequiresAuthorization;
-import com.mashreq.transactionauth.twofa.TwoFaType;
 import org.apache.commons.lang.StringUtils;
 
 import com.mashreq.dedupe.annotation.UniqueRequest;
