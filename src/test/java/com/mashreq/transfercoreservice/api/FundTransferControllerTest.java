@@ -50,7 +50,7 @@ public class FundTransferControllerTest {
 	@Mock
 	TransferLimitService transferLimitService;
 	@Mock
-	TwoFactorAuthRequiredCheckService twoFactorAuthRequiredCheckService;
+	private FundTransferServiceDefault fundTransferService;
 
 	private FundTransferController controller;
 	/** TODO: write integration test to cover contract validations */
@@ -58,18 +58,12 @@ public class FundTransferControllerTest {
 	public void init() {
 
 		controller = new FundTransferController(serviceFactory,transferEligibilityProxy,
-				npssEnrolmentService, transferLimitService, twoFactorAuthRequiredCheckService);
+				npssEnrolmentService, transferLimitService);
 	}
 
 	@Test(expected = GenericException.class)
 	public void test_amountandSourceAmountIsNull() {
 		RequestMetaData metaData = getMetaData();
-		TwoFactorAuthRequiredCheckResponseDto twoFactorAuthRequiredCheckResponseDto =
-				new TwoFactorAuthRequiredCheckResponseDto();
-		twoFactorAuthRequiredCheckResponseDto.setTwoFactorAuthRequired(false);
-		//when
-		when(twoFactorAuthRequiredCheckService.checkIfTwoFactorAuthenticationRequired(any(),
-				any())).thenReturn(twoFactorAuthRequiredCheckResponseDto);
 		controller.transferFunds(metaData , new FundTransferRequestDTO());
 	}
 
@@ -87,24 +81,6 @@ public class FundTransferControllerTest {
 		Response transferFunds = controller.transferFunds(metaData , request);
 		assertEquals(ResponseStatus.SUCCESS, transferFunds.getStatus());
 		assertEquals(expectedResponse, transferFunds.getData());
-	}
-
-	@Test(expected = GenericException.class)
-	public void test_withRequestWhichCannot_be_processed_due_to_otp() {
-		RequestMetaData metaData = getMetaData();
-		FundTransferRequestDTO request = new FundTransferRequestDTO();
-		request.setOrderType("PL");
-		request.setAmount(BigDecimal.TEN);
-		request.setServiceType("WAMA");
-
-		TwoFactorAuthRequiredCheckResponseDto twoFactorAuthRequiredCheckResponseDto =
-				new TwoFactorAuthRequiredCheckResponseDto();
-		twoFactorAuthRequiredCheckResponseDto.setTwoFactorAuthRequired(true);
-		//when
-		when(twoFactorAuthRequiredCheckService.checkIfTwoFactorAuthenticationRequired(any(),
-				any())).thenReturn(twoFactorAuthRequiredCheckResponseDto);
-		controller.transferFunds(metaData , request);
-
 	}
 
 	@Test
@@ -162,5 +138,4 @@ public class FundTransferControllerTest {
 		RequestMetaData metaData = new RequestMetaData();
 		return metaData;
 	}
-
 }

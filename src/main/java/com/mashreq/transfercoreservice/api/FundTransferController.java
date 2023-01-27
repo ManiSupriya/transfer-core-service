@@ -8,7 +8,6 @@ import javax.validation.Valid;
 
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.service.TransferLimitService;
-import com.mashreq.transfercoreservice.twofactorauthrequiredvalidation.service.TwoFactorAuthRequiredCheckService;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
@@ -48,7 +47,6 @@ public class FundTransferController {
     private final TransferEligibilityProxy transferEligibilityProxy;
     private final NpssEnrolmentService npssEnrolmentService;
     private final TransferLimitService transferLimitService;
-    private final TwoFactorAuthRequiredCheckService twoFactorAuthRequiredCheckService;
 
     @ApiOperation(value = "Processes to start payment", response = FundTransferRequestDTO.class)
     @ApiResponses(value = {
@@ -62,26 +60,6 @@ public class FundTransferController {
                                   @Valid @RequestBody FundTransferRequestDTO request) {
         log.info("{} Fund transfer for request received ", htmlEscape(request.getServiceType()));
         log.info("Fund transfer meta data created {} ", htmlEscape(metaData));
-
-        /*** Introducing one more layer for otp relaxation which was part of UAE MT journey*/
-        TwoFactorAuthRequiredCheckRequestDto twoFactorAuthRequiredCheckRequestDto = TwoFactorAuthRequiredCheckRequestDto.builder()
-                .accountCurrency(request.getCurrency())
-                .amount(request.getAmount())
-                .beneficiaryId(request.getBeneficiaryId())
-                .dealNumber(request.getDealNumber())
-                .txnCurrency(request.getTxnCurrency())
-                .fromAccount(request.getFromAccount())
-                .build();
-        if (!StringUtils.equals(ServiceType.WYMA.getName(),request.getServiceType())
-                && twoFactorAuthRequiredCheckService.checkIfTwoFactorAuthenticationRequired(metaData, twoFactorAuthRequiredCheckRequestDto)
-                .isTwoFactorAuthRequired()) {
-            log.info("Two factor authentication is required");
-            if(!metaData.isOtpVerified()){
-                log.error("2FA authentication failed in update customer profile operation.");
-                GenericExceptionHandler.handleError(TransferErrorCode.TWOFA_AUTH_FAILED,
-                        TransferErrorCode.TWOFA_AUTH_FAILED.getErrorMessage());
-            }
-        }
 
         if(request.getAmount() == null && request.getSrcAmount() ==null){
             GenericExceptionHandler.handleError(TransferErrorCode.INVALID_REQUEST, "Bad Request", "Both debitAmount and credit amount are missing");
