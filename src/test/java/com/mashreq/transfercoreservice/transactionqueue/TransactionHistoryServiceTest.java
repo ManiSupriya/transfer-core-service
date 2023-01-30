@@ -15,6 +15,8 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static com.mashreq.transfercoreservice.common.CommonConstants.CARD_LESS_CASH;
@@ -58,18 +60,36 @@ public class TransactionHistoryServiceTest {
 
     @Test
     public void getTransactionHistoryPositiveScenarioTest() {
+        Mockito.when(transactionRepository.findByCif(Mockito.anyString()))
+                .thenReturn(Arrays.asList(TransactionHistory.builder().hostReferenceNo("HOST12345").build()));
+        List<TransactionHistoryDto> transactionHistoryDto = transactionHistoryService.getTransactionHistoryByCif("162362");
+        assertEquals("HOST12345", transactionHistoryDto.get(0).getHostReferenceNo());
+    }
+
+    @Test
+    public void getTransactionHistoryByRefNumPositiveScenarioTest() {
         Mockito.when(transactionRepository.findByHostReferenceNo(Mockito.anyString()))
                 .thenReturn(TransactionHistory.builder().hostReferenceNo("HOST12345").build());
-        TransactionHistoryDto transactionHistoryDto = transactionHistoryService.getTransactionHistory("162362");
+        TransactionHistoryDto transactionHistoryDto = transactionHistoryService.getTransactionDetailByHostRef("162362");
         assertEquals("HOST12345", transactionHistoryDto.getHostReferenceNo());
     }
 
     @Test
-    public void getTransactionHistoryNegativeScenarioTest() {
+    public void getTransactionHistoryByRefNumNegativeScenarioTest() {
         Mockito.when(transactionRepository.findByHostReferenceNo(Mockito.anyString()))
                 .thenThrow(new IllegalArgumentException());
         GenericException genericException = assertThrows(GenericException.class,
-                () -> transactionHistoryService.getTransactionHistory("162362"));
+                () -> transactionHistoryService.getTransactionDetailByHostRef("162362"));
+        assertEquals(DB_CONNECTIVITY_ISSUE.getErrorMessage(), genericException.getMessage());
+        assertEquals(DB_CONNECTIVITY_ISSUE.getCustomErrorCode(), genericException.getErrorCode());
+    }
+
+    @Test
+    public void getTransactionHistoryNegativeScenarioTest() {
+        Mockito.when(transactionRepository.findByCif(Mockito.anyString()))
+                .thenThrow(new IllegalArgumentException());
+        GenericException genericException = assertThrows(GenericException.class,
+                () -> transactionHistoryService.getTransactionHistoryByCif("162362"));
         assertEquals(DB_CONNECTIVITY_ISSUE.getErrorMessage(), genericException.getMessage());
         assertEquals(DB_CONNECTIVITY_ISSUE.getCustomErrorCode(), genericException.getErrorCode());
     }
