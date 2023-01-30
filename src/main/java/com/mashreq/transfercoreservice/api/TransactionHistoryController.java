@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
@@ -67,13 +68,26 @@ public class TransactionHistoryController {
             @ApiResponse(code = 200, message = "Successfully processed"),
             @ApiResponse(code = 500, message = "Something went wrong")
     })
-    @GetMapping(value = "/transactionHistory")
-    public Response<TransactionHistoryDto> getTransactionHistory(@RequestParam String paymentId) {
+    @GetMapping(value = "/transactionDetail")
+    public Response<TransactionHistoryDto> getTransactionDetail(@RequestParam String paymentId) {
         log.info("Getting Transaction History Details for the paymentId : {} ", paymentId);
         return Response.<TransactionHistoryDto>builder()
                 .status(ResponseStatus.SUCCESS)
-                .data(transactionHistoryService.getTransactionHistory(paymentId))
+                .data(transactionHistoryService.getTransactionDetailByHostRef(paymentId))
                 .build();
     }
 
+    @ApiOperation(value = "Get Transaction History from data base", response = TransactionHistoryDto.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully processed"),
+            @ApiResponse(code = 500, message = "Something went wrong")
+    })
+    @GetMapping(value = "/transactionHistory")
+    public Response<List<TransactionHistoryDto>> getTransactionHistory(@RequestParam String cif) {
+        log.info("Getting Transaction History Details for the paymentId : {} ", cif);
+        return Response.<List<TransactionHistoryDto>>builder()
+                .status(ResponseStatus.SUCCESS)
+                .data(transactionHistoryService.getTransactionHistoryByCif(cif))
+                .build();
+    }
 }

@@ -22,5 +22,7 @@ public interface TransactionRepository extends JpaRepository<TransactionHistory,
 	            "GROUP BY th.cif")
 	    List<Object[]> findSumByCifIdAndServiceType(@Param("cif") String cif,@Param("transactionTypeCode") String transactionTypeCode,@Param("status") String status);
 	TransactionHistory findByHostReferenceNo(final String hostReferenceNo);
+
+	List<TransactionHistory> findByCif(final String cif);
    
 }

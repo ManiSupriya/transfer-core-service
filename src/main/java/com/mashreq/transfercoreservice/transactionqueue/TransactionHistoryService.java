@@ -65,11 +65,24 @@ public class TransactionHistoryService {
         return transactionRepository.save(transactionHistory).getId();
     }
 
-    public TransactionHistoryDto getTransactionHistory(final String paymentId) {
+    public TransactionHistoryDto getTransactionDetailByHostRef(final String paymentId) {
         TransactionHistory transactionHistory = null;
         try {
             log.info("Querying Transaction History Details for the cif : {} ", paymentId);
             transactionHistory = transactionRepository.findByHostReferenceNo(paymentId);
+            log.info("The details received from DB is : {} ", transactionHistory);
+        } catch (Exception e) {
+            log.error("DB Connectivity Issue ", e);
+            GenericExceptionHandler.handleError(DB_CONNECTIVITY_ISSUE, DB_CONNECTIVITY_ISSUE.getErrorMessage());
+        }
+        return TransactionHistoryMapper.getTransactionHistoryDto(transactionHistory);
+    }
+
+    public List<TransactionHistoryDto> getTransactionHistoryByCif(final String cif) {
+        List<TransactionHistory> transactionHistory = null;
+        try {
+            log.info("Querying Transaction History Details for the cif : {} ", cif);
+            transactionHistory = transactionRepository.findByCif(cif);
             log.info("The details received from DB is : {} ", transactionHistory);
         } catch (Exception e) {
             log.error("DB Connectivity Issue ", e);
