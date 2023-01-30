@@ -13,8 +13,11 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 import static com.mashreq.transfercoreservice.common.CommonConstants.CARD_LESS_CASH;
 import static com.mashreq.transfercoreservice.common.CommonConstants.MOB_CHANNEL;
@@ -27,6 +30,7 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.DB_CONNEC
 public class TransactionHistoryService {
 
     private final TransactionRepository transactionRepository;
+    private static final String DATE_FORMAT = "yyyy-MM-dd";
 
     /**
      * Service to get the charity paid by a given CIF and charity type
@@ -78,16 +82,27 @@ public class TransactionHistoryService {
         return TransactionHistoryMapper.getTransactionHistoryDto(transactionHistory);
     }
 
-    public List<TransactionHistoryDto> getTransactionHistoryByCif(final String cif) {
+    public List<TransactionHistoryDto> getTransactionHistoryByCif(final String cif,final String startDate,final String endDate) {
         List<TransactionHistory> transactionHistory = null;
         try {
             log.info("Querying Transaction History Details for the cif : {} ", cif);
-            transactionHistory = transactionRepository.findByCif(cif);
+            transactionHistory = transactionRepository.findAllByCifAndCreatedDate(cif,startDate,getEndDate(endDate));
             log.info("The details received from DB is : {} ", transactionHistory);
         } catch (Exception e) {
             log.error("DB Connectivity Issue ", e);
             GenericExceptionHandler.handleError(DB_CONNECTIVITY_ISSUE, DB_CONNECTIVITY_ISSUE.getErrorMessage());
         }
         return TransactionHistoryMapper.getTransactionHistoryDto(transactionHistory);
+    }
+
+    private String getEndDate(final String endDate) {
+        LocalDate endDateDB = null;
+        try {
+            LocalDate date = LocalDate.parse(endDate, DateTimeFormatter.ofPattern(DATE_FORMAT));
+            endDateDB = date.plusDays(1);
+        } catch (Exception e) {
+            log.error("Date conversion Issue", e);
+        }
+        return Optional.ofNullable(endDateDB).isPresent() ? endDateDB.toString() : endDate;
     }
 }

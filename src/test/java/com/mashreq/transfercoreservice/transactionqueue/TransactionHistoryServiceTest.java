@@ -62,7 +62,7 @@ public class TransactionHistoryServiceTest {
     public void getTransactionHistoryPositiveScenarioTest() {
         Mockito.when(transactionRepository.findByCif(Mockito.anyString()))
                 .thenReturn(Arrays.asList(TransactionHistory.builder().hostReferenceNo("HOST12345").build()));
-        List<TransactionHistoryDto> transactionHistoryDto = transactionHistoryService.getTransactionHistoryByCif("162362");
+        List<TransactionHistoryDto> transactionHistoryDto = transactionHistoryService.getTransactionHistoryByCif("162362","2021-04-22","2021-04-29");
         assertEquals("HOST12345", transactionHistoryDto.get(0).getHostReferenceNo());
     }
 
@@ -89,7 +89,7 @@ public class TransactionHistoryServiceTest {
         Mockito.when(transactionRepository.findByCif(Mockito.anyString()))
                 .thenThrow(new IllegalArgumentException());
         GenericException genericException = assertThrows(GenericException.class,
-                () -> transactionHistoryService.getTransactionHistoryByCif("162362"));
+                () -> transactionHistoryService.getTransactionHistoryByCif("162362","2021-04-22","2021-04-29"));
         assertEquals(DB_CONNECTIVITY_ISSUE.getErrorMessage(), genericException.getMessage());
         assertEquals(DB_CONNECTIVITY_ISSUE.getCustomErrorCode(), genericException.getErrorCode());
     }

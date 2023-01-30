@@ -43,10 +43,10 @@ public class TransactionHistoryControllerTest {
 
     @Test()
     public void getTransactionHistoryTest() {
-        when(transactionHistoryService.getTransactionHistoryByCif(any())).thenReturn(Arrays.asList(TransactionHistoryDto.builder()
+        when(transactionHistoryService.getTransactionHistoryByCif(any(),any(),any())).thenReturn(Arrays.asList(TransactionHistoryDto.builder()
                 .hostReferenceNo("HOST12345")
                 .build()));
-        Response<List<TransactionHistoryDto>> response = controller.getTransactionHistory("Payment12356");
+        Response<List<TransactionHistoryDto>> response = controller.getTransactionHistory("Payment12356","2021-04-24","2021-04-29");
         assertNotNull(response.getData());
         assertEquals("HOST12345", response.getData().get(0).getHostReferenceNo());
     }
