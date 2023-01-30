@@ -22,7 +22,7 @@
         <tomcat.version>9.0.68</tomcat.version>
         <!-- Sonar | Code coverage | API Doc-->
         <sonar.exclusions>
-            src/main/**/*
+            src/main/**/*,
             **/*MWService.java,
             **/middleware/*,
             **/event/*,
