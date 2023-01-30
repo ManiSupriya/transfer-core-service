@@ -24,6 +24,7 @@ import static com.mashreq.transfercoreservice.common.CommonConstants.MOB_CHANNEL
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.DB_CONNECTIVITY_ISSUE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TransactionHistoryServiceTest {
@@ -40,7 +41,7 @@ public class TransactionHistoryServiceTest {
         dbResult.setCif_id("012960010");
         dbResult.setEnrollment_status("ENROLLED");
         Optional<NpssEnrolmentRepoDTO> npssUser = Optional.of(dbResult);
-        Mockito.when(transactionRepository.save(Mockito.any())).thenReturn(getTransactionHistory());
+        Mockito.when(transactionRepository.save(any())).thenReturn(getTransactionHistory());
         transactionHistoryService.saveTransactionHistory(getTransactionHistoryDto(), getMetaData("162362"));
     }
 
@@ -60,7 +61,7 @@ public class TransactionHistoryServiceTest {
 
     @Test
     public void getTransactionHistoryPositiveScenarioTest() {
-        Mockito.when(transactionRepository.findByCif(Mockito.anyString()))
+        Mockito.when(transactionRepository.findAllByCifAndCreatedDate(Mockito.anyString(),any(),any()))
                 .thenReturn(Arrays.asList(TransactionHistory.builder().hostReferenceNo("HOST12345").build()));
         List<TransactionHistoryDto> transactionHistoryDto = transactionHistoryService.getTransactionHistoryByCif("162362","2021-04-22","2021-04-29");
         assertEquals("HOST12345", transactionHistoryDto.get(0).getHostReferenceNo());
@@ -86,7 +87,7 @@ public class TransactionHistoryServiceTest {
 
     @Test
     public void getTransactionHistoryNegativeScenarioTest() {
-        Mockito.when(transactionRepository.findByCif(Mockito.anyString()))
+        Mockito.when(transactionRepository.findAllByCifAndCreatedDate(Mockito.anyString(),any(),any()))
                 .thenThrow(new IllegalArgumentException());
         GenericException genericException = assertThrows(GenericException.class,
                 () -> transactionHistoryService.getTransactionHistoryByCif("162362","2021-04-22","2021-04-29"));
