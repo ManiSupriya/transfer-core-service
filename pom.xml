@@ -23,6 +23,12 @@
         <!-- Sonar | Code coverage | API Doc-->
         <sonar.exclusions>
             src/main/**/*,
+            **/*Application.java,
+            **/com/mashreq/transfercoreservice/model/**,
+            **/*Dto.java,
+            **/*DTO.java,
+            **/*Config.java,
+            **/com/mashreq/transfercoreservice/client/dto/**,
             **/*MWService.java,
             **/middleware/*,
             **/event/*,
