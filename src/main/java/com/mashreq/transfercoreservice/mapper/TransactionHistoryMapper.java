@@ -3,6 +3,9 @@ package com.mashreq.transfercoreservice.mapper;
 import com.mashreq.transfercoreservice.dto.TransactionHistoryDto;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionHistory;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class TransactionHistoryMapper {
 
     public static TransactionHistoryDto getTransactionHistoryDto(final TransactionHistory transactionHistory) {
@@ -31,5 +34,10 @@ public class TransactionHistoryMapper {
                 .debitAmount(transactionHistory.getDebitAmount())
                 .exchangeRate(transactionHistory.getExchangeRate())
                 .build();
+    }
+
+    public static List<TransactionHistoryDto> getTransactionHistoryDto(final List<TransactionHistory> transactionHistory) {
+        return transactionHistory.stream()
+                .map(TransactionHistoryMapper::getTransactionHistoryDto).collect(Collectors.toList());
     }
 }

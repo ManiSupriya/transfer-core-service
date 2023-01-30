@@ -1,12 +1,12 @@
 package com.mashreq.transfercoreservice.transactionqueue;
 
 
-import java.util.List;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<TransactionHistory, Long> {
@@ -22,5 +22,12 @@ public interface TransactionRepository extends JpaRepository<TransactionHistory,
 	            "GROUP BY th.cif")
 	    List<Object[]> findSumByCifIdAndServiceType(@Param("cif") String cif,@Param("transactionTypeCode") String transactionTypeCode,@Param("status") String status);
 	TransactionHistory findByHostReferenceNo(final String hostReferenceNo);
+
+	List<TransactionHistory> findByCif(final String cif);
+
+	@Query(value = "SELECT * FROM transaction_history as th WHERE " +
+			" th.cif = :cif and th.created_date BETWEEN :startDate AND :endDate",nativeQuery = true)
+	List<TransactionHistory>  findAllByCifAndCreatedDate(@Param("cif") String cif,@Param("startDate") String startDate,
+														 @Param("endDate") String endDate);
    
 }

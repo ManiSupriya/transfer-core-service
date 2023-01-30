@@ -11,6 +11,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -40,12 +43,12 @@ public class TransactionHistoryControllerTest {
 
     @Test()
     public void getTransactionHistoryTest() {
-        RequestMetaData metaData = getMetaData();
-        TransactionHistoryDto transactionHistoryDto = TransactionHistoryDto.builder().hostReferenceNo("HOST12345").build();
-        when(transactionHistoryService.getTransactionHistory(any())).thenReturn(transactionHistoryDto);
-        Response<TransactionHistoryDto> response = controller.getTransactionHistory("Payment12356");
+        when(transactionHistoryService.getTransactionHistoryByCif(any(),any(),any())).thenReturn(Arrays.asList(TransactionHistoryDto.builder()
+                .hostReferenceNo("HOST12345")
+                .build()));
+        Response<List<TransactionHistoryDto>> response = controller.getTransactionHistory("Payment12356","2021-04-24","2021-04-29");
         assertNotNull(response.getData());
-        assertEquals("HOST12345", response.getData().getHostReferenceNo());
+        assertEquals("HOST12345", response.getData().get(0).getHostReferenceNo());
     }
 
     private RequestMetaData getMetaData() {
