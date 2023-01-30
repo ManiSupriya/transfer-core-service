@@ -176,9 +176,8 @@ public class NpssNotificationService {
     }
 
     public void performNotificationActivities(RequestMetaData requestMetaData, NotificationRequestDto notificationRequestDto ,UserDTO userDTO) {
-        if(notificationRequestDto.getNotificationType()==PAYMENT_REQUEST_SENT){
-            NotificationRequestDto notificationRtpDto = notificationRequestDto;
-           List<NotificationRequestDto> notificationRequestDtoList = notificationRequestDto.getRtpNotificationList().stream().map(rtp->mapRtpToNotificationRequest()).collect(Collectors.toList());
+        if(PAYMENT_REQUEST_SENT.equalsIgnoreCase(notificationRequestDto.getNotificationType())){
+            notificationRequestDto.getRtpNotificationList().stream().map(rtp->mapRtpToNotificationRequest()).collect(Collectors.toList());
         }else{
             performSendNotifications(requestMetaData,  notificationRequestDto , userDTO);
         }
