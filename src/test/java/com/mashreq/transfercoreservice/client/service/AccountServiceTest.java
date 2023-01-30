@@ -12,11 +12,9 @@ import java.util.Map;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.mashreq.mobcommons.cache.MobRedisService;
-import com.mashreq.transfercoreservice.client.dto.CountryDto;
 import com.mashreq.transfercoreservice.client.dto.SearchAccountDto;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
-import org.apache.commons.collections4.MapUtils;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;

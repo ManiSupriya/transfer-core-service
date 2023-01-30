@@ -9,7 +9,6 @@ import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WAMA;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WYMA;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 

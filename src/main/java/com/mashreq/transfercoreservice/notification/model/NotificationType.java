@@ -17,5 +17,13 @@ public class NotificationType {
     public static final String LOCAL_FT_CC = "CC LOCAL FUNDS TRANSFER";
     public static final String OWN_ACCOUNT_FT = "OWN ACCOUNT FUNDS TRANSFER";
     public static final String WITHIN_MASHREQ_FT = "WITHIN MASHREQ FUNDS TRANSFER";
+
+    public static final String CUSTOMER_ENROLMENT = "CUSTOMER_ENROLL_NPSS";
+    public static final String PAYMENT_FAIL = "PAYMENT_FAIL_NPSS";
+    public static final String PAYMENT_SUCCESS = "PAYMENT_SUCCESS_NPSS";
+    public static final String PAYMENT_REQUEST_RECEIVED = "PAYMENT_REQUEST_RECEIVED_NPSS";
+    public static final String PAYMENT_RECEIVED = "PAYMENT_RECEIVED_NPSS";
+
+    public static final String PAYMENT_REQUEST_SENT = "PAYMENT REQUEST SENT";
 }
 

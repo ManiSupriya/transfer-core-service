@@ -24,12 +24,9 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
-import com.mashreq.transfercoreservice.client.dto.CoreCurrencyConversionRequestDto;
 import com.mashreq.transfercoreservice.client.dto.CountryDto;
 import com.mashreq.transfercoreservice.client.dto.CountryResponseDto;
-import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.client.dto.TransferSupportedCountryDto;
-import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.DealConversionRateRequestDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.DealConversionRateResponseDto;

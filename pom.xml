@@ -22,12 +22,7 @@
         <tomcat.version>9.0.68</tomcat.version>
         <!-- Sonar | Code coverage | API Doc-->
         <sonar.exclusions>
-            **/*Application.java,
-            **/com/mashreq/transfercoreservice/model/**,
-            **/*Dto.java,
-            **/*DTO.java,
-            **/*Config.java,
-            **/com/mashreq/transfercoreservice/client/dto/**,
+            src/main/**/*
             **/*MWService.java,
             **/middleware/*,
             **/event/*,
@@ -38,6 +33,9 @@
             **/dto/*,
             **/config/*
         </sonar.exclusions>
+        <sonar.test.exclusions>
+            src/test/**/*
+        </sonar.test.exclusions>
         <jacoco.version>0.8.3</jacoco.version>
         <jacoco.percentage.instruction>0.60</jacoco.percentage.instruction>
         <sonar-maven-plugin.version>3.7.0.1746</sonar-maven-plugin.version>

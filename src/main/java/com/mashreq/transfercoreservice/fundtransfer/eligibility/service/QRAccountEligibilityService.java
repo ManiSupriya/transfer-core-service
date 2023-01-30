@@ -19,7 +19,6 @@ import java.util.Objects;
 
 import com.mashreq.transfercoreservice.client.dto.*;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
-import com.mashreq.transfercoreservice.fundtransfer.dto.QuickRemitType;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
