@@ -7,6 +7,7 @@ import com.mashreq.templates.freemarker.TemplateEngine;
 import com.mashreq.templates.freemarker.TemplateRequest;
 import com.mashreq.transfercoreservice.config.notification.EmailConfig;
 import com.mashreq.transfercoreservice.dto.NotificationRequestDto;
+import com.mashreq.transfercoreservice.dto.RtpNotification;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
@@ -88,8 +89,8 @@ public class NpssNotificationService {
                 contactLinkText = StringUtils.defaultIfBlank(segment.getEmailContactUsLinkText(), DEFAULT_STR);
                 htmlContent = segment.getEmailContactUsHtmlContent();
                 if(StringUtils.isNotEmpty(htmlContent)) {
-                    htmlContent = htmlContent.replaceAll("\\{contactUsLinkText}", contactLinkText);
-                    htmlContent = htmlContent.replaceAll("\\$", DEFAULT_STR);
+                    htmlContent = htmlContent.replace("\\{contactUsLinkText}", contactLinkText);
+                    htmlContent = htmlContent.replace("\\$", DEFAULT_STR);
                 } else {
                     htmlContent = DEFAULT_STR;
                 }
@@ -177,15 +178,17 @@ public class NpssNotificationService {
 
     public void performNotificationActivities(RequestMetaData requestMetaData, NotificationRequestDto notificationRequestDto ,UserDTO userDTO) {
         if(PAYMENT_REQUEST_SENT.equalsIgnoreCase(notificationRequestDto.getNotificationType())){
-            notificationRequestDto.getRtpNotificationList().stream().map(rtp->mapRtpToNotificationRequest()).collect(Collectors.toList());
+           List<RtpNotification> notificationRequestDtoList = notificationRequestDto.getRtpNotificationList().stream().map(this::mapRtpToNotificationRequest).collect(Collectors.toList());
+           notificationRequestDto.setRtpNotificationList(notificationRequestDtoList);
+            performSendNotifications(requestMetaData,notificationRequestDto,userDTO);
         }else{
             performSendNotifications(requestMetaData,  notificationRequestDto , userDTO);
         }
 
     }
 
-    private NotificationRequestDto mapRtpToNotificationRequest() {
-        return NotificationRequestDto.builder().build();
+    private RtpNotification mapRtpToNotificationRequest(RtpNotification notificationRequestDto) {
+        return RtpNotification.builder().amount(notificationRequestDto.getAmount()).contactName(notificationRequestDto.getContactName()).sentTo(notificationRequestDto.getSentTo()).build();
 
     }
 
