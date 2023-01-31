@@ -3,10 +3,12 @@ trigger:
   - develop
   - release/*
   - egypt-master-merge
+  - merge-master
 
 pr:
   - master
   - develop
+  - merge-master
 
 resources:
   repositories:
