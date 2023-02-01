@@ -253,6 +253,10 @@ mob-common:
 feign:
   hystrix:
     enabled: false
+  client:
+    config:
+      default:
+        readTimeout: ${FEIGN_READ_TIMEOUT:210000}
   httpclient:
     enabled: true
     max-connections: ${FEIGN_MAX_CONNECTION:200}
