@@ -20,7 +20,7 @@ spring:
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: validate
+      dialect: org.hibernate.dialect.SQLServer2012Dialect
 
 external:
   error-code:
@@ -81,6 +81,8 @@ app:
     transfer.product.id: 'DBLC'
     country.iso: 'EG'
     address: 'Egypt'
+    scheduler: 0 */15 * ? * *
+    enabled: true
     iban:
       length: 29
       accountNumber: 17
@@ -131,12 +133,19 @@ app:
       AE:
         emailSubject: ${NOTIFICATION_EMAIL_SUBJECT:%s Transfer request via %s}
         payLaterSubject: ${PL_EMAIL_SUBJECT:Pay later request}
-        StandingInstructionSubject: ${SI_EMAIL_SUBJECT:Standing instruction request}
+        StandingInstructionSubject: ${SI_EMAIL_SUBJECT:Standing instruction request}x
+        enrolmentConfirmSubject: ${CUSTOMER_ENROL_SUBJECT:%s Customer Enroled Successfully %s}
         fromEmailName: ${NOTIFICATION_FROM_EMAIL_NAME:MashreqDigital}
         fromEmailAddress: ${NOTIFICATION_FROM_EMAIL_ADDRESS:MashreqDigital@mashreqbank.com}
         localFundTransfer: templates/mt-within-own-accounts
         otherFundTransfer: templates/mt-other-accounts
         plSiFundTransfer: templates/plEmailTemplate
+        enrolmentConfirm: templates/enrolmentConfirm
+        paymentFail: templates/paymentFail
+        paymentReceived: templates/paymentReceived
+        paymentRequestReceived: templates/paymentRequestReceived
+        paymentRequestSent: templates/paymentRequestSent
+        paymentSuccess: templates/paymentSuccess
       EG:
         emailSubject: ${NOTIFICATION_EMAIL_SUBJECT:%s Transfer request via %s}
         payLaterSubject: ${PL_EMAIL_SUBJECT:Pay later request}
@@ -154,10 +163,11 @@ app:
       callCenterNo: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_CALL_CENTER_NO:04 424 6666}
       ownAccountTransactionInitiated: ${OWN_ACCOUNT_SMS:Request received for Fund Transfer of {0} {1} with Reference number {2}. Contact {3} if you did not initiate this.}
       plSiCreation: ${PL_SI_CREATION_SMS:On your request SI/Pay later has been set up for the beneficiary {0}, account number {1}. If not requested, please contact {2}. Thank you for using our services.}
+      customerEnrolledForNpss: ${CUSTOMER_ENROLLED_NPSS:Customer {0} Successfully Enrolled For IPP Faster Payments}
     push:
       ownAccountTransactionInitiated: ${OWN_ACCOUNT_PUSH:Request received through {0} for a Fund Transfer of {1} {2} with {3}. Contact {4} if you did not initiate this.}
       plSiCreation: ${PL_SI_CREATION_SMS:On your request SI/Pay later has been set up for the beneficiary {0}, account number {1}. If not requested, please contact {2}. Thank you for using our services.}
-    
+      customerEnrolledForNpss: ${CUSTOMER_ENROLLED_NPSS:Customer {0} Successfully Enrolled For IPP Faster Payments}
 redis:
   enableRedisCache: true
   host: ${REDIS_HOST:localhost}

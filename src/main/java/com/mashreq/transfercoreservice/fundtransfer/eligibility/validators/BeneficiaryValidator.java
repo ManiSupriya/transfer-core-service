@@ -4,7 +4,6 @@ import static com.mashreq.transfercoreservice.client.dto.BeneficiaryStatus.ACTIV
 import static com.mashreq.transfercoreservice.client.dto.BeneficiaryStatus.IN_COOLING_PERIOD;
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_ACC_NOT_MATCH;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_NOT_ACTIVE;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_NOT_ACTIVE_OR_COOLING;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_NOT_FOUND;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.LOCAL_CURRENCY_NOT_ALLOWED_FOR_SWIFT;

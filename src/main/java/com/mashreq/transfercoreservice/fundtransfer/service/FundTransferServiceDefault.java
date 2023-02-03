@@ -4,8 +4,6 @@ import com.mashreq.logcore.annotations.TrackExec;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
-import com.mashreq.transfercoreservice.client.dto.VerifyOTPRequestDTO;
-import com.mashreq.transfercoreservice.client.dto.VerifyOTPResponseDTO;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
 import com.mashreq.transfercoreservice.common.CommonConstants;
 import com.mashreq.transfercoreservice.errors.ExternalErrorCodeConfig;
@@ -36,12 +34,10 @@ import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionHistory;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionRepository;
 import com.mashreq.transfercoreservice.twofactorauthrequiredvalidation.service.TwoFactorAuthRequiredCheckService;
-import com.mashreq.webcore.dto.response.Response;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
@@ -57,7 +53,6 @@ import java.util.Optional;
 
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.OTP_VERIFY_OTP_REQUIRED;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.BAIT_AL_KHAIR;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.DAR_AL_BER;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.DUBAI_CARE;
@@ -116,6 +111,9 @@ public class FundTransferServiceDefault implements FundTransferService {
 
     @Override
     public FundTransferResponseDTO transferFund(RequestMetaData metadata, FundTransferRequestDTO request) {
+        /*** Introducing one more layer for otp relaxation which was part of UAE MT journey*/
+        assertOtpRequired(metadata, request);
+
         final ServiceType serviceType = getServiceByType(request.getServiceType());
         final FundTransferEventType initiatedEvent = FundTransferEventType.getEventTypeByCode(serviceType.getEventPrefix() + FUND_TRANSFER_INITIATION_SUFFIX);
         verifyTermsAndConditionAcceptance(request,metadata);
@@ -126,7 +124,26 @@ public class FundTransferServiceDefault implements FundTransferService {
                 metadata,
                 getInitiatedRemarks(request));
     }
-	private void verifyTermsAndConditionAcceptance(FundTransferRequestDTO request, RequestMetaData metadata) {
+
+    private void assertOtpRequired(RequestMetaData metaData, FundTransferRequestDTO request) {
+        TwoFactorAuthRequiredCheckRequestDto twoFactorAuthRequiredCheckRequestDto = TwoFactorAuthRequiredCheckRequestDto.builder()
+                .accountCurrency(request.getCurrency())
+                .amount(request.getAmount())
+                .beneficiaryId(request.getBeneficiaryId())
+                .dealNumber(request.getDealNumber())
+                .txnCurrency(request.getTxnCurrency())
+                .fromAccount(request.getFromAccount())
+                .build();
+        if (!StringUtils.equals(ServiceType.WYMA.getName(),request.getServiceType())
+                && service.checkIfTwoFactorAuthenticationRequired(metaData, twoFactorAuthRequiredCheckRequestDto)
+                .isTwoFactorAuthRequired() && !metaData.isOtpVerified()) {
+            log.error("2FA authentication failed in update customer profile operation.");
+            GenericExceptionHandler.handleError(TransferErrorCode.TWOFA_AUTH_FAILED,
+                    TransferErrorCode.TWOFA_AUTH_FAILED.getErrorMessage());
+        }
+    }
+
+    private void verifyTermsAndConditionAcceptance(FundTransferRequestDTO request, RequestMetaData metadata) {
 		if(cprEnabled && !"V1".equals(request.getJourneyVersion()) && !request.isTermsAndConditionsAccepted()) {
 			auditEventPublisher.publishFailedEsbEvent(FundTransferEventType.FUNDS_TRANSFER_TERMSANDCONDITIONS_ACCEPTED,
                     metadata, CommonConstants.FUND_TRANSFER, metadata.getChannelTraceId(),

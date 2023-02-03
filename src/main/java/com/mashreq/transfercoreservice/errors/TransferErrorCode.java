@@ -210,7 +210,7 @@ public enum TransferErrorCode implements ErrorCode {
     BANK_NOT_FOUND_WITH_SWIFT("TN-8036", "Bank not found with swift"),
     INVALID_SERVICE_TYPE("TN-8037", "Invalid Service type."),
 
-    TWOFA_AUTH_FAILED("TN-8039", "2FA authentication failed"),
+    TWOFA_AUTH_FAILED("TN-8042", "2FA authentication failed"),
     TERMSANDCONDITIONS_NOTACCEPTED("TN-8038", "Terms and conditions for funds transfer not accepted"),
 
     IBAN_GENERATION_FAILED("TN-8039","IBAN construction failed."),
@@ -218,6 +218,8 @@ public enum TransferErrorCode implements ErrorCode {
     INVALID_TYPE_KEY("TN-8040","Invalid bank resolver type key."),
 
     BANK_NOT_FOUND_FOR_BANK_CODE("TN-8041","Unable to find resolve bank details for the given bank code."),
+     DB_CONNECTIVITY_ISSUE("TN-8043", "DB Connectivity Issue")
+
 
 
 

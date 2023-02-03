@@ -1,6 +1,8 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
@@ -90,8 +92,12 @@ public class PayLaterTransferServiceTest {
 	
 	@Test
 	public void transferFundTest() {
-		VerifyOTPResponseDTO verifyOTPResponseDTO = new VerifyOTPResponseDTO();
-		verifyOTPResponseDTO.setAuthenticated(true);
+		TwoFactorAuthRequiredCheckResponseDto twoFactorAuthRequiredCheckResponseDto =
+				new TwoFactorAuthRequiredCheckResponseDto();
+		twoFactorAuthRequiredCheckResponseDto.setTwoFactorAuthRequired(false);
+		//when
+		when(service.checkIfTwoFactorAuthenticationRequired(any(),
+				any())).thenReturn(twoFactorAuthRequiredCheckResponseDto);
 		Mockito.doNothing().when(asyncUserEventPublisher).publishSuccessEvent(Mockito.any(), Mockito.any(),
 				Mockito.any());
 		FundTransferResponseDTO fundTransferResponseDTO = payLaterTransferService.transferFund(metaData,
@@ -102,9 +108,13 @@ public class PayLaterTransferServiceTest {
 	
 	@Test
 	public void transferFundTestOTPFailure() {
-		VerifyOTPResponseDTO verifyOTPResponseDTO = new VerifyOTPResponseDTO();
-		verifyOTPResponseDTO.setAuthenticated(false);
+		TwoFactorAuthRequiredCheckResponseDto twoFactorAuthRequiredCheckResponseDto =
+				new TwoFactorAuthRequiredCheckResponseDto();
+		twoFactorAuthRequiredCheckResponseDto.setTwoFactorAuthRequired(false);
 		try {
+			//when
+			when(service.checkIfTwoFactorAuthenticationRequired(any(),
+					any())).thenReturn(twoFactorAuthRequiredCheckResponseDto);
 			payLaterTransferService.transferFund(metaData, fundTransferRequestDTO);
 		} catch (GenericException genericException) {
 			assertEquals("TN-5016", genericException.getErrorCode());
@@ -144,6 +154,12 @@ public class PayLaterTransferServiceTest {
 	@Test
 	public void transferFundTest_SI() {
 		FundTransferRequestDTO fundTransferRequestDTO = generateFundTransferRequest(FTOrderType.SI);
+		TwoFactorAuthRequiredCheckResponseDto twoFactorAuthRequiredCheckResponseDto =
+				new TwoFactorAuthRequiredCheckResponseDto();
+		twoFactorAuthRequiredCheckResponseDto.setTwoFactorAuthRequired(false);
+		//when
+		when(service.checkIfTwoFactorAuthenticationRequired(any(),
+				any())).thenReturn(twoFactorAuthRequiredCheckResponseDto);
 		Mockito.doNothing().when(asyncUserEventPublisher).publishSuccessEvent(Mockito.any(), Mockito.any(),
 				Mockito.any());
 		FundTransferResponseDTO fundTransferResponseDTO = payLaterTransferService.transferFund(metaData,

@@ -57,7 +57,7 @@ public class MobRedisConfig {
         return factory;
     }
 
-    @Primary
+    //@Primary
     @Bean({"mobRedisTemplate"})
     RedisTemplate<String, Object> mobRedisTemplate() {
         RedisTemplate<String, Object> template = new RedisTemplate();

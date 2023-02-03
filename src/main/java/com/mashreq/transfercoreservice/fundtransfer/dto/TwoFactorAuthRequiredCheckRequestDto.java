@@ -9,9 +9,15 @@ import javax.validation.constraints.Pattern;
 import com.mashreq.mobcommons.annotations.Account;
 import com.mashreq.transfercoreservice.annotations.TransactionAmount;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class TwoFactorAuthRequiredCheckRequestDto {
 	@NotBlank
 	private String beneficiaryId;

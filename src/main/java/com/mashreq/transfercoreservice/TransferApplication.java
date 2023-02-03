@@ -10,6 +10,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import javax.annotation.PostConstruct;
 import java.text.NumberFormat;
@@ -18,6 +19,7 @@ import java.text.NumberFormat;
 @EnableFeignClients
 @EnableAutoConfiguration
 @EnableTransactionAuthorization
+@EnableScheduling
 @SpringBootApplication(scanBasePackages = {"com.mashreq.transfercoreservice", "com.mashreq.ms"})
 public class TransferApplication {
 
