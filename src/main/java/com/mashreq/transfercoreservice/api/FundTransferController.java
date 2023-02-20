@@ -6,8 +6,7 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
-import com.mashreq.transfercoreservice.fundtransfer.dto.TransferLimitRequestDto;
-import com.mashreq.transfercoreservice.fundtransfer.dto.TransferLimitResponseDto;
+import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.service.TransferLimitService;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,20 +15,23 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mashreq.transactionauth.annotations.RequiresAuthorization;
+import org.apache.commons.lang.StringUtils;
+
 import com.mashreq.dedupe.annotation.UniqueRequest;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
+import com.mashreq.transfercoreservice.dto.HandleNotificationRequestDto;
+import com.mashreq.transfercoreservice.dto.NotificationRequestDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
+import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentStatusResponseDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentUpdateResponseDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.duplicateRequestValidation.FundsTransferRequestResolver;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.service.TransferEligibilityProxy;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferFactory;
 import com.mashreq.transfercoreservice.fundtransfer.service.NpssEnrolmentService;
+import com.mashreq.transfercoreservice.transactionqueue.TransactionHistoryService;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
 import io.swagger.annotations.Api;
@@ -38,7 +40,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -57,11 +59,13 @@ public class FundTransferController {
             @ApiResponse(code = 500, message = "Something went wrong")
     })
     @PostMapping
+    @RequiresAuthorization( failOnMissingOtp = false)
     @UniqueRequest(clazz = FundsTransferRequestResolver.class,flowName = Constants.FUND_TRANSFER_REQUEST,enableIdentifierHashing = false)
     public Response transferFunds(@RequestAttribute("X-REQUEST-METADATA") RequestMetaData metaData,
                                   @Valid @RequestBody FundTransferRequestDTO request) {
         log.info("{} Fund transfer for request received ", htmlEscape(request.getServiceType()));
         log.info("Fund transfer meta data created {} ", htmlEscape(metaData));
+
         if(request.getAmount() == null && request.getSrcAmount() ==null){
             GenericExceptionHandler.handleError(TransferErrorCode.INVALID_REQUEST, "Bad Request", "Both debitAmount and credit amount are missing");
         }
@@ -137,6 +141,36 @@ public class FundTransferController {
         return Response.builder()
                 .status(ResponseStatus.SUCCESS)
                 .data(npssEnrolmentService.updateEnrolment(metaData)).build();
+    }
+
+    @ApiOperation(value = "Handle Successful  Transaction of NPSS", response = NotificationRequestDto.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully Handled Successful Transaction for NPSS"),
+            @ApiResponse(code = 401, message = "Unauthorized error")
+    })
+    @PostMapping("/npss/handle-transaction")
+    public Response handleTransaction(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData requestMetaData,
+                                      @RequestBody HandleNotificationRequestDto handleNotificationRequestDto) {
+
+        npssEnrolmentService.handleTransaction(requestMetaData,handleNotificationRequestDto);
+        return Response.builder()
+                .status(ResponseStatus.SUCCESS)
+                .message("Transaction Handled Successfully.")
+                .build();
+    }
+
+    @ApiOperation(value = "Handle Successful  Transaction of NPSS")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully Handled Successful Transaction for NPSS"),
+            @ApiResponse(code = 401, message = "Unauthorized error")
+    })
+    @PostMapping("/npss/notifications")
+    public Response handleNotifications(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData requestMetaData, @Valid @RequestBody NotificationRequestDto notificationRequestDto) {
+        npssEnrolmentService.performNotificationActivities(requestMetaData,notificationRequestDto);
+        return Response.builder()
+                .status(ResponseStatus.SUCCESS)
+                .message("Notifications Sent Successfully.")
+                .build();
     }
 
 }

@@ -7,6 +7,7 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 import com.mashreq.transfercoreservice.fundtransfer.validators.Validator;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.CREDIT_NOT_ALLOWED_FOR_EGP;
@@ -14,6 +15,9 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.CREDIT_NO
 @Slf4j
 @Component("EGP_INFT_TransactionValidator")
 public class EGP_INFT_TransactionValidator implements Validator<RuleSpecificValidatorRequest> {
+
+    @Value("${app.local.country.iso}")
+    private String country;
 
     @Override
     public ValidationResult validate(

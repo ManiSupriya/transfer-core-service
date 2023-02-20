@@ -5,6 +5,7 @@ import static com.mashreq.transfercoreservice.notification.model.NotificationTyp
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,14 +24,6 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.OwnAccountStrategy;
-import com.mashreq.transfercoreservice.fundtransfer.validators.AccountBelongsToCifValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.AccountFreezeValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.CCTransactionEligibilityValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.CurrencyValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.SameAccountValidator;
-import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
 import com.mashreq.transfercoreservice.notification.model.NotificationType;
@@ -64,11 +57,11 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 			NotificationService notificationService, AsyncUserEventPublisher auditEventPublisher,
 			DigitalUserSegment digitalUserSegment, AccountFreezeValidator freezeValidator,
 			PostTransactionService postTransactionService, FundTransferOrderRepository fundTransferOrderRepository,
-			SequenceNumberGenerator seqGenerator) {
+			SequenceNumberGenerator seqGenerator,MinTransactionAmountValidator minTransactionAmountValidator) {
 		super(accountBelongsToCifValidator, sameAccountValidator, currencyValidator, limitValidator,
 				accountService, dealValidator, maintenanceService, fundTransferMWService, balanceValidator,
 				notificationService, auditEventPublisher, digitalUserSegment, freezeValidator,
-				postTransactionService);
+				postTransactionService, minTransactionAmountValidator);
 		this.fundTransferOrderRepository = fundTransferOrderRepository;
 		this.seqGenerator = seqGenerator;
 	}

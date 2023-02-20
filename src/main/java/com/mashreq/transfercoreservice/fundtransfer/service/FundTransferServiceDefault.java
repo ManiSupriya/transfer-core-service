@@ -4,10 +4,7 @@ import com.mashreq.logcore.annotations.TrackExec;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
-import com.mashreq.transfercoreservice.client.dto.VerifyOTPRequestDTO;
-import com.mashreq.transfercoreservice.client.dto.VerifyOTPResponseDTO;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
-import com.mashreq.transfercoreservice.client.service.OTPService;
 import com.mashreq.transfercoreservice.common.CommonConstants;
 import com.mashreq.transfercoreservice.errors.ExternalErrorCodeConfig;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
@@ -37,12 +34,10 @@ import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionHistory;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionRepository;
 import com.mashreq.transfercoreservice.twofactorauthrequiredvalidation.service.TwoFactorAuthRequiredCheckService;
-import com.mashreq.webcore.dto.response.Response;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
@@ -58,7 +53,6 @@ import java.util.Optional;
 
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_CIF;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.OTP_VERIFY_OTP_REQUIRED;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.BAIT_AL_KHAIR;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.DAR_AL_BER;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.DUBAI_CARE;
@@ -89,7 +83,6 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final CharityStrategyDefault charityStrategyDefault;
     private final AsyncUserEventPublisher auditEventPublisher;
     protected EnumMap<ServiceType, FundTransferStrategy> fundTransferStrategies;
-    private final OTPService otpService;
     private final ExternalErrorCodeConfig errorCodeConfig;
     private final PromoCodeService promoCodeService;
     private final MobCommonService mobCommonService;
@@ -118,12 +111,13 @@ public class FundTransferServiceDefault implements FundTransferService {
 
     @Override
     public FundTransferResponseDTO transferFund(RequestMetaData metadata, FundTransferRequestDTO request) {
+        /*** Introducing one more layer for otp relaxation which was part of UAE MT journey*/
+        assertOtpRequired(metadata, request);
+
         final ServiceType serviceType = getServiceByType(request.getServiceType());
         final FundTransferEventType initiatedEvent = FundTransferEventType.getEventTypeByCode(serviceType.getEventPrefix() + FUND_TRANSFER_INITIATION_SUFFIX);
         verifyTermsAndConditionAcceptance(request,metadata);
-        if(isOTPVerificationRequired(serviceType, request, metadata)){
-            verifyOtp(request,metadata);
-        }
+        auditEventPublisher.publishSuccessEvent(FundTransferEventType.FUND_TRANSFER_OTP_VALIDATION, metadata, FundTransferEventType.FUND_TRANSFER_OTP_VALIDATION.getDescription());
         return auditEventPublisher.publishEventLifecycle(
                 () -> getFundTransferResponse(metadata, request),
                 initiatedEvent,
@@ -131,63 +125,25 @@ public class FundTransferServiceDefault implements FundTransferService {
                 getInitiatedRemarks(request));
     }
 
-	private boolean isOTPVerificationRequired(final ServiceType serviceType,FundTransferRequestDTO request,RequestMetaData metadata) {
-		if(WYMA.getName().equals(serviceType.getName())){
-			return false;
-		}
-		if(LOCAL.getName().equals(serviceType.getName()) || WAMA.getName().equals(serviceType.getName()) || INFT.getName().equals(serviceType.getName())) {
-			return service.checkIfTwoFactorAuthenticationRequired(metadata, prepareRequest(request)).isTwoFactorAuthRequired();
-		}
-		return true ;
-	}
-
-    private TwoFactorAuthRequiredCheckRequestDto prepareRequest(FundTransferRequestDTO request) {
-    	TwoFactorAuthRequiredCheckRequestDto requestDto = new TwoFactorAuthRequiredCheckRequestDto();
-    	requestDto.setAccountCurrency(request.getCurrency());
-    	requestDto.setAmount(request.getAmount());
-    	requestDto.setBeneficiaryId(request.getBeneficiaryId());
-    	requestDto.setDealNumber(request.getDealNumber());
-    	requestDto.setFromAccount(request.getFromAccount());
-    	requestDto.setTxnCurrency(request.getTxnCurrency());
-		return requestDto;
-	}
-
-	protected void verifyOtp(FundTransferRequestDTO request, RequestMetaData metadata) {
-    	if(!CommonConstants.PROD_PROFILE.equals(activeProfile) && otpRelaxed) {
-    		log.info("OTP relaxed for environment {}",activeProfile);
-    		return;
-    	}
-    	throwErrorIfOTPNotPresent(request);
-        VerifyOTPRequestDTO verifyOTPRequestDTO = new VerifyOTPRequestDTO();
-        verifyOTPRequestDTO.setOtp(request.getOtp());
-        verifyOTPRequestDTO.setChallengeToken(request.getChallengeToken());
-        verifyOTPRequestDTO.setDpPublicKeyIndex(request.getDpPublicKeyIndex());
-        verifyOTPRequestDTO.setDpRandomNumber(request.getDpRandomNumber());
-        verifyOTPRequestDTO.setLoginId(metadata.getLoginId());
-        verifyOTPRequestDTO.setRedisKey(metadata.getUserCacheKey());
-        log.info("fund transfer otp request{} ", verifyOTPRequestDTO);
-        Response<VerifyOTPResponseDTO> verifyOTP = otpService.verifyOTP(verifyOTPRequestDTO);
-        log.info("fund transfer otp response{} ", htmlEscape(verifyOTP.getStatus()));
-        if (ObjectUtils.isEmpty(verifyOTP.getData()) || !verifyOTP.getData().isAuthenticated()) {
-            auditEventPublisher.publishFailedEsbEvent(FundTransferEventType.FUND_TRANSFER_OTP_DOES_NOT_MATCH,
-                    metadata, CommonConstants.FUND_TRANSFER, metadata.getChannelTraceId(),
-                    TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.toString(),
-                    TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.getErrorMessage(),
-                    TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR.getErrorMessage());
-            GenericExceptionHandler.handleError(TransferErrorCode.OTP_EXTERNAL_SERVICE_ERROR,
-                    verifyOTP.getErrorDetails(), verifyOTP.getErrorDetails());
+    private void assertOtpRequired(RequestMetaData metaData, FundTransferRequestDTO request) {
+        TwoFactorAuthRequiredCheckRequestDto twoFactorAuthRequiredCheckRequestDto = TwoFactorAuthRequiredCheckRequestDto.builder()
+                .accountCurrency(request.getCurrency())
+                .amount(request.getAmount())
+                .beneficiaryId(request.getBeneficiaryId())
+                .dealNumber(request.getDealNumber())
+                .txnCurrency(request.getTxnCurrency())
+                .fromAccount(request.getFromAccount())
+                .build();
+        if (!StringUtils.equals(ServiceType.WYMA.getName(),request.getServiceType())
+                && service.checkIfTwoFactorAuthenticationRequired(metaData, twoFactorAuthRequiredCheckRequestDto)
+                .isTwoFactorAuthRequired() && !metaData.isOtpVerified()) {
+            log.error("2FA authentication failed in update customer profile operation.");
+            GenericExceptionHandler.handleError(TransferErrorCode.TWOFA_AUTH_FAILED,
+                    TransferErrorCode.TWOFA_AUTH_FAILED.getErrorMessage());
         }
-        auditEventPublisher.publishSuccessEvent(FundTransferEventType.FUND_TRANSFER_OTP_VALIDATION, metadata, FundTransferEventType.FUND_TRANSFER_OTP_VALIDATION.getDescription());
     }
 
-    private void throwErrorIfOTPNotPresent(FundTransferRequestDTO request) {
-		if(StringUtils.isBlank(request.getOtp()) || StringUtils.isBlank(request.getDpRandomNumber())) {
-			GenericExceptionHandler.handleError(OTP_VERIFY_OTP_REQUIRED,
-					OTP_VERIFY_OTP_REQUIRED.getErrorMessage(), OTP_VERIFY_OTP_REQUIRED.getErrorMessage());
-		}
-	}
-
-	private void verifyTermsAndConditionAcceptance(FundTransferRequestDTO request, RequestMetaData metadata) {
+    private void verifyTermsAndConditionAcceptance(FundTransferRequestDTO request, RequestMetaData metadata) {
 		if(cprEnabled && !"V1".equals(request.getJourneyVersion()) && !request.isTermsAndConditionsAccepted()) {
 			auditEventPublisher.publishFailedEsbEvent(FundTransferEventType.FUNDS_TRANSFER_TERMSANDCONDITIONS_ACCEPTED,
                     metadata, CommonConstants.FUND_TRANSFER, metadata.getChannelTraceId(),

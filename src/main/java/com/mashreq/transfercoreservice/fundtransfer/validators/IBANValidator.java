@@ -24,8 +24,7 @@ public class IBANValidator implements Validator<FundTransferRequestDTO> {
     private static final int END_CHAR = 7;
     private final AsyncUserEventPublisher auditEventPublisher;
 
-    //TODO take this based on country
-    @Value("${app.bank.code:033}")
+    @Value("${app.local.bank.code:033}")
     private String bankCode;
 
     @Override

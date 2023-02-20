@@ -1,7 +1,6 @@
 package com.mashreq.transfercoreservice.config.feign;
 
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import feign.codec.ErrorDecoder;
 

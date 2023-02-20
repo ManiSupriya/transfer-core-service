@@ -2,13 +2,7 @@ package com.mashreq.transfercoreservice.api;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericException;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponseDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.TransferLimitResponseDto;
-import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentStatusResponseDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentUpdateResponseDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
+import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.service.TransferEligibilityProxy;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferFactory;
@@ -16,6 +10,7 @@ import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferServiceD
 import com.mashreq.transfercoreservice.fundtransfer.service.NpssEnrolmentService;
 import com.mashreq.transfercoreservice.fundtransfer.service.PayLaterTransferService;
 import com.mashreq.transfercoreservice.fundtransfer.service.TransferLimitService;
+import com.mashreq.transfercoreservice.twofactorauthrequiredvalidation.service.TwoFactorAuthRequiredCheckService;
 import com.mashreq.transfercoreservice.util.TestUtil;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
@@ -54,13 +49,16 @@ public class FundTransferControllerTest {
 	private NpssEnrolmentService npssEnrolmentService;
 	@Mock
 	TransferLimitService transferLimitService;
+	@Mock
+	private FundTransferServiceDefault fundTransferService;
 
 	private FundTransferController controller;
 	/** TODO: write integration test to cover contract validations */
 	@Before
 	public void init() {
 
-		controller = new FundTransferController(serviceFactory,transferEligibilityProxy, npssEnrolmentService, transferLimitService);
+		controller = new FundTransferController(serviceFactory,transferEligibilityProxy,
+				npssEnrolmentService, transferLimitService);
 	}
 
 	@Test(expected = GenericException.class)
@@ -76,6 +74,7 @@ public class FundTransferControllerTest {
 		FundTransferRequestDTO request = new FundTransferRequestDTO();
 		request.setOrderType("PL");
 		request.setAmount(BigDecimal.TEN);
+		request.setServiceType("WYMA");
 		when(serviceFactory.getServiceAppropriateService(Mockito.eq(request))).thenReturn(payLaterTransferService);
 		FundTransferResponseDTO expectedResponse = FundTransferResponseDTO.builder().build();
 		when(payLaterTransferService.transferFund(metaData, request)).thenReturn(expectedResponse);
@@ -139,5 +138,4 @@ public class FundTransferControllerTest {
 		RequestMetaData metaData = new RequestMetaData();
 		return metaData;
 	}
-
 }

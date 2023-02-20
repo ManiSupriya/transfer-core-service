@@ -1,3 +1,4 @@
+/*
 package com.mashreq.transfercoreservice.cache;
 
 import java.util.concurrent.TimeUnit;
@@ -13,8 +14,6 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.redis.core.RedisTemplate;
-
-import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 @Component
 @ConditionalOnBean({MobRedisConfig.class})
@@ -61,3 +60,4 @@ public class MobRedisService {
         this.mobRedisTemplate.expire(key, ttl, TimeUnit.MINUTES);
     }
 }
+*/

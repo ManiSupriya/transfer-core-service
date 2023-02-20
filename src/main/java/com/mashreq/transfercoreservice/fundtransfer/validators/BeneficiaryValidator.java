@@ -4,10 +4,8 @@ import static com.mashreq.transfercoreservice.client.dto.BeneficiaryStatus.ACTIV
 import static com.mashreq.transfercoreservice.client.dto.BeneficiaryStatus.IN_COOLING_PERIOD;
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_ACC_NOT_MATCH;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_NOT_ACTIVE;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_NOT_ACTIVE_OR_COOLING;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_NOT_FOUND;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.LOCAL_CURRENCY_NOT_ALLOWED_FOR_SWIFT;
 
 import java.util.Arrays;
 import java.util.List;
@@ -20,7 +18,6 @@ import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +29,6 @@ public class BeneficiaryValidator implements Validator<FundTransferRequestDTO> {
 
     private static final String QUICK_REMIT = "quick-remit";
     private static final String INFT = "INFT";
-    private static final String LOCAL_CURRENCY = "AED";
     private final AsyncUserEventPublisher auditEventPublisher;
 
 

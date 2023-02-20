@@ -109,7 +109,7 @@ public class CharityStrategyDefault implements FundTransferStrategy {
 
         //responseHandler(balanceValidator.validate(request, metadata,validateContext));
 
-        // Assuming to account is always in AED
+        // Assuming to account is always in local currency
         Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
 
         log.info("Limit Validation start.");

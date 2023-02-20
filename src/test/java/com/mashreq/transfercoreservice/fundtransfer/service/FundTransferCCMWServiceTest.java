@@ -65,6 +65,7 @@ public class FundTransferCCMWServiceTest {
 		body.setFundTransferCCRes(fundTransferCCResType);
 		eaiServices.setBody(body);
 		eaiServices.setHeader(header);
+
 		/*Mockito.doNothing().when(asyncUserEventPublisher).publishFailedEsbEvent(Mockito.any(), Mockito.any(),
 				Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
 		Mockito.when(mobSoapClient.exchange(Mockito.any())).thenReturn(eaiServices);

@@ -5,12 +5,16 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.mashreq.transfercoreservice.client.dto.CountryDto;
-import org.apache.commons.collections4.MapUtils;
+import com.mashreq.mobcommons.cache.MobRedisService;
+import com.mashreq.transfercoreservice.client.dto.SearchAccountDto;
+import com.mashreq.webcore.dto.response.Response;
+import com.mashreq.webcore.dto.response.ResponseStatus;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
@@ -21,7 +25,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericException;
-import com.mashreq.transfercoreservice.cache.MobRedisService;
 import com.mashreq.transfercoreservice.cache.UserSessionCacheService;
 import com.mashreq.transfercoreservice.client.AccountClient;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
@@ -99,6 +102,46 @@ public class AccountServiceTest {
 		Assertions.assertThrows(GenericException.class, () -> {
 			accountService.getAccountDetailsFromCache("123456789012", RequestMetaData.builder().build());
 		});
+	}
+
+	@Test
+	public void test_check_account_belongs_to_mashreq() {
+		//Given
+		String account = "123456789012";
+		CoreAccountDetailsDTO coreAccountDetailsDTO = new CoreAccountDetailsDTO();
+		List<SearchAccountDto> list = new ArrayList<>();
+		SearchAccountDto searchAccountDto = new SearchAccountDto();
+		searchAccountDto.setNumber(account);
+		searchAccountDto.setAccountName("Easy saver account");
+		list.add(searchAccountDto);
+		coreAccountDetailsDTO.setConnectedAccounts(list);
+		Response<CoreAccountDetailsDTO> response = Response.<CoreAccountDetailsDTO>builder().data(coreAccountDetailsDTO).status(ResponseStatus.SUCCESS).build();
+
+		when(accountClient.getAccountDetails(any())).thenReturn(response);
+
+		//Then
+		Assertions.assertTrue(accountService.isAccountBelongsToMashreq(account));
+
+	}
+
+	@Test
+	public void test_check_account_does_not_belongs_to_mashreq() {
+		//Given
+		String account = "123456789012";
+		CoreAccountDetailsDTO coreAccountDetailsDTO = new CoreAccountDetailsDTO();
+		List<SearchAccountDto> list = new ArrayList<>();
+		SearchAccountDto searchAccountDto = new SearchAccountDto();
+		searchAccountDto.setNumber(account);
+		searchAccountDto.setAccountName("Easy saver account");
+		list.add(searchAccountDto);
+		coreAccountDetailsDTO.setConnectedAccounts(list);
+		Response<CoreAccountDetailsDTO> response = Response.<CoreAccountDetailsDTO>builder().data(null).status(ResponseStatus.ERROR).build();
+
+		when(accountClient.getAccountDetails(any())).thenReturn(response);
+
+		//Then
+		Assertions.assertThrows(GenericException.class, () -> accountService.isAccountBelongsToMashreq(account));
+
 	}
 
 }

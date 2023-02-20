@@ -19,7 +19,6 @@ import java.util.Objects;
 
 import com.mashreq.transfercoreservice.client.dto.*;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
-import com.mashreq.transfercoreservice.fundtransfer.dto.QuickRemitType;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -57,8 +56,6 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class QRAccountEligibilityService implements TransferEligibilityService {
 
-	private static final String AED = "AED";
-
 	private final BeneficiaryService beneficiaryService;
 	private final AccountService accountService;
 	private final MaintenanceService maintenanceService;
@@ -74,8 +71,13 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 	private final EncryptionService encryptionService = new EncryptionService();
 	private final MobCommonService mobCommonService;
 
+
 	@Value("#{'${app.countriesWhereQrDisabledForCompany}'.split(',')}")
 	private List<String> countriesWhereQrDisabledForCompany;
+
+	@Value("${app.local.currency}")
+	private String localCurrency;
+
 	public EligibilityResponse checkEligibility(RequestMetaData metaData, FundTransferEligibiltyRequestDTO request,UserDTO userDTO) {
 
 		log.info("Quick remit eligibility initiated");
@@ -225,7 +227,7 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 
 	private BigDecimal getLimitUsageAmount(final String dealNumber, final AccountDetailsDTO sourceAccountDetailsDTO,
 			final BigDecimal transferAmountInSrcCurrency) {
-		return "AED".equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
+		return localCurrency.equalsIgnoreCase(sourceAccountDetailsDTO.getCurrency())
 				? transferAmountInSrcCurrency
 						: convertAmountInLocalCurrency(dealNumber, sourceAccountDetailsDTO, transferAmountInSrcCurrency);
 	}
@@ -237,7 +239,7 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 		currencyConversionRequestDto.setAccountCurrency(sourceAccountDetailsDTO.getCurrency());
 		currencyConversionRequestDto.setAccountCurrencyAmount(transferAmountInSrcCurrency);
 		currencyConversionRequestDto.setDealNumber(dealNumber);
-		currencyConversionRequestDto.setTransactionCurrency("AED");
+		currencyConversionRequestDto.setTransactionCurrency(localCurrency);
 
 		CurrencyConversionDto currencyConversionDto = maintenanceService.convertCurrency(currencyConversionRequestDto);
 		return currencyConversionDto.getTransactionAmount();
@@ -300,7 +302,7 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 
 		currencyRequest.setAccountCurrencyAmount(request.getAmount());
 		currencyRequest.setAccountCurrency(request.getTxnCurrency());
-		currencyRequest.setTransactionCurrency(AED);
+		currencyRequest.setTransactionCurrency(localCurrency);
 		currencyRequest.setDealNumber(request.getDealNumber());
 		CurrencyConversionDto conversionResultInSourceAcctCurrency = maintenanceService.convertBetweenCurrencies(currencyRequest);
 		amtToBePaidInSrcCurrency = conversionResultInSourceAcctCurrency.getTransactionAmount();

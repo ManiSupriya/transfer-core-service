@@ -1,0 +1,96 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: #{Build.Repository.Name}#
+spec:
+  ports:
+    - name: http
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: #{Build.Repository.Name}#
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: #{Build.Repository.Name}#
+    app-type: microservice
+    build-tools: v1
+  name: #{Build.Repository.Name}#
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: #{Build.Repository.Name}#
+  template:
+    metadata:
+      annotations:
+        collectord.io/stderr-logs-type: log4j
+        collectord.io/stdout-logs-type: log4j
+      labels:
+        app: #{Build.Repository.Name}#
+        app-type: microservice
+        build-tools: v1
+    spec:
+      containers:
+        - env:
+            - name: APPLICATION_NAME
+              value: #{Build.Repository.Name}#
+            - name: ENVIRONMENT_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: APPDYNAMICS_AGENT_APPLICATION_NAME
+              value: MOB-$(ENVIRONMENT_NAME)
+            - name: APPDYNAMICS_AGENT_TIER_NAME
+              value: $(APPLICATION_NAME)
+            - name: JAVA_OPTS
+              value: -Xms512m -Xmx1200m
+            - name: TZ
+              value: Africa/Cairo
+          envFrom:
+            - configMapRef:
+                name: configmap-appdynamics
+            - configMapRef:
+                name: configmap-transfer-core-service
+            - secretRef:
+                name: secrets-transfer-core-service
+          image: mashrequae.azurecr.io/#{Build.Repository.Name}#:#{Build.BuildId}#
+          name: #{Build.Repository.Name}#
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /api/actuator/info
+              port: 8080
+            initialDelaySeconds: 180
+            periodSeconds: 60
+            timeoutSeconds: 5
+          resources:
+            limits:
+              cpu: 500m
+              memory: 1500Mi
+            requests:
+              cpu: 250m
+              memory: 500Mi
+          volumeMounts:
+            - mountPath: /opt/appd
+              name: appd-agent-repo
+      initContainers:
+        - command:
+            - /bin/sh
+            - -c
+            - cp -ra /opt/appdynamics/. /opt/appd/ && chmod -R 0777 /opt/appd/
+          image: mashrequae.azurecr.io/appd-java-agent:4.5.13
+          name: appd-init
+          volumeMounts:
+            - mountPath: /opt/appd
+              name: appd-agent-repo
+      volumes:
+        - emptyDir: {}
+          name: appd-agent-repo

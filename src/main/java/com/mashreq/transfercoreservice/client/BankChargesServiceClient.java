@@ -1,7 +1,6 @@
 package com.mashreq.transfercoreservice.client;
 
 import com.mashreq.transfercoreservice.client.dto.TransactionChargesDto;
-import com.mashreq.transfercoreservice.config.feign.FeignConfig;
 import com.mashreq.webcore.dto.response.Response;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;

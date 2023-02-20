@@ -1,15 +1,32 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.INFT;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.LOCAL;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WAMA;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WYMA;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.EnumMap;
+
+import javax.annotation.PostConstruct;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 import com.mashreq.logcore.annotations.TrackExec;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
-import com.mashreq.transfercoreservice.client.service.OTPService;
 import com.mashreq.transfercoreservice.errors.ExternalErrorCodeConfig;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponseDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsageDTO;
@@ -24,46 +41,35 @@ import com.mashreq.transfercoreservice.fundtransfer.strategy.paylater.LocalFundP
 import com.mashreq.transfercoreservice.fundtransfer.strategy.paylater.OwnAccountPayLaterStrategy;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.paylater.WithinMashreqPayLaterStrategy;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
+import com.mashreq.transfercoreservice.paylater.enums.FTOrderType;
 import com.mashreq.transfercoreservice.promo.service.PromoCodeService;
 import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionHistory;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionRepository;
 import com.mashreq.transfercoreservice.twofactorauthrequiredvalidation.service.TwoFactorAuthRequiredCheckService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.EnumMap;
-
-import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.INFT;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.LOCAL;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WAMA;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.WYMA;
 
 @Slf4j
 @TrackExec
 @Service
 @Qualifier("payLaterTransferService")
 public class PayLaterTransferService extends FundTransferServiceDefault{
+	
 	private final OwnAccountPayLaterStrategy ownAccountPayLaterStrategy;
 	private final WithinMashreqPayLaterStrategy withinMashreqPayLaterStrategy;
 	private final LocalFundPayLaterTransferStrategy localFundPayLaterTransferStrategy;
 	private final InternationalPayLaterFundTransferStrategy internationalPayLaterFundTransferStrategy;
-
-    @Autowired
+	@Value("${app.standingInstructions.disabled}") 
+	private boolean standingInstructionsDisabled;
+    
+	@Autowired
 	public PayLaterTransferService(DigitalUserRepository digitalUserRepository,
                                    TransactionRepository transactionRepository, DigitalUserLimitUsageService digitalUserLimitUsageService,
                                    OwnAccountStrategy ownAccountStrategy, WithinMashreqStrategy withinMashreqStrategy,
                                    LocalFundTransferStrategy localFundTransferStrategy,
                                    InternationalFundTransferStrategy internationalFundTransferStrategy,
                                    CharityStrategyDefault charityStrategyDefault, AsyncUserEventPublisher auditEventPublisher,
-                                   OTPService otpService, ExternalErrorCodeConfig errorCodeConfig,
+                                   ExternalErrorCodeConfig errorCodeConfig,
                                    OwnAccountPayLaterStrategy ownAccountPayLaterStrategy,
                                    WithinMashreqPayLaterStrategy withinMashreqPayLaterStrategy,
                                    LocalFundPayLaterTransferStrategy localFundPayLaterTransferStrategy,
@@ -73,7 +79,7 @@ public class PayLaterTransferService extends FundTransferServiceDefault{
                                    TransferLimitService transferLimitService) {
 		super(digitalUserRepository, transactionRepository, digitalUserLimitUsageService, ownAccountStrategy,
 				withinMashreqStrategy, localFundTransferStrategy, internationalFundTransferStrategy,
-				charityStrategyDefault, auditEventPublisher, otpService, errorCodeConfig,
+				charityStrategyDefault, auditEventPublisher, errorCodeConfig,
 				promoCodeService, mobCommonService, service, transferLimitService);
 		this.ownAccountPayLaterStrategy = ownAccountPayLaterStrategy;
 		this.withinMashreqPayLaterStrategy = withinMashreqPayLaterStrategy;
@@ -92,6 +98,13 @@ public class PayLaterTransferService extends FundTransferServiceDefault{
     }
     
     @Override
+    public FundTransferResponseDTO transferFund(RequestMetaData metadata, FundTransferRequestDTO request) {
+    	
+    	validatePayLaterRequest(request);
+    	return super.transferFund(metadata, request);
+    }
+
+	@Override
     protected void handleIfTransactionIsSuccess(RequestMetaData metadata, FundTransferRequestDTO request,
 			UserDTO userDTO, FundTransferResponse response) {
         if (isSuccessOrProcessing(response)) {
@@ -120,6 +133,16 @@ public class PayLaterTransferService extends FundTransferServiceDefault{
         TransactionHistory transactionHistory = generateTransactionHistory(request, response, userDTO, metadata);
         log.info("Skipping pay later insertion into table {} ", htmlEscape(transactionHistory.getTransactionRefNo()));
 		return transactionHistory;
+	}
+    
+    private void validatePayLaterRequest(FundTransferRequestDTO request) {
+    	
+    	if(FTOrderType.SI.getName().equals(request.getOrderType()) && standingInstructionsDisabled) {
+    		log.error("Order type of standing instruction is not allowed");
+    		GenericExceptionHandler.handleError(TransferErrorCode.PAY_LATER_TRANSACTION_INITIATION_FAILED,
+					TransferErrorCode.PAY_LATER_TRANSACTION_INITIATION_FAILED.getCustomErrorCode(),
+					TransferErrorCode.PAY_LATER_TRANSACTION_INITIATION_FAILED.getErrorMessage());
+    	}
 	}
     
     protected boolean isFailure(FundTransferResponse response) {

@@ -13,10 +13,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.mashreq.transfercoreservice.cache.MobRedisService;
+
+import com.mashreq.mobcommons.cache.MobRedisService;
+import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.transfercoreservice.cache.UserSessionCacheService;
-import com.mashreq.transfercoreservice.common.HtmlEscapeCache;
-import freemarker.template.utility.HtmlEscape;
 import org.apache.commons.collections.MapUtils;
 import org.springframework.stereotype.Service;
 
@@ -123,6 +123,10 @@ public class AccountService {
 		}
 		return searchAccountOpt.get();
 
+	}
+
+	public boolean isAccountBelongsToMashreq(final String accountNo) {
+		return Objects.nonNull(getAccountDetailsFromCore(accountNo));
 	}
 
 	private AccountDetailsDTO getConvertedAccountDetailsFromCore(final String accountNumber) {

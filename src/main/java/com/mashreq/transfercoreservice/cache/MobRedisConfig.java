@@ -1,8 +1,11 @@
+/*
 package com.mashreq.transfercoreservice.cache;
 
+*/
 /**
  * Suresh Pasupuleti
- */
+ *//*
+
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Duration;
@@ -54,7 +57,7 @@ public class MobRedisConfig {
         return factory;
     }
 
-    @Primary
+    //@Primary
     @Bean({"mobRedisTemplate"})
     RedisTemplate<String, Object> mobRedisTemplate() {
         RedisTemplate<String, Object> template = new RedisTemplate();
@@ -89,3 +92,4 @@ public class MobRedisConfig {
         return poolConfig;
     }
 }
+*/
