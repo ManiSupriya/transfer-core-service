@@ -65,7 +65,6 @@ public class NpssEnrolmentService {
     public NpssEnrolmentUpdateResponseDTO updateEnrolment(RequestMetaData metaData) {
         // update default account with new entry
         try {
-            updateDefaultAccount(metaData, false);
             return NpssEnrolmentUpdateResponseDTO.builder().userEnrolmentUpdated(true).build();
         } catch (Exception err) {
             log.error("New Entry Enrollment Failed : ", err);
@@ -97,83 +96,5 @@ public class NpssEnrolmentService {
         UserDTO userDTO = fundTransferServiceDefault.createUserDTO(requestMetaData, digitalUser);
         log.info("Save Digital Limit Usage  for Cif{} ", htmlEscape(requestMetaData.getPrimaryCif()));
         return userDTO;
-    }
-
-    public String updateDefaultAccount(RequestMetaData requestMetaData, Boolean isFromScheduler) {
-        log.info("update Default Account process started");
-        List<NpssEnrolmentRepoDTO> npssEnrolmentResponse = new ArrayList<>();
-        if (isFromScheduler) {
-            log.info("update Default Account from scheduler");
-            npssEnrolmentResponse = npssEnrolmentRepository.findAllByIsDefaultAccountUpdated(Boolean.FALSE);
-            log.info("the records taken from DB {}", npssEnrolmentResponse);
-        } else {
-            log.info("update Default Account for a new entry");
-            NpssEnrolmentRepoDTO npssEnrolmentNewEntry = NpssEnrolmentRepoDTO.builder()
-                    .cif_id(requestMetaData.getPrimaryCif())
-                    .enrollment_status(NPSS_ENROLLED)
-                    .accepted_date(Instant.now())
-                    .build();
-            npssEnrolmentResponse.add(npssEnrolmentNewEntry);
-        }
-        npssEnrolmentResponse.forEach(npssEnrolmentRepoDTO -> {
-            log.info("Calling account client to get details : {}", npssEnrolmentRepoDTO.getCif_id());
-            try {
-            List<AccountDetailsDTO> accountDetails = accountService.getAccountsFromCore(npssEnrolmentRepoDTO.getCif_id());
-            log.info("Account details received for : {}", npssEnrolmentRepoDTO.getCif_id());
-            List<AccountDetailsRepoDTO> accountDetailsRepo = prepareBankDetails(accountDetails, npssEnrolmentRepoDTO.getCif_id());
-            npssEnrolmentRepoDTO.setAccountDetails(accountDetailsRepo);
-            npssEnrolmentRepoDTO.set_default_account_updated(Boolean.TRUE);
-            try {
-                npssEnrolmentRepository.save(npssEnrolmentRepoDTO);
-                log.info("Default account details successfully saved for  {}", npssEnrolmentRepoDTO.getCif_id());
-            } catch (Exception e) {
-                log.error("Exception while saving data ", e);
-                GenericExceptionHandler.handleError(DB_CONNECTIVITY_ISSUE, DB_CONNECTIVITY_ISSUE.getErrorMessage());
-            }
-            } catch (Exception e) {
-                log.error("Account Client Call Failed ", e);
-            }
-        });
-        return "Data Saved Successfully";
-    }
-
-    private List<AccountDetailsRepoDTO> prepareBankDetails(final List<AccountDetailsDTO> accountDetails, final String cifId) {
-        AtomicBoolean isDefaultAdded = new AtomicBoolean(Boolean.FALSE);
-        final Map<String, List<AccountDetailsDTO>> accountDetailsDTOs = accountDetails.stream()
-                .filter(accountDetail ->
-                        CURRENCY.equalsIgnoreCase(accountDetail.getCurrency())
-                                && ACTIVE.equalsIgnoreCase(accountDetail.getStatus()))
-                .collect(Collectors.groupingBy(AccountDetailsDTO::getSchemeType));
-        List<AccountDetailsRepoDTO> accountDetailsRepoDTO = new ArrayList<>();
-        if (accountDetailsDTOs.containsKey(SCHEME_TYPE_SA)) {
-            buildAccountDetailsRepoDTO(accountDetailsDTOs.get(SCHEME_TYPE_SA), accountDetailsRepoDTO, cifId, isDefaultAdded);
-        }
-        if (accountDetailsDTOs.containsKey(SCHEME_TYPE_CA)) {
-            buildAccountDetailsRepoDTO(accountDetailsDTOs.get(SCHEME_TYPE_CA), accountDetailsRepoDTO, cifId, isDefaultAdded);
-        }
-        buildAccountDetailsRepoDTO(accountDetailsDTOs
-                .entrySet().stream()
-                .filter(accountDetail -> !accountDetail.getKey().equalsIgnoreCase(SCHEME_TYPE_SA)
-                        && !accountDetail.getKey().equalsIgnoreCase(SCHEME_TYPE_CA))
-                .map(Map.Entry::getValue).flatMap(List::stream)
-                .collect(Collectors.toList()), accountDetailsRepoDTO, cifId, isDefaultAdded);
-        return accountDetailsRepoDTO;
-    }
-
-    private void buildAccountDetailsRepoDTO(final List<AccountDetailsDTO> accountDetails,
-                                            final List<AccountDetailsRepoDTO> accountDetailsRepoDTO,
-                                            final String cifId, final AtomicBoolean isDefaultAdded) {
-        accountDetails.forEach(accountDetail -> {
-            accountDetailsRepoDTO.add(AccountDetailsRepoDTO.builder()
-                    .accountName(accountDetail.getAccountName())
-                    .status(accountDetail.getStatus())
-                    .type(isDefaultAdded.get() ? AccountType.OTHERS.name() : AccountType.DEFAULT.name())
-                    .branchCode(accountDetail.getBranchCode())
-                    .schemeType(accountDetail.getSchemeType()).currency(accountDetail.getCurrency())
-                    .segment(accountDetail.getSegment()).accountType(accountDetail.getAccountType())
-                    .cifRef(cifId)
-                    .accountNumber(accountDetail.getNumber()).build());
-            isDefaultAdded.set(Boolean.TRUE);
-        });
     }
 }
