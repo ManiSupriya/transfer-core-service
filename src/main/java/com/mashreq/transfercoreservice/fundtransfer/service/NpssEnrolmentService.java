@@ -61,13 +61,18 @@ public class NpssEnrolmentService {
         }
         return NpssEnrolmentStatusResponseDTO.builder().askForEnrolment(true).build();
     }
-
     public NpssEnrolmentUpdateResponseDTO updateEnrolment(RequestMetaData metaData) {
-        // update default account with new entry
+        log.info("Consent process started fro the cif {}", metaData.getPrimaryCif());
+        NpssEnrolmentRepoDTO npssEnrolmentNewEntry = NpssEnrolmentRepoDTO.builder()
+                .cif_id(metaData.getPrimaryCif())
+                .enrollment_status(NPSS_ENROLLED)
+                .accepted_date(Instant.now())
+                .build();
         try {
+            npssEnrolmentRepository.save(npssEnrolmentNewEntry);
             return NpssEnrolmentUpdateResponseDTO.builder().userEnrolmentUpdated(true).build();
         } catch (Exception err) {
-            log.error("New Entry Enrollment Failed : ", err);
+            log.error("Consent Details save Failed ", err);
             return NpssEnrolmentUpdateResponseDTO.builder().userEnrolmentUpdated(false).build();
         }
     }
