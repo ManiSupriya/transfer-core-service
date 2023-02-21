@@ -62,15 +62,17 @@ public class NpssEnrolmentService {
         return NpssEnrolmentStatusResponseDTO.builder().askForEnrolment(true).build();
     }
     public NpssEnrolmentUpdateResponseDTO updateEnrolment(RequestMetaData metaData) {
+        log.info("Consent process started fro the cif {}", metaData.getPrimaryCif());
         NpssEnrolmentRepoDTO npssEnrolmentNewEntry = NpssEnrolmentRepoDTO.builder()
                 .cif_id(metaData.getPrimaryCif())
                 .enrollment_status(NPSS_ENROLLED)
                 .accepted_date(Instant.now())
                 .build();
-        try{
+        try {
             npssEnrolmentRepository.save(npssEnrolmentNewEntry);
             return NpssEnrolmentUpdateResponseDTO.builder().userEnrolmentUpdated(true).build();
-        }catch (Exception err){
+        } catch (Exception err) {
+            log.error("Consent Details save Failed ", err);
             return NpssEnrolmentUpdateResponseDTO.builder().userEnrolmentUpdated(false).build();
         }
     }
