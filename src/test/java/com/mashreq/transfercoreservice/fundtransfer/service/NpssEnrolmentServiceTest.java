@@ -1,7 +1,6 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
-import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentRepoDTO;
@@ -17,9 +16,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.Arrays;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -64,37 +62,7 @@ public class NpssEnrolmentServiceTest {
         npssEnrolmentService.updateEnrolment(metaData);
     }*/
 
-    @Test
-    public void updateDefaultAccountTest() {
-        RequestMetaData metaData = getMetaData("012960010");
-        AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
-        accountDetailsDTO.setCurrency("AED");
-        accountDetailsDTO.setSchemeType("SA");
-        accountDetailsDTO.setStatus("ACTIVE");
-        AccountDetailsDTO accountDetails = new AccountDetailsDTO();
-        accountDetails.setCurrency("AED");
-        accountDetails.setSchemeType("CA");
-        accountDetails.setStatus("ACTIVE");
-        when(accountService.getAccountsFromCore(anyString())).thenReturn(Arrays.asList(accountDetailsDTO, accountDetails));
-        String result = npssEnrolmentService.updateDefaultAccount(metaData, false);
-        assertEquals("Data Saved Successfully", result);
-    }
 
-    @Test
-    public void updateDefaultAccountFromSchedulerTest() {
-        RequestMetaData metaData = getMetaData("012960010");
-        AccountDetailsDTO accountDetailsDTO = new AccountDetailsDTO();
-        accountDetailsDTO.setCurrency("AED");
-        accountDetailsDTO.setSchemeType("SA");
-        accountDetailsDTO.setStatus("ACTIVE");
-        AccountDetailsDTO accountDetails = new AccountDetailsDTO();
-        accountDetails.setCurrency("AED");
-        accountDetails.setSchemeType("CA");
-        accountDetails.setStatus("ACTIVE");
-        when(npssEnrolmentRepository.findAllByIsDefaultAccountUpdated(anyBoolean())).thenReturn(Arrays.asList(NpssEnrolmentRepoDTO.builder().build()));
-        String result = npssEnrolmentService.updateDefaultAccount(metaData, true);
-        assertEquals("Data Saved Successfully", result);
-    }
 
   //  @Test
     public void updateDefaultAccountExceptionScenarioTest() {

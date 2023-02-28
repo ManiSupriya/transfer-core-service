@@ -30,10 +30,4 @@ public class NpssEnrolmentRepoDTO implements Serializable {
     private String created_date;
     @Column
     private Instant accepted_date;
-    @Column(nullable = false)
-    private boolean is_default_account_updated = Boolean.FALSE;
-
-    @OneToMany(cascade = CascadeType.ALL ,fetch = FetchType.LAZY)
-    @JoinColumn(name = "cif_id")
-    private List<AccountDetailsRepoDTO> accountDetails;
 }
