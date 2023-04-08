@@ -2,13 +2,13 @@ package com.mashreq.transfercoreservice.transactionqueue;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericException;
+import com.mashreq.transfercoreservice.dto.CharityPaidDto;
 import com.mashreq.transfercoreservice.dto.TransactionHistoryDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentRepoDTO;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
@@ -25,6 +25,8 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.DB_CONNEC
 import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TransactionHistoryServiceTest {
@@ -41,35 +43,54 @@ public class TransactionHistoryServiceTest {
         dbResult.setCif_id("012960010");
         dbResult.setEnrollment_status("ENROLLED");
         Optional<NpssEnrolmentRepoDTO> npssUser = Optional.of(dbResult);
-        Mockito.when(transactionRepository.save(any())).thenReturn(getTransactionHistory());
+        when(transactionRepository.save(any())).thenReturn(getTransactionHistory());
         transactionHistoryService.saveTransactionHistory(getTransactionHistoryDto(), getMetaData("162362"));
     }
 
     @Test
     public void testIsFinancialTransactionPresent() {
         RequestMetaData metaData = getMetaData("012960010");
-        Mockito.when(transactionRepository.existsPaymentHistoryByFinancialTransactionNo(Mockito.anyString())).thenReturn(true);
+        when(transactionRepository.existsPaymentHistoryByFinancialTransactionNo(anyString())).thenReturn(true);
         transactionHistoryService.isFinancialTransactionPresent("162362");
     }
 
     @Test
     public void testGetCharityPaid() {
         RequestMetaData metaData = getMetaData("012960010");
-        Mockito.when(transactionRepository.findSumByCifIdAndServiceType(Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(new ArrayList<Object[]>());
+        when(transactionRepository.findSumByCifIdAndServiceType(anyString(), anyString(), anyString())).thenReturn(new ArrayList<Object[]>());
         transactionHistoryService.getCharityPaid("162362", "TYPE");
     }
 
     @Test
+    public void testGetCharityPaidWithData() {
+        List<Object[]> tmpObj = new ArrayList<Object[]>();
+        tmpObj.add(new Object[]{new BigDecimal(23)});
+        when(transactionRepository
+                .findSumByCifIdAndServiceType(any(), any(), any())).thenReturn(tmpObj);
+        CharityPaidDto charityPaidDto = transactionHistoryService.getCharityPaid("162362", "TYPE");
+       assertEquals(new BigDecimal(23),charityPaidDto.getTotalPaidAmount());
+    }
+
+    @Test
     public void getTransactionHistoryPositiveScenarioTest() {
-        Mockito.when(transactionRepository.findAllByCifAndCreatedDate(Mockito.anyString(),any(),any()))
+        when(transactionRepository.findAllByCifAndCreatedDate(anyString(),any(),any()))
                 .thenReturn(Arrays.asList(TransactionHistory.builder().hostReferenceNo("HOST12345").build()));
         List<TransactionHistoryDto> transactionHistoryDto = transactionHistoryService.getTransactionHistoryByCif("162362","2021-04-22","2021-04-29");
         assertEquals("HOST12345", transactionHistoryDto.get(0).getHostReferenceNo());
     }
 
     @Test
+    public void getTransactionHistoryPositiveScenarioDateWithInvalidFormatTest() {
+        when(transactionRepository.findAllByCifAndCreatedDate(anyString(),any(),any()))
+                .thenReturn(Arrays.asList(TransactionHistory.builder().hostReferenceNo("HOST12345").build()));
+        List<TransactionHistoryDto> transactionHistoryDto = transactionHistoryService
+                .getTransactionHistoryByCif("162362","2021-04-22","20214-04-29");
+        assertEquals("HOST12345", transactionHistoryDto.get(0).getHostReferenceNo());
+    }
+
+    @Test
     public void getTransactionHistoryByRefNumPositiveScenarioTest() {
-        Mockito.when(transactionRepository.findByHostReferenceNo(Mockito.anyString()))
+        when(transactionRepository.findByHostReferenceNo(anyString()))
                 .thenReturn(TransactionHistory.builder().hostReferenceNo("HOST12345").build());
         TransactionHistoryDto transactionHistoryDto = transactionHistoryService.getTransactionDetailByHostRef("162362");
         assertEquals("HOST12345", transactionHistoryDto.getHostReferenceNo());
@@ -77,7 +98,7 @@ public class TransactionHistoryServiceTest {
 
     @Test
     public void getTransactionHistoryByRefNumNegativeScenarioTest() {
-        Mockito.when(transactionRepository.findByHostReferenceNo(Mockito.anyString()))
+        when(transactionRepository.findByHostReferenceNo(anyString()))
                 .thenThrow(new IllegalArgumentException());
         GenericException genericException = assertThrows(GenericException.class,
                 () -> transactionHistoryService.getTransactionDetailByHostRef("162362"));
@@ -87,7 +108,7 @@ public class TransactionHistoryServiceTest {
 
     @Test
     public void getTransactionHistoryNegativeScenarioTest() {
-        Mockito.when(transactionRepository.findAllByCifAndCreatedDate(Mockito.anyString(),any(),any()))
+        when(transactionRepository.findAllByCifAndCreatedDate(anyString(),any(),any()))
                 .thenThrow(new IllegalArgumentException());
         GenericException genericException = assertThrows(GenericException.class,
                 () -> transactionHistoryService.getTransactionHistoryByCif("162362","2021-04-22","2021-04-29"));

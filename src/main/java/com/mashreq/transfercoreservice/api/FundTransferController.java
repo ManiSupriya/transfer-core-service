@@ -151,7 +151,7 @@ public class FundTransferController {
     @PostMapping("/npss/handle-transaction")
     public Response handleTransaction(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData requestMetaData,
                                       @RequestBody HandleNotificationRequestDto handleNotificationRequestDto) {
-
+        log.info("Handle Transaction Initiated for the cif {} {}", requestMetaData.getPrimaryCif(),handleNotificationRequestDto.toString());
         npssEnrolmentService.handleTransaction(requestMetaData,handleNotificationRequestDto);
         return Response.builder()
                 .status(ResponseStatus.SUCCESS)
@@ -166,6 +166,7 @@ public class FundTransferController {
     })
     @PostMapping("/npss/notifications")
     public Response handleNotifications(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData requestMetaData, @Valid @RequestBody NotificationRequestDto notificationRequestDto) {
+        log.info("notifications call Initiated for the cif {} {}", requestMetaData.getPrimaryCif(),notificationRequestDto.toString());
         npssEnrolmentService.performNotificationActivities(requestMetaData,notificationRequestDto);
         return Response.builder()
                 .status(ResponseStatus.SUCCESS)

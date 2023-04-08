@@ -25,5 +25,12 @@ public class NotificationType {
     public static final String PAYMENT_RECEIVED = "PAYMENT_RECEIVED_NPSS";
 
     public static final String PAYMENT_REQUEST_SENT = "PAYMENT REQUEST SENT";
+    public static final String PAYMENT_REQUEST_SENT_MULTIPLE_RTP = "PAYMENT_REQUEST_SENT_MULTIPLE_RTP";
+
+    public static final String PAYMENT_REQUEST_SENT_RTP = "PAYMENT_REQUEST_SENT_RTP";
+
+    public static final String PAYMENT_REQUEST_SENT_FAIL_RTP = "PAYMENT_REQUEST_SENT_FAIL_RTP";
+
+    public static final String PAYMENT_REQUEST_SENT_MULTIPLE_FAIL_RTP = "PAYMENT_REQUEST_SENT_MULTIPLE_FAIL_RTP";
 }
 
