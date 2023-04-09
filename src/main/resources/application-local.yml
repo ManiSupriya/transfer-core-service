@@ -1,5 +1,5 @@
 server:
-  port: 8067
+  port: 8081
   http2:
     enabled: true
   compression:
@@ -14,9 +14,9 @@ spring:
   profiles.active: local
   main.lazy-initialization: false
   datasource:
-    url: ${MSSQL_DB_URL:jdbc:sqlserver://10.210.183.231:1433;databaseName=MOB-DEV-EG}
+    url: ${MSSQL_DB_URL:jdbc:sqlserver://az-uaen-retailtech-mob-azuresql-dev.database.windows.net:1433;databaseName=MOB-UAT}
     username: ${MSSQL_DB_USERNAME:Mobdbuser}
-    password: ${MSSQL_DB_KEY:Mobdbuser}
+    password: ${MSSQL_DB_KEY:Mashreqrdacmbr2$}
   jpa:
     show-sql: true
     hibernate:
@@ -94,13 +94,13 @@ app:
   services:
     maintenance: ${MAINTENANCE_SERVICE_URL:https://digital-uat.mashreq.com/api/maintenance-service}
     customers: ${CUSTOMER_SERVICE_URL:https://digital-uat.mashreq.com/api/customers-service}
-    accounts: ${ACCOUNT_SERVICE_URL:http://digital-eg-dev.mashreq.com/api/accounts-service}
+    accounts: ${ACCOUNT_SERVICE_URL:https://digital-uat.mashreq.com/api/accounts-service}
     otp: https://digital-uat.mashreq.com/api/ms-security-iam/
     cards: ${CARD_SERVICE_URL:https://digital-uat.mashreq.com/api/cards-service}
     notification: ${NOTIFICATION_SERVICE:https://digital-uat.mashreq.com/api/notification-service}
     mobcustomer: ${MOB_CUSTOMER_SERVICE:https://digital-uat.mashreq.com/api/mob-customer-service}
     beneficiary: ${BENEFICIARY_CORE_SERVICE:https://digital-uat.mashreq.com/api/beneficiary-core-service}
-    mobcommon: ${MOB_COMMON_SERVICE:http://digital-eg-dev.mashreq.com/api/mob-common-service}
+    mobcommon: ${MOB_COMMON_SERVICE:https://digital-uat.mashreq.com/api/mob-common-service}
     beneficiaryservice: https://digital-uat.mashreq.com/api/beneficiary-service
     quick-remit: https://digital-uat.mashreq.com/api/mob-quickremit-service
     bank-charges: https://digital-uat.mashreq.com/api/bank-charges-service
@@ -129,12 +129,15 @@ app:
   cprRestrictions:
       enabled: ${ENABLE_CPR_CHANGES:false}
   notification:
+    alternateSteps: ${ALTERNATE_STEPS:Please try again, Please login to Mashreq Mobile App to review the details.}
     email:
       AE:
         emailSubject: ${NOTIFICATION_EMAIL_SUBJECT:%s Transfer request via %s}
         payLaterSubject: ${PL_EMAIL_SUBJECT:Pay later request}
         StandingInstructionSubject: ${SI_EMAIL_SUBJECT:Standing instruction request}x
         enrolmentConfirmSubject: ${CUSTOMER_ENROL_SUBJECT:%s Customer Enroled Successfully %s}
+        requestToPayMultipleSubject: ${REQUEST_TO_PAY_MULTIPLE_SUBJECT:%s Sending Request to Pay Email%s}
+        requestToPaySubject: ${REQUEST_TO_PAY_SUBJECT:%s Sending Request to Pay Email%s}
         fromEmailName: ${NOTIFICATION_FROM_EMAIL_NAME:MashreqDigital}
         fromEmailAddress: ${NOTIFICATION_FROM_EMAIL_ADDRESS:MashreqDigital@mashreqbank.com}
         localFundTransfer: templates/mt-within-own-accounts
@@ -146,6 +149,10 @@ app:
         paymentRequestReceived: templates/paymentRequestReceived
         paymentRequestSent: templates/paymentRequestSent
         paymentSuccess: templates/paymentSuccess
+        requestToPayMultiple: templates/requestToPayMultiple
+        requestToPayMultipleFail: templates/requestToPayMultipleFail
+        requestToPay: templates/requestToPay
+        requestToPayFail: templates/requestToPayFail
       EG:
         emailSubject: ${NOTIFICATION_EMAIL_SUBJECT:%s Transfer request via %s}
         payLaterSubject: ${PL_EMAIL_SUBJECT:Pay later request}
@@ -163,11 +170,23 @@ app:
       callCenterNo: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_CALL_CENTER_NO:04 424 6666}
       ownAccountTransactionInitiated: ${OWN_ACCOUNT_SMS:Request received for Fund Transfer of {0} {1} with Reference number {2}. Contact {3} if you did not initiate this.}
       plSiCreation: ${PL_SI_CREATION_SMS:On your request SI/Pay later has been set up for the beneficiary {0}, account number {1}. If not requested, please contact {2}. Thank you for using our services.}
-      customerEnrolledForNpss: ${CUSTOMER_ENROLLED_NPSS:Customer {0} Successfully Enrolled For IPP Faster Payments}
+      customerEnrolledForNpss: ${CUSTOMER_ENROLLED_NPSS:Congrats! You have successfully enrolled for the Instant Payment Platform (IPP), powered by Aani, a Central Bank of the UAE initiative. IPP enables real-time faster digital payments and fund transfers within the UAE round the clock (24/7).}
+      requestToPayNpss: ${REQUEST_TO_PAY_NPSS:Dear {0}, you have just sent a payment request of AED {1} to {2}. Please login to Mashreq Mobile App to review the details.}
+      requestToPayNpssFail: ${REQUEST_TO_PAY_NPSS_FAIL:Dear {0}, your payment request of AED {1} to {2} could not be processed. Please login to Mashreq Mobile App to review the details.}
+      requestToPayMultipleNpss: ${REQUEST_TO_PAY_MULTIPLE_NPSS:Dear {0}, you have just sent payment requests to multiple contacts. Please login to Mashreq Mobile App to review the details.}
+      requestToPayMultipleFailNpss: ${REQUEST_TO_PAY_MULTIPLE_FAIL_NPSS:Dear {0}, your refund request of AED {1} to multiple contacts could not be processed. Please login to Mashreq Mobile App to review the details.}
+      sendMoneyNpssSuccess: ${SEND_MONEY_NPSS_SUCCESS:Dear {0}, you have just sent an instant payment of AED {1} to {2}. Please login to Mashreq Mobile App to review the details.}
+      sendMoneyNpssFail: ${SEND_MONEY_NPSS_FAIL:Dear {0}, your instant payment of AED {1} to {2} could not be processed. Please login to Mashreq Mobile App to review the details.}
     push:
       ownAccountTransactionInitiated: ${OWN_ACCOUNT_PUSH:Request received through {0} for a Fund Transfer of {1} {2} with {3}. Contact {4} if you did not initiate this.}
       plSiCreation: ${PL_SI_CREATION_SMS:On your request SI/Pay later has been set up for the beneficiary {0}, account number {1}. If not requested, please contact {2}. Thank you for using our services.}
-      customerEnrolledForNpss: ${CUSTOMER_ENROLLED_NPSS:Customer {0} Successfully Enrolled For IPP Faster Payments}
+      customerEnrolledForNpss: ${CUSTOMER_ENROLLED_NPSS:Congrats! You have successfully enrolled for the Instant Payment Platform (IPP), powered by Aani, a Central Bank of the UAE initiative. IPP enables real-time faster digital payments and fund transfers within the UAE round the clock (24/7).}
+      requestToPayMultipleNpss: ${REQUEST_TO_PAY_MULTIPLE_NPSS:Dear {0}, you have just sent payment requests to multiple contacts. Please login to Mashreq Mobile App to review the details.}
+      requestToPayMultipleFailNpss: ${REQUEST_TO_PAY_MULTIPLE_FAIL_NPSS:Dear {0}, your refund request of AED {1} to multiple contacts could not be processed. Please login to Mashreq Mobile App to review the details.}
+      requestToPayNpss: ${REQUEST_TO_PAY_NPSS:Dear {0}, you have just sent a payment request of AED {1} to {2}. Please login to Mashreq Mobile App to review the details.}
+      requestToPayNpssFail: ${REQUEST_TO_PAY_NPSS_FAIL:Dear {0}, your payment request of AED {1} to {2} could not be processed. Please login to Mashreq Mobile App to review the details.}
+      sendMoneyNpssSuccess: ${SEND_MONEY_NPSS_SUCCESS:Dear {0}, you have just sent an instant payment of AED {1} to {2}. Please login to Mashreq Mobile App to review the details.}
+      sendMoneyNpssFail: ${SEND_MONEY_NPSS_FAIL:Dear {0}, your instant payment of AED {1} to {2} could not be processed. Please login to Mashreq Mobile App to review the details.}
 redis:
   enableRedisCache: true
   host: ${REDIS_HOST:localhost}
@@ -181,9 +200,9 @@ redis:
 mob-common:
   commonUserEventDataSource:
     driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
-    jdbcUrl: ${MSSQL_DB_URL:jdbc:sqlserver://10.210.183.231:1433;databaseName=MOB-DEV-EG}
+    jdbcUrl: ${MSSQL_DB_URL:jdbc:sqlserver://az-uaen-retailtech-mob-azuresql-dev.database.windows.net:1433;databaseName=MOB-uat}
     username: ${MSSQL_DB_USERNAME:Mobdbuser}
-    password: ${MSSQL_DB_KEY:Mobdbuser}
+    password: ${MSSQL_DB_KEY:Mashreqrdacmbr2$}
     maxPoolSize: 40
     poolName: hikari-user-events-life-pool
     minimumidletime: 600000

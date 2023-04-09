@@ -9,6 +9,7 @@ import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -67,6 +68,9 @@ public class AccountService {
 	private final AsyncUserEventPublisher asyncUserEventPublisher;
 	private final UserSessionCacheService userSessionCacheService;
 	private final MobRedisService mobRedisService;
+
+	public static final Predicate<Response<CoreAccountDetailsDTO>> isResponseNotValid = (response) ->
+			isNull(response) || isNull(response.getData()) || ResponseStatus.ERROR == response.getStatus() ;
 
 	public List<AccountDetailsDTO> getAccountsFromCore(final String cifId) {
 		log.info("Fetching accounts for cifId {} ", htmlEscape(cifId));
@@ -204,5 +208,20 @@ public class AccountService {
 			accountDetailsDTO = getConvertedAccountDetailsFromCore(accountNumber);
 		}
 		return accountDetailsDTO;
+	}
+	public CoreAccountDetailsDTO getAccountDetailsByAccountNumber(final String accountNumber) {
+		log.info("Fetching account details for accountNumber {} ", accountNumber);
+		Response<CoreAccountDetailsDTO> response = null;
+		try {
+			response = accountClient.getAccountDetails(accountNumber);
+		} catch (Exception e) {
+			log.error("Get Account Details by Account Number call failed for {}",accountNumber);
+		}
+		if (isResponseNotValid.test(response)) {
+			log.error("Not able to get account details for {}",accountNumber);
+		}
+		// will remove response from logs once it's tested in UAT
+		log.info("Get Account Details Call completed for accountNumber {} and the response is {}",accountNumber, response );
+		return Optional.ofNullable(response).isPresent() ? response.getData() : null;
 	}
 }

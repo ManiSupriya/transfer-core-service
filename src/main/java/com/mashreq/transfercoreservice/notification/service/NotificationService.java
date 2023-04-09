@@ -47,7 +47,7 @@ public class NotificationService {
     @Async("GenericAsyncExecutor")
     @TrackExecTimeAndResult
     public void sendNotifications(CustomerNotification customer, String type, RequestMetaData metaData, UserDTO userDTO) {
-
+        log.info("NotificationService >> sendNotifications >> Initiated for the cif{}{}",metaData.getPrimaryCif(),customer);
         String phoneNo = metaData.getMobileNUmber();
         boolean isMobile = metaData.getChannel().contains(MOBILE);
         String channel = isMobile ? MOBILE_BANKING : ONLINE_BANKING;
@@ -61,9 +61,13 @@ public class NotificationService {
          */
         customer.setSegment(digitalUserSegment.getCustomerCareInfo(metaData.getSegment()));
         if (!StringUtils.isEmpty(phoneNo)) {
+            log.info("NotificationService >> sendSms >> Initiated for the cif{}{}",metaData.getPrimaryCif(),phoneNo);
             sendSms(customer, type, metaData, phoneNo);
+            log.info("NotificationService >> sendSms >> Completed for the cif{}{}",metaData.getPrimaryCif(),phoneNo);
         }
+        log.info("NotificationService >> sendPushNotification >> Initiated for the cif{}{}",metaData.getPrimaryCif(),phoneNo);
         sendPushNotification(customer, type, metaData, phoneNo, userDTO);
+        log.info("NotificationService >> sendPushNotification >> Completed for the cif{}{}",metaData.getPrimaryCif(),phoneNo);
     }
 
     /**
@@ -95,12 +99,15 @@ public class NotificationService {
             try {
                 boolean response  = pushNotification.sendPushNotification(customer, type, metaData, userDTO);
                 if(response){
+                    log.error("NotificationService >> sendPushNotification >> sending push notification Success event for the cif{}{}",metaData.getPrimaryCif(),phoneNo);
                     userEventPublisher.publishSuccessEvent(PUSH_NOTIFICATION, metaData, customer.getTxnRef() + " pushSent");
                 }
                 else{
+                    log.error("NotificationService >> sendPushNotification >> sending push notification failed for the cif{}{}",metaData.getPrimaryCif(),phoneNo);
                     userEventPublisher.publishFailureEvent(PUSH_NOTIFICATION, metaData, "sending push notification failed", PUSH_NOTIFICATION_FAILED.getCustomErrorCode(), PUSH_NOTIFICATION_FAILED.getErrorMessage(), "push notification failed");
                 }
             } catch (Exception e) {
+                log.error("NotificationService >> sendPushNotification >> Error for the cif{}{}",metaData.getPrimaryCif(),phoneNo);
                 userEventPublisher.publishFailureEvent(PUSH_NOTIFICATION, metaData, "sending push notification failed", PUSH_NOTIFICATION_FAILED.getCustomErrorCode(), PUSH_NOTIFICATION_FAILED.getErrorMessage(), e.getMessage());
                 GenericExceptionHandler.logOnly(e, "ErrorCode=" + PUSH_NOTIFICATION_FAILED.getCustomErrorCode() + ",ErrorMessage=" + PUSH_NOTIFICATION_FAILED.getErrorMessage() + ", " + ",type =" + type + ",Error in pushNotification() ," + metaData.getPrimaryCif() + ", ExceptionMessage=" + e.getMessage());
             }

@@ -1,6 +1,7 @@
 package com.mashreq.transfercoreservice.config.notification;
 
 import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
+import com.mashreq.transfercoreservice.notification.model.NotificationType;
 import com.mashreq.transfercoreservice.notification.service.EmailUtil;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,14 +25,38 @@ public class SMSConfig {
     private String plSiCreation;
     private String mashreqServiceId;
     private String neoServiceId;
+    private String requestToPayMultipleNpss;
+
+    private String requestToPayMultipleFailNpss;
+    private String sendMoneyNpssSuccess;
+    private String sendMoneyNpssFail;
+
+    private String requestToPayNpss;
+
+    private String requestToPayNpssFail;
 
     public String getSMSTemplate(String type, CustomerNotification customerNotification) {
         if (type.contains("PL") && type.contains("CREATION")) {
             return MessageFormat.format(plSiCreation, customerNotification.getBeneficiaryName(), emailUtil.doMask(customerNotification.getCreditAccount()), customerNotification.getSegment().getCustomerCareNumber());
-        } else if(type.contains("CUSTOMER_ENROLL_NPSS")){
-            return MessageFormat.format(customerEnrolledForNpss,customerNotification.getCustomerName());
-        }else
-        {
+        } else if (type.contains("CUSTOMER_ENROLL_NPSS")) {
+            return MessageFormat.format(customerEnrolledForNpss, customerNotification.getCustomerName());
+        } else if (NotificationType.PAYMENT_SUCCESS.equalsIgnoreCase(type)) {
+            return MessageFormat.format(sendMoneyNpssSuccess, customerNotification.getCustomerName(), customerNotification.getAmount());
+        } else if (NotificationType.PAYMENT_FAIL.equalsIgnoreCase(type)) {
+            return MessageFormat.format(sendMoneyNpssFail, customerNotification.getCustomerName(), customerNotification.getAmount()
+                    , customerNotification.getBeneficiaryName());
+        } else if (NotificationType.PAYMENT_REQUEST_SENT_MULTIPLE_RTP.equalsIgnoreCase(type)) {
+            return MessageFormat.format(requestToPayMultipleNpss, customerNotification.getCustomerName());
+        } else if(NotificationType.PAYMENT_REQUEST_SENT_MULTIPLE_FAIL_RTP.equalsIgnoreCase(type)){
+            return MessageFormat.format(requestToPayMultipleFailNpss, customerNotification.getCustomerName(),customerNotification.getAmount());
+        }
+        else if (NotificationType.PAYMENT_REQUEST_SENT_FAIL_RTP.equalsIgnoreCase(type)) {
+            return MessageFormat.format(requestToPayNpssFail, customerNotification.getCustomerName(), customerNotification.getAmount()
+                    , customerNotification.getBeneficiaryName());
+        } else if (NotificationType.PAYMENT_REQUEST_SENT_RTP.equalsIgnoreCase(type)) {
+            return MessageFormat.format(requestToPayNpss, customerNotification.getCustomerName(), customerNotification.getAmount()
+                    , customerNotification.getBeneficiaryName());
+        } else {
             return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getCurrency(), customerNotification.getAmount(), customerNotification.getTxnRef(), customerNotification.getSegment().getCustomerCareNumber());
         }
     }

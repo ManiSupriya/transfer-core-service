@@ -164,6 +164,7 @@ app:
   cprRestrictions:
     enabled: ${ENABLE_CPR_CHANGES:false}
   notification:
+    alternateSteps: ${ALTERNATE_STEPS:Please try again, Please login to Mashreq Mobile App to review the details.}
     email:
       AE:
         emailSubject: ${NOTIFICATION_EMAIL_SUBJECT:%s Transfer request via %s}
@@ -172,6 +173,8 @@ app:
         payLaterSubject: ${PL_EMAIL_SUBJECT:Pay later request}
         StandingInstructionSubject: ${SI_EMAIL_SUBJECT:Standing instruction request}
         enrolmentConfirmSubject: ${CUSTOMER_ENROL_SUBJECT:%s Customer Enroled Successfully %s}
+        requestToPayMultipleSubject: ${REQUEST_TO_PAY_MULTIPLE_SUBJECT:%s Sending Request to Pay Email%s}
+        requestToPaySubject: ${REQUEST_TO_PAY_SUBJECT:%s Sending Request to Pay Email%s}
         fromEmailName: ${EMAIL_FROM_NAME_MOB:MashreqDigital}
         fromEmailAddress: ${EMAIL_FROM_ADD_MOB:MashreqDigital@mashreq.com}
         localFundTransfer: templates/mt-within-own-accounts
@@ -185,6 +188,10 @@ app:
         paymentRequestReceived: templates/paymentRequestReceived
         paymentRequestSent: templates/paymentRequestSent
         paymentSuccess: templates/paymentSuccess
+        requestToPayMultiple: templates/requestToPayMultiple
+        requestToPayMultipleFail: templates/requestToPayMultipleFail
+        requestToPay: templates/requestToPay
+        requestToPayFail: templates/requestToPayFail
       EG:
         emailSubject: ${NOTIFICATION_EMAIL_SUBJECT:%s Transfer request via %s}
         payLaterSubject: ${PL_EMAIL_SUBJECT:Pay later request}
@@ -202,11 +209,23 @@ app:
       callCenterNo: ${NOTIFICATION_SMS_SEGMENT_CUSTOMER_CALL_CENTER_NO:04 424 6666}
       ownAccountTransactionInitiated: ${OWN_ACCOUNT_SMS:Request received for Fund Transfer of {0} {1} with Reference number {2}. Contact {3} if you did not initiate this.}
       plSiCreation: ${PL_SI_CREATION_SMS:On your request SI/Pay later has been set up for the beneficiary {0}, account number {1}. If not requested, please contact {2}. Thank you for using our services.}
-      customerEnrolledForNpss: ${CUSTOMER_ENROLLED_NPSS:Customer {0} Successfully Enrolled For IPP Faster Payments}
+      customerEnrolledForNpss: ${CUSTOMER_ENROLLED_NPSS:Congrats! You have successfully enrolled for the Instant Payment Platform (IPP), powered by Aani, a Central Bank of the UAE initiative. IPP enables real-time faster digital payments and fund transfers within the UAE round the clock (24/7).}
+      requestToPayNpss: ${REQUEST_TO_PAY_NPSS:Dear {0}, you have just sent a payment request of AED {1} to {2}. Please login to Mashreq Mobile App to review the details.}
+      requestToPayNpssFail: ${REQUEST_TO_PAY_NPSS_FAIL:Dear {0}, your payment request of AED {1} to {2} could not be processed. Please login to Mashreq Mobile App to review the details.}
+      requestToPayMultipleNpss: ${REQUEST_TO_PAY_MULTIPLE_NPSS:Dear {0}, you have just sent payment requests to multiple contacts. Please login to Mashreq Mobile App to review the details.}
+      requestToPayMultipleFailNpss: ${REQUEST_TO_PAY_MULTIPLE_FAIL_NPSS:Dear {0}, your refund request of AED {1} to multiple contacts could not be processed. Please login to Mashreq Mobile App to review the details.}
+      sendMoneyNpssSuccess: ${SEND_MONEY_NPSS_SUCCESS:Dear {0}, you have just sent an instant payment of AED {1} to {2}. Please login to Mashreq Mobile App to review the details.}
+      sendMoneyNpssFail: ${SEND_MONEY_NPSS_FAIL:Dear {0}, your instant payment of AED {1} to {2} could not be processed. Please login to Mashreq Mobile App to review the details.}
     push:
       ownAccountTransactionInitiated: ${OWN_ACCOUNT_PUSH:Request received through {0} for a Fund Transfer of {1} {2} with {3}. Contact {4} if you did not initiate this.}
       plSiCreation: ${PL_SI_CREATION_SMS:On your request SI/Pay later has been set up for the beneficiary {0}, account number {1}. If not requested, please contact {2}. Thank you for using our services.}
-      customerEnrolledForNpss: ${CUSTOMER_ENROLLED_NPSS:Customer {0} Successfully Enrolled For IPP Faster Payments}
+      customerEnrolledForNpss: ${CUSTOMER_ENROLLED_NPSS:Congrats! You have successfully enrolled for the Instant Payment Platform (IPP), powered by Aani, a Central Bank of the UAE initiative. IPP enables real-time faster digital payments and fund transfers within the UAE round the clock (24/7).}
+      requestToPayMultipleNpss: ${REQUEST_TO_PAY_MULTIPLE_NPSS:Dear {0}, you have just sent payment requests to multiple contacts. Please login to Mashreq Mobile App to review the details.}
+      requestToPayMultipleFailNpss: ${REQUEST_TO_PAY_MULTIPLE_FAIL_NPSS:Dear {0}, your refund request of AED {1} to multiple contacts could not be processed. Please login to Mashreq Mobile App to review the details.}
+      requestToPayNpss: ${REQUEST_TO_PAY_NPSS:Dear {0}, you have just sent a payment request of AED {1} to {2}. Please login to Mashreq Mobile App to review the details.}
+      requestToPayNpssFail: ${REQUEST_TO_PAY_NPSS_FAIL:Dear {0}, your payment request of AED {1} to {2} could not be processed. Please login to Mashreq Mobile App to review the details.}
+      sendMoneyNpssSuccess: ${SEND_MONEY_NPSS_SUCCESS:Dear {0}, you have just sent an instant payment of AED {1} to {2}. Please login to Mashreq Mobile App to review the details.}
+      sendMoneyNpssFail: ${SEND_MONEY_NPSS_FAIL:Dear {0}, your instant payment of AED {1} to {2} could not be processed. Please login to Mashreq Mobile App to review the details.}
   countriesWhereQrDisabledForCompany: ${LIST_OF_COUNTRIES:PK}
 instarem:
   rules:
