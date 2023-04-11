@@ -7,13 +7,16 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Entity
 @Getter
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "npss_account_detail_del")
+@Table(name = "npss_account_details")
 public class AccountDetailsRepoDTO implements Serializable {
     private static final long serialVersionUID = -653788341775043008L;
     @Id
@@ -47,6 +50,12 @@ public class AccountDetailsRepoDTO implements Serializable {
     @Column
     private String type;
 
-    @Column
-    private String cifRef;
+    @Column(name = "cif_id")
+    private String cifId;
+
+    @Column(name = "enrollment_id")
+    private String enrollmentId;
+
+    @Column(name = "created_date")
+    private LocalDateTime createdDate = LocalDateTime.now(ZoneId.of("GMT+04"));
 }

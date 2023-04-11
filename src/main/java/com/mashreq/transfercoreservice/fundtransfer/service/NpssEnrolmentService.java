@@ -20,6 +20,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -182,8 +184,10 @@ public class NpssEnrolmentService {
                     .branchCode(accountDetail.getBranchCode())
                     .schemeType(accountDetail.getSchemeType()).currency(accountDetail.getCurrency())
                     .segment(accountDetail.getSegment()).accountType(accountDetail.getAccountType())
-                    .cifRef(cifId)
+                    .cifId(cifId)
+                    .enrollmentId(cifId)
                     .ibanNumber(getIbanNumber(accountDetail.getNumber()))
+                            .createdDate(LocalDateTime.now(ZoneId.of("GMT+04")))
                     .accountNumber(accountDetail.getNumber()).build());
             isDefaultAdded.set(Boolean.TRUE);
         });
