@@ -3,7 +3,7 @@ package com.mashreq.transfercoreservice.fundtransfer.service;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
-import com.mashreq.transfercoreservice.client.dto.CoreAccountDetailsDTO;
+import com.mashreq.transfercoreservice.client.dto.IbanDetailsDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.dto.HandleNotificationRequestDto;
 import com.mashreq.transfercoreservice.dto.NotificationRequestDto;
@@ -192,7 +192,7 @@ public class NpssEnrolmentService {
     private String getIbanNumber(final String accountNumber) {
         // will remove the log , once its tested in UAT
         log.info("get Iban Number call initiated {}",accountNumber);
-        CoreAccountDetailsDTO response = accountService.getAccountDetailsByAccountNumber(accountNumber);
-        return Optional.ofNullable(response).isPresent() ? response.getIban() : StringUtils.EMPTY;
+        IbanDetailsDto response = accountService.getAccountDetailsByAccountNumber(accountNumber);
+        return Optional.ofNullable(response).isPresent() ? response.getIbanNo() : StringUtils.EMPTY;
     }
 }

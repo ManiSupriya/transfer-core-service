@@ -13,7 +13,7 @@ import java.io.Serializable;
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "npss_account_detail")
+@Table(name = "npss_account_detail_del")
 public class AccountDetailsRepoDTO implements Serializable {
     private static final long serialVersionUID = -653788341775043008L;
     @Id
