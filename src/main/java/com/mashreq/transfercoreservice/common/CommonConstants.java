@@ -10,6 +10,7 @@ public interface CommonConstants {
 	String EXCEEDS_WITHDRAWL_LIMIT = "EXCEEDS_WITHDRAWL_LIMIT";
 	String MOB_CHANNEL = "MOBILE";
 	String CARD_LESS_CASH = "cardless-cash";
+	String NPSS = "NPSS";
 	String SMILE_CARD_LOYALTY = "loyalty-simle-card";
 	String SWIFT_GPI_TRANSACTION_DETAILS = "SWIFT-GPI-TRANSACTION-DETAILS";
 	String VERSION_ID = "DEF-1";

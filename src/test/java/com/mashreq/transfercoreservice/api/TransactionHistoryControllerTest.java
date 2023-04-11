@@ -1,6 +1,7 @@
 package com.mashreq.transfercoreservice.api;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
+import com.mashreq.transfercoreservice.dto.CharityPaidDto;
 import com.mashreq.transfercoreservice.dto.TransactionHistoryDto;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionHistoryService;
 import com.mashreq.webcore.dto.response.Response;
@@ -11,6 +12,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -33,7 +35,7 @@ public class TransactionHistoryControllerTest {
         controller = new TransactionHistoryController(transactionHistoryService);
     }
 
-    @Test()
+    @Test
     public void test_saveTransactionHistory() {
         RequestMetaData metaData = getMetaData();
         TransactionHistoryDto transactionHistoryDto;
@@ -41,14 +43,32 @@ public class TransactionHistoryControllerTest {
         controller.saveTransactionHistory(metaData, new TransactionHistoryDto());
     }
 
-    @Test()
+    @Test
     public void getTransactionHistoryTest() {
-        when(transactionHistoryService.getTransactionHistoryByCif(any(),any(),any())).thenReturn(Arrays.asList(TransactionHistoryDto.builder()
+        when(transactionHistoryService.getTransactionHistoryByCif(any(), any(), any())).thenReturn(Arrays.asList(TransactionHistoryDto.builder()
                 .hostReferenceNo("HOST12345")
                 .build()));
-        Response<List<TransactionHistoryDto>> response = controller.getTransactionHistory("Payment12356","2021-04-24","2021-04-29");
+        Response<List<TransactionHistoryDto>> response = controller.getTransactionHistory("Payment12356", "2021-04-24", "2021-04-29");
         assertNotNull(response.getData());
         assertEquals("HOST12345", response.getData().get(0).getHostReferenceNo());
+    }
+
+    @Test
+    public void transferFundsTest() {
+        CharityPaidDto res = CharityPaidDto.builder().totalPaidAmount(new BigDecimal("233232")).build();
+        when(transactionHistoryService.getCharityPaid(any(), any())).thenReturn(res);
+        Response<CharityPaidDto> response = controller.transferFunds(RequestMetaData.builder().build(), "", "");
+        assertNotNull(response.getData());
+        assertEquals(new BigDecimal("233232"), response.getData().getTotalPaidAmount());
+    }
+
+    @Test
+    public void getTransactionDetailTest() {
+        TransactionHistoryDto res = TransactionHistoryDto.builder().hostReferenceNo("123453213421").build();
+        when(transactionHistoryService.getTransactionDetailByHostRef(any())).thenReturn(res);
+        Response<TransactionHistoryDto> response = controller.getTransactionDetail("1234532");
+        assertNotNull(response.getData());
+        assertEquals("123453213421", response.getData().getHostReferenceNo());
     }
 
     private RequestMetaData getMetaData() {

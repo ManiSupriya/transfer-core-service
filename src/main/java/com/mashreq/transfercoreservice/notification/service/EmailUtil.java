@@ -79,6 +79,7 @@ public class EmailUtil {
     public static final String YOUTUBE = "youtube";
     public static final String CUSTOMER = "Customer";
     public static final String DEFAULT_STR = "";
+    public static final String CUSTOMER_DEFAULT = "Customer";
     public static final String FX_DEAL_CODE = "fxDealCode";
     public static final String ORDER_TYPE = "orderType";
     public static final String TXN_AMOUNT="txn_amount";
@@ -96,6 +97,15 @@ public class EmailUtil {
     public static final String DATE = "date";
     public static final String TIME = "time";
     public static final String REASON_FOR_FAILURE = "reasonForFailure";
+
+    public static final String RECIPIENTS = "recipients";
+    public static final String REQUESTED_AMOUNT = "Requested amount ";
+    public static final String MESSAGE = "message";
+    public static final String VALUE = "Value";
+    public static final String PROXY = "proxy";
+    public static final String FROM_ACCOUNT = "fromAccount";
+    public static final String ALTERNATE_STEPS = "alternateSteps";
+    public static final String ALTERNATE_STEPS_IF_ANY = "alternateStepsIfAny";
 
     @Autowired
     private MobCommonService mobCommonService;

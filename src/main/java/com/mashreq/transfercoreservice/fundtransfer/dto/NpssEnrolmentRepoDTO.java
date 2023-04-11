@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.collections4.CollectionUtils;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -30,4 +31,23 @@ public class NpssEnrolmentRepoDTO implements Serializable {
     private String created_date;
     @Column
     private Instant accepted_date;
+    @Column(nullable = false)
+    private boolean is_default_account_updated = Boolean.FALSE;
+
+    @OneToMany(cascade = CascadeType.ALL ,fetch = FetchType.LAZY)
+    @JoinColumn(name = "cif_id")
+    private List<AccountDetailsRepoDTO> accountDetails;
+
+    @Override
+    public String toString() {
+        return "NpssEnrolmentRepoDTO{" +
+                "id=" + id +
+                ", cif_id='" + cif_id + '\'' +
+                ", enrollment_status='" + enrollment_status + '\'' +
+                ", created_date='" + created_date + '\'' +
+                ", accepted_date=" + accepted_date +
+                ", is_default_account_updated=" + is_default_account_updated +
+                ", hasAccountDetails=" + CollectionUtils.isNotEmpty(accountDetails) +
+                '}';
+    }
 }

@@ -22,5 +22,5 @@ public class RtpNotification implements Serializable {
     private String contactName;
     private String sentTo;
     private BigDecimal amount;
-
+    private String proxy;
 }

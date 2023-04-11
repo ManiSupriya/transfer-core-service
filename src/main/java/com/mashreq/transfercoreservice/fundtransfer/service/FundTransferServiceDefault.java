@@ -112,7 +112,7 @@ public class FundTransferServiceDefault implements FundTransferService {
     @Override
     public FundTransferResponseDTO transferFund(RequestMetaData metadata, FundTransferRequestDTO request) {
         /*** Introducing one more layer for otp relaxation which was part of UAE MT journey*/
-        assertOtpRequired(metadata, request);
+        assertOtpVerified(metadata, request);
 
         final ServiceType serviceType = getServiceByType(request.getServiceType());
         final FundTransferEventType initiatedEvent = FundTransferEventType.getEventTypeByCode(serviceType.getEventPrefix() + FUND_TRANSFER_INITIATION_SUFFIX);
@@ -125,19 +125,30 @@ public class FundTransferServiceDefault implements FundTransferService {
                 getInitiatedRemarks(request));
     }
 
-    private void assertOtpRequired(RequestMetaData metaData, FundTransferRequestDTO request) {
-        TwoFactorAuthRequiredCheckRequestDto twoFactorAuthRequiredCheckRequestDto = TwoFactorAuthRequiredCheckRequestDto.builder()
-                .accountCurrency(request.getCurrency())
-                .amount(request.getAmount())
-                .beneficiaryId(request.getBeneficiaryId())
-                .dealNumber(request.getDealNumber())
-                .txnCurrency(request.getTxnCurrency())
-                .fromAccount(request.getFromAccount())
-                .build();
-        if (!StringUtils.equals(ServiceType.WYMA.getName(),request.getServiceType())
-                && service.checkIfTwoFactorAuthenticationRequired(metaData, twoFactorAuthRequiredCheckRequestDto)
-                .isTwoFactorAuthRequired() && !metaData.isOtpVerified()) {
-            log.error("2FA authentication failed in update customer profile operation.");
+    private boolean isOTPVerificationRequired(final ServiceType serviceType, FundTransferRequestDTO request, RequestMetaData metadata) {
+        if (WYMA.getName().equals(serviceType.getName())) {
+            return false;
+        }
+        if (LOCAL.getName().equals(serviceType.getName()) || WAMA.getName().equals(serviceType.getName()) || INFT.getName().equals(serviceType.getName())) {
+            return service.checkIfTwoFactorAuthenticationRequired(metadata, prepareRequest(request)).isTwoFactorAuthRequired();
+        }
+        return true;
+    }
+
+    private TwoFactorAuthRequiredCheckRequestDto prepareRequest(FundTransferRequestDTO request) {
+        TwoFactorAuthRequiredCheckRequestDto requestDto = new TwoFactorAuthRequiredCheckRequestDto();
+        requestDto.setAccountCurrency(request.getCurrency());
+        requestDto.setAmount(request.getAmount());
+        requestDto.setBeneficiaryId(request.getBeneficiaryId());
+        requestDto.setDealNumber(request.getDealNumber());
+        requestDto.setFromAccount(request.getFromAccount());
+        requestDto.setTxnCurrency(request.getTxnCurrency());
+        return requestDto;
+    }
+
+    private void assertOtpVerified(RequestMetaData metaData, FundTransferRequestDTO request) {
+        if (isOTPVerificationRequired(ServiceType.valueOf(request.getServiceType()), request, metaData) && !metaData.isOtpVerified()) {
+            log.error("2FA authentication failed in transfer funds operation for transfer type {}", request.getServiceType());
             GenericExceptionHandler.handleError(TransferErrorCode.TWOFA_AUTH_FAILED,
                     TransferErrorCode.TWOFA_AUTH_FAILED.getErrorMessage());
         }

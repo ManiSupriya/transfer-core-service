@@ -19,5 +19,6 @@ import java.util.HashMap;
 public class EmailConfig {
 
     private HashMap<String, EmailParameters> email;
+    private String alternateSteps;
 
 }

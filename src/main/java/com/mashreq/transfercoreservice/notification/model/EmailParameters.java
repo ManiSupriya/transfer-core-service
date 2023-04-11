@@ -9,6 +9,8 @@ import lombok.Setter;
 @Getter @Setter
 public class EmailParameters {
 
+
+    private String callCenterNo;
     private String emailSubject;
     private String fromEmailName;
     private String fromEmailAddress;
@@ -28,6 +30,13 @@ public class EmailParameters {
     private String paymentRequestReceived;
     private String paymentRequestSent;
     private String paymentSuccess;
+    private String requestToPayMultiple;
+    private String requestToPay;
+    private String requestToPayMultipleSubject;
+    private String requestToPaySubject;
+    private String requestToPayFail;
+
+    private String requestToPayMultipleFail;
 
     public String getEmailTemplate(String type) {
         if (type.equalsIgnoreCase(NotificationType.LOCAL)) {
@@ -71,12 +80,30 @@ public class EmailParameters {
         } else if(type.equalsIgnoreCase(NotificationType.PAYMENT_REQUEST_SENT)){
             return paymentRequestSent;
         }
+        else if(type.equalsIgnoreCase(NotificationType.PAYMENT_REQUEST_SENT_MULTIPLE_RTP)){
+            return requestToPayMultiple;
+        }
+        else if(type.equalsIgnoreCase(NotificationType.PAYMENT_REQUEST_SENT_MULTIPLE_FAIL_RTP)){
+            return requestToPayMultipleFail;
+        }
+        else if(type.equalsIgnoreCase(NotificationType.PAYMENT_REQUEST_SENT_RTP)){
+            return requestToPay;
+        }
+        else if(type.equalsIgnoreCase(NotificationType.PAYMENT_REQUEST_SENT_FAIL_RTP)){
+            return requestToPayFail;
+        }
         else return paymentSuccess;
     }
 
     public String getNpssEmailSubject(String type,String transferType,String channel) {
         if(type.equalsIgnoreCase(NotificationType.CUSTOMER_ENROLMENT)){
             return String.format(enrolmentConfirmSubject, transferType,channel);
+        }
+        else if(type.equalsIgnoreCase(NotificationType.PAYMENT_REQUEST_SENT_MULTIPLE_RTP)){
+            return String.format(requestToPayMultipleSubject, transferType,channel);
+        }
+        else if(type.equalsIgnoreCase(NotificationType.PAYMENT_REQUEST_SENT_RTP)){
+            return String.format(requestToPaySubject, transferType,channel);
         }
 
         else return String.format(emailSubject, transferType,channel);
