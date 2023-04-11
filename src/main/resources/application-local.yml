@@ -81,8 +81,8 @@ app:
     transfer.product.id: 'DBLC'
     country.iso: 'EG'
     address: 'Egypt'
-    scheduler: 0 */15 * ? * *
-    enabled: true
+    scheduler: ${CONSENT_SCHEDULER:0 */15 * ? * *}
+    enabled: ${CONSENT_ENABLE:true}
     iban:
       length: 29
       accountNumber: 17
