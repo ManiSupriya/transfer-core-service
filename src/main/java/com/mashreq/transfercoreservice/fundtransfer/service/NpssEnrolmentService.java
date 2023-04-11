@@ -69,7 +69,7 @@ public class NpssEnrolmentService {
     public NpssEnrolmentUpdateResponseDTO updateEnrolment(RequestMetaData metaData) {
         // update default account for new entry in consent table
         try {
-            updateDefaultAccount(metaData, false);
+            updateDefaultAccount(metaData, false,0);
             return NpssEnrolmentUpdateResponseDTO.builder().userEnrolmentUpdated(true).build();
         } catch (Exception err) {
             log.error("New Entry Enrollment Failed : ", err);
@@ -108,12 +108,12 @@ public class NpssEnrolmentService {
         return userDTO;
     }
 
-    public String updateDefaultAccount(RequestMetaData requestMetaData, Boolean isFromScheduler) {
+    public String updateDefaultAccount(RequestMetaData requestMetaData, Boolean isFromScheduler,int rowsSize) {
         log.info("update Default Account process started");
         List<NpssEnrolmentRepoDTO> npssEnrolmentResponse;
         if (isFromScheduler) {
             log.info("update Default Account from scheduler");
-            npssEnrolmentResponse = npssEnrolmentRepository.findAllByIsDefaultAccountUpdated(Boolean.FALSE);
+            npssEnrolmentResponse = npssEnrolmentRepository.findAllByIsDefaultAccountUpdated(Boolean.FALSE,0, rowsSize);
             log.info("the records taken from DB {}", npssEnrolmentResponse.size());
         } else {
             log.info("update Default Account for a new entry");

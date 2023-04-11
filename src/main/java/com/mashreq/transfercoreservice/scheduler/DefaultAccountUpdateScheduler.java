@@ -15,6 +15,9 @@ import java.time.LocalDateTime;
 public class DefaultAccountUpdateScheduler {
     @Value("${app.local.enabled}")
     private boolean isEnabled;
+
+    @Value("${app.local.consentSize}")
+    private int rowSize;
     private final NpssEnrolmentService npssEnrolmentService;
 
     @Scheduled(cron = "${app.local.scheduler}")
@@ -22,7 +25,7 @@ public class DefaultAccountUpdateScheduler {
         log.info("scheduler flag is : {}", isEnabled);
         if (isEnabled) {
             log.info("Scheduler started to update default accounts in : " + LocalDateTime.now());
-            npssEnrolmentService.updateDefaultAccount(null, true);
+            npssEnrolmentService.updateDefaultAccount(null, true,rowSize);
         }
     }
 }

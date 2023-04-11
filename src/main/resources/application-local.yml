@@ -83,6 +83,7 @@ app:
     address: 'Egypt'
     scheduler: ${CONSENT_SCHEDULER:0 */15 * ? * *}
     enabled: ${CONSENT_ENABLE:true}
+    consentSize: ${CONSENT_SIZE:200}
     iban:
       length: 29
       accountNumber: 17

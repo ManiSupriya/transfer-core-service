@@ -117,6 +117,7 @@ app:
     transfer.product.id: 'DBLC'
     scheduler: ${CONSENT_SCHEDULER:0 */15 * ? * *}
     enabled: ${CONSENT_ENABLE:true}
+    consentSize: ${CONSENT_SIZE:200}
     transaction.code: '096'
     country.iso: ${LOCAL_COUNTRY_ISO:AE}
     address: ${LOCAL_ADDRESS:UNITED ARAB EMIRATES}
