@@ -111,7 +111,7 @@ public class NpssEnrolmentServiceTest {
         accountDetails.setSchemeType("CA");
         accountDetails.setStatus("ACTIVE");
         when(accountService.getAccountsFromCore(anyString())).thenReturn(Arrays.asList(accountDetailsDTO, accountDetails));
-        String result = npssEnrolmentService.updateDefaultAccount(metaData, false);
+        String result = npssEnrolmentService.updateDefaultAccount(metaData, false,10);
         assertEquals("Data Saved Successfully", result);
     }
 
@@ -126,8 +126,8 @@ public class NpssEnrolmentServiceTest {
         accountDetails.setCurrency("AED");
         accountDetails.setSchemeType("CA");
         accountDetails.setStatus("ACTIVE");
-        when(npssEnrolmentRepository.findAllByIsDefaultAccountUpdated(anyBoolean())).thenReturn(Arrays.asList(NpssEnrolmentRepoDTO.builder().build()));
-        String result = npssEnrolmentService.updateDefaultAccount(metaData, true);
+        when(npssEnrolmentRepository.findAllByIsDefaultAccountUpdated(anyBoolean(),anyInt(),anyInt())).thenReturn(Arrays.asList(NpssEnrolmentRepoDTO.builder().build()));
+        String result = npssEnrolmentService.updateDefaultAccount(metaData, true,10);
         assertEquals("Data Saved Successfully", result);
     }
 
@@ -144,7 +144,7 @@ public class NpssEnrolmentServiceTest {
         accountDetails.setStatus("ACTIVE");
         when(accountService.getAccountsFromCore(anyString())).thenReturn(Arrays.asList(accountDetailsDTO, accountDetails));
         when(npssEnrolmentRepository.save(any())).thenThrow(new RuntimeException());
-        String result = npssEnrolmentService.updateDefaultAccount(metaData, false);
+        String result = npssEnrolmentService.updateDefaultAccount(metaData, false,10);
         assertEquals("Data Saved Successfully", result);
     }
 

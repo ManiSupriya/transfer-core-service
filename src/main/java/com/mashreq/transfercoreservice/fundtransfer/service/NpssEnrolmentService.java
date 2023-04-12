@@ -3,7 +3,7 @@ package com.mashreq.transfercoreservice.fundtransfer.service;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
-import com.mashreq.transfercoreservice.client.dto.CoreAccountDetailsDTO;
+import com.mashreq.transfercoreservice.client.dto.IbanDetailsDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.dto.HandleNotificationRequestDto;
 import com.mashreq.transfercoreservice.dto.NotificationRequestDto;
@@ -20,6 +20,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -67,7 +69,7 @@ public class NpssEnrolmentService {
     public NpssEnrolmentUpdateResponseDTO updateEnrolment(RequestMetaData metaData) {
         // update default account for new entry in consent table
         try {
-            updateDefaultAccount(metaData, false);
+            updateDefaultAccount(metaData, false,0);
             return NpssEnrolmentUpdateResponseDTO.builder().userEnrolmentUpdated(true).build();
         } catch (Exception err) {
             log.error("New Entry Enrollment Failed : ", err);
@@ -106,12 +108,12 @@ public class NpssEnrolmentService {
         return userDTO;
     }
 
-    public String updateDefaultAccount(RequestMetaData requestMetaData, Boolean isFromScheduler) {
+    public String updateDefaultAccount(RequestMetaData requestMetaData, Boolean isFromScheduler,int rowsSize) {
         log.info("update Default Account process started");
         List<NpssEnrolmentRepoDTO> npssEnrolmentResponse;
         if (isFromScheduler) {
             log.info("update Default Account from scheduler");
-            npssEnrolmentResponse = npssEnrolmentRepository.findAllByIsDefaultAccountUpdated(Boolean.FALSE);
+            npssEnrolmentResponse = npssEnrolmentRepository.findAllByIsDefaultAccountUpdated(Boolean.FALSE,0, rowsSize);
             log.info("the records taken from DB {}", npssEnrolmentResponse.size());
         } else {
             log.info("update Default Account for a new entry");
@@ -182,8 +184,10 @@ public class NpssEnrolmentService {
                     .branchCode(accountDetail.getBranchCode())
                     .schemeType(accountDetail.getSchemeType()).currency(accountDetail.getCurrency())
                     .segment(accountDetail.getSegment()).accountType(accountDetail.getAccountType())
-                    .cifRef(cifId)
+                    .cifId(cifId)
+                    .enrollmentId(cifId)
                     .ibanNumber(getIbanNumber(accountDetail.getNumber()))
+                            .createdDate(LocalDateTime.now(ZoneId.of("GMT+04")))
                     .accountNumber(accountDetail.getNumber()).build());
             isDefaultAdded.set(Boolean.TRUE);
         });
@@ -192,7 +196,7 @@ public class NpssEnrolmentService {
     private String getIbanNumber(final String accountNumber) {
         // will remove the log , once its tested in UAT
         log.info("get Iban Number call initiated {}",accountNumber);
-        CoreAccountDetailsDTO response = accountService.getAccountDetailsByAccountNumber(accountNumber);
-        return Optional.ofNullable(response).isPresent() ? response.getIban() : StringUtils.EMPTY;
+        IbanDetailsDto response = accountService.getAccountDetailsByAccountNumber(accountNumber);
+        return Optional.ofNullable(response).isPresent() ? response.getIbanNo() : StringUtils.EMPTY;
     }
 }
