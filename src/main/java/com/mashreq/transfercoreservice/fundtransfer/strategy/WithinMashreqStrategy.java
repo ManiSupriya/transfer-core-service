@@ -265,6 +265,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
                                                                   LimitValidatorResponse validationResult, CurrencyConversionDto currencyConversionDto) {
     	FundTransferRequest trnsrequest = 
          FundTransferRequest.builder()
+                 .productId("AACT")
                 .amount(!sourceAccount.getCurrency().equals(request.getTxnCurrency()) ? request.getAmount() : null)
                 .srcCcyAmt(sourceAccount.getCurrency().equals(request.getTxnCurrency()) ? request.getAmount() : currencyConversionDto.getAccountCurrencyAmount())
                 .srcAmount(sourceAccount.getCurrency().equals(request.getTxnCurrency()) ? request.getAmount() : null)
