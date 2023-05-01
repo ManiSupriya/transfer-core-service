@@ -518,7 +518,7 @@
       font-size: 14px;
       line-height: 16px;
       color: rgba(49, 49, 49, 0.8);
-      padding:20px;
+      padding: 20px;
       padding-right: 0;
     }
 
@@ -526,7 +526,7 @@
       font-weight: 700;
       font-size: 16px;
       color: #313131;
-      padding:20px;
+      padding: 20px;
       padding-left: 0;
     }
 
@@ -598,8 +598,8 @@
                   <div class="ippDataContainer">
                     <table>
                       <tr>
-                        <td class="ippDataKeyFontStyle" style="width: auto;" >Reference number</td>
-                        <td class="ippDataValueFontStyle" style="width: auto;" >
+                        <td class="ippDataKeyFontStyle" style="width: auto;">Reference number</td>
+                        <td class="ippDataValueFontStyle" style="width: auto;">
                           ${referenceNumber}
                         </td>
                       </tr>
@@ -621,16 +621,13 @@
                         <td class="ippDataKeyFontStyle">Date</td>
                         <td class="ippDataValueFontStyle">${date}</td>
                       </tr>
-                      <tr style="line-height:30px;" class="spaceUnder">
+                      <tr style="line-height:30px;">
                         <td class="ippDataKeyFontStyle">Time</td>
                         <td class="ippDataValueFontStyle">${time}</td>
                       </tr>
                       <tr style="line-height:30px">
                         <td class="ippDataKeyFontStyle">Sent to</td>
-                        <td style="display:flex; flex-direction:column">
-                          <div class="ippDataValueFontStyle" style="line-height: 18px;">${contactName}</div>
-                          <div class="ippDataValueFontStyle" style="line-height: 18px;">${proxy}</div>
-                        </td>
+                        <td class="ippDataValueFontStyle">${contactName} ${proxy}</td>
                       </tr>
                     </table>
                   </div>
