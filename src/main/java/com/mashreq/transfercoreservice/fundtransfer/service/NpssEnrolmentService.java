@@ -69,7 +69,7 @@ public class NpssEnrolmentService {
     public NpssEnrolmentUpdateResponseDTO updateEnrolment(RequestMetaData metaData) {
         // update default account for new entry in consent table
         try {
-            updateDefaultAccount(metaData, false,0);
+            updateDefaultAccount(metaData, false,1);
             return NpssEnrolmentUpdateResponseDTO.builder().userEnrolmentUpdated(true).build();
         } catch (Exception err) {
             log.error("New Entry Enrollment Failed : ", err);
