@@ -21,6 +21,7 @@ public class DefaultAccountUpdateScheduler {
     private final NpssEnrolmentService npssEnrolmentService;
 
     @Scheduled(cron = "${app.local.scheduler}")
+    @SchedulerLock(name = "ScheduledTask_scheduleBulkAlert", lockAtLeastFor = "${app.local.lockAtLeastFor}", lockAtMostFor = "${app.local.lockAtMostFor}")
     public void scheduleTaskUsingCronExpression() {
         log.info("scheduler flag is : {}", isEnabled);
         if (isEnabled) {
