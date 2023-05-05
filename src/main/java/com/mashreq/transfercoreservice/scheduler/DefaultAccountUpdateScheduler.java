@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 
 @Slf4j
 @Component
@@ -39,6 +40,8 @@ public class DefaultAccountUpdateScheduler {
     private final NpssEnrolmentService npssEnrolmentService;
 
     @Scheduled(cron = "${app.local.scheduler}")
+    @SchedulerLock(name = "ScheduledTask_schedulePayLaterAlert",
+            lockAtLeastFor = "${app.local.lockAtLeastFor}", lockAtMostFor = "${app.local.lockAtMostFor}")
     public void scheduleTaskUsingCronExpression() {
         log.info("scheduler flag is : {}", isEnabled);
         if (isEnabled) {
