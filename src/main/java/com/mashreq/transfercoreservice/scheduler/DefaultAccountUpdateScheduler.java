@@ -48,20 +48,26 @@ public class DefaultAccountUpdateScheduler {
     }
 
     private Integer getRowSize() {
-
+        log.info("DefaultAccountUpdateScheduler >> getRowSize >> ");
         LocalTime localTime = LocalTime.parse(LocalTime.now().toString().substring(0,5),
                 DateTimeFormatter.ofPattern("HH:mm"));
+        log.info("DefaultAccountUpdateScheduler >> getRowSize >> current local time >> {}",localTime);
         // Peak Hours
         if(localTime.isAfter(LocalTime.parse(peakHoursStartTime))
                 && localTime.isBefore(LocalTime.parse(peakHoursEndTime))) {
+            log.info("DefaultAccountUpdateScheduler >> getRowSize >> Falling under peak hours >> {}{}{}"
+                    ,peakHoursStartTime,peakHoursEndTime,peakHoursNoOfRecords);
             return peakHoursNoOfRecords;
         }
         // Non-Peak Hours
         else if (localTime.isAfter(LocalTime.parse(nonPeakHoursStartTime))
                 && localTime.isBefore(LocalTime.parse(nonPeakHoursEndTime))){
+            log.info("DefaultAccountUpdateScheduler >> getRowSize >> Falling under non peak hours >> {}{}{}"
+                    ,nonPeakHoursStartTime,nonPeakHoursEndTime,nonPeakHoursNoOfRecords);
             return nonPeakHoursNoOfRecords;
         }
         // EOD Hours
+        log.info("DefaultAccountUpdateScheduler >> getRowSize >> Falling under eod hours >> {}",eodNoOfRecords);
         return eodNoOfRecords;
     }
 }
