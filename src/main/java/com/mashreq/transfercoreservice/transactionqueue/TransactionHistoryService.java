@@ -58,7 +58,9 @@ public class TransactionHistoryService {
 
     public Long saveTransactionHistory(TransactionHistoryDto transactionHistoryDto, RequestMetaData metaData) {
         log.info("Save data into transaction history table for idSct {}",transactionHistoryDto.getHostReferenceNo());
-        TransactionHistory transactionHistory = TransactionHistory.builder().cif(metaData.getPrimaryCif()).
+        TransactionHistory transactionHistory = TransactionHistory.builder().
+                cif(Optional.ofNullable(transactionHistoryDto.getCif()).isPresent() ?
+                transactionHistoryDto.getCif() : metaData.getPrimaryCif()).
                 userId(transactionHistoryDto.getUserId()). channel(MOB_CHANNEL).transactionTypeCode(NPSS).
                 paidAmount(transactionHistoryDto.getPaidAmount()).status(transactionHistoryDto.getStatus()).
                 ipAddress(metaData.getDeviceIP()).mwResponseDescription(transactionHistoryDto.getMwResponseDescription()).
