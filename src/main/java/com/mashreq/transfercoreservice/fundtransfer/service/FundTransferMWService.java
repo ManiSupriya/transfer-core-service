@@ -208,8 +208,7 @@ public class FundTransferMWService {
 						request.getPurposeDesc() + SPACE_CHAR + request.getFinalBene() + SPACE_CHAR + additionalField);
 			}
 			else {
-				creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc() + SPACE_CHAR
-						+ request.getFinalBene() +SPACE_CHAR + additionalField);
+				creditLeg.setPaymentDetails(additionalField);
 			}
 		} else {
 			if (INTERNATIONAL.equalsIgnoreCase(request.getServiceType())
