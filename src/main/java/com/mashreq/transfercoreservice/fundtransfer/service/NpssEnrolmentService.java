@@ -86,7 +86,11 @@ public class NpssEnrolmentService {
             ));
         }
         log.info("NpssEnrollmentService >> saveTransactionHistory >> for Cif {} {}",requestMetaData.getPrimaryCif(),handleNotificationRequestDto.getTransactionHistoryDto());
-        transactionHistoryService.saveTransactionHistory(handleNotificationRequestDto.getTransactionHistoryDto(),requestMetaData);
+        try {
+            transactionHistoryService.saveTransactionHistory(handleNotificationRequestDto.getTransactionHistoryDto(), requestMetaData);
+        } catch (Exception e) {
+            log.info("NpssEnrollmentService >> saveTransactionHistory >> Failed >> for Cif {}",requestMetaData.getPrimaryCif());
+        }
         log.info("NpssEnrollmentService >> performNotificationActivities Initiated >> for Cif {} ",requestMetaData.getPrimaryCif());
         npssNotificationService.performNotificationActivities(requestMetaData, handleNotificationRequestDto.getNotificationRequestDto(), userDTO);
         log.info("NpssEnrollmentService >> performNotificationActivities >> Completed for Cif {} ",requestMetaData.getPrimaryCif());
