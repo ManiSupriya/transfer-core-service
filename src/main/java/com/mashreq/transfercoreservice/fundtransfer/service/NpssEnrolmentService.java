@@ -89,7 +89,7 @@ public class NpssEnrolmentService {
         try {
             transactionHistoryService.saveTransactionHistory(handleNotificationRequestDto.getTransactionHistoryDto(), requestMetaData);
         } catch (Exception e) {
-            log.error("NpssEnrollmentService >> saveTransactionHistory >> Failed >> for Cif {}{}",requestMetaData.getPrimaryCif(), e);
+            log.error("NpssEnrollmentService >> saveTransactionHistory >> Failed >> for Cif {}",requestMetaData.getPrimaryCif(), e);
         }
         log.info("NpssEnrollmentService >> performNotificationActivities Initiated >> for Cif {} ",requestMetaData.getPrimaryCif());
         npssNotificationService.performNotificationActivities(requestMetaData, handleNotificationRequestDto.getNotificationRequestDto(), userDTO);
