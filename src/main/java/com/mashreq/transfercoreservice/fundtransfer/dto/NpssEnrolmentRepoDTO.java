@@ -35,7 +35,7 @@ public class NpssEnrolmentRepoDTO implements Serializable {
     private boolean is_default_account_updated = Boolean.FALSE;
 
     @OneToMany(cascade = CascadeType.ALL ,fetch = FetchType.LAZY)
-    @JoinColumn(name = "cif_id")
+    @JoinColumn(name = "enrollment_id")
     private List<AccountDetailsRepoDTO> accountDetails;
 
     @Override

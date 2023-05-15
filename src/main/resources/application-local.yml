@@ -81,8 +81,18 @@ app:
     transfer.product.id: 'DBLC'
     country.iso: 'EG'
     address: 'Egypt'
-    scheduler: 0 */15 * ? * *
-    enabled: true
+    scheduler: ${CONSENT_SCHEDULER:0 */15 * ? * *}
+    enabled: ${CONSENT_ENABLE:true}
+    consentSize: ${CONSENT_SIZE:200}
+    lockAtLeastFor: ${LOCK_AT_LEAST_FOR:PT5M}
+    lockAtMostFor: ${LOCK_AT_MOST_FOR:PT10M}
+    peakHoursStartTime: ${PEAK_HOURS_START_TIME:09:00}
+    peakHoursEndTime: ${PEAK_HOURS_END_TIME:18:00}
+    peakHoursNoOfRecords: ${PEAK_HOURS_NO_OF_REC_NTFN:500}
+    nonPeakHoursStartTime: ${NON_PEAK_HOURS_START_TIME:18:00}
+    nonPeakHoursEndTime: ${NON_PEAK_HOURS_END_TIME:22:00}
+    nonPeakHoursNoOfRecords: ${NON_PEAK_HOURS_NO_OF_REC_NTFN:1000}
+    eodNoOfRecords: ${EOD_NO_OF_REC_NTFN:200}
     iban:
       length: 29
       accountNumber: 17

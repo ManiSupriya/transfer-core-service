@@ -18,6 +18,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.mashreq.mobcommons.cache.MobRedisService;
 import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.transfercoreservice.cache.UserSessionCacheService;
+import com.mashreq.transfercoreservice.client.dto.*;
 import org.apache.commons.collections.MapUtils;
 import org.springframework.stereotype.Service;
 
@@ -32,10 +33,6 @@ import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashBlo
 import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashGenerationResponse;
 import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashQueryResponse;
 import com.mashreq.transfercoreservice.client.AccountClient;
-import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
-import com.mashreq.transfercoreservice.client.dto.CifProductsDto;
-import com.mashreq.transfercoreservice.client.dto.CoreAccountDetailsDTO;
-import com.mashreq.transfercoreservice.client.dto.SearchAccountDto;
 import com.mashreq.transfercoreservice.common.CommonConstants;
 import com.mashreq.transfercoreservice.common.FeesExternalConfig;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
@@ -69,7 +66,7 @@ public class AccountService {
 	private final UserSessionCacheService userSessionCacheService;
 	private final MobRedisService mobRedisService;
 
-	public static final Predicate<Response<CoreAccountDetailsDTO>> isResponseNotValid = (response) ->
+	public static final Predicate<Response<IbanDetailsDto>> isResponseNotValid = (response) ->
 			isNull(response) || isNull(response.getData()) || ResponseStatus.ERROR == response.getStatus() ;
 
 	public List<AccountDetailsDTO> getAccountsFromCore(final String cifId) {
@@ -209,11 +206,11 @@ public class AccountService {
 		}
 		return accountDetailsDTO;
 	}
-	public CoreAccountDetailsDTO getAccountDetailsByAccountNumber(final String accountNumber) {
+	public IbanDetailsDto getAccountDetailsByAccountNumber(final String accountNumber) {
 		log.info("Fetching account details for accountNumber {} ", accountNumber);
-		Response<CoreAccountDetailsDTO> response = null;
+		Response<IbanDetailsDto> response = null;
 		try {
-			response = accountClient.getAccountDetails(accountNumber);
+			response = accountClient.searchIban(accountNumber);
 		} catch (Exception e) {
 			log.error("Get Account Details by Account Number call failed for {}",accountNumber);
 		}

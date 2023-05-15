@@ -2,6 +2,7 @@ package com.mashreq.transfercoreservice.client;
 
 import java.util.List;
 
+import com.mashreq.transfercoreservice.client.dto.IbanDetailsDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,4 +43,7 @@ public interface AccountClient {
 
     @PostMapping(value = "/api/cardless-cash/request")
     public Response<CardLessCashGenerationResponse> cardLessCashRemitGenerationRequest(CardLessCashGenReq cardLessCashGenReq);
+
+    @GetMapping("/api/accounts/{accountNumber}/iban")
+    Response<IbanDetailsDto> searchIban(@PathVariable String accountNumber);
 }
