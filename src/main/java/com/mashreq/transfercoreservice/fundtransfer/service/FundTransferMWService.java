@@ -208,7 +208,12 @@ public class FundTransferMWService {
 						request.getPurposeDesc() + SPACE_CHAR + request.getFinalBene() + SPACE_CHAR + additionalField);
 			}
 			else {
-				creditLeg.setPaymentDetails(additionalField);
+                if("AACT".equalsIgnoreCase(request.getProductId())){
+                    creditLeg.setPaymentDetails(additionalField);
+                }else{
+                    creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc() + SPACE_CHAR
+                            + request.getFinalBene() +SPACE_CHAR + additionalField);
+                }
 			}
 		} else {
 			if (INTERNATIONAL.equalsIgnoreCase(request.getServiceType())
@@ -216,8 +221,11 @@ public class FundTransferMWService {
 							&& !localCurrency.equalsIgnoreCase(request.getDestinationCurrency()))) {
 				creditLeg.setPaymentDetails(request.getPurposeDesc() + SPACE_CHAR + additionalField);
 			} else {
-				//creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc() + additionalField);
-                creditLeg.setPaymentDetails(additionalField);
+                if("AACT".equalsIgnoreCase(request.getProductId())){
+                    creditLeg.setPaymentDetails(additionalField);
+                }
+				creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc() + SPACE_CHAR + additionalField);
+
             }
 		}
         creditLeg.setBenName(request.getBeneficiaryFullName());
