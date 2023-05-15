@@ -69,7 +69,7 @@ public class NpssEnrolmentService {
     public NpssEnrolmentUpdateResponseDTO updateEnrolment(RequestMetaData metaData) {
         // update default account for new entry in consent table
         try {
-            updateDefaultAccount(metaData, false,0);
+            updateDefaultAccount(metaData, false,1);
             return NpssEnrolmentUpdateResponseDTO.builder().userEnrolmentUpdated(true).build();
         } catch (Exception err) {
             log.error("New Entry Enrollment Failed : ", err);
@@ -86,7 +86,11 @@ public class NpssEnrolmentService {
             ));
         }
         log.info("NpssEnrollmentService >> saveTransactionHistory >> for Cif {} {}",requestMetaData.getPrimaryCif(),handleNotificationRequestDto.getTransactionHistoryDto());
-        transactionHistoryService.saveTransactionHistory(handleNotificationRequestDto.getTransactionHistoryDto(),requestMetaData);
+        try {
+            transactionHistoryService.saveTransactionHistory(handleNotificationRequestDto.getTransactionHistoryDto(), requestMetaData);
+        } catch (Exception e) {
+            log.error("NpssEnrollmentService >> saveTransactionHistory >> Failed >> for Cif {}",requestMetaData.getPrimaryCif(), e);
+        }
         log.info("NpssEnrollmentService >> performNotificationActivities Initiated >> for Cif {} ",requestMetaData.getPrimaryCif());
         npssNotificationService.performNotificationActivities(requestMetaData, handleNotificationRequestDto.getNotificationRequestDto(), userDTO);
         log.info("NpssEnrollmentService >> performNotificationActivities >> Completed for Cif {} ",requestMetaData.getPrimaryCif());
