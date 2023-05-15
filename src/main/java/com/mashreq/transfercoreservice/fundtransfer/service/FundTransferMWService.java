@@ -223,9 +223,9 @@ public class FundTransferMWService {
 			} else {
                 if("AACT".equalsIgnoreCase(request.getProductId())){
                     creditLeg.setPaymentDetails(additionalField);
+                }else {
+                    creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc() + SPACE_CHAR + additionalField);
                 }
-				creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc() + SPACE_CHAR + additionalField);
-
             }
 		}
         creditLeg.setBenName(request.getBeneficiaryFullName());
