@@ -53,6 +53,7 @@ public class FundTransferMWService {
     private final AsyncUserEventPublisher auditEventPublisher;
     private static final String GOLD = "XAU";
     private static final String SILVER = "XAG";
+    private static final String AACT = "AACT";
     private static final String UAE_COUNTRY= "UNITED ARAB EMIRATES";
     
     public static final String INTERNATIONAL = "INFT";
@@ -208,8 +209,8 @@ public class FundTransferMWService {
 						request.getPurposeDesc() + SPACE_CHAR + request.getFinalBene()  + additionalField);
 			}
 			else {
-                if("AACT".equalsIgnoreCase(request.getProductId())){
-                    creditLeg.setPaymentDetails(additionalField.trim());
+                if(AACT.equalsIgnoreCase(request.getProductId())){
+                    creditLeg.setPaymentDetails(additionalField);
                 }else{
                     creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc() + SPACE_CHAR
                             + request.getFinalBene()  + additionalField);
@@ -221,8 +222,8 @@ public class FundTransferMWService {
 							&& !localCurrency.equalsIgnoreCase(request.getDestinationCurrency()))) {
 				creditLeg.setPaymentDetails(request.getPurposeDesc()  + additionalField);
 			} else {
-                if("AACT".equalsIgnoreCase(request.getProductId())){
-                    creditLeg.setPaymentDetails(additionalField.trim());
+                if(AACT.equalsIgnoreCase(request.getProductId())){
+                    creditLeg.setPaymentDetails(additionalField);
                 }else {
                     creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc()  + additionalField);
                 }
