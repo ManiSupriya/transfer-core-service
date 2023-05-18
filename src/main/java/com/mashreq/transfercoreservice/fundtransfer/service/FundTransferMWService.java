@@ -198,7 +198,7 @@ public class FundTransferMWService {
         
         /** only applicable for SWIFT transfers :: added as part of new DLS enhancement */
         creditLeg.setIntermBICCode(request.getIntermediaryBankSwiftCode());
-        String additionalField=StringUtils.isNotBlank(request.getPaymentNote())?SPACE_CHAR + request.getPaymentNote():"";
+        String additionalField=StringUtils.isNotBlank(request.getPaymentNote())?SPACE_CHAR + request.getPaymentNote():PAYMENT_DETAIL_PREFIX;
         
         log.info("request.getDestinationCurrency() {}", htmlEscape(request.getDestinationCurrency()));
 		if (StringUtils.isNotBlank(request.getFinalBene())) {
