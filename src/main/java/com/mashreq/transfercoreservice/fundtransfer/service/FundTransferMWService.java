@@ -198,7 +198,7 @@ public class FundTransferMWService {
         
         /** only applicable for SWIFT transfers :: added as part of new DLS enhancement */
         creditLeg.setIntermBICCode(request.getIntermediaryBankSwiftCode());
-        String additionalField=StringUtils.isNotBlank(request.getPaymentNote())?SPACE_CHAR + request.getPaymentNote():PAYMENT_DETAIL_PREFIX;
+        String additionalField = StringUtils.isNotBlank(request.getPaymentNote()) ? SPACE_CHAR + request.getPaymentNote() : "";
         
         log.info("request.getDestinationCurrency() {}", htmlEscape(request.getDestinationCurrency()));
 		if (StringUtils.isNotBlank(request.getFinalBene())) {
@@ -210,7 +210,7 @@ public class FundTransferMWService {
 			}
 			else {
                 if(AACT.equalsIgnoreCase(request.getProductId())){
-                    creditLeg.setPaymentDetails(additionalField);
+                    creditLeg.setPaymentDetails(StringUtils.isBlank(additionalField) ? PAYMENT_DETAIL_PREFIX : additionalField.trim());
                 }else{
                     creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc() + SPACE_CHAR
                             + request.getFinalBene()  + additionalField);
@@ -223,7 +223,7 @@ public class FundTransferMWService {
 				creditLeg.setPaymentDetails(request.getPurposeDesc()  + additionalField);
 			} else {
                 if(AACT.equalsIgnoreCase(request.getProductId())){
-                    creditLeg.setPaymentDetails(additionalField);
+                    creditLeg.setPaymentDetails(StringUtils.isBlank(additionalField) ? PAYMENT_DETAIL_PREFIX : additionalField.trim());
                 }else {
                     creditLeg.setPaymentDetails(PAYMENT_DETAIL_PREFIX + request.getPurposeDesc()  + additionalField);
                 }
