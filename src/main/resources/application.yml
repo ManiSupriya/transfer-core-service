@@ -182,9 +182,11 @@ app:
         buyGoldSilverSubject: ${NOTIFICATION_EMAIL_BUY_SUBJECT:Your recent investment in %s Edge account via %s}
         payLaterSubject: ${PL_EMAIL_SUBJECT:Pay later request}
         StandingInstructionSubject: ${SI_EMAIL_SUBJECT:Standing instruction request}
-        enrolmentConfirmSubject: ${CUSTOMER_ENROL_SUBJECT:%s Customer Enroled Successfully %s}
-        requestToPayMultipleSubject: ${REQUEST_TO_PAY_MULTIPLE_SUBJECT:%s Sending Request to Pay Email%s}
-        requestToPaySubject: ${REQUEST_TO_PAY_SUBJECT:%s Sending Request to Pay Email%s}
+        enrolmentConfirmSubject: ${CUSTOMER_ENROL_SUBJECT:%s Congratulations! You're now enrolled with Aani - The Instant Payment Platform! %s}
+        requestToPayMultipleSubject: ${REQUEST_TO_PAY_MULTIPLE_SUBJECT:%s Aani - Your Split bill / multiple payment requests have been initiated %s}
+        requestToPaySubject: ${REQUEST_TO_PAY_SUBJECT:%s Aani - Your ‘Request for Payment’ has been initiated %s}
+        paymentSuccessSubject: ${SEND_MONEY_SUCCESS_SUBJECT:%s Aani - Your payment was successful %s}
+        paymentFailedSubject: ${SEND_MONEY_FAILED_SUBJECT:%s Aani - Your payment could not be processed %s}
         fromEmailName: ${EMAIL_FROM_NAME_MOB:MashreqDigital}
         fromEmailAddress: ${EMAIL_FROM_ADD_MOB:MashreqDigital@mashreq.com}
         localFundTransfer: templates/mt-within-own-accounts
