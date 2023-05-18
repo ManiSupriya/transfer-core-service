@@ -35,8 +35,10 @@ public class EmailParameters {
     private String requestToPayMultipleSubject;
     private String requestToPaySubject;
     private String requestToPayFail;
-
+    private String paymentSuccessSubject;
     private String requestToPayMultipleFail;
+
+    private String paymentFailedSubject;
 
     public String getEmailTemplate(String type) {
         if (type.equalsIgnoreCase(NotificationType.LOCAL)) {
@@ -104,6 +106,13 @@ public class EmailParameters {
         }
         else if(type.equalsIgnoreCase(NotificationType.PAYMENT_REQUEST_SENT_RTP)){
             return String.format(requestToPaySubject, transferType,channel);
+        }
+        else if (type.equalsIgnoreCase(NotificationType.PAYMENT_SUCCESS)) {
+            return String.format(paymentSuccessSubject, transferType,channel);
+        }
+
+        else if (type.equalsIgnoreCase(NotificationType.PAYMENT_FAIL)) {
+            return String.format(paymentFailedSubject, transferType,channel);
         }
 
         else return String.format(emailSubject, transferType,channel);
