@@ -41,7 +41,7 @@ public class SMSConfig {
         } else if (type.contains("CUSTOMER_ENROLL_NPSS")) {
             return MessageFormat.format(customerEnrolledForNpss, customerNotification.getCustomerName());
         } else if (NotificationType.PAYMENT_SUCCESS.equalsIgnoreCase(type)) {
-            return MessageFormat.format(sendMoneyNpssSuccess, customerNotification.getCustomerName(), customerNotification.getAmount());
+            return MessageFormat.format(sendMoneyNpssSuccess, customerNotification.getCustomerName(), customerNotification.getAmount(),customerNotification.getBeneficiaryName());
         } else if (NotificationType.PAYMENT_FAIL.equalsIgnoreCase(type)) {
             return MessageFormat.format(sendMoneyNpssFail, customerNotification.getCustomerName(), customerNotification.getAmount()
                     , customerNotification.getBeneficiaryName());
