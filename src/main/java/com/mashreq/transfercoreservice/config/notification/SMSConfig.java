@@ -41,20 +41,20 @@ public class SMSConfig {
         } else if (type.contains("CUSTOMER_ENROLL_NPSS")) {
             return MessageFormat.format(customerEnrolledForNpss, customerNotification.getCustomerName());
         } else if (NotificationType.PAYMENT_SUCCESS.equalsIgnoreCase(type)) {
-            return MessageFormat.format(sendMoneyNpssSuccess, customerNotification.getCustomerName(), customerNotification.getAmount(),customerNotification.getBeneficiaryName());
+            return MessageFormat.format(sendMoneyNpssSuccess, customerNotification.getAmount(),customerNotification.getBeneficiaryName());
         } else if (NotificationType.PAYMENT_FAIL.equalsIgnoreCase(type)) {
-            return MessageFormat.format(sendMoneyNpssFail, customerNotification.getCustomerName(), customerNotification.getAmount()
+            return MessageFormat.format(sendMoneyNpssFail, customerNotification.getAmount()
                     , customerNotification.getBeneficiaryName());
         } else if (NotificationType.PAYMENT_REQUEST_SENT_MULTIPLE_RTP.equalsIgnoreCase(type)) {
             return MessageFormat.format(requestToPayMultipleNpss, customerNotification.getCustomerName());
         } else if(NotificationType.PAYMENT_REQUEST_SENT_MULTIPLE_FAIL_RTP.equalsIgnoreCase(type)){
-            return MessageFormat.format(requestToPayMultipleFailNpss, customerNotification.getCustomerName(),customerNotification.getAmount());
+            return MessageFormat.format(requestToPayMultipleFailNpss, customerNotification.getAmount());
         }
         else if (NotificationType.PAYMENT_REQUEST_SENT_FAIL_RTP.equalsIgnoreCase(type)) {
-            return MessageFormat.format(requestToPayNpssFail, customerNotification.getCustomerName(), customerNotification.getAmount()
+            return MessageFormat.format(requestToPayNpssFail, customerNotification.getAmount()
                     , customerNotification.getBeneficiaryName());
         } else if (NotificationType.PAYMENT_REQUEST_SENT_RTP.equalsIgnoreCase(type)) {
-            return MessageFormat.format(requestToPayNpss, customerNotification.getCustomerName(), customerNotification.getAmount()
+            return MessageFormat.format(requestToPayNpss, customerNotification.getAmount()
                     , customerNotification.getBeneficiaryName());
         } else {
             return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getCurrency(), customerNotification.getAmount(), customerNotification.getTxnRef(), customerNotification.getSegment().getCustomerCareNumber());
