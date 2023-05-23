@@ -165,6 +165,10 @@
       text-align: center;
     }
 
+    .aani.content table tr td {
+      text-align: center;
+    }
+
     /* BODY */
     table.body-wrap {
       width: 100%;
@@ -268,6 +272,7 @@
     .content table {
       width: 100%;
     }
+
 
     .clear {
       display: block;
@@ -554,7 +559,7 @@
           <p style="margin-bottom: 40px">
             <img src="https://contentdelivery.mashreqbank.com/mbol/email/banner/PL_SI_Request_Banner.png" width="600" />
           </p>
-          <!-- /hero -->
+
           <div class="content">
             <table>
               <tr>
@@ -565,96 +570,313 @@
                   <h3 style="margin-bottom: 24px">
                     <span style="font-weight: normal">Dear</span> ${customerName},
                   </h3>
-                  <p style="margin-bottom: 12px">
+                  <p style="margin-bottom: 30px">
                     You have just made an instant payment to <strong>${contactName}</strong>. Please find the details
                     below.
                   </p>
-                  <table style="text-align: left;    border: 1px solid #D7D7D7;
-                    border-radius: 10px;">
-                    <tr>
-                      <td style=" border-bottom: 1px solid #D7D7D7;
-                    padding: 20px;">Reference number</td>
-                      <td style=" border-bottom: 1px solid #D7D7D7;
-                      padding: 20px;">${referenceNumber}</td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 20px 10px 5px 20px">Amount</td>
-                      <td style="padding-left: 20px">${amount}</td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 5px 10px 5px 20px">From account </td>
-                      <td style="padding-left: 20px">${fromAccount}</td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 5px 10px 5px 20px">Date</td>
-                      <td style="padding-left: 20px">${date}</td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 5px 10px 5px 20px">Time</td>
-                      <td style="padding-left: 20px">${time}</td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 5px 10px 20px 20px">Sent to </td>
-                      <td style="padding-left: 20px">${sentTo}</td>
-                    </tr>
-                  </table>
+                  <!-- Hero Individual / NEO - #F59C1C  -->
+                  <#if segment=='CONV' || segment=='NEO'>
+                    <table style="text-align: left; border: 1px solid #F59C1C; border-radius: 10px;">
+                      <colgroup>
+                        <col style="width: 35%" />
+                        <col style="width: 65%" />
+                      </colgroup>
+                      <tr>
+                        <td
+                          style="border-bottom: 1px solid #F59C1C; padding: 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Reference number</td>
+                        <td
+                          style="border-bottom: 1px solid #F59C1C; padding: 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${referenceNumber}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 20px 20px 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Amount</td>
+                        <td style="padding: 20px 20px 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${amount} AED</td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Message</td>
+                        <td style="padding: 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${message}</td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          From account </td>
+                        <td style="padding: 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${fromAccount}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Date</td>
+                        <td style="padding: 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">${date}</td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Time</td>
+                        <td style="padding: 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">${time}</td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Sent to </td>
+                        <td style="padding: 5px 20px 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${sentTo}
+                        </td>
+                      </tr>
+                    </table>
+                  </#if>
+
+                  <!-- Hero Islamic - #047B5F -->
+                  <#if segment=='ISLAMIC' || segment=='ISLAMIC_PRIVATE' || segment=='ISLAMIC_GOLD'>
+                    <table style="text-align: left; border: 1px solid #047B5F; border-radius: 10px;">
+                      <colgroup>
+                        <col style="width: 35%" />
+                        <col style="width: 65%" />
+                      </colgroup>
+                      <tr>
+                        <td
+                          style="border-bottom: 1px solid #047B5F; padding: 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Reference number</td>
+                        <td
+                          style="border-bottom: 1px solid #047B5F; padding: 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${referenceNumber}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 20px 20px 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Amount</td>
+                        <td style="padding: 20px 20px 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${amount} AED</td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Message</td>
+                        <td style="padding: 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${message}</td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          From account </td>
+                        <td style="padding: 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${fromAccount}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Date</td>
+                        <td style="padding: 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">${date}</td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Time</td>
+                        <td style="padding: 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">${time}</td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Sent to </td>
+                        <td style="padding: 5px 20px 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${sentTo}
+                        </td>
+                      </tr>
+                    </table>
+                  </#if>
+
+                  <!-- Hero Gold - #DAAA61 -->
+                  <#if segment=='CONV_GOLD'>
+                    <table style="text-align: left; border: 1px solid #DAAA61; border-radius: 10px;">
+                      <colgroup>
+                        <col style="width: 35%" />
+                        <col style="width: 65%" />
+                      </colgroup>
+                      <tr>
+                        <td
+                          style="border-bottom: 1px solid #DAAA61; padding: 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Reference number</td>
+                        <td
+                          style="border-bottom: 1px solid #DAAA61; padding: 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${referenceNumber}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 20px 20px 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Amount</td>
+                        <td style="padding: 20px 20px 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${amount} AED</td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Message</td>
+                        <td style="padding: 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${message}</td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          From account </td>
+                        <td style="padding: 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${fromAccount}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Date</td>
+                        <td style="padding: 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">${date}</td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Time</td>
+                        <td style="padding: 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">${time}</td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Sent to </td>
+                        <td style="padding: 5px 20px 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${sentTo}
+                        </td>
+                      </tr>
+                    </table>
+                  </#if>
+
+                  <!-- Hero Private - #CCCCCC -->
+                  <#if segment=='CONV_PRIVATE'>
+                    <table style="text-align: left; border: 1px solid #CCCCCC; border-radius: 10px;">
+                      <colgroup>
+                        <col style="width: 35%" />
+                        <col style="width: 65%" />
+                      </colgroup>
+                      <tr>
+                        <td
+                          style="border-bottom: 1px solid #CCCCCC; padding: 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Reference number</td>
+                        <td
+                          style="border-bottom: 1px solid #CCCCCC; padding: 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${referenceNumber}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 20px 20px 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Amount</td>
+                        <td style="padding: 20px 20px 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${amount} AED</td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Message</td>
+                        <td style="padding: 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${message}</td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          From account </td>
+                        <td style="padding: 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${fromAccount}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Date</td>
+                        <td style="padding: 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">${date}</td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Time</td>
+                        <td style="padding: 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">${time}</td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Sent to </td>
+                        <td style="padding: 5px 20px 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${sentTo}
+                        </td>
+                      </tr>
+                    </table>
+                  </#if>
                 </td>
               </tr>
             </table>
           </div>
-          <br />
-          <div style="margin: 0px 24px 0px 24px;padding:24px; background: #F5F5F5;border-radius: 8px;">
+
+
+          <!-- Aani Logo -->
+          <div style="text-align: center; padding: 20px 24px; max-width: 300px; margin: 0 auto; display: block;">
+            <table style="width: 100%">
+              <tr>
+                <td><img
+                    src="https://contentdelivery.mashreqbank.com/money-transfer/images/npss/logos/Aani_Branding_Logo.svg"
+                    width="135px" />
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- contact us -->
+          <div style="margin: 0px 24px 0px 24px; padding:24px; background: #F5F5F5; border-radius: 8px;">
             <h2>Need assistance?</h2>
             <table>
               <tr>
-                <td style="padding-right: 22px;display: flex;justify-content: flex-start;">
-                  <div
-                    style="margin-bottom: 10px;border-radius: 25px;width:48px;height:48px;align-items: center;display: flex ;background-color: #fff;">
-                    <img height="19" width="19"
-                      src="https://www.mashreqbank.com/uae/en/multimedia/edm-images/2021/02-feb/Group-4.png"
-                      style="margin: 2px auto" />
-                  </div>
+                <td style="padding-right: 12px;display: flex;justify-content: flex-start;">
+                  <img width="48"
+                    src="https://contentdelivery.mashreqbank.com/money-transfer/images/npss/logos/templates/${segment}/HeadphonesCustomerSupportHuman.png"
+                    style="margin: 2px auto" />
                 </td>
                 <td style="padding-right: 6px;">
-                  <p><strong>+971 4 424 4550</strong> (Mon to Sat, 8am to 8pm)</p>
+                  <#if segment=='CONV'>
+                    <p style="font-size: 14px;">
+                      Call us on <strong>04 424 4444</strong> (Calling within UAE) or
+                      <strong>+971 4 424 4444</strong><br />(Calling from Outside UAE). Available 24/7.
+                    </p>
+                  </#if>
+                  <#if segment=='ISLAMIC' || segment=='ISLAMIC_PRIVATE' || segment=='ISLAMIC_GOLD'>
+                    <p style="font-size: 14px;">
+                      Call us on <strong>+971 44 24 4411</strong> (Monday to Friday
+                      08.30am to 05.30pm)
+                    </p>
+                  </#if>
+                  <#if segment=='CONV_GOLD'>
+                    <p style="font-size: 14px;">
+                      Call us on <strong>800-4-GOLD [800 44653]</strong> (Calling within UAE) or <br />
+                      <strong>+971 4 424 4653</strong> (Calling from Outside UAE). Available 24/7.
+                    </p>
+                  </#if>
+                  <#if segment=='CONV_PRIVATE'>
+                    <p style="font-size: 14px;">
+                      Call us on <strong>800 PRIVATE (800-7748283)</strong> (Calling within UAE) or <br />
+                      <strong>+971 4 4244466</strong> (Calling from Outside UAE). Available 24/7.
+                    </p>
+                  </#if>
+                  <#if segment=='NEO'>
+                    <p style="font-size: 14px;">
+                      Call us on <strong>+971 4 424 6666</strong> (Available 24/7)
+                    </p>
+                  </#if>
                 </td>
               </tr>
-              <tr>
-                <td style="padding-right: 22px;display: flex;justify-content: flex-start;">
-                  <div
-                    style="border-radius: 25px;width:48px;height:48px;align-items: center;display: flex ;background-color: #fff;">
-                    <img height="19" width="19"
-                      src="https://www.mashreqbank.com/uae/en/multimedia/edm-images/2021/02-feb/Group-4.png"
-                      style="margin: 2px auto" />
-                  </div>
-                </td>
-                <td style="padding-right: 6px;">
-                  <p>Email us us via <a href="mailto:letstalkbiz@mashreqneobiz.com">letstalkbiz@mashreqneobiz.com</a>
-                  </p>
-                </td>
-              </tr>
-            </table>
-          </div>
-          <br>
-          <div style="padding:24px; background: #F5F5F5;border-radius: 8px;">
-            <table>
-              <tbody>
-                <tr>
-                  <td style="padding:32px 24px 24px 0px;" valign="top">
-                    <span
-                      style="color:#313131;font-size:20px;font-family:Helvetica;line-height:1.4;font-weight:Bold;">Did
-                      you know?</span>
-                    <div style="height:20px;width:261px;"></div>
-                    <span
-                      style="color:#313131;font-size:16px;font-family:Helvetica;line-height:1.4;;font-weight:normal;">
-                      You will soon be able to instantly send money to anyone in the UAE via mobile numbers, email id’s
-                      or Emirates id’s.</span>
-                  </td>
-                  <td style="padding:0px 0px 0px 0px;" valign="bottom">
-                    <img src="http://store.picbg.net/pubpic/09/22/963daa8cf23e0922.png">
-                  </td>
-                </tr>
-              </tbody>
             </table>
           </div>
           <br>
