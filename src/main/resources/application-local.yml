@@ -82,7 +82,7 @@ app:
     country.iso: 'EG'
     address: 'Egypt'
     scheduler: ${CONSENT_SCHEDULER:0 */15 * ? * *}
-    enabled: ${CONSENT_ENABLE:true}
+    enabled: ${CONSENT_ENABLE:false}
     consentSize: ${CONSENT_SIZE:200}
     lockAtLeastFor: ${LOCK_AT_LEAST_FOR:PT5M}
     lockAtMostFor: ${LOCK_AT_MOST_FOR:PT10M}
