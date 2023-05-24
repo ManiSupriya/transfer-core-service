@@ -616,7 +616,7 @@
                             style="padding: 20px 20px 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
                             Requested amount </td>
                           <td style="padding: 20px 20px 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">
-                            ${recipient.aed} ${recipient.value}</td>
+                            ${recipient.amount} ${recipient.value}</td>
                         </tr>
                         <tr>
                           <td
@@ -681,7 +681,7 @@
                             style="padding: 20px 20px 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
                             Requested amount </td>
                           <td style="padding: 20px 20px 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">
-                            ${recipient.aed} ${recipient.value}</td>
+                            ${recipient.amount} ${recipient.value}</td>
                         </tr>
                         <tr>
                           <td
@@ -745,7 +745,7 @@
                             style="padding: 20px 20px 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
                             Requested amount </td>
                           <td style="padding: 20px 20px 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">
-                            ${recipient.aed} ${recipient.value}</td>
+                            ${recipient.amount} ${recipient.value}</td>
                         </tr>
                         <tr>
                           <td
@@ -809,7 +809,7 @@
                             style="padding: 20px 20px 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
                             Requested amount </td>
                           <td style="padding: 20px 20px 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">
-                            ${recipient.aed} ${recipient.value}</td>
+                            ${recipient.amount} ${recipient.value}</td>
                         </tr>
                         <tr>
                           <td
@@ -891,7 +891,21 @@
                 <td>
                   <p style="margin-bottom: 16px">
                     Best Regards,<br />
-                    Mashreq Team
+                    <#if segment=='CONV'>
+                      Mashreq
+                    </#if>
+                    <#if segment=='ISLAMIC' || segment=='ISLAMIC_PRIVATE' || segment=='ISLAMIC_GOLD'>
+                      Mashreq Al Islami
+                    </#if>
+                    <#if segment=='CONV_GOLD'>
+                      Mashreq Gold
+                    </#if>
+                    <#if segment=='CONV_PRIVATE'>
+                      Mashreq Private Banking
+                    </#if>
+                    <#if segment=='NEO'>
+                      Mashreq
+                    </#if>
                   </p>
                   <p style="font-size: 14px; color: #6e6e6e; margin-bottom: 40px">
                     Disclaimer: Do not reply to this email, this is a system generated email message. For any queries,
