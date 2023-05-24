@@ -615,7 +615,7 @@
                           style="padding: 5px 20px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
                           Sent to </td>
                         <td style="padding: 5px 20px 20px; font-weight: 700; font-size: 16px; color: #313131;">
-                          ${contactName} ${proxy}
+                          ${sentTo}
                         </td>
                       </tr>
                     </table>
@@ -668,7 +668,7 @@
                           style="padding: 5px 20px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
                           Sent to </td>
                         <td style="padding: 5px 20px 20px; font-weight: 700; font-size: 16px; color: #313131;">
-                          ${contactName} ${proxy}
+                          ${sentTo}
                         </td>
                       </tr>
                     </table>
@@ -721,7 +721,7 @@
                           style="padding: 5px 20px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
                           Sent to </td>
                         <td style="padding: 5px 20px 20px; font-weight: 700; font-size: 16px; color: #313131;">
-                          ${contactName} ${proxy}
+                          ${sentTo}
                         </td>
                       </tr>
                     </table>
@@ -774,7 +774,7 @@
                           style="padding: 5px 20px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
                           Sent to </td>
                         <td style="padding: 5px 20px 20px; font-weight: 700; font-size: 16px; color: #313131;">
-                          ${contactName} ${proxy}
+                          ${sentTo}
                         </td>
                       </tr>
                     </table>
@@ -848,7 +848,21 @@
                 <td>
                   <p style="margin-bottom: 16px">
                     Best Regards,<br />
-                    Mashreq Team
+                    <#if segment=='CONV'>
+                      Mashreq
+                    </#if>
+                    <#if segment=='ISLAMIC' || segment=='ISLAMIC_PRIVATE' || segment=='ISLAMIC_GOLD'>
+                      Mashreq Al Islami
+                    </#if>
+                    <#if segment=='CONV_GOLD'>
+                      Mashreq Gold
+                    </#if>
+                    <#if segment=='CONV_PRIVATE'>
+                      Mashreq Private Banking
+                    </#if>
+                    <#if segment=='NEO'>
+                      Mashreq
+                    </#if>
                   </p>
                   <p style="font-size: 14px; color: #6e6e6e; margin-bottom: 40px">
                     Disclaimer: Do not reply to this email, this is a system generated email message. For any queries,
