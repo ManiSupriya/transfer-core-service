@@ -506,34 +506,6 @@
       background-color: #ffffff !important;
     }
 
-    .ippDataContainer table {
-      border: 1px solid #F59C1C;
-      border-radius: 10px;
-      margin-bottom: 20px;
-    }
-
-    .ippDataKeyFontStyle {
-      font-style: normal;
-      font-weight: 400;
-      font-size: 14px;
-      line-height: 16px;
-      color: rgba(49, 49, 49, 0.8);
-      padding: 20px;
-      padding-right: 0;
-    }
-
-    .ippDataValueFontStyle {
-      font-weight: 700;
-      font-size: 16px;
-      color: #313131;
-      padding: 20px;
-      padding-left: 0;
-    }
-
-    tr.spaceUnder>td {
-      padding-bottom: 34px;
-    }
-
     /* ------
     PHONE
     For clients that support media queries.
@@ -586,73 +558,290 @@
               <tr>
                 <td>
                   <h1 style="margin-bottom: 32px">
-                    You have just sent a payment request!
+                    You have sent a payment request!
                   </h1>
                   <h3 style="margin-bottom: 24px">
                     <span style="font-weight: normal">Dear</span> ${customerName},
                   </h3>
                   <p style="margin-bottom: 30px">
-                    You have just sent a payment request to ${contactName}. Please login to Mashreq Mobile App to view
+                    You have just sent a payment request to <strong>${contactName}</strong>. Please login to Mashreq
+                    Mobile App to view
                     and manage the request.
                   </p>
-                  <div class="ippDataContainer">
-                    <table>
+                  <!-- Hero Individual / NEO - #F59C1C  -->
+                  <#if segment=='CONV' || segment=='NEO'>
+                    <table style="text-align: left; border: 1px solid #F59C1C; border-radius: 10px;">
+                      <colgroup>
+                        <col style="width: 35%" />
+                        <col style="width: 65%" />
+                      </colgroup>
                       <tr>
-                        <td class="ippDataKeyFontStyle" style="width: auto;">Reference number</td>
-                        <td class="ippDataValueFontStyle" style="width: auto;">
+                        <td
+                          style="border-bottom: 1px solid #F59C1C; padding: 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Reference number</td>
+                        <td
+                          style="border-bottom: 1px solid #F59C1C; padding: 20px; font-weight: 700; font-size: 16px; color: #313131;">
                           ${referenceNumber}
                         </td>
                       </tr>
+                      <tr>
+                        <td
+                          style="padding: 20px 20px 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Amount</td>
+                        <td style="padding: 20px 20px 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${amount} AED</td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Message</td>
+                        <td style="padding: 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${message}</td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Date</td>
+                        <td style="padding: 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">${date}</td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Time</td>
+                        <td style="padding: 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">${time}</td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Sent to </td>
+                        <td style="padding: 5px 20px 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${contactName} ${proxy}
+                        </td>
+                      </tr>
                     </table>
-                    <table style="border-collapse: collapse;">
+                  </#if>
+
+                  <!-- Hero Islamic - #047B5F -->
+                  <#if segment=='ISLAMIC' || segment=='ISLAMIC_PRIVATE' || segment=='ISLAMIC_GOLD'>
+                    <table style="text-align: left; border: 1px solid #047B5F; border-radius: 10px;">
                       <colgroup>
-                        <col style="width: 50%" />
-                        <col style="width: 50%" />
+                        <col style="width: 35%" />
+                        <col style="width: 65%" />
                       </colgroup>
-                      <tr style="line-height:30px;">
-                        <td class="ippDataKeyFontStyle">Amount </td>
-                        <td class="ippDataValueFontStyle">${AED} ${Value}</td>
+                      <tr>
+                        <td
+                          style="border-bottom: 1px solid #047B5F; padding: 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Reference number</td>
+                        <td
+                          style="border-bottom: 1px solid #047B5F; padding: 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${referenceNumber}
+                        </td>
                       </tr>
-                      <tr style="line-height:30px;">
-                        <td class="ippDataKeyFontStyle">Message</td>
-                        <td class="ippDataValueFontStyle">${message}</td>
+                      <tr>
+                        <td
+                          style="padding: 20px 20px 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Amount</td>
+                        <td style="padding: 20px 20px 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${amount} AED</td>
                       </tr>
-                      <tr style="line-height:30px;">
-                        <td class="ippDataKeyFontStyle">Date</td>
-                        <td class="ippDataValueFontStyle">${date}</td>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Message</td>
+                        <td style="padding: 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${message}</td>
                       </tr>
-                      <tr style="line-height:30px;">
-                        <td class="ippDataKeyFontStyle">Time</td>
-                        <td class="ippDataValueFontStyle">${time}</td>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Date</td>
+                        <td style="padding: 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">${date}</td>
                       </tr>
-                      <tr style="line-height:30px">
-                        <td class="ippDataKeyFontStyle">Sent to</td>
-                        <td class="ippDataValueFontStyle">${contactName} ${proxy}</td>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Time</td>
+                        <td style="padding: 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">${time}</td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Sent to </td>
+                        <td style="padding: 5px 20px 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${contactName} ${proxy}
+                        </td>
                       </tr>
                     </table>
-                  </div>
+                  </#if>
+
+                  <!-- Hero Gold - #DAAA61 -->
+                  <#if segment=='CONV_GOLD'>
+                    <table style="text-align: left; border: 1px solid #DAAA61; border-radius: 10px;">
+                      <colgroup>
+                        <col style="width: 35%" />
+                        <col style="width: 65%" />
+                      </colgroup>
+                      <tr>
+                        <td
+                          style="border-bottom: 1px solid #DAAA61; padding: 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Reference number</td>
+                        <td
+                          style="border-bottom: 1px solid #DAAA61; padding: 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${referenceNumber}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 20px 20px 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Amount</td>
+                        <td style="padding: 20px 20px 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${amount} AED</td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Message</td>
+                        <td style="padding: 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${message}</td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Date</td>
+                        <td style="padding: 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">${date}</td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Time</td>
+                        <td style="padding: 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">${time}</td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Sent to </td>
+                        <td style="padding: 5px 20px 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${contactName} ${proxy}
+                        </td>
+                      </tr>
+                    </table>
+                  </#if>
+
+                  <!-- Hero Private - #CCCCCC -->
+                  <#if segment=='CONV_PRIVATE'>
+                    <table style="text-align: left; border: 1px solid #CCCCCC; border-radius: 10px;">
+                      <colgroup>
+                        <col style="width: 35%" />
+                        <col style="width: 65%" />
+                      </colgroup>
+                      <tr>
+                        <td
+                          style="border-bottom: 1px solid #CCCCCC; padding: 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Reference number</td>
+                        <td
+                          style="border-bottom: 1px solid #CCCCCC; padding: 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${referenceNumber}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 20px 20px 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Amount</td>
+                        <td style="padding: 20px 20px 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${amount} AED</td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Message</td>
+                        <td style="padding: 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${message}</td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Date</td>
+                        <td style="padding: 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">${date}</td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Time</td>
+                        <td style="padding: 5px 20px; font-weight: 700; font-size: 16px; color: #313131;">${time}</td>
+                      </tr>
+                      <tr>
+                        <td
+                          style="padding: 5px 20px 20px; font-size: 14px; line-height: 16px; color: rgba(49, 49, 49, 0.8);">
+                          Sent to </td>
+                        <td style="padding: 5px 20px 20px; font-weight: 700; font-size: 16px; color: #313131;">
+                          ${contactName} ${proxy}
+                        </td>
+                      </tr>
+                    </table>
+                  </#if>
+
                 </td>
               </tr>
             </table>
           </div>
-          <div style="margin: 10px 24px 30px 24px; padding:24px 24px 16px; background: #F5F5F5;border-radius: 8px;">
+
+          <!-- Aani Logo -->
+          <div style="text-align: center; padding: 20px 24px; max-width: 300px; margin: 0 auto; display: block;">
+            <table style="width: 100%">
+              <tr>
+                <td><img
+                    src="https://contentdelivery.mashreqbank.com/money-transfer/images/npss/logos/Aani_Branding_Logo.svg"
+                    width="135px" />
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- contact us -->
+          <div style="margin: 0px 24px 0px 24px; padding:24px; background: #F5F5F5; border-radius: 8px;">
             <h2>Need assistance?</h2>
             <table>
               <tr>
-                <td style="padding-right: 22px;display: flex;justify-content: flex-start;">
-                  <div
-                    style="margin-bottom: 10px;border-radius: 25px;width:48px;height:48px;align-items: center;display: flex ;background-color: #fff;">
-                    <img height="19" width="19"
-                      src="https://www.mashreqbank.com/uae/en/multimedia/edm-images/2021/02-feb/Group-4.png"
-                      style="margin: 2px auto" />
-                  </div>
+                <td style="padding-right: 12px;display: flex;justify-content: flex-start;">
+                  <img width="48"
+                    src="https://contentdelivery.mashreqbank.com/money-transfer/images/npss/logos/templates/${segment}/HeadphonesCustomerSupportHuman.png"
+                    style="margin: 2px auto" />
                 </td>
                 <td style="padding-right: 6px;">
-                  <p><strong>+971 4 424 4444 </strong> (Mon to Sat, 8am to 8pm)</p>
+                  <#if segment=='CONV'>
+                    <p style="font-size: 14px;">
+                      Call us on <strong>04 424 4444</strong> (Calling within UAE) or
+                      <strong>+971 4 424 4444</strong><br />(Calling from Outside UAE). Available 24/7.
+                    </p>
+                  </#if>
+                  <#if segment=='ISLAMIC' || segment=='ISLAMIC_PRIVATE' || segment=='ISLAMIC_GOLD'>
+                    <p style="font-size: 14px;">
+                      Call us on <strong>+971 44 24 4411</strong> (Monday to Friday
+                      08.30am to 05.30pm)
+                    </p>
+                  </#if>
+                  <#if segment=='CONV_GOLD'>
+                    <p style="font-size: 14px;">
+                      Call us on <strong>800-4-GOLD [800 44653]</strong> (Calling within UAE) or <br />
+                      <strong>+971 4 424 4653</strong> (Calling from Outside UAE). Available 24/7.
+                    </p>
+                  </#if>
+                  <#if segment=='CONV_PRIVATE'>
+                    <p style="font-size: 14px;">
+                      Call us on <strong>800 PRIVATE (800-7748283)</strong> (Calling within UAE) or <br />
+                      <strong>+971 4 4244466</strong> (Calling from Outside UAE). Available 24/7.
+                    </p>
+                  </#if>
+                  <#if segment=='NEO'>
+                    <p style="font-size: 14px;">
+                      Call us on <strong>+971 4 424 6666</strong> (Available 24/7)
+                    </p>
+                  </#if>
                 </td>
               </tr>
             </table>
           </div>
+          <br>
           <div class="content">
             <table>
               <tr>
