@@ -561,7 +561,7 @@
                     You have sent multiple payment requests!
                   </h1>
                   <h3 style="margin-bottom: 24px">
-                    <span style="font-weight: normal">Dear</span> customer,
+                    <span style="font-weight: normal">Dear</span> Customer,
                   </h3>
                   <p style="margin-bottom: 30px">
                     You have just sent payment requests to multiple contacts. Please login to Mashreq Mobile App to view

@@ -582,7 +582,7 @@
                     Your payment could not be processed!
                   </h1>
                   <h3 style="margin-bottom: 24px">
-                    <span style="font-weight: normal">Dear</span> customer,
+                    <span style="font-weight: normal">Dear</span> Customer,
                   </h3>
                   <p style="margin-bottom: 30px">
                     Your instant payment to <strong>${contactName}</strong> could not be processed due to some technical
