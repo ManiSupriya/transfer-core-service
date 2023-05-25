@@ -561,7 +561,7 @@
                     You have sent a payment request!
                   </h1>
                   <h3 style="margin-bottom: 24px">
-                    <span style="font-weight: normal">Dear</span> ${customerName},
+                    <span style="font-weight: normal">Dear</span> Customer,
                   </h3>
                   <p style="margin-bottom: 30px">
                     You have just sent a payment request to <strong>${contactName}</strong>. Please login to Mashreq
