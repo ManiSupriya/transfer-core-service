@@ -904,7 +904,7 @@
                       Mashreq Private Banking
                     </#if>
                     <#if segment=='NEO'>
-                      Mashreq
+                      Mashreq Neo
                     </#if>
                   </p>
                   <p style="font-size: 14px; color: #6e6e6e; margin-bottom: 40px">
