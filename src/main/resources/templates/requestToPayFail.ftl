@@ -585,7 +585,7 @@
                     Your payment request could not be processed!
                   </h1>
                   <h3 style="margin-bottom: 24px">
-                    <span style="font-weight: normal">Dear</span> ${customerName},
+                    <span style="font-weight: normal">Dear</span> customer,
                   </h3>
                   <p style="margin-bottom: 30px">
                     Your payment request to ${contactName} could not be processed due to some technical issues. We

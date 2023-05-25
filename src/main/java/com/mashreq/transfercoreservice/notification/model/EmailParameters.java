@@ -99,20 +99,19 @@ public class EmailParameters {
 
     public String getNpssEmailSubject(String type,String transferType,String channel) {
         if(type.equalsIgnoreCase(NotificationType.CUSTOMER_ENROLMENT)){
-            return String.format(enrolmentConfirmSubject, transferType,channel);
+            return enrolmentConfirmSubject;
         }
         else if(type.equalsIgnoreCase(NotificationType.PAYMENT_REQUEST_SENT_MULTIPLE_RTP)){
-            return String.format(requestToPayMultipleSubject, transferType,channel);
+            return requestToPayMultipleSubject;
         }
         else if(type.equalsIgnoreCase(NotificationType.PAYMENT_REQUEST_SENT_RTP)){
-            return String.format(requestToPaySubject, transferType,channel);
+            return requestToPaySubject;
         }
         else if (type.equalsIgnoreCase(NotificationType.PAYMENT_SUCCESS)) {
-            return String.format(paymentSuccessSubject, transferType,channel);
+            return paymentSuccessSubject;
         }
-
         else if (type.equalsIgnoreCase(NotificationType.PAYMENT_FAIL)) {
-            return String.format(paymentFailedSubject, transferType,channel);
+            return paymentFailedSubject;
         }
 
         else return String.format(emailSubject, transferType,channel);
