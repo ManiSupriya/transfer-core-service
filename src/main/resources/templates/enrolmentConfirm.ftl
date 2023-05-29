@@ -560,88 +560,139 @@
               <tr>
                 <td>
                   <h1 style="margin-bottom: 32px">
-                    Congrats! Your enrollment is confirmed.
+                    Congrats! Your Instant Payment Platform enrollment is successful.
                   </h1>
                   <h3 style="margin-bottom: 24px">
                     <span style="font-weight: normal">Dear</span> ${customerName},
                   </h3>
                   <p style="margin-bottom: 12px">
-                    You have successfully enrolled for the Instant Payment Platform (IPP), a Central Bank of the UAE
-                    initiative, that enables real-time faster payments and funds transfers around the clock (24*7), and
-                    digital payments across the UAE.
+                    You have successfully enrolled for the Instant Payment Platform (IPP) powered by Aani, UAE Central
+                    Bank initiative. IPP enables real-time faster digital payments and fund transfers within the UAE
+                    round the clock (24/7).
                   </p>
-                  <p style="margin-bottom: 24px">
-                    Once live, you can use mobile numbers, email id’s, Emirate id’s and merchant id’s (for businesses)
-                    to do the following transactions.
+                  <p style="margin-bottom: 12px">
+                    Please note, you can use mobile numbers, email IDs and Emirates ID to make the following transaction
+                    once the IPP service is live.
                   </p>
-                  <div style="margin-left:10px">
-                    <ul>
-                      <li>Send and receive money within seconds </li>
-                      <li>Request money </li>
-                      <li>Split bills</li>
-                      <li>Scan and pay</li>
-                    </ul>
-                  </div>
+                  <table style="float: left ;margin-bottom: 8px;">
+                    <tr style="margin-bottom: 10px; display: flex; gap: 14px; align-items: center">
+                      <td>
+                        <img width="35"
+                          src="https://contentdelivery.mashreqbank.com/money-transfer/images/npss/logos/templates/${segment}/DataTransferHorizontal.png" />
+                      </td>
+                      <td>
+                        <span style="font-size: 14px;">
+                          Send and receive money within seconds
+                        </span>
+                      </td>
+                    </tr>
+                    <tr style="margin-bottom: 10px; display: flex; gap: 14px; align-items: center">
+                      <td>
+                        <img width="35"
+                          src="https://contentdelivery.mashreqbank.com/money-transfer/images/npss/logos/templates/${segment}/CashPaymentBill.png" />
+                      </td>
+                      <td>
+                        <span style="font-size: 14px;">
+                          Request money
+                        </span>
+                      </td>
+                    </tr>
+                    <tr style="margin-bottom: 10px; display: flex; gap: 14px; align-items: center">
+                      <td>
+                        <img width="35"
+                          src="https://contentdelivery.mashreqbank.com/money-transfer/images/npss/logos/templates/${segment}/BillPayment.png" />
+                      </td>
+                      <td>
+                        <span style="font-size: 14px;">
+                          Split bills
+                        </span>
+                      </td>
+                    </tr>
+                    <tr style="margin-bottom: 10px; display: flex; gap: 14px; align-items: center">
+                      <td>
+                        <img width="35"
+                          src="https://contentdelivery.mashreqbank.com/money-transfer/images/npss/logos/templates/${segment}/Biometrics.png" />
+                      </td>
+                      <td>
+                        <span style="font-size: 14px;">
+                          Scan and pay
+                        </span>
+                      </td>
+                    </tr>
+                  </table>
                   <p style="margin-bottom: 24px">
                     Stay tuned, for we will be sending you the latest updates on when you can start using this service.
                   </p>
-                  <div style="margin-left:10px"></div>
+                </td>
+              </tr>
+            </table>
+            <div style=" border-bottom: 1px solid #D2D2D2;"></div>
+          </div>
+
+          <!-- Aani Logo -->
+          <div style="text-align: center; padding: 20px 24px; max-width: 300px; margin: 0 auto; display: block;">
+            <table style="width: 100%">
+              <tr>
+                <td><img
+                    src="https://contentdelivery.mashreqbank.com/money-transfer/images/npss/logos/Aani_Branding_Logo.svg"
+                    width="135px" />
                 </td>
               </tr>
             </table>
           </div>
-          <div style="margin:24px;padding:24px; background: #F5F5F5;border-radius: 8px;">
-            <h2>Need assistance?</h2>
+
+          <!-- contact us -->
+          <div style="margin: 0px 24px 0px 24px; padding:24px; background: #F5F5F5; border-radius: 8px;">
+            <h2>For further details</h2>
             <table>
               <tr>
-                <td style="padding-right: 22px;display: flex;justify-content: flex-start;">
-                  <div
-                    style="margin-bottom: 10px;border-radius: 25px;width:48px;height:48px;align-items: center;display: flex ;background-color: #fff;">
-                    <img height="19" width="19"
-                      src="https://www.mashreqbank.com/uae/en/multimedia/edm-images/2021/02-feb/Group-4.png"
-                      style="margin: 2px auto" />
-                  </div>
+                <td style="padding-right: 12px;display: flex;justify-content: flex-start;">
+                  <img width="48"
+                    src="https://contentdelivery.mashreqbank.com/money-transfer/images/npss/logos/templates/${segment}/TouchIdSmartphone.png"
+                    style="margin: 2px auto" />
                 </td>
                 <td style="padding-right: 6px;">
-                  <p><strong>+971 4 424 4550</strong> (Mon to Sat, 8am to 8pm)</p>
+                  <p style="font-size: 14px;">Login to Mashreq mobile app, or</p>
                 </td>
               </tr>
               <tr>
-                <td style="padding-right: 22px;display: flex;justify-content: flex-start;">
-                  <div
-                    style="border-radius: 25px;width:48px;height:48px;align-items: center;display: flex ;background-color: #fff;">
-                    <img height="19" width="19"
-                      src="https://www.mashreqbank.com/uae/en/multimedia/edm-images/2021/02-feb/Group-4.png"
-                      style="margin: 2px auto" />
-                  </div>
+                <td style="padding-right: 12px;display: flex;justify-content: flex-start;">
+                  <img width="48"
+                    src="https://contentdelivery.mashreqbank.com/money-transfer/images/npss/logos/templates/${segment}/HeadphonesCustomerSupportHuman.png"
+                    style="margin: 2px auto" />
                 </td>
                 <td style="padding-right: 6px;">
-                  <p>Email us us via <a href="mailto:letstalkbiz@mashreqneobiz.com">letstalkbiz@mashreqneobiz.com</a>
-                  </p>
+                  <#if segment=='CONV'>
+                    <p style="font-size: 14px;">
+                      Call us on <strong>04 424 4444</strong> (Calling within UAE) or
+                      <strong>+971 4 424 4444</strong><br />(Calling from Outside UAE). Available 24/7.
+                    </p>
+                  </#if>
+                  <#if segment=='ISLAMIC' || segment=='ISLAMIC_PRIVATE' || segment=='ISLAMIC_GOLD'>
+                    <p style="font-size: 14px;">
+                      Call us on <strong>+971 44 24 4411</strong> (Monday to Friday
+                      08.30am to 05.30pm)
+                    </p>
+                  </#if>
+                  <#if segment=='CONV_GOLD'>
+                    <p style="font-size: 14px;">
+                      Call us on <strong>800-4-GOLD [800 44653]</strong> (Calling within UAE) or <br />
+                      <strong>+971 4 424 4653</strong> (Calling from Outside UAE). Available 24/7.
+                    </p>
+                  </#if>
+                  <#if segment=='CONV_PRIVATE'>
+                    <p style="font-size: 14px;">
+                      Call us on <strong>800 PRIVATE (800-7748283)</strong> (Calling within UAE) or <br />
+                      <strong>+971 4 4244466</strong> (Calling from Outside UAE). Available 24/7.
+                    </p>
+                  </#if>
+                  <#if segment=='NEO'>
+                    <p style="font-size: 14px;">
+                      Call us on <strong>+971 4 424 6666</strong> (Available 24/7)
+                    </p>
+                  </#if>
                 </td>
               </tr>
-            </table>
-          </div>
-          <br>
-          <div style="padding:24px; background: #F5F5F5;border-radius: 8px;">
-            <table>
-              <tbody>
-                <tr>
-                  <td style="padding:32px 24px 24px 0px;" valign="top">
-                    <span
-                      style="color:#313131;font-size:20px;font-family:Helvetica;line-height:1.4;font-weight:Bold;">Did
-                      you know?</span>
-                    <div style="height:20px;width:261px;"></div>
-                    <span
-                      style="color:#313131;font-size:16px;font-family:Helvetica;line-height:1.4;;font-weight:normal;">
-                      You will soon be able to instantly send money to anyone in the UAE via mobile numbers, email id’s
-                      or Emirates id’s.</span>
-                  </td>
-                  <td style="padding:0px 0px 0px 0px;" valign="bottom">
-                    <img src="http://store.picbg.net/pubpic/09/22/963daa8cf23e0922.png">
-                  </td>
-                </tr>
-              </tbody>
             </table>
           </div>
           <br>
@@ -651,7 +702,21 @@
                 <td>
                   <p style="margin-bottom: 16px">
                     Best Regards,<br />
-                    Mashreq Team
+                    <#if segment=='CONV'>
+                      Mashreq
+                    </#if>
+                    <#if segment=='ISLAMIC' || segment=='ISLAMIC_PRIVATE' || segment=='ISLAMIC_GOLD'>
+                      Mashreq Al Islami
+                    </#if>
+                    <#if segment=='CONV_GOLD'>
+                      Mashreq Gold
+                    </#if>
+                    <#if segment=='CONV_PRIVATE'>
+                      Mashreq Private Banking
+                    </#if>
+                    <#if segment=='NEO'>
+                      Mashreq Neo
+                    </#if>
                   </p>
                   <p style="font-size: 14px; color: #6e6e6e; margin-bottom: 40px">
                     Disclaimer: Do not reply to this email, this is a system generated email message. For any queries,
