@@ -92,5 +92,7 @@ public class FundTransferRequestDTO extends TwoFaBaseModel {
     private String destinationAccountCurrency;
     
     private String journeyVersion="V1";
-    private boolean termsAndConditionsAccepted; 
+    private boolean termsAndConditionsAccepted;
+    //Escrow Accounts Fields
+    private ContractProjectDetails contractProjectDetails;
 }

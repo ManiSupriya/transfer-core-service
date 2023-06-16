@@ -325,3 +325,8 @@ two-factor-authentication:
 #error:
 #  map:
 #    ACCOUNT_BELONGS_TO_CIF: ignore
+escrow-accounts:
+  enabled: ${ESCROW_FLAG:true}
+  trustAccounts: ${TRUST_ACCOUNTS_LIST:CDPTRU,CLNRTN,ITRSTN,ITRSTR}
+  oaAccounts: ${OA_ACCOUNTS_LIST:CTROAE,CTROAR,ITROWA,ITROAR}
+  defaultProjectName: ${DEFAULT_PROJECT_NAME:DUMMY}

@@ -1,13 +1,17 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.*;
 import static com.mashreq.transfercoreservice.middleware.SoapWebserviceClientFactory.soapClient;
 
 import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
+import com.mashreq.transfercoreservice.config.EscrowConfig;
+import com.mashreq.transfercoreservice.fundtransfer.dto.ContractProjectDetails;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,7 +34,6 @@ import com.mashreq.transfercoreservice.middleware.HeaderFactory;
 import com.mashreq.transfercoreservice.middleware.SoapClient;
 import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
-import com.mashreq.transfercoreservice.middleware.enums.TFTAuthorization;
 import com.mashreq.transfercoreservice.middleware.enums.YesNo;
 
 import lombok.RequiredArgsConstructor;
@@ -44,6 +47,8 @@ public class FundTransferMWService {
 
 	private final HeaderFactory headerFactory;
     private final SoapServiceProperties soapServiceProperties;
+
+    private final EscrowConfig escrowConfig;
     private static final String SUCCESS = "S";
     private static final String SUCCESS_CODE_ENDS_WITH = "-000";
     private static final String NARRATION_PREFIX = "Fund Transfer-";
@@ -241,7 +246,6 @@ public class FundTransferMWService {
         //creditLeg.setAWInst1(request.getAcwthInst1());
         //creditLeg.setAWInst2(request.getAcwthInst2());
         
-
         if(request.getAmount() == null) {
             debitLeg.setAmount(request.getSrcAmount());
         }
@@ -259,6 +263,10 @@ public class FundTransferMWService {
         if(isInvestment(request)){
             debitLeg.setNarration1(generateNarrationForInvestment(request.getChannel(),request.getExchangeRate()));
         }
+        //Escrow details For WAMA type
+        if (isEscrowEnabled(request)) {
+            buildEscrowDetails(request.getContractProjectDetails(), fundTransferReqType);
+        }
 
         FundTransferReqType.Transfer transfer = new FundTransferReqType.Transfer();
         transfer.setCreditLeg(creditLeg);
@@ -275,6 +283,24 @@ public class FundTransferMWService {
         services.getBody().setFundTransferReq(fundTransferReqType);
         log.info("EAI Service request for fund transfer prepared {}", htmlEscape(services));
         return services;
+    }
+
+    private void buildEscrowDetails(ContractProjectDetails contractProjectDetails, FundTransferReqType fundTransferReqType) {
+        FundTransferReqType.ContractPrjDtls projectDetails = new FundTransferReqType.ContractPrjDtls();
+        projectDetails.setModule(contractProjectDetails.getModule());
+        projectDetails.setProjectName(contractProjectDetails.getProjectName());
+        projectDetails.setUnitId(contractProjectDetails.getUnitId());
+        projectDetails.setUnitPayment(contractProjectDetails.getUnitPayment());
+        projectDetails.setDepositTfrNo(contractProjectDetails.getDepositTfrNo());
+        fundTransferReqType.setContractPrjDtls(projectDetails);
+    }
+
+    private boolean isEscrowEnabled(FundTransferRequest request) {
+        return escrowConfig.isEnabled() && isWAMA(request.getServiceType()) && Objects.nonNull(request.getContractProjectDetails());
+    }
+
+    private boolean isWAMA(String serviceType) {
+        return WAMA.getName().equals(serviceType);
     }
 
     private boolean isInvestment(FundTransferRequest request) {

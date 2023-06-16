@@ -5,6 +5,7 @@ import static com.mashreq.transfercoreservice.notification.model.NotificationTyp
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.mashreq.transfercoreservice.config.EscrowConfig;
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.LimitValidatorResponse;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
+import com.mashreq.transfercoreservice.fundtransfer.repository.EscrowAccountRepository;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.WithinMashreqStrategy;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.AccountNumberResolver;
@@ -56,11 +58,11 @@ public class WithinMashreqPayLaterStrategy extends WithinMashreqStrategy {
 										 AccountFreezeValidator freezeValidator, AccountNumberResolver accountNumberResolver,
 										 PostTransactionService postTransactionService,
 										 FundTransferOrderRepository fundTransferOrderRepository,
-										 SequenceNumberGenerator seqGenerator, CCTransactionEligibilityValidator ccTrxValidator, MinTransactionAmountValidator minTransactionAmountValidator) {
+										 SequenceNumberGenerator seqGenerator, CCTransactionEligibilityValidator ccTrxValidator, EscrowAccountRepository escrowAccountRepository, EscrowConfig escrowConfig,MinTransactionAmountValidator minTransactionAmountValidator) {
 		super(sameAccountValidator, accountBelongsToCifValidator, currencyValidator, beneficiaryValidator,
 				accountService, beneficiaryService, limitValidator, maintenanceService, fundTransferMWService, balanceValidator,
 				dealValidator, auditEventPublisher, notificationService, 
-				freezeValidator, accountNumberResolver, postTransactionService, ccTrxValidator, minTransactionAmountValidator);
+				freezeValidator, accountNumberResolver, postTransactionService, ccTrxValidator,escrowAccountRepository,escrowConfig, minTransactionAmountValidator);
 		this.fundTransferOrderRepository = fundTransferOrderRepository;
 		this.seqGenerator = seqGenerator;
 	}
