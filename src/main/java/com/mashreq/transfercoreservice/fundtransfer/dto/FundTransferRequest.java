@@ -59,4 +59,7 @@ public class FundTransferRequest {
     private BigDecimal srcCcyAmt;
     private String exchangeRateDisplayTxt;
     private String postingGroup;
+    //Escrow Account Fields
+    private ContractProjectDetails contractProjectDetails;
+
 }
