@@ -102,7 +102,8 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
 
     @Value("${app.local.currency}")
     private String localCurrency;
-    protected final String MASHREQ = "Mashreq";
+    protected static final String MASHREQ = "Mashreq";
+    protected static final String EMPTY_STRING = "";
     
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, RequestMetaData metadata, UserDTO userDTO) {
@@ -333,28 +334,33 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     }
 
 
-    private ContractProjectDetails buildEscrowAccountDetails(BeneficiaryDto beneficiaryDto, EscrowAccountDetails escrowAccounts){
-            SearchAccountDto searchAccountDto = accountService.getAccountDetailsFromCore(beneficiaryDto.getAccountNumber());
-            if(isTrustAccount(escrowConfig.getTrustAccounts(),searchAccountDto)){
-                return buildContractProjectDetails(true,escrowAccounts);
-            }else if(isOaAccount(escrowConfig.getOaAccounts(),searchAccountDto)) {
-                return buildContractProjectDetails(false,escrowAccounts);
-            }
-                return null;
+    private ContractProjectDetails buildEscrowAccountDetails(BeneficiaryDto beneficiaryDto, EscrowAccountDetails escrowAccounts) {
+        log.info("Bene Escrow Account is available in DB");
+        SearchAccountDto searchAccountDto = accountService.getAccountDetailsFromCore(beneficiaryDto.getAccountNumber());
+        if (isTrustAccount(escrowConfig.getTrustAccounts(), searchAccountDto)) {
+            log.info("Building Trust Account Details");
+            return buildContractProjectDetails(true, escrowAccounts);
+        } else if (isOaAccount(escrowConfig.getOaAccounts(), searchAccountDto)) {
+            log.info("Populate OA Account Details");
+            return buildContractProjectDetails(false, escrowAccounts);
         }
+        return null;
+    }
 
         private ContractProjectDetails buildContractProjectDetails(boolean isTrust, EscrowAccountDetails escrowAccounts) {
             ContractProjectDetails contractProjectDetails = new ContractProjectDetails();
             contractProjectDetails.setModule("FT");
-            contractProjectDetails.setDepositTfrNo("");
+            contractProjectDetails.setDepositTfrNo(EMPTY_STRING);
             if (isTrust) {
+                log.info("Populate Trust Account Details");
                 contractProjectDetails.setProjectName(escrowAccounts.getProjectName());
                 contractProjectDetails.setUnitPayment("Y");
                 contractProjectDetails.setUnitId(escrowAccounts.getProjectNo());
             } else {
+                log.info("Populate OA Account Details");
                 contractProjectDetails.setProjectName(StringUtils.isNotBlank(escrowAccounts.getProjectName()) ? escrowAccounts.getProjectName() : escrowConfig.getDefaultProjectName());
                 contractProjectDetails.setUnitPayment("N");
-                contractProjectDetails.setUnitId("");
+                contractProjectDetails.setUnitId(EMPTY_STRING);
 
             }
             return contractProjectDetails;
