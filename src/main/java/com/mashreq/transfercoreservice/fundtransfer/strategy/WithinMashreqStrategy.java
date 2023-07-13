@@ -1,5 +1,19 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy;
 
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
+import static com.mashreq.transfercoreservice.notification.model.NotificationType.WITHIN_MASHREQ_FT;
+import static java.time.Duration.between;
+import static java.time.Instant.now;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.*;
+
+import com.mashreq.transfercoreservice.config.EscrowConfig;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
@@ -15,12 +29,28 @@ import com.mashreq.transfercoreservice.common.CommonConstants;
 import com.mashreq.transfercoreservice.common.CommonUtils;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.*;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
+import com.mashreq.transfercoreservice.fundtransfer.dto.LimitValidatorResponse;
+import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.ContractProjectDetails;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
+import com.mashreq.transfercoreservice.fundtransfer.repository.EscrowAccountRepository;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.AccountNumberResolver;
-import com.mashreq.transfercoreservice.fundtransfer.validators.*;
+import com.mashreq.transfercoreservice.fundtransfer.validators.AccountBelongsToCifValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.AccountFreezeValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.BalanceValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.BeneficiaryValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.CCTransactionEligibilityValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.CurrencyValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.DealValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.MinTransactionAmountValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.SameAccountValidator;
+import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
+import com.mashreq.transfercoreservice.model.EscrowAccountDetails;
 import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
 import com.mashreq.transfercoreservice.notification.model.NotificationType;
 import com.mashreq.transfercoreservice.notification.service.NotificationService;
@@ -29,19 +59,6 @@ import com.mashreq.transfercoreservice.notification.service.PostTransactionServi
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-
-import static com.mashreq.transfercoreservice.notification.model.NotificationType.WITHIN_MASHREQ_FT;
-import static java.time.Duration.between;
-import static java.time.Instant.now;
-import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 /**
  * @author shahbazkh
@@ -77,12 +94,16 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
     private final AccountNumberResolver accountNumberResolver;
     private final PostTransactionService postTransactionService;
     private final CCTransactionEligibilityValidator ccTrxValidator;
+    private final EscrowAccountRepository escrowAccountRepository;
+
+    private final EscrowConfig escrowConfig;
 
     private final MinTransactionAmountValidator minTransactionAmountValidator;
 
     @Value("${app.local.currency}")
     private String localCurrency;
-    protected final String MASHREQ = "Mashreq";
+    protected static final String MASHREQ = "Mashreq";
+    protected static final String EMPTY_STRING = "";
     
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, RequestMetaData metadata, UserDTO userDTO) {
@@ -114,7 +135,12 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
 
         validationContext.add("transfer-amount-in-source-currency", currencyConversionDto.getAccountCurrencyAmount());
         validateAccountBalance(request, metadata, validationContext);
-
+        
+      //EscrowAccount
+        if (escrowConfig.isEnabled()) {
+            Optional<EscrowAccountDetails> escrowAccounts = escrowAccountRepository.findByAccountNo(beneficiaryDto.getAccountNumber());
+            escrowAccounts.ifPresent(escrowAccountDetails -> request.setContractProjectDetails(buildEscrowAccountDetails(beneficiaryDto, escrowAccountDetails)));
+        }
 
         //Limit Validation
         Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
@@ -125,7 +151,6 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
 
         final LimitValidatorResponse validationResult = limitValidator.validate(userDTO, request.getServiceType(), limitUsageAmount, metadata, bendId);
         String txnRefNo = validationResult.getTransactionRefNo();
-
         //Deal Validator
         log.info("Deal Validation Started");
 		if (StringUtils.isNotBlank(request.getDealNumber()) && !request.getDealNumber().isEmpty()) {
@@ -289,6 +314,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
                 .accountClass(sourceAccount.getAccountType())
                 .serviceType(request.getServiceType())
                 .exchangeRateDisplayTxt(currencyConversionDto.getExchangeRateDisplayTxt())
+                .contractProjectDetails(request.getContractProjectDetails())
                 .build();
     	return trnsrequest;
     }
@@ -298,4 +324,45 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         return response.getResponseDto().getMwResponseStatus().equals(MwResponseStatus.S) ||
                 response.getResponseDto().getMwResponseStatus().equals(MwResponseStatus.P);
     }
+
+    private boolean isTrustAccount(List<String> trustAccounts, SearchAccountDto searchAccountDto){
+        return trustAccounts.stream().anyMatch(trust -> trust.contains(searchAccountDto.getAccountType().getAccountType()));
+    }
+
+    private boolean isOaAccount(List<String> oaAccounts, SearchAccountDto searchAccountDto){
+        return oaAccounts.stream().anyMatch(oa -> oa.contains(searchAccountDto.getAccountType().getAccountType()));
+    }
+
+
+    private ContractProjectDetails buildEscrowAccountDetails(BeneficiaryDto beneficiaryDto, EscrowAccountDetails escrowAccounts) {
+        log.info("Bene Escrow Account is available in DB");
+        SearchAccountDto searchAccountDto = accountService.getAccountDetailsFromCore(beneficiaryDto.getAccountNumber());
+        if (isTrustAccount(escrowConfig.getTrustAccounts(), searchAccountDto)) {
+            log.info("Building Trust Account Details");
+            return buildContractProjectDetails(true, escrowAccounts);
+        } else if (isOaAccount(escrowConfig.getOaAccounts(), searchAccountDto)) {
+            log.info("Populate OA Account Details");
+            return buildContractProjectDetails(false, escrowAccounts);
+        }
+        return null;
+    }
+
+        private ContractProjectDetails buildContractProjectDetails(boolean isTrust, EscrowAccountDetails escrowAccounts) {
+            ContractProjectDetails contractProjectDetails = new ContractProjectDetails();
+            contractProjectDetails.setModule("FT");
+            contractProjectDetails.setDepositTfrNo(EMPTY_STRING);
+            if (isTrust) {
+                log.info("Populate Trust Account Details");
+                contractProjectDetails.setProjectName(escrowAccounts.getProjectName());
+                contractProjectDetails.setUnitPayment("Y");
+                contractProjectDetails.setUnitId(escrowAccounts.getProjectNo());
+            } else {
+                log.info("Populate OA Account Details");
+                contractProjectDetails.setProjectName(StringUtils.isNotBlank(escrowAccounts.getProjectName()) ? escrowAccounts.getProjectName() : escrowConfig.getDefaultProjectName());
+                contractProjectDetails.setUnitPayment("N");
+                contractProjectDetails.setUnitId(EMPTY_STRING);
+
+            }
+            return contractProjectDetails;
+        }
 }

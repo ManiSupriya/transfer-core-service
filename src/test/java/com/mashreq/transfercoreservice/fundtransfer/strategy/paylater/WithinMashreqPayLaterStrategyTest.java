@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
+import com.mashreq.transfercoreservice.config.EscrowConfig;
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +32,7 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.LimitValidatorResponse;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
+import com.mashreq.transfercoreservice.fundtransfer.repository.EscrowAccountRepository;
 import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWService;
 import com.mashreq.transfercoreservice.fundtransfer.strategy.utils.AccountNumberResolver;
 import com.mashreq.transfercoreservice.notification.service.NotificationService;
@@ -81,9 +83,13 @@ public class WithinMashreqPayLaterStrategyTest {
 	private SequenceNumberGenerator seqGenerator;
 	@Mock
 	private CCTransactionEligibilityValidator ccTrxValidator;
+	@Mock
+	private EscrowAccountRepository escrowAccountRepository;
 
 	@Mock
 	private MinTransactionAmountValidator minTransactionAmountValidator;
+	@Mock
+	private EscrowConfig escrowConfig;
 	
 	@Before
 	public void init() {
@@ -92,7 +98,7 @@ public class WithinMashreqPayLaterStrategyTest {
 				fundTransferMWService, balanceValidator, dealValidator,
 				auditEventPublisher, notificationService, freezeValidator, 
 				accountNumberResolver, postTransactionService, 
-				fundTransferOrderRepository, seqGenerator,ccTrxValidator, minTransactionAmountValidator);
+				fundTransferOrderRepository, seqGenerator,ccTrxValidator, escrowAccountRepository,escrowConfig, minTransactionAmountValidator);
 		ReflectionTestUtils.setField(withinMashreqPayLaterStrategy, "localCurrency", "AED");
 	}
 	
