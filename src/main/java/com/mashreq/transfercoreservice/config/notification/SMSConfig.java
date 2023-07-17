@@ -46,7 +46,7 @@ public class SMSConfig {
             return MessageFormat.format(sendMoneyNpssFail, customerNotification.getAmount()
                     , customerNotification.getBeneficiaryName());
         } else if (NotificationType.PAYMENT_REQUEST_SENT_MULTIPLE_RTP.equalsIgnoreCase(type)) {
-            return MessageFormat.format(requestToPayMultipleNpss, customerNotification.getCustomerName());
+            return MessageFormat.format(requestToPayMultipleNpss, customerNotification.getAmount());
         } else if(NotificationType.PAYMENT_REQUEST_SENT_MULTIPLE_FAIL_RTP.equalsIgnoreCase(type)){
             return MessageFormat.format(requestToPayMultipleFailNpss, customerNotification.getAmount());
         }
