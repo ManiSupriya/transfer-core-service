@@ -20,8 +20,6 @@ import org.springframework.stereotype.Service;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
-import com.mashreq.templates.freemarker.TemplateEngine;
-import com.mashreq.templates.freemarker.TemplateRequest;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.config.notification.EmailConfig;
@@ -58,8 +56,6 @@ public class PostTransactionService {
     @Autowired
     private EmailUtil emailUtil;
 
-    private TemplateEngine templateEngine;
-
     @Autowired
     private BeneficiaryService beneficiaryService;
 
@@ -88,9 +84,9 @@ public class PostTransactionService {
         TransferErrorCode transferErrorCode = TransferErrorCode.EMAIL_NOTIFICATION_FAILED;
         try {
             updateBankChargesInFTReq(fundTransferRequest,requestMetaData);
-            final PostTransactionActivityContext<SendEmailRequest> emailPostTransactionActivityContext = getEmailPostTransactionActivityContext(requestMetaData, fundTransferRequest, fundTransferRequestDTO);
-            postTransactionActivityService.execute(Arrays.asList(emailPostTransactionActivityContext), requestMetaData);
-            userEventPublisher.publishSuccessEvent(eventType, requestMetaData, eventType.getDescription());
+            //final PostTransactionActivityContext<SendEmailRequest> emailPostTransactionActivityContext = getEmailPostTransactionActivityContext(requestMetaData, fundTransferRequest, fundTransferRequestDTO);
+            //postTransactionActivityService.execute(Arrays.asList(emailPostTransactionActivityContext), requestMetaData);
+            //userEventPublisher.publishSuccessEvent(eventType, requestMetaData, eventType.getDescription());
         }catch (Exception exception){
             GenericExceptionHandler.logOnly(exception, transferErrorCode.getErrorMessage());
             userEventPublisher.publishFailureEvent(eventType, requestMetaData, eventType.getDescription(),
@@ -121,7 +117,7 @@ public class PostTransactionService {
         }
     }
 
-    private PostTransactionActivityContext<SendEmailRequest> getEmailPostTransactionActivityContext(RequestMetaData requestMetaData,
+    /*private PostTransactionActivityContext<SendEmailRequest> getEmailPostTransactionActivityContext(RequestMetaData requestMetaData,
                                                                                                     FundTransferRequest fundTransferRequest,
                                                                                                     FundTransferRequestDTO fundTransferRequestDTO) throws Exception {
 
@@ -197,8 +193,8 @@ public class PostTransactionService {
                     .build();
         }
         return PostTransactionActivityContext.<SendEmailRequest>builder().payload(emailRequest).postTransactionActivity(sendEmailActivity).build();
-    }
-    private void getTemplateValuesForFundTransferBuilder(TemplateRequest.Builder builder, FundTransferRequest fundTransferRequest,
+    }*/
+    /*private void getTemplateValuesForFundTransferBuilder(TemplateRequest.Builder builder, FundTransferRequest fundTransferRequest,
                                                          FundTransferRequestDTO fundTransferRequestDTO, RequestMetaData requestMetaData, Segment segment) {
         builder.params(MASKED_ACCOUNT, StringUtils.defaultIfBlank(emailUtil.doMask(fundTransferRequest.getFromAccount()), DEFAULT_STR));
         builder.params(TO_ACCOUNT_NO, StringUtils.defaultIfBlank(emailUtil.doMask(fundTransferRequest.getToAccount()), DEFAULT_STR));
@@ -250,5 +246,5 @@ public class PostTransactionService {
             builder.params(END_DATE,StringUtils.defaultIfBlank(fundTransferRequestDTO.getEndDate(), DEFAULT_STR));
             builder.params(FREQUENCY,StringUtils.defaultIfBlank(fundTransferRequestDTO.getFrequency(), DEFAULT_STR));
         }
-    }
+    }*/
 }

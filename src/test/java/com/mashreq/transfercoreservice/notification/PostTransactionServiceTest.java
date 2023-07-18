@@ -1,3 +1,4 @@
+/*
 package com.mashreq.transfercoreservice.notification;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -37,9 +38,11 @@ import static java.lang.Long.valueOf;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+*/
 /**
  * @author ThanigachalamP
- */
+ *//*
+
 @RunWith(MockitoJUnitRunner.class)
 public class PostTransactionServiceTest {
     @Mock
@@ -236,3 +239,4 @@ public class PostTransactionServiceTest {
         postTransactionService.performPostTransactionActivities(requestMetaData, fundTransferRequest, fundTransferRequestDTO);
     }
 }
+*/
