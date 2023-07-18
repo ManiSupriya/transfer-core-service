@@ -50,7 +50,7 @@ public class NpssNotificationService {
     private final AsyncUserEventPublisher userEventPublisher;
 
     private final EmailUtil emailUtil;
-    private final TemplateEngine templateEngine;
+    private TemplateEngine templateEngine;
 
     @Async("generalTaskExecutor")
     public void performPostTransactionActivities(RequestMetaData requestMetaData, NotificationRequestDto notificationRequestDto) {

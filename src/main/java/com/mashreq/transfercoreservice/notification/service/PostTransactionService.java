@@ -58,7 +58,6 @@ public class PostTransactionService {
     @Autowired
     private EmailUtil emailUtil;
 
-    @Autowired
     private TemplateEngine templateEngine;
 
     @Autowired

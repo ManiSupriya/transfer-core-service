@@ -17,7 +17,7 @@ import java.util.Map;
  * @author Thangiachalam P
  */
 @Slf4j
-@Component
+//@Component
 public class EmailTemplateHelper {
 
     @Autowired
