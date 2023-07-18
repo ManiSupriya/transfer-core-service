@@ -65,7 +65,6 @@
         <jackson.version>2.14.0-rc1</jackson.version>
         <properties-maven-plugin.version>1.0.0</properties-maven-plugin.version>
         <jackson.databind.version>2.14.0-rc1</jackson.databind.version>
-        <templates.utils.version>1.0.4.RELEASE</templates.utils.version>
         <com.mashreq.dedupe-util>1.0.4</com.mashreq.dedupe-util>
         <transaction-authorization-client>10.2.18</transaction-authorization-client>
     </properties>
@@ -103,11 +102,6 @@
 		</dependencies>
 	</dependencyManagement>
     <dependencies>
-        <dependency>
-            <groupId>com.mashreq</groupId>
-            <artifactId>templates-utils</artifactId>
-            <version>${templates.utils.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
