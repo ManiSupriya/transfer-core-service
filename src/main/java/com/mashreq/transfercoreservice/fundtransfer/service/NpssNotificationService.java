@@ -242,11 +242,11 @@ public class NpssNotificationService {
     }
 
     private void performSendNotifications(RequestMetaData requestMetaData, NotificationRequestDto notificationRequestDto ,UserDTO userDTO){
-//    log.info("NpssNotificationService >> performSendNotifications >> {} {} {}",requestMetaData.getPrimaryCif()
-//            ,notificationRequestDto.toString(),userDTO.toString());
+    log.info("NpssNotificationService >> performSendNotifications >> {} {} {}",requestMetaData.getPrimaryCif()
+            ,notificationRequestDto.toString(),userDTO.toString());
     final CustomerNotification customerNotification = populateCustomerNotification(notificationRequestDto);
     notificationService.sendNotifications(customerNotification, notificationRequestDto.getNotificationType(), requestMetaData, userDTO);
-//    log.info("NpssNotificationService >> performPostTransactionActivities >> Initiated {}",notificationRequestDto);
+    log.info("NpssNotificationService >> performPostTransactionActivities >> Initiated {}",notificationRequestDto);
     performPostTransactionActivities(requestMetaData, notificationRequestDto);
     log.info("NpssNotificationService >> performPostTransactionActivities >> Completed {}",notificationRequestDto);
 }
