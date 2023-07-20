@@ -210,6 +210,7 @@ public class NpssNotificationService {
         if (CUSTOMER_ENROLMENT.equalsIgnoreCase(notificationRequestDto.getNotificationType())||
                 PAYMENT_REQUEST_SENT_MULTIPLE_RTP.equalsIgnoreCase(notificationRequestDto.getNotificationType())) {
             customerNotification.setCustomerName(notificationRequestDto.getCustomerName());
+            customerNotification.setAmount(String.valueOf(notificationRequestDto.getAmount()));
         } else {
             customerNotification.setAmount(String.valueOf(notificationRequestDto.getAmount()));
             customerNotification.setCurrency(AED);
