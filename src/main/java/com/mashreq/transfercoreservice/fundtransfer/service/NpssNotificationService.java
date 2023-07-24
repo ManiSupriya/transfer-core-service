@@ -3,6 +3,8 @@ package com.mashreq.transfercoreservice.fundtransfer.service;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
+import com.mashreq.templates.freemarker.TemplateEngine;
+import com.mashreq.templates.freemarker.TemplateRequest;
 import com.mashreq.transfercoreservice.config.notification.EmailConfig;
 import com.mashreq.transfercoreservice.dto.NotificationRequestDto;
 import com.mashreq.transfercoreservice.dto.RecipientDTO;
@@ -48,7 +50,7 @@ public class NpssNotificationService {
     private final AsyncUserEventPublisher userEventPublisher;
 
     private final EmailUtil emailUtil;
-    //private TemplateEngine templateEngine;
+    private final TemplateEngine templateEngine;
 
     @Async("generalTaskExecutor")
     public void performPostTransactionActivities(RequestMetaData requestMetaData, NotificationRequestDto notificationRequestDto) {
@@ -57,11 +59,11 @@ public class NpssNotificationService {
         TransferErrorCode transferErrorCode = TransferErrorCode.EMAIL_NOTIFICATION_FAILED;
         try {
             log.info("NpssNotificationService >> getEmailPostTransactionActivityContext Initiated >> for the cif {}{}",requestMetaData.getPrimaryCif(),notificationRequestDto);
-            //final PostTransactionActivityContext<SendEmailRequest> emailPostTransactionActivityContext = getEmailPostTransactionActivityContext(requestMetaData, notificationRequestDto);
+            final PostTransactionActivityContext<SendEmailRequest> emailPostTransactionActivityContext = getEmailPostTransactionActivityContext(requestMetaData, notificationRequestDto);
             log.info("NpssNotificationService >> getEmailPostTransactionActivityContext Completed >> for the cif {}{}",requestMetaData.getPrimaryCif(),notificationRequestDto);
-            //postTransactionActivityService.execute(Collections.singletonList(emailPostTransactionActivityContext), requestMetaData);
+            postTransactionActivityService.execute(Collections.singletonList(emailPostTransactionActivityContext), requestMetaData);
             log.info("NpssNotificationService >> publishSuccessEvent Completed >> for the cif {}{}",requestMetaData.getPrimaryCif(),notificationRequestDto);
-            //userEventPublisher.publishSuccessEvent(eventType, requestMetaData, eventType.getDescription());
+            userEventPublisher.publishSuccessEvent(eventType, requestMetaData, eventType.getDescription());
         } catch (Exception exception) {
             log.error("NpssNotificationService >> publishFailureEvent Completed >> for the cif {}{}",requestMetaData.getPrimaryCif(),notificationRequestDto);
             GenericExceptionHandler.logOnly(exception, transferErrorCode.getErrorMessage());
@@ -71,7 +73,7 @@ public class NpssNotificationService {
 
     }
 
-    /*private PostTransactionActivityContext<SendEmailRequest> getEmailPostTransactionActivityContext(RequestMetaData requestMetaData,
+    private PostTransactionActivityContext<SendEmailRequest> getEmailPostTransactionActivityContext(RequestMetaData requestMetaData,
                                                                                                     NotificationRequestDto notificationRequestDto) throws Exception {
         log.info("NpssNotificationSuccess >> getEmailPostTransactionActivityContext >> {}",notificationRequestDto);
         SendEmailRequest emailRequest = SendEmailRequest.builder().isEmailPresent(false).build();
@@ -151,9 +153,9 @@ public class NpssNotificationService {
            log.info("NpssNotificationSuccess >> getEmailPostTransactionActivityContext >> final emailRequest formed {}{}",emailRequest,sendEmailActivity);
         }
         return PostTransactionActivityContext.<SendEmailRequest>builder().payload(emailRequest).postTransactionActivity(sendEmailActivity).build();
-    }*/
+    }
 
-    /*private void getTemplateValuesForNotificationBuilder(TemplateRequest.Builder builder, NotificationRequestDto notificationRequestDto) {
+    private void getTemplateValuesForNotificationBuilder(TemplateRequest.Builder builder, NotificationRequestDto notificationRequestDto) {
 
         if (notificationRequestDto.getAmount() != null) {
             builder.params(AMOUNT, EmailUtil.formattedAmount(notificationRequestDto.getAmount()));
@@ -200,7 +202,7 @@ public class NpssNotificationService {
             }
         }
 
-    }*/
+    }
 
     private CustomerNotification populateCustomerNotification(NotificationRequestDto notificationRequestDto) {
         log.info("NpssNotificationService >> populateCustomerNotification >> {}",notificationRequestDto.toString());
@@ -244,7 +246,7 @@ public class NpssNotificationService {
     final CustomerNotification customerNotification = populateCustomerNotification(notificationRequestDto);
     notificationService.sendNotifications(customerNotification, notificationRequestDto.getNotificationType(), requestMetaData, userDTO);
     log.info("NpssNotificationService >> performPostTransactionActivities >> Initiated {}",notificationRequestDto);
-    //performPostTransactionActivities(requestMetaData, notificationRequestDto);
+    performPostTransactionActivities(requestMetaData, notificationRequestDto);
     log.info("NpssNotificationService >> performPostTransactionActivities >> Completed {}",notificationRequestDto);
 }
 }

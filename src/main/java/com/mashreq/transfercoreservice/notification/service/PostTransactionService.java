@@ -10,6 +10,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.mashreq.templates.freemarker.TemplateEngine;
+import com.mashreq.templates.freemarker.TemplateRequest;
 import com.mashreq.transfercoreservice.fundtransfer.service.TransferBankChargesService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +59,9 @@ public class PostTransactionService {
     private EmailUtil emailUtil;
 
     @Autowired
+    private TemplateEngine templateEngine;
+
+    @Autowired
     private BeneficiaryService beneficiaryService;
 
     @Autowired
@@ -84,9 +89,9 @@ public class PostTransactionService {
         TransferErrorCode transferErrorCode = TransferErrorCode.EMAIL_NOTIFICATION_FAILED;
         try {
             updateBankChargesInFTReq(fundTransferRequest,requestMetaData);
-            //final PostTransactionActivityContext<SendEmailRequest> emailPostTransactionActivityContext = getEmailPostTransactionActivityContext(requestMetaData, fundTransferRequest, fundTransferRequestDTO);
-            //postTransactionActivityService.execute(Arrays.asList(emailPostTransactionActivityContext), requestMetaData);
-            //userEventPublisher.publishSuccessEvent(eventType, requestMetaData, eventType.getDescription());
+            final PostTransactionActivityContext<SendEmailRequest> emailPostTransactionActivityContext = getEmailPostTransactionActivityContext(requestMetaData, fundTransferRequest, fundTransferRequestDTO);
+            postTransactionActivityService.execute(Arrays.asList(emailPostTransactionActivityContext), requestMetaData);
+            userEventPublisher.publishSuccessEvent(eventType, requestMetaData, eventType.getDescription());
         }catch (Exception exception){
             GenericExceptionHandler.logOnly(exception, transferErrorCode.getErrorMessage());
             userEventPublisher.publishFailureEvent(eventType, requestMetaData, eventType.getDescription(),
@@ -117,7 +122,7 @@ public class PostTransactionService {
         }
     }
 
-    /*private PostTransactionActivityContext<SendEmailRequest> getEmailPostTransactionActivityContext(RequestMetaData requestMetaData,
+    private PostTransactionActivityContext<SendEmailRequest> getEmailPostTransactionActivityContext(RequestMetaData requestMetaData,
                                                                                                     FundTransferRequest fundTransferRequest,
                                                                                                     FundTransferRequestDTO fundTransferRequestDTO) throws Exception {
 
@@ -193,8 +198,8 @@ public class PostTransactionService {
                     .build();
         }
         return PostTransactionActivityContext.<SendEmailRequest>builder().payload(emailRequest).postTransactionActivity(sendEmailActivity).build();
-    }*/
-    /*private void getTemplateValuesForFundTransferBuilder(TemplateRequest.Builder builder, FundTransferRequest fundTransferRequest,
+    }
+    private void getTemplateValuesForFundTransferBuilder(TemplateRequest.Builder builder, FundTransferRequest fundTransferRequest,
                                                          FundTransferRequestDTO fundTransferRequestDTO, RequestMetaData requestMetaData, Segment segment) {
         builder.params(MASKED_ACCOUNT, StringUtils.defaultIfBlank(emailUtil.doMask(fundTransferRequest.getFromAccount()), DEFAULT_STR));
         builder.params(TO_ACCOUNT_NO, StringUtils.defaultIfBlank(emailUtil.doMask(fundTransferRequest.getToAccount()), DEFAULT_STR));
@@ -246,5 +251,5 @@ public class PostTransactionService {
             builder.params(END_DATE,StringUtils.defaultIfBlank(fundTransferRequestDTO.getEndDate(), DEFAULT_STR));
             builder.params(FREQUENCY,StringUtils.defaultIfBlank(fundTransferRequestDTO.getFrequency(), DEFAULT_STR));
         }
-    }*/
+    }
 }
