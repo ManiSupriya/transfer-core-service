@@ -57,7 +57,7 @@ public class EmailServiceImpl implements MessageService<SendEmailRequest, EmailR
     }
 
 
-    public EmailRequest prepareEmailRequest(SendEmailRequest sendEmailRequest) throws IOException, TemplateException {
+    /*public EmailRequest prepareEmailRequest(SendEmailRequest sendEmailRequest) throws IOException, TemplateException {
         EmailRequest emailRequest = new EmailRequest();
         emailRequest.setFromEmailAddress(sendEmailRequest.getFromEmailAddress());
         emailRequest.setFromEmailName(sendEmailRequest.getFromEmailName());
@@ -66,7 +66,7 @@ public class EmailServiceImpl implements MessageService<SendEmailRequest, EmailR
         String emailBody = emailTemplateHelper.getEmailTemplate(sendEmailRequest.getTemplateName(), sendEmailRequest.getTemplateKeyValues());
         emailRequest.setText(emailBody);
        return emailRequest;
-    }
+    }*/
 
 
 
