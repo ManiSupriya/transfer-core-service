@@ -5,6 +5,7 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
@@ -21,6 +22,7 @@ import java.util.Map;
 public class EmailTemplateHelper {
 
     @Autowired
+    @Qualifier("freeMarkerGenericTemplateConfiguration")
     private Configuration freemarkerConfig;
 
     /**
@@ -33,7 +35,7 @@ public class EmailTemplateHelper {
      * @throws TemplateException
      */
     public String getEmailTemplate(String templateName, Map<String, String> templateValues) throws IOException, TemplateException {
-        freemarkerConfig.setClassForTemplateLoading(this.getClass(), "/templates");
+        //freemarkerConfig.setClassForTemplateLoading(this.getClass(), "/templates");
 
         Template template = freemarkerConfig.getTemplate(templateName);
         return FreeMarkerTemplateUtils.processTemplateIntoString(template, templateValues);
