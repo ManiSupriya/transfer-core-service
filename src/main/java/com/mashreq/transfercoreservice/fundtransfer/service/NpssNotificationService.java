@@ -205,12 +205,14 @@ public class NpssNotificationService {
     }
 
     private CustomerNotification populateCustomerNotification(NotificationRequestDto notificationRequestDto) {
-        log.info("NpssNotificationService >> populateCustomerNotification >> {}",notificationRequestDto.toString());
+        log.info("NpssNotificationService >> populateCustomerNotification >> {}", notificationRequestDto.toString());
         CustomerNotification customerNotification = new CustomerNotification();
-        if (CUSTOMER_ENROLMENT.equalsIgnoreCase(notificationRequestDto.getNotificationType())||
+        if (CUSTOMER_ENROLMENT.equalsIgnoreCase(notificationRequestDto.getNotificationType()) ||
                 PAYMENT_REQUEST_SENT_MULTIPLE_RTP.equalsIgnoreCase(notificationRequestDto.getNotificationType())) {
             customerNotification.setCustomerName(notificationRequestDto.getCustomerName());
             customerNotification.setAmount(String.valueOf(notificationRequestDto.getAmount()));
+        } else if (CREATE_EMAIL_PROXY_NOTIF_EVENT.equalsIgnoreCase(notificationRequestDto.getNotificationType())){
+            customerNotification.setCustomerName(notificationRequestDto.getCustomerName());
         } else {
             customerNotification.setAmount(String.valueOf(notificationRequestDto.getAmount()));
             customerNotification.setCurrency(AED);

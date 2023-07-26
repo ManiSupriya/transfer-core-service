@@ -32,5 +32,6 @@ public class NotificationType {
     public static final String PAYMENT_REQUEST_SENT_FAIL_RTP = "PAYMENT_REQUEST_SENT_FAIL_RTP";
 
     public static final String PAYMENT_REQUEST_SENT_MULTIPLE_FAIL_RTP = "PAYMENT_REQUEST_SENT_MULTIPLE_FAIL_RTP";
+    public static final String CREATE_EMAIL_PROXY_NOTIF_EVENT = "CREATE_EMAIL_PROXY_NOTIF_EVENT";
 }
 
