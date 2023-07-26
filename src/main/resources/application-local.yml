@@ -165,7 +165,7 @@ app:
         requestToPayMultipleFail: templates/requestToPayMultipleFail
         requestToPay: templates/requestToPay
         requestToPayFail: templates/requestToPayFail
-        createEmailProxy: templates/createEmailProxy
+        createEmailProxy: templates/emailProxy_update
         createEmailProxySubject: ${CREATE_EMAIL_PROXY_SUBJECT:Congratulations! Email Proxy has been added on Instant Payment Platform!}
       EG:
         emailSubject: ${NOTIFICATION_EMAIL_SUBJECT:%s Transfer request via %s}

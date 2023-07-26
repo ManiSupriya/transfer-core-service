@@ -1,6 +1,6 @@
 <!DOCTYPE html
-  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd>
-<html xmlns=http://www.w3.org/1999/xhtml>
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
   <meta name="viewport" content="width=device-width" />
@@ -541,7 +541,7 @@
           <div class="content">
             <table>
               <tr>
-                <td><img src=https://contentdelivery.mashreqbank.com/common/full-logo/${segment}.png width="177" />
+                <td><img src="https://contentdelivery.mashreqbank.com/common/full-logo/${segment}.png" width="177" />
                 </td>
               </tr>
             </table>
@@ -559,7 +559,7 @@
         <td class="email-container bg_white">
           <!-- A Real Hero (and a real human being) -->
           <p style="margin-bottom: 40px">
-            <img src=https://contentdelivery.mashreqbank.com/mbol/email/banner/PL_SI_Request_Banner.png width="600" />
+            <img src="https://contentdelivery.mashreqbank.com/mbol/email/banner/PL_SI_Request_Banner.png" width="600" />
           </p>
           <!-- /hero -->
           <div class="content">
@@ -604,7 +604,7 @@
             <table style="width: 100%">
               <tr>
                 <td><img
-                    src=https://contentdelivery.mashreqbank.com/money-transfer/images/npss/logos/templates/Aani_Branding_Logo.png
+                    src="https://contentdelivery.mashreqbank.com/money-transfer/images/npss/logos/templates/Aani_Branding_Logo.png"
                     alt="POWERED BY AANI" title="Logo" width="138" />
                 </td>
               </tr>
@@ -618,7 +618,7 @@
               <tr>
                 <td style="padding-right: 12px;display: flex;justify-content: flex-start;">
                   <img width="48"
-                    src=https://contentdelivery.mashreqbank.com/money-transfer/images/npss/logos/templates/${segment}/TouchIdSmartphone.png
+                    src="https://contentdelivery.mashreqbank.com/money-transfer/images/npss/logos/templates/${segment}/TouchIdSmartphone.png"
                     style="margin: 2px auto" />
                 </td>
                 <td style="padding-right: 6px;">
@@ -628,7 +628,7 @@
               <tr>
                 <td style="padding-right: 12px;display: flex;justify-content: flex-start;">
                   <img width="48"
-                    src=https://contentdelivery.mashreqbank.com/money-transfer/images/npss/logos/templates/${segment}/HeadphonesCustomerSupportHuman.png
+                    src="https://contentdelivery.mashreqbank.com/money-transfer/images/npss/logos/templates/${segment}/HeadphonesCustomerSupportHuman.png"
                     style="margin: 2px auto" />
                 </td>
                 <td style="padding-right: 6px;">
@@ -709,7 +709,7 @@
                   style="-ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; margin-top: 4px; font-size: 12px; display: inline-block; margin-bottom: 0; color: #2E2F30;">
                   <#if segment=='CONV'>
                     <img data-imagetype="External"
-                      src=https://contentdelivery.mashreqbank.com/common/small-logo/CONV.png
+                      src="https://contentdelivery.mashreqbank.com/common/small-logo/CONV.png"
                       style="margin-top: 6px; float: left; margin-right: 14px;" width="46">
                     <span style="margin-top: 4px;display: block; margin-right: 15px">Mashreqbank PSC is regulated by the
                       Central
@@ -718,7 +718,7 @@
                   </#if>
                   <#if segment=='ISLAMIC' || segment=='ISLAMIC_PRIVATE' || segment=='ISLAMIC_GOLD'>
                     <img data-imagetype="External"
-                      src=https://contentdelivery.mashreqbank.com/common/small-logo/ISLAMIC.png
+                      src="https://contentdelivery.mashreqbank.com/common/small-logo/ISLAMIC.png"
                       style="margin-top: 6px; float: left; margin-right: 14px;" width="46">
                     <span style="margin-top: 4px;display: block; margin-right: 15px">Mashreq Al Islami (The Islamic
                       Window of
@@ -726,7 +726,7 @@
                   </#if>
                   <#if segment=='CONV_GOLD'>
                     <img data-imagetype="External"
-                      src=https://contentdelivery.mashreqbank.com/common/small-logo/CONV_GOLD.png
+                      src="https://contentdelivery.mashreqbank.com/common/small-logo/CONV_GOLD.png"
                       style="margin-top: 6px; float: left; margin-right: 14px;" width="46">
                     <span style="margin-top: 4px;display: block; margin-right: 15px">Mashreqbank PSC is regulated by the
                       Central
@@ -735,7 +735,7 @@
                   </#if>
                   <#if segment=='CONV_PRIVATE'>
                     <img data-imagetype="External"
-                      src=https://contentdelivery.mashreqbank.com/common/small-logo/CONV_PRIVATE.png
+                      src="https://contentdelivery.mashreqbank.com/common/small-logo/CONV_PRIVATE.png"
                       style="margin-top: 6px; float: left; margin-right: 14px;" width="46">
                     <span style="margin-top: 4px;display: block; margin-right: 15px">Mashreqbank PSC is regulated by the
                       Central
@@ -744,7 +744,7 @@
                   </#if>
                   <#if segment=='NEO'>
                     <img data-imagetype="External"
-                      src=https://contentdelivery.mashreqbank.com/common/small-logo/CONV.png
+                      src="https://contentdelivery.mashreqbank.com/common/small-logo/CONV.png"
                       style="margin-top: 6px; float: left; margin-right: 14px;" width="46">
                     <span style="margin-top: 4px;display: block; margin-right: 15px">Mashreq Neo is a part of
                       Mashreqbank PSC
@@ -763,53 +763,53 @@
                       style="-ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;">
                       <td align="center"
                         style="-ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; padding: 8px 6px; border-radius: 2px;">
-                        <a href=https://www.facebook.com/Mashreqbank/ target="_blank" rel="noopener noreferrer"
+                        <a href="https://www.facebook.com/Mashreqbank/" target="_blank" rel="noopener noreferrer"
                           data-auth="NotApplicable" shash
                           style="-ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; text-decoration: none; display: inline-block;"><img
                             data-imagetype="External"
-                            src=https://contentdelivery.mashreqbank.com/common/icons/facebook.png width="8" alt
+                            src="https://contentdelivery.mashreqbank.com/common/icons/facebook.png" width="8" alt
                             style="-ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; -ms-interpolation-mode: bicubic;">
                         </a>
                       </td>
                       <td align="center"
                         style="-ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; padding: 8px 6px; border-radius: 2px;">
-                        <a href=https://www.youtube.com/user/Mashreqbanklive target="_blank" rel="noopener noreferrer"
+                        <a href="https://www.youtube.com/user/Mashreqbanklive" target="_blank" rel="noopener noreferrer"
                           data-auth="NotApplicable" shash
                           style="-ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; text-decoration: none; display: inline-block;"><img
                             data-imagetype="External"
-                            src=https://contentdelivery.mashreqbank.com/common/icons/youtube.png width="16" alt
-                            style="-ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; -ms-interpolation-mode: bicubic;">
-                        </a>
-                      </td>
-
-                      <td align="center"
-                        style="-ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; padding: 8px 6px; border-radius: 2px;">
-                        <a href=https://www.linkedin.com/company/mashreqbank target="_blank" rel="noopener noreferrer"
-                          data-auth="NotApplicable" shash
-                          style="-ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; text-decoration: none; display: inline-block;"><img
-                            data-imagetype="External"
-                            src=https://contentdelivery.mashreqbank.com/common/icons/linkedin.png width="15" alt
-                            style="-ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; -ms-interpolation-mode: bicubic;">
-                        </a>
-                      </td>
-                      <td align="center"
-                        style="-ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; padding: 8px 6px; border-radius: 2px;">
-                        <a href=https://www.instagram.com/mashreq/ target="_blank" rel="noopener noreferrer"
-                          data-auth="NotApplicable" shash
-                          style="-ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; text-decoration: none; display: inline-block;"><img
-                            data-imagetype="External"
-                            src=https://contentdelivery.mashreqbank.com/common/icons/instagram.png width="18" alt
+                            src="https://contentdelivery.mashreqbank.com/common/icons/youtube.png" width="16" alt
                             style="-ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; -ms-interpolation-mode: bicubic;">
                         </a>
                       </td>
 
                       <td align="center"
                         style="-ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; padding: 8px 6px; border-radius: 2px;">
-                        <a href=https://twitter.com/MashreqTweets target="_blank" rel="noopener noreferrer"
+                        <a href="https://www.linkedin.com/company/mashreqbank" target="_blank" rel="noopener noreferrer"
                           data-auth="NotApplicable" shash
                           style="-ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; text-decoration: none; display: inline-block;"><img
                             data-imagetype="External"
-                            src=https://contentdelivery.mashreqbank.com/common/icons/twitter.png width="17" alt
+                            src="https://contentdelivery.mashreqbank.com/common/icons/linkedin.png" width="15" alt
+                            style="-ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; -ms-interpolation-mode: bicubic;">
+                        </a>
+                      </td>
+                      <td align="center"
+                        style="-ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; padding: 8px 6px; border-radius: 2px;">
+                        <a href="https://www.instagram.com/mashreq/" target="_blank" rel="noopener noreferrer"
+                          data-auth="NotApplicable" shash
+                          style="-ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; text-decoration: none; display: inline-block;"><img
+                            data-imagetype="External"
+                            src="https://contentdelivery.mashreqbank.com/common/icons/instagram.png" width="18" alt
+                            style="-ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; -ms-interpolation-mode: bicubic;">
+                        </a>
+                      </td>
+
+                      <td align="center"
+                        style="-ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; padding: 8px 6px; border-radius: 2px;">
+                        <a href="https://twitter.com/MashreqTweets" target="_blank" rel="noopener noreferrer"
+                          data-auth="NotApplicable" shash
+                          style="-ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; text-decoration: none; display: inline-block;"><img
+                            data-imagetype="External"
+                            src="https://contentdelivery.mashreqbank.com/common/icons/twitter.png" width="17" alt
                             style="-ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; -ms-interpolation-mode: bicubic;">
                         </a>
                       </td>
