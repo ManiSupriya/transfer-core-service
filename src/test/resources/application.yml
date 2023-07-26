@@ -183,6 +183,8 @@ app:
         requestToPayMultipleFail: templates/requestToPayMultipleFail
         requestToPay: templates/requestToPay
         requestToPayFail: templates/requestToPayFail
+        createEmailProxy: templates/createEmailProxy
+        createEmailProxySubject: ${CREATE_EMAIL_PROXY_SUBJECT:Congratulations! Email Proxy has been added on Instant Payment Platform!}
     sms:
       mashreqServiceId: ${ALERT_SMS_MASHREQ_PAYMENT_SERVICEID:330}
       neoServiceId: ${ALERT_SMS_NEO_PAYMENT_SERVICEID:350}
