@@ -34,6 +34,7 @@ public class SMSConfig {
     private String requestToPayNpss;
 
     private String requestToPayNpssFail;
+    private String createEmailProxySMS;
 
     public String getSMSTemplate(String type, CustomerNotification customerNotification) {
         if (type.contains("PL") && type.contains("CREATION")) {
@@ -56,6 +57,9 @@ public class SMSConfig {
         } else if (NotificationType.PAYMENT_REQUEST_SENT_RTP.equalsIgnoreCase(type)) {
             return MessageFormat.format(requestToPayNpss, customerNotification.getAmount()
                     , customerNotification.getBeneficiaryName());
+        } else if (NotificationType.CREATE_EMAIL_PROXY_NOTIF_EVENT.equalsIgnoreCase(type)) {
+            return MessageFormat.format(createEmailProxySMS
+                    , customerNotification.getCustomerName());
         } else {
             return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getCurrency(), customerNotification.getAmount(), customerNotification.getTxnRef(), customerNotification.getSegment().getCustomerCareNumber());
         }
