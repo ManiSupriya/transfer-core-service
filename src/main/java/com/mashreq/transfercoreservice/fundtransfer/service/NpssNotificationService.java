@@ -133,7 +133,8 @@ public class NpssNotificationService {
                         .params(CONTACT_HTML_BODY_KEY, contactHtmlBody)
                         .params(SEGMENT_SIGN_OFF_COMPANY_NAME, segmentSignOffCompanyName)
                         .params(BANK_NAME_FOOTER, bankNameInFooter)
-                        .params(BANK_NAME_FOOTER_DESC, bankNameInFooterDesc);
+                        .params(BANK_NAME_FOOTER_DESC, bankNameInFooterDesc)
+                        .params(EMAIL_PROXY, Optional.ofNullable(notificationRequestDto.getEmailProxy()).isPresent() ? notificationRequestDto.getEmailProxy() : "");
             } catch(Exception e){
             log.error("NpssNotificationSuccess >> getEmailPostTransactionActivityContext >> error in preparing template " +
                     "{} formed for the notificationType{}{}",templateName,notificationRequestDto.getNotificationType(),templateName);
@@ -178,6 +179,7 @@ public class NpssNotificationService {
         builder.params(FROM_ACCOUNT, StringUtils.defaultIfBlank(notificationRequestDto.getFromAccount(), DEFAULT_STR));
 
         builder.params(MESSAGE, StringUtils.defaultIfBlank(notificationRequestDto.getReasonForFailure(), DEFAULT_STR));
+        builder.params(EMAIL_PROXY, Optional.ofNullable(notificationRequestDto.getEmailProxy()).isPresent() ? notificationRequestDto.getEmailProxy() : "");
         if (CollectionUtils.isNotEmpty(notificationRequestDto.getRtpNotificationList())) {
             if (notificationRequestDto.getRtpNotificationList().size() > 1) {
                 List<RecipientDTO> recipientDTOS = new ArrayList<>();

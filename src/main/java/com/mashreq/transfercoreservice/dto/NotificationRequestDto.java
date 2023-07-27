@@ -31,5 +31,6 @@ public class NotificationRequestDto implements Serializable {
     private String reasonForFailure;
     private String fromAccount;
     private List<RtpNotification> rtpNotificationList;
+    private String emailProxy;
 
 }
