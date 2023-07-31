@@ -567,7 +567,7 @@
               <tr>
                 <td>
                   <h1 style="margin-bottom: 32px">
-                    Your email has been updated for receiving Aani Instant Payments.
+                    Your email address for receiving Aani instant payments has been updated
                   </h1>
                   <p style="margin-bottom: 24px">
                     Dear Customer,
