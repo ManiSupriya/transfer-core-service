@@ -204,7 +204,7 @@ app:
         requestToPayMultipleFail: templates/requestToPayMultipleFail
         requestToPay: templates/requestToPay
         requestToPayFail: templates/requestToPayFail
-        createEmailProxy: templates/emailProxyUpdate
+        createEmailProxy: templates/proxyUpdateTemplate
         createEmailProxySubject: ${CREATE_EMAIL_PROXY_SUBJECT:Your Aani email is updated for receiving payments!}
       EG:
         emailSubject: ${NOTIFICATION_EMAIL_SUBJECT:%s Transfer request via %s}

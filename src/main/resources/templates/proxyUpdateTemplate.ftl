@@ -567,13 +567,13 @@
               <tr>
                 <td>
                   <h1 style="margin-bottom: 32px">
-                    Your email has been updated for receiving Aani Instant Payments.
+                    Your email address for receiving Aani instant payments has been updated
                   </h1>
                   <p style="margin-bottom: 24px">
                     Dear Customer,
                   </p>
                   <p style="margin-bottom: 12px">
-                    You have successfully updated your email address <span style="font-weight: bold;">${email id}</span>
+                    You have successfully updated your email address <span style="font-weight: bold;">${emailProxy}</span>
                     for receiving Aani instant payments. You
                     can now share this email id among your contacts to receive Aani payments to your default bank
                     account.
