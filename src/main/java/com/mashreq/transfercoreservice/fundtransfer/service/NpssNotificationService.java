@@ -214,7 +214,7 @@ public class NpssNotificationService {
             customerNotification.setCustomerName(notificationRequestDto.getCustomerName());
             customerNotification.setAmount(String.valueOf(notificationRequestDto.getAmount()));
         } else if (CREATE_EMAIL_PROXY_NOTIF_EVENT.equalsIgnoreCase(notificationRequestDto.getNotificationType())){
-            customerNotification.setCustomerName(notificationRequestDto.getCustomerName());
+            customerNotification.setCustomerName(notificationRequestDto.getEmailProxy());
         } else {
             customerNotification.setAmount(String.valueOf(notificationRequestDto.getAmount()));
             customerNotification.setCurrency(AED);

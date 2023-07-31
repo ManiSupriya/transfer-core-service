@@ -205,7 +205,7 @@ app:
         requestToPay: templates/requestToPay
         requestToPayFail: templates/requestToPayFail
         createEmailProxy: templates/emailProxyUpdate
-        createEmailProxySubject: ${CREATE_EMAIL_PROXY_SUBJECT:Congratulations! Your email has been updated for receiving Aani Instant Payments!}
+        createEmailProxySubject: ${CREATE_EMAIL_PROXY_SUBJECT:Your Aani email is updated for receiving payments!}
       EG:
         emailSubject: ${NOTIFICATION_EMAIL_SUBJECT:%s Transfer request via %s}
         payLaterSubject: ${PL_EMAIL_SUBJECT:Pay later request}
@@ -230,7 +230,7 @@ app:
       requestToPayMultipleFailNpss: ${REQUEST_TO_PAY_MULTIPLE_FAIL_NPSS:Dear Customer, your refund request of AED {0} to multiple contacts could not be processed. Please login to Mashreq Mobile App to review the details.}
       sendMoneyNpssSuccess: ${SEND_MONEY_NPSS_SUCCESS:Dear Customer, you have just sent an instant payment of AED {0} to {1}. Please login to Mashreq Mobile App to review the details.}
       sendMoneyNpssFail: ${SEND_MONEY_NPSS_FAIL:Dear Customer, your instant payment of AED {0} to {1} could not be processed. Please try again.}
-      createEmailProxySMS: ${CREATE_EMAIL_PROXY_SMS:Congratulations! Your email has been updated for receiving Aani Instant Payments!}
+      createEmailProxySMS: ${CREATE_EMAIL_PROXY_SMS:Your Aani email {0} has been updated. You can now share this email with your contacts to receive Aani payments.}
     push:
       ownAccountTransactionInitiated: ${OWN_ACCOUNT_PUSH:Request received through {0} for a Fund Transfer of {1} {2} with {3}. Contact {4} if you did not initiate this.}
       plSiCreation: ${PL_SI_CREATION_SMS:On your request SI/Pay later has been set up for the beneficiary {0}, account number {1}. If not requested, please contact {2}. Thank you for using our services.}
