@@ -1,5 +1,6 @@
 package com.mashreq.transfercoreservice.notification.service;
 
+import static com.mashreq.mobcommons.services.CustomHtmlEscapeUtil.htmlEscape;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.*;
 import static com.mashreq.transfercoreservice.notification.service.EmailUtil.*;
 import static java.lang.Long.valueOf;
@@ -10,9 +11,11 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.mashreq.templates.freemarker.TemplateEngine;
-import com.mashreq.templates.freemarker.TemplateRequest;
+import com.mashreq.notification.client.freemarker.TemplateRequest;
+import com.mashreq.notification.client.freemarker.TemplateType;
+import com.mashreq.notification.client.notification.service.NotificationService;
 import com.mashreq.transfercoreservice.fundtransfer.service.TransferBankChargesService;
+import com.mashreq.transfercoreservice.notification.model.NotificationType;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,16 +27,11 @@ import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
-import com.mashreq.transfercoreservice.config.notification.EmailConfig;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
-import com.mashreq.transfercoreservice.model.Segment;
-import com.mashreq.transfercoreservice.notification.model.EmailParameters;
-import com.mashreq.transfercoreservice.notification.model.EmailTemplateParameters;
-import com.mashreq.transfercoreservice.notification.model.SendEmailRequest;
 import com.mashreq.transfercoreservice.paylater.utils.DateUtil;
 
 import lombok.extern.slf4j.Slf4j;
@@ -44,22 +42,10 @@ import lombok.extern.slf4j.Slf4j;
 public class PostTransactionService {
 
     @Autowired
-    private EmailConfig emailConfig;
-
-    @Autowired
-    private PostTransactionActivityService postTransactionActivityService;
-
-    @Autowired
-    private SendEmailActivity sendEmailActivity;
-
-    @Autowired
     private AsyncUserEventPublisher userEventPublisher;
 
     @Autowired
     private EmailUtil emailUtil;
-
-    @Autowired
-    private TemplateEngine templateEngine;
 
     @Autowired
     private BeneficiaryService beneficiaryService;
@@ -67,11 +53,17 @@ public class PostTransactionService {
     @Autowired
     private TransferBankChargesService transferBankChargesService;
 
+    @Autowired
+    private NotificationService notificationService;
+
     @Value("${app.local.address}")
     private String address;
 
     @Value("${app.local.currency}")
     private String localCurrency;
+
+    @Value("${default.notification.language}")
+    private String defaultLanguage;
 
     private static final Set<ServiceType> OWN_ACCOUNT_SERVICE_TYPES = new HashSet<>(Arrays.asList(WYMA, XAU, XAG));
 
@@ -89,8 +81,8 @@ public class PostTransactionService {
         TransferErrorCode transferErrorCode = TransferErrorCode.EMAIL_NOTIFICATION_FAILED;
         try {
             updateBankChargesInFTReq(fundTransferRequest,requestMetaData);
-            final PostTransactionActivityContext<SendEmailRequest> emailPostTransactionActivityContext = getEmailPostTransactionActivityContext(requestMetaData, fundTransferRequest, fundTransferRequestDTO);
-            postTransactionActivityService.execute(Arrays.asList(emailPostTransactionActivityContext), requestMetaData);
+            TemplateRequest templateRequest = getEmailPostTransactionActivityContext(requestMetaData, fundTransferRequest, fundTransferRequestDTO);
+            notificationService.sendNotification(templateRequest);
             userEventPublisher.publishSuccessEvent(eventType, requestMetaData, eventType.getDescription());
         }catch (Exception exception){
             GenericExceptionHandler.logOnly(exception, transferErrorCode.getErrorMessage());
@@ -122,85 +114,66 @@ public class PostTransactionService {
         }
     }
 
-    private PostTransactionActivityContext<SendEmailRequest> getEmailPostTransactionActivityContext(RequestMetaData requestMetaData,
+    private TemplateRequest getEmailPostTransactionActivityContext(RequestMetaData requestMetaData,
                                                                                                     FundTransferRequest fundTransferRequest,
                                                                                                     FundTransferRequestDTO fundTransferRequestDTO) throws Exception {
-
-
-        SendEmailRequest emailRequest = SendEmailRequest.builder().isEmailPresent(false).build();
-        String contactLinkText;
-        String htmlContent;
-
+        FundTransferEventType eventType = FundTransferEventType.EMAIL_NOTIFICATION;
+        TransferErrorCode transferErrorCode = TransferErrorCode.EMAIL_NOTIFICATION_FAILED;
+        boolean isMobile = requestMetaData.getChannel().contains(MOBILE);
+        String channelType = isMobile ? MOBILE_BANKING : ONLINE_BANKING;
         if (StringUtils.isNotBlank(requestMetaData.getEmail())) {
-            final EmailParameters emailParameters = emailConfig.getEmail().get(requestMetaData.getCountry());
+            String templateName = getTemplateName(fundTransferRequest.getNotificationType());
 
-            final String templateName = emailParameters.getEmailTemplate(fundTransferRequest.getNotificationType());
-            final EmailTemplateParameters emailTemplateParameters = emailUtil.getEmailTemplateParameters(requestMetaData.getChannel(), requestMetaData.getSegment());
-            boolean isMobile = requestMetaData.getChannel().contains(MOBILE);
-            String channelType = isMobile ? MOBILE_BANKING : ONLINE_BANKING;
-            Segment segment = emailTemplateParameters.getSegment();
-            final String subject = emailParameters.getEmailSubject(fundTransferRequest.getNotificationType(),fundTransferRequest.getTransferType(),channelType);
-
-            String contactHtmlBody;
-            String segmentSignOffCompanyName;
-            String bankNameInFooter;
-            String bankNameInFooterDesc;
-            if(segment != null) {
-                contactLinkText = StringUtils.defaultIfBlank(segment.getEmailContactUsLinkText(), DEFAULT_STR);
-                htmlContent = segment.getEmailContactUsHtmlContent();
-                if(StringUtils.isNotEmpty(htmlContent)) {
-                    htmlContent = htmlContent.replaceAll("\\{contactUsLinkText}", contactLinkText);
-                    htmlContent = htmlContent.replaceAll("\\$", DEFAULT_STR);
-                } else {
-                    htmlContent = DEFAULT_STR;
-                }
-
-                contactHtmlBody = htmlContent;
-                segmentSignOffCompanyName = StringUtils.defaultIfBlank(segment.getEmailSignOffCompany(), DEFAULT_STR);
-                bankNameInFooter = StringUtils.defaultIfBlank(segment.getEmailCprFooter(), DEFAULT_STR);
-                bankNameInFooterDesc = StringUtils.defaultIfBlank(segment.getEmailCprBankDesc(), DEFAULT_STR);
-            } else {
-                contactHtmlBody = DEFAULT_STR;
-                segmentSignOffCompanyName = DEFAULT_STR;
-                bankNameInFooter = emailTemplateParameters.getChannelIdentifier().getChannelName();
-                bankNameInFooterDesc = DEFAULT_STR;
-            }
-
-            TemplateRequest.Builder template = TemplateRequest.builder()
-                    .templateName(templateName)
+            TemplateRequest.EmailBuilder template = buildEmailTemplate(templateName,requestMetaData,channelType)
                     .params(TRANSFER_TYPE, StringUtils.defaultIfBlank(fundTransferRequest.getTransferType(), DEFAULT_STR))
                     .params(SEGMENT, StringUtils.defaultIfBlank(requestMetaData.getSegment(), DEFAULT_STR))
                     .params(CUSTOMER_NAME, StringUtils.defaultIfBlank(emailUtil.capitalizeFully(requestMetaData.getUsername()), CUSTOMER))
                     .params(SOURCE_OF_FUND, fundTransferRequest.getSourceOfFund() == null ? SOURCE_OF_FUND_ACCOUNT: fundTransferRequest.getSourceOfFund())
-                    .params(BANK_NAME, StringUtils.defaultIfBlank(emailTemplateParameters.getChannelIdentifier().getChannelName(), DEFAULT_STR))
                     .params(CHANNEL_TYPE, StringUtils.defaultIfBlank(channelType, DEFAULT_STR))
-                    .params(FACEBOOK_LINK, StringUtils.defaultIfBlank(emailTemplateParameters.getSocialMediaLinks().get(FACEBOOK), DEFAULT_STR))
-                    .params(INSTAGRAM_LINK, StringUtils.defaultIfBlank(emailTemplateParameters.getSocialMediaLinks().get(INSTAGRAM), DEFAULT_STR))
-                    .params(TWITTER_LINK, StringUtils.defaultIfBlank(emailTemplateParameters.getSocialMediaLinks().get(TWITTER), DEFAULT_STR))
-                    .params(LINKED_IN_KEY, StringUtils.defaultIfBlank(emailTemplateParameters.getSocialMediaLinks().get(LINKED_IN), DEFAULT_STR))
-                    .params(YOUTUBE_LINK, StringUtils.defaultIfBlank(emailTemplateParameters.getSocialMediaLinks().get(YOUTUBE), DEFAULT_STR))
-                    .params(EMAIL_TEMPLATE_COPYRIGHT_YEAR_KEY, String.valueOf(LocalDateTime.now().getYear()))
-                    .params(CONTACT_HTML_BODY_KEY, contactHtmlBody)
-                    .params(SEGMENT_SIGN_OFF_COMPANY_NAME, segmentSignOffCompanyName)
-                    .params(BANK_NAME_FOOTER, bankNameInFooter)
-                    .params(BANK_NAME_FOOTER_DESC, bankNameInFooterDesc);
+                    .params(EMAIL_TEMPLATE_COPYRIGHT_YEAR_KEY, String.valueOf(LocalDateTime.now().getYear()));
 
-
-            getTemplateValuesForFundTransferBuilder(template, fundTransferRequest, fundTransferRequestDTO, requestMetaData, segment);
-
-            emailRequest = SendEmailRequest.builder()
-                    .fromEmailAddress(emailParameters.getFromEmailAddress())
-                    .toEmailAddress(requestMetaData.getEmail())
-                    .subject(subject)
-                    .text(templateEngine.generate(template.configure()))
-                    .fromEmailName(emailParameters.getFromEmailName())
-                    .isEmailPresent(true)
-                    .build();
+            getTemplateValuesForFundTransferBuilder(template, fundTransferRequest, fundTransferRequestDTO, requestMetaData);
+            template.subjectParams(TRANSFER_TYPE,fundTransferRequest.getTransferType());
+            template.subjectParams(CHANNEL_TYPE,channelType);
+            template.toEmailAddress(requestMetaData.getEmail());
+            return template.configure();
+        } else {
+            log.error("Change username email notification did not triggered since email is not available for user: {}",
+                    htmlEscape(requestMetaData.getUsername()));
+            userEventPublisher.publishFailureEvent(eventType, requestMetaData, eventType.getDescription(),
+                    transferErrorCode.getCustomErrorCode(), transferErrorCode.getErrorMessage(), transferErrorCode.getErrorMessage());
         }
-        return PostTransactionActivityContext.<SendEmailRequest>builder().payload(emailRequest).postTransactionActivity(sendEmailActivity).build();
+        return null;
     }
-    private void getTemplateValuesForFundTransferBuilder(TemplateRequest.Builder builder, FundTransferRequest fundTransferRequest,
-                                                         FundTransferRequestDTO fundTransferRequestDTO, RequestMetaData requestMetaData, Segment segment) {
+
+    private String getTemplateName(String type) {
+        if (type.equalsIgnoreCase(NotificationType.LOCAL)) {
+            return LOCAL_FUND_TRANSFER;
+        }
+        else if(type.equalsIgnoreCase(NotificationType.GOLD_SILVER_BUY_SUCCESS)){
+            return GOLD_SILVER_BUY_SUCCESS;
+        }
+        else if(type.equalsIgnoreCase(NotificationType.GOLD_SILVER_SELL_SUCCESS)){
+            return GOLD_SILVER_SELL_SUCCESS;
+        }
+        else if(type.contains("PL") || type.contains("SI")){
+            return PL_SI_FUND_TRANSFER;
+        }
+        else return OTHER_FUND_TRANSFER;
+    }
+
+    private TemplateRequest.EmailBuilder buildEmailTemplate(String templateName,RequestMetaData metaData,String channelType) {
+        return  TemplateRequest.emailBuilder()
+                .templateType(TemplateType.EMAIL)
+                .templateName(templateName)
+                .country(metaData.getCountry())
+                .segment(metaData.getSegment())
+                .channel(channelType)
+                .businessType(BUSINESS_TYPE)
+                .language(defaultLanguage);
+    }
+    private void getTemplateValuesForFundTransferBuilder(TemplateRequest.EmailBuilder builder, FundTransferRequest fundTransferRequest,
+                                                         FundTransferRequestDTO fundTransferRequestDTO, RequestMetaData requestMetaData) {
         builder.params(MASKED_ACCOUNT, StringUtils.defaultIfBlank(emailUtil.doMask(fundTransferRequest.getFromAccount()), DEFAULT_STR));
         builder.params(TO_ACCOUNT_NO, StringUtils.defaultIfBlank(emailUtil.doMask(fundTransferRequest.getToAccount()), DEFAULT_STR));
         builder.params(BENEFICIARY_NICK_NAME, StringUtils.defaultIfBlank(fundTransferRequest.getBeneficiaryFullName(), DEFAULT_STR));
@@ -229,7 +202,7 @@ public class PostTransactionService {
 
             ServiceType serviceType = getServiceByType(fundTransferRequest.getServiceType());
             if(OWN_ACCOUNT_SERVICE_TYPES.contains(serviceType)){
-                builder.params(BENEFICIARY_BANK_NAME, StringUtils.defaultIfBlank(segment.getEmailCprFooter(), DEFAULT_STR));
+                //builder.params(BENEFICIARY_BANK_NAME, StringUtils.defaultIfBlank(segment.getEmailCprFooter(), DEFAULT_STR));
                 builder.params(BENEFICIARY_BANK_COUNTRY, StringUtils.defaultIfBlank(address, DEFAULT_STR));
             }
             else{
@@ -237,8 +210,6 @@ public class PostTransactionService {
                 builder.params(BENEFICIARY_BANK_NAME, StringUtils.defaultIfBlank(beneficiaryDto.getBankName(), DEFAULT_STR));
                 builder.params(BENEFICIARY_BANK_COUNTRY, StringUtils.defaultIfBlank(beneficiaryDto.getBankCountry(), DEFAULT_STR));
             }
-
-            builder.params(CUSTOMER_CARE_NO, StringUtils.defaultIfBlank(segment.getCustomerCareNumber(), DEFAULT_STR));
             builder.params(TRANSACTION_DATE, StringUtils.defaultIfBlank(
                     DateUtil.instantToDate(Instant.now(), "yyyy-MM-dd HH:mm:ss"), DEFAULT_STR)
             );
