@@ -39,6 +39,8 @@ public class EmailParameters {
     private String requestToPayMultipleFail;
 
     private String paymentFailedSubject;
+    private String createEmailProxySubject;
+    private String createEmailProxy;
 
     public String getEmailTemplate(String type) {
         if (type.equalsIgnoreCase(NotificationType.LOCAL)) {
@@ -94,6 +96,9 @@ public class EmailParameters {
         else if(type.equalsIgnoreCase(NotificationType.PAYMENT_REQUEST_SENT_FAIL_RTP)){
             return requestToPayFail;
         }
+        else if (type.equalsIgnoreCase(NotificationType.CREATE_EMAIL_PROXY_NOTIF_EVENT)) {
+            return createEmailProxy;
+        }
         else return paymentSuccess;
     }
 
@@ -112,6 +117,9 @@ public class EmailParameters {
         }
         else if (type.equalsIgnoreCase(NotificationType.PAYMENT_FAIL)) {
             return paymentFailedSubject;
+        }
+        else if(type.equalsIgnoreCase(NotificationType.CREATE_EMAIL_PROXY_NOTIF_EVENT)){
+            return createEmailProxySubject;
         }
 
         else return String.format(emailSubject, transferType,channel);

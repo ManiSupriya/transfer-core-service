@@ -107,6 +107,8 @@ public class EmailUtil {
     public static final String ALTERNATE_STEPS = "alternateSteps";
     public static final String ALTERNATE_STEPS_IF_ANY = "alternateStepsIfAny";
 
+    public static final String EMAIL_PROXY = "emailProxy";
+
     @Autowired
     private MobCommonService mobCommonService;
 
