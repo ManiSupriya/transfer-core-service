@@ -241,7 +241,7 @@ app:
   countriesWhereQrDisabledForCompany: ${LIST_OF_COUNTRIES:PK}
 default:
   notification:
-    language: ${DEFAULT_NOTIFICATION_LANGUAGE:AR}
+    language: ${DEFAULT_NOTIFICATION_LANGUAGE:EN}
 instarem:
   rules:
     bankCodeType:

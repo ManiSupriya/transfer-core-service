@@ -138,7 +138,7 @@ public class PostTransactionService {
             template.toEmailAddress(requestMetaData.getEmail());
             return template.configure();
         } else {
-            log.error("Change username email notification did not triggered since email is not available for user: {}",
+            log.error("Email notification did not trigger since email is not available for user: {}",
                     htmlEscape(requestMetaData.getUsername()));
             userEventPublisher.publishFailureEvent(eventType, requestMetaData, eventType.getDescription(),
                     transferErrorCode.getCustomErrorCode(), transferErrorCode.getErrorMessage(), transferErrorCode.getErrorMessage());

@@ -18,7 +18,7 @@
         <shedlock.spring>4.12.0</shedlock.spring>
         <shedlock.provider.jdbc.template>4.12.0</shedlock.provider.jdbc.template>
 		<sonar.skip>false</sonar.skip>
-        <java.version>11</java.version>
+        <java.version>1.8</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <tomcat.version>9.0.68</tomcat.version>

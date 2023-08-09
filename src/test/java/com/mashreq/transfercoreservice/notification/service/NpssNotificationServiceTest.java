@@ -1,9 +1,10 @@
-/*
+
 package com.mashreq.transfercoreservice.notification.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
+import com.mashreq.templates.freemarker.TemplateEngine;
 import com.mashreq.transfercoreservice.config.notification.EmailConfig;
 import com.mashreq.transfercoreservice.dto.NotificationRequestDto;
 import com.mashreq.transfercoreservice.fundtransfer.service.NpssNotificationService;
@@ -21,10 +22,10 @@ import java.util.Map;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-*/
+
 /**
  * @author ThanigachalamP
- *//*
+ */
 
 @RunWith(MockitoJUnitRunner.class)
 public class NpssNotificationServiceTest {
@@ -74,4 +75,4 @@ public class NpssNotificationServiceTest {
                 NotificationRequestDto.builder().notificationType(NotificationType.CUSTOMER_ENROLMENT).build());
     }
 }
-*/
+

@@ -209,6 +209,9 @@ app:
       sendMoneyNpssSuccess: ${SEND_MONEY_NPSS_SUCCESS:Dear {0}, you have just sent an instant payment of AED {1} to {Contact name}. Please login to Mashreq Mobile App to review the details.}
       sendMoneyNpssFail: ${SEND_MONEY_NPSS_FAIL:Dear {0}, your instant payment of AED {1} to {2} could not be processed. Please login to Mashreq Mobile App to review the details.}
   countriesWhereQrDisabledForCompany: ${LIST_OF_COUNTRIES:PK}
+default:
+  notification:
+    language: ${DEFAULT_NOTIFICATION_LANGUAGE:EN}
 instarem:
   rules:
     bankCodeType:
