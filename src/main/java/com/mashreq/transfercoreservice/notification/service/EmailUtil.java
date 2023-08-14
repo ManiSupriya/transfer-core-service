@@ -108,8 +108,8 @@ public class EmailUtil {
     public static final String ALTERNATE_STEPS_IF_ANY = "alternateStepsIfAny";
 
     public static final String LOCAL_FUND_TRANSFER = "mt_within_own_accounts";
-    public static final String GOLD_SILVER_BUY_SUCCESS = "mt_buy_goldsilver_success";
-    public static final String GOLD_SILVER_SELL_SUCCESS = "mt_sell_goldsilver_success";
+    public static final String GOLD_SILVER_BUY_SUCCESS = "mt_buy_gold_silver_success";
+    public static final String GOLD_SILVER_SELL_SUCCESS = "mt_sell_gold_silver_success";
     public static final String PL_SI_FUND_TRANSFER = "mt_pl_email_template";
     public static final String OTHER_FUND_TRANSFER = "mt_other_accounts";
     public static final String BUSINESS_TYPE = "RETAIL";
