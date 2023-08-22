@@ -67,6 +67,7 @@ public class EmailUtil {
     public static final String STATUS = "status";
     public static final String BANK_NAME = "bankName";
     public static final String CHANNEL_TYPE = "channelType";
+    public static final String PL_TYPE = "plType";
     public static final String FACEBOOK_LINK = "facebookLink";
     public static final String YOUTUBE_LINK = "youtubeLink";
     public static final String INSTAGRAM_LINK = "instagramLink";

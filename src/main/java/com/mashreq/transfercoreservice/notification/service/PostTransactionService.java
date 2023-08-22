@@ -146,6 +146,9 @@ public class PostTransactionService {
         return null;
     }
 
+    private boolean checkForPlAndSi(String type){
+        return type.contains("PL") || type.contains("SI");
+    }
     private String getTemplateName(String type) {
         if (type.equalsIgnoreCase(NotificationType.LOCAL)) {
             return LOCAL_FUND_TRANSFER;
@@ -156,7 +159,7 @@ public class PostTransactionService {
         else if(type.equalsIgnoreCase(NotificationType.GOLD_SILVER_SELL_SUCCESS)){
             return GOLD_SILVER_SELL_SUCCESS;
         }
-        else if(type.contains("PL") || type.contains("SI")){
+        else if(checkForPlAndSi(type)){
             return PL_SI_FUND_TRANSFER;
         }
         else return OTHER_FUND_TRANSFER;
@@ -198,7 +201,7 @@ public class PostTransactionService {
         }
         builder.params(STATUS, STATUS_SUCCESS);
 
-        if((fundTransferRequest.getNotificationType().contains("PL") || fundTransferRequest.getNotificationType().contains("SI"))){
+        if(checkForPlAndSi(fundTransferRequest.getNotificationType())){
 
             ServiceType serviceType = getServiceByType(fundTransferRequest.getServiceType());
             if(OWN_ACCOUNT_SERVICE_TYPES.contains(serviceType)){
@@ -221,6 +224,8 @@ public class PostTransactionService {
             builder.params(START_DATE,StringUtils.defaultIfBlank(fundTransferRequestDTO.getStartDate(), DEFAULT_STR));
             builder.params(END_DATE,StringUtils.defaultIfBlank(fundTransferRequestDTO.getEndDate(), DEFAULT_STR));
             builder.params(FREQUENCY,StringUtils.defaultIfBlank(fundTransferRequestDTO.getFrequency(), DEFAULT_STR));
+
+            builder.subjectParams(PL_TYPE,fundTransferRequestDTO.getOrderType().equals("PL")? "Pay Later" : "Standing Instruction");
         }
     }
 }
