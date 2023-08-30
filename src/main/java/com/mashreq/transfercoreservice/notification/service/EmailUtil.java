@@ -116,6 +116,8 @@ public class EmailUtil {
     public static final String BUSINESS_TYPE = "RETAIL";
 
 
+    public static final String EMAIL_PROXY = "emailProxy";
+
     @Autowired
     private MobCommonService mobCommonService;
 
