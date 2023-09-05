@@ -4,12 +4,9 @@ import com.mashreq.mobcommons.services.events.publisher.AuditEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.NotificationClient;
-import com.mashreq.transfercoreservice.config.notification.EmailTemplateHelper;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
-import com.mashreq.transfercoreservice.notification.model.EmailRequest;
 import com.mashreq.transfercoreservice.notification.model.EmailResponse;
 import com.mashreq.transfercoreservice.notification.model.SendEmailRequest;
-import freemarker.template.TemplateException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -18,7 +15,6 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.Objects;
 
 import static com.mashreq.mobcommons.services.CustomHtmlEscapeUtil.htmlEscape;
@@ -31,7 +27,6 @@ import static com.mashreq.transfercoreservice.event.FundTransferEventType.EMAIL_
 public class EmailServiceImpl implements MessageService<SendEmailRequest, EmailResponse> {
 
     private final NotificationClient notificationClient;
-    private final EmailTemplateHelper emailTemplateHelper;
     private final AuditEventPublisher auditEventPublisher;
 
     @Override
@@ -55,19 +50,6 @@ public class EmailServiceImpl implements MessageService<SendEmailRequest, EmailR
         }
         return null;
     }
-
-
-    public EmailRequest prepareEmailRequest(SendEmailRequest sendEmailRequest) throws IOException, TemplateException {
-        EmailRequest emailRequest = new EmailRequest();
-        emailRequest.setFromEmailAddress(sendEmailRequest.getFromEmailAddress());
-        emailRequest.setFromEmailName(sendEmailRequest.getFromEmailName());
-        emailRequest.setToEmailAddress(sendEmailRequest.getToEmailAddress());
-        emailRequest.setSubject(sendEmailRequest.getSubject());
-        String emailBody = emailTemplateHelper.getEmailTemplate(sendEmailRequest.getTemplateName(), sendEmailRequest.getTemplateKeyValues());
-        emailRequest.setText(emailBody);
-       return emailRequest;
-    }
-
 
 
 }
