@@ -3,6 +3,7 @@ package com.mashreq.transfercoreservice;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.mashreq.notification.client.annotations.EnableTemplateNotificationClient;
 import com.mashreq.transactionauth.annotations.EnableTransactionAuthorization;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import java.text.NumberFormat;
 @EnableAutoConfiguration
 @EnableTransactionAuthorization
 @EnableScheduling
+@EnableTemplateNotificationClient
 @SpringBootApplication(scanBasePackages = {"com.mashreq.transfercoreservice", "com.mashreq.ms"})
 public class TransferApplication {
 

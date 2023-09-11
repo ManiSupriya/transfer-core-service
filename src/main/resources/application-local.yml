@@ -144,7 +144,7 @@ app:
       AE:
         emailSubject: ${NOTIFICATION_EMAIL_SUBJECT:%s Transfer request via %s}
         payLaterSubject: ${PL_EMAIL_SUBJECT:Pay later request}
-        StandingInstructionSubject: ${SI_EMAIL_SUBJECT:Standing instruction request}x
+        StandingInstructionSubject: ${SI_EMAIL_SUBJECT:Standing instruction request}
         enrolmentConfirmSubject: ${CUSTOMER_ENROL_SUBJECT:Congratulations! You're now enrolled with Aani - The Instant Payment Platform!}
         requestToPayMultipleSubject: ${REQUEST_TO_PAY_MULTIPLE_SUBJECT:Aani - Your Split bill / multiple payment requests have been initiated}
         requestToPaySubject: ${REQUEST_TO_PAY_SUBJECT:Aani - Your ‘Request for Payment’ has been initiated}

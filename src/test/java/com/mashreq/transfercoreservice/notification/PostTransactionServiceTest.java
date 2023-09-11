@@ -1,8 +1,10 @@
+
 package com.mashreq.transfercoreservice.notification;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
+import com.mashreq.notification.client.notification.service.NotificationService;
 import com.mashreq.templates.freemarker.TemplateEngine;
 import com.mashreq.transfercoreservice.client.service.BankChargesService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
@@ -10,6 +12,7 @@ import com.mashreq.transfercoreservice.config.notification.EmailConfig;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
+import com.mashreq.transfercoreservice.fundtransfer.service.TransferBankChargesService;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.model.Segment;
 import com.mashreq.transfercoreservice.notification.model.*;
@@ -23,6 +26,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
@@ -35,11 +39,14 @@ import static com.mashreq.transfercoreservice.util.TestUtil.getBankCharges;
 import static com.mashreq.transfercoreservice.util.TestUtil.getBeneficiaryDto;
 import static java.lang.Long.valueOf;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
+
 
 /**
  * @author ThanigachalamP
  */
+
 @RunWith(MockitoJUnitRunner.class)
 public class PostTransactionServiceTest {
     @Mock
@@ -53,9 +60,13 @@ public class PostTransactionServiceTest {
 
     @Mock
     private EmailUtil emailUtil;
+    @Mock
+    private NotificationService notificationService;
 
     @Mock
     private BeneficiaryService beneficiaryService;
+    @Mock
+    private TransferBankChargesService transferBankChargesService;
 
     @InjectMocks
     private PostTransactionService postTransactionService;
@@ -64,27 +75,16 @@ public class PostTransactionServiceTest {
 
     private static final String SOURCE_OF_FUND_CC = "Credit Card";
 
-    @Mock
-    EmailConfig emailConfig;
-
-    @Mock
-    TemplateEngine templateEngine;
 
     @Before
     public void init(){
 
-        RequestMetaData requestMetaData = buildRequestMetaData();
-        EmailParameters emailParameters = buildEmailParameters();
-        EmailTemplateParameters emailTemplateParameters = buildEmailTemplateParameters();
-        HashMap<String, EmailParameters> emailConfigMap = new HashMap<>();
-        emailConfigMap.put(requestMetaData.getCountry(), emailParameters);
-        emailConfig.setEmail(emailConfigMap);
 
-        ReflectionTestUtils.setField(postTransactionService,"emailConfig", emailConfig);
-        ReflectionTestUtils.setField(postTransactionService,"postTransactionActivityService", postTransactionActivityService);
-        ReflectionTestUtils.setField(postTransactionService,"sendEmailActivity", sendEmailActivity);
-        ReflectionTestUtils.setField(postTransactionService,"userEventPublisher", userEventPublisher);
-        ReflectionTestUtils.setField(postTransactionService,"emailUtil", emailUtil);
+        //ReflectionTestUtils.setField(postTransactionService,"emailConfig", emailConfig);
+       // ReflectionTestUtils.setField(postTransactionService,"postTransactionActivityService", postTransactionActivityService);
+       // ReflectionTestUtils.setField(postTransactionService,"sendEmailActivity", sendEmailActivity);
+       // ReflectionTestUtils.setField(postTransactionService,"userEventPublisher", userEventPublisher);
+        ReflectionTestUtils.setField(postTransactionService,"defaultLanguage","EN");
     }
 
     private FundTransferRequest buildFundTransferRequest(){
@@ -194,18 +194,7 @@ public class PostTransactionServiceTest {
 
         FundTransferRequestDTO fundTransferRequestDTO = new FundTransferRequestDTO();
         fundTransferRequestDTO.setBeneficiaryId("1");
-
-        EmailParameters emailParameters = buildEmailParameters();
-        emailParameters.setPlSiFundTransfer("plSiFundTransfer");
-
-        EmailTemplateParameters emailTemplateParameters = buildEmailTemplateParameters();
-
-        HashMap<String, EmailParameters> emailConfigMap = new HashMap<>();
-        emailConfigMap.put(requestMetaData.getCountry(), emailParameters);
-        emailConfig.setEmail(emailConfigMap);
-        when(templateEngine.generate(any())).thenReturn("");
-        when(emailUtil.getEmailTemplateParameters(requestMetaData.getChannel(), requestMetaData.getSegment())).thenReturn(emailTemplateParameters);
-        when(emailConfig.getEmail()).thenReturn(emailConfigMap);
+        doNothing().when(notificationService).sendNotification(any());
         when(beneficiaryService.getByIdWithoutValidation(any(), any(),any(), any())).thenReturn(getBeneficiaryDto());
         postTransactionService.performPostTransactionActivities(requestMetaData, fundTransferRequest, fundTransferRequestDTO);
     }
@@ -226,13 +215,8 @@ public class PostTransactionServiceTest {
         emailParameters.setPlSiFundTransfer("plSiFundTransfer");
 
         EmailTemplateParameters emailTemplateParameters = buildEmailTemplateParameters();
-
-        HashMap<String, EmailParameters> emailConfigMap = new HashMap<>();
-        emailConfigMap.put(requestMetaData.getCountry(), emailParameters);
-        emailConfig.setEmail(emailConfigMap);
-        when(templateEngine.generate(any())).thenReturn("");
-        when(emailUtil.getEmailTemplateParameters(requestMetaData.getChannel(), requestMetaData.getSegment())).thenReturn(emailTemplateParameters);
-        when(emailConfig.getEmail()).thenReturn(emailConfigMap);
+        doNothing().when(notificationService).sendNotification(any());
+      //  when(emailUtil.getEmailTemplateParameters(requestMetaData.getChannel(), requestMetaData.getSegment())).thenReturn(emailTemplateParameters);
         postTransactionService.performPostTransactionActivities(requestMetaData, fundTransferRequest, fundTransferRequestDTO);
     }
 }

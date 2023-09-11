@@ -67,6 +67,7 @@ public class EmailUtil {
     public static final String STATUS = "status";
     public static final String BANK_NAME = "bankName";
     public static final String CHANNEL_TYPE = "channelType";
+    public static final String PL_TYPE = "plType";
     public static final String FACEBOOK_LINK = "facebookLink";
     public static final String YOUTUBE_LINK = "youtubeLink";
     public static final String INSTAGRAM_LINK = "instagramLink";
@@ -106,6 +107,14 @@ public class EmailUtil {
     public static final String FROM_ACCOUNT = "fromAccount";
     public static final String ALTERNATE_STEPS = "alternateSteps";
     public static final String ALTERNATE_STEPS_IF_ANY = "alternateStepsIfAny";
+
+    public static final String LOCAL_FUND_TRANSFER = "mt_within_own_accounts";
+    public static final String GOLD_SILVER_BUY_SUCCESS = "mt_buy_gold_silver_success";
+    public static final String GOLD_SILVER_SELL_SUCCESS = "mt_sell_gold_silver_success";
+    public static final String PL_SI_FUND_TRANSFER = "mt_pl_creation";
+    public static final String OTHER_FUND_TRANSFER = "mt_other_accounts";
+    public static final String BUSINESS_TYPE = "RETAIL";
+
 
     public static final String EMAIL_PROXY = "emailProxy";
 

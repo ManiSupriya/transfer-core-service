@@ -1,3 +1,4 @@
+
 package com.mashreq.transfercoreservice.notification.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -21,9 +22,11 @@ import java.util.Map;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+
 /**
  * @author ThanigachalamP
  */
+
 @RunWith(MockitoJUnitRunner.class)
 public class NpssNotificationServiceTest {
     @InjectMocks
@@ -72,3 +75,4 @@ public class NpssNotificationServiceTest {
                 NotificationRequestDto.builder().notificationType(NotificationType.CUSTOMER_ENROLMENT).build());
     }
 }
+

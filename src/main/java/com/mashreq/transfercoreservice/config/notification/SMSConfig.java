@@ -1,5 +1,7 @@
 package com.mashreq.transfercoreservice.config.notification;
 
+import com.mashreq.notification.client.freemarker.TemplateRequest;
+import com.mashreq.notification.client.freemarker.TemplateType;
 import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
 import com.mashreq.transfercoreservice.notification.model.NotificationType;
 import com.mashreq.transfercoreservice.notification.service.EmailUtil;
@@ -37,9 +39,7 @@ public class SMSConfig {
     private String createEmailProxySMS;
 
     public String getSMSTemplate(String type, CustomerNotification customerNotification) {
-        if (type.contains("PL") && type.contains("CREATION")) {
-            return MessageFormat.format(plSiCreation, customerNotification.getBeneficiaryName(), emailUtil.doMask(customerNotification.getCreditAccount()), customerNotification.getSegment().getCustomerCareNumber());
-        } else if (type.contains("CUSTOMER_ENROLL_NPSS")) {
+        if(type.contains("CUSTOMER_ENROLL_NPSS")) {
             return MessageFormat.format(customerEnrolledForNpss, customerNotification.getCustomerName());
         } else if (NotificationType.PAYMENT_SUCCESS.equalsIgnoreCase(type)) {
             return MessageFormat.format(sendMoneyNpssSuccess, customerNotification.getAmount(),customerNotification.getBeneficiaryName());
@@ -61,7 +61,7 @@ public class SMSConfig {
             return MessageFormat.format(createEmailProxySMS
                     , customerNotification.getCustomerName());
         } else {
-            return MessageFormat.format(ownAccountTransactionInitiated, customerNotification.getCurrency(), customerNotification.getAmount(), customerNotification.getTxnRef(), customerNotification.getSegment().getCustomerCareNumber());
+            return "";
         }
     }
 }
