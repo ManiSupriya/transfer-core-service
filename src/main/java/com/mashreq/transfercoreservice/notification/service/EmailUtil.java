@@ -133,6 +133,7 @@ public class EmailUtil {
     public static final String RECEIVER_NAME = "receiverName";
     public static final String SENDER_NAME = "senderName";
     public static final String ZERO = "0";
+    public static final String defaultLanguage = "EN";
 
     @Autowired
     private MobCommonService mobCommonService;
