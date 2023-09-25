@@ -52,19 +52,10 @@ import static com.mashreq.transfercoreservice.notification.service.EmailUtil.*;
 public class NpssNotificationService {
     private final NotificationService notificationService;
     private final EmailConfig emailConfig;
-    private final PostTransactionActivityService postTransactionActivityService;
-
-    private final SendEmailActivity sendEmailActivity;
-
     private final AsyncUserEventPublisher userEventPublisher;
-    
     private final DigitalUserService digitalUserService;
-
     private final EmailUtil emailUtil;
-    private final TemplateEngine templateEngine;
 
-    @Value("${default.notification.language}")
-    private String defaultLanguage;
 
     @Async("generalTaskExecutor")
     public void performPostTransactionActivities(RequestMetaData requestMetaData, NotificationRequestDto notificationRequestDto) {
@@ -73,8 +64,6 @@ public class NpssNotificationService {
         TransferErrorCode transferErrorCode = TransferErrorCode.EMAIL_NOTIFICATION_FAILED;
         try {
             log.info("NpssNotificationService >> getNewEmailPostTransactionActivityContext Initiated >> for the cif {}{}",requestMetaData.getPrimaryCif(),notificationRequestDto);
-            //final PostTransactionActivityContext<SendEmailRequest> emailPostTransactionActivityContext = getEmailPostTransactionActivityContext(requestMetaData, notificationRequestDto);
-            //postTransactionActivityService.execute(Collections.singletonList(emailPostTransactionActivityContext), requestMetaData);
             com.mashreq.notification.client.freemarker.TemplateRequest templateRequest = getNewEmailPostTransactionActivityContext(requestMetaData, notificationRequestDto);
             log.info("NpssNotificationService >> getNewEmailPostTransactionActivityContext Completed >> for the cif {}{}",requestMetaData.getPrimaryCif(),notificationRequestDto);
             notificationService.sendNotification(templateRequest);
@@ -87,161 +76,6 @@ public class NpssNotificationService {
                     transferErrorCode.getCustomErrorCode(), transferErrorCode.getErrorMessage(), transferErrorCode.getErrorMessage());
         }
     }
-
-/*    private PostTransactionActivityContext<SendEmailRequest> getEmailPostTransactionActivityContext(RequestMetaData requestMetaData,
-                                                                                                    NotificationRequestDto notificationRequestDto) throws Exception {
-        log.info("NpssNotificationService >> getEmailPostTransactionActivityContext >> {}",notificationRequestDto);
-        SendEmailRequest emailRequest = SendEmailRequest.builder().isEmailPresent(false).build();
-        log.info("NpssNotificationService >> getEmailPostTransactionActivityContext >> emailRequest >> formed {}",emailRequest);
-        String contactLinkText;
-        String htmlContent;
-
-        if (StringUtils.isNotBlank(requestMetaData.getEmail())) {
-            final EmailParameters emailParameters = emailConfig.getEmail().get(requestMetaData.getCountry());
-
-            final String templateName = emailParameters.getNpssEmailTemplate(notificationRequestDto.getNotificationType());
-            log.info("NpssNotificationService >> getEmailPostTransactionActivityContext >> templateName " +
-                    "{} formed for the notificationType{}",templateName,notificationRequestDto.getNotificationType());
-            final EmailTemplateParameters emailTemplateParameters = emailUtil.getEmailTemplateParameters(requestMetaData.getChannel(), requestMetaData.getSegment());
-            boolean isMobile = requestMetaData.getChannel().contains(MOBILE);
-            String channelType = isMobile ? MOBILE_BANKING : ONLINE_BANKING;
-            Segment segment = emailTemplateParameters.getSegment();
-            final String subject = emailParameters.getNpssEmailSubject(notificationRequestDto.getNotificationType(), "NPSS", channelType);
-
-            String contactHtmlBody;
-            String segmentSignOffCompanyName;
-            String bankNameInFooter;
-            String bankNameInFooterDesc;
-            if (segment != null) {
-                contactLinkText = StringUtils.defaultIfBlank(segment.getEmailContactUsLinkText(), DEFAULT_STR);
-                htmlContent = segment.getEmailContactUsHtmlContent();
-                if (StringUtils.isNotEmpty(htmlContent)) {
-                    htmlContent = htmlContent.replace("\\{contactUsLinkText}", contactLinkText);
-                    htmlContent = htmlContent.replace("\\$", DEFAULT_STR);
-                } else {
-                    htmlContent = DEFAULT_STR;
-                }
-
-                contactHtmlBody = htmlContent;
-                segmentSignOffCompanyName = StringUtils.defaultIfBlank(segment.getEmailSignOffCompany(), DEFAULT_STR);
-                bankNameInFooter = StringUtils.defaultIfBlank(segment.getEmailCprFooter(), DEFAULT_STR);
-                bankNameInFooterDesc = StringUtils.defaultIfBlank(segment.getEmailCprBankDesc(), DEFAULT_STR);
-            } else {
-                contactHtmlBody = DEFAULT_STR;
-                segmentSignOffCompanyName = DEFAULT_STR;
-                bankNameInFooter = emailTemplateParameters.getChannelIdentifier().getChannelName();
-                bankNameInFooterDesc = DEFAULT_STR;
-            }
-            TemplateRequest.Builder template = null;
-            try {
-                template = TemplateRequest.builder()
-                        .templateName(templateName)
-                        .params(SEGMENT, StringUtils.defaultIfBlank(requestMetaData.getSegment(), DEFAULT_STR))
-                        .params(CUSTOMER_NAME, Optional.ofNullable(notificationRequestDto.getCustomerName()).isPresent()
-                                ? StringUtils.defaultIfBlank(emailUtil.capitalizeFully(notificationRequestDto.getCustomerName()), CUSTOMER)
-                                : StringUtils.defaultIfBlank(emailUtil.capitalizeFully(requestMetaData.getUsername()), CUSTOMER))
-                        .params(FACEBOOK_LINK, StringUtils.defaultIfBlank(emailTemplateParameters.getSocialMediaLinks().get(FACEBOOK), DEFAULT_STR))
-                        .params(INSTAGRAM_LINK, StringUtils.defaultIfBlank(emailTemplateParameters.getSocialMediaLinks().get(INSTAGRAM), DEFAULT_STR))
-                        .params(TWITTER_LINK, StringUtils.defaultIfBlank(emailTemplateParameters.getSocialMediaLinks().get(TWITTER), DEFAULT_STR))
-                        .params(LINKED_IN_KEY, StringUtils.defaultIfBlank(emailTemplateParameters.getSocialMediaLinks().get(LINKED_IN), DEFAULT_STR))
-                        .params(YOUTUBE_LINK, StringUtils.defaultIfBlank(emailTemplateParameters.getSocialMediaLinks().get(YOUTUBE), DEFAULT_STR))
-                        .params(CONTACT_HTML_BODY_KEY, contactHtmlBody)
-                        .params(SEGMENT_SIGN_OFF_COMPANY_NAME, segmentSignOffCompanyName)
-                        .params(BANK_NAME_FOOTER, bankNameInFooter)
-                        .params(BANK_NAME_FOOTER_DESC, bankNameInFooterDesc)
-                        .params(EMAIL_PROXY, Optional.ofNullable(notificationRequestDto.getEmailProxy()).isPresent() ? notificationRequestDto.getEmailProxy() : "");
-            } catch(Exception e){
-            log.error("NpssNotificationService >> getEmailPostTransactionActivityContext >> error in preparing template " +
-                    "{} formed for the notificationType{}{}",templateName,notificationRequestDto.getNotificationType(),templateName);
-            }
-            getTemplateValuesForNotificationBuilder(template, notificationRequestDto);
-            log.info("NpssNotificationService >> getEmailPostTransactionActivityContext >> template preparation is successful " +
-                    "{} formed for the notificationType{}{}{}",
-                    templateName,notificationRequestDto.getNotificationType(),templateName,template);
-            emailRequest = SendEmailRequest.builder()
-                    .fromEmailAddress(emailParameters.getFromEmailAddress())
-                    .toEmailAddress(requestMetaData.getEmail())
-                    .subject(subject)
-                    .text(templateEngine.generate(template.configure()))
-                    .fromEmailName(emailParameters.getFromEmailName())
-                    .isEmailPresent(true)
-                    .build();
-           log.info("NpssNotificationService >> getEmailPostTransactionActivityContext >> final emailRequest formed {}{}",emailRequest,sendEmailActivity);
-        }
-        return PostTransactionActivityContext.<SendEmailRequest>builder().payload(emailRequest).postTransactionActivity(sendEmailActivity).build();
-    }*/
-
-/*    private void getTemplateValuesForNotificationBuilder(TemplateRequest.Builder builder, NotificationRequestDto notificationRequestDto) {
-
-        if (notificationRequestDto.getAmount() != null) {
-            builder.params(AMOUNT, EmailUtil.formattedAmount(notificationRequestDto.getAmount()));
-        }
-        if (notificationRequestDto.getSentTo() != null) {
-            builder.params(SENT_TO, StringUtils.defaultIfBlank(notificationRequestDto.getSentTo(), DEFAULT_STR));
-        }
-
-        builder.params(TIME, StringUtils.defaultIfBlank(notificationRequestDto.getTime(), DEFAULT_STR));
-
-        if (notificationRequestDto.getDate() != null) {
-            builder.params(DATE, StringUtils.defaultIfBlank(notificationRequestDto.getDate(), DEFAULT_STR));
-        }
-        builder.params(REFERENCE_NUMBER, StringUtils.defaultIfBlank(notificationRequestDto.getReferenceNumber(), DEFAULT_STR));
-        builder.params(ALTERNATE_STEPS, emailConfig.getAlternateSteps());
-        builder.params(ALTERNATE_STEPS_IF_ANY, emailConfig.getAlternateSteps());
-        builder.params(REASON_FOR_FAILURE, StringUtils.defaultIfBlank(notificationRequestDto.getReasonForFailure(), DEFAULT_STR));
-
-        builder.params(CONTACT_NAME, StringUtils.defaultIfBlank(notificationRequestDto.getContactName(), CUSTOMER_DEFAULT));
-        builder.params(FROM_ACCOUNT, StringUtils.defaultIfBlank(notificationRequestDto.getFromAccount(), DEFAULT_STR));
-
-        builder.params(MESSAGE, StringUtils.defaultIfBlank(notificationRequestDto.getReasonForFailure(), DEFAULT_STR));
-        builder.params(EMAIL_PROXY, Optional.ofNullable(notificationRequestDto.getEmailProxy()).isPresent() ? notificationRequestDto.getEmailProxy() : "");
-        if (CollectionUtils.isNotEmpty(notificationRequestDto.getRtpNotificationList())) {
-            if (notificationRequestDto.getRtpNotificationList().size() > 1) {
-                List<RecipientDTO> recipientDTOS = new ArrayList<>();
-
-                notificationRequestDto.getRtpNotificationList().forEach(rtpNotification -> {
-                    RecipientDTO recipientDTO = RecipientDTO.builder()
-                            .requestedAmount(REQUESTED_AMOUNT)
-                            .aed(AED)
-                            .contactName(rtpNotification.getContactName())
-                            .value(EmailUtil.formattedAmount(rtpNotification.getAmount()))
-                            .proxy(StringUtils.defaultIfBlank(rtpNotification.getProxy(), DEFAULT_STR))
-                            .build();
-                    recipientDTOS.add(recipientDTO);
-                });
-                log.info("NpssNotificationService >> recipientDTOS formed {} for the notification type{}",recipientDTOS,notificationRequestDto.getNotificationType());
-                builder.params(RECIPIENTS, recipientDTOS);
-            }else{
-                builder.params(AED, AED);
-                builder.params(PROXY,StringUtils.defaultIfBlank(notificationRequestDto.getRtpNotificationList().get(0).getProxy(), DEFAULT_STR));
-                builder.params(VALUE, StringUtils.defaultIfBlank(EmailUtil.formattedAmount(notificationRequestDto.getRtpNotificationList().get(0).getAmount()),DEFAULT_STR));
-                builder.params(REASON_FOR_FAILURE, StringUtils.defaultIfBlank(notificationRequestDto.getReasonForFailure(), DEFAULT_STR));
-            }
-        }
-
-    }*/
-/*
-    private CustomerNotification populateCustomerNotification(NotificationRequestDto notificationRequestDto) {
-        log.info("NpssNotificationService >> populateCustomerNotification >> {}", notificationRequestDto.toString());
-        CustomerNotification customerNotification = new CustomerNotification();
-        if (CUSTOMER_ENROLMENT.equalsIgnoreCase(notificationRequestDto.getNotificationType()) ||
-                PAYMENT_REQUEST_SENT_MULTIPLE_RTP.equalsIgnoreCase(notificationRequestDto.getNotificationType())) {
-            customerNotification.setCustomerName(notificationRequestDto.getCustomerName());
-            customerNotification.setAmount(String.valueOf(notificationRequestDto.getAmount()));
-        } else if (CREATE_EMAIL_PROXY_NOTIF_EVENT.equalsIgnoreCase(notificationRequestDto.getNotificationType())){
-            customerNotification.setCustomerName(notificationRequestDto.getEmailProxy());
-        } else {
-            customerNotification.setAmount(String.valueOf(notificationRequestDto.getAmount()));
-            customerNotification.setCurrency(AED);
-            customerNotification.setTxnRef(notificationRequestDto.getReferenceNumber());
-            customerNotification.setBeneficiaryName(notificationRequestDto.getContactName());
-            customerNotification.setCreditAccount(notificationRequestDto.getSentTo());
-            customerNotification.setCustomerName(notificationRequestDto.getCustomerName());
-        }log.info("NpssNotificationService >> populateCustomerNotification >> customerNotification {}",customerNotification);
-
-        return customerNotification;
-    }*/
-
     public void performNotificationActivities(RequestMetaData requestMetaData, NotificationRequestDto notificationRequestDto ,UserDTO userDTO) {
         if(PAYMENT_REQUEST_SENT.equalsIgnoreCase(notificationRequestDto.getNotificationType())){
             log.info("NpssNotificationService >> performNotificationActivities >> for Cif {} {}",requestMetaData.getPrimaryCif(),PAYMENT_REQUEST_SENT);
@@ -278,25 +112,12 @@ public class NpssNotificationService {
         String channelType = isMobile ? MOBILE_BANKING : ONLINE_BANKING;
         if (StringUtils.isNotBlank(requestMetaData.getEmail())) {
         String templateName = getTemplateName(notificationRequestDto.getNotificationType());
-       /* final EmailTemplateParameters emailTemplateParameters = emailUtil.getEmailTemplateParameters(requestMetaData.getChannel(), requestMetaData.getSegment());
-        Segment segment = emailTemplateParameters.getSegment();
-        String segmentSignOffCompanyName = StringUtils.defaultIfBlank(segment.getEmailSignOffCompany(), DEFAULT_STR);
-        String bankNameInFooter = StringUtils.defaultIfBlank(segment.getEmailCprFooter(), DEFAULT_STR);
-        String bankNameInFooterDesc = StringUtils.defaultIfBlank(segment.getEmailCprBankDesc(), DEFAULT_STR);
-        */
+
             com.mashreq.notification.client.freemarker.TemplateRequest.EmailBuilder template = buildEmailTemplate(templateName, requestMetaData, channelType)
                     .params(SEGMENT, StringUtils.defaultIfBlank(requestMetaData.getSegment(), DEFAULT_STR))
                     .params(CUSTOMER_NAME, StringUtils.defaultIfBlank(emailUtil.capitalizeFully(requestMetaData.getUsername()), CUSTOMER))
                     .params(CHANNEL_TYPE, StringUtils.defaultIfBlank(channelType, DEFAULT_STR))
                     .params(EMAIL_TEMPLATE_COPYRIGHT_YEAR_KEY, String.valueOf(LocalDateTime.now().getYear()));
-                   /* .params(FACEBOOK_LINK, StringUtils.defaultIfBlank(emailTemplateParameters.getSocialMediaLinks().get(FACEBOOK), DEFAULT_STR))
-                    .params(INSTAGRAM_LINK, StringUtils.defaultIfBlank(emailTemplateParameters.getSocialMediaLinks().get(INSTAGRAM), DEFAULT_STR))
-                    .params(TWITTER_LINK, StringUtils.defaultIfBlank(emailTemplateParameters.getSocialMediaLinks().get(TWITTER), DEFAULT_STR))
-                    .params(LINKED_IN_KEY, StringUtils.defaultIfBlank(emailTemplateParameters.getSocialMediaLinks().get(LINKED_IN), DEFAULT_STR))
-                    .params(YOUTUBE_LINK, StringUtils.defaultIfBlank(emailTemplateParameters.getSocialMediaLinks().get(YOUTUBE), DEFAULT_STR))
-                    .params(SEGMENT_SIGN_OFF_COMPANY_NAME, segmentSignOffCompanyName)
-                    .params(BANK_NAME_FOOTER, bankNameInFooter)
-                    .params(BANK_NAME_FOOTER_DESC, bankNameInFooterDesc);*/
             getNewTemplateValuesForNotificationBuilder(template, notificationRequestDto,requestMetaData);
 
             return template.configure();
@@ -313,7 +134,7 @@ public class NpssNotificationService {
                 htmlEscape(requestMetaData.getUsername()));
 
         builder.params(AMOUNT, Optional.ofNullable(notificationRequestDto.getAmount()).isPresent() ? EmailUtil.formattedAmount(notificationRequestDto.getAmount()) : ZERO);
-        builder.params(SENT_TO, Optional.ofNullable(notificationRequestDto.getSentTo()).isPresent() ? notificationRequestDto.getSentTo() : requestMetaData.getEmail());
+        builder.params(SENT_TO, StringUtils.isNotEmpty(notificationRequestDto.getSentTo()) ? notificationRequestDto.getSentTo() : requestMetaData.getEmail());
         builder.params(TIME, StringUtils.defaultIfBlank(notificationRequestDto.getTime(), DEFAULT_STR));
         if (notificationRequestDto.getDate() != null) {
             builder.params(DATE, StringUtils.defaultIfBlank(notificationRequestDto.getDate(), DEFAULT_STR));
@@ -342,7 +163,7 @@ public class NpssNotificationService {
                             .build();
                     recipientDTOS.add(recipientDTO);
                 });
-                log.info("NpssNotificationService >> getNewTemplateValuesForNotificationBuilder >> recipientDTOS formed {} for the notification type{}",recipientDTOS,notificationRequestDto.getNotificationType());
+                log.info("NpssNotificationService >> getNewTemplateValuesForNotificationBuilder >> builder formed {} for the notification type{}",builder,notificationRequestDto.getNotificationType());
                 builder.params(RECIPIENTS, recipientDTOS);
             }else{
                 builder.params(AED, AED);
