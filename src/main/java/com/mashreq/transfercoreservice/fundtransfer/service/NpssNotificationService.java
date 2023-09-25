@@ -338,6 +338,7 @@ public class NpssNotificationService {
                             .contactName(rtpNotification.getContactName())
                             .value(EmailUtil.formattedAmount(rtpNotification.getAmount()))
                             .proxy(StringUtils.defaultIfBlank(rtpNotification.getProxy(), DEFAULT_STR))
+                            .receiverName(StringUtils.defaultIfBlank(rtpNotification.getContactName(), CUSTOMER_DEFAULT))
                             .build();
                     recipientDTOS.add(recipientDTO);
                 });
