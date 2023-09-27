@@ -144,7 +144,7 @@ public class NpssNotificationService {
         builder.params(ALTERNATE_STEPS_IF_ANY, emailConfig.getAlternateSteps());
         builder.params(REASON_FOR_FAILURE, StringUtils.defaultIfBlank(notificationRequestDto.getReasonForFailure(), DEFAULT_STR));
 
-        builder.params(RECEIVER_NAME, StringUtils.defaultIfBlank(notificationRequestDto.getContactName(), CUSTOMER_DEFAULT));
+        builder.params(RECEIVER_NAME, StringUtils.defaultIfBlank(notificationRequestDto.getReceiverName(), CUSTOMER_DEFAULT));
         builder.params(FROM_ACCOUNT, StringUtils.defaultIfBlank(notificationRequestDto.getFromAccount(), DEFAULT_STR));
         builder.params(PAYMENT_NOTE, StringUtils.defaultIfBlank(notificationRequestDto.getReasonForFailure(), NOT_APPLICABLE));
         builder.params(EMAIL_PROXY, Optional.ofNullable(notificationRequestDto.getEmailProxy()).isPresent() ? notificationRequestDto.getEmailProxy() : "");
