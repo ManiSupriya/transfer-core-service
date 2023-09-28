@@ -203,8 +203,9 @@ public class NpssNotificationService {
             return NOT_APPLICABLE;
     }
 
-        private com.mashreq.notification.client.freemarker.TemplateRequest.EmailBuilder buildEmailTemplate(String templateName,RequestMetaData metaData,String channelType) {
-            return  com.mashreq.notification.client.freemarker.TemplateRequest.emailBuilder()
+    private com.mashreq.notification.client.freemarker.TemplateRequest.EmailBuilder buildEmailTemplate(String templateName,RequestMetaData metaData,String channelType) {
+        log.info("NpssNotificationService >> buildEmailTemplate >> CIF {} and segment {}",metaData.getPrimaryCif(), metaData.getSegment());
+        return  com.mashreq.notification.client.freemarker.TemplateRequest.emailBuilder()
                     .templateType(TemplateType.EMAIL)
                     .templateName(templateName)
                     .country(metaData.getCountry())
@@ -219,10 +220,13 @@ public class NpssNotificationService {
     private TemplateRequest.SMSBuilder buildSMSTemplate(NotificationRequestDto notifReqDto,RequestMetaData metaData) {
         boolean isMobile = metaData.getChannel().contains(MOBILE);
         String channelType = isMobile ? MOBILE_BANKING : ONLINE_BANKING;
-        if(Objects.isNull(metaData.getSegment())){
+        log.info("NpssNotificationService >> buildSMSTemplate >>CIF {} and  segment {}",metaData.getPrimaryCif(),metaData.getSegment());
+        if(StringUtils.isEmpty(metaData.getSegment())){
+            log.info("NpssNotificationService >> buildSMSTemplate >> set segment for CIF {}",metaData.getPrimaryCif() );
         	RequestMetaData requestMetaData = RequestMetaData.builder().primaryCif(metaData.getPrimaryCif()).build();
             DigitalUser digitalUser = digitalUserService.getDigitalUser(requestMetaData);
             metaData.setSegment(digitalUser.getDigitalUserGroup().getSegment().getName());
+            log.info("NpssNotificationService >> buildSMSTemplate >> CIF {} and  segment {}",metaData.getPrimaryCif(), metaData.getSegment() );
         }
         
         return TemplateRequest.smsBuilder()
