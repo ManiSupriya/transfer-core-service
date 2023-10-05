@@ -33,5 +33,5 @@ public class NotificationRequestDto implements Serializable {
     private String receiverName;
     private List<RtpNotification> rtpNotificationList;
     private String emailProxy;
-
+    private String proxy;
 }

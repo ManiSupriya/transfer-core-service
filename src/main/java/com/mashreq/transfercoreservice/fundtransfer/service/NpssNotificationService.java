@@ -90,8 +90,10 @@ public class NpssNotificationService {
     }
 
     private RtpNotification mapRtpToNotificationRequest(RtpNotification notificationRequestDto) {
-        return RtpNotification.builder().amount(notificationRequestDto.getAmount()).contactName(notificationRequestDto.getContactName()).sentTo(notificationRequestDto.getSentTo()).build();
-
+        return RtpNotification.builder().amount(notificationRequestDto.getAmount())
+                .contactName(notificationRequestDto.getContactName())
+                .sentTo(notificationRequestDto.getSentTo())
+                .proxy(StringUtils.isNotEmpty(notificationRequestDto.getProxy()) ? notificationRequestDto.getProxy() : PROXY).build();
     }
 
     private void performSendNotifications(RequestMetaData requestMetaData, NotificationRequestDto notificationRequestDto, UserDTO userDTO) {
@@ -135,6 +137,7 @@ public class NpssNotificationService {
 
         builder.params(AMOUNT, Optional.ofNullable(notificationRequestDto.getAmount()).isPresent() ? EmailUtil.formattedAmount(notificationRequestDto.getAmount()) : ZERO);
         builder.params(SENT_TO, StringUtils.isNotEmpty(notificationRequestDto.getSentTo()) ? notificationRequestDto.getSentTo() : requestMetaData.getEmail());
+        builder.params(PROXY, StringUtils.isNotEmpty(notificationRequestDto.getProxy()) ? notificationRequestDto.getProxy() : PROXY);
         builder.params(TIME, StringUtils.defaultIfBlank(notificationRequestDto.getTime(), DEFAULT_STR));
         if (notificationRequestDto.getDate() != null) {
             builder.params(DATE, StringUtils.defaultIfBlank(notificationRequestDto.getDate(), DEFAULT_STR));
@@ -264,6 +267,7 @@ public class NpssNotificationService {
         builder.params(TO_ACCOUNT_NO,notificationRequestDto.getSentTo());
         builder.params(CUSTOMER_NAME,notificationRequestDto.getCustomerName());
         builder.params(SENT_TO,builder.configure().getMobileNumber());
+        builder.params(PROXY, StringUtils.isNotEmpty(notificationRequestDto.getProxy()) ? notificationRequestDto.getProxy() : PROXY);
         builder.params(RECEIVER_NAME, StringUtils.defaultIfBlank(notificationRequestDto.getContactName(), CUSTOMER_DEFAULT));
         builder.params(SENDER_NAME, StringUtils.defaultIfBlank(notificationRequestDto.getCustomerName(), CUSTOMER));
     }
