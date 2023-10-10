@@ -155,8 +155,8 @@ public class NpssNotificationService {
                 notificationRequestDto.getRtpNotificationList().forEach(rtpNotification -> {
                     RecipientDTO recipientDTO = RecipientDTO.builder()
                             .requestedAmount(REQUESTED_AMOUNT)
-                            .aed(AED)
-                            .contactName(rtpNotification.getContactName())
+                            .aed(AED)                           
+                            .contactName(Optional.ofNullable(rtpNotification.getContactName()).isPresent() ? rtpNotification.getContactName() : rtpNotification.getReceiverName())
                             .value(EmailUtil.formattedAmount(rtpNotification.getAmount()))
                             .proxy(StringUtils.defaultIfBlank(rtpNotification.getProxy(), DEFAULT_STR))
                             .build();
@@ -166,6 +166,7 @@ public class NpssNotificationService {
                 builder.params(RECIPIENTS, recipientDTOS);
             }else{
                 builder.params(AED, AED);
+                builder.params(RECEIVER_NAME, StringUtils.defaultIfBlank( notificationRequestDto.getRtpNotificationList().get(0).getReceiverName(), CUSTOMER_DEFAULT));
                 builder.params(PROXY,StringUtils.defaultIfBlank(notificationRequestDto.getRtpNotificationList().get(0).getProxy(), DEFAULT_STR));
                 builder.params(VALUE, StringUtils.defaultIfBlank(EmailUtil.formattedAmount(notificationRequestDto.getRtpNotificationList().get(0).getAmount()),DEFAULT_STR));
                 builder.params(REASON_FOR_FAILURE, StringUtils.defaultIfBlank(notificationRequestDto.getReasonForFailure(), DEFAULT_STR));
@@ -258,8 +259,16 @@ public class NpssNotificationService {
         builder.params(BENEFICIARY_BANK_NAME,notificationRequestDto.getContactName());
         builder.params(TO_ACCOUNT_NO,notificationRequestDto.getSentTo());
         builder.params(CUSTOMER_NAME,notificationRequestDto.getCustomerName());
-        builder.params(SENT_TO,builder.configure().getMobileNumber());
-        builder.params(RECEIVER_NAME, StringUtils.defaultIfBlank(notificationRequestDto.getContactName(), CUSTOMER_DEFAULT));
+        builder.params(SENT_TO,builder.configure().getMobileNumber());        
+        //this if for sendMoney  only. 
+        builder.params(RECEIVER_NAME, StringUtils.defaultIfBlank(notificationRequestDto.getReceiverName(), CUSTOMER_DEFAULT));
+      //if only happen in RTP 
+		if (notificationRequestDto.getRtpNotificationList() != null
+				&& notificationRequestDto.getRtpNotificationList().size() > 0
+				&& notificationRequestDto.getRtpNotificationList().size() == 1) {
+			builder.params(RECEIVER_NAME, StringUtils.defaultIfBlank(
+					notificationRequestDto.getRtpNotificationList().get(0).getReceiverName(), CUSTOMER_DEFAULT));
+		}
         builder.params(SENDER_NAME, StringUtils.defaultIfBlank(notificationRequestDto.getCustomerName(), CUSTOMER));
     }
 
