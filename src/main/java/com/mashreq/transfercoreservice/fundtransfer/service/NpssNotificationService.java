@@ -90,8 +90,10 @@ public class NpssNotificationService {
     }
 
     private RtpNotification mapRtpToNotificationRequest(RtpNotification notificationRequestDto) {
-        return RtpNotification.builder().amount(notificationRequestDto.getAmount()).contactName(notificationRequestDto.getContactName()).sentTo(notificationRequestDto.getSentTo()).build();
-
+        return RtpNotification.builder().amount(notificationRequestDto.getAmount())
+                .contactName(notificationRequestDto.getContactName())
+                .sentTo(notificationRequestDto.getSentTo())
+                .proxy(StringUtils.isNotEmpty(notificationRequestDto.getProxy()) ? notificationRequestDto.getProxy() : PROXY).build();
     }
 
     private void performSendNotifications(RequestMetaData requestMetaData, NotificationRequestDto notificationRequestDto, UserDTO userDTO) {
@@ -135,6 +137,7 @@ public class NpssNotificationService {
 
         builder.params(AMOUNT, Optional.ofNullable(notificationRequestDto.getAmount()).isPresent() ? EmailUtil.formattedAmount(notificationRequestDto.getAmount()) : ZERO);
         builder.params(SENT_TO, StringUtils.isNotEmpty(notificationRequestDto.getSentTo()) ? notificationRequestDto.getSentTo() : requestMetaData.getEmail());
+        builder.params(PROXY, StringUtils.isNotEmpty(notificationRequestDto.getProxy()) ? notificationRequestDto.getProxy() : PROXY);
         builder.params(TIME, StringUtils.defaultIfBlank(notificationRequestDto.getTime(), DEFAULT_STR));
         if (notificationRequestDto.getDate() != null) {
             builder.params(DATE, StringUtils.defaultIfBlank(notificationRequestDto.getDate(), DEFAULT_STR));
@@ -144,7 +147,7 @@ public class NpssNotificationService {
         builder.params(ALTERNATE_STEPS_IF_ANY, emailConfig.getAlternateSteps());
         builder.params(REASON_FOR_FAILURE, StringUtils.defaultIfBlank(notificationRequestDto.getReasonForFailure(), DEFAULT_STR));
 
-        builder.params(RECEIVER_NAME, StringUtils.defaultIfBlank(notificationRequestDto.getContactName(), CUSTOMER_DEFAULT));
+        builder.params(RECEIVER_NAME, StringUtils.defaultIfBlank(notificationRequestDto.getReceiverName(), CUSTOMER_DEFAULT));
         builder.params(FROM_ACCOUNT, StringUtils.defaultIfBlank(notificationRequestDto.getFromAccount(), DEFAULT_STR));
         builder.params(PAYMENT_NOTE, StringUtils.defaultIfBlank(notificationRequestDto.getReasonForFailure(), NOT_APPLICABLE));
         builder.params(EMAIL_PROXY, Optional.ofNullable(notificationRequestDto.getEmailProxy()).isPresent() ? notificationRequestDto.getEmailProxy() : "");
@@ -159,6 +162,7 @@ public class NpssNotificationService {
                             .contactName(Optional.ofNullable(rtpNotification.getContactName()).isPresent() ? rtpNotification.getContactName() : rtpNotification.getReceiverName())
                             .value(EmailUtil.formattedAmount(rtpNotification.getAmount()))
                             .proxy(StringUtils.defaultIfBlank(rtpNotification.getProxy(), DEFAULT_STR))
+                            .receiverName(StringUtils.defaultIfBlank(rtpNotification.getContactName(), CUSTOMER_DEFAULT))
                             .build();
                     recipientDTOS.add(recipientDTO);
                 });
@@ -203,8 +207,9 @@ public class NpssNotificationService {
             return NOT_APPLICABLE;
     }
 
-        private com.mashreq.notification.client.freemarker.TemplateRequest.EmailBuilder buildEmailTemplate(String templateName,RequestMetaData metaData,String channelType) {
-            return  com.mashreq.notification.client.freemarker.TemplateRequest.emailBuilder()
+    private com.mashreq.notification.client.freemarker.TemplateRequest.EmailBuilder buildEmailTemplate(String templateName,RequestMetaData metaData,String channelType) {
+        log.info("NpssNotificationService >> buildEmailTemplate >> CIF {} and segment {}",metaData.getPrimaryCif(), metaData.getSegment());
+        return  com.mashreq.notification.client.freemarker.TemplateRequest.emailBuilder()
                     .templateType(TemplateType.EMAIL)
                     .templateName(templateName)
                     .country(metaData.getCountry())
@@ -219,10 +224,13 @@ public class NpssNotificationService {
     private TemplateRequest.SMSBuilder buildSMSTemplate(NotificationRequestDto notifReqDto,RequestMetaData metaData) {
         boolean isMobile = metaData.getChannel().contains(MOBILE);
         String channelType = isMobile ? MOBILE_BANKING : ONLINE_BANKING;
-        if(Objects.isNull(metaData.getSegment())){
+        log.info("NpssNotificationService >> buildSMSTemplate >>CIF {} and  segment {}",metaData.getPrimaryCif(),metaData.getSegment());
+        if(StringUtils.isEmpty(metaData.getSegment())){
+            log.info("NpssNotificationService >> buildSMSTemplate >> set segment for CIF {}",metaData.getPrimaryCif() );
         	RequestMetaData requestMetaData = RequestMetaData.builder().primaryCif(metaData.getPrimaryCif()).build();
             DigitalUser digitalUser = digitalUserService.getDigitalUser(requestMetaData);
             metaData.setSegment(digitalUser.getDigitalUserGroup().getSegment().getName());
+            log.info("NpssNotificationService >> buildSMSTemplate >> CIF {} and  segment {}",metaData.getPrimaryCif(), metaData.getSegment() );
         }
         
         return TemplateRequest.smsBuilder()
@@ -260,15 +268,19 @@ public class NpssNotificationService {
         builder.params(TO_ACCOUNT_NO,notificationRequestDto.getSentTo());
         builder.params(CUSTOMER_NAME,notificationRequestDto.getCustomerName());
         builder.params(SENT_TO,builder.configure().getMobileNumber());        
-        //this if for sendMoney  only. 
+        //this is for sendMoney  only. 
         builder.params(RECEIVER_NAME, StringUtils.defaultIfBlank(notificationRequestDto.getReceiverName(), CUSTOMER_DEFAULT));
-      //if only happen in RTP 
+        //if is for RTP 
 		if (notificationRequestDto.getRtpNotificationList() != null
 				&& notificationRequestDto.getRtpNotificationList().size() > 0
 				&& notificationRequestDto.getRtpNotificationList().size() == 1) {
 			builder.params(RECEIVER_NAME, StringUtils.defaultIfBlank(
 					notificationRequestDto.getRtpNotificationList().get(0).getReceiverName(), CUSTOMER_DEFAULT));
 		}
+
+        builder.params(SENT_TO,builder.configure().getMobileNumber());
+        builder.params(PROXY, StringUtils.isNotEmpty(notificationRequestDto.getProxy()) ? notificationRequestDto.getProxy() : PROXY);
+        builder.params(RECEIVER_NAME, StringUtils.defaultIfBlank(notificationRequestDto.getContactName(), CUSTOMER_DEFAULT));
         builder.params(SENDER_NAME, StringUtils.defaultIfBlank(notificationRequestDto.getCustomerName(), CUSTOMER));
     }
 

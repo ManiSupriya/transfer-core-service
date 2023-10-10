@@ -12,4 +12,6 @@ public class RecipientDTO {
     private String value;
     private String contactName;
     private String proxy;
+    private String receiverName;
+    
 }
