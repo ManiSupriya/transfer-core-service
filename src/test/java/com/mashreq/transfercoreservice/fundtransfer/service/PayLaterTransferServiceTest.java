@@ -1,6 +1,7 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -8,14 +9,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.EnumMap;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach ;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.util.HtmlUtils;
 
@@ -43,7 +43,7 @@ import com.mashreq.transfercoreservice.twofactorauthrequiredvalidation.service.T
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class PayLaterTransferServiceTest {
 	@Mock
 	RequestMetaData metaData;
@@ -82,7 +82,7 @@ public class PayLaterTransferServiceTest {
 	@Mock
 	CoreFundTransferResponseDto coreFundTransferResponseDto;
 
-	@Before
+	@BeforeEach
 	public void prepare() {
 		this.payLaterTransferService.init();
 		fundTransferRequestDTO = generateFundTransferRequest(FTOrderType.PL);
@@ -102,7 +102,7 @@ public class PayLaterTransferServiceTest {
 				Mockito.any());
 		FundTransferResponseDTO fundTransferResponseDTO = payLaterTransferService.transferFund(metaData,
 				fundTransferRequestDTO);
-		Assert.assertNull(fundTransferResponseDTO);
+		assertNull(fundTransferResponseDTO);
 	}
 
 	
@@ -164,7 +164,7 @@ public class PayLaterTransferServiceTest {
 				Mockito.any());
 		FundTransferResponseDTO fundTransferResponseDTO = payLaterTransferService.transferFund(metaData,
 				fundTransferRequestDTO);
-		Assert.assertNull(fundTransferResponseDTO);
+		assertNull(fundTransferResponseDTO);
 	}
 
 	@Test

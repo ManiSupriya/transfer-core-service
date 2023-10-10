@@ -1,4 +1,4 @@
-FROM  mashrequae.azurecr.io/jdk8-jre-hardened-font:v1
+FROM mashrequae.azurecr.io/jdk17-jre-hardened-font:v1
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 RUN mkdir -p /opt/appdynamics && \

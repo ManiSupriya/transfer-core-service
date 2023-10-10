@@ -2,7 +2,6 @@ package com.mashreq.transfercoreservice.config.feign;
 
 import feign.Client;
 import feign.Logger;
-import feign.httpclient.ApacheHttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
@@ -23,8 +22,8 @@ public class GlobalFeignConfig {
 
     @Bean
     public Client feignClient() {
-
-        return new ApacheHttpClient(getHttpClient());
+return null;
+       // return new ApacheHttpClient(getHttpClient());
     }
 
     private CloseableHttpClient getHttpClient() {

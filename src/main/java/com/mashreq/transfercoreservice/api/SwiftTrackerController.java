@@ -10,9 +10,13 @@ import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 import java.util.List;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,38 +36,33 @@ import com.mashreq.transfercoreservice.swifttracker.dto.SWIFTGPITransactionDetai
 import com.mashreq.transfercoreservice.swifttracker.dto.SWIFTGPITransactionDetailsRes;
 import com.mashreq.transfercoreservice.swifttracker.service.SwiftTrackerService;
 import com.mashreq.webcore.dto.response.Response;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
 @RequestMapping(GPI_TRACKER_URL)
-@Api(value = GPI_TRANSACTIONS)
+@Tag(name = GPI_TRANSACTIONS)
 @RequiredArgsConstructor
 @Validated
 public class SwiftTrackerController {
 	private final SwiftTrackerService swiftTrackerService;
 	private final AsyncUserEventPublisher asyncUserEventPublisher;
 
-	@ApiOperation(value = "Swift GPI Transaction Details for uetr", response = FundTransferRequestDTO.class)
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully processed"),
-			@ApiResponse(code = 401, message = "You are not authorized to view the resource"),
-			@ApiResponse(code = 500, message = "Something went wrong") })
+	@Operation(summary = "Swift GPI Transaction Details for uetr")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successfully processed"),
+			@ApiResponse(responseCode = "401", description = "You are not authorized to view the resource"),
+			@ApiResponse(responseCode = "500", description = "Something went wrong") })
 	@PostMapping(SWIFT_TRACKER)
 	public SWIFTGPITransactionDetailsRes swiftGPITransactionDetails(@RequestAttribute(REQ_METADATA) RequestMetaData metaData, @Valid @RequestBody SWIFTGPITransactionDetailsReq swiftGpiTransactionDetailsReq) {
 		log.info("Swift GPI Transaction Details for uetr {} ", htmlEscape(swiftGpiTransactionDetailsReq.getUetr()));
 		return asyncUserEventPublisher.publishEvent(() ->swiftTrackerService.swiftGPITransactionDetails(metaData, swiftGpiTransactionDetailsReq), FundTransferEventType.SWIFT_GPI_TRANSACTION_DETAILS, metaData, FundTransferEventType.SWIFT_GPI_TRANSACTION_DETAILS.getDescription());
 	}
 
-	@ApiOperation("This operation is responsible for GPI Transaction Details.")
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "successfully processed"),
-			@ApiResponse(code = 401, message = "You are not authorized to view the resource"),
-			@ApiResponse(code = 500, message = "Something went wrong") })
+	@Operation(summary = "This operation is responsible for GPI Transaction Details.")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "successfully processed"),
+			@ApiResponse(responseCode = "401", description = "You are not authorized to view the resource"),
+			@ApiResponse(responseCode = "500" , description = "Something went wrong") })
 	@GetMapping
 	public Response<List<GPITransactionsDetailsRes>> getSwiftMessageDetails(
 			@RequestAttribute(REQ_METADATA) RequestMetaData metaData,

@@ -3,7 +3,7 @@ package com.mashreq.transfercoreservice.client.mobcommon;
 import java.util.List;
 import java.util.Set;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import com.mashreq.transfercoreservice.client.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;

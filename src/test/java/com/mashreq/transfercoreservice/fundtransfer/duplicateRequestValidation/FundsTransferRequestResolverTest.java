@@ -3,31 +3,33 @@ package com.mashreq.transfercoreservice.fundtransfer.duplicateRequestValidation;
 import com.mashreq.dedupe.dto.DedupeRequestDto;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach ;
+import org.junit.jupiter.api.Test;
+import org.springframework.dao.DataIntegrityViolationException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FundsTransferRequestResolverTest {
 
 	private FundsTransferRequestResolver resolver;
-	@Before
+	@BeforeEach
 	public void init() {
 		resolver = new FundsTransferRequestResolver();
 	}
 	
-	@Test(expected = NullPointerException.class)
+	@Test()
 	public void test_resolver_with_null() {
-		resolver.resolveUniqueRequest(null);
+		assertThrows(NullPointerException.class,()->resolver.resolveUniqueRequest(null));
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test()
 	public void test_resolver_with_nullFinTxnNo() {
 		FundTransferRequestDTO request = new FundTransferRequestDTO();
-		resolver.resolveUniqueRequest(request );
+		assertThrows(NullPointerException.class,()->resolver.resolveUniqueRequest(request));
 	}
 	
 	@Test

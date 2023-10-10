@@ -5,11 +5,11 @@ import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.transfercoreservice.dto.CharityPaidDto;
 import com.mashreq.transfercoreservice.dto.TransactionHistoryDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.NpssEnrolmentRepoDTO;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -22,13 +22,13 @@ import java.util.Optional;
 import static com.mashreq.transfercoreservice.common.CommonConstants.CARD_LESS_CASH;
 import static com.mashreq.transfercoreservice.common.CommonConstants.MOB_CHANNEL;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.DB_CONNECTIVITY_ISSUE;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TransactionHistoryServiceTest {
 
     @Mock

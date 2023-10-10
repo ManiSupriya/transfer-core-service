@@ -6,10 +6,10 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.TwoFactorAuthRequiredChe
 import com.mashreq.transfercoreservice.twofactorauthrequiredvalidation.service.TwoFactorAuthRequiredCheckService;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
@@ -26,14 +26,14 @@ import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/twoFactorAuthentication")
-@Api(value = "Two factor authentication")
+@Tag(name = "Two factor authentication")
 public class TwoFactorAuthenticationController {
     private final TwoFactorAuthRequiredCheckService service;
 
-    @ApiOperation(value = "For validating service", response = TwoFactorAuthRequiredCheckRequestDto.class)
+    @Operation(summary = "For validating service")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successfully processed"),
-            @ApiResponse(code = 500, message = "Something went wrong")
+            @ApiResponse(responseCode = "200", description = "Successfully processed"),
+            @ApiResponse(responseCode = "500", description = "Something went wrong")
     })
     @PostMapping("/isRequired")
     public Response<TwoFactorAuthRequiredCheckResponseDto> checkIfTwoFactorAuthenticationRequired

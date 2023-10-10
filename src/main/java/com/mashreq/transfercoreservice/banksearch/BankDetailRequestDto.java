@@ -4,7 +4,7 @@ import com.mashreq.transfercoreservice.annotations.ConditionalRequired;
 import com.mashreq.transfercoreservice.annotations.ValueOfEnum;
 import lombok.Data;
 
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 
 /**
  * @author shahbazkh

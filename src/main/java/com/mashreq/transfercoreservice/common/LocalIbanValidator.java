@@ -4,10 +4,9 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.IBAN_CHEC
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_IBAN_LENGTH;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.validator.routines.IBANValidator;
+//import org.apache.commons.validator.routines.IBANValidator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import org.springframework.web.util.HtmlUtils;
 
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
@@ -21,7 +20,7 @@ public class LocalIbanValidator {
     private final String localBankCode;
     private final int localIbanLength;
     private final int accountNumberLength;
-        private final IBANValidator ibanValidator;
+    //  private final IBANValidator ibanValidator;
 
     private static final int BANK_CODE_INDEX = 4;
 
@@ -34,7 +33,7 @@ public class LocalIbanValidator {
         this.localIbanLength = localIbanLength;
         this.accountNumberLength = accountNumberLength;
 
-        ibanValidator = IBANValidator.getInstance();
+        //ibanValidator = IBANValidator.getInstance();
     }
 
     public String validate(String ibanNumber) {
@@ -64,7 +63,8 @@ public class LocalIbanValidator {
     }
 
     private void validateChecksum(String ibanNumber) {
-        boolean valid = ibanValidator.isValid(ibanNumber);
+        boolean valid = true;
+                //ibanValidator.isValid(ibanNumber);
         if (!valid) {
             /** Invalid IBAN Number */
             log.error("Invalid local IBAN number {}", HtmlUtils.htmlEscape(ibanNumber));

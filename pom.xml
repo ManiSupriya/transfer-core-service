@@ -9,19 +9,15 @@
     <name>transfer-core-service</name>
     <description>Fund Transfer Core Service</description>
     <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.3.12.RELEASE</version>
+        <groupId>com.mashreq</groupId>
+        <artifactId>parent-pom</artifactId>
+        <version>1.4.0-RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <properties>
         <shedlock.spring>4.12.0</shedlock.spring>
         <shedlock.provider.jdbc.template>4.12.0</shedlock.provider.jdbc.template>
 		<sonar.skip>false</sonar.skip>
-        <java.version>1.8</java.version>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
-        <tomcat.version>9.0.68</tomcat.version>
         <!-- Sonar | Code coverage | API Doc-->
         <sonar.exclusions>
             src/main/**/*,
@@ -44,34 +40,31 @@
         <sonar.test.exclusions>
             src/test/**/*
         </sonar.test.exclusions>
-        <jacoco.version>0.8.3</jacoco.version>
+        <jacoco.version>0.8.10</jacoco.version>
         <jacoco.percentage.instruction>0.60</jacoco.percentage.instruction>
-        <sonar-maven-plugin.version>3.7.0.1746</sonar-maven-plugin.version>
-        <springfox.version>3.0.0</springfox.version>
+        <sonar-maven-plugin.version>3.9.1.2184</sonar-maven-plugin.version>
         <asciidoctor-maven-plugin.version>2.0.0-RC.1</asciidoctor-maven-plugin.version>
-        <!-- dependency management version -->
-        <spring-cloud.version>Greenwich.SR2</spring-cloud.version>
-        <!-- internal modules -->
-        <com.mashreq.esbcore>2.2.30</com.mashreq.esbcore>
-        <com.mashreq.logcore>1.0.4</com.mashreq.logcore>
-        <com.mashreq.encryption>1.0.0</com.mashreq.encryption>
-        <com.mashreq.ms.ms-commons>1.1.2</com.mashreq.ms.ms-commons>
-        <com.mashreq.mob-commons>2.1.19</com.mashreq.mob-commons>
+        <com.mashreq.esbcore>3.0.2-RELEASE</com.mashreq.esbcore>
+        <com.mashreq.logcore>3.0.2-RELEASE</com.mashreq.logcore>
+        <com.mashreq.encryption>3.0.2-RELEASE</com.mashreq.encryption>
+        <com.mashreq.ms.ms-commons>3.0.1-RELEASE</com.mashreq.ms.ms-commons>
+        <com.mashreq.tracing>3.1.2-RELEASE</com.mashreq.tracing>
+        <com.mashreq.mob-commons>3.3.2-SNAPSHOT</com.mashreq.mob-commons>
         <!-- additional deps and plugins versions -->
         <apache.commons.lang.version>3.9</apache.commons.lang.version>
         <apache.commons.bean.utils.version>1.9.4</apache.commons.bean.utils.version>
         <mapstruct.version>1.3.1.Final</mapstruct.version>
         <log4j-api.version>2.13.2</log4j-api.version>
-        <jackson.version>2.14.0-rc1</jackson.version>
+       <!-- <jackson.version>2.14.0-rc1</jackson.version>-->
         <properties-maven-plugin.version>1.0.0</properties-maven-plugin.version>
-        <jackson.databind.version>2.14.0-rc1</jackson.databind.version>
+    <!--    <jackson.databind.version>2.14.0-rc1</jackson.databind.version>-->
         <templates.utils.version>1.0.4.RELEASE</templates.utils.version>
         <com.mashreq.dedupe-util>1.0.4</com.mashreq.dedupe-util>
-        <transaction-authorization-client>10.2.18</transaction-authorization-client>
+        <com.mashreq.transaction-authorization-client.version>3.0.2-RELEASE</com.mashreq.transaction-authorization-client.version>
     </properties>
-    <repositories>
+  <repositories>
         <repository>
-            <id>dev-azure-com-mashreqdigital-core-components</id>
+            <id>core-components</id>
             <url>https://pkgs.dev.azure.com/MashreqDigital/_packaging/core-components/maven/v1</url>
             <releases>
                 <enabled>true</enabled>
@@ -81,29 +74,21 @@
             </snapshots>
         </repository>
     </repositories>
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-dependencies</artifactId>
-				<version>${spring-cloud.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-core</artifactId>
-                <version>5.3.20</version>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-beans</artifactId>
-                <version>5.3.20</version>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
+    <distributionManagement>
+        <repository>
+            <id>core-components</id>
+            <url>https://pkgs.dev.azure.com/MashreqDigital/_packaging/core-components/maven/v1</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </distributionManagement>
+
     <dependencies>
-        <dependency>
+       <dependency>
             <groupId>com.mashreq</groupId>
             <artifactId>templates-utils</artifactId>
             <version>${templates.utils.version}</version>
@@ -111,36 +96,14 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-classic</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.tomcat.embed</groupId>
-                    <artifactId>tomcat-embed-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.springframework</groupId>
-                    <artifactId>spring-expression</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-expression</artifactId>
-            <version>5.2.23.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.apache.tomcat.embed</groupId>
             <artifactId>tomcat-embed-core</artifactId>
-            <version>${tomcat.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -155,12 +118,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>io.lettuce</groupId>
-                    <artifactId>lettuce-core</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>redis.clients</groupId>
@@ -169,28 +126,17 @@
         <dependency>
             <groupId>com.mashreq</groupId>
             <artifactId>transaction-authorization-client</artifactId>
-            <version>${transaction-authorization-client}</version>
+            <version>${com.mashreq.transaction-authorization-client.version}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>org.springframework.kafka</groupId>
-                    <artifactId>spring-kafka</artifactId>
+                    <groupId>com.github.librepdf</groupId>
+                    <artifactId>openpdf</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-freemarker</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.freemarker</groupId>
-                    <artifactId>freemarker</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.freemarker</groupId>
-            <artifactId>freemarker</artifactId>
-            <version>2.3.30</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.retry</groupId>
@@ -203,21 +149,46 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
         </dependency>
+<!--        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+        </dependency>-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web-services</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.mashreq</groupId>
             <artifactId>esbcore</artifactId>
             <version>${com.mashreq.esbcore}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.github.librepdf</groupId>
+                    <artifactId>openpdf</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+       <!-- <dependency>
+            <groupId>com.github.librepdf</groupId>
+            <artifactId>openpdf</artifactId>
+            <version>1.3.11</version>
+        </dependency>-->
         <dependency>
             <groupId>com.mashreq</groupId>
             <artifactId>encryption</artifactId>
             <version>${com.mashreq.encryption}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.github.librepdf</groupId>
+                    <artifactId>openpdf</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.mashreq.dedupe</groupId>
@@ -234,41 +205,11 @@
             <version>${com.mashreq.mob-commons}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-data-redis</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>net.minidev</groupId>
-                    <artifactId>json-smart</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.owasp.esapi</groupId>
-                    <artifactId>esapi</artifactId>
+                    <groupId>com.github.librepdf</groupId>
+                    <artifactId>openpdf</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>net.minidev</groupId>
-            <artifactId>json-smart</artifactId>
-            <version>2.4.9</version>
-        </dependency>
 
-        <dependency>
-            <groupId>org.owasp.esapi</groupId>
-            <artifactId>esapi</artifactId>
-            <version>2.5.0.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-fileupload</groupId>
-                    <artifactId>commons-fileupload</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
-            <version>1.5</version>
         </dependency>
 
         <dependency>
@@ -279,14 +220,13 @@
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct-processor</artifactId>
-            <version>${mapstruct.version}</version>
             <scope>provided</scope>
         </dependency>
         <!-- Logging | Monitoring | Api Doc -->
-        <dependency>
+   <!--     <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-sleuth</artifactId>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
@@ -297,20 +237,20 @@
             <version>${com.mashreq.logcore}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-databind</artifactId>
+                    <groupId>com.github.librepdf</groupId>
+                    <artifactId>openpdf</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.databind.version}</version>
+            <artifactId>jackson-annotations</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>${jackson.version}</version>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.databind.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -323,61 +263,34 @@
             <version>${com.mashreq.ms.ms-commons}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>net.sf.jasperreports</groupId>
-                    <artifactId>jasperreports</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.xmlgraphics</groupId>
-                    <artifactId>xmlgraphics-commons</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>xalan</groupId>
-                    <artifactId>xalan</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.xmlgraphics</groupId>
-                    <artifactId>batik-util</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.xmlgraphics</groupId>
-                    <artifactId>batik-script</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.xmlgraphics</groupId>
-                    <artifactId>batik-xml</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.xmlgraphics</groupId>
-                    <artifactId>batik-dom</artifactId>
-                </exclusion>
-				<exclusion>
-                    <groupId>org.apache.xmlgraphics</groupId>
-                    <artifactId>batik-bridge</artifactId>
+                    <groupId>com.github.librepdf</groupId>
+                    <artifactId>openpdf</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
         <dependency>
             <groupId>net.javacrumbs.shedlock</groupId>
             <artifactId>shedlock-provider-jdbc-template</artifactId>
-            <version>${shedlock.provider.jdbc.template}</version>
         </dependency>
-        <dependency>
+   <!--     <dependency>
             <groupId>net.sf.jtidy</groupId>
             <artifactId>jtidy</artifactId>
             <version>r938</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>net.javacrumbs.shedlock</groupId>
             <artifactId>shedlock-spring</artifactId>
-            <version>${shedlock.spring}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework</groupId>
-                    <artifactId>spring-expression</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
+        <groupId>io.github.openfeign</groupId>
+        <artifactId>feign-httpclient</artifactId>
+    </dependency>
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itextpdf</artifactId>
+        </dependency>
+
+       <!-- <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>xmlgraphics-commons</artifactId>
             <version>2.6</version>
@@ -397,17 +310,7 @@
             <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>batik-bridge</artifactId>
             <version>1.16</version>
-		</dependency>
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger2</artifactId>
-            <version>${springfox.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger-ui</artifactId>
-            <version>${springfox.version}</version>
-        </dependency>
+		</dependency>-->
 
         <!-- Helpers -->
         <dependency>
@@ -418,25 +321,22 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok-mapstruct-binding</artifactId>
-            <version>0.2.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>${apache.commons.lang.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
-            <version>${apache.commons.bean.utils.version}</version>
         </dependency>
-        <dependency>
+      <!--  <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <scope>runtime</scope>
             <optional>true</optional>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
@@ -446,39 +346,17 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.dom4j</groupId>
-                    <artifactId>dom4j</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.dom4j</groupId>
-            <artifactId>dom4j</artifactId>
-            <version>2.1.3</version>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.2.9</version>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-core</artifactId>
-            <version>1.2.9</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>31.0.1-jre</version>
         </dependency>
 
-        <dependency>
+      <!--  <dependency>
             <groupId>commons-validator</groupId>
             <artifactId>commons-validator</artifactId>
             <version>1.7</version>
-        </dependency>
+        </dependency>-->
 
 
         <!-- Testing -->
@@ -488,24 +366,36 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-            <version>1.32</version>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
-            <version>5.3.24</version>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.mashreq</groupId>
+            <artifactId>tracing</artifactId>
+            <version>${com.mashreq.tracing}</version>
+        </dependency>
+        <dependency>
+        <groupId>net.bull.javamelody</groupId>
+        <artifactId>javamelody-spring-boot-starter</artifactId>
+        </dependency>
+       <!-- <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
+        </dependency>-->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.5.13</version>
         </dependency>
         <dependency>
-            <groupId>io.github.openfeign</groupId>
-            <artifactId>feign-httpclient</artifactId>
-            <version>10.9</version>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-models</artifactId>
+            <version>2.1.2</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
     <build>

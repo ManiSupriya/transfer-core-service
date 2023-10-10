@@ -1,12 +1,12 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import com.mashreq.ms.exceptions.GenericException;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
@@ -18,10 +18,13 @@ import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 /**
  *
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CurrencyValidatorTest {
 
     @Mock
@@ -55,7 +58,7 @@ public class CurrencyValidatorTest {
         final ValidationResult result = currencyValidator.validate(requestDTO, null, mockValidationContext);
 
         //then
-        Assert.assertEquals(result.isSuccess(), true);
+        assertEquals(result.isSuccess(), true);
 
     }
 
@@ -83,7 +86,7 @@ public class CurrencyValidatorTest {
         final ValidationResult result = currencyValidator.validate(requestDTO, null, mockValidationContext);
 
         //then
-        Assert.assertEquals(result.isSuccess(), true);
+        assertEquals(result.isSuccess(), true);
 
     }
 
@@ -112,7 +115,7 @@ public class CurrencyValidatorTest {
         final ValidationResult result = currencyValidator.validate(requestDTO, null, mockValidationContext);
 
         //then
-        Assert.assertEquals(result.isSuccess(), true);
+        assertEquals(result.isSuccess(), true);
 
     }
 
@@ -141,7 +144,7 @@ public class CurrencyValidatorTest {
         final ValidationResult result = currencyValidator.validate(requestDTO, null, mockValidationContext);
 
         //then
-        Assert.assertEquals(result.isSuccess(), true);
+       assertEquals(result.isSuccess(), true);
 
     }
 
@@ -170,7 +173,7 @@ public class CurrencyValidatorTest {
         final ValidationResult result = currencyValidator.validate(requestDTO, null, mockValidationContext);
 
         //then
-        Assert.assertEquals( true, result.isSuccess());
+        assertEquals( true, result.isSuccess());
 
     }
 
@@ -199,8 +202,8 @@ public class CurrencyValidatorTest {
         final ValidationResult result = currencyValidator.validate(requestDTO, null, mockValidationContext);
 
         //then
-        Assert.assertEquals(result.isSuccess(), false);
-        Assert.assertEquals(result.getTransferErrorCode(), TransferErrorCode.CURRENCY_IS_INVALID);
+        assertEquals(result.isSuccess(), false);
+        assertEquals(result.getTransferErrorCode(), TransferErrorCode.CURRENCY_IS_INVALID);
 
     }
 
@@ -230,7 +233,7 @@ public class CurrencyValidatorTest {
         final ValidationResult result = currencyValidator.validate(requestDTO, null, mockValidationContext);
 
         //then
-        Assert.assertEquals(result.isSuccess(), true);
+        assertEquals(result.isSuccess(), true);
 
     }
 
@@ -260,7 +263,7 @@ public class CurrencyValidatorTest {
         final ValidationResult result = currencyValidator.validate(requestDTO, null, mockValidationContext);
 
         //then
-        Assert.assertEquals(result.isSuccess(), true);
+        assertEquals(result.isSuccess(), true);
 
     }
 
@@ -289,7 +292,7 @@ public class CurrencyValidatorTest {
         final ValidationResult result = currencyValidator.validate(requestDTO, null, mockValidationContext);
 
         //then
-        Assert.assertEquals(result.isSuccess(), true);
+        assertEquals(result.isSuccess(), true);
 
     }
 
@@ -320,8 +323,8 @@ public class CurrencyValidatorTest {
         final ValidationResult result = currencyValidator.validate(requestDTO, null, mockValidationContext);
 
         //then
-        Assert.assertEquals(result.isSuccess(), false);
-        Assert.assertEquals(result.getTransferErrorCode(), TransferErrorCode.CURRENCY_IS_INVALID);
+        assertEquals(result.isSuccess(), false);
+        assertEquals(result.getTransferErrorCode(), TransferErrorCode.CURRENCY_IS_INVALID);
 
     }
 
@@ -350,12 +353,12 @@ public class CurrencyValidatorTest {
         final ValidationResult result = currencyValidator.validate(requestDTO, null, mockValidationContext);
 
         //then
-        Assert.assertEquals(result.isSuccess(), false);
-        Assert.assertEquals(result.getTransferErrorCode(), TransferErrorCode.ACCOUNT_CURRENCY_MISMATCH);
+        assertEquals(result.isSuccess(), false);
+        assertEquals(result.getTransferErrorCode(), TransferErrorCode.ACCOUNT_CURRENCY_MISMATCH);
 
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test()
     public void test_when_validation_fails_throws_exception() {
 
         //given
@@ -373,9 +376,7 @@ public class CurrencyValidatorTest {
         mockValidationContext.add("beneficiary-dto", beneficiaryDto);
 
         //when
-         
-        final ValidationResult result = currencyValidator.validate(requestDTO, null, mockValidationContext);
-
+        assertThrows(NullPointerException.class, () -> currencyValidator.validate(requestDTO, null, mockValidationContext));
     }
 
 }

@@ -2,16 +2,16 @@ package com.mashreq.transfercoreservice.fundtransfer.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach ;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.microsoft.sqlserver.jdbc.StringUtils;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class FundTransferFactoryTest {
 	@Mock
 	private PayLaterTransferService payLaterTransferService;
@@ -20,7 +20,7 @@ public class FundTransferFactoryTest {
 	
 	private FundTransferFactory factory;
 	
-	@Before
+	@BeforeEach
 	public void init() {
 		factory = new FundTransferFactory(payLaterTransferService,payNowService);
 	}

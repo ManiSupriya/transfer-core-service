@@ -3,7 +3,7 @@ package com.mashreq.transfercoreservice.fundtransfer.dto;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

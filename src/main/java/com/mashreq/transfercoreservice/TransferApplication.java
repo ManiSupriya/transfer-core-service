@@ -3,8 +3,11 @@ package com.mashreq.transfercoreservice;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.mashreq.mobcommons.autoconfig.FeignInterceptorConfig;
 import com.mashreq.notification.client.annotations.EnableTemplateNotificationClient;
+import com.mashreq.tracing.annotation.EnableMashreqTracing;
 import com.mashreq.transactionauth.annotations.EnableTransactionAuthorization;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -13,13 +16,14 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.text.NumberFormat;
 
 @Slf4j
 @EnableFeignClients
-@EnableAutoConfiguration
+@EnableAutoConfiguration(exclude={FeignInterceptorConfig.class})
 @EnableTransactionAuthorization
+@EnableMashreqTracing
 @EnableScheduling
 @EnableTemplateNotificationClient
 @SpringBootApplication(scanBasePackages = {"com.mashreq.transfercoreservice", "com.mashreq.ms"})

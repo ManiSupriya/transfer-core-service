@@ -7,23 +7,25 @@ import com.mashreq.transfercoreservice.client.dto.CardDetailsDTO;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import org.junit.jupiter.api.BeforeEach ;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
  * @author ThanigachalamP
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CCBelongsToCifValidatorTest {
 
     @Mock
@@ -38,7 +40,7 @@ public class CCBelongsToCifValidatorTest {
     private final String CC_NO = "E6BD9127E95D80C2C0D46DB2A314514C315A21C8408729F99ECA3D22D123DB2D";
 
 
-    @Before
+    @BeforeEach
     public void before(){
         ReflectionTestUtils.setField(ccBelongsToCifValidator,"auditEventPublisher", auditEventPublisher);
         ReflectionTestUtils.setField(ccBelongsToCifValidator,"encryptionService", encryptionService);
@@ -90,7 +92,7 @@ public class CCBelongsToCifValidatorTest {
         ValidationContext validationContext = buildValidationContext();
 
         ValidationResult validationResult = ccBelongsToCifValidator.validate(fundTransferRequestDTO, requestMetaData, validationContext);
-        Assert.assertEquals(validationResult.isSuccess(), true);
+        assertEquals(validationResult.isSuccess(), true);
     }
 
     @Test
@@ -103,7 +105,7 @@ public class CCBelongsToCifValidatorTest {
         ValidationContext validationContext = buildValidationContext();
 
         ValidationResult validationResult = ccBelongsToCifValidator.validate(fundTransferRequestDTO, requestMetaData, validationContext);
-        Assert.assertEquals(validationResult.isSuccess(), false);
-        Assert.assertEquals(validationResult.getTransferErrorCode(), TransferErrorCode.ACCOUNT_NOT_BELONG_TO_CIF);
+        assertEquals(validationResult.isSuccess(), false);
+        assertEquals(validationResult.getTransferErrorCode(), TransferErrorCode.ACCOUNT_NOT_BELONG_TO_CIF);
     }
 }

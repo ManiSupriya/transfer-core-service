@@ -3,7 +3,7 @@ package com.mashreq.transfercoreservice.model;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ChargeBearer;
 import lombok.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;

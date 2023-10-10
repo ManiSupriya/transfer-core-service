@@ -20,12 +20,12 @@ import com.mashreq.transfercoreservice.notification.service.EmailUtil;
 import com.mashreq.transfercoreservice.notification.service.PostTransactionActivityService;
 import com.mashreq.transfercoreservice.notification.service.PostTransactionService;
 import com.mashreq.transfercoreservice.notification.service.SendEmailActivity;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach ;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -47,7 +47,7 @@ import static org.mockito.Mockito.when;
  * @author ThanigachalamP
  */
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class PostTransactionServiceTest {
     @Mock
     private PostTransactionActivityService postTransactionActivityService;
@@ -76,7 +76,7 @@ public class PostTransactionServiceTest {
     private static final String SOURCE_OF_FUND_CC = "Credit Card";
 
 
-    @Before
+    @BeforeEach
     public void init(){
 
 

@@ -3,14 +3,13 @@ package com.mashreq.transfercoreservice.fundtransfer.service;
 import java.io.IOException;
 import java.math.BigDecimal;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach ;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.mashreq.esbcore.bindings.account.mbcdm.FundTransferCCResType;
 import com.mashreq.esbcore.bindings.accountservices.mbcdm.fundtransfercc.EAIServices;
@@ -24,7 +23,9 @@ import com.mashreq.transfercoreservice.middleware.SoapClient;
 import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
 import com.mashreq.esbcore.bindings.header.mbcdm.HeaderType;
 
-@RunWith(MockitoJUnitRunner.class)
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+@ExtendWith(MockitoExtension.class)
 public class FundTransferCCMWServiceTest {
 	
 	@InjectMocks
@@ -46,7 +47,7 @@ public class FundTransferCCMWServiceTest {
 	 @Mock
 	 EAIServices eaiServices;
 	
-	@Before
+	@BeforeEach
 	 public void prepare() {
 	     fundTransferRequest = generateFundTransferRequest();
 	     requestMetaData = generateRequestMetaData();
@@ -80,7 +81,7 @@ public class FundTransferCCMWServiceTest {
 		fundTransferCCMWService.transfer(fundTransferRequest, requestMetaData);
 		}catch(Throwable throwable) {
 			GenericException genericException = (GenericException) throwable;
-			Assert.assertEquals(genericException.getErrorCode(), "TN-8006");
+			assertEquals(genericException.getErrorCode(), "TN-8006");
 		}
 	}
 	
@@ -93,7 +94,7 @@ public class FundTransferCCMWServiceTest {
 			fundTransferCCMWService.transfer(fundTransferRequest, requestMetaData);
 		} catch (Throwable throwable) {
 			GenericException genericException = (GenericException) throwable;
-			Assert.assertEquals(genericException.getErrorCode(), "TN-8006");
+			assertEquals(genericException.getErrorCode(), "TN-8006");
 		}
 	}
 	
@@ -106,7 +107,7 @@ public class FundTransferCCMWServiceTest {
 			fundTransferCCMWService.transfer(fundTransferRequest, requestMetaData);
 		} catch (Throwable throwable) {
 			GenericException genericException = (GenericException) throwable;
-			Assert.assertEquals(genericException.getErrorCode(), "TN-8006");
+			assertEquals(genericException.getErrorCode(), "TN-8006");
 		}
 	}
 	
