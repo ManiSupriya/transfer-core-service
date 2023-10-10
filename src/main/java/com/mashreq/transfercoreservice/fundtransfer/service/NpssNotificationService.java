@@ -280,7 +280,6 @@ public class NpssNotificationService {
 
         builder.params(SENT_TO,builder.configure().getMobileNumber());
         builder.params(PROXY, StringUtils.isNotEmpty(notificationRequestDto.getProxy()) ? notificationRequestDto.getProxy() : PROXY);
-        builder.params(RECEIVER_NAME, StringUtils.defaultIfBlank(notificationRequestDto.getContactName(), CUSTOMER_DEFAULT));
         builder.params(SENDER_NAME, StringUtils.defaultIfBlank(notificationRequestDto.getCustomerName(), CUSTOMER));
     }
 
