@@ -187,7 +187,7 @@ public class LocalFundTransferStrategyCCTest {
         ReflectionTestUtils.setField(localFundTransferStrategy,"notificationService", notificationService);
     }
 
-    //@Test
+    @Test
     public void testCCAsSourceOfFundSuccess() {
         //Given
         FundTransferRequestDTO requestDTO = buildFundTransferRequest();
@@ -199,12 +199,16 @@ public class LocalFundTransferStrategyCCTest {
         when(minTransactionAmountValidator.validate(Mockito.any(),Mockito.any(),Mockito.any())).thenReturn(validationResult);
         when(qrDealsService.getQRDealDetails(Mockito.any(), Mockito.any())).thenReturn(qrDealDetails);
 		when(ccTrxValidator.validate(any(), any())).thenReturn(validationResult);
+        FundTransferResponse fundTransferResponse = FundTransferResponse.builder().responseDto(buildResponse()).
+                build();
+         when(fundTransferCCMWService.transfer(fundTransferRequest.capture(),eq(metadata)))
+                .thenReturn(fundTransferResponse);
         final FundTransferResponse response = localFundTransferStrategy.execute(requestDTO, metadata, userDTO);
         CoreFundTransferResponseDto coreFundTransferResponseDto = response.getResponseDto();
        assertEquals(coreFundTransferResponseDto.getMwResponseStatus().getName(), MwResponseStatus.S.getName());
     }
 
-    //@Test
+    @Test
     public void testCCAsSourceOfFundQRNoDeals() {
         //Given
         FundTransferRequestDTO requestDTO = buildFundTransferRequest();
@@ -220,7 +224,7 @@ public class LocalFundTransferStrategyCCTest {
     }
 
 
-   // @Test
+    @Test
     public void testCCAsSourceOfFundLessAmount() {
         //Given
         FundTransferRequestDTO requestDTO = buildFundTransferRequest();
@@ -269,10 +273,6 @@ public class LocalFundTransferStrategyCCTest {
         country.setName("AE");
         Optional<Country> optionalCountry = Optional.of(country);
         //when(countryRepository.findByIsoCode2(anyString())).thenReturn(optionalCountry);
-        FundTransferResponse fundTransferResponse = FundTransferResponse.builder().responseDto(buildResponse()).
-                build();
-        when(fundTransferCCMWService.transfer(fundTransferRequest.capture(),eq(metadata)))
-                .thenReturn(fundTransferResponse);
     }
 
 

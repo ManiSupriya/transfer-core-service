@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static final String EXP_MSG = "Exception occurred: {}";
-	//@Override
+
 	public ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
 															   HttpHeaders headers, HttpStatus status,
 															   WebRequest request) {
@@ -42,7 +42,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 				.body(Response.builder().errorCode(errorCode.getCustomErrorCode()).message(errorCode.getErrorMessage()).errorDetails(errorMessage).build());
 	}
 
-	//@Override
 	protected ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex,
 																		  HttpHeaders headers,
 																		  HttpStatus status, WebRequest request) {

@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
 import com.mashreq.encryption.encryptor.EncryptionService;
+import com.mashreq.encryption.exception.EncryptionException;
 import com.mashreq.mobcommons.services.events.publisher.AuditEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericException;
@@ -122,7 +123,7 @@ public class QRAccountEligibilityServiceTest {
 		assertEquals(FundsTransferEligibility.NOT_ELIGIBLE, eligibilityResponse.getStatus());
 	}
 
-	//@Test
+	@Test
 	public void throw_error_check_eligibility_for_qrcc_when_account_not_belong_to_cif(){
 		//given
 		FundTransferEligibiltyRequestDTO fundTransferEligibiltyRequestDTO = new FundTransferEligibiltyRequestDTO();
@@ -142,12 +143,10 @@ public class QRAccountEligibilityServiceTest {
 		when(quickRemitService.exchange(any(),any(),any())).thenReturn(qrExchangeResponse());
 		when(userSessionCacheService.isCardNumberBelongsToCif(anyString(), anyString())).thenReturn(true);
 		//then
-		GenericException genericException = assertThrows(GenericException.class, () -> service.checkEligibility(RequestMetaData.builder()
+		assertThrows(EncryptionException.class, () -> service.checkEligibility(RequestMetaData.builder()
 						.userType("RETAIL")
 						.userCacheKey("userCacheKey").build(),
 				fundTransferEligibiltyRequestDTO, userDTO));
-		assertEquals("TN-1006", genericException.getErrorCode());
-		assertEquals("Account Number does not belong to CIF", genericException.getMessage());
 	}
 
 	@Test

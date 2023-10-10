@@ -34,15 +34,15 @@ public class DigitalUserServiceTest {
         Mockito.when(digitalUserRepository.findByCifEquals(Mockito.any())).thenReturn(digitalUserOpr);
         digitalUserService.getDigitalUser(metaData);
     }
-   // @Test()
+    @Test()
     public void testGetDigitalUserNull() {
         RequestMetaData metaData = getMetaData("012960010");
         DigitalUser digitalUser = new DigitalUser();
         digitalUser.setCif("012960010");
         digitalUser.setCountry("EN");
-        Optional<DigitalUser> digitalUserOpr = Optional.of(null);
+        Optional<DigitalUser> digitalUserOpr = Optional.ofNullable(null);
         Mockito.when(digitalUserRepository.findByCifEquals(Mockito.any())).thenReturn(digitalUserOpr);
-        assertThrows(NullPointerException.class, () ->digitalUserService.getDigitalUser(metaData));
+        assertThrows(GenericException.class, () ->digitalUserService.getDigitalUser(metaData));
     }
     private RequestMetaData getMetaData(String cif) {
         RequestMetaData metaData = new RequestMetaData();
