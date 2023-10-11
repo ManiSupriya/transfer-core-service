@@ -19,10 +19,10 @@ import lombok.NoArgsConstructor;
 public class NotificationRequestDto implements Serializable {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	private String limitVersionUuid;
 	private BigDecimal amount;
 	private String notificationType;
@@ -39,3 +39,4 @@ public class NotificationRequestDto implements Serializable {
 	private String proxy;
 	private List<RtpNotification> rtpNotificationList;
 	private String emailProxy;
+}
