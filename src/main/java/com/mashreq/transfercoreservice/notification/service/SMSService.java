@@ -61,6 +61,8 @@ public class SMSService  {
 
     @Value("${default.notification.language}")
     private String defaultLanguage;
+
+    private static final String leftToRight = "\u200E";
     /**
      * service method to prepare sms template based on type of sms and send sms
      */
@@ -72,7 +74,8 @@ public class SMSService  {
         if(type.contains("PL") && type.contains("CREATION")) {
             TemplateRequest templateRequest = buildSmsTemplate(PL_SI_CREATION,metaData,customerNotification,phoneNo)
                     .params(BENEFICIARY_NAME,customerNotification.getBeneficiaryName())
-                    .params(ACCOUNT_NUMBER,emailUtil.doMask(customerNotification.getCreditAccount()))
+                    // Added 'leftToRight' to correct word alignment for arabic SMS
+                    .params(ACCOUNT_NUMBER,leftToRight + emailUtil.doMask(customerNotification.getCreditAccount()) + leftToRight)
                     .configure();
             try {
                 notificationService.sendNotification(templateRequest);
