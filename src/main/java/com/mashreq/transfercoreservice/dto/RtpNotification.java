@@ -19,8 +19,13 @@ import java.math.BigDecimal;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class RtpNotification implements Serializable {
 
-    private String contactName;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private String contactName;
     private String sentTo;
     private BigDecimal amount;
     private String proxy;
+    private String receiverName;
 }
