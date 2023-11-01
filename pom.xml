@@ -44,23 +44,25 @@
         <jacoco.percentage.instruction>0.60</jacoco.percentage.instruction>
         <sonar-maven-plugin.version>3.9.1.2184</sonar-maven-plugin.version>
         <asciidoctor-maven-plugin.version>2.0.0-RC.1</asciidoctor-maven-plugin.version>
+        <!-- internal modules -->
         <com.mashreq.esbcore>3.0.2-RELEASE</com.mashreq.esbcore>
         <com.mashreq.logcore>3.0.2-RELEASE</com.mashreq.logcore>
         <com.mashreq.encryption>3.0.2-RELEASE</com.mashreq.encryption>
         <com.mashreq.ms.ms-commons>3.0.1-RELEASE</com.mashreq.ms.ms-commons>
         <com.mashreq.tracing>3.1.2-RELEASE</com.mashreq.tracing>
         <com.mashreq.mob-commons>3.3.2-SNAPSHOT</com.mashreq.mob-commons>
+        <com.mashreq.dedupe-util>1.0.4</com.mashreq.dedupe-util>
+        <com.mashreq.transaction-authorization-client.version>3.0.2-RELEASE</com.mashreq.transaction-authorization-client.version>
         <!-- additional deps and plugins versions -->
-        <apache.commons.lang.version>3.9</apache.commons.lang.version>
-        <apache.commons.bean.utils.version>1.9.4</apache.commons.bean.utils.version>
+       <!-- <apache.commons.lang.version>3.9</apache.commons.lang.version>
+        <apache.commons.bean.utils.version>1.9.4</apache.commons.bean.utils.version>-->
         <mapstruct.version>1.3.1.Final</mapstruct.version>
-        <log4j-api.version>2.13.2</log4j-api.version>
+       <!-- <log4j-api.version>2.13.2</log4j-api.version>-->
        <!-- <jackson.version>2.14.0-rc1</jackson.version>-->
         <properties-maven-plugin.version>1.0.0</properties-maven-plugin.version>
     <!--    <jackson.databind.version>2.14.0-rc1</jackson.databind.version>-->
         <templates.utils.version>1.0.4.RELEASE</templates.utils.version>
-        <com.mashreq.dedupe-util>1.0.4</com.mashreq.dedupe-util>
-        <com.mashreq.transaction-authorization-client.version>3.0.2-RELEASE</com.mashreq.transaction-authorization-client.version>
+
     </properties>
   <repositories>
         <repository>

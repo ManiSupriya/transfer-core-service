@@ -3,6 +3,7 @@ package com.mashreq.transfercoreservice.scheduler;
 import com.mashreq.transfercoreservice.fundtransfer.service.NpssEnrolmentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -10,7 +11,6 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 
 @Slf4j
 @Component
