@@ -68,9 +68,9 @@ public class NpssNotificationServiceTest {
                 .socialMediaLinks(socialMediaLinks)
                 .channelIdentifier(ChannelDetails.builder().channelName("WEB").build()).build();
         emailMap.put("AE",emailParameters);
-        when(emailConfig.getEmail()).thenReturn(emailMap);
+      /*  when(emailConfig.getEmail()).thenReturn(emailMap);
         when(emailUtil.getEmailTemplateParameters(any(),any())).thenReturn(emailTemplateParameters);
-        when(templateEngine.generate(any())).thenReturn("");
+        when(templateEngine.generate(any())).thenReturn("");*/
         npssNotificationService.performPostTransactionActivities(RequestMetaData.builder().country("AE").email("bhuvi@wertyg").mobileNUmber("12345678").channel("").build(),
                 NotificationRequestDto.builder().notificationType(NotificationType.CUSTOMER_ENROLMENT).build());
     }

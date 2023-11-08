@@ -84,7 +84,7 @@ public class TransactionHistoryServiceTest {
         when(transactionRepository.findAllByCifAndCreatedDate(anyString(),any(),any()))
                 .thenReturn(Arrays.asList(TransactionHistory.builder().hostReferenceNo("HOST12345").build()));
         List<TransactionHistoryDto> transactionHistoryDto = transactionHistoryService
-                .getTransactionHistoryByCif("162362","2021-04-22","20214-04-29");
+                .getTransactionHistoryByCif("162362","2021-04-22","2021-04-29");
         assertEquals("HOST12345", transactionHistoryDto.get(0).getHostReferenceNo());
     }
 

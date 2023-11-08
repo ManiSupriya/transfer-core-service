@@ -11,7 +11,7 @@
     <parent>
         <groupId>com.mashreq</groupId>
         <artifactId>parent-pom</artifactId>
-        <version>1.4.0-RELEASE</version>
+        <version>1.5.0-RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <properties>
@@ -52,7 +52,7 @@
         <com.mashreq.tracing>3.1.2-RELEASE</com.mashreq.tracing>
         <com.mashreq.mob-commons>3.3.2-SNAPSHOT</com.mashreq.mob-commons>
         <com.mashreq.dedupe-util>1.0.4</com.mashreq.dedupe-util>
-        <com.mashreq.transaction-authorization-client.version>3.0.2-RELEASE</com.mashreq.transaction-authorization-client.version>
+        <com.mashreq.transaction-authorization-client.version>3.0.3-RELEASE</com.mashreq.transaction-authorization-client.version>
         <!-- additional deps and plugins versions -->
        <!-- <apache.commons.lang.version>3.9</apache.commons.lang.version>
         <apache.commons.bean.utils.version>1.9.4</apache.commons.bean.utils.version>-->
