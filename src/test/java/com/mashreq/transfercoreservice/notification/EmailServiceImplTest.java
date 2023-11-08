@@ -13,13 +13,13 @@ import com.mashreq.transfercoreservice.notification.model.SendEmailRequest;
 import com.mashreq.transfercoreservice.notification.service.EmailServiceImpl;
 import freemarker.template.TemplateException;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach ;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -33,7 +33,7 @@ import static org.mockito.Mockito.*;
  * @author ThanigachalamP
  *//*
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class EmailServiceImplTest {
 
     @Mock
@@ -67,7 +67,7 @@ public class EmailServiceImplTest {
         SendEmailRequest sendEmailRequest = buildSendEmailRequest();
         //when(emailTemplateHelper.getEmailTemplate(anyString(),anyMap())).thenReturn("Sample Body");
         EmailRequest emailRequest =  emailService.prepareEmailRequest(sendEmailRequest);
-        Assert.assertEquals(emailRequest.getToEmailAddress(), sendEmailRequest.getToEmailAddress());
+        assertEquals(emailRequest.getToEmailAddress(), sendEmailRequest.getToEmailAddress());
     }
 
     @Test
@@ -79,7 +79,7 @@ public class EmailServiceImplTest {
         when(notificationClient.sendEmail(any())).thenReturn(emailResponseResponseEntity);
         EmailResponse actualEmailResponse =  emailService.sendMessage(emailRequest, new RequestMetaData());
         Assert.assertNotNull(actualEmailResponse);
-        Assert.assertTrue(actualEmailResponse.isSuccess());
+        assertTrue(actualEmailResponse.isSuccess());
     }
 
     @Test
@@ -87,7 +87,7 @@ public class EmailServiceImplTest {
         SendEmailRequest emailRequest = SendEmailRequest.builder().fromEmailAddress("").build();
         when(notificationClient.sendEmail(any())).thenThrow(GenericException.class);
         Throwable exception = Assertions.assertThrows(Exception.class, () -> emailService.sendMessage(emailRequest, new RequestMetaData()));
-        Assert.assertEquals(exception.getMessage(), TransferErrorCode.EMAIL_NOTIFICATION_FAILED.getErrorMessage());
+        assertEquals(exception.getMessage(), TransferErrorCode.EMAIL_NOTIFICATION_FAILED.getErrorMessage());
     }
 }
 */

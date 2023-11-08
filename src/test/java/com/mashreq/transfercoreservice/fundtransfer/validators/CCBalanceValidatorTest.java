@@ -6,21 +6,22 @@ import com.mashreq.transfercoreservice.client.dto.CardDetailsDTO;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach ;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
  * @author ThanigachalamP
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CCBalanceValidatorTest {
 
     @Mock
@@ -29,7 +30,7 @@ public class CCBalanceValidatorTest {
     @InjectMocks
     private CCBalanceValidator ccBalanceValidator;
 
-    @Before
+    @BeforeEach
     public void before(){
         ReflectionTestUtils.setField(ccBalanceValidator,"auditEventPublisher", auditEventPublisher);
     }
@@ -71,7 +72,7 @@ public class CCBalanceValidatorTest {
         RequestMetaData requestMetaData = buildRequestMetaData();
         ValidationContext validationContext = buildValidationContext();
         ValidationResult validationResult = ccBalanceValidator.validate(fundTransferRequestDTO, requestMetaData, validationContext);
-        Assert.assertEquals(validationResult.isSuccess(), true);
+        assertEquals(validationResult.isSuccess(), true);
     }
 
     @Test
@@ -81,7 +82,7 @@ public class CCBalanceValidatorTest {
         ValidationContext validationContext = buildValidationContext();
         validationContext.add("transfer-amount-in-source-currency",new BigDecimal("180.10"));
         ValidationResult validationResult = ccBalanceValidator.validate(fundTransferRequestDTO, requestMetaData, validationContext);
-        Assert.assertEquals(validationResult.isSuccess(), false);
-        Assert.assertEquals(validationResult.getTransferErrorCode(), TransferErrorCode.FT_CC_BALANCE_NOT_SUFFICIENT);
+        assertEquals(validationResult.isSuccess(), false);
+        assertEquals(validationResult.getTransferErrorCode(), TransferErrorCode.FT_CC_BALANCE_NOT_SUFFICIENT);
     }
 }

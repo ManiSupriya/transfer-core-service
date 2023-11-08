@@ -1,16 +1,15 @@
 package com.mashreq.transfercoreservice.client.service;
 
-import static org.junit.Assert.assertEquals;
 
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach ;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
@@ -23,7 +22,9 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRe
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
 
-@RunWith(MockitoJUnitRunner.class)
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+@ExtendWith(MockitoExtension.class)
 public class QuickRemitServiceTest {
 
 	private QuickRemitService service;
@@ -32,7 +33,7 @@ public class QuickRemitServiceTest {
 	@Mock
 	private AsyncUserEventPublisher userEventPublisher;
 	
-	@Before
+	@BeforeEach
 	public void init() {
 		service = new QuickRemitService(quickRemitServiceClient, userEventPublisher);
 	}

@@ -1,13 +1,13 @@
 package com.mashreq.transfercoreservice.fundtransfer.eligibility.validators;
 
-import static org.junit.Assert.assertEquals;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.AccountDetailsDTO;
@@ -17,12 +17,14 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.LocalCurrencyVali
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
  * 
  * @author JasarJa
  *
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class EgyptLocalCurrencyEligibilityValidatorTest {
 	
 	@Mock

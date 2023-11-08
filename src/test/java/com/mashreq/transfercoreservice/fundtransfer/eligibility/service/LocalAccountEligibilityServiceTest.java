@@ -19,12 +19,12 @@ import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.QRDealsService;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 import com.mashreq.transfercoreservice.util.TestUtil;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach ;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.test.util.ReflectionTestUtils;
 import com.mashreq.transfercoreservice.fundtransfer.validators.rulespecificvalidators.currencyspecific.EGP_LOCAL_TransactionValidator;
@@ -33,12 +33,12 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.rulespecificvalid
 import java.math.BigDecimal;
 
 import static com.mashreq.transfercoreservice.util.TestUtil.getAdditionalFields;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class LocalAccountEligibilityServiceTest {
 
 	@InjectMocks
@@ -77,7 +77,7 @@ public class LocalAccountEligibilityServiceTest {
 	private EGP_LOCAL_TransactionValidator egValidator;
 
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		ReflectionTestUtils.setField(service, "localCurrency", "AED");
 	}

@@ -4,12 +4,11 @@ package com.mashreq.transfercoreservice.fundtransfer.validators;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -17,9 +16,11 @@ import java.util.List;
 import java.util.Set;
 
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.INVALID_PURPOSE_CODE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class PaymentPurposeValidatorTest {
 
     @InjectMocks
@@ -51,7 +52,7 @@ public class PaymentPurposeValidatorTest {
         final ValidationResult result = paymentPurposeValidator.validate(request, null, mockValidationContext);
 
         //then
-        Assert.assertEquals(false, result.isSuccess());
+       assertEquals(false, result.isSuccess());
 
     }
 
@@ -78,8 +79,8 @@ public class PaymentPurposeValidatorTest {
         final ValidationResult result = paymentPurposeValidator.validate(request, null, mockValidationContext);
 
         //then
-        Assert.assertEquals(false, result.isSuccess());
-        Assert.assertEquals(INVALID_PURPOSE_CODE, result.getTransferErrorCode());
+       assertEquals(false, result.isSuccess());
+       assertEquals(INVALID_PURPOSE_CODE, result.getTransferErrorCode());
 
     }
 
@@ -106,12 +107,12 @@ public class PaymentPurposeValidatorTest {
         final ValidationResult result = paymentPurposeValidator.validate(request, null, mockValidationContext);
 
         //then
-        Assert.assertEquals(false, result.isSuccess());
-        Assert.assertEquals(INVALID_PURPOSE_CODE, result.getTransferErrorCode());
+       assertEquals(false, result.isSuccess());
+       assertEquals(INVALID_PURPOSE_CODE, result.getTransferErrorCode());
 
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test()
     public void test_when_validation_throws_exception() {
         //given
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
@@ -120,9 +121,7 @@ public class PaymentPurposeValidatorTest {
         ValidationContext mockValidationContext = new ValidationContext();
         mockValidationContext.add("purposes", null);
 
-        //when
-        paymentPurposeValidator.validate(requestDTO, null, mockValidationContext);
-
+        assertThrows(NullPointerException.class, () ->paymentPurposeValidator.validate(requestDTO, null, mockValidationContext));
     }
 
 

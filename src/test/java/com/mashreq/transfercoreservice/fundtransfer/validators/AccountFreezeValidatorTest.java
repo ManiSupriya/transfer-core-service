@@ -1,25 +1,27 @@
 package com.mashreq.transfercoreservice.fundtransfer.validators;
 
-import static org.junit.Assert.*;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach ;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.SearchAccountDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 
-@RunWith(MockitoJUnitRunner.class)
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+@ExtendWith(MockitoExtension.class)
 public class AccountFreezeValidatorTest {
 	private Validator<FundTransferRequestDTO> validator;
 	@Mock
 	private AsyncUserEventPublisher auditEventPublisher;
 	
-	@Before
+	@BeforeEach
 	public void init() {
 		validator = new AccountFreezeValidator(auditEventPublisher);
 	}

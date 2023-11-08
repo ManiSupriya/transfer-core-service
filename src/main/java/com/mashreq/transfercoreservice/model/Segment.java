@@ -6,7 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.Nationalized;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 
 /**

@@ -25,32 +25,31 @@ import lombok.extern.slf4j.Slf4j;
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static final String EXP_MSG = "Exception occurred: {}";
-	@Override
-    public ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
-                                                               HttpHeaders headers, HttpStatus status,
-                                                               WebRequest request) {
-	        logError(ex);
-	        TransferErrorCode errorCode = TransferErrorCode.TRNS_CORE_400;
-	        String errorMessage = null;
-	        for (ObjectError fieldError : ex.getBindingResult().getGlobalErrors()) {
-	            errorMessage = fieldError.getDefaultMessage();
-	        }
-	        for(FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
-	            errorMessage = fieldError.getDefaultMessage();
-	        }
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-	                .body(Response.builder().errorCode(errorCode.getCustomErrorCode()).message(errorCode.getErrorMessage()).errorDetails(errorMessage).build());
-	    }
-	
-	@Override
-    protected ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex,
-                                                                          HttpHeaders headers,
-                                                                          HttpStatus status, WebRequest request) {
-        logError(ex);
-        TransferErrorCode errorCode = TransferErrorCode.TRNS_CORE_406;
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Response.builder().errorCode(errorCode.getCustomErrorCode()).message(errorCode.getErrorMessage()).errorDetails(ex.getMessage()).build());
-    }
+
+	public ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+															   HttpHeaders headers, HttpStatus status,
+															   WebRequest request) {
+		logError(ex);
+		TransferErrorCode errorCode = TransferErrorCode.TRNS_CORE_400;
+		String errorMessage = null;
+		for (ObjectError fieldError : ex.getBindingResult().getGlobalErrors()) {
+			errorMessage = fieldError.getDefaultMessage();
+		}
+		for(FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
+			errorMessage = fieldError.getDefaultMessage();
+		}
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+				.body(Response.builder().errorCode(errorCode.getCustomErrorCode()).message(errorCode.getErrorMessage()).errorDetails(errorMessage).build());
+	}
+
+	protected ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex,
+																		  HttpHeaders headers,
+																		  HttpStatus status, WebRequest request) {
+		logError(ex);
+		TransferErrorCode errorCode = TransferErrorCode.TRNS_CORE_406;
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+				.body(Response.builder().errorCode(errorCode.getCustomErrorCode()).message(errorCode.getErrorMessage()).errorDetails(ex.getMessage()).build());
+	}
 	/**
      * Log error
      */

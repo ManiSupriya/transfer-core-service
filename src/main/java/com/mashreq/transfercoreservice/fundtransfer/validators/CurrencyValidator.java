@@ -21,11 +21,6 @@ import static com.mashreq.transfercoreservice.errors.TransferErrorCode.ACCOUNT_C
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.CURRENCY_IS_INVALID;
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.*;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.annotation.PostConstruct;
-
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 /**

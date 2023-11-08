@@ -1,6 +1,7 @@
 package com.mashreq.transfercoreservice.cardlesscash.controller;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 
 import java.math.BigDecimal;
@@ -10,14 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mashreq.transfercoreservice.client.service.AccountService;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
@@ -34,7 +34,7 @@ import com.mashreq.transfercoreservice.cardlesscash.service.CardLessCashService;
 import com.mashreq.transfercoreservice.infrastructure.web.GlobalExceptionHandler;
 import com.mashreq.webcore.dto.response.Response;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CardLessCashControllerTest {
 
     @Mock
@@ -73,7 +73,7 @@ public class CardLessCashControllerTest {
         Mockito.doNothing().when(asyncUserEventPublisher).publishSuccessEvent(Mockito.any(), Mockito.any(), Mockito.any());
         Response<CardLessCashBlockResponse> cashBlockResponseResponse =
                 cardLessCashController.blockCardLessCashRequest(metaData, cardLessCashBlockRequest);
-        Assert.assertNotNull(cashBlockResponseResponse);
+        assertNotNull(cashBlockResponseResponse);
 
     }
     
@@ -100,7 +100,7 @@ public class CardLessCashControllerTest {
         Mockito.doNothing().when(asyncUserEventPublisher).publishSuccessEvent(Mockito.any(), Mockito.any(), Mockito.any());
         Response<CardLessCashGenerationResponse> cardLessCashGenerationResponse =
                 cardLessCashController.cardLessCashRemitGenerationRequest(userId, mobileNo, metaData, cardLessCashGenerationRequest);
-        Assert.assertNotNull(cardLessCashGenerationResponse);
+        assertNotNull(cardLessCashGenerationResponse);
 
     }
 
@@ -131,7 +131,7 @@ public class CardLessCashControllerTest {
         Mockito.doNothing().when(asyncUserEventPublisher).publishSuccessEvent(Mockito.any(), Mockito.any(), Mockito.any());
 		Response<List<CardLessCashQueryResponse>> cardLessCashQueryRes = cardLessCashController
 				.cardLessCashRemitQuery(metaData, accountNumber, remitNumDays);
-		Assert.assertNotNull(cardLessCashQueryRes);
+		assertNotNull(cardLessCashQueryRes);
 
 	}
     
@@ -152,7 +152,7 @@ public class CardLessCashControllerTest {
 					Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
 			Response<CardLessCashGenerationResponse> cardLessCashGenerationResponse = cardLessCashController
 					.cardLessCashRemitGenerationRequest(userId, mobileNo, metaData, cardLessCashGenerationRequest);
-			Assert.assertNotNull(cardLessCashGenerationResponse);
+			assertNotNull(cardLessCashGenerationResponse);
 		} catch (Throwable throwable) {
 			GenericException genericException = (GenericException) throwable;
 			assertEquals("TN-1008", genericException.getErrorCode());
@@ -177,7 +177,7 @@ public class CardLessCashControllerTest {
 					Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
 			Response<CardLessCashGenerationResponse> cardLessCashGenerationResponse = cardLessCashController
 					.cardLessCashRemitGenerationRequest(userId, mobileNo, metaData, cardLessCashGenerationRequest);
-			Assert.assertNotNull(cardLessCashGenerationResponse);
+			assertNotNull(cardLessCashGenerationResponse);
 		} catch (Throwable throwable) {
 			GenericException genericException = (GenericException) throwable;
 			assertEquals("TN-1006", genericException.getErrorCode());

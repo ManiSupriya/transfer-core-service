@@ -8,23 +8,23 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.TwoFactorAuthRequiredChe
 import com.mashreq.transfercoreservice.fundtransfer.repository.TransferLimitRepository;
 import com.mashreq.transfercoreservice.model.TransferDetails;
 import com.mashreq.transfercoreservice.twofactorauthrequiredvalidation.config.TwoFactorAuthRequiredValidationConfig;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach ;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 
 import java.math.BigDecimal;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TwoFactorAuthRequiredCheckServiceImplTest {
     private TwoFactorAuthRequiredCheckServiceImpl service;
     @Mock
@@ -39,7 +39,7 @@ public class TwoFactorAuthRequiredCheckServiceImplTest {
     private RequestMetaData metaData = RequestMetaData.builder().primaryCif("primaryCif").build();
     private String localCurrency = "AED";
 
-    @Before
+    @BeforeEach
     public void init() {
         service = new TwoFactorAuthRequiredCheckServiceImpl(config, maintenanceService, beneficiaryService,
                 transferLimitRepository);

@@ -14,11 +14,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
@@ -28,7 +28,7 @@ import com.mashreq.transfercoreservice.fundtransfer.repository.TransferLimitRepo
 import com.mashreq.transfercoreservice.model.TransferLimit;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionRepository;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TransferLimitServiceTest {
 
     @Mock

@@ -5,14 +5,14 @@ import com.mashreq.transfercoreservice.dto.LimitValidatorRequestDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.LimitValidatorResponse;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import lombok.RequiredArgsConstructor;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach ;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 @RequiredArgsConstructor
 public class LimitValidationControllerTest {
 
@@ -21,7 +21,7 @@ public class LimitValidationControllerTest {
 	
 	private LimitValidationController limitValidationController;
 
-	@Before
+	@BeforeEach
 	public void init() {
 		limitValidationController = new LimitValidationController(limitValidator);
 	}

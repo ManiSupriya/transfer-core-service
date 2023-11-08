@@ -8,8 +8,8 @@ import com.mashreq.transfercoreservice.config.feign.FeignConfig;
 import com.mashreq.transfercoreservice.fundtransfer.dto.DealEnquiryDto;
 import com.mashreq.webcore.dto.response.Response;
 
-import io.swagger.annotations.ApiParam;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 
 /**
  * Feign Client
@@ -37,7 +37,7 @@ public interface MaintenanceClient {
                                                      @RequestParam final Boolean active);
     
     @GetMapping("/api/deal-enquiry/{dealNumber}")
-    public ResponseEntity<Response<DealEnquiryDto>> getFXDealInformation( @ApiParam("FX Deal Number")  @NotEmpty @PathVariable("dealNumber") String dealNumber);
+    public ResponseEntity<Response<DealEnquiryDto>> getFXDealInformation(@Parameter(description = "FX Deal Number") @NotEmpty @PathVariable("dealNumber") String dealNumber);
 
     @GetMapping("/api/currencies/{region}")
     Response<List<CoreCurrencyDto>> getAllCurrencies(@PathVariable final String region);
