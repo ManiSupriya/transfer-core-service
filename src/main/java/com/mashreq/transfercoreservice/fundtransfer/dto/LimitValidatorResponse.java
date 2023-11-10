@@ -32,4 +32,9 @@ public class LimitValidatorResponse {
     private String coolingLimitAmount;
     private String limitVersionUuid;
     private String errorCode;
+    private String verificationType;
+    private String limitMonthlyFreq;
+    private BigDecimal segmentLimit;
+    private BigDecimal threshold;
+    private String limitChangeWindow;
 }

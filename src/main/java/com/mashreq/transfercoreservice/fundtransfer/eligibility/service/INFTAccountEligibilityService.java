@@ -1,7 +1,11 @@
 package com.mashreq.transfercoreservice.fundtransfer.eligibility.service;
 
 import java.math.BigDecimal;
+import java.util.List;
 
+import com.mashreq.transfercoreservice.fundtransfer.dto.*;
+import com.mashreq.transfercoreservice.fundtransfer.limits.ILimitValidator;
+import com.mashreq.transfercoreservice.fundtransfer.limits.LimitManagementConfig;
 import com.mashreq.transfercoreservice.fundtransfer.validators.rulespecificvalidators.RuleSpecificValidatorRequest;
 import com.mashreq.transfercoreservice.fundtransfer.validators.rulespecificvalidators.RuleSpecificValidatorImpl;
 import com.mashreq.transfercoreservice.fundtransfer.validators.Validator;
@@ -17,9 +21,6 @@ import com.mashreq.transfercoreservice.client.dto.CurrencyConversionDto;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.enums.FundsTransferEligibility;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.BeneficiaryValidator;
@@ -29,6 +30,7 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.CollectionUtils;
 
 @Slf4j
 @Service
@@ -43,6 +45,7 @@ public class INFTAccountEligibilityService implements TransferEligibilityService
     private final CurrencyValidatorFactory currencyValidatorFactory;
     private final LimitValidatorFactory limitValidatorFactory;
     private final RuleSpecificValidatorImpl CountrySpecificValidatorProvider;
+    private final LimitManagementConfig limitManagementConfig;
 
 
     @Value("${app.local.currency}")
@@ -96,10 +99,23 @@ public class INFTAccountEligibilityService implements TransferEligibilityService
 		final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), sourceAccountDetailsDTO,
 				transferAmountInSrcCurrency);
 
-		limitValidatorFactory.getValidator(metaData).validate(userDTO, request.getServiceType(),
-				limitUsageAmount, metaData, beneficiaryDto.getId());
-		log.info("INFT transfer eligibility validation successfully finished");
-        return EligibilityResponse.builder().status(FundsTransferEligibility.ELIGIBLE).build();
+        List<String> allowedChannels = limitManagementConfig.getCountries().get(metaData.getCountry());
+
+        LimitValidatorResponse limitValidatorResponse = null;
+        ILimitValidator limitValidator = limitValidatorFactory.getValidator(metaData);
+        if(!CollectionUtils.isEmpty(allowedChannels) && allowedChannels.contains(metaData.getChannel())) {
+            limitValidatorResponse = limitValidator.validateAvailableLimits(userDTO, request.getServiceType(),
+                    limitUsageAmount, metaData, beneficiaryDto.getId());
+            log.info("INFT transfer eligibility validation successfully finished");
+            return EligibilityResponse.builder().status(FundsTransferEligibility.valueOf(limitValidatorResponse.getVerificationType())).data(limitValidatorResponse).build();
+        } else {
+            limitValidator.validate(userDTO, request.getServiceType(),
+                    limitUsageAmount, metaData, beneficiaryDto.getId());
+            log.info("INFT transfer eligibility validation successfully finished");
+            return EligibilityResponse.builder().status(FundsTransferEligibility.ELIGIBLE).build();
+        }
+
+
     }
 
 	@Override

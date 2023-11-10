@@ -13,4 +13,5 @@ public interface ILimitValidator {
 
 	void validateMin(UserDTO userDTO, String beneficiaryType, BigDecimal limitUsageAmount, RequestMetaData metadata);
 
+	LimitValidatorResponse validateAvailableLimits(UserDTO userDTO, String serviceType, BigDecimal limitUsageAmount, RequestMetaData metaData, Long id);
 }
