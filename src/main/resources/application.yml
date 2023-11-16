@@ -315,7 +315,7 @@ redis:
   writeTtl: ${REDIS_TTL:60}
   statistics:
     enabled: ${REDIS_STATISTICS_ENABLED:false}
-    interval: ${REDIS_STATISTICS_INTERVAL:60000}
+    interval: ${REDIS_STATISTICS_INTERVAL:300000}
     keySize: ${REDIS_STATISTICS_KEY_SIZE:false}
 
 async:
