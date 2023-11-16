@@ -9,6 +9,8 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import com.mashreq.notification.client.freemarker.TemplateRequest;
@@ -70,18 +72,18 @@ public class PostTransactionService {
     /**
      * Send Alerts via sms, email and push notification.
      *
-     * @param requestMetaData
-
      * @param
+     * @param requestMetaData
+     * @param beneficiaryDto
      */
 
     @Async("generalTaskExecutor")
-    public void performPostTransactionActivities(RequestMetaData requestMetaData, FundTransferRequest fundTransferRequest, FundTransferRequestDTO fundTransferRequestDTO){
+    public void performPostTransactionActivities(RequestMetaData requestMetaData, FundTransferRequest fundTransferRequest, FundTransferRequestDTO fundTransferRequestDTO, Optional<BeneficiaryDto> beneficiaryDto){
         FundTransferEventType eventType = FundTransferEventType.EMAIL_NOTIFICATION;
         TransferErrorCode transferErrorCode = TransferErrorCode.EMAIL_NOTIFICATION_FAILED;
         try {
             updateBankChargesInFTReq(fundTransferRequest,requestMetaData);
-            TemplateRequest templateRequest = getEmailPostTransactionActivityContext(requestMetaData, fundTransferRequest, fundTransferRequestDTO);
+            TemplateRequest templateRequest = getEmailPostTransactionActivityContext(requestMetaData, fundTransferRequest, fundTransferRequestDTO, beneficiaryDto);
             notificationService.sendNotification(templateRequest);
             userEventPublisher.publishSuccessEvent(eventType, requestMetaData, eventType.getDescription());
         }catch (Exception exception){
@@ -115,8 +117,8 @@ public class PostTransactionService {
     }
 
     private TemplateRequest getEmailPostTransactionActivityContext(RequestMetaData requestMetaData,
-                                                                                                    FundTransferRequest fundTransferRequest,
-                                                                                                    FundTransferRequestDTO fundTransferRequestDTO) throws Exception {
+                                                                   FundTransferRequest fundTransferRequest,
+                                                                   FundTransferRequestDTO fundTransferRequestDTO, Optional<BeneficiaryDto> beneficiaryDto) throws Exception {
         FundTransferEventType eventType = FundTransferEventType.EMAIL_NOTIFICATION;
         TransferErrorCode transferErrorCode = TransferErrorCode.EMAIL_NOTIFICATION_FAILED;
         boolean isMobile = requestMetaData.getChannel().contains(MOBILE);
@@ -132,7 +134,7 @@ public class PostTransactionService {
                     .params(CHANNEL_TYPE, StringUtils.defaultIfBlank(channelType, DEFAULT_STR))
                     .params(EMAIL_TEMPLATE_COPYRIGHT_YEAR_KEY, String.valueOf(LocalDateTime.now().getYear()));
 
-            getTemplateValuesForFundTransferBuilder(template, fundTransferRequest, fundTransferRequestDTO, requestMetaData);
+            getTemplateValuesForFundTransferBuilder(template, fundTransferRequest, fundTransferRequestDTO, requestMetaData, beneficiaryDto);
             template.subjectParams(TRANSFER_TYPE,fundTransferRequest.getTransferType());
             template.subjectParams(CHANNEL_TYPE,channelType);
             template.toEmailAddress(requestMetaData.getEmail());
@@ -176,7 +178,7 @@ public class PostTransactionService {
                 .language(defaultLanguage);
     }
     private void getTemplateValuesForFundTransferBuilder(TemplateRequest.EmailBuilder builder, FundTransferRequest fundTransferRequest,
-                                                         FundTransferRequestDTO fundTransferRequestDTO, RequestMetaData requestMetaData) {
+                                                         FundTransferRequestDTO fundTransferRequestDTO, RequestMetaData requestMetaData, Optional<BeneficiaryDto> beneficiaryDto) {
         builder.params(MASKED_ACCOUNT, StringUtils.defaultIfBlank(emailUtil.doMask(fundTransferRequest.getFromAccount()), DEFAULT_STR));
         builder.params(TO_ACCOUNT_NO, StringUtils.defaultIfBlank(emailUtil.doMask(fundTransferRequest.getToAccount()), DEFAULT_STR));
         builder.params(BENEFICIARY_NICK_NAME, StringUtils.defaultIfBlank(fundTransferRequest.getBeneficiaryFullName(), DEFAULT_STR));
@@ -208,10 +210,13 @@ public class PostTransactionService {
                 //builder.params(BENEFICIARY_BANK_NAME, StringUtils.defaultIfBlank(segment.getEmailCprFooter(), DEFAULT_STR));
                 builder.params(BENEFICIARY_BANK_COUNTRY, StringUtils.defaultIfBlank(address, DEFAULT_STR));
             }
-            else{
-                final BeneficiaryDto beneficiaryDto = beneficiaryService.getByIdWithoutValidation(requestMetaData.getPrimaryCif(), valueOf(fundTransferRequestDTO.getBeneficiaryId()), fundTransferRequestDTO.getJourneyVersion(), requestMetaData);
-                builder.params(BENEFICIARY_BANK_NAME, StringUtils.defaultIfBlank(beneficiaryDto.getBankName(), DEFAULT_STR));
-                builder.params(BENEFICIARY_BANK_COUNTRY, StringUtils.defaultIfBlank(beneficiaryDto.getBankCountry(), DEFAULT_STR));
+            else {
+                // final BeneficiaryDto beneficiaryDto = beneficiaryService.getByIdWithoutValidation(requestMetaData.getPrimaryCif(), valueOf(fundTransferRequestDTO.getBeneficiaryId()), fundTransferRequestDTO.getJourneyVersion(), requestMetaData);
+                if (beneficiaryDto.isPresent()) {
+                    BeneficiaryDto beneficiaryDtoOptional = beneficiaryDto.get();
+                    builder.params(BENEFICIARY_BANK_NAME, StringUtils.defaultIfBlank(beneficiaryDtoOptional.getBankName(), DEFAULT_STR));
+                    builder.params(BENEFICIARY_BANK_COUNTRY, StringUtils.defaultIfBlank(beneficiaryDtoOptional.getBankCountry(), DEFAULT_STR));
+                }
             }
             builder.params(TRANSACTION_DATE, StringUtils.defaultIfBlank(
                     DateUtil.instantToDate(Instant.now(), "yyyy-MM-dd HH:mm:ss"), DEFAULT_STR)

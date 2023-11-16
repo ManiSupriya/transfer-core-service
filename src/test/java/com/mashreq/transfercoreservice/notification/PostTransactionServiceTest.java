@@ -5,10 +5,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.notification.client.notification.service.NotificationService;
-import com.mashreq.templates.freemarker.TemplateEngine;
-import com.mashreq.transfercoreservice.client.service.BankChargesService;
+import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
-import com.mashreq.transfercoreservice.config.notification.EmailConfig;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequest;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
@@ -26,18 +24,18 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.mashreq.transfercoreservice.notification.model.NotificationType.INFT_PL_SI_CREATION;
 import static com.mashreq.transfercoreservice.notification.service.EmailUtil.*;
-import static com.mashreq.transfercoreservice.util.TestUtil.getBankCharges;
 import static com.mashreq.transfercoreservice.util.TestUtil.getBeneficiaryDto;
 import static java.lang.Long.valueOf;
+import static java.util.Optional.ofNullable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
@@ -149,10 +147,12 @@ public class PostTransactionServiceTest {
         RequestMetaData requestMetaData = buildRequestMetaData();
         FundTransferRequest fundTransferRequest = buildFundTransferRequest();
         fundTransferRequest.setChargeBearer("B");
-
-        postTransactionService.performPostTransactionActivities(requestMetaData, fundTransferRequest, new FundTransferRequestDTO());
+        postTransactionService.performPostTransactionActivities(requestMetaData, fundTransferRequest, new FundTransferRequestDTO(), buildBeneficiary());
     }
 
+    private Optional<BeneficiaryDto> buildBeneficiary(){
+       return Optional.of(new BeneficiaryDto());
+    }
     @Test
     public void testPostTransactionServiceWithSourceAmount() throws JsonProcessingException {
         RequestMetaData requestMetaData = buildRequestMetaData();
@@ -163,7 +163,7 @@ public class PostTransactionServiceTest {
         fundTransferRequest.setNotificationType("LOCAL");
         fundTransferRequest.setChargeBearer("O");
 
-        postTransactionService.performPostTransactionActivities(requestMetaData, fundTransferRequest, new FundTransferRequestDTO());
+        postTransactionService.performPostTransactionActivities(requestMetaData, fundTransferRequest, new FundTransferRequestDTO(), buildBeneficiary());
     }
 
     @Test
@@ -178,7 +178,7 @@ public class PostTransactionServiceTest {
 
         FundTransferRequestDTO fundTransferRequestDTO = new FundTransferRequestDTO();
         fundTransferRequestDTO.setBeneficiaryId("1");
-        postTransactionService.performPostTransactionActivities(requestMetaData, fundTransferRequest, fundTransferRequestDTO);
+        postTransactionService.performPostTransactionActivities(requestMetaData, fundTransferRequest, fundTransferRequestDTO, buildBeneficiary());
     }
     
     //postTransactionActivityService
@@ -196,7 +196,7 @@ public class PostTransactionServiceTest {
         fundTransferRequestDTO.setBeneficiaryId("1");
         doNothing().when(notificationService).sendNotification(any());
         when(beneficiaryService.getByIdWithoutValidation(any(), any(),any(), any())).thenReturn(getBeneficiaryDto());
-        postTransactionService.performPostTransactionActivities(requestMetaData, fundTransferRequest, fundTransferRequestDTO);
+        postTransactionService.performPostTransactionActivities(requestMetaData, fundTransferRequest, fundTransferRequestDTO, buildBeneficiary());
     }
     
     @Test
@@ -217,6 +217,6 @@ public class PostTransactionServiceTest {
         EmailTemplateParameters emailTemplateParameters = buildEmailTemplateParameters();
         doNothing().when(notificationService).sendNotification(any());
       //  when(emailUtil.getEmailTemplateParameters(requestMetaData.getChannel(), requestMetaData.getSegment())).thenReturn(emailTemplateParameters);
-        postTransactionService.performPostTransactionActivities(requestMetaData, fundTransferRequest, fundTransferRequestDTO);
+        postTransactionService.performPostTransactionActivities(requestMetaData, fundTransferRequest, fundTransferRequestDTO, buildBeneficiary());
     }
 }

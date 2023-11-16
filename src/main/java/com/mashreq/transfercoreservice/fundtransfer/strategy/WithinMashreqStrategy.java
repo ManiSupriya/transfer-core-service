@@ -4,6 +4,7 @@ import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 import static com.mashreq.transfercoreservice.notification.model.NotificationType.WITHIN_MASHREQ_FT;
 import static java.time.Duration.between;
 import static java.time.Instant.now;
+import static java.util.Optional.ofNullable;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -175,7 +176,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
         final FundTransferRequest fundTransferRequest = prepareFundTransferRequestPayload(metadata, request, fromAccountOpt.get(), beneficiaryDto, validationResult, currencyConversionDto);
         final FundTransferResponse fundTransferResponse = processTransaction(metadata, txnRefNo, fundTransferRequest,request);
         handleSuccessfulTransaction(request, metadata, userDTO, validationResult, fundTransferRequest,
-				fundTransferResponse);
+				fundTransferResponse, beneficiaryDto);
         
         return prepareResponse(currencyConversionDto.getAccountCurrencyAmount(), limitUsageAmount, validationResult, txnRefNo, fundTransferResponse);
 
@@ -198,8 +199,8 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
 	}
 
 	protected void handleSuccessfulTransaction(FundTransferRequestDTO request, RequestMetaData metadata,
-			UserDTO userDTO, final LimitValidatorResponse validationResult,
-			final FundTransferRequest fundTransferRequest, final FundTransferResponse fundTransferResponse) {
+                                               UserDTO userDTO, final LimitValidatorResponse validationResult,
+                                               final FundTransferRequest fundTransferRequest, final FundTransferResponse fundTransferResponse, BeneficiaryDto beneficiaryDto) {
 		if(isSuccessOrProcessing(fundTransferResponse)) {
         	final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getTxnCurrency(),
                     request.getAmount(),fundTransferRequest.getBeneficiaryFullName(), fundTransferRequest.getToAccount());
@@ -211,7 +212,7 @@ public class WithinMashreqStrategy implements FundTransferStrategy {
              * this is done to enable transactions with TXN currency as  */
             fundTransferRequest.setAmount(request.getAmount());
             fundTransferRequest.setTxnCurrency(request.getTxnCurrency());
-            postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest, request);
+            postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest, request, ofNullable(beneficiaryDto));
         }
 	}
 

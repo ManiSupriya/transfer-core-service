@@ -1,9 +1,11 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy.paylater;
 
 import static com.mashreq.transfercoreservice.notification.model.NotificationType.INFT_PL_SI_CREATION;
+import static java.util.Optional.ofNullable;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import org.springframework.stereotype.Service;
@@ -135,8 +137,8 @@ public class InternationalPayLaterFundTransferStrategy extends InternationalFund
 
 	@Override
 	protected void handleSuccessfullTransaction(FundTransferRequestDTO request, RequestMetaData metadata,
-			UserDTO userDTO, final LimitValidatorResponse validationResult,
-			final FundTransferRequest fundTransferRequest, final FundTransferResponse fundTransferResponse) {
+                                                UserDTO userDTO, final LimitValidatorResponse validationResult,
+                                                final FundTransferRequest fundTransferRequest, final FundTransferResponse fundTransferResponse, BeneficiaryDto beneficiaryDto) {
 		if(isSuccess(fundTransferResponse)){
         final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),
 				request.getTxnCurrency(),request.getAmount(),fundTransferRequest.getBeneficiaryFullName(),fundTransferRequest.getToAccount());
@@ -144,7 +146,7 @@ public class InternationalPayLaterFundTransferStrategy extends InternationalFund
         fundTransferRequest.setTransferType(INTERNATIONAL);
         fundTransferRequest.setNotificationType(INFT_PL_SI_CREATION);
         fundTransferRequest.setStatus(MwResponseStatus.S.getName());
-        this.getPostTransactionService().performPostTransactionActivities(metadata, fundTransferRequest, request);
+        this.getPostTransactionService().performPostTransactionActivities(metadata, fundTransferRequest, request, ofNullable(beneficiaryDto));
         }
 	}
 
