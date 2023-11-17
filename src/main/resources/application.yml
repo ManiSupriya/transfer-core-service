@@ -313,6 +313,10 @@ redis:
   timeBetweenEviction: ${REDIS_TIME_BETWEEN_EVICTION_RUNS:30}
   numTestsPerEvictionRun: ${REDIS_NUM_TESTS_PER_EVICTION_RUN:3}
   writeTtl: ${REDIS_TTL:60}
+  statistics:
+    enabled: ${REDIS_STATISTICS_ENABLED:false}
+    interval: ${REDIS_STATISTICS_INTERVAL:300000}
+    keySize: ${REDIS_STATISTICS_KEY_SIZE:false}
 
 async:
   thread:

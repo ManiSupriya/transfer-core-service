@@ -45,16 +45,16 @@ public class UserSessionCacheService {
     }
 
 	private Map<String, Object> validateAndReturnContext(final String redisKey) {
-		IAMSessionUser iamSessionUser = redisService.get(redisKey, IAMSessionUser.class);
-        assertUserSessionContextPresent(iamSessionUser);
+	/*	IAMSessionUser iamSessionUser = redisService.get(redisKey, IAMSessionUser.class);
+        assertUserSessionContextPresent(iamSessionUser);*/
         final String accountsContextCacheKey = redisKey + ACCOUNTS.getSuffix();
         Map<String, Object> accountsContext = redisService.get(accountsContextCacheKey, ACCOUNT_CONTEXT_TYPE_REFERENCE);
 		return accountsContext;
 	}
 
     public boolean isCardNumberBelongsToCif(final String cardNumber, final String redisKey) {
-        IAMSessionUser iamSessionUser = redisService.get(redisKey, IAMSessionUser.class);
-        assertUserSessionContextPresent(iamSessionUser);
+       /* IAMSessionUser iamSessionUser = redisService.get(redisKey, IAMSessionUser.class);
+        assertUserSessionContextPresent(iamSessionUser);*/
         final String contextCacheKey = redisKey + ContextCacheKeysSuffix.CARDS.getSuffix();
         log.info("Get the redis object for the given key{} ", htmlEscape(contextCacheKey));
         Map<String, Object> contextObj = redisService.get(contextCacheKey, CARDS_CONTEXT_TYPE_REFERENCE);
