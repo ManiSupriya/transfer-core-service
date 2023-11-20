@@ -42,6 +42,7 @@ import java.util.Set;
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 import static com.mashreq.transfercoreservice.notification.model.NotificationType.*;
 import static java.lang.Long.valueOf;
+import static java.util.Optional.ofNullable;
 
 /**
  *
@@ -198,7 +199,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
         final FundTransferResponse fundTransferResponse = processTransaction(metadata, txnRefNo, fundTransferRequest,request);
 
         handleSuccessfulTransaction(request, metadata, userDTO, validationResult, fundTransferRequest,
-				fundTransferResponse);
+				fundTransferResponse,beneficiaryDto);
 
         return prepareResponse(currencyConversionDto.getAccountCurrencyAmount(), limitUsageAmount, validationResult, txnRefNo, fundTransferResponse);
 
@@ -218,8 +219,8 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
 	}
 
 	protected void handleSuccessfulTransaction(FundTransferRequestDTO request, RequestMetaData metadata,
-			UserDTO userDTO, final LimitValidatorResponse validationResult,
-			final FundTransferRequest fundTransferRequest, final FundTransferResponse fundTransferResponse) {
+                                               UserDTO userDTO, final LimitValidatorResponse validationResult,
+                                               final FundTransferRequest fundTransferRequest, final FundTransferResponse fundTransferResponse, BeneficiaryDto beneficiaryDto) {
 		if(isSuccessOrProcessing(fundTransferResponse)){
             final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getTxnCurrency(),
                     request.getAmount(),fundTransferRequest.getBeneficiaryFullName(),fundTransferRequest.getToAccount());
@@ -227,7 +228,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
             fundTransferRequest.setTransferType(getTransferType(fundTransferRequest.getTxnCurrency()));
             fundTransferRequest.setNotificationType(OTHER_ACCOUNT_TRANSACTION);
             fundTransferRequest.setStatus(fundTransferResponse.getResponseDto().getMwResponseStatus().getName());
-            postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest, request);
+            postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest, request, ofNullable(beneficiaryDto));
         }
 	}
 
@@ -379,7 +380,7 @@ public class LocalFundTransferStrategy implements FundTransferStrategy {
             fundTransferRequest.setNotificationType(OTHER_ACCOUNT_TRANSACTION);
             fundTransferRequest.setFromAccount(cardDetailsDTO.getCardNoWithMasked());
             fundTransferRequest.setStatus(mwResponseStatus.getName());
-            postTransactionService.performPostTransactionActivities(requestMetaData, fundTransferRequest, requestDTO);
+            postTransactionService.performPostTransactionActivities(requestMetaData, fundTransferRequest, requestDTO, ofNullable(beneficiaryDto));
         }
         return fundTransferResponse;
     }

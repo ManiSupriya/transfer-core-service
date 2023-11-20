@@ -5,12 +5,16 @@ import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.XAU;
 import static com.mashreq.transfercoreservice.notification.model.NotificationType.OWN_ACCOUNT_FT;
 import static java.time.Duration.between;
 import static java.time.Instant.now;
+import static java.util.Optional.empty;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -178,7 +182,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         final FundTransferResponse fundTransferResponse = processTransfer(metadata, validationResult, fundTransferRequest,request);
 
         handleSuccessfulTransaction(request, metadata, userDTO, transactionAmount, validationResult, fundTransferResponse, fundTransferRequest);
-       
+
         log.info("Total time taken for {} strategy {} milli seconds ", htmlEscape(request.getServiceType()), htmlEscape(Long.toString(between(start, now()).toMillis())));
         prepareAndCallPostTransactionActivity(metadata,fundTransferRequest,request,fundTransferResponse,conversionResult);
         return prepareResponse(transferAmountInSrcCurrency, limitUsageAmount, validationResult, fundTransferResponse);
@@ -248,13 +252,13 @@ public class OwnAccountStrategy implements FundTransferStrategy {
                 fundTransferRequest.setAmount(conversionResult.getTransactionAmount());
                 fundTransferRequest.setTransferType(getTransferType(fundTransferRequest.getSourceCurrency()));
             }
-            postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest, request);
+            postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest, request, empty());
         }
         else if(isSuccess){
             fundTransferRequest.setTransferType(OWN_ACCOUNT);
             fundTransferRequest.setNotificationType(NotificationType.LOCAL);
             fundTransferRequest.setStatus(MwResponseStatus.S.getName());
-            postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest, request);
+            postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest, request, empty());
         }
     }
 

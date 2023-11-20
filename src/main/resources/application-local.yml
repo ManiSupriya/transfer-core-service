@@ -81,6 +81,7 @@ app:
     transfer.product.id: 'DBLC'
     country.iso: 'EG'
     address: 'Egypt'
+    bankName: ${LOCAL_BANK_NAME:Mashreq}
     scheduler: ${CONSENT_SCHEDULER:0 */15 * ? * *}
     enabled: ${CONSENT_ENABLE:false}
     consentSize: ${CONSENT_SIZE:200}
