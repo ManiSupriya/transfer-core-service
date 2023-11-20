@@ -67,6 +67,9 @@ public class PostTransactionService {
     @Value("${default.notification.language}")
     private String defaultLanguage;
 
+    @Value("${app.local.bankName}")
+    private String bankName;
+
     private static final Set<ServiceType> OWN_ACCOUNT_SERVICE_TYPES = new HashSet<>(Arrays.asList(WYMA, XAU, XAG));
 
     /**
@@ -191,6 +194,8 @@ public class PostTransactionService {
         builder.params(ORDER_TYPE,StringUtils.defaultIfBlank(fundTransferRequestDTO.getOrderType(), DEFAULT_STR));
         builder.params(EXCHANGE_RATE,StringUtils.defaultIfBlank(fundTransferRequest.getExchangeRateDisplayTxt(), DEFAULT_STR));
         builder.params(LOCAL_CURRENCY,localCurrency);
+        builder.params(REFERENCE_NUMBER,StringUtils.defaultIfBlank(fundTransferRequest.getLimitTransactionRefNo(), DEFAULT_STR));
+
 
         if(fundTransferRequest.getAmount() != null) {
             builder.params(AMOUNT, EmailUtil.formattedAmount(fundTransferRequest.getAmount()));
@@ -205,22 +210,6 @@ public class PostTransactionService {
 
         if(checkForPlAndSi(fundTransferRequest.getNotificationType())){
 
-            ServiceType serviceType = getServiceByType(fundTransferRequest.getServiceType());
-            if(OWN_ACCOUNT_SERVICE_TYPES.contains(serviceType)){
-                //builder.params(BENEFICIARY_BANK_NAME, StringUtils.defaultIfBlank(segment.getEmailCprFooter(), DEFAULT_STR));
-                builder.params(BENEFICIARY_BANK_COUNTRY, StringUtils.defaultIfBlank(address, DEFAULT_STR));
-            }
-            else {
-                // final BeneficiaryDto beneficiaryDto = beneficiaryService.getByIdWithoutValidation(requestMetaData.getPrimaryCif(), valueOf(fundTransferRequestDTO.getBeneficiaryId()), fundTransferRequestDTO.getJourneyVersion(), requestMetaData);
-                if (beneficiaryDto.isPresent()) {
-                    BeneficiaryDto beneficiaryDtoOptional = beneficiaryDto.get();
-                    builder.params(BENEFICIARY_BANK_NAME, StringUtils.defaultIfBlank(beneficiaryDtoOptional.getBankName(), DEFAULT_STR));
-                    builder.params(BENEFICIARY_BANK_COUNTRY, StringUtils.defaultIfBlank(beneficiaryDtoOptional.getBankCountry(), DEFAULT_STR));
-                }
-            }
-            builder.params(TRANSACTION_DATE, StringUtils.defaultIfBlank(
-                    DateUtil.instantToDate(Instant.now(), "yyyy-MM-dd HH:mm:ss"), DEFAULT_STR)
-            );
             builder.params(TRANSACTION_TYPE, StringUtils.defaultIfBlank(
                     fundTransferRequestDTO.getOrderType().equals("PL") ? "Pay Later" : "Standing Instructions", DEFAULT_STR)
             );
@@ -231,6 +220,23 @@ public class PostTransactionService {
             builder.params(FREQUENCY,StringUtils.defaultIfBlank(fundTransferRequestDTO.getFrequency(), DEFAULT_STR));
 
             builder.subjectParams(PL_TYPE,fundTransferRequestDTO.getOrderType().equals("PL")? "Pay Later" : "Standing Instruction");
+        }
+
+        builder.params(TRANSACTION_DATE, StringUtils.defaultIfBlank(
+                DateUtil.instantToDate(Instant.now(), "yyyy-MM-dd HH:mm:ss"), DEFAULT_STR)
+        );
+        ServiceType serviceType = getServiceByType(fundTransferRequest.getServiceType());
+        if(OWN_ACCOUNT_SERVICE_TYPES.contains(serviceType)){
+            builder.params(BENEFICIARY_BANK_COUNTRY, StringUtils.defaultIfBlank(address, DEFAULT_STR));
+            builder.params(BENEFICIARY_BANK_NAME, StringUtils.defaultIfBlank(bankName, DEFAULT_STR));
+        }
+        else {
+            if (beneficiaryDto.isPresent()) {
+                BeneficiaryDto beneficiaryDtoOptional = beneficiaryDto.get();
+                builder.params(BENEFICIARY_BANK_BRANCH_NAME, StringUtils.defaultIfBlank(beneficiaryDtoOptional.getBankBranchName(), DEFAULT_STR));
+                builder.params(BENEFICIARY_BANK_NAME, StringUtils.defaultIfBlank(beneficiaryDtoOptional.getBankName(), DEFAULT_STR));
+                builder.params(BENEFICIARY_BANK_COUNTRY, StringUtils.defaultIfBlank(beneficiaryDtoOptional.getBankCountry(), DEFAULT_STR));
+            }
         }
     }
 }
