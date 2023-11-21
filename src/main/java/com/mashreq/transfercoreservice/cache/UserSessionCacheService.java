@@ -45,16 +45,12 @@ public class UserSessionCacheService {
     }
 
 	private Map<String, Object> validateAndReturnContext(final String redisKey) {
-	/*	IAMSessionUser iamSessionUser = redisService.get(redisKey, IAMSessionUser.class);
-        assertUserSessionContextPresent(iamSessionUser);*/
         final String accountsContextCacheKey = redisKey + ACCOUNTS.getSuffix();
         Map<String, Object> accountsContext = redisService.get(accountsContextCacheKey, ACCOUNT_CONTEXT_TYPE_REFERENCE);
 		return accountsContext;
 	}
 
     public boolean isCardNumberBelongsToCif(final String cardNumber, final String redisKey) {
-       /* IAMSessionUser iamSessionUser = redisService.get(redisKey, IAMSessionUser.class);
-        assertUserSessionContextPresent(iamSessionUser);*/
         final String contextCacheKey = redisKey + ContextCacheKeysSuffix.CARDS.getSuffix();
         log.info("Get the redis object for the given key{} ", htmlEscape(contextCacheKey));
         Map<String, Object> contextObj = redisService.get(contextCacheKey, CARDS_CONTEXT_TYPE_REFERENCE);
@@ -68,11 +64,6 @@ public class UserSessionCacheService {
                 .orElse(false);
 
 
-    }
-
-    public void assertUserSessionContextPresent(IAMSessionUser iamSessionUser) {
-        if (null == iamSessionUser)
-            GenericExceptionHandler.handleError(USER_SESSION_CONTEXT_NOT_FOUND, USER_SESSION_CONTEXT_NOT_FOUND.getErrorMessage());
     }
 
     public String getAccountsDetailsCacheKey(RequestMetaData requestMetaData, String accountNumber) {
