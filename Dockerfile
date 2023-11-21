@@ -29,6 +29,6 @@ USER appuser
 COPY target/*.jar /app.jar
 CMD java $JAVA_OPTS \
     -Dappdynamics.jvm.shutdown.mark.node.as.historical=true \
-    -Dappdynamics.agent.uniqueHostId=$(sed -rn '1s#.*/##; 1s/(.{12}).*/\1/p' /proc/self/cgroup) \
+    -Dappdynamics.agent.uniqueHostId=$(hostname) \
     -javaagent:/opt/appd/javaagent.jar \
     -jar /app.jar
