@@ -211,10 +211,6 @@ redis:
   ssl: ${REDIS_SSL_FLAG:false}
   timeout: ${REDIS_TIMEOUT:5000}
   writeTtl: ${REDIS_TTL:60}
-  statistics:
-    enabled: ${REDIS_STATISTICS_ENABLED:false}
-    interval: ${REDIS_STATISTICS_INTERVAL:60000}
-    keySize: ${REDIS_STATISTICS_KEY_SIZE:false}
 
 
 mob-common:

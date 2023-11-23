@@ -56,7 +56,7 @@
         <com.mashreq.logcore>1.0.4</com.mashreq.logcore>
         <com.mashreq.encryption>1.0.0</com.mashreq.encryption>
         <com.mashreq.ms.ms-commons>1.1.2</com.mashreq.ms.ms-commons>
-        <com.mashreq.mob-commons>2.5.5</com.mashreq.mob-commons>
+        <com.mashreq.mob-commons>2.1.19</com.mashreq.mob-commons>
         <jedis.version>3.8.0</jedis.version>
         <!-- additional deps and plugins versions -->
         <apache.commons.lang.version>3.9</apache.commons.lang.version>

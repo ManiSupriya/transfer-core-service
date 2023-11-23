@@ -22,7 +22,7 @@ import java.text.NumberFormat;
 @EnableTransactionAuthorization
 @EnableScheduling
 @EnableTemplateNotificationClient
-@SpringBootApplication(scanBasePackages = {"com.mashreq.transfercoreservice", "com.mashreq.ms", "com.mashreq.mobcommons"})
+@SpringBootApplication(scanBasePackages = {"com.mashreq.transfercoreservice", "com.mashreq.ms"})
 public class TransferApplication {
 
     @Autowired
