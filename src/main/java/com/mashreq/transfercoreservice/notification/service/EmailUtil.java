@@ -107,15 +107,11 @@ public class EmailUtil {
     public static final String FROM_ACCOUNT = "fromAccount";
     public static final String ALTERNATE_STEPS = "alternateSteps";
     public static final String ALTERNATE_STEPS_IF_ANY = "alternateStepsIfAny";
-//    public static final String LOCAL_FUND_TRANSFER = "mt_within_own_accounts";
-    public static final String LOCAL_FUND_TRANSFER = "mt_within_own_accounts_v2";
-//    public static final String GOLD_SILVER_BUY_SUCCESS = "mt_buy_gold_silver_success";
-    public static final String GOLD_SILVER_BUY_SUCCESS = "mt_buy_gold_silver_success_v2";
-//    public static final String GOLD_SILVER_SELL_SUCCESS = "mt_sell_gold_silver_success";
-    public static final String GOLD_SILVER_SELL_SUCCESS = "mt_sell_gold_silver_success_v2";
+    public static final String LOCAL_FUND_TRANSFER = "mt_within_own_accounts";
+    public static final String GOLD_SILVER_BUY_SUCCESS = "mt_buy_gold_silver_success";
+    public static final String GOLD_SILVER_SELL_SUCCESS = "mt_sell_gold_silver_success";
     public static final String PL_SI_FUND_TRANSFER = "mt_pl_creation";
-//    public static final String OTHER_FUND_TRANSFER = "mt_other_accounts";
-    public static final String OTHER_FUND_TRANSFER = "mt_other_accounts_v2";
+    public static final String OTHER_FUND_TRANSFER = "mt_other_accounts";
     public static final String BUSINESS_TYPE = "RETAIL";
 
     public static final String MT_NPSS_EMAIL_PROXY_UPDATE = "mt_npss_email_proxy_update";
