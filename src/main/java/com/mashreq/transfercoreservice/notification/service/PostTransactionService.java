@@ -231,12 +231,10 @@ public class PostTransactionService {
             builder.params(BENEFICIARY_BANK_NAME, StringUtils.defaultIfBlank(bankName, DEFAULT_STR));
         }
         else {
-            if (beneficiaryDto.isPresent()) {
-                BeneficiaryDto beneficiaryDtoOptional = beneficiaryDto.get();
-                builder.params(BENEFICIARY_BANK_BRANCH_NAME, StringUtils.defaultIfBlank(beneficiaryDtoOptional.getBankBranchName(), DEFAULT_STR));
-                builder.params(BENEFICIARY_BANK_NAME, StringUtils.defaultIfBlank(beneficiaryDtoOptional.getBankName(), DEFAULT_STR));
-                builder.params(BENEFICIARY_BANK_COUNTRY, StringUtils.defaultIfBlank(beneficiaryDtoOptional.getBankCountry(), DEFAULT_STR));
-            }
+            BeneficiaryDto beneficiaryDtoOptional = beneficiaryDto.orElseGet(() -> beneficiaryService.getByIdWithoutValidation(requestMetaData.getPrimaryCif(), valueOf(fundTransferRequestDTO.getBeneficiaryId()), fundTransferRequestDTO.getJourneyVersion(), requestMetaData));
+            builder.params(BENEFICIARY_BANK_BRANCH_NAME, StringUtils.defaultIfBlank(beneficiaryDtoOptional.getBankBranchName(), DEFAULT_STR));
+            builder.params(BENEFICIARY_BANK_NAME, StringUtils.defaultIfBlank(beneficiaryDtoOptional.getBankName(), DEFAULT_STR));
+            builder.params(BENEFICIARY_BANK_COUNTRY, StringUtils.defaultIfBlank(beneficiaryDtoOptional.getBankCountry(), DEFAULT_STR));
         }
     }
 }
