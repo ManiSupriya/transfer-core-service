@@ -19,6 +19,7 @@ import java.util.Objects;
 
 import com.mashreq.transfercoreservice.client.dto.*;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
+import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -35,10 +36,6 @@ import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.client.service.QuickRemitService;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.QRDealDetails;
-import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.enums.FundsTransferEligibility;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.BeneficiaryValidator;
@@ -123,10 +120,12 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 		final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), sourceAccountDetailsDTO,
 				new BigDecimal(response.getDebitAmountWithoutCharges()));
 
-		limitValidatorFactory.getValidator(metaData).validate(
+
+		LimitValidatorResponse limitValidatorResponse = limitValidatorFactory.getValidator(metaData).validate(
 				userDTO,
 				getCodeByName(beneficiaryDto.getBankCountryISO()),
 				limitUsageAmount, metaData, Long.valueOf(request.getBeneficiaryId()));
+		response.setMaxAmountDaily(limitValidatorResponse.getMaxAmountDaily());
 		updateExchangeRateDisplay(response);
 		return EligibilityResponse.builder().status(FundsTransferEligibility.ELIGIBLE).data(response).build();
 	}

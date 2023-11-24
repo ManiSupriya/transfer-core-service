@@ -162,6 +162,7 @@ public class TestUtil {
         LimitValidatorResponse limitValidatorResultsDto = new LimitValidatorResponse();
         limitValidatorResultsDto.setIsValid(true);
         limitValidatorResultsDto.setTransactionRefNo(txnRefNo);
+        limitValidatorResultsDto.setVerificationType("ELIGIBLE");
         return limitValidatorResultsDto;
     }
 

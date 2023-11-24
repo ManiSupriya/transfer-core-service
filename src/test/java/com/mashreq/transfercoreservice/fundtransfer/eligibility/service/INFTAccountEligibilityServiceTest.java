@@ -15,6 +15,7 @@ import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.Benef
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CurrencyValidator;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CurrencyValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.LimitValidatorFactory;
+import com.mashreq.transfercoreservice.fundtransfer.limits.LimitManagementConfig;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.rulespecificvalidators.currencyspecific.EGP_INFT_TransactionValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.rulespecificvalidators.RuleSpecificValidatorImpl;
@@ -28,6 +29,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.mashreq.transfercoreservice.util.TestUtil.getAdditionalFields;
 import static org.junit.Assert.assertNotNull;
@@ -58,6 +64,13 @@ public class INFTAccountEligibilityServiceTest {
     @Mock
     private RuleSpecificValidatorImpl RuleSpecificValidatorImpl;
 
+    @Mock
+    private LimitManagementConfig limitManagementConfig;
+
+    HashMap<String, List<String>> configfields = new HashMap(){{
+        put("AE", Arrays.asList("MOBILE"));
+    }};
+
     private EncryptionService encryptionService = new EncryptionService();
     private RequestMetaData metaData = RequestMetaData.builder().build();
     private EGP_INFT_TransactionValidator egValidator;
@@ -78,6 +91,8 @@ public class INFTAccountEligibilityServiceTest {
         UserDTO userDTO = new UserDTO();
 
         ValidationResult validationResult = ValidationResult.builder().success(true).build();
+        metaData.setCountry("AE");
+        metaData.setChannel("MOBILE");
         when(currencyValidatorFactory.getValidator(any())).thenReturn(currencyValidator);
         when(limitValidatorFactory.getValidator(any())).thenReturn(limitValidator);
 		when(currencyValidator.validate(any(),any(),any())).thenReturn(validationResult);
@@ -85,9 +100,37 @@ public class INFTAccountEligibilityServiceTest {
 		when(beneficiaryValidator.validate(any(),any(),any())).thenReturn(validationResult);
         when(maintenanceService.convertBetweenCurrencies(any())).thenReturn(TestUtil.getCurrencyConversionDto());
         when(maintenanceService.convertCurrency(any())).thenReturn(TestUtil.getCurrencyConversionDto());
-        when(limitValidator.validate(any(), any(), any(), any(), any())).thenReturn(TestUtil.limitValidatorResultsDto(null));
         when(accountService.getAccountDetailsFromCache(any(), any())).thenReturn(new AccountDetailsDTO());
+        when(limitManagementConfig.getCountries()).thenReturn(configfields);
+        when(limitValidator.validateAvailableLimits(any(), any(), any(), any(), any())).thenReturn(TestUtil.limitValidatorResultsDto(null));
 
+        EligibilityResponse response = service.checkEligibility(metaData, fundTransferEligibiltyRequestDTO, userDTO);
+
+        assertNotNull(response);
+        assertEquals(response.getStatus(), FundsTransferEligibility.ELIGIBLE);
+    }
+
+    @Test
+    public void checkEligibilityWithNoBeneUpdateForWEB() {
+        FundTransferEligibiltyRequestDTO fundTransferEligibiltyRequestDTO = new FundTransferEligibiltyRequestDTO();
+        fundTransferEligibiltyRequestDTO.setBeneficiaryId("1");
+        fundTransferEligibiltyRequestDTO.setFromAccount("1234567890");
+
+        UserDTO userDTO = new UserDTO();
+
+        ValidationResult validationResult = ValidationResult.builder().success(true).build();
+        metaData.setCountry("AE");
+        metaData.setChannel("WEB");
+        when(currencyValidatorFactory.getValidator(any())).thenReturn(currencyValidator);
+        when(limitValidatorFactory.getValidator(any())).thenReturn(limitValidator);
+        when(currencyValidator.validate(any(),any(),any())).thenReturn(validationResult);
+        when(beneficiaryService.getByIdWithoutValidation(any(),any(),any(),any())).thenReturn(TestUtil.getBeneficiaryDto());
+        when(beneficiaryValidator.validate(any(),any(),any())).thenReturn(validationResult);
+        when(maintenanceService.convertBetweenCurrencies(any())).thenReturn(TestUtil.getCurrencyConversionDto());
+        when(maintenanceService.convertCurrency(any())).thenReturn(TestUtil.getCurrencyConversionDto());
+        when(accountService.getAccountDetailsFromCache(any(), any())).thenReturn(new AccountDetailsDTO());
+        when(limitManagementConfig.getCountries()).thenReturn(configfields);
+        when(limitValidator.validate(any(), any(), any(), any(), any())).thenReturn(TestUtil.limitValidatorResultsDto(null));
         EligibilityResponse response = service.checkEligibility(metaData, fundTransferEligibiltyRequestDTO, userDTO);
 
         assertNotNull(response);

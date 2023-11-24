@@ -13,16 +13,15 @@ import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.common.ExceptionUtils;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
-import com.mashreq.transfercoreservice.fundtransfer.dto.QRDealDetails;
-import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.enums.FundsTransferEligibility;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.BeneficiaryValidator;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CCBalanceValidator;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.CurrencyValidatorFactory;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.LimitValidatorFactory;
+import com.mashreq.transfercoreservice.fundtransfer.limits.ILimitValidator;
+import com.mashreq.transfercoreservice.fundtransfer.limits.LimitManagementConfig;
 import com.mashreq.transfercoreservice.fundtransfer.service.QRDealsService;
 import com.mashreq.transfercoreservice.fundtransfer.validators.rulespecificvalidators.RuleSpecificValidatorImpl;
 import com.mashreq.transfercoreservice.fundtransfer.validators.rulespecificvalidators.RuleSpecificValidatorRequest;
@@ -33,8 +32,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
@@ -59,6 +60,7 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
     private final AuditEventPublisher auditEventPublisher;
     private final UserSessionCacheService userSessionCacheService;
     private final RuleSpecificValidatorImpl CountrySpecificValidatorProvider;
+    private final LimitManagementConfig limitManagementConfig;
 
     @Value("${app.local.currency}")
     private String localCurrency;
@@ -68,17 +70,22 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
 			UserDTO userDTO) {
 
     	log.info("Local transfer eligibility validation started");
+
+        LimitValidatorResponse validatorResponse = null;
 		if (StringUtils.isNotBlank(request.getCardNo())) {
 			if (isSMESegment(metaData)) {
 				return EligibilityResponse.builder().status(FundsTransferEligibility.NOT_ELIGIBLE)
 						.errorCode(INVALID_SEGMENT.getCustomErrorCode()).errorMessage(INVALID_SEGMENT.getErrorMessage())
 						.build();
 			}
-			executeCC(request, metaData, userDTO);
+            validatorResponse = executeCC(request, metaData, userDTO);
 		} else {
-			executeNonCreditCard(request, metaData, userDTO);
+            validatorResponse = executeNonCreditCard(request, metaData, userDTO);
 		}
 		log.info("Local transfer eligibility validation successfully finished");
+        if(validatorResponse!=null && validatorResponse.getVerificationType()!=null){
+            return EligibilityResponse.builder().status(FundsTransferEligibility.valueOf(validatorResponse.getVerificationType())).build();
+        }
 		return EligibilityResponse.builder().status(FundsTransferEligibility.ELIGIBLE).build();
 	}
 
@@ -94,7 +101,7 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
      * @param userDTO
      * @return
      */
-    private void executeNonCreditCard(FundTransferEligibiltyRequestDTO request, RequestMetaData metaData, UserDTO userDTO) {
+    private LimitValidatorResponse executeNonCreditCard(FundTransferEligibiltyRequestDTO request, RequestMetaData metaData, UserDTO userDTO) {
 
     	
     	
@@ -132,7 +139,22 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
         //Limit Validation
         Long bendId = StringUtils.isNotBlank(request.getBeneficiaryId())?Long.parseLong(request.getBeneficiaryId()):null;
         final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), fromAccountDetails, transferAmountInSrcCurrency);
-        limitValidatorFactory.getValidator(metaData).validate(userDTO, request.getServiceType(), limitUsageAmount, metaData, bendId);
+
+        List<String> allowedChannels = limitManagementConfig.getCountries().get(metaData.getCountry());
+
+        ILimitValidator limitValidator = limitValidatorFactory.getValidator(metaData);
+        LimitValidatorResponse limitValidatorResponse = null;
+        if(!CollectionUtils.isEmpty(allowedChannels) && allowedChannels.contains(metaData.getChannel())) {
+            limitValidatorResponse = limitValidator
+                    .validateAvailableLimits(userDTO, request.getServiceType(),
+                            limitUsageAmount, metaData, bendId);
+
+        } else {
+            limitValidator.validate(userDTO, request.getServiceType(),
+                    limitUsageAmount, metaData, bendId);
+        }
+
+        return limitValidatorResponse;
 
     }
 
@@ -143,7 +165,7 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
      * @param userDTO
      * @return
      */
-    private void executeCC(FundTransferEligibiltyRequestDTO request, RequestMetaData requestMetaData, UserDTO userDTO){
+    private LimitValidatorResponse executeCC(FundTransferEligibiltyRequestDTO request, RequestMetaData requestMetaData, UserDTO userDTO){
 
         responseHandler(currencyValidatorFactory.getValidator(requestMetaData).validate(request, requestMetaData));
 
@@ -178,8 +200,19 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
             responseHandler(countrySpecificValidator.validate(validationRequest, requestMetaData, validationContext));
         }
         final BigDecimal limitUsageAmount = transferAmountInSrcCurrency;
-        limitValidatorFactory.getValidator(requestMetaData)
-                .validate(userDTO, request.getServiceType(), limitUsageAmount, requestMetaData, null);
+        List<String> allowedChannels = limitManagementConfig.getCountries().get(requestMetaData.getCountry());
+
+        ILimitValidator limitValidator = limitValidatorFactory.getValidator(requestMetaData);
+        LimitValidatorResponse limitValidatorResponse = null;
+        if(!CollectionUtils.isEmpty(allowedChannels) && allowedChannels.contains(requestMetaData.getChannel())) {
+            limitValidatorResponse = limitValidator
+                    .validateAvailableLimits(userDTO, request.getServiceType(),
+                            limitUsageAmount, requestMetaData, null);
+
+        } else {
+            limitValidator.validate(userDTO, request.getServiceType(),
+                    limitUsageAmount, requestMetaData, null);
+        }
         //Credit card transaction limit validation is happening here, it is getting updated on a monthly basis and inserted into qr_deals_details table.
         QRDealDetails qrDealDetails = qrDealsService.getQRDealDetails(requestMetaData.getPrimaryCif(), beneficiaryDto.getBankCountryISO());
         if(qrDealDetails == null){
@@ -195,6 +228,8 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
         if(result < 0){
             logAndThrow(FundTransferEventType.FUND_TRANSFER_CC_CALL, TransferErrorCode.FT_CC_BALANCE_NOT_SUFFICIENT, requestMetaData);
         }
+
+        return limitValidatorResponse;
     }
 
     private void assertCardNumberBelongsToUser(FundTransferEligibiltyRequestDTO fundOrderCreateRequest, RequestMetaData metaData) {

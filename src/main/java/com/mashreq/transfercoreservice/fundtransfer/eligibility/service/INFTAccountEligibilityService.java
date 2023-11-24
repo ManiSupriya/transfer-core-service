@@ -101,12 +101,11 @@ public class INFTAccountEligibilityService implements TransferEligibilityService
 
         List<String> allowedChannels = limitManagementConfig.getCountries().get(metaData.getCountry());
 
-        LimitValidatorResponse limitValidatorResponse = null;
         ILimitValidator limitValidator = limitValidatorFactory.getValidator(metaData);
         if(!CollectionUtils.isEmpty(allowedChannels) && allowedChannels.contains(metaData.getChannel())) {
-            limitValidatorResponse = limitValidator.validateAvailableLimits(userDTO, request.getServiceType(),
-                    limitUsageAmount, metaData, beneficiaryDto.getId());
-            log.info("INFT transfer eligibility validation successfully finished");
+            LimitValidatorResponse  limitValidatorResponse = limitValidator
+                    .validateAvailableLimits(userDTO, request.getServiceType(),
+                            limitUsageAmount, metaData, beneficiaryDto.getId());
             return EligibilityResponse.builder().status(FundsTransferEligibility.valueOf(limitValidatorResponse.getVerificationType())).data(limitValidatorResponse).build();
         } else {
             limitValidator.validate(userDTO, request.getServiceType(),
