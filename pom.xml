@@ -129,12 +129,6 @@
             <groupId>com.mashreq</groupId>
             <artifactId>transaction-authorization-client</artifactId>
             <version>${com.mashreq.transaction-authorization-client.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.github.librepdf</groupId>
-                    <artifactId>openpdf</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -169,28 +163,11 @@
             <groupId>com.mashreq</groupId>
             <artifactId>esbcore</artifactId>
             <version>${com.mashreq.esbcore}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.github.librepdf</groupId>
-                    <artifactId>openpdf</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
-       <!-- <dependency>
-            <groupId>com.github.librepdf</groupId>
-            <artifactId>openpdf</artifactId>
-            <version>1.3.11</version>
-        </dependency>-->
         <dependency>
             <groupId>com.mashreq</groupId>
             <artifactId>encryption</artifactId>
             <version>${com.mashreq.encryption}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.github.librepdf</groupId>
-                    <artifactId>openpdf</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.mashreq.dedupe</groupId>
@@ -205,13 +182,6 @@
             <groupId>com.mashreq</groupId>
             <artifactId>mob-commons</artifactId>
             <version>${com.mashreq.mob-commons}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.github.librepdf</groupId>
-                    <artifactId>openpdf</artifactId>
-                </exclusion>
-            </exclusions>
-
         </dependency>
 
         <dependency>
@@ -237,12 +207,6 @@
             <groupId>com.mashreq</groupId>
             <artifactId>logcore</artifactId>
             <version>${com.mashreq.logcore}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.github.librepdf</groupId>
-                    <artifactId>openpdf</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -263,12 +227,6 @@
             <groupId>com.mashreq.ms</groupId>
             <artifactId>ms-commons</artifactId>
             <version>${com.mashreq.ms.ms-commons}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.github.librepdf</groupId>
-                    <artifactId>openpdf</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>net.javacrumbs.shedlock</groupId>
