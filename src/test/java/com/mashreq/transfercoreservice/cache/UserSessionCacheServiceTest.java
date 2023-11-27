@@ -30,36 +30,31 @@ public class UserSessionCacheServiceTest {
 
     @Test
     public void isAccountNumberBelongsToCif() {
-        when(redisService.get(any(), ArgumentMatchers.<Class>any())).thenReturn(new IAMSessionUser());
-        when(redisService.get(any(), ArgumentMatchers.<TypeReference>any())).thenReturn(TestUtil.getAccountContext());
+       when(redisService.get(any(), ArgumentMatchers.<TypeReference>any())).thenReturn(TestUtil.getAccountContext());
 
         assertTrue(userSessionCacheService.isAccountNumberBelongsToCif("0123456789","1234"));
     }
 
     @Test
     public void test_isMtAccountNumberBelongsToCif_withNormalAccount() {
-        when(redisService.get(any(), ArgumentMatchers.<Class>any())).thenReturn(new IAMSessionUser());
         when(redisService.get(any(), ArgumentMatchers.<TypeReference>any())).thenReturn(TestUtil.getAccountContext());
         assertTrue(userSessionCacheService.isMTAccountNumberBelongsToCif("0123456789","1234"));
     }
     
     @Test
     public void test_isMtAccountNumberBelongsToCif_withInvestmentAccount() {
-        when(redisService.get(any(), ArgumentMatchers.<Class>any())).thenReturn(new IAMSessionUser());
         when(redisService.get(any(), ArgumentMatchers.<TypeReference>any())).thenReturn(TestUtil.getMoneyTransferAccountContext());
         assertTrue(userSessionCacheService.isMTAccountNumberBelongsToCif("1123456789","1234"));
     }
     
     @Test
     public void test_isMtAccountNumberBelongsToCif_withUnknownAccount() {
-        when(redisService.get(any(), ArgumentMatchers.<Class>any())).thenReturn(new IAMSessionUser());
         when(redisService.get(any(), ArgumentMatchers.<TypeReference>any())).thenReturn(TestUtil.getMoneyTransferAccountContext());
         assertFalse(userSessionCacheService.isMTAccountNumberBelongsToCif("1123466789","1234"));
     }
     
     @Test
     public void isCardNumberBelongsToCif() {
-        when(redisService.get(any(), ArgumentMatchers.<Class>any())).thenReturn(new IAMSessionUser());
         when(redisService.get(any(), ArgumentMatchers.<TypeReference>any())).thenReturn(TestUtil.getCardsContext());
 
         assertTrue(userSessionCacheService.isCardNumberBelongsToCif("4444333322221111","1234"));

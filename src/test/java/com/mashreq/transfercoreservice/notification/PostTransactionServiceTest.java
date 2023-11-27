@@ -197,7 +197,6 @@ public class PostTransactionServiceTest {
         FundTransferRequestDTO fundTransferRequestDTO = new FundTransferRequestDTO();
         fundTransferRequestDTO.setBeneficiaryId("1");
         doNothing().when(notificationService).sendNotification(any());
-        when(beneficiaryService.getByIdWithoutValidation(any(), any(),any(), any())).thenReturn(getBeneficiaryDto());
         postTransactionService.performPostTransactionActivities(requestMetaData, fundTransferRequest, fundTransferRequestDTO, buildBeneficiary());
     }
     
@@ -216,9 +215,7 @@ public class PostTransactionServiceTest {
         EmailParameters emailParameters = buildEmailParameters();
         emailParameters.setPlSiFundTransfer("plSiFundTransfer");
 
-        EmailTemplateParameters emailTemplateParameters = buildEmailTemplateParameters();
         doNothing().when(notificationService).sendNotification(any());
-      //  when(emailUtil.getEmailTemplateParameters(requestMetaData.getChannel(), requestMetaData.getSegment())).thenReturn(emailTemplateParameters);
         postTransactionService.performPostTransactionActivities(requestMetaData, fundTransferRequest, fundTransferRequestDTO, buildBeneficiary());
     }
 }
