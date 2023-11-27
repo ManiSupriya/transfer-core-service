@@ -135,6 +135,7 @@ app:
     transaction.code: '096'
     country.iso: ${LOCAL_COUNTRY_ISO:AE}
     address: ${LOCAL_ADDRESS:UNITED ARAB EMIRATES}
+    bankName: ${LOCAL_BANK_NAME:Mashreq}
     iban:
       length: ${IBAN_LENGTH:23}
       accountNumber: ${MASHREQ_ACCOUNTNUMBER_LENGTH:12}
