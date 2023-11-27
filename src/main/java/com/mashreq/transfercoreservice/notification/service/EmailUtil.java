@@ -107,7 +107,6 @@ public class EmailUtil {
     public static final String FROM_ACCOUNT = "fromAccount";
     public static final String ALTERNATE_STEPS = "alternateSteps";
     public static final String ALTERNATE_STEPS_IF_ANY = "alternateStepsIfAny";
-
     public static final String LOCAL_FUND_TRANSFER = "mt_within_own_accounts";
     public static final String GOLD_SILVER_BUY_SUCCESS = "mt_buy_gold_silver_success";
     public static final String GOLD_SILVER_SELL_SUCCESS = "mt_sell_gold_silver_success";
@@ -134,6 +133,7 @@ public class EmailUtil {
     public static final String SENDER_NAME = "senderName";
     public static final String ZERO = "0";
     public static final String defaultLanguage = "EN";
+    public static final String BENEFICIARY_BANK_BRANCH_NAME = "branchName";
 
     @Autowired
     private MobCommonService mobCommonService;

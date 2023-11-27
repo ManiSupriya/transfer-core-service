@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Optional;
 
 import com.mashreq.transfercoreservice.config.EscrowConfig;
-import org.checkerframework.checker.units.qual.*;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -190,7 +189,7 @@ public class WithinMashreqStrategyTest {
 
         Mockito.when(fundTransferMWService.transfer(Mockito.any(),Mockito.any(),Mockito.any())).thenReturn(response);
         Mockito.doNothing().when(notificationService).sendNotifications(Mockito.any(),Mockito.any(),Mockito.any(),Mockito.any());
-        Mockito.doNothing().when(postTransactionService).performPostTransactionActivities(Mockito.any(),Mockito.any(),Mockito.any());
+        Mockito.doNothing().when(postTransactionService).performPostTransactionActivities(Mockito.any(),Mockito.any(),Mockito.any(), Mockito.any());
         FundTransferResponse fundTransferResponse = withinMashreqStrategy.execute(requestDTO,requestMetaData, userDTO);
 
         //Then
@@ -255,7 +254,7 @@ public class WithinMashreqStrategyTest {
 
         Mockito.when(fundTransferMWService.transfer(Mockito.any(),Mockito.any(),Mockito.any())).thenReturn(response);
         Mockito.doNothing().when(notificationService).sendNotifications(Mockito.any(),Mockito.any(),Mockito.any(),Mockito.any());
-        Mockito.doNothing().when(postTransactionService).performPostTransactionActivities(Mockito.any(),Mockito.any(),Mockito.any());
+        Mockito.doNothing().when(postTransactionService).performPostTransactionActivities(Mockito.any(),Mockito.any(),Mockito.any(), Mockito.any());
         FundTransferResponse fundTransferResponse = withinMashreqStrategy.execute(requestDTO,requestMetaData, userDTO);
 
         //Then
@@ -318,7 +317,7 @@ public class WithinMashreqStrategyTest {
         Mockito.when(escrowConfig.getOaAccounts()).thenReturn(oaAccounts);
         Mockito.when(fundTransferMWService.transfer(Mockito.any(),Mockito.any(),Mockito.any())).thenReturn(response);
         Mockito.doNothing().when(notificationService).sendNotifications(Mockito.any(),Mockito.any(),Mockito.any(),Mockito.any());
-        Mockito.doNothing().when(postTransactionService).performPostTransactionActivities(Mockito.any(),Mockito.any(),Mockito.any());
+        Mockito.doNothing().when(postTransactionService).performPostTransactionActivities(Mockito.any(),Mockito.any(),Mockito.any(), Mockito.any());
         FundTransferResponse fundTransferResponse = withinMashreqStrategy.execute(requestDTO,requestMetaData, userDTO);
 
         //Then
@@ -380,7 +379,7 @@ public class WithinMashreqStrategyTest {
 
         Mockito.when(fundTransferMWService.transfer(Mockito.any(),Mockito.any(),Mockito.any())).thenReturn(response);
         Mockito.doNothing().when(notificationService).sendNotifications(Mockito.any(),Mockito.any(),Mockito.any(),Mockito.any());
-        Mockito.doNothing().when(postTransactionService).performPostTransactionActivities(Mockito.any(),Mockito.any(),Mockito.any());
+        Mockito.doNothing().when(postTransactionService).performPostTransactionActivities(Mockito.any(),Mockito.any(),Mockito.any(), Mockito.any());
         FundTransferResponse fundTransferResponse = withinMashreqStrategy.execute(requestDTO,requestMetaData, userDTO);
 
         //Then
@@ -442,7 +441,7 @@ public class WithinMashreqStrategyTest {
 
         Mockito.when(fundTransferMWService.transfer(Mockito.any(),Mockito.any(),Mockito.any())).thenReturn(response);
         Mockito.doNothing().when(notificationService).sendNotifications(Mockito.any(),Mockito.any(),Mockito.any(),Mockito.any());
-        Mockito.doNothing().when(postTransactionService).performPostTransactionActivities(Mockito.any(),Mockito.any(),Mockito.any());
+        Mockito.doNothing().when(postTransactionService).performPostTransactionActivities(Mockito.any(),Mockito.any(),Mockito.any(), Mockito.any());
         FundTransferResponse fundTransferResponse = withinMashreqStrategy.execute(requestDTO,requestMetaData, userDTO);
 
         //Then
