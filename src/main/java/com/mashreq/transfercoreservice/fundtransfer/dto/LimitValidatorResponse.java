@@ -65,7 +65,6 @@ public class LimitValidatorResponse {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String limitVersionUuid;
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String errorCode;
 
     private String frequencyPerMonth;

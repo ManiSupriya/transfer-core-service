@@ -196,7 +196,7 @@ public class LimitValidator implements ILimitValidator{
                         MONTHLY_COUNT_REACHED.getErrorMessage());
             } else if (LimitCheckType.DAILY_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, DAILY_AMOUNT_REACHED.getCustomErrorCode(), DAILY_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
-
+                limitValidatorResultsDto.setErrorCode(DAILY_AMOUNT_REACHED.getCustomErrorCode());
             } else if (LimitCheckType.DAILY_COUNT.name().equals(limitValidatorResultsDto.getCountRemark())) {
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, DAILY_COUNT_REACHED.getCustomErrorCode(), DAILY_COUNT_REACHED.getErrorMessage(), "limit check failed");
                 GenericExceptionHandler.handleError(DAILY_COUNT_REACHED,
@@ -214,6 +214,7 @@ public class LimitValidator implements ILimitValidator{
             }
             else if (LimitCheckType.TRX_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, TRX_AMOUNT_REACHED.getCustomErrorCode(), TRX_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
+                limitValidatorResultsDto.setErrorCode(TRX_AMOUNT_REACHED.getCustomErrorCode());
             }
             else {
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, TRX_AMOUNT_REACHED.getCustomErrorCode(), TRX_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
