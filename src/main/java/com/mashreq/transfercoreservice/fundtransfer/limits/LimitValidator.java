@@ -197,6 +197,7 @@ public class LimitValidator implements ILimitValidator{
             } else if (LimitCheckType.DAILY_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, DAILY_AMOUNT_REACHED.getCustomErrorCode(), DAILY_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
                 limitValidatorResultsDto.setErrorCode(DAILY_AMOUNT_REACHED.getCustomErrorCode());
+                limitValidatorResultsDto.setVerificationType(FundsTransferEligibility.LIMIT_INCREASE_ELIGIBLE.name());
             } else if (LimitCheckType.DAILY_COUNT.name().equals(limitValidatorResultsDto.getCountRemark())) {
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, DAILY_COUNT_REACHED.getCustomErrorCode(), DAILY_COUNT_REACHED.getErrorMessage(), "limit check failed");
                 GenericExceptionHandler.handleError(DAILY_COUNT_REACHED,
@@ -215,14 +216,13 @@ public class LimitValidator implements ILimitValidator{
             else if (LimitCheckType.TRX_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, TRX_AMOUNT_REACHED.getCustomErrorCode(), TRX_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
                 limitValidatorResultsDto.setErrorCode(TRX_AMOUNT_REACHED.getCustomErrorCode());
+                limitValidatorResultsDto.setVerificationType(FundsTransferEligibility.LIMIT_INCREASE_ELIGIBLE.name());
             }
             else {
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, TRX_AMOUNT_REACHED.getCustomErrorCode(), TRX_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
                 GenericExceptionHandler.handleError(LIMIT_PACKAGE_NOT_DEFINED,
                         LIMIT_PACKAGE_NOT_DEFINED.getErrorMessage());
             }
-        } else {
-            limitValidatorResultsDto.setVerificationType(FundsTransferEligibility.LIMIT_INCREASE_ELIGIBLE.name());
         }
         auditEventPublisher.publishSuccessEvent(LIMIT_VALIDATION, metaData, remarks);
         log.info("Limit validation successful");
