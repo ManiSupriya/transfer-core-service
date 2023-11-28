@@ -21,12 +21,11 @@ import java.text.NumberFormat;
 
 @Slf4j
 @EnableFeignClients
-@EnableAutoConfiguration(exclude={FeignInterceptorConfig.class})
 @EnableTransactionAuthorization
 @EnableMashreqTracing
 @EnableScheduling
 @EnableTemplateNotificationClient
-@SpringBootApplication(scanBasePackages = {"com.mashreq.transfercoreservice", "com.mashreq.ms"})
+@SpringBootApplication(scanBasePackages = {"com.mashreq.transfercoreservice", "com.mashreq.ms","com.mashreq.mobcommons"})
 public class TransferApplication {
 
     @Autowired
