@@ -216,8 +216,8 @@ public class LimitValidator implements ILimitValidator{
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, TRX_AMOUNT_REACHED.getCustomErrorCode(), TRX_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
                 errorCode = TRX_AMOUNT_REACHED.getCustomErrorCode();
                 verificationType = FundsTransferEligibility.LIMIT_INCREASE_ELIGIBLE.name();
-            } else if (limitValidatorResultsDto.getVerificationType().equals(FundsTransferEligibility.NSTP)) {
-                errorCode = NSTP_LIMIT_REACHED.getCustomErrorCode();
+            } else if (limitValidatorResultsDto.getVerificationType().equals(FundsTransferEligibility.NSTP) || limitValidatorResultsDto.getVerificationType().equals(FundsTransferEligibility.EFR_ELIGIBLE)) {
+                errorCode = LIMIT_ELIGIBILITY_NOT_FOUND.getCustomErrorCode();
             }
             else {
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, TRX_AMOUNT_REACHED.getCustomErrorCode(), TRX_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
