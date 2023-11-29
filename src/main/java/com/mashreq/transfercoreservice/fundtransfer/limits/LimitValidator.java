@@ -185,19 +185,17 @@ public class LimitValidator implements ILimitValidator{
         limitValidatorResultsDto.setTransactionRefNo(transactionRefNo);
 
         String errorCode = "";
-        String verificationType = "";
+        String verificationType = FundsTransferEligibility.NOT_ELIGIBLE.name();;
 
 
         final String remarks = getRemarks(limitValidatorResultsDto, metaData.getPrimaryCif(), String.valueOf(paidAmount), beneficiaryType);
-        if (Boolean.FALSE.equals(limitValidatorResultsDto.getIsValid()) && limitValidatorResultsDto.getVerificationType().equals(FundsTransferEligibility.ELIGIBLE)) {
+        if (Boolean.FALSE.equals(limitValidatorResultsDto.getIsValid())) {
             if (LimitCheckType.MONTHLY_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, MONTHLY_AMOUNT_REACHED.getCustomErrorCode(), MONTHLY_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
                 errorCode = MONTHLY_AMOUNT_REACHED.getCustomErrorCode();
-                verificationType = FundsTransferEligibility.NOT_ELIGIBLE.name();
             } else if (LimitCheckType.MONTHLY_COUNT.name().equals(limitValidatorResultsDto.getCountRemark())) {
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, MONTHLY_COUNT_REACHED.getCustomErrorCode(), MONTHLY_COUNT_REACHED.getErrorMessage(), "limit check failed");
                 errorCode = MONTHLY_COUNT_REACHED.getCustomErrorCode();
-                verificationType = FundsTransferEligibility.NOT_ELIGIBLE.name();
             } else if (LimitCheckType.DAILY_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, DAILY_AMOUNT_REACHED.getCustomErrorCode(), DAILY_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
                 errorCode = DAILY_AMOUNT_REACHED.getCustomErrorCode();
@@ -205,23 +203,21 @@ public class LimitValidator implements ILimitValidator{
             } else if (LimitCheckType.DAILY_COUNT.name().equals(limitValidatorResultsDto.getCountRemark())) {
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, DAILY_COUNT_REACHED.getCustomErrorCode(), DAILY_COUNT_REACHED.getErrorMessage(), "limit check failed");
                 errorCode = DAILY_COUNT_REACHED.getCustomErrorCode();
-                verificationType = FundsTransferEligibility.NOT_ELIGIBLE.name();
             }
             else if (LimitCheckType.COOLING_LIMIT_COUNT.name().equals(limitValidatorResultsDto.getCountRemark())) {
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, COOLING_LIMIT_COUNT_REACHED.getCustomErrorCode(), COOLING_LIMIT_COUNT_REACHED.getErrorMessage(), "limit check failed");
                 errorCode = COOLING_LIMIT_COUNT_REACHED.getCustomErrorCode();
-                verificationType = FundsTransferEligibility.NOT_ELIGIBLE.name();
             }
             else if (LimitCheckType.COOLING_LIMIT_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, COOLING_LIMIT_AMOUNT_REACHED.getCustomErrorCode(), COOLING_LIMIT_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
                 errorCode = COOLING_LIMIT_AMOUNT_REACHED.getCustomErrorCode();
-                verificationType = FundsTransferEligibility.NOT_ELIGIBLE.name();
-
             }
             else if (LimitCheckType.TRX_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, TRX_AMOUNT_REACHED.getCustomErrorCode(), TRX_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
                 errorCode = TRX_AMOUNT_REACHED.getCustomErrorCode();
                 verificationType = FundsTransferEligibility.LIMIT_INCREASE_ELIGIBLE.name();
+            } else if (limitValidatorResultsDto.getVerificationType().equals(FundsTransferEligibility.NSTP)) {
+                errorCode = NSTP_LIMIT_REACHED.getCustomErrorCode();
             }
             else {
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, TRX_AMOUNT_REACHED.getCustomErrorCode(), TRX_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
