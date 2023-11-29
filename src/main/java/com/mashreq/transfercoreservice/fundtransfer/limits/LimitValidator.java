@@ -190,7 +190,7 @@ public class LimitValidator implements ILimitValidator{
 
         final String remarks = getRemarks(limitValidatorResultsDto, metaData.getPrimaryCif(), String.valueOf(paidAmount), beneficiaryType);
         if (Boolean.FALSE.equals(limitValidatorResultsDto.getIsValid())) {
-            if (limitValidatorResultsDto.getVerificationType().equals(FundsTransferEligibility.NSTP) || limitValidatorResultsDto.getVerificationType().equals(FundsTransferEligibility.EFR_ELIGIBLE)) {
+            if (limitValidatorResultsDto.getVerificationType().equals(FundsTransferEligibility.NSTP.name()) || limitValidatorResultsDto.getVerificationType().equals(FundsTransferEligibility.EFR_ELIGIBLE.name())) {
                 errorCode = LIMIT_ELIGIBILITY_NOT_FOUND.getCustomErrorCode();
             } else {
                 if (LimitCheckType.MONTHLY_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
