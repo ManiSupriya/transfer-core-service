@@ -84,7 +84,7 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
 		}
 		log.info("Local transfer eligibility validation successfully finished");
         if(validatorResponse!=null && validatorResponse.getVerificationType()!=null){
-            return EligibilityResponse.builder().status(FundsTransferEligibility.valueOf(validatorResponse.getVerificationType())).build();
+            return EligibilityResponse.builder().status(FundsTransferEligibility.valueOf(validatorResponse.getVerificationType())).data(validatorResponse).build();
         }
 		return EligibilityResponse.builder().status(FundsTransferEligibility.ELIGIBLE).build();
 	}

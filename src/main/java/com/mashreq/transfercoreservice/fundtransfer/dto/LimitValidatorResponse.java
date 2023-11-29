@@ -66,7 +66,6 @@ public class LimitValidatorResponse {
     private String limitVersionUuid;
 
     private String errorCode;
-
     private String frequencyPerMonth;
     private BigDecimal segmentLimit;
     private BigDecimal threshold;

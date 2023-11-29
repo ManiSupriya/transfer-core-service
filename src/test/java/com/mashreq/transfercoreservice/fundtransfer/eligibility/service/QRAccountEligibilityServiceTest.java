@@ -23,6 +23,7 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.enums.FundsTransferEligibility;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.*;
+import com.mashreq.transfercoreservice.fundtransfer.limits.LimitManagementConfig;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.QRDealsService;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
@@ -42,6 +43,9 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QRAccountEligibilityServiceTest {
@@ -79,6 +83,13 @@ public class QRAccountEligibilityServiceTest {
 	private MobCommonService mobCommonService;
 	@Mock
 	private EncryptionService encryptionService;
+
+	@Mock
+	private LimitManagementConfig limitManagementConfig;
+
+	HashMap<String, List<String>> configfields = new HashMap(){{
+		put("AE", Arrays.asList("MOBILE"));
+	}};
 	private RequestMetaData metaData = RequestMetaData.builder().build();
 	
 	@Before
@@ -96,7 +107,8 @@ public class QRAccountEligibilityServiceTest {
 				userEventPublisher,
 				userSessionCacheService,
 				cardService,
-				mobCommonService);
+				mobCommonService,
+				limitManagementConfig);
 		ReflectionTestUtils.setField(service, "countriesWhereQrDisabledForCompany", ImmutableList.of("PK"));
 		ReflectionTestUtils.setField(service, "localCurrency", "AED");
 	}
@@ -296,6 +308,64 @@ public class QRAccountEligibilityServiceTest {
 
 		assertNotNull(response);
 		assertEquals(response.getStatus(), FundsTransferEligibility.ELIGIBLE);
+	}
+
+	@Test
+	public void checkEligibilityMOBILE(){
+		FundTransferEligibiltyRequestDTO fundTransferEligibiltyRequestDTO = new FundTransferEligibiltyRequestDTO();
+		fundTransferEligibiltyRequestDTO.setBeneficiaryId("1");
+		fundTransferEligibiltyRequestDTO.setFromAccount("1234567890");
+
+		UserDTO userDTO = new UserDTO();
+
+		ValidationResult validationResult = ValidationResult.builder().success(true).build();
+		metaData.setCountry("AE");
+		metaData.setChannel("MOBILE");
+		when(limitManagementConfig.getCountries()).thenReturn(configfields);
+		when(mobCommonService.getCountryValidationRules("IN")).thenReturn(TestUtil.getCountryMs());
+		when(currencyValidatorFactory.getValidator(any())).thenReturn(currencyValidator);
+		when(limitValidatorFactory.getValidator(any())).thenReturn(limitValidator);
+		when(currencyValidator.validate(any(),any(),any())).thenReturn(validationResult);
+		when(beneficiaryService.getByIdWithoutValidation(any(),any(),any(),any())).thenReturn(TestUtil.getBeneficiaryDto());
+		when(beneficiaryValidator.validate(any(),any(),any())).thenReturn(validationResult);
+		when(maintenanceService.convertCurrency(any())).thenReturn(TestUtil.getCurrencyConversionDto());
+		when(limitValidator.validateAvailableLimits(any(),any(),any(),any(),any())).thenReturn(TestUtil.limitValidatorResultsDto(null));
+		when(quickRemitService.exchange(any(),any(),any())).thenReturn(qrExchangeResponse());
+		when(accountService.getAccountDetailsFromCache(any(),any())).thenReturn(new AccountDetailsDTO());
+
+		EligibilityResponse response = service.checkEligibility(metaData, fundTransferEligibiltyRequestDTO, userDTO);
+
+		assertNotNull(response);
+		assertEquals(response.getStatus(), FundsTransferEligibility.ELIGIBLE);
+	}
+
+	@Test
+	public void checkEligibilityMOBILE_DAILY_TRX_AMOUNT_ERROR(){
+		FundTransferEligibiltyRequestDTO fundTransferEligibiltyRequestDTO = new FundTransferEligibiltyRequestDTO();
+		fundTransferEligibiltyRequestDTO.setBeneficiaryId("1");
+		fundTransferEligibiltyRequestDTO.setFromAccount("1234567890");
+
+		UserDTO userDTO = new UserDTO();
+
+		ValidationResult validationResult = ValidationResult.builder().success(true).build();
+		metaData.setCountry("AE");
+		metaData.setChannel("MOBILE");
+		when(limitManagementConfig.getCountries()).thenReturn(configfields);
+		when(mobCommonService.getCountryValidationRules("IN")).thenReturn(TestUtil.getCountryMs());
+		when(currencyValidatorFactory.getValidator(any())).thenReturn(currencyValidator);
+		when(limitValidatorFactory.getValidator(any())).thenReturn(limitValidator);
+		when(currencyValidator.validate(any(),any(),any())).thenReturn(validationResult);
+		when(beneficiaryService.getByIdWithoutValidation(any(),any(),any(),any())).thenReturn(TestUtil.getBeneficiaryDto());
+		when(beneficiaryValidator.validate(any(),any(),any())).thenReturn(validationResult);
+		when(maintenanceService.convertCurrency(any())).thenReturn(TestUtil.getCurrencyConversionDto());
+		when(limitValidator.validateAvailableLimits(any(),any(),any(),any(),any())).thenReturn(TestUtil.limitValidatorResultsDtoWithErrorCodes("1234"));
+		when(quickRemitService.exchange(any(),any(),any())).thenReturn(qrExchangeResponse());
+		when(accountService.getAccountDetailsFromCache(any(),any())).thenReturn(new AccountDetailsDTO());
+
+		EligibilityResponse response = service.checkEligibility(metaData, fundTransferEligibiltyRequestDTO, userDTO);
+
+		assertNotNull(response);
+		assertEquals(response.getStatus(), FundsTransferEligibility.NOT_ELIGIBLE);
 	}
 	@Test
 	public void checkEligibilityForPKBene(){

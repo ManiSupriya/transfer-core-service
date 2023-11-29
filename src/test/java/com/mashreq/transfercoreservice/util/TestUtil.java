@@ -166,6 +166,14 @@ public class TestUtil {
         return limitValidatorResultsDto;
     }
 
+    public static LimitValidatorResponse limitValidatorResultsDtoWithErrorCodes(String txnRefNo){
+        LimitValidatorResponse limitValidatorResultsDto = new LimitValidatorResponse();
+        limitValidatorResultsDto.setIsValid(true);
+        limitValidatorResultsDto.setTransactionRefNo(txnRefNo);
+        limitValidatorResultsDto.setVerificationType("LIMIT_INCREASE_ELIGIBLE");
+        return limitValidatorResultsDto;
+    }
+
     public static List<AddressTypeDto> getAddress(){
         AddressTypeDto addressTypeDto = new AddressTypeDto();
         addressTypeDto.setAddressType("P");
