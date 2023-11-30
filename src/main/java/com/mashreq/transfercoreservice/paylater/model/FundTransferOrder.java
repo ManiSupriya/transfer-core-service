@@ -74,8 +74,7 @@ public class FundTransferOrder extends DomainEntity {
 	@Column(name = "deal_rate",precision = 5)
 	private BigDecimal dealRate;
 	@Column(name = "charge_bearer",length = 1)
-	@Enumerated(EnumType.STRING)
-	private ChargeBearer chargeBearer;
+	private String chargeBearer;
 	@Column(name = "transaction_Code",length = 10)
 	private String transactionCode;
 	@Enumerated(EnumType.STRING)

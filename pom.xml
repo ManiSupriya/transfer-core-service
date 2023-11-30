@@ -48,7 +48,7 @@
         <com.mashreq.esbcore>3.0.2-RELEASE</com.mashreq.esbcore>
         <com.mashreq.logcore>3.0.2-RELEASE</com.mashreq.logcore>
         <com.mashreq.encryption>3.0.2-RELEASE</com.mashreq.encryption>
-        <com.mashreq.ms.ms-commons>3.0.1-RELEASE</com.mashreq.ms.ms-commons>
+        <com.mashreq.ms.ms-commons>3.0.2-RELEASE</com.mashreq.ms.ms-commons>
         <com.mashreq.tracing>3.1.2-RELEASE</com.mashreq.tracing>
         <com.mashreq.mob-commons>3.4.9-RELEASE</com.mashreq.mob-commons>
         <com.mashreq.dedupe-util>1.0.4</com.mashreq.dedupe-util>
