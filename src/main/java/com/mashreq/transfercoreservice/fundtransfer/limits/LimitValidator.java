@@ -17,6 +17,7 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.LimitValidatorRequest;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.enums.FundsTransferEligibility;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
@@ -184,12 +185,26 @@ public class LimitValidator implements ILimitValidator{
         String transactionRefNo = generateTransactionRefNo(limitValidatorResultsDto,metaData,beneficiaryType);
         limitValidatorResultsDto.setTransactionRefNo(transactionRefNo);
 
+        String remarks = getRemarks(limitValidatorResultsDto, metaData.getPrimaryCif(), String.valueOf(paidAmount), beneficiaryType);
+        handleErrorForAvailableLimits(limitValidatorResultsDto, remarks, metaData);
+        auditEventPublisher.publishSuccessEvent(LIMIT_VALIDATION, metaData, remarks);
+        log.info("Limit validation successful");
+        return limitValidatorResultsDto;
+    }
+
+    private String generateTransactionRefNo(LimitValidatorResponse validationResult, RequestMetaData metadata, String benCode) {
+        return metadata.getChannel().substring(0,1) + getCodeByType(benCode) + validationResult.getTransactionRefNo();
+    }
+
+    private void handleErrorForAvailableLimits(LimitValidatorResponse  limitValidatorResultsDto, String remarks, RequestMetaData metaData){
         String errorCode = "";
-        String verificationType = FundsTransferEligibility.NOT_ELIGIBLE.name();;
-
-
-        final String remarks = getRemarks(limitValidatorResultsDto, metaData.getPrimaryCif(), String.valueOf(paidAmount), beneficiaryType);
-        if (Boolean.FALSE.equals(limitValidatorResultsDto.getIsValid())) {
+        String verificationType = "";
+        if(limitValidatorResultsDto.getFrequencyPerMonth() == 0){
+            verificationType = FundsTransferEligibility.NOT_ELIGIBLE.name();
+            errorCode = LIMIT_INCREASE_FREQUENCY_REACHED.getCustomErrorCode();
+        }
+        else if (Boolean.FALSE.equals(limitValidatorResultsDto.getIsValid())) {
+            verificationType = FundsTransferEligibility.NOT_ELIGIBLE.name();
             if (limitValidatorResultsDto.getVerificationType().equals(FundsTransferEligibility.NSTP.name()) || limitValidatorResultsDto.getVerificationType().equals(FundsTransferEligibility.EFR_ELIGIBLE.name())) {
                 errorCode = LIMIT_ELIGIBILITY_NOT_FOUND.getCustomErrorCode();
             } else {
@@ -222,16 +237,13 @@ public class LimitValidator implements ILimitValidator{
                             LIMIT_PACKAGE_NOT_DEFINED.getErrorMessage());
                 }
             }
+        }
+        if(StringUtils.isNotBlank(errorCode)) {
             limitValidatorResultsDto.setErrorCode(errorCode);
+        }
+        if (StringUtils.isNotBlank(verificationType)) {
             limitValidatorResultsDto.setVerificationType(verificationType);
         }
-        auditEventPublisher.publishSuccessEvent(LIMIT_VALIDATION, metaData, remarks);
-        log.info("Limit validation successful");
-        return limitValidatorResultsDto;
-    }
-
-    private String generateTransactionRefNo(LimitValidatorResponse validationResult, RequestMetaData metadata, String benCode) {
-        return metadata.getChannel().substring(0,1) + getCodeByType(benCode) + validationResult.getTransactionRefNo();
     }
 
 }
