@@ -100,7 +100,7 @@ public class InternationalPayLaterFundTransferStrategy extends InternationalFund
 		order.setCreatedOn(LocalDateTime.now());
 		order.setBeneficiaryId(Long.valueOf(request.getBeneficiaryId()));
 		order.setChannel(metadata.getChannel());
-		order.setChargeBearer(ChargeBearer.valueOf(request.getChargeBearer()));
+		order.setChargeBearer(request.getChargeBearer());
 		order.setCif(metadata.getPrimaryCif());
 		order.setUserType(metadata.getUserType());
 		order.setCustomerSegment(metadata.getSegment());
