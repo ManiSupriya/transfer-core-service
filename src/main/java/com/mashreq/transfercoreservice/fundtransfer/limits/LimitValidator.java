@@ -196,49 +196,49 @@ public class LimitValidator implements ILimitValidator{
         return metadata.getChannel().substring(0,1) + getCodeByType(benCode) + validationResult.getTransactionRefNo();
     }
 
-    private void handleErrorForAvailableLimits(LimitValidatorResponse  limitValidatorResultsDto, String remarks, RequestMetaData metaData){
+    private void handleErrorForAvailableLimits(LimitValidatorResponse  limitValidatorResultsDto, String remarks, RequestMetaData metaData) {
         String errorCode = "";
         String verificationType = "";
-        if(limitValidatorResultsDto.getFrequencyPerMonth() == 0){
+
+        if (Boolean.FALSE.equals(limitValidatorResultsDto.getIsValid())) {
             verificationType = FundsTransferEligibility.NOT_ELIGIBLE.name();
-            errorCode = LIMIT_INCREASE_FREQUENCY_REACHED.getCustomErrorCode();
-        }
-        else if (Boolean.FALSE.equals(limitValidatorResultsDto.getIsValid())) {
-            verificationType = FundsTransferEligibility.NOT_ELIGIBLE.name();
-            if (limitValidatorResultsDto.getVerificationType().equals(FundsTransferEligibility.NSTP.name()) || limitValidatorResultsDto.getVerificationType().equals(FundsTransferEligibility.EFR_ELIGIBLE.name())) {
+            if (limitValidatorResultsDto.getVerificationType().equals(FundsTransferEligibility.NSTP.name())
+                    || limitValidatorResultsDto.getVerificationType().equals(FundsTransferEligibility.EFR_ELIGIBLE.name())) {
                 errorCode = LIMIT_ELIGIBILITY_NOT_FOUND.getCustomErrorCode();
+            } else if (LimitCheckType.MONTHLY_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
+                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, MONTHLY_AMOUNT_REACHED.getCustomErrorCode(), MONTHLY_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
+                errorCode = MONTHLY_AMOUNT_REACHED.getCustomErrorCode();
+            } else if (LimitCheckType.MONTHLY_COUNT.name().equals(limitValidatorResultsDto.getCountRemark())) {
+                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, MONTHLY_COUNT_REACHED.getCustomErrorCode(), MONTHLY_COUNT_REACHED.getErrorMessage(), "limit check failed");
+                errorCode = MONTHLY_COUNT_REACHED.getCustomErrorCode();
+            } else if (LimitCheckType.DAILY_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
+                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, DAILY_AMOUNT_REACHED.getCustomErrorCode(), DAILY_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
+                errorCode = DAILY_AMOUNT_REACHED.getCustomErrorCode();
+                verificationType = FundsTransferEligibility.LIMIT_INCREASE_ELIGIBLE.name();
+            } else if (LimitCheckType.DAILY_COUNT.name().equals(limitValidatorResultsDto.getCountRemark())) {
+                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, DAILY_COUNT_REACHED.getCustomErrorCode(), DAILY_COUNT_REACHED.getErrorMessage(), "limit check failed");
+                errorCode = DAILY_COUNT_REACHED.getCustomErrorCode();
+            } else if (LimitCheckType.COOLING_LIMIT_COUNT.name().equals(limitValidatorResultsDto.getCountRemark())) {
+                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, COOLING_LIMIT_COUNT_REACHED.getCustomErrorCode(), COOLING_LIMIT_COUNT_REACHED.getErrorMessage(), "limit check failed");
+                errorCode = COOLING_LIMIT_COUNT_REACHED.getCustomErrorCode();
+            } else if (LimitCheckType.COOLING_LIMIT_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
+                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, COOLING_LIMIT_AMOUNT_REACHED.getCustomErrorCode(), COOLING_LIMIT_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
+                errorCode = COOLING_LIMIT_AMOUNT_REACHED.getCustomErrorCode();
+            } else if (LimitCheckType.TRX_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
+                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, TRX_AMOUNT_REACHED.getCustomErrorCode(), TRX_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
+                errorCode = TRX_AMOUNT_REACHED.getCustomErrorCode();
+                verificationType = FundsTransferEligibility.LIMIT_INCREASE_ELIGIBLE.name();
+            } else if (limitValidatorResultsDto.getLimitFreezeHoursTimer() > 0) {
+                errorCode = LIMIT_INCREASE_FREEZE.getCustomErrorCode();
+            } else if (limitValidatorResultsDto.getMaxMonthlyLimitChangeCount() == limitValidatorResultsDto.getUsedMonthlyLimitChangeCount()) {
+                errorCode = LIMIT_INCREASE_FREQUENCY_REACHED.getCustomErrorCode();
             } else {
-                if (LimitCheckType.MONTHLY_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
-                    auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, MONTHLY_AMOUNT_REACHED.getCustomErrorCode(), MONTHLY_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
-                    errorCode = MONTHLY_AMOUNT_REACHED.getCustomErrorCode();
-                } else if (LimitCheckType.MONTHLY_COUNT.name().equals(limitValidatorResultsDto.getCountRemark())) {
-                    auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, MONTHLY_COUNT_REACHED.getCustomErrorCode(), MONTHLY_COUNT_REACHED.getErrorMessage(), "limit check failed");
-                    errorCode = MONTHLY_COUNT_REACHED.getCustomErrorCode();
-                } else if (LimitCheckType.DAILY_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
-                    auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, DAILY_AMOUNT_REACHED.getCustomErrorCode(), DAILY_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
-                    errorCode = DAILY_AMOUNT_REACHED.getCustomErrorCode();
-                    verificationType = FundsTransferEligibility.LIMIT_INCREASE_ELIGIBLE.name();
-                } else if (LimitCheckType.DAILY_COUNT.name().equals(limitValidatorResultsDto.getCountRemark())) {
-                    auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, DAILY_COUNT_REACHED.getCustomErrorCode(), DAILY_COUNT_REACHED.getErrorMessage(), "limit check failed");
-                    errorCode = DAILY_COUNT_REACHED.getCustomErrorCode();
-                } else if (LimitCheckType.COOLING_LIMIT_COUNT.name().equals(limitValidatorResultsDto.getCountRemark())) {
-                    auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, COOLING_LIMIT_COUNT_REACHED.getCustomErrorCode(), COOLING_LIMIT_COUNT_REACHED.getErrorMessage(), "limit check failed");
-                    errorCode = COOLING_LIMIT_COUNT_REACHED.getCustomErrorCode();
-                } else if (LimitCheckType.COOLING_LIMIT_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
-                    auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, COOLING_LIMIT_AMOUNT_REACHED.getCustomErrorCode(), COOLING_LIMIT_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
-                    errorCode = COOLING_LIMIT_AMOUNT_REACHED.getCustomErrorCode();
-                } else if (LimitCheckType.TRX_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
-                    auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, TRX_AMOUNT_REACHED.getCustomErrorCode(), TRX_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
-                    errorCode = TRX_AMOUNT_REACHED.getCustomErrorCode();
-                    verificationType = FundsTransferEligibility.LIMIT_INCREASE_ELIGIBLE.name();
-                } else {
-                    auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, TRX_AMOUNT_REACHED.getCustomErrorCode(), TRX_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
-                    GenericExceptionHandler.handleError(LIMIT_PACKAGE_NOT_DEFINED,
-                            LIMIT_PACKAGE_NOT_DEFINED.getErrorMessage());
-                }
+                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, TRX_AMOUNT_REACHED.getCustomErrorCode(), TRX_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
+                GenericExceptionHandler.handleError(LIMIT_PACKAGE_NOT_DEFINED,
+                        LIMIT_PACKAGE_NOT_DEFINED.getErrorMessage());
             }
         }
-        if(StringUtils.isNotBlank(errorCode)) {
+        if (StringUtils.isNotBlank(errorCode)) {
             limitValidatorResultsDto.setErrorCode(errorCode);
         }
         if (StringUtils.isNotBlank(verificationType)) {

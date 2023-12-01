@@ -72,4 +72,6 @@ public class LimitValidatorResponse {
     private String limitChangeWindow;
     private Integer limitFreezeHoursTimer;
     private String verificationType;
+    private Integer maxMonthlyLimitChangeCount;
+    private Integer usedMonthlyLimitChangeCount;
 }
