@@ -196,8 +196,7 @@ public class MobCommonService {
     public CountryDto getCountryValidationRules(String countryCode) {
         log.info("[MobCommonService] Calling MobCommonService to get filtered country validation rules");
         Instant startTime = now();
-        //final Map<String, CountryDto> cache = mobRedisService.get(MOB_AE_FILTERED_COUNTRIES, FILTERED_COUNTRIES_TYPE);
-        final Map<String, CountryDto> cache = null;
+        final Map<String, CountryDto> cache = mobRedisService.get(MOB_AE_FILTERED_COUNTRIES, FILTERED_COUNTRIES_TYPE);
         if (null != cache && !cache.isEmpty()) {
             log.info("CACHE HIT for getCountryValidationRules");
             return cache.get(countryCode);
