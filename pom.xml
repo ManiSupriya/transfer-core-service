@@ -45,7 +45,7 @@
         <sonar-maven-plugin.version>3.9.1.2184</sonar-maven-plugin.version>
         <asciidoctor-maven-plugin.version>2.0.0-RC.1</asciidoctor-maven-plugin.version>
         <!-- internal modules -->
-        <com.mashreq.esbcore>3.0.2-RELEASE</com.mashreq.esbcore>
+        <com.mashreq.esbcore>3.0.5-RELEASE</com.mashreq.esbcore>
         <com.mashreq.logcore>3.0.2-RELEASE</com.mashreq.logcore>
         <com.mashreq.encryption>3.0.2-RELEASE</com.mashreq.encryption>
         <com.mashreq.ms.ms-commons>3.0.2-RELEASE</com.mashreq.ms.ms-commons>
