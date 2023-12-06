@@ -341,14 +341,6 @@
             <version>${com.mashreq.tracing}</version>
         </dependency>
         <dependency>
-        <groupId>net.bull.javamelody</groupId>
-        <artifactId>javamelody-spring-boot-starter</artifactId>
-        </dependency>
-       <!-- <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>log4j-over-slf4j</artifactId>
-        </dependency>-->
-        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
         </dependency>
