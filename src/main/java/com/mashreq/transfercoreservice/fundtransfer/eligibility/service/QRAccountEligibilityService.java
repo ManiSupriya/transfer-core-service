@@ -128,6 +128,7 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 		List<String> allowedChannels = limitManagementConfig.getCountries().get(metaData.getCountry());
 
 		ILimitValidator limitValidator = limitValidatorFactory.getValidator(metaData);
+		String status = FundsTransferEligibility.ELIGIBLE.name();
 		if(!isSMESegment(metaData) && !CollectionUtils.isEmpty(allowedChannels) && allowedChannels.contains(metaData.getChannel())) {
 			LimitValidatorResponse  limitValidatorResponse = limitValidator
 					.validateAvailableLimits(
@@ -135,13 +136,11 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 							getCodeByName(beneficiaryDto.getBankCountryISO()),
 							limitUsageAmount, metaData, Long.valueOf(request.getBeneficiaryId()));
 			response.setMaxAmountDaily(limitValidatorResponse.getMaxAmountDaily());
-			String status = "";
 			if(limitValidatorResponse.getVerificationType().equals(FundsTransferEligibility.LIMIT_INCREASE_ELIGIBLE.name())) {
 				status = FundsTransferEligibility.NOT_ELIGIBLE.name();
 			} else {
 				status = limitValidatorResponse.getVerificationType();
 			}
-			return EligibilityResponse.builder().status(FundsTransferEligibility.valueOf(status)).data(limitValidatorResponse).build();
 		} else {
 			limitValidatorFactory.getValidator(metaData).validate(
 					userDTO,
@@ -150,7 +149,7 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 		}
 
 		updateExchangeRateDisplay(response);
-		return EligibilityResponse.builder().status(FundsTransferEligibility.ELIGIBLE).data(response).build();
+		return EligibilityResponse.builder().status(FundsTransferEligibility.valueOf(status)).data(response).build();
 	}
 
 	private boolean checkIfBeneIsCompany(String countryCode, String accountType) {
