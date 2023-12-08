@@ -74,4 +74,10 @@ public class LimitValidatorResponse {
     private String verificationType;
     private Integer maxMonthlyLimitChangeCount;
     private Integer usedMonthlyLimitChangeCount;
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private String lastLimitChangeDate;
+
+    private String nextLimitChangeDate;
+    private Boolean isLimitChangeAllowed;
 }

@@ -112,15 +112,15 @@ public class TransferEligibilityProxy {
 
 	private void validate(RequestMetaData metaData, ServiceType serviceType, FundTransferEligibiltyRequestDTO request) {
 		//debit freeze for all accounts
-		if (StringUtils.isBlank(request.getCardNo())) {
+		/*if (StringUtils.isBlank(request.getCardNo())) {
 			checkDebitFreeze(metaData, request.getFromAccount(),
 					mobRedisService.get(userSessionCacheService.getAccountsDetailsCacheKey(metaData, request.getFromAccount()), AccountDetailsDTO.class));
-		}
+		}*/
 		//credit freeze for mashreq accounts
-		if(serviceType.equals(WAMA) || serviceType.equals(WYMA)){
+		/*if(serviceType.equals(WAMA) || serviceType.equals(WYMA)){
 			checkCreditFreeze(metaData, serviceType, request.getToAccount(),
 					mobRedisService.get(userSessionCacheService.getAccountsDetailsCacheKey(metaData, request.getToAccount()), AccountDetailsDTO.class));
-		}
+		}*/
 		if(!isSourceOfFundEligible(request, serviceType)){
 			GenericExceptionHandler.handleError(PAYMENT_NOT_ELIGIBLE_FOR_SOURCE_ACCOUNT, PAYMENT_NOT_ELIGIBLE_FOR_SOURCE_ACCOUNT.getErrorMessage());
 		}
