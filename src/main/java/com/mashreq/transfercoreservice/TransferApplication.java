@@ -25,7 +25,10 @@ import java.text.NumberFormat;
 @EnableMashreqTracing
 @EnableScheduling
 @EnableTemplateNotificationClient
-@SpringBootApplication(scanBasePackages = {"com.mashreq.transfercoreservice", "com.mashreq.ms","com.mashreq.mobcommons"})
+@SpringBootApplication(
+        scanBasePackages = {"com.mashreq.transfercoreservice",
+                "com.mashreq.ms", "com.mashreq.mobcommons"}
+        , exclude = {FeignInterceptorConfig.class})
 public class TransferApplication {
 
     @Autowired
