@@ -9,6 +9,11 @@ import static com.mashreq.transfercoreservice.event.FundTransferEventType.MIN_LI
 import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.getCodeByType;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -230,8 +235,6 @@ public class LimitValidator implements ILimitValidator{
                 verificationType = FundsTransferEligibility.LIMIT_INCREASE_ELIGIBLE.name();
             } else if (limitValidatorResultsDto.getLimitFreezeHoursTimer() > 0) {
                 errorCode = LIMIT_INCREASE_FREEZE.getCustomErrorCode();
-            } else if (limitValidatorResultsDto.getMaxMonthlyLimitChangeCount() == limitValidatorResultsDto.getUsedMonthlyLimitChangeCount()) {
-                errorCode = LIMIT_INCREASE_FREQUENCY_REACHED.getCustomErrorCode();
             } else {
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, TRX_AMOUNT_REACHED.getCustomErrorCode(), TRX_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
                 GenericExceptionHandler.handleError(LIMIT_PACKAGE_NOT_DEFINED,
@@ -244,6 +247,42 @@ public class LimitValidator implements ILimitValidator{
         if (StringUtils.isNotBlank(verificationType)) {
             limitValidatorResultsDto.setVerificationType(verificationType);
         }
+        setNextLimitChangeDt(limitValidatorResultsDto);
+    }
+
+    private void setNextLimitChangeDt(LimitValidatorResponse  limitValidatorResultsDto){
+        Date extractedDt = extractDate(limitValidatorResultsDto.getLastLimitChangeDate());
+        LocalDateTime localDateTime = null;
+        if(extractedDt!=null) {
+            if (limitValidatorResultsDto.getUsedMonthlyLimitChangeCount() > 0) {
+                localDateTime = extractedDt.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                if (limitValidatorResultsDto.getMaxMonthlyLimitChangeCount() == limitValidatorResultsDto.getUsedMonthlyLimitChangeCount()) {
+                    localDateTime = localDateTime.plusMonths(1);
+                } else {
+                    localDateTime = localDateTime.plusHours(Long.parseLong(limitValidatorResultsDto.getLimitChangeWindow()));
+                }
+                Date nextLimitChangeDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+                limitValidatorResultsDto.setNextLimitChangeDate(nextLimitChangeDate.toString());
+                limitValidatorResultsDto.setIsLimitChangeAllowed(false);
+            }
+
+        }
+
+    }
+
+    private Date extractDate(String dateString){
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
+        Date parsedDate = null;
+        if(StringUtils.isNotBlank(dateString)) {
+            try {
+                parsedDate   = dateFormat.parse(dateString);
+            } catch (ParseException e) {
+                GenericExceptionHandler.handleError(DATE_PARSE_ERROR,
+                        DATE_PARSE_ERROR.getErrorMessage());
+            }
+        }
+
+        return parsedDate;
     }
 
 }
