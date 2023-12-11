@@ -1,5 +1,7 @@
 package com.mashreq.transfercoreservice.client;
 
+import com.mashreq.mobcommons.autoconfig.FeignInterceptorConfig;
+import com.mashreq.mobcommons.services.feign.FeignRequestInterceptor;
 import jakarta.validation.Valid;
 
 import org.springframework.cloud.openfeign.FeignClient;
@@ -12,7 +14,7 @@ import com.mashreq.transfercoreservice.config.feign.FeignConfig;
 import com.mashreq.webcore.dto.response.Response;
 
 
-@FeignClient(name = "quickremit", url = "${app.services.quick-remit}", configuration = FeignConfig.class)
+@FeignClient(name = "quickremit", url = "${app.services.quick-remit}", configuration = FeignInterceptorConfig.class)
 public interface QuickRemitServiceClient {
 
 	@PostMapping(value = "/api/v1/quickremit/exchange")
