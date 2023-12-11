@@ -79,4 +79,6 @@ public class LimitValidatorResponse {
     private String lastLimitChangeDate;
 
     private String nextLimitChangeDate;
+
+    private Integer minimumLimitAmount;
 }
