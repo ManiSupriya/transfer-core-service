@@ -79,5 +79,4 @@ public class LimitValidatorResponse {
     private String lastLimitChangeDate;
 
     private String nextLimitChangeDate;
-    private Boolean isLimitChangeAllowed;
 }

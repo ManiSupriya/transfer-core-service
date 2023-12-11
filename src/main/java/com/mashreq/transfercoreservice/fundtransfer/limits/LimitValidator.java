@@ -263,7 +263,6 @@ public class LimitValidator implements ILimitValidator{
                 }
                 Date nextLimitChangeDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
                 limitValidatorResultsDto.setNextLimitChangeDate(nextLimitChangeDate.toString());
-                limitValidatorResultsDto.setIsLimitChangeAllowed(false);
             }
 
         }
