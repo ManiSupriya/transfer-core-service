@@ -9,8 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
 @FeignClient(value = "notification",
-        url = "${app.services.notification}",
-        configuration = FeignConfig.class)
+        url = "${app.services.notification}")
 public interface NotificationClient {
 
         @PostMapping(value = "/common/notification/sms", consumes = "application/json")
