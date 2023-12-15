@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 
-@FeignClient(name = "bankcharges", url = "${app.services.bank-charges}", configuration = FeignConfig.class)
+@FeignClient(name = "bankcharges", url = "${app.services.bank-charges}")
 public interface BankChargesServiceClient {
 
 	@GetMapping("/api/v1/charges/transaction/{accountClass}")
