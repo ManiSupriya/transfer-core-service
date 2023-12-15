@@ -233,8 +233,6 @@ public class LimitValidator implements ILimitValidator{
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, TRX_AMOUNT_REACHED.getCustomErrorCode(), TRX_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
                 errorCode = TRX_AMOUNT_REACHED.getCustomErrorCode();
                 verificationType = FundsTransferEligibility.LIMIT_INCREASE_ELIGIBLE.name();
-            } else if (limitValidatorResultsDto.getLimitFreezeHoursTimer() > 0) {
-                errorCode = LIMIT_INCREASE_FREEZE.getCustomErrorCode();
             } else {
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, TRX_AMOUNT_REACHED.getCustomErrorCode(), TRX_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
                 GenericExceptionHandler.handleError(LIMIT_PACKAGE_NOT_DEFINED,

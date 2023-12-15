@@ -66,13 +66,21 @@ public class LimitValidatorResponse {
     private String limitVersionUuid;
 
     private String errorCode;
+
     private Integer frequencyPerMonth;
+
     private BigDecimal segmentLimit;
+
     private BigDecimal threshold;
+
     private String limitChangeWindow;
+
     private Integer limitFreezeHoursTimer;
+
     private String verificationType;
+
     private Integer maxMonthlyLimitChangeCount;
+
     private Integer usedMonthlyLimitChangeCount;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -81,4 +89,7 @@ public class LimitValidatorResponse {
     private String nextLimitChangeDate;
 
     private Integer minimumLimitAmount;
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Boolean allowedToChangeLimit;
 }
