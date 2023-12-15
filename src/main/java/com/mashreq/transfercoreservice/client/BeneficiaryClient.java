@@ -1,6 +1,5 @@
 package com.mashreq.transfercoreservice.client;
 
-import com.mashreq.mobcommons.autoconfig.FeignInterceptorConfig;
 import com.mashreq.ms.commons.cache.HeaderNames;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryModificationValidationRequest;
@@ -19,7 +18,7 @@ import jakarta.validation.constraints.NotNull;
  * @date 3/16/20
  */
 
-@FeignClient(name = "beneficiary", url = "${app.services.beneficiary}", configuration = FeignInterceptorConfig.class)
+@FeignClient(name = "beneficiary", url = "${app.services.beneficiary}", configuration = FeignConfig.class)
 public interface BeneficiaryClient {
 
     @GetMapping("/v1/beneficiary/{id}")
