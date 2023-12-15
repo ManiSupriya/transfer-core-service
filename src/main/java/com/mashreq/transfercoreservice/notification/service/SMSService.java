@@ -63,6 +63,8 @@ public class SMSService  {
     private String defaultLanguage;
 
     private static final String leftToRight = "\u200E";
+
+    private static final String ARABIC = "AR";
     /**
      * service method to prepare sms template based on type of sms and send sms
      */
@@ -75,7 +77,7 @@ public class SMSService  {
             TemplateRequest templateRequest = buildSmsTemplate(PL_SI_CREATION,metaData,customerNotification,phoneNo)
                     .params(BENEFICIARY_NAME,customerNotification.getBeneficiaryName())
                     // Added 'leftToRight' to correct word alignment for arabic SMS
-                    .params(ACCOUNT_NUMBER,leftToRight + emailUtil.doMask(customerNotification.getCreditAccount()) + leftToRight)
+                    .params(ACCOUNT_NUMBER,isArabic() ? leftToRight + emailUtil.doMask(customerNotification.getCreditAccount()) + leftToRight : emailUtil.doMask(customerNotification.getCreditAccount()))
                     .configure();
             try {
                 notificationService.sendNotification(templateRequest);
@@ -150,5 +152,9 @@ public class SMSService  {
 		}
 		smsObject.setPriority(smsConfig.getPriority());
 		return smsObject;
+    }
+
+    private boolean isArabic() {
+        return ARABIC.equalsIgnoreCase(defaultLanguage);
     }
 }
