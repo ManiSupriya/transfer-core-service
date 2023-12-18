@@ -1,41 +1,38 @@
 package com.mashreq.transfercoreservice.fundtransfer.limits;
 
-import static com.mashreq.transfercoreservice.client.ErrorUtils.getErrorDetails;
-import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.EXTERNAL_SERVICE_ERROR;
-import static com.mashreq.transfercoreservice.event.FundTransferEventType.LIMIT_VALIDATION;
-import static com.mashreq.transfercoreservice.event.FundTransferEventType.MIN_LIMIT_VALIDATION;
-import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.getCodeByType;
+import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
+import com.mashreq.mobcommons.services.http.RequestMetaData;
+import com.mashreq.ms.exceptions.GenericExceptionHandler;
+import com.mashreq.transfercoreservice.client.mobcommon.MobCommonClient;
+import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitCheckType;
+import com.mashreq.transfercoreservice.errors.TransferErrorCode;
+import com.mashreq.transfercoreservice.fundtransfer.dto.LimitValidatorRequest;
+import com.mashreq.transfercoreservice.fundtransfer.dto.LimitValidatorResponse;
+import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
+import com.mashreq.transfercoreservice.fundtransfer.eligibility.enums.FundsTransferEligibility;
+import com.mashreq.transfercoreservice.model.ServiceType;
+import com.mashreq.transfercoreservice.repository.ServiceTypeRepository;
+import com.mashreq.webcore.dto.response.Response;
+import com.mashreq.webcore.dto.response.ResponseStatus;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Date;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
-import com.mashreq.transfercoreservice.client.mobcommon.MobCommonClient;
-import com.mashreq.transfercoreservice.fundtransfer.dto.LimitValidatorRequest;
-import com.mashreq.transfercoreservice.fundtransfer.eligibility.enums.FundsTransferEligibility;
-import com.mashreq.webcore.dto.response.Response;
-import com.mashreq.webcore.dto.response.ResponseStatus;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-
-import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
-import com.mashreq.mobcommons.services.http.RequestMetaData;
-import com.mashreq.ms.exceptions.GenericExceptionHandler;
-import com.mashreq.transfercoreservice.client.mobcommon.dto.LimitCheckType;
-import com.mashreq.transfercoreservice.fundtransfer.dto.LimitValidatorResponse;
-import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
-import com.mashreq.transfercoreservice.model.ServiceType;
-import com.mashreq.transfercoreservice.repository.ServiceTypeRepository;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import static com.mashreq.transfercoreservice.client.ErrorUtils.getErrorDetails;
+import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
+import static com.mashreq.transfercoreservice.event.FundTransferEventType.LIMIT_VALIDATION;
+import static com.mashreq.transfercoreservice.event.FundTransferEventType.MIN_LIMIT_VALIDATION;
+import static com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType.getCodeByType;
 
 @Slf4j
 @Service
@@ -46,6 +43,18 @@ public class LimitValidator implements ILimitValidator{
     private final ServiceTypeRepository serviceTypeRepository;
     private final LimitCheckService limitCheckService;
     private final MobCommonClient mobCommonClient;
+
+    private Map<String, TransferErrorCode> errorCodeMap ;
+
+    @PostConstruct
+    public void init() {
+        errorCodeMap = new HashMap<>();
+        errorCodeMap.put(LimitCheckType.MONTHLY_AMOUNT.name(),MONTHLY_AMOUNT_REACHED);
+        errorCodeMap.put(LimitCheckType.MONTHLY_COUNT.name(), MONTHLY_COUNT_REACHED);
+        errorCodeMap.put(LimitCheckType.DAILY_COUNT.name(), DAILY_COUNT_REACHED);
+        errorCodeMap.put(LimitCheckType.COOLING_LIMIT_COUNT.name(), COOLING_LIMIT_COUNT_REACHED);
+        errorCodeMap.put(LimitCheckType.COOLING_LIMIT_AMOUNT.name(), COOLING_LIMIT_AMOUNT_REACHED);
+    }
     
     private String getRemarks(LimitValidatorResponse resultsDto, String cif, String paidAmount, String beneficiaryType) {
         return String.format(
@@ -210,33 +219,18 @@ public class LimitValidator implements ILimitValidator{
             if (limitValidatorResultsDto.getVerificationType().equals(FundsTransferEligibility.NSTP.name())
                     || limitValidatorResultsDto.getVerificationType().equals(FundsTransferEligibility.EFR_ELIGIBLE.name())) {
                 errorCode = LIMIT_ELIGIBILITY_NOT_FOUND.getCustomErrorCode();
-            } else if (LimitCheckType.MONTHLY_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
-                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, MONTHLY_AMOUNT_REACHED.getCustomErrorCode(), MONTHLY_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
-                errorCode = MONTHLY_AMOUNT_REACHED.getCustomErrorCode();
-            } else if (LimitCheckType.MONTHLY_COUNT.name().equals(limitValidatorResultsDto.getCountRemark())) {
-                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, MONTHLY_COUNT_REACHED.getCustomErrorCode(), MONTHLY_COUNT_REACHED.getErrorMessage(), "limit check failed");
-                errorCode = MONTHLY_COUNT_REACHED.getCustomErrorCode();
             } else if (LimitCheckType.DAILY_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, DAILY_AMOUNT_REACHED.getCustomErrorCode(), DAILY_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
                 errorCode = DAILY_AMOUNT_REACHED.getCustomErrorCode();
                 verificationType = FundsTransferEligibility.LIMIT_INCREASE_ELIGIBLE.name();
-            } else if (LimitCheckType.DAILY_COUNT.name().equals(limitValidatorResultsDto.getCountRemark())) {
-                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, DAILY_COUNT_REACHED.getCustomErrorCode(), DAILY_COUNT_REACHED.getErrorMessage(), "limit check failed");
-                errorCode = DAILY_COUNT_REACHED.getCustomErrorCode();
-            } else if (LimitCheckType.COOLING_LIMIT_COUNT.name().equals(limitValidatorResultsDto.getCountRemark())) {
-                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, COOLING_LIMIT_COUNT_REACHED.getCustomErrorCode(), COOLING_LIMIT_COUNT_REACHED.getErrorMessage(), "limit check failed");
-                errorCode = COOLING_LIMIT_COUNT_REACHED.getCustomErrorCode();
-            } else if (LimitCheckType.COOLING_LIMIT_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
-                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, COOLING_LIMIT_AMOUNT_REACHED.getCustomErrorCode(), COOLING_LIMIT_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
-                errorCode = COOLING_LIMIT_AMOUNT_REACHED.getCustomErrorCode();
-            } else if (LimitCheckType.TRX_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
+            }  else if (LimitCheckType.TRX_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, TRX_AMOUNT_REACHED.getCustomErrorCode(), TRX_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
                 errorCode = TRX_AMOUNT_REACHED.getCustomErrorCode();
                 verificationType = FundsTransferEligibility.LIMIT_INCREASE_ELIGIBLE.name();
             } else {
-                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, TRX_AMOUNT_REACHED.getCustomErrorCode(), TRX_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
-                GenericExceptionHandler.handleError(LIMIT_PACKAGE_NOT_DEFINED,
-                        LIMIT_PACKAGE_NOT_DEFINED.getErrorMessage());
+                TransferErrorCode transferErrorCode = errorCodeMap.get(limitValidatorResultsDto.getAmountRemark());
+                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, transferErrorCode.getCustomErrorCode(), transferErrorCode.getErrorMessage(), "limit check failed");
+                errorCode = transferErrorCode.getCustomErrorCode();
             }
         }
         if (StringUtils.isNotBlank(errorCode)) {
