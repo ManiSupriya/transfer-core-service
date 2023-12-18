@@ -13,7 +13,8 @@ import static com.mashreq.ms.commons.cache.HeaderNames.*;
  */
 public class RequestMetadataMapper {
 
-
+    public static final String ORIGIN = "ORIGIN";
+    public static final String FEIGN = "FEIGN-MT-ASYNC";
     
     public static Map<String,String> collectRequestMetadataAsMap(RequestMetaData requestMetaData){
          Map<String,String> headerMap = new HashMap<>();
@@ -30,7 +31,7 @@ public class RequestMetadataMapper {
         headerMap.put(X_CORRELATION_ID, requestMetaData.getCoRelationId());
         headerMap.put(X_USSM_USER_REDIS_KEY, requestMetaData.getUserCacheKey());
         headerMap.put(X_MOB_LANGUAGE, requestMetaData.getLanguage());
-        headerMap.put("ORIGIN", "FEIGN");
+        headerMap.put(ORIGIN, FEIGN);
         return headerMap;
     }
 }

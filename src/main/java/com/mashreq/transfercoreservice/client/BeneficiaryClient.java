@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.constraints.NotNull;
 
+import java.util.Map;
+
 /**
  * @author shahbazkh
  * @date 3/16/20
@@ -22,10 +24,10 @@ import jakarta.validation.constraints.NotNull;
 public interface BeneficiaryClient {
 
     @GetMapping("/v1/beneficiary/{id}")
-    Response<BeneficiaryDto> getByIdWithoutValidation(@RequestHeader(HeaderNames.CIF_HEADER_NAME) String cifId, @NotNull @PathVariable Long id);
+    Response<BeneficiaryDto> getByIdWithoutValidation(@RequestHeader Map<String, String> headerMap, @NotNull @PathVariable Long id);
     
     @GetMapping("/v2/beneficiary/{id}")
-    Response<BeneficiaryDto> getByIdWithoutValidationV2(@RequestHeader(HeaderNames.CIF_HEADER_NAME) String cifId, @NotNull @PathVariable Long id);
+    Response<BeneficiaryDto> getByIdWithoutValidationV2(@RequestHeader Map<String, String> headerMap, @NotNull @PathVariable Long id);
 
     @PutMapping("/v1/beneficiary/{validationType}/internal/{benId}")
     Response<BeneficiaryDto> update(@RequestBody AdditionalFields additionalFields, @PathVariable Long benId, @PathVariable String validationType);
