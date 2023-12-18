@@ -15,17 +15,13 @@ import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.model.Segment;
 import com.mashreq.transfercoreservice.notification.model.*;
 import com.mashreq.transfercoreservice.notification.service.EmailUtil;
-import com.mashreq.transfercoreservice.notification.service.PostTransactionActivityService;
 import com.mashreq.transfercoreservice.notification.service.PostTransactionService;
-import com.mashreq.transfercoreservice.notification.service.SendEmailActivity;
 import org.junit.jupiter.api.BeforeEach ;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
@@ -35,12 +31,9 @@ import java.util.Optional;
 
 import static com.mashreq.transfercoreservice.notification.model.NotificationType.INFT_PL_SI_CREATION;
 import static com.mashreq.transfercoreservice.notification.service.EmailUtil.*;
-import static com.mashreq.transfercoreservice.util.TestUtil.getBeneficiaryDto;
 import static java.lang.Long.valueOf;
-import static java.util.Optional.ofNullable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
 
 
 /**
@@ -49,11 +42,6 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class PostTransactionServiceTest {
-    @Mock
-    private PostTransactionActivityService postTransactionActivityService;
-
-    @Mock
-    private SendEmailActivity sendEmailActivity;
 
     @Mock
     private AsyncUserEventPublisher userEventPublisher;
@@ -78,12 +66,6 @@ public class PostTransactionServiceTest {
 
     @BeforeEach
     public void init(){
-
-
-        //ReflectionTestUtils.setField(postTransactionService,"emailConfig", emailConfig);
-       // ReflectionTestUtils.setField(postTransactionService,"postTransactionActivityService", postTransactionActivityService);
-       // ReflectionTestUtils.setField(postTransactionService,"sendEmailActivity", sendEmailActivity);
-       // ReflectionTestUtils.setField(postTransactionService,"userEventPublisher", userEventPublisher);
         ReflectionTestUtils.setField(postTransactionService,"defaultLanguage","EN");
     }
 

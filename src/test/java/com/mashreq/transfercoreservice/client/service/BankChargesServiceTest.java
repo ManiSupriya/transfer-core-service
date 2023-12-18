@@ -4,10 +4,7 @@ import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.transfercoreservice.client.BankChargesServiceClient;
-import com.mashreq.transfercoreservice.client.BeneficiaryClient;
-import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.TransactionChargesDto;
-import com.mashreq.transfercoreservice.fundtransfer.dto.AdditionalFields;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +16,7 @@ import static com.mashreq.transfercoreservice.util.TestUtil.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,7 +36,7 @@ public class BankChargesServiceTest {
 
     @Test
     public void getTransactionCharges(){
-        when(bankChargesServiceClient.getTransactionCharges(any(), any())).thenReturn(getSuccessResponse(getBankCharges()));
+        when(bankChargesServiceClient.getTransactionCharges(anyMap(), any(), any())).thenReturn(getSuccessResponse(getBankCharges()));
 
         TransactionChargesDto transactionChargesDto = bankChargesService.getTransactionCharges("SAVACR","INR", metaData);
 
@@ -48,7 +46,7 @@ public class BankChargesServiceTest {
 
     @Test
     public void getTransactionChargesError(){
-        when(bankChargesServiceClient.getTransactionCharges(any(), any())).thenReturn(getEmptyErrorResponse());
+        when(bankChargesServiceClient.getTransactionCharges(anyMap(), any(), any())).thenReturn(getEmptyErrorResponse());
 
         Assertions.assertThrows(GenericException.class, () -> bankChargesService.getTransactionCharges("SAVACR","INR", metaData));
 

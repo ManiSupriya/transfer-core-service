@@ -85,18 +85,6 @@ public class MobCommonService {
         return conversionResponse.getData();
     }
 
-    public List<ApplicationSettingDto> getApplicationSettings(String group) {
-        log.info("[MobCommonService] Calling MobCommonService to get application settings for group = {}", group);
-        Instant startTime = now();
-        Response<List<ApplicationSettingDto>>  response = mobCommonClient.getApplicationSettings(group);
-        if (Objects.isNull(response.getData()) || ResponseStatus.ERROR == response.getStatus()) {
-            log.error("Error while fetching application settings. Group = {} ", group);
-            GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR, EXTERNAL_SERVICE_ERROR.getErrorMessage(), getErrorDetails(response));
-        }
-        log.info("[MobCommonService] MobCommonService response success in nanoseconds {} ", Duration.between(startTime, now()));
-        return response.getData();
-    }
-
     public List<CountryDto> getRoutingCodeEnabledCountries() {
         log.info("[MobCommonService] Calling MobCommonClient to get routing code enabled countries");
         Instant startTime = now();
