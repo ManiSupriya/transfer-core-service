@@ -1,17 +1,17 @@
 package com.mashreq.transfercoreservice.util;
 
+import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.client.dto.*;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
-import com.mashreq.transfercoreservice.fundtransfer.dto.AdditionalFields;
-import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferResponse;
-import com.mashreq.transfercoreservice.fundtransfer.dto.LimitValidatorResponse;
-import com.mashreq.transfercoreservice.fundtransfer.dto.QRDealDetails;
-import com.mashreq.transfercoreservice.fundtransfer.dto.TransferLimitRequestDto;
+import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.model.Country;
 import com.mashreq.transfercoreservice.model.DigitalUser;
 import com.mashreq.transfercoreservice.model.DigitalUserGroup;
 import com.mashreq.transfercoreservice.model.Segment;
+import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
+import com.mashreq.transfercoreservice.notification.model.DeviceInfo;
+import com.mashreq.transfercoreservice.notification.model.NotificationResponse;
 import com.mashreq.transfercoreservice.paylater.enums.FTOrderType;
 import com.mashreq.transfercoreservice.paylater.enums.TransferType;
 import com.mashreq.webcore.dto.response.Response;
@@ -268,5 +268,39 @@ public class TestUtil {
     	CurrencyConversionDto currencyConversionDto = new CurrencyConversionDto();
     	currencyConversionDto.setTransactionAmount(new BigDecimal(45));
         return currencyConversionDto;
+    }
+
+    public static CustomerNotification getCustomerNotification(){
+        Segment segment = new Segment();
+        segment.setName("CONV");
+        CustomerNotification customerNotification = new CustomerNotification();
+        customerNotification.setCustomerName("TestUSer");
+        customerNotification.setAmount("23");
+        customerNotification.setChannel("MOBILE");
+        customerNotification.setCreditAccount("01900235092");
+        customerNotification.setBeneficiaryName("TEST BENE USER");
+        customerNotification.setSegment(segment);
+        return  customerNotification;
+    }
+
+    public static RequestMetaData getRequestMetadata(){
+        RequestMetaData requestMetaData = new RequestMetaData();
+        requestMetaData.setMobileNUmber("0588678123");
+        requestMetaData.setPrimaryCif("01245553");
+        requestMetaData.setCountry("AE");
+        return requestMetaData;
+    }
+
+    public static UserDTO getUserDto(){
+        UserDTO userDTO = new UserDTO();
+        userDTO.setDeviceInfo(String.valueOf(DeviceInfo.ANDROID));
+        userDTO.setDeviceRegisteredForPush("POWDWFECWSCVSA323fq");
+        return userDTO;
+    }
+    public static NotificationResponse getNotificationResponse(){
+        NotificationResponse notificationResponse = new NotificationResponse();
+        notificationResponse.setTrackingId("224444");
+        notificationResponse.setNotificationId("NOTIFY9282");
+        return notificationResponse;
     }
 }
