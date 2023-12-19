@@ -13,8 +13,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.math.BigDecimal;
+
 import static com.mashreq.transfercoreservice.util.TestUtil.getCustomerNotification;
 import static com.mashreq.transfercoreservice.util.TestUtil.getRequestMetadata;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -89,5 +92,19 @@ public class SMSServiceTest {
         when(notificationClient.sendSMS(anyMap(),any())).thenReturn(null);
         assertFalse(smsService.sendSMS(getCustomerNotification(),"OTHERS",getRequestMetadata(),0, "058882211111"));
     }
+    @Test
+    public void testFormat(){
+        String test = EmailUtil.formattedAmount(new BigDecimal(2222345.947555));
+        assertEquals("2,222,345.95",test);
 
+        String testHalfDown = EmailUtil.formattedAmount(new BigDecimal(2222.512555));
+        assertEquals("2,222.51",testHalfDown);
+
+        String testHalfUp= EmailUtil.formattedAmount(new BigDecimal(123.695555));
+        assertEquals("123.70",testHalfUp);
+
+        String testHalf = EmailUtil.formattedAmount(new BigDecimal(12.555));
+        assertEquals("12.55",testHalf);
+
+    }
 }

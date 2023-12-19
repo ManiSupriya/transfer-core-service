@@ -1,28 +1,14 @@
 package com.mashreq.transfercoreservice.notification.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
-import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
-import com.mashreq.transfercoreservice.event.FundTransferEventType;
-import com.mashreq.transfercoreservice.model.ApplicationSettingDto;
-import com.mashreq.transfercoreservice.model.Segment;
-import com.mashreq.transfercoreservice.notification.model.ChannelDetails;
-import com.mashreq.transfercoreservice.notification.model.EmailTemplateContactWebsiteContent;
-import com.mashreq.transfercoreservice.notification.model.EmailTemplateParameters;
-import com.mashreq.transfercoreservice.notification.model.SocialMediaLinks;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 
 @Slf4j
 @Component
@@ -163,38 +149,18 @@ public class EmailUtil {
                 s.append(str.charAt(i));
             ch = str.charAt(i);
         }
+
         return s.toString().trim();
     }
 
-    public static String formattedAmount(BigDecimal bigDecimal){
-        int firstCount = 0;
-        int nextCount = 0;
-        boolean isFirst = false;
-        String decimalValue = String.format(DECIMAL_POS, bigDecimal);
-        String[] values = decimalValue.split("\\.");
-        StringBuilder builder = new StringBuilder();
-        char[] charArray = values[0].toCharArray();
-        int count = charArray.length-1;
-        while (count >= 0){
-            if(isFirst){
-                if(nextCount == 2){
-                    builder.append(COMMA_SEPARATOR);
-                    nextCount = 0;
-                } else {
-                    nextCount++;
-                }
-            } else {
-                if(firstCount == 3){
-                    builder.append(COMMA_SEPARATOR);
-                    isFirst = true;
-                } else {
-                    firstCount++;
-                }
-            }
-            builder.append(charArray[count]);
-            count--;
+    public static String formattedAmount(BigDecimal amount){
+        if (amount != null) {
+            DecimalFormat decimalFormat = new DecimalFormat("#.00");
+            decimalFormat.setGroupingUsed(true);
+            decimalFormat.setGroupingSize(3);
+            decimalFormat.setRoundingMode(RoundingMode.HALF_UP);
+            return decimalFormat.format(amount);
         }
-        builder.reverse().append(".").append(values[1]);
-        return builder.toString();
+        return DEFAULT_STR;
     }
 }
