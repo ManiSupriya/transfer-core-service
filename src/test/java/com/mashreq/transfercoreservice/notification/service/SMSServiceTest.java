@@ -15,6 +15,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 
+import static com.mashreq.transfercoreservice.notification.service.EmailUtil.DEFAULT_STR;
 import static com.mashreq.transfercoreservice.util.TestUtil.getCustomerNotification;
 import static com.mashreq.transfercoreservice.util.TestUtil.getRequestMetadata;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -106,5 +107,11 @@ public class SMSServiceTest {
         String testHalf = EmailUtil.formattedAmount(new BigDecimal(12.555));
         assertEquals("12.55",testHalf);
 
+    }
+
+    @Test
+    public void testFormatAmountIsNull(){
+        String test = EmailUtil.formattedAmount(null);
+        assertEquals(DEFAULT_STR,test);
     }
 }
