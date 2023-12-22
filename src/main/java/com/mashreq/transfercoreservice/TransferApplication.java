@@ -11,12 +11,10 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-import jakarta.annotation.PostConstruct;
 import java.text.NumberFormat;
 
 @Slf4j
@@ -27,7 +25,7 @@ import java.text.NumberFormat;
 @EnableTemplateNotificationClient
 @SpringBootApplication(
         scanBasePackages = {"com.mashreq.transfercoreservice",
-                "com.mashreq.ms", "com.mashreq.mobcommons"}
+                "com.mashreq.ms"}
         , exclude = {FeignInterceptorConfig.class})
 public class TransferApplication {
 

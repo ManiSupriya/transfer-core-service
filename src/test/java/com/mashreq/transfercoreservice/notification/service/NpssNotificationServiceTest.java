@@ -35,11 +35,6 @@ public class NpssNotificationServiceTest {
     @Mock
     private EmailConfig emailConfig;
 
-    @Mock
-    private PostTransactionActivityService postTransactionActivityService;
-
-    @Mock
-    private SendEmailActivity sendEmailActivity;
 
     @Mock
     private AsyncUserEventPublisher asyncUserEventPublisher;
