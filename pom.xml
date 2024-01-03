@@ -49,7 +49,7 @@
         <com.mashreq.encryption>3.0.2-RELEASE</com.mashreq.encryption>
         <com.mashreq.ms.ms-commons>3.0.2-RELEASE</com.mashreq.ms.ms-commons>
         <com.mashreq.tracing>3.1.2-RELEASE</com.mashreq.tracing>
-        <com.mashreq.mob-commons>3.5.3-SNAPSHOT</com.mashreq.mob-commons>
+        <com.mashreq.mob-commons>3.5.3-RELEASE</com.mashreq.mob-commons>
         <com.mashreq.dedupe-util>1.0.4</com.mashreq.dedupe-util>
         <com.mashreq.transaction-authorization-client.version>3.0.3-RELEASE</com.mashreq.transaction-authorization-client.version>
         <!-- additional deps and plugins versions -->
@@ -230,29 +230,6 @@
             <groupId>com.itextpdf</groupId>
             <artifactId>itextpdf</artifactId>
         </dependency>
-
-       <!-- <dependency>
-            <groupId>org.apache.xmlgraphics</groupId>
-            <artifactId>xmlgraphics-commons</artifactId>
-            <version>2.6</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.xmlgraphics</groupId>
-            <artifactId>batik-dom</artifactId>
-            <version>1.14</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>xalan</groupId>
-                    <artifactId>xalan</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-		<dependency>
-            <groupId>org.apache.xmlgraphics</groupId>
-            <artifactId>batik-bridge</artifactId>
-            <version>1.16</version>
-		</dependency>-->
-
         <!-- Helpers -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -292,8 +269,6 @@
             <artifactId>commons-validator</artifactId>
             <version>1.7</version>
         </dependency>
-
-
         <!-- Testing -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
