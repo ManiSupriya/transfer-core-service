@@ -49,7 +49,7 @@
         <com.mashreq.encryption>3.0.2-RELEASE</com.mashreq.encryption>
         <com.mashreq.ms.ms-commons>3.0.2-RELEASE</com.mashreq.ms.ms-commons>
         <com.mashreq.tracing>3.1.2-RELEASE</com.mashreq.tracing>
-        <com.mashreq.mob-commons>3.5.3-SNAPSHOT</com.mashreq.mob-commons>
+        <com.mashreq.mob-commons>3.5.3-RELEASE</com.mashreq.mob-commons>
         <com.mashreq.dedupe-util>1.0.4</com.mashreq.dedupe-util>
         <com.mashreq.transaction-authorization-client.version>3.0.3-RELEASE</com.mashreq.transaction-authorization-client.version>
         <!-- additional deps and plugins versions -->
