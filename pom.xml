@@ -230,29 +230,6 @@
             <groupId>com.itextpdf</groupId>
             <artifactId>itextpdf</artifactId>
         </dependency>
-
-       <!-- <dependency>
-            <groupId>org.apache.xmlgraphics</groupId>
-            <artifactId>xmlgraphics-commons</artifactId>
-            <version>2.6</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.xmlgraphics</groupId>
-            <artifactId>batik-dom</artifactId>
-            <version>1.14</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>xalan</groupId>
-                    <artifactId>xalan</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-		<dependency>
-            <groupId>org.apache.xmlgraphics</groupId>
-            <artifactId>batik-bridge</artifactId>
-            <version>1.16</version>
-		</dependency>-->
-
         <!-- Helpers -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -292,8 +269,6 @@
             <artifactId>commons-validator</artifactId>
             <version>1.7</version>
         </dependency>
-
-
         <!-- Testing -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
