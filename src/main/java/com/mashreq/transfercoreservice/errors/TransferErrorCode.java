@@ -64,8 +64,6 @@ public enum TransferErrorCode implements ErrorCode {
     COOLING_LIMIT_AMOUNT_REACHED("LM-2014", "Cooling period transaction amount exceeded"),
     MIN_AMOUNT_LIMIT_REACHED("LM-2015", "Min Amount Limit Reached"),
     LIMIT_ELIGIBILITY_NOT_FOUND("LM-2016", "Limit Increase Not available at the moment"),
-    LIMIT_INCREASE_FREQUENCY_REACHED("LM-2017", "Limit Increase Not Possible"),
-    LIMIT_INCREASE_FREEZE("LM-2018", "Limit Increase Freeze is in place"),
     DATE_PARSE_ERROR("LM-2019", "Exception occurred while parsing the date"),
 
     MONTH_AMOUNT_LIMIT_REACHED("PM-1104", "Month Amount Limit Reached"),
