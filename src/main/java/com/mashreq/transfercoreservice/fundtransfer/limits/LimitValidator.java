@@ -248,7 +248,7 @@ public class LimitValidator implements ILimitValidator{
         if(extractedDt!=null) {
             if (limitValidatorResultsDto.getUsedMonthlyLimitChangeCount() > 0) {
                 localDateTime = extractedDt.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-                if (limitValidatorResultsDto.getMaxMonthlyLimitChangeCount() == limitValidatorResultsDto.getUsedMonthlyLimitChangeCount()) {
+                if (limitValidatorResultsDto.getMaxMonthlyLimitChangeCount().equals(limitValidatorResultsDto.getUsedMonthlyLimitChangeCount())) {
                     localDateTime = localDateTime.plusMonths(1);
                 } else {
                     localDateTime = localDateTime.plusHours(Long.parseLong(limitValidatorResultsDto.getLimitChangeWindow()));
