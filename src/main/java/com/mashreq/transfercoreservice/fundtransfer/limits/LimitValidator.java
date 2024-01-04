@@ -256,8 +256,12 @@ public class LimitValidator implements ILimitValidator{
                 } else {
                     localDateTime = localDateTime.plusHours(Long.parseLong(limitValidatorResultsDto.getLimitChangeWindow()));
                 }
-                Date nextLimitChangeDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
-                limitValidatorResultsDto.setNextLimitChangeDate(nextLimitChangeDate.toString());
+
+                if(LocalDateTime.now().isBefore(localDateTime)) {
+                    Date nextLimitChangeDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+                    limitValidatorResultsDto.setNextLimitChangeDate(nextLimitChangeDate.toString());
+                }
+
             }
 
         }
