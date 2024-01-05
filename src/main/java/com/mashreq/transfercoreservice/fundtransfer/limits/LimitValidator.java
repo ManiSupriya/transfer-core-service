@@ -236,13 +236,18 @@ public class LimitValidator implements ILimitValidator{
                         LIMIT_PACKAGE_NOT_DEFINED.getErrorMessage());
             }
         }
+        setNextLimitChangeDt(limitValidatorResultsDto);
+        if(limitValidatorResultsDto.getNextLimitChangeDate()!=null) {
+            verificationType = FundsTransferEligibility.NOT_ELIGIBLE.name();
+            errorCode = LIMIT_ELIGIBILITY_NOT_FOUND.getCustomErrorCode();
+        }
         if (StringUtils.isNotBlank(errorCode)) {
             limitValidatorResultsDto.setErrorCode(errorCode);
         }
         if (StringUtils.isNotBlank(verificationType)) {
             limitValidatorResultsDto.setVerificationType(verificationType);
         }
-        setNextLimitChangeDt(limitValidatorResultsDto);
+
     }
 
     private void setNextLimitChangeDt(LimitValidatorResponse  limitValidatorResultsDto){
