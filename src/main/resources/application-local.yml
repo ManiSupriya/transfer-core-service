@@ -114,6 +114,16 @@ app:
     beneficiaryservice: https://digital-uat.mashreq.com/api/beneficiary-service
     quick-remit: https://digital-uat.mashreq.com/api/mob-quickremit-service
     bank-charges: https://digital-uat.mashreq.com/api/bank-charges-service
+    tokenUrl: ${TOKEN_URL:/oauth-v6/oauth2/token}
+    omw-external:
+      url: ${EXTERNAL_URL:https://external.apigateway.mashreqdev.com/mashreqtest/uae}
+      tokenUrl: ${EXTERNAL_TOKEN_URL:/oauth-v6/oauth2/token}
+      clientId: ${EXTERNAL_CLIENT_ID:7b7c5d58c3e6fcbf557933c355d4cd5e}
+      clientSecret: ${EXTERNAL_CLIENT_SECRET:061b5cf6358e733312609acb4ca4c06c}
+      grantType: ${EXTERNAL_GRANT_TYPE:client_credentials}
+      scope: ${EXTERNAL_SCOPE:EXT}
+      serviceId: ${EXTERNAL_SERVICE_ID:EFTS0001}
+      accountTitleFetchFlag: ${TITLE_FETCH_FLAG:true}
   middleware:
     endpoint: http://172.24.70.29:7800/AllOperationsSOAP_HTTP_Service
     timeout: 100000
@@ -205,7 +215,7 @@ app:
 redis:
   enableRedisCache: true
   host: ${REDIS_HOST:localhost}
-  port: ${REDIS_PORT:7000}
+  port: ${REDIS_PORT:6379}
   password: ${REDIS_PASSWORD:}
   ssl: ${REDIS_SSL_FLAG:false}
   timeout: ${REDIS_TIMEOUT:5000}

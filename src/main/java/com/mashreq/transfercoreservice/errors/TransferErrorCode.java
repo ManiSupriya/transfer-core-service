@@ -218,10 +218,9 @@ public enum TransferErrorCode implements ErrorCode {
     INVALID_TYPE_KEY("TN-8040","Invalid bank resolver type key."),
 
     BANK_NOT_FOUND_FOR_BANK_CODE("TN-8041","Unable to find resolve bank details for the given bank code."),
-     DB_CONNECTIVITY_ISSUE("TN-8043", "DB Connectivity Issue")
+     DB_CONNECTIVITY_ISSUE("TN-8043", "DB Connectivity Issue"),
 
-
-
+    OMW_EXTERNAL_CALL_FAILED("TN-9041", "Error invoking OMW External Service")
 
     ;
 

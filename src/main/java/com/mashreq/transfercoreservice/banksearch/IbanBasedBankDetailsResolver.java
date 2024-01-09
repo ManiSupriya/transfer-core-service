@@ -3,6 +3,7 @@ package com.mashreq.transfercoreservice.banksearch;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.common.LocalIbanValidator;
+import com.mashreq.transfercoreservice.config.feign.OmwExternalConfigProperties;
 import com.mashreq.transfercoreservice.dto.BankResolverRequestDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.BankDetails;
 import com.mashreq.transfercoreservice.repository.BankRepository;
@@ -25,6 +26,8 @@ public class IbanBasedBankDetailsResolver implements BankDetailsResolver {
     private final IbanSearchMWService ibanSearchMWService;
 
     private final BankRepository bankRepository;
+    private final UAEAccountTitleFetchService uaeAccountTitleFetchService;
+    private final OmwExternalConfigProperties omwExternalConfigProperties;
 
     @Override
     public List<BankResultsDto> getBankDetails(BankResolverRequestDto bankResolverRequestDto) {
@@ -52,10 +55,15 @@ public class IbanBasedBankDetailsResolver implements BankDetailsResolver {
             bankResults.setIbanNumber(iban);
             bankResults.setIdentifierType(BankCodeType.IBAN.getName());
             bankResults.setBankCode(bankDetailsList.get(0).getBankCode());
+            updateAccountTitle(bankResults,iban);
             return Collections.singletonList(bankResults);
 
     }
 
-
+    private void updateAccountTitle(BankResultsDto bankResults,String iban){
+        if(omwExternalConfigProperties.isAccountTitleFetchFlag()){
+            bankResults.setAccountTitle(uaeAccountTitleFetchService.getAccountTitle(iban));
+        }
+    }
 
 }
