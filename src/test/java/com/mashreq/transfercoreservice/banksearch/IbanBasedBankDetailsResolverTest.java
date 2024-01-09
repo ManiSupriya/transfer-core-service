@@ -178,7 +178,7 @@ public class IbanBasedBankDetailsResolverTest {
         Mockito.when(localIbanValidator.validate(anyString())).thenReturn("0036");
         Mockito.when(bankRepository.findByBankCode(anyString())).thenReturn(Optional.of(list));
         Mockito.when(localIbanValidator.extractAccountNumberIfMashreqIban(anyString(), anyString())).thenReturn(null);
-        Mockito.when(omwExternalConfigProperties.isAccountTitleFetchFlag()).thenReturn(true);
+        Mockito.when(omwExternalConfigProperties.isTitleFetchEnabled()).thenReturn(true);
         Mockito.when(uaeAccountTitleFetchService.getAccountTitle(any())).thenReturn("ACCOUNT NUSRDN");
         List<BankResultsDto> result = ibanBasedBankDetailsResolver.getBankDetails(bankResolverRequestDto);
 

@@ -165,6 +165,7 @@ app:
     quick-remit: ${QUICK_REMIT_SERVICE:http://mob-quickremit-service:8080}
     bank-charges: ${BANK_CHARGES_SERVICE:http://bank-charges-service:8080}
     omw-external:
+      titleFetchEnabled: ${TITLE_FETCH_FLAG:true}
       url: ${EXTERNAL_URL}
       tokenUrl: ${EXTERNAL_TOKEN_URL:/oauth-v6/oauth2/token}
       clientId: ${EXTERNAL_CLIENT_ID}
@@ -172,7 +173,6 @@ app:
       grantType: ${EXTERNAL_GRANT_TYPE:client_credentials}
       scope: ${EXTERNAL_SCOPE:EXT}
       serviceId: ${EXTERNAL_SERVICE_ID:EFTS0001}
-      accountTitleFetchFlag: ${TITLE_FETCH_FLAG:true}
   ftcc:
     merchantId: ${TFTCC_MERCHANT_ID:000008026734}
     terminalId: ${TFTCC_TERMINAL_ID:20091124}

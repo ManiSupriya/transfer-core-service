@@ -61,7 +61,7 @@ public class IbanBasedBankDetailsResolver implements BankDetailsResolver {
     }
 
     private void updateAccountTitle(BankResultsDto bankResults,String iban){
-        if(omwExternalConfigProperties.isAccountTitleFetchFlag()){
+        if(omwExternalConfigProperties.isTitleFetchEnabled()){
             bankResults.setAccountTitle(uaeAccountTitleFetchService.getAccountTitle(iban));
         }
     }

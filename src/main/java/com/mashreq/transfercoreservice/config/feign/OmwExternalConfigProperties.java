@@ -19,5 +19,5 @@ public class OmwExternalConfigProperties {
     private String url;
     private String tokenUrl;
     private String serviceId;
-    private boolean accountTitleFetchFlag;
+    private boolean titleFetchEnabled;
 }
