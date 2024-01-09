@@ -114,7 +114,6 @@ app:
     beneficiaryservice: https://digital-uat.mashreq.com/api/beneficiary-service
     quick-remit: https://digital-uat.mashreq.com/api/mob-quickremit-service
     bank-charges: https://digital-uat.mashreq.com/api/bank-charges-service
-    tokenUrl: ${TOKEN_URL:/oauth-v6/oauth2/token}
     omw-external:
       url: ${EXTERNAL_URL:https://external.apigateway.mashreqdev.com/mashreqtest/uae}
       tokenUrl: ${EXTERNAL_TOKEN_URL:/oauth-v6/oauth2/token}
