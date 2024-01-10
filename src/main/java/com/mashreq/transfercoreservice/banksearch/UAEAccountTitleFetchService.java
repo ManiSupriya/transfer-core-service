@@ -7,10 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
-import java.util.List;
+import java.util.Optional;
 
-import static java.util.Objects.nonNull;
-import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 /**
@@ -22,7 +20,7 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 public class UAEAccountTitleFetchService {
     private final OmwExternalClient omwExternalClient;
 
-    public String getAccountTitle(String iban){
+    public String fetchAccountTitle(String iban){
        try {
         UaeIbanTitleFetchResponse  uaeIbanTitleFetchResponse = omwExternalClient.getAccountTitle(prepareTitleFetchRequest(iban), "EFTS0001");
            return fetchTitleFromResponse(uaeIbanTitleFetchResponse);
@@ -34,31 +32,21 @@ public class UAEAccountTitleFetchService {
     }
 
     private UaeIbanTitleFetchRequest prepareTitleFetchRequest(String iban){
-        return UaeIbanTitleFetchRequest.builder().ibanList(Collections.singletonList(getIban(iban))).build();
+        return new UaeIbanTitleFetchRequest(Collections.singletonList(fetchIban(iban)));
     }
 
-    private IbanDto getIban(String iban){
-        return IbanDto.builder().iban(iban).build();
+    private IbanRecord fetchIban(String iban){
+        return new IbanRecord(iban);
     }
     private String fetchTitleFromResponse(UaeIbanTitleFetchResponse uaeIbanTitleFetchResponse){
-        if(nonNull(uaeIbanTitleFetchResponse)) {
-            UaeIbanTitleFetchDto uaeIbanTitleFetchDto = uaeIbanTitleFetchResponse.getUaeIbanTitleFetch();
-            if (nonNull(uaeIbanTitleFetchDto) &&
-                    nonNull(uaeIbanTitleFetchDto.getUaeIbanTitleFetchDtoList()) &&
-                    isNotEmpty(uaeIbanTitleFetchDto.getUaeIbanTitleFetchDtoList().getTitleFetchDetailsDtos())) {
-                List<TitleFetchDetailsDto> titleFetchDetailsDtoList = uaeIbanTitleFetchDto.getUaeIbanTitleFetchDtoList().getTitleFetchDetailsDtos();
-                TitleFetchDetailsDto titleFetchDetailsDto = titleFetchDetailsDtoList.get(0);
-                if (nonNull(titleFetchDetailsDto)) {
-                    TitleFetchDetails titleFetchDetails = titleFetchDetailsDto.getTitleFetchDetails();
-                    if (nonNull(titleFetchDetails)) {
-                        TitleFetchDto titleFetchDto = titleFetchDetails.getTitleFetchDto();
-                        if (nonNull(titleFetchDto)) {
-                            return titleFetchDto.getTitle();
-                        }
-                    }
-                }
-            }
-        }
-        return EMPTY;
+        return Optional.ofNullable(uaeIbanTitleFetchResponse)
+                .map(UaeIbanTitleFetchResponse::getUaeIbanTitleFetch)
+                .map(UaeIbanTitleFetchDto::getUaeIbanTitleFetchDtoList)
+                .map(UaeIbanTitleFetchDtoList::getTitleFetchDetailsDtos)
+                .flatMap(t -> t.stream().findFirst())
+                .map(TitleFetchDetailsDto::getTitleFetchDetails)
+                .map(TitleFetchDetails::getTitleFetchDto)
+                .map(TitleFetchDto::getTitle)
+                .orElse(EMPTY);
     }
 }

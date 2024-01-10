@@ -31,10 +31,12 @@ public class OmwExternalHeaderInterceptor implements RequestInterceptor {
     private OmwExternalConfigProperties omwExternalConfigProperties;
     private final Tracer tracer;
     private RestTemplate restTemplate;
-
+    private AccessTokenResponse accessTokenResponse;
 
     @Override
     public void apply(RequestTemplate requestTemplate) {
+
+
         addAuthorizationHeader(requestTemplate);
     }
 
@@ -63,14 +65,15 @@ public class OmwExternalHeaderInterceptor implements RequestInterceptor {
     }
 
     private String prepareTokenRequestString() {
-        return API_CONNECT_TOKEN_GRANT_TYPE_KEY + EQUALS_SYMBOL+
-                omwExternalConfigProperties.getGrantType() + AMPERSAND+ API_CONNECT_SCOPE_KEY + EQUALS_SYMBOL+
-                omwExternalConfigProperties.getScope() + AMPERSAND+ API_CONNECT_TOKEN_CLIENT_ID_KEY + EQUALS_SYMBOL+
-                omwExternalConfigProperties.getClientId() + AMPERSAND+ API_CONNECT_TOKEN_CLIENT_SECRET_KEY +
-                EQUALS_SYMBOL+ omwExternalConfigProperties.getClientSecret();
+        return API_CONNECT_TOKEN_GRANT_TYPE_KEY + "=" +
+                omwExternalConfigProperties.getGrantType() + "&" + API_CONNECT_SCOPE_KEY + "=" +
+                omwExternalConfigProperties.getScope() + "&" + API_CONNECT_TOKEN_CLIENT_ID_KEY + "=" +
+                omwExternalConfigProperties.getClientId() + "&" + API_CONNECT_TOKEN_CLIENT_SECRET_KEY +
+                "=" + omwExternalConfigProperties.getClientSecret();
     }
+
     private void addAuthorizationHeader(RequestTemplate requestTemplate) {
-        requestTemplate.header(AUTHORIZATION, BEARER+generateToken());
+        requestTemplate.header(AUTHORIZATION, BEARER + generateToken());
         requestTemplate.header(CONTENT_TYPE, APPLICATION_JSON);
         requestTemplate.header(X_REQUEST_ID, UUID.randomUUID().toString());
         requestTemplate.header(OVERLAY_CLIENT_ID_KEY, omwExternalConfigProperties.getClientId());

@@ -33,7 +33,7 @@ public class UAEAccountTitleFetchServiceTest {
         //when
         when(omwExternalClient.getAccountTitle(any(),anyString())).thenReturn(uaeIbanTitleFetchResponse);
         //then
-        String response = uaeAccountTitleFetchService.getAccountTitle("AE100330000010410000108");
+        String response = uaeAccountTitleFetchService.fetchAccountTitle("AE100330000010410000108");
         assertEquals("ACCOUNT NUSRDN", response);
 
     }
@@ -45,7 +45,7 @@ public class UAEAccountTitleFetchServiceTest {
         //when
         when(omwExternalClient.getAccountTitle(any(),anyString())).thenThrow(new RuntimeException("Error"));
         //then
-        assertEquals("",uaeAccountTitleFetchService.getAccountTitle("AE100330000010410000108"));
+        assertEquals("",uaeAccountTitleFetchService.fetchAccountTitle("AE100330000010410000108"));
 
     }
 
@@ -55,7 +55,7 @@ public class UAEAccountTitleFetchServiceTest {
         //when
         when(omwExternalClient.getAccountTitle(any(),anyString())).thenReturn(null);
         //then
-        String response = uaeAccountTitleFetchService.getAccountTitle("AE100330000010410000108");
+        String response = uaeAccountTitleFetchService.fetchAccountTitle("AE100330000010410000108");
         assertEquals("", response);
 
     }
