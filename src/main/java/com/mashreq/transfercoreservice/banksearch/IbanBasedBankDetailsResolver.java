@@ -48,22 +48,18 @@ public class IbanBasedBankDetailsResolver implements BankDetailsResolver {
         List<BankDetails> bankDetailsList = bankRepository.findByBankCode(bankCode).orElseThrow(() -> genericException(BANK_NOT_FOUND_WITH_IBAN));
 
         // We can extract branch code from iban and set the branch name here(only for Egypt). Is it needed?
-            BankResultsDto bankResults = new BankResultsDto();
-            bankResults.setSwiftCode(bankDetailsList.get(0).getSwiftCode());
-            bankResults.setBankName(bankDetailsList.get(0).getBankName());
-            bankResults.setAccountNo(localIbanValidator.extractAccountNumberIfMashreqIban(iban, bankCode));
-            bankResults.setIbanNumber(iban);
-            bankResults.setIdentifierType(BankCodeType.IBAN.getName());
-            bankResults.setBankCode(bankDetailsList.get(0).getBankCode());
-            updateAccountTitle(bankResults,iban);
+        BankResultsDto bankResults = new BankResultsDto();
+        bankResults.setSwiftCode(bankDetailsList.get(0).getSwiftCode());
+        bankResults.setBankName(bankDetailsList.get(0).getBankName());
+        bankResults.setAccountNo(localIbanValidator.extractAccountNumberIfMashreqIban(iban, bankCode));
+        bankResults.setIbanNumber(iban);
+        bankResults.setIdentifierType(BankCodeType.IBAN.getName());
+        bankResults.setBankCode(bankDetailsList.get(0).getBankCode());
+        if (omwExternalConfigProperties.isTitleFetchEnabled()) {
+            bankResults.setAccountTitle(uaeAccountTitleFetchService.fetchAccountTitle(iban));
+        }
             return Collections.singletonList(bankResults);
 
-    }
-
-    private void updateAccountTitle(BankResultsDto bankResults,String iban){
-        if(omwExternalConfigProperties.isTitleFetchEnabled()){
-            bankResults.setAccountTitle(uaeAccountTitleFetchService.getAccountTitle(iban));
-        }
     }
 
 }
