@@ -31,7 +31,6 @@ public class OmwExternalHeaderInterceptor implements RequestInterceptor {
     private OmwExternalConfigProperties omwExternalConfigProperties;
     private final Tracer tracer;
     private RestTemplate restTemplate;
-    private AccessTokenResponse accessTokenResponse;
 
     @Override
     public void apply(RequestTemplate requestTemplate) {

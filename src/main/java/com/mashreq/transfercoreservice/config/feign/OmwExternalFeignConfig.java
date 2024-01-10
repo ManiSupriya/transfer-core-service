@@ -18,7 +18,7 @@ public class OmwExternalFeignConfig {
     RestTemplate restTemplate;
 
     @Bean
-    public OmwExternalHeaderInterceptor interceptRequest(MobRedisService mobRedisService) {
+    public OmwExternalHeaderInterceptor interceptRequest() {
         return new OmwExternalHeaderInterceptor(overlayConfigProperties, tracer, restTemplate);
     }
 
