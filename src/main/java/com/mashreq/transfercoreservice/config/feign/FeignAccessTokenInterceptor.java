@@ -19,6 +19,7 @@ import java.util.Map;
 import static com.mashreq.ms.commons.cache.HeaderNames.*;
 import static com.mashreq.transfercoreservice.client.RequestMetadataMapper.FEIGN;
 import static com.mashreq.transfercoreservice.client.RequestMetadataMapper.ORIGIN;
+import static com.mashreq.transfercoreservice.common.CommonConstants.CLIENT_ID_HEADER;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 
 /**
@@ -37,7 +38,7 @@ public class FeignAccessTokenInterceptor implements RequestInterceptor {
                     X_USSM_PRIMARY_ACCOUNT, X_USSM_ACCOUNTS, X_USSM_SEGMENT, X_USSM_USER_TYPE,
                     X_USSM_USER_TWO_FA_AUTHDATE, X_USSM_USER_MOBILE_NUMBER, X_USSM_EMAIL_ID,
                     X_USSM_CARDS, X_USSM_USER_NAME, X_CORRELATION_ID, X_USSM_USER_SUSPENDED_TXS,
-                    X_USSM_USER_DEVICE_IP, X_USSM_USER_REGION, X_USSM_USER_IAM_ID);
+                    X_USSM_USER_DEVICE_IP, X_USSM_USER_REGION, X_USSM_USER_IAM_ID,CLIENT_ID_HEADER);
 
     /**
      *
