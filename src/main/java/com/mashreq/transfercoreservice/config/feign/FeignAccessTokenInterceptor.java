@@ -38,7 +38,7 @@ public class FeignAccessTokenInterceptor implements RequestInterceptor {
                     X_USSM_PRIMARY_ACCOUNT, X_USSM_ACCOUNTS, X_USSM_SEGMENT, X_USSM_USER_TYPE,
                     X_USSM_USER_TWO_FA_AUTHDATE, X_USSM_USER_MOBILE_NUMBER, X_USSM_EMAIL_ID,
                     X_USSM_CARDS, X_USSM_USER_NAME, X_CORRELATION_ID, X_USSM_USER_SUSPENDED_TXS,
-                    X_USSM_USER_DEVICE_IP, X_USSM_USER_REGION, X_USSM_USER_IAM_ID,CLIENT_ID_HEADER);
+                    X_USSM_USER_DEVICE_IP, X_USSM_USER_REGION, X_USSM_USER_IAM_ID, CLIENT_ID_HEADER);
 
     /**
      *
@@ -53,7 +53,7 @@ public class FeignAccessTokenInterceptor implements RequestInterceptor {
                 for (Enumeration<?> e = receivedRequest.getHeaderNames(); e.hasMoreElements(); ) {
                     String nextHeaderName = (String) e.nextElement();
                     String headerValue = receivedRequest.getHeader(nextHeaderName);
-                    if (ALL_HEADERS.contains(headerValue.toUpperCase())) {
+                    if (ALL_HEADERS.contains(nextHeaderName.toUpperCase())) {
                         requestTemplate.header(nextHeaderName, headerValue);
                     }
                 }
