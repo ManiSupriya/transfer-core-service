@@ -32,12 +32,9 @@ public class UAEAccountTitleFetchService {
     }
 
     private UaeIbanTitleFetchRequest prepareTitleFetchRequest(String iban){
-        return new UaeIbanTitleFetchRequest(Collections.singletonList(fetchIban(iban)));
+        return new UaeIbanTitleFetchRequest(Collections.singletonList(new IbanRecord(iban)));
     }
 
-    private IbanRecord fetchIban(String iban){
-        return new IbanRecord(iban);
-    }
     private String fetchTitleFromResponse(UaeIbanTitleFetchResponse uaeIbanTitleFetchResponse){
         return Optional.ofNullable(uaeIbanTitleFetchResponse)
                 .map(UaeIbanTitleFetchResponse::getUaeIbanTitleFetch)
