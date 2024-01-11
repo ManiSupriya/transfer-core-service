@@ -3,6 +3,7 @@ package com.mashreq.transfercoreservice.banksearch;
 
 import com.mashreq.transfercoreservice.client.OmwExternalClient;
 import com.mashreq.transfercoreservice.client.dto.*;
+import com.mashreq.transfercoreservice.config.feign.OmwExternalConfigProperties;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,6 +25,8 @@ public class UAEAccountTitleFetchServiceTest {
     public UAEAccountTitleFetchService uaeAccountTitleFetchService;
     @Mock
     private OmwExternalClient omwExternalClient;
+    @Mock
+    private OmwExternalConfigProperties omwExternalConfigProperties;
 
 
     @Test
@@ -31,6 +34,7 @@ public class UAEAccountTitleFetchServiceTest {
         //Given
         UaeIbanTitleFetchResponse  uaeIbanTitleFetchResponse = buildUaeIbanTitleFetchResponse();
         //when
+        when(omwExternalConfigProperties.getServiceId()).thenReturn("EFTS00001");
         when(omwExternalClient.getAccountTitle(any(),anyString())).thenReturn(uaeIbanTitleFetchResponse);
         //then
         String response = uaeAccountTitleFetchService.fetchAccountTitle("AE100330000010410000108");

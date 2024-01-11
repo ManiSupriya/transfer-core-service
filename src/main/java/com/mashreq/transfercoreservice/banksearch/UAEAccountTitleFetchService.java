@@ -2,6 +2,7 @@ package com.mashreq.transfercoreservice.banksearch;
 
 import com.mashreq.transfercoreservice.client.OmwExternalClient;
 import com.mashreq.transfercoreservice.client.dto.*;
+import com.mashreq.transfercoreservice.config.feign.OmwExternalConfigProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,10 +20,11 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 @Slf4j
 public class UAEAccountTitleFetchService {
     private final OmwExternalClient omwExternalClient;
+    private final OmwExternalConfigProperties omwExternalConfigProperties;
 
     public String fetchAccountTitle(String iban){
        try {
-        UaeIbanTitleFetchResponse  uaeIbanTitleFetchResponse = omwExternalClient.getAccountTitle(prepareTitleFetchRequest(iban), "EFTS0001");
+        UaeIbanTitleFetchResponse  uaeIbanTitleFetchResponse = omwExternalClient.getAccountTitle(prepareTitleFetchRequest(iban), omwExternalConfigProperties.getServiceId());
            return fetchTitleFromResponse(uaeIbanTitleFetchResponse);
        }
        catch(Exception ex){
