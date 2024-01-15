@@ -19,11 +19,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -202,7 +197,6 @@ public class LimitValidator implements ILimitValidator{
         String errorCode = "";
         String verificationType = "";
 
-        setNextLimitChangeDt(limitValidatorResultsDto);
         if (Boolean.FALSE.equals(limitValidatorResultsDto.getIsValid())) {
             verificationType = FundsTransferEligibility.NOT_ELIGIBLE.name();
 
@@ -257,44 +251,6 @@ public class LimitValidator implements ILimitValidator{
             limitValidatorResultsDto.setVerificationType(verificationType);
         }
 
-    }
-
-    private void setNextLimitChangeDt(LimitValidatorResponse  limitValidatorResultsDto){
-        Date extractedDt = extractDate(limitValidatorResultsDto.getLastLimitChangeDate());
-        LocalDateTime localDateTime = null;
-        if(extractedDt!=null) {
-            if (limitValidatorResultsDto.getUsedMonthlyLimitChangeCount() > 0) {
-                localDateTime = extractedDt.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-                if (limitValidatorResultsDto.getMaxMonthlyLimitChangeCount().equals(limitValidatorResultsDto.getUsedMonthlyLimitChangeCount())) {
-                    localDateTime = localDateTime.plusMonths(1);
-                } else {
-                    localDateTime = localDateTime.plusHours(Long.parseLong(limitValidatorResultsDto.getLimitChangeWindow()));
-                }
-
-                if(LocalDateTime.now().isBefore(localDateTime)) {
-                    Date nextLimitChangeDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
-                    limitValidatorResultsDto.setNextLimitChangeDate(nextLimitChangeDate.toString());
-                }
-
-            }
-
-        }
-
-    }
-
-    private Date extractDate(String dateString){
-        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
-        Date parsedDate = null;
-        if(StringUtils.isNotBlank(dateString)) {
-            try {
-                parsedDate   = dateFormat.parse(dateString);
-            } catch (ParseException e) {
-                GenericExceptionHandler.handleError(DATE_PARSE_ERROR,
-                        DATE_PARSE_ERROR.getErrorMessage());
-            }
-        }
-
-        return parsedDate;
     }
 
 }
