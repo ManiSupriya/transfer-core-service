@@ -50,7 +50,4 @@ public interface CommonConstants {
 	String API_CONNECT_SCOPE_KEY = "scope";
 	String API_CONNECT_TOKEN_CLIENT_SECRET_KEY = "client_secret";
 	String OVERLAY_CLIENT_ID_KEY = "clientID";
-
-	String AMPERSAND = "&";
-	String EQUALS_SYMBOL = "=";
 }
