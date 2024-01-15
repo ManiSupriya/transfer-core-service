@@ -47,6 +47,7 @@ public class UAEAccountTitleFetchServiceTest {
         //Given
         UaeIbanTitleFetchResponse  uaeIbanTitleFetchResponse = buildUaeIbanTitleFetchResponse();
         //when
+        when(omwExternalConfigProperties.getServiceId()).thenReturn("EFTS00001");
         when(omwExternalClient.getAccountTitle(any(),anyString())).thenThrow(new RuntimeException("Error"));
         //then
         assertEquals("",uaeAccountTitleFetchService.fetchAccountTitle("AE100330000010410000108"));
@@ -57,7 +58,132 @@ public class UAEAccountTitleFetchServiceTest {
     public void testAccountGetTitleResponseEmpty() {
 
         //when
+        when(omwExternalConfigProperties.getServiceId()).thenReturn("EFTS00001");
         when(omwExternalClient.getAccountTitle(any(),anyString())).thenReturn(null);
+        //then
+        String response = uaeAccountTitleFetchService.fetchAccountTitle("AE100330000010410000108");
+        assertEquals("", response);
+
+    }
+
+    @Test
+    public void testAccountGetTitleUaeIbanTitleFetchResponse() {
+        UaeIbanTitleFetchResponse uaeIbanTitleFetchResponse = new UaeIbanTitleFetchResponse();
+        //when
+        when(omwExternalConfigProperties.getServiceId()).thenReturn("EFTS00001");
+        when(omwExternalClient.getAccountTitle(any(),anyString())).thenReturn(uaeIbanTitleFetchResponse);
+        //then
+        String response = uaeAccountTitleFetchService.fetchAccountTitle("AE100330000010410000108");
+        assertEquals("", response);
+
+    }
+
+    @Test
+    public void testAccountGetTitleUaeIbanTitleFetchDto() {
+        UaeIbanTitleFetchResponse uaeIbanTitleFetchResponse = new UaeIbanTitleFetchResponse();
+        UaeIbanTitleFetchDto uaeIbanTitleFetchDto = new UaeIbanTitleFetchDto();
+        uaeIbanTitleFetchResponse.setUaeIbanTitleFetch(uaeIbanTitleFetchDto);
+        //when
+        when(omwExternalConfigProperties.getServiceId()).thenReturn("EFTS00001");
+        when(omwExternalClient.getAccountTitle(any(),anyString())).thenReturn(uaeIbanTitleFetchResponse);
+        //then
+        String response = uaeAccountTitleFetchService.fetchAccountTitle("AE100330000010410000108");
+        assertEquals("", response);
+
+    }
+
+    @Test
+    public void testAccountGetTitleUaeIbanTitleFetchDtoList() {
+        UaeIbanTitleFetchResponse uaeIbanTitleFetchResponse = new UaeIbanTitleFetchResponse();
+        UaeIbanTitleFetchDto uaeIbanTitleFetchDto = new UaeIbanTitleFetchDto();
+        UaeIbanTitleFetchDtoList uaeIbanTitleFetchDtoList = new UaeIbanTitleFetchDtoList();
+        uaeIbanTitleFetchDto.setUaeIbanTitleFetchDtoList(uaeIbanTitleFetchDtoList);
+        uaeIbanTitleFetchResponse.setUaeIbanTitleFetch(uaeIbanTitleFetchDto);
+        //when
+        when(omwExternalConfigProperties.getServiceId()).thenReturn("EFTS00001");
+        when(omwExternalClient.getAccountTitle(any(),anyString())).thenReturn(uaeIbanTitleFetchResponse);
+        //then
+        String response = uaeAccountTitleFetchService.fetchAccountTitle("AE100330000010410000108");
+        assertEquals("", response);
+
+    }
+
+    @Test
+    public void testAccountGetTitleUaeTitleFetchDetailsDtosList() {
+        UaeIbanTitleFetchResponse uaeIbanTitleFetchResponse = new UaeIbanTitleFetchResponse();
+        UaeIbanTitleFetchDto uaeIbanTitleFetchDto = new UaeIbanTitleFetchDto();
+        UaeIbanTitleFetchDtoList uaeIbanTitleFetchDtoList = new UaeIbanTitleFetchDtoList();
+        List<TitleFetchDetailsDto> titleFetchDetailsDtos = new ArrayList<>();
+        uaeIbanTitleFetchDtoList.setTitleFetchDetailsDtos(titleFetchDetailsDtos);
+        uaeIbanTitleFetchDto.setUaeIbanTitleFetchDtoList(uaeIbanTitleFetchDtoList);
+        uaeIbanTitleFetchResponse.setUaeIbanTitleFetch(uaeIbanTitleFetchDto);
+        //when
+        when(omwExternalConfigProperties.getServiceId()).thenReturn("EFTS00001");
+        when(omwExternalClient.getAccountTitle(any(),anyString())).thenReturn(uaeIbanTitleFetchResponse);
+        //then
+        String response = uaeAccountTitleFetchService.fetchAccountTitle("AE100330000010410000108");
+        assertEquals("", response);
+
+    }
+
+    @Test
+    public void testAccountGetTitleUaeTitleFetchDetailsDtos() {
+        UaeIbanTitleFetchResponse uaeIbanTitleFetchResponse = new UaeIbanTitleFetchResponse();
+        UaeIbanTitleFetchDto uaeIbanTitleFetchDto = new UaeIbanTitleFetchDto();
+        UaeIbanTitleFetchDtoList uaeIbanTitleFetchDtoList = new UaeIbanTitleFetchDtoList();
+        List<TitleFetchDetailsDto> titleFetchDetailsDtos = new ArrayList<>();
+        TitleFetchDetailsDto titleFetchDetailsDto = new TitleFetchDetailsDto();
+        titleFetchDetailsDtos.add(titleFetchDetailsDto);
+        uaeIbanTitleFetchDtoList.setTitleFetchDetailsDtos(titleFetchDetailsDtos);
+        uaeIbanTitleFetchDto.setUaeIbanTitleFetchDtoList(uaeIbanTitleFetchDtoList);
+        uaeIbanTitleFetchResponse.setUaeIbanTitleFetch(uaeIbanTitleFetchDto);
+        //when
+        when(omwExternalConfigProperties.getServiceId()).thenReturn("EFTS00001");
+        when(omwExternalClient.getAccountTitle(any(),anyString())).thenReturn(uaeIbanTitleFetchResponse);
+        //then
+        String response = uaeAccountTitleFetchService.fetchAccountTitle("AE100330000010410000108");
+        assertEquals("", response);
+
+    }
+
+    @Test public void testAccountGetTitleUaeTitleFetchDetails() {
+        UaeIbanTitleFetchResponse uaeIbanTitleFetchResponse = new UaeIbanTitleFetchResponse();
+        UaeIbanTitleFetchDto uaeIbanTitleFetchDto = new UaeIbanTitleFetchDto();
+        UaeIbanTitleFetchDtoList uaeIbanTitleFetchDtoList = new UaeIbanTitleFetchDtoList();
+        List<TitleFetchDetailsDto> titleFetchDetailsDtos = new ArrayList<>();
+        TitleFetchDetailsDto titleFetchDetailsDto = new TitleFetchDetailsDto();
+        TitleFetchDetails titleFetchDetails = new TitleFetchDetails();
+        titleFetchDetailsDto.setTitleFetchDetails(titleFetchDetails);
+        titleFetchDetailsDtos.add(titleFetchDetailsDto);
+        uaeIbanTitleFetchDtoList.setTitleFetchDetailsDtos(titleFetchDetailsDtos);
+        uaeIbanTitleFetchDto.setUaeIbanTitleFetchDtoList(uaeIbanTitleFetchDtoList);
+        uaeIbanTitleFetchResponse.setUaeIbanTitleFetch(uaeIbanTitleFetchDto);
+        //when
+        when(omwExternalConfigProperties.getServiceId()).thenReturn("EFTS00001");
+        when(omwExternalClient.getAccountTitle(any(),anyString())).thenReturn(uaeIbanTitleFetchResponse);
+        //then
+        String response = uaeAccountTitleFetchService.fetchAccountTitle("AE100330000010410000108");
+        assertEquals("", response);
+
+    }
+
+    @Test public void testAccountGetTitleUaeTitleFetchDto() {
+        UaeIbanTitleFetchResponse uaeIbanTitleFetchResponse = new UaeIbanTitleFetchResponse();
+        UaeIbanTitleFetchDto uaeIbanTitleFetchDto = new UaeIbanTitleFetchDto();
+        UaeIbanTitleFetchDtoList uaeIbanTitleFetchDtoList = new UaeIbanTitleFetchDtoList();
+        List<TitleFetchDetailsDto> titleFetchDetailsDtos = new ArrayList<>();
+        TitleFetchDetailsDto titleFetchDetailsDto = new TitleFetchDetailsDto();
+        TitleFetchDetails titleFetchDetails = new TitleFetchDetails();
+        TitleFetchDto titleFetchDto = new TitleFetchDto();
+        titleFetchDetails.setTitleFetchDto(titleFetchDto);
+        titleFetchDetailsDto.setTitleFetchDetails(titleFetchDetails);
+        titleFetchDetailsDtos.add(titleFetchDetailsDto);
+        uaeIbanTitleFetchDtoList.setTitleFetchDetailsDtos(titleFetchDetailsDtos);
+        uaeIbanTitleFetchDto.setUaeIbanTitleFetchDtoList(uaeIbanTitleFetchDtoList);
+        uaeIbanTitleFetchResponse.setUaeIbanTitleFetch(uaeIbanTitleFetchDto);
+        //when
+        when(omwExternalConfigProperties.getServiceId()).thenReturn("EFTS00001");
+        when(omwExternalClient.getAccountTitle(any(),anyString())).thenReturn(uaeIbanTitleFetchResponse);
         //then
         String response = uaeAccountTitleFetchService.fetchAccountTitle("AE100330000010410000108");
         assertEquals("", response);
