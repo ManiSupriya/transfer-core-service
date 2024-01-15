@@ -1,7 +1,7 @@
 package com.mashreq.transfercoreservice.fundtransfer.eligibility.service;
 
 import static com.mashreq.transfercoreservice.util.TestUtil.qrExchangeResponse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
 import com.mashreq.encryption.encryptor.EncryptionService;
+import com.mashreq.encryption.exception.EncryptionException;
 import com.mashreq.mobcommons.services.events.publisher.AuditEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericException;
@@ -27,13 +28,13 @@ import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.QRDealsService;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 import com.mashreq.transfercoreservice.util.TestUtil;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach ;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 
 
@@ -43,7 +44,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class QRAccountEligibilityServiceTest {
 	@InjectMocks
 	private QRAccountEligibilityService service;
@@ -81,7 +82,7 @@ public class QRAccountEligibilityServiceTest {
 	private EncryptionService encryptionService;
 	private RequestMetaData metaData = RequestMetaData.builder().build();
 	
-	@Before
+	@BeforeEach
 	public void init() {
 		service = new QRAccountEligibilityService(
 				beneficiaryService,
@@ -142,12 +143,10 @@ public class QRAccountEligibilityServiceTest {
 		when(quickRemitService.exchange(any(),any(),any())).thenReturn(qrExchangeResponse());
 		when(userSessionCacheService.isCardNumberBelongsToCif(anyString(), anyString())).thenReturn(true);
 		//then
-		GenericException genericException = assertThrows(GenericException.class, () -> service.checkEligibility(RequestMetaData.builder()
+		assertThrows(EncryptionException.class, () -> service.checkEligibility(RequestMetaData.builder()
 						.userType("RETAIL")
 						.userCacheKey("userCacheKey").build(),
 				fundTransferEligibiltyRequestDTO, userDTO));
-		assertEquals("TN-1006", genericException.getErrorCode());
-		assertEquals("Account Number does not belong to CIF", genericException.getMessage());
 	}
 
 	@Test

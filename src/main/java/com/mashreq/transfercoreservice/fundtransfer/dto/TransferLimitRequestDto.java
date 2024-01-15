@@ -2,8 +2,8 @@ package com.mashreq.transfercoreservice.fundtransfer.dto;
 
 import java.math.BigDecimal;
 
-import javax.validation.constraints.DecimalMin;
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.mashreq.transfercoreservice.model.TransferLimit;

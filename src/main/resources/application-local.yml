@@ -11,7 +11,6 @@ springdoc:
   api-docs.enabled: on
 
 spring:
-  profiles.active: local
   main.lazy-initialization: false
   datasource:
     url: ${MSSQL_DB_URL:jdbc:sqlserver://az-uaen-retailtech-mob-azuresql-dev.database.windows.net:1433;databaseName=MOB-UAT}
@@ -211,6 +210,10 @@ redis:
   ssl: ${REDIS_SSL_FLAG:false}
   timeout: ${REDIS_TIMEOUT:5000}
   writeTtl: ${REDIS_TTL:60}
+  statistics:
+    enabled: ${REDIS_STATISTICS_ENABLED:true}
+    interval: ${REDIS_STATISTICS_INTERVAL:300000}
+    keySize: ${REDIS_STATISTICS_KEY_SIZE:true}
 
 
 mob-common:

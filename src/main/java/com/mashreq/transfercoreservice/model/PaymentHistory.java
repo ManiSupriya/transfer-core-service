@@ -2,7 +2,7 @@ package com.mashreq.transfercoreservice.model;
 
 import lombok.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.math.BigDecimal;
 
 //TODO: MUST define what to allow null or not

@@ -18,22 +18,22 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.notification.service.NotificationService;
 import com.mashreq.transfercoreservice.notification.service.PostTransactionService;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach ;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 import java.util.*;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class LocalFundTransferStrategyTest {
 
     @InjectMocks
@@ -105,7 +105,7 @@ public class LocalFundTransferStrategyTest {
     @Captor
     private ArgumentCaptor<FundTransferRequest> fundTransferRequest;
     
-    @Before
+    @BeforeEach
     public void init() {
     	when(currencyValidator.validate(any(), any(), any())).thenReturn(ValidationResult.builder().success(true).build());
     }
@@ -207,26 +207,26 @@ public class LocalFundTransferStrategyTest {
         final FundTransferRequest actualFundTransferRequest = fundTransferRequest.getValue();
 
         //then
-        Assert.assertEquals(limitVersionUuid,response.getLimitVersionUuid());
-        Assert.assertEquals(limitUsageAmount,response.getLimitUsageAmount());
-        Assert.assertEquals(actualFundTransferRequest.getAmount(),limitUsageAmount);
-        Assert.assertEquals(actualFundTransferRequest.getProductId(),productId);
-        Assert.assertEquals(actualFundTransferRequest.getChannel(),channel);
-        Assert.assertEquals(actualFundTransferRequest.getChannelTraceId(),channelTraceId);
-        Assert.assertEquals(actualFundTransferRequest.getFromAccount(),fromAcct);
-        Assert.assertEquals(actualFundTransferRequest.getToAccount(),toAcct);
-        Assert.assertEquals(actualFundTransferRequest.getPurposeCode(),purposeCode);
-        Assert.assertEquals(actualFundTransferRequest.getPurposeDesc(),purposeDesc);
-        Assert.assertEquals(actualFundTransferRequest.getChargeBearer(),chargeBearer);
-        Assert.assertEquals(actualFundTransferRequest.getFinTxnNo(),finTxnNo);
-        Assert.assertEquals(actualFundTransferRequest.getSourceCurrency(),srcCurrency);
-        Assert.assertEquals(actualFundTransferRequest.getSourceBranchCode(),branchCode);
-        Assert.assertEquals(actualFundTransferRequest.getBeneficiaryFullName(),fullName);
-        Assert.assertEquals(actualFundTransferRequest.getDestinationCurrency(),srcCurrency);
-        Assert.assertEquals(actualFundTransferRequest.getAwInstBICCode(),swift);
-        Assert.assertEquals(actualFundTransferRequest.getAwInstName(),bankName);
-        Assert.assertEquals(actualFundTransferRequest.getBeneficiaryBankCountry(),address);
-        Assert.assertEquals("U",actualFundTransferRequest.getPostingGroup());
+       assertEquals(limitVersionUuid,response.getLimitVersionUuid());
+       assertEquals(limitUsageAmount,response.getLimitUsageAmount());
+       assertEquals(actualFundTransferRequest.getAmount(),limitUsageAmount);
+       assertEquals(actualFundTransferRequest.getProductId(),productId);
+       assertEquals(actualFundTransferRequest.getChannel(),channel);
+       assertEquals(actualFundTransferRequest.getChannelTraceId(),channelTraceId);
+       assertEquals(actualFundTransferRequest.getFromAccount(),fromAcct);
+       assertEquals(actualFundTransferRequest.getToAccount(),toAcct);
+       assertEquals(actualFundTransferRequest.getPurposeCode(),purposeCode);
+       assertEquals(actualFundTransferRequest.getPurposeDesc(),purposeDesc);
+       assertEquals(actualFundTransferRequest.getChargeBearer(),chargeBearer);
+       assertEquals(actualFundTransferRequest.getFinTxnNo(),finTxnNo);
+       assertEquals(actualFundTransferRequest.getSourceCurrency(),srcCurrency);
+       assertEquals(actualFundTransferRequest.getSourceBranchCode(),branchCode);
+       assertEquals(actualFundTransferRequest.getBeneficiaryFullName(),fullName);
+       assertEquals(actualFundTransferRequest.getDestinationCurrency(),srcCurrency);
+       assertEquals(actualFundTransferRequest.getAwInstBICCode(),swift);
+       assertEquals(actualFundTransferRequest.getAwInstName(),bankName);
+       assertEquals(actualFundTransferRequest.getBeneficiaryBankCountry(),address);
+       assertEquals("U",actualFundTransferRequest.getPostingGroup());
     }
 
     @Test
@@ -345,25 +345,25 @@ public class LocalFundTransferStrategyTest {
         final FundTransferRequest actualFundTransferRequest = fundTransferRequest.getValue();
 
         //then
-        Assert.assertEquals(limitVersionUuid,response.getLimitVersionUuid());
-        Assert.assertEquals(paidAmt,response.getLimitUsageAmount());
-        Assert.assertEquals(actualFundTransferRequest.getAmount(),paidAmt);
-        Assert.assertEquals(actualFundTransferRequest.getProductId(),productId);
-        Assert.assertEquals(actualFundTransferRequest.getChannel(),channel);
-        Assert.assertEquals(actualFundTransferRequest.getChannelTraceId(),channelTraceId);
-        Assert.assertEquals(actualFundTransferRequest.getFromAccount(),fromAcct);
-        Assert.assertEquals(actualFundTransferRequest.getToAccount(),toAcct);
-        Assert.assertEquals(actualFundTransferRequest.getPurposeCode(),purposeCode);
-        Assert.assertEquals(actualFundTransferRequest.getPurposeDesc(),purposeDesc);
-        Assert.assertEquals(actualFundTransferRequest.getChargeBearer(),chargeBearer);
-        Assert.assertEquals(actualFundTransferRequest.getFinTxnNo(),finTxnNo);
-        Assert.assertEquals(actualFundTransferRequest.getSourceCurrency(),srcCurrency);
-        Assert.assertEquals(actualFundTransferRequest.getSourceBranchCode(),branchCode);
-        Assert.assertEquals(actualFundTransferRequest.getBeneficiaryFullName(),fullName);
-        Assert.assertEquals(actualFundTransferRequest.getDestinationCurrency(),destCurrency);
-        Assert.assertEquals(actualFundTransferRequest.getAwInstBICCode(),swift);
-        Assert.assertEquals(actualFundTransferRequest.getAwInstName(),bankName);
-        Assert.assertEquals(actualFundTransferRequest.getBeneficiaryBankCountry(),address);
+       assertEquals(limitVersionUuid,response.getLimitVersionUuid());
+       assertEquals(paidAmt,response.getLimitUsageAmount());
+       assertEquals(actualFundTransferRequest.getAmount(),paidAmt);
+       assertEquals(actualFundTransferRequest.getProductId(),productId);
+       assertEquals(actualFundTransferRequest.getChannel(),channel);
+       assertEquals(actualFundTransferRequest.getChannelTraceId(),channelTraceId);
+       assertEquals(actualFundTransferRequest.getFromAccount(),fromAcct);
+       assertEquals(actualFundTransferRequest.getToAccount(),toAcct);
+       assertEquals(actualFundTransferRequest.getPurposeCode(),purposeCode);
+       assertEquals(actualFundTransferRequest.getPurposeDesc(),purposeDesc);
+       assertEquals(actualFundTransferRequest.getChargeBearer(),chargeBearer);
+       assertEquals(actualFundTransferRequest.getFinTxnNo(),finTxnNo);
+       assertEquals(actualFundTransferRequest.getSourceCurrency(),srcCurrency);
+       assertEquals(actualFundTransferRequest.getSourceBranchCode(),branchCode);
+       assertEquals(actualFundTransferRequest.getBeneficiaryFullName(),fullName);
+       assertEquals(actualFundTransferRequest.getDestinationCurrency(),destCurrency);
+       assertEquals(actualFundTransferRequest.getAwInstBICCode(),swift);
+       assertEquals(actualFundTransferRequest.getAwInstName(),bankName);
+       assertEquals(actualFundTransferRequest.getBeneficiaryBankCountry(),address);
     }
 
 

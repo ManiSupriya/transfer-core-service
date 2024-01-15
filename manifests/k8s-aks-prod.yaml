@@ -102,7 +102,7 @@ spec:
         - /bin/sh
         - -c
         - cp -ra /opt/appdynamics/. /opt/appd/ && chmod -R 0777 /opt/appd/
-        image: mashrequae.azurecr.io/appd-java-agent:4.5.13
+        image: mashrequae.azurecr.io/appdynamics-java-agent-jdk17:stable
         name: appd-init
         volumeMounts:
         - mountPath: /opt/appd

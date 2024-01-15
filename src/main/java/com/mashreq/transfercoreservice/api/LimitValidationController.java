@@ -6,10 +6,11 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -19,14 +20,14 @@ import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 @Slf4j
 @RestController
 @RequestMapping("/v1/limit")
-@Api(value = "Limit Validation")
+@Tag(name = "LimitValidationController",description = "Limit Validation Controller")
 @RequiredArgsConstructor
 public class LimitValidationController {
     private final LimitValidator limitValidator;
-    @ApiOperation(value = "Validate Limits", response = FundTransferRequestDTO.class)
+    @Operation(summary = "Validate Limits")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successfully Validated Limits"),
-            @ApiResponse(code = 401, message = "Unauthorized  error")
+            @ApiResponse(responseCode = "200", description = "Successfully Validated Limits"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized  error")
     })
     @PostMapping("/validation")
     public Response validateLimit(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData requestMetaData,@RequestBody LimitValidatorRequestDto limitValidatorRequestDto) {

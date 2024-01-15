@@ -9,10 +9,15 @@ management:
 
 springdoc:
   api-docs:
-    enabled: ${SWAGGER_ENABLED}
-    path: /api-docs
+    path: /api/transfer-core-service/v3/api-docs
+    enabled: ${SWAGGER_DOC_ENABLED:true}
   swagger-ui:
-    path: /swagger
+    path: /swagger-ui.html
+    configUrl: /api/transfer-core-service/api/transfer-core-service/v3/api-docs/swagger-config
+    use-root-path: true
+    url: /api/transfer-core-service/api/transfer-core-service/v3/api-docs
+    disable-swagger-default-url: true
+    enabled: ${SWAGGER_UI_ENABLED:true}
 
 spring:
   application.name: transfer-core-service
@@ -314,6 +319,10 @@ redis:
   timeBetweenEviction: ${REDIS_TIME_BETWEEN_EVICTION_RUNS:30}
   numTestsPerEvictionRun: ${REDIS_NUM_TESTS_PER_EVICTION_RUN:3}
   writeTtl: ${REDIS_TTL:60}
+  statistics:
+    enabled: ${REDIS_STATISTICS_ENABLED:true}
+    interval: ${REDIS_STATISTICS_INTERVAL:300000}
+    keySize: ${REDIS_STATISTICS_KEY_SIZE:true}
 
 async:
   thread:

@@ -2,7 +2,7 @@ package com.mashreq.transfercoreservice.model;
 
 import lombok.Data;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 /**
  * @author shahbazkh

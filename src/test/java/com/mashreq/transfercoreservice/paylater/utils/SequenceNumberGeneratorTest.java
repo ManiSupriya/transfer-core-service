@@ -1,26 +1,29 @@
 package com.mashreq.transfercoreservice.paylater.utils;
 
-import static org.junit.Assert.*;
 
 import java.time.LocalDate;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.mashreq.transfercoreservice.paylater.repository.FundTransferOrderRepository;
 
-@RunWith(MockitoJUnitRunner.class)
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+@ExtendWith(MockitoExtension.class)
 public class SequenceNumberGeneratorTest {
 	@Mock
 	private FundTransferOrderRepository repository;
 	
 	private SequenceNumberGenerator generator;
 	
-	@Before
+	@BeforeEach
 	public void init() {
 		generator = new SequenceNumberGenerator(repository);
 	}

@@ -1,26 +1,23 @@
 package com.mashreq.transfercoreservice.infrastructure.config;
 
+import io.swagger.v3.oas.annotations.info.Contact;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.models.OpenAPI;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.mashreq.transfercoreservice.common.CommonConstants;
 
-import springfox.documentation.builders.ApiInfoBuilder;
-import springfox.documentation.builders.PathSelectors;
-import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.service.ApiInfo;
-import springfox.documentation.service.Contact;
-import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+/*
 @Configuration
-@EnableSwagger2
 public class SwaggerConfig {
 
-    /**
+    */
+/**
      * Config
-     */
+     *//*
+
     @Bean
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2).select()
@@ -30,15 +27,15 @@ public class SwaggerConfig {
                 .build().apiInfo(apiEndPointsInfo());
     }
     
-    private ApiInfo apiEndPointsInfo() {
+    private OpenAPI apiEndPointsInfo() {
 
-        return new ApiInfoBuilder().title(CommonConstants.TITLE)
+        return new OpenAPI().info(new Info().title(CommonConstants.TITLE)
                 .description(CommonConstants.TITLE)
-                .contact(new Contact(CommonConstants.MS_SQUAD, "", CommonConstants.MAIL))
+              //  .contact(new Contact(CommonConstants.MS_SQUAD, "", CommonConstants.MAIL))
                 .license(CommonConstants.LICENCE_TEXT)
                 .licenseUrl(CommonConstants.LICENCE_URL)
-                .version(CommonConstants.VERSION)
-                .build();
+                .version(CommonConstants.VERSION));
     }
 
 }
+*/

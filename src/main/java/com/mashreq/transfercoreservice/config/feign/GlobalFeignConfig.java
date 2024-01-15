@@ -23,8 +23,7 @@ public class GlobalFeignConfig {
 
     @Bean
     public Client feignClient() {
-
-        return new ApacheHttpClient(getHttpClient());
+       return new ApacheHttpClient(getHttpClient());
     }
 
     private CloseableHttpClient getHttpClient() {

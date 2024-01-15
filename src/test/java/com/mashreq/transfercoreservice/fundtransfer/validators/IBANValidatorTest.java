@@ -3,15 +3,17 @@ package com.mashreq.transfercoreservice.fundtransfer.validators;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+@ExtendWith(MockitoExtension.class)
 public class IBANValidatorTest {
 
 
@@ -31,8 +33,8 @@ public class IBANValidatorTest {
         requestDTO.setServiceType("test");
         final ValidationResult result = ibanValidator.validate(requestDTO, null, mockValidationContext);
         //then
-        Assert.assertEquals(false,result.isSuccess());
-        Assert.assertEquals(TransferErrorCode.IBAN_LENGTH_NOT_VALID,result.getTransferErrorCode());
+       assertEquals(false,result.isSuccess());
+       assertEquals(TransferErrorCode.IBAN_LENGTH_NOT_VALID,result.getTransferErrorCode());
     }
     @Test
     public void test_when_iban_is_validEG(){
@@ -46,7 +48,7 @@ public class IBANValidatorTest {
         ReflectionTestUtils.setField(ibanValidator,"bankCode", "033");
         final ValidationResult result = ibanValidator.validate(requestDTO, null, mockValidationContext);
         //then
-        Assert.assertEquals(true,result.isSuccess());
+       assertEquals(true,result.isSuccess());
     }
 
 
@@ -64,8 +66,8 @@ public class IBANValidatorTest {
         final ValidationResult result = ibanValidator.validate(requestDTO, null, mockValidationContext);
 
         //then
-        Assert.assertEquals(false,result.isSuccess());
-        Assert.assertEquals(TransferErrorCode.SAME_BANK_IBAN,result.getTransferErrorCode());
+       assertEquals(false,result.isSuccess());
+       assertEquals(TransferErrorCode.SAME_BANK_IBAN,result.getTransferErrorCode());
 
     }
 
@@ -85,8 +87,8 @@ public class IBANValidatorTest {
         final ValidationResult result = ibanValidator.validate(requestDTO, null, mockValidationContext);
 
         //then
-        Assert.assertEquals(false,result.isSuccess());
-        Assert.assertEquals(TransferErrorCode.IBAN_LENGTH_NOT_VALID,result.getTransferErrorCode());
+       assertEquals(false,result.isSuccess());
+       assertEquals(TransferErrorCode.IBAN_LENGTH_NOT_VALID,result.getTransferErrorCode());
 
     }
 
@@ -107,11 +109,11 @@ public class IBANValidatorTest {
         final ValidationResult result = ibanValidator.validate(requestDTO, null, mockValidationContext);
 
         //then
-        Assert.assertEquals(true,result.isSuccess());
+       assertEquals(true,result.isSuccess());
 
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test()
     public void test_when_validation_throws_exception(){
         //given
         FundTransferRequestDTO requestDTO = new FundTransferRequestDTO();
@@ -124,9 +126,8 @@ public class IBANValidatorTest {
         //when
           
         ReflectionTestUtils.setField(ibanValidator,"bankCode", "033");
-        final ValidationResult result = ibanValidator.validate(requestDTO, null, mockValidationContext);
         //then
-
+        assertThrows(NullPointerException.class, () -> ibanValidator.validate(requestDTO, null, mockValidationContext));
     }
 
 

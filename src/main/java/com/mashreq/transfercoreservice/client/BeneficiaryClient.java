@@ -11,7 +11,9 @@ import com.mashreq.webcore.dto.response.Response;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
+
+import java.util.Map;
 
 /**
  * @author shahbazkh
@@ -22,10 +24,10 @@ import javax.validation.constraints.NotNull;
 public interface BeneficiaryClient {
 
     @GetMapping("/v1/beneficiary/{id}")
-    Response<BeneficiaryDto> getByIdWithoutValidation(@RequestHeader(HeaderNames.CIF_HEADER_NAME) String cifId, @NotNull @PathVariable Long id);
+    Response<BeneficiaryDto> getByIdWithoutValidation(@RequestHeader Map<String, String> headerMap, @NotNull @PathVariable Long id);
     
     @GetMapping("/v2/beneficiary/{id}")
-    Response<BeneficiaryDto> getByIdWithoutValidationV2(@RequestHeader(HeaderNames.CIF_HEADER_NAME) String cifId, @NotNull @PathVariable Long id);
+    Response<BeneficiaryDto> getByIdWithoutValidationV2(@RequestHeader Map<String, String> headerMap, @NotNull @PathVariable Long id);
 
     @PutMapping("/v1/beneficiary/{validationType}/internal/{benId}")
     Response<BeneficiaryDto> update(@RequestBody AdditionalFields additionalFields, @PathVariable Long benId, @PathVariable String validationType);
