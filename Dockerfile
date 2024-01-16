@@ -7,7 +7,7 @@ RUN mkdir -p /opt/appdynamics && \
     chown -R appuser:appgroup /usr/images/transfer-core-service
 
 # COPY /src/main/resources/JSONUATCert.crt $JAVA_HOME/jre/lib/security
-
+COPY /src/main/resources/external.apigateway.mashreqdev.cer $JAVA_HOME/jre/lib/security
 RUN \
     cd $JAVA_HOME/jre/lib/security \
     && keytool -keystore cacerts -storepass changeit -noprompt -trustcacerts -importcert -alias efmuat.mashreqbank.com -file JSONUATCert.cer
@@ -18,7 +18,7 @@ RUN \
 
 RUN \
     cd $JAVA_HOME/jre/lib/security \
-    && keytool -keystore cacerts -storepass changeit -noprompt -trustcacerts -importcert -alias external.apigateway.mashreqdev.com -file external.apigateway.mashreqdev.com.cer
+    && keytool -keystore cacerts -storepass changeit -noprompt -trustcacerts -importcert -alias external.apigateway.mashreqdev -file external.apigateway.mashreqdev.cer
 
 ENV TZ=${TZ:-Asia/Dubai}
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
