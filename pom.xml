@@ -108,7 +108,7 @@
         <dependency>
             <groupId>org.mashreq</groupId>
             <artifactId>notification-client</artifactId>
-            <version>1.2.11</version>
+            <version>1.2.7</version>
         </dependency>
         <!-- Redis -->
         <dependency>
