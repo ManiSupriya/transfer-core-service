@@ -117,6 +117,7 @@ external:
 app:
   auth:
     security-service-url: ${IAM_SERVICE_URL:http://ms-security-iam:8080}
+    transaction-auth-url: ${TRANSACTION_AUTH_CLIENT_URL:http://transactions-authorization-service:8080}
   local:
     currency: ${LOCAL_CURRENCY:AED}
     transfer.product.id: 'DBLC'
