@@ -52,6 +52,7 @@ public class BankResultsDto {
     private String swiftOver;
     private String bankCode;
     private String identifierType;
+    private String accountTitle;
 
     public BankResultsDto(AccuityDetailsTypes type) {
         setBankName(type.getBankName());

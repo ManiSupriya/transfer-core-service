@@ -4,6 +4,7 @@ import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.client.BeneficiaryClient;
+import com.mashreq.transfercoreservice.client.RequestMetadataMapper;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryModificationValidationRequest;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryModificationValidationResponse;
@@ -17,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
 
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BENE_EXTERNAL_SERVICE_ERROR;
 import static java.util.Objects.isNull;
@@ -38,9 +41,10 @@ public class BeneficiaryService {
 
     public BeneficiaryDto getByIdWithoutValidation(final String cifId, Long id, String journeyVersion, RequestMetaData metaData) {
         log.info("Fetching Beneficiary for id = {}", id);
+        Map<String,String> headerMap = RequestMetadataMapper.collectRequestMetadataAsMap(metaData);
         Response<BeneficiaryDto> response = "V2".equals(journeyVersion) ?
-                beneficiaryClient.getByIdWithoutValidationV2(cifId, id):
-                beneficiaryClient.getByIdWithoutValidation(cifId, id);
+                beneficiaryClient.getByIdWithoutValidationV2(headerMap, id):
+                beneficiaryClient.getByIdWithoutValidation(headerMap, id);
 
         if (ResponseStatus.ERROR == response.getStatus() || isNull(response.getData())) {
             userEventPublisher.publishFailureEvent(FundTransferEventType.FUNDTRANSFER_BENDETAILS, metaData, "failed to get ben details", response.getErrorCode(), response.getMessage(), response.getMessage());

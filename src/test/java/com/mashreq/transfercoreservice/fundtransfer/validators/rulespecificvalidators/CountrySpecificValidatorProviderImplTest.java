@@ -6,18 +6,18 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.rulespecificvalid
 import com.mashreq.transfercoreservice.fundtransfer.validators.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach ;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Map;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 @RequiredArgsConstructor
 public class CountrySpecificValidatorProviderImplTest {
 
@@ -26,7 +26,7 @@ public class CountrySpecificValidatorProviderImplTest {
     private EGP_WYMA_TransactionValidator egCcyValidator;
 
     private Map<String, Validator<RuleSpecificValidatorRequest>> countryValidators;
-    @Before
+    @BeforeEach
     public void init() {
         egValidator = new EGP_INFT_TransactionValidator();
         egCcyValidator = new EGP_WYMA_TransactionValidator();

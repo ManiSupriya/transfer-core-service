@@ -6,17 +6,18 @@ import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.client.dto.BeneficiaryStatus;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.util.HtmlUtils;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(MockitoJUnitRunner.class)
+
+@ExtendWith(MockitoExtension.class)
 public class BeneficiaryValidatorTest {
 
     @Mock
@@ -40,8 +41,8 @@ public class BeneficiaryValidatorTest {
         final ValidationResult result = beneficiaryValidator.validate(requestDTO, null, mockValidationContext);
 
         //then
-        Assert.assertEquals(false, result.isSuccess());
-        Assert.assertEquals(TransferErrorCode.BENE_ACC_NOT_MATCH, result.getTransferErrorCode());
+        assertEquals(false, result.isSuccess());
+        assertEquals(TransferErrorCode.BENE_ACC_NOT_MATCH, result.getTransferErrorCode());
 
     }
 
@@ -56,8 +57,8 @@ public class BeneficiaryValidatorTest {
         final ValidationResult result = beneficiaryValidator.validate(requestDTO, null, mockValidationContext);
 
         //then
-        Assert.assertEquals(false, result.isSuccess());
-        Assert.assertEquals(TransferErrorCode.BENE_NOT_FOUND, result.getTransferErrorCode());
+        assertEquals(false, result.isSuccess());
+        assertEquals(TransferErrorCode.BENE_NOT_FOUND, result.getTransferErrorCode());
     }
 
     @Test
@@ -76,8 +77,8 @@ public class BeneficiaryValidatorTest {
         final ValidationResult result = beneficiaryValidator.validate(requestDTO, null, mockValidationContext);
 
         //then
-        Assert.assertEquals(false, result.isSuccess());
-        Assert.assertEquals(TransferErrorCode.BENE_NOT_ACTIVE_OR_COOLING, result.getTransferErrorCode());
+        assertEquals(false, result.isSuccess());
+        assertEquals(TransferErrorCode.BENE_NOT_ACTIVE_OR_COOLING, result.getTransferErrorCode());
     }
 
     @Test
@@ -96,7 +97,7 @@ public class BeneficiaryValidatorTest {
         final ValidationResult result = beneficiaryValidator.validate(requestDTO, null, mockValidationContext);
 
         //then
-        Assert.assertEquals(true, result.isSuccess());
+        assertEquals(true, result.isSuccess());
     }
 
     @Test
@@ -115,7 +116,7 @@ public class BeneficiaryValidatorTest {
         final ValidationResult result = beneficiaryValidator.validate(requestDTO, null, mockValidationContext);
 
         //then
-        Assert.assertEquals(false, result.isSuccess());
+        assertEquals(false, result.isSuccess());
     }
 
     @Test
@@ -134,7 +135,7 @@ public class BeneficiaryValidatorTest {
         final ValidationResult result = beneficiaryValidator.validate(requestDTO, null, mockValidationContext);
 
         //then
-        Assert.assertEquals(true, result.isSuccess());
+        assertEquals(true, result.isSuccess());
     }
 
     @Test
@@ -153,7 +154,7 @@ public class BeneficiaryValidatorTest {
         final ValidationResult result = beneficiaryValidator.validate(requestDTO, null, mockValidationContext);
 
         //then
-        Assert.assertEquals(true, result.isSuccess());
+        assertEquals(true, result.isSuccess());
     }
 
     @Test
@@ -172,6 +173,6 @@ public class BeneficiaryValidatorTest {
         final ValidationResult result = beneficiaryValidator.validate(requestDTO, null, mockValidationContext);
 
         //then
-        Assert.assertEquals(false, result.isSuccess());
+        assertEquals(false, result.isSuccess());
     }
 }

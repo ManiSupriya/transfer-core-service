@@ -280,6 +280,7 @@ public class FundTransferMWService {
         } else {
         	fundTransferReqType.setDealFlag(YesNo.N.name());
         }
+            fundTransferReqType.setAccountClass(request.getAccountClass());
         services.getBody().setFundTransferReq(fundTransferReqType);
         log.info("EAI Service request for fund transfer prepared {}", htmlEscape(services));
         return services;

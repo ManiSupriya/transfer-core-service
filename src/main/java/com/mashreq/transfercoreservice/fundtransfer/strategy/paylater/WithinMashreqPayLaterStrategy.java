@@ -1,10 +1,13 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy.paylater;
 
 import static com.mashreq.transfercoreservice.notification.model.NotificationType.WITHIN_MASHREQ_PL_SI_CREATION;
+import static java.util.Optional.ofNullable;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
+import com.mashreq.transfercoreservice.client.dto.BeneficiaryDto;
 import com.mashreq.transfercoreservice.config.EscrowConfig;
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,8 +77,8 @@ public class WithinMashreqPayLaterStrategy extends WithinMashreqStrategy {
 	}
 	@Override
 	protected void handleSuccessfulTransaction(FundTransferRequestDTO request, RequestMetaData metadata,
-			UserDTO userDTO, final LimitValidatorResponse validationResult,
-			final FundTransferRequest fundTransferRequest, final FundTransferResponse fundTransferResponse) {
+											   UserDTO userDTO, final LimitValidatorResponse validationResult,
+											   final FundTransferRequest fundTransferRequest, final FundTransferResponse fundTransferResponse, BeneficiaryDto beneficiaryDto) {
 		//TODO: Change this accordingly for pay later
 		if(isSuccess(fundTransferResponse)) {
         	final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),request.getTxnCurrency(),
@@ -84,7 +87,7 @@ public class WithinMashreqPayLaterStrategy extends WithinMashreqStrategy {
             fundTransferRequest.setTransferType(MASHREQ);
             fundTransferRequest.setNotificationType(WITHIN_MASHREQ_PL_SI_CREATION);
             fundTransferRequest.setStatus(MwResponseStatus.S.getName());
-            this.getPostTransactionService().performPostTransactionActivities(metadata, fundTransferRequest, request);
+            this.getPostTransactionService().performPostTransactionActivities(metadata, fundTransferRequest, request, ofNullable(beneficiaryDto));
         }
 	}
 	

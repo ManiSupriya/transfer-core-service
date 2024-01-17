@@ -2,7 +2,7 @@ package com.mashreq.transfercoreservice.promo.dto;
 
 import java.math.BigDecimal;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
 import com.mashreq.mobcommons.annotations.Account;
 

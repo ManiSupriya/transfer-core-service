@@ -7,7 +7,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.IBANValidator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import org.springframework.web.util.HtmlUtils;
 
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
@@ -21,7 +20,7 @@ public class LocalIbanValidator {
     private final String localBankCode;
     private final int localIbanLength;
     private final int accountNumberLength;
-        private final IBANValidator ibanValidator;
+     private final IBANValidator ibanValidator;
 
     private static final int BANK_CODE_INDEX = 4;
 

@@ -11,12 +11,12 @@ import com.mashreq.transfercoreservice.fundtransfer.service.*;
 import com.mashreq.transfercoreservice.util.TestUtil;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach ;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -27,7 +27,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class FundTransferControllerTest {
     @Mock
     private FundTransferFactory serviceFactory;
@@ -49,17 +49,17 @@ public class FundTransferControllerTest {
     /**
      * TODO: write integration test to cover contract validations
      */
-    @Before
+    @BeforeEach
     public void init() {
 
         controller = new FundTransferController(serviceFactory, transferEligibilityProxy,
                 npssEnrolmentService, transferLimitService);
     }
 
-    @Test(expected = GenericException.class)
+    @Test()
     public void test_amountandSourceAmountIsNull() {
         RequestMetaData metaData = getMetaData();
-        controller.transferFunds(metaData, new FundTransferRequestDTO());
+        assertThrows(GenericException.class, () -> controller.transferFunds(metaData, new FundTransferRequestDTO()));
     }
 
 

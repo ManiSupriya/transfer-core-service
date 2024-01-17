@@ -34,6 +34,7 @@ import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionHistory;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionRepository;
 import com.mashreq.transfercoreservice.twofactorauthrequiredvalidation.service.TwoFactorAuthRequiredCheckService;
+import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +44,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;

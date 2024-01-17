@@ -1,6 +1,5 @@
 package com.mashreq.transfercoreservice.cardlesscash.service.impl;
 
-import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
@@ -9,14 +8,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
@@ -45,7 +42,10 @@ import com.mashreq.transfercoreservice.transactionqueue.TransactionRepository;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
 
-@RunWith(MockitoJUnitRunner.class)
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+@ExtendWith(MockitoExtension.class)
 public class CardLessCashServiceTest {
 	
 	@Mock
@@ -100,7 +100,7 @@ public class CardLessCashServiceTest {
 			cardLessCashService.blockCardLessCashRequest(cardLessCashBlockRequest, metaData);
 		}
         catch(Exception e) {
-        	Assert.assertTrue(e instanceof GenericException);
+        	assertTrue(e instanceof GenericException);
         }
 }
 
@@ -142,7 +142,7 @@ public class CardLessCashServiceTest {
 		cardLessCashService = new CardLessCashServiceImpl(accountService, asyncUserEventPublisher, digitalUserRepository, digitalUserLimitUsageRepository, balanceValidator, limitValidator, transactionRepository);
 		Response<CardLessCashGenerationResponse> cardLessCashGenerationResponse = cardLessCashService
 				.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest, mobileNo, userId, metaData);
-		Assert.assertNotNull(cardLessCashGenerationResponse);
+		assertNotNull(cardLessCashGenerationResponse);
 
 	}
 	@Test
@@ -153,7 +153,7 @@ public class CardLessCashServiceTest {
 		cardLessCashService = new CardLessCashServiceImpl(accountService, asyncUserEventPublisher, digitalUserRepository, digitalUserLimitUsageRepository, balanceValidator, limitValidator, transactionRepository);
 		Response<List<CardLessCashQueryResponse>> cardLessCashQueryRes = cardLessCashService
 				.cardLessCashRemitQuery(generateCardlessCashQueryRequest(), metaData);
-		Assert.assertNotNull(cardLessCashQueryRes);
+		assertNotNull(cardLessCashQueryRes);
 
 	}
 	

@@ -9,10 +9,15 @@ management:
 
 springdoc:
   api-docs:
-    enabled: ${SWAGGER_ENABLED}
-    path: /api-docs
+    path: /api/transfer-core-service/v3/api-docs
+    enabled: ${SWAGGER_DOC_ENABLED:true}
   swagger-ui:
-    path: /swagger
+    path: /swagger-ui.html
+    configUrl: /api/transfer-core-service/api/transfer-core-service/v3/api-docs/swagger-config
+    use-root-path: true
+    url: /api/transfer-core-service/api/transfer-core-service/v3/api-docs
+    disable-swagger-default-url: true
+    enabled: ${SWAGGER_UI_ENABLED:true}
 
 spring:
   application.name: transfer-core-service
@@ -112,6 +117,7 @@ external:
 app:
   auth:
     security-service-url: ${IAM_SERVICE_URL:http://ms-security-iam:8080}
+    transaction-auth-url: ${TRANSACTION_AUTH_CLIENT_URL:http://transactions-authorization-service:8080}
   local:
     currency: ${LOCAL_CURRENCY:AED}
     transfer.product.id: 'DBLC'
@@ -130,6 +136,7 @@ app:
     transaction.code: '096'
     country.iso: ${LOCAL_COUNTRY_ISO:AE}
     address: ${LOCAL_ADDRESS:UNITED ARAB EMIRATES}
+    bankName: ${LOCAL_BANK_NAME:Mashreq}
     iban:
       length: ${IBAN_LENGTH:23}
       accountNumber: ${MASHREQ_ACCOUNTNUMBER_LENGTH:12}
@@ -158,6 +165,15 @@ app:
     beneficiaryservice: ${BENEFICIARY_SERVICE:http://beneficiary-service:8080}
     quick-remit: ${QUICK_REMIT_SERVICE:http://mob-quickremit-service:8080}
     bank-charges: ${BANK_CHARGES_SERVICE:http://bank-charges-service:8080}
+    omw-external:
+      titleFetchEnabled: ${TITLE_FETCH_FLAG:true}
+      url: ${EXTERNAL_URL}
+      tokenUrl: ${EXTERNAL_TOKEN_URL:/oauth-v6/oauth2/token}
+      clientId: ${EXTERNAL_CLIENT_ID}
+      clientSecret: ${EXTERNAL_CLIENT_SECRET}
+      grantType: ${EXTERNAL_GRANT_TYPE:client_credentials}
+      scope: ${EXTERNAL_SCOPE:EXT}
+      serviceId: ${EXTERNAL_SERVICE_ID:EFTS0001}
   ftcc:
     merchantId: ${TFTCC_MERCHANT_ID:000008026734}
     terminalId: ${TFTCC_TERMINAL_ID:20091124}
@@ -313,6 +329,10 @@ redis:
   timeBetweenEviction: ${REDIS_TIME_BETWEEN_EVICTION_RUNS:30}
   numTestsPerEvictionRun: ${REDIS_NUM_TESTS_PER_EVICTION_RUN:3}
   writeTtl: ${REDIS_TTL:60}
+  statistics:
+    enabled: ${REDIS_STATISTICS_ENABLED:true}
+    interval: ${REDIS_STATISTICS_INTERVAL:300000}
+    keySize: ${REDIS_STATISTICS_KEY_SIZE:true}
 
 async:
   thread:

@@ -6,18 +6,18 @@ import com.mashreq.transfercoreservice.fundtransfer.limits.DigitalUserLimitUsage
 import com.mashreq.transfercoreservice.fundtransfer.user.DigitalUserService;
 import com.mashreq.transfercoreservice.model.DigitalUser;
 import lombok.RequiredArgsConstructor;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach ;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 @RequiredArgsConstructor
 public class DigitalLimitUsageControllerTest {
 
@@ -28,7 +28,7 @@ public class DigitalLimitUsageControllerTest {
 	
 	private DigitalLimitUsageController digitalLimitUsageController;
 
-	@Before
+	@BeforeEach
 	public void init() {
 		digitalLimitUsageController = new DigitalLimitUsageController(digitalUserService,digitalUserLimitUsageService);
 	}

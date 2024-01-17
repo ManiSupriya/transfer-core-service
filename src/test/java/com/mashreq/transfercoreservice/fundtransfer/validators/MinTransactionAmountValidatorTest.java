@@ -6,18 +6,20 @@ import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferRequestDTO;
 
 import com.mashreq.transfercoreservice.model.ServiceType;
 import com.mashreq.transfercoreservice.repository.ServiceTypeRepository;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.util.Optional;
 
-@RunWith(MockitoJUnitRunner.class)
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+@ExtendWith(MockitoExtension.class)
 public class MinTransactionAmountValidatorTest {
 
     @InjectMocks
@@ -48,7 +50,7 @@ public class MinTransactionAmountValidatorTest {
 
 
         //Then
-        Assert.assertFalse(result.isSuccess());
+      assertFalse(result.isSuccess());
 
     }
 
@@ -70,7 +72,7 @@ public class MinTransactionAmountValidatorTest {
 
 
         //Then
-        Assert.assertTrue(result.isSuccess());
+       assertTrue(result.isSuccess());
 
     }
 
@@ -94,7 +96,7 @@ public class MinTransactionAmountValidatorTest {
 
 
         //Then
-        Assert.assertTrue(result.isSuccess());
+       assertTrue(result.isSuccess());
 
     }
 
@@ -118,7 +120,7 @@ public class MinTransactionAmountValidatorTest {
 
 
         //Then
-        Assert.assertFalse(result.isSuccess());
+         assertFalse(result.isSuccess());
 
     }
 }

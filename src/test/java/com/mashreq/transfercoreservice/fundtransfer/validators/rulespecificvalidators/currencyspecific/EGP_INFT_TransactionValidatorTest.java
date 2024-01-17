@@ -2,17 +2,17 @@ package com.mashreq.transfercoreservice.fundtransfer.validators.rulespecificvali
 
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 import com.mashreq.transfercoreservice.fundtransfer.validators.rulespecificvalidators.RuleSpecificValidatorRequest;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach ;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class EGP_INFT_TransactionValidatorTest {
     private EGP_INFT_TransactionValidator egValidator;
-    @Before
+    @BeforeEach
     public void init() {
         egValidator = new EGP_INFT_TransactionValidator();
     }

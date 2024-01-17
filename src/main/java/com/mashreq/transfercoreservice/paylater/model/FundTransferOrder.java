@@ -3,12 +3,12 @@ package com.mashreq.transfercoreservice.paylater.model;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Table;
 
 import com.mashreq.transfercoreservice.fundtransfer.dto.ChargeBearer;
 import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
@@ -74,8 +74,7 @@ public class FundTransferOrder extends DomainEntity {
 	@Column(name = "deal_rate",precision = 5)
 	private BigDecimal dealRate;
 	@Column(name = "charge_bearer",length = 1)
-	@Enumerated(EnumType.STRING)
-	private ChargeBearer chargeBearer;
+	private String chargeBearer;
 	@Column(name = "transaction_Code",length = 10)
 	private String transactionCode;
 	@Enumerated(EnumType.STRING)

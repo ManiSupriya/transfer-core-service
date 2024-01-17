@@ -6,6 +6,7 @@ import com.mashreq.notification.client.freemarker.TemplateRequest;
 import com.mashreq.notification.client.freemarker.TemplateType;
 import com.mashreq.notification.client.notification.service.NotificationService;
 import com.mashreq.transfercoreservice.client.NotificationClient;
+import com.mashreq.transfercoreservice.client.RequestMetadataMapper;
 import com.mashreq.transfercoreservice.config.notification.SMSConfig;
 import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
 import com.mashreq.transfercoreservice.notification.model.SMSObject;
@@ -21,6 +22,7 @@ import static com.mashreq.mobcommons.services.CustomHtmlEscapeUtil.htmlEscape;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
 
 
 /**
@@ -63,6 +65,8 @@ public class SMSService  {
     private String defaultLanguage;
 
     private static final String leftToRight = "\u200E";
+
+    private static final String ARABIC = "AR";
     /**
      * service method to prepare sms template based on type of sms and send sms
      */
@@ -75,7 +79,7 @@ public class SMSService  {
             TemplateRequest templateRequest = buildSmsTemplate(PL_SI_CREATION,metaData,customerNotification,phoneNo)
                     .params(BENEFICIARY_NAME,customerNotification.getBeneficiaryName())
                     // Added 'leftToRight' to correct word alignment for arabic SMS
-                    .params(ACCOUNT_NUMBER,leftToRight + emailUtil.doMask(customerNotification.getCreditAccount()) + leftToRight)
+                    .params(ACCOUNT_NUMBER,isArabic() ? leftToRight + emailUtil.doMask(customerNotification.getCreditAccount()) + leftToRight : emailUtil.doMask(customerNotification.getCreditAccount()))
                     .configure();
             try {
                 notificationService.sendNotification(templateRequest);
@@ -123,9 +127,9 @@ public class SMSService  {
      * @return
      */
     private boolean sendSMS(String message, String phoneNumber, RequestMetaData metaData, String logPrefix) {
-
+        Map<String,String> headerMap = RequestMetadataMapper.collectRequestMetadataAsMap(metaData);
         log.info("{}, smsMessage: {}, phoneNumber: {}. SMS being sent.", htmlEscape(logPrefix), htmlEscape(message), htmlEscape(phoneNumber));
-        SMSResponse smsResponse = notificationClient.sendSMS(createSmsObject(message, phoneNumber, metaData));
+        SMSResponse smsResponse = notificationClient.sendSMS(headerMap, createSmsObject(message, phoneNumber, metaData));
         log.info("{}, smsResponse: {}, SMS response received.", htmlEscape(logPrefix), htmlEscape(smsResponse));
         return smsResponse != null && smsResponse.getStatusCode() != null && "SUCCESS".equalsIgnoreCase(smsResponse.getStatusCode());
     }
@@ -150,5 +154,9 @@ public class SMSService  {
 		}
 		smsObject.setPriority(smsConfig.getPriority());
 		return smsObject;
+    }
+
+    private boolean isArabic() {
+        return ARABIC.equalsIgnoreCase(defaultLanguage);
     }
 }

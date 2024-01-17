@@ -5,7 +5,8 @@ import static com.mashreq.ms.commons.cache.HeaderNames.*;
 
 import java.util.List;
 
-import javax.validation.Valid;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 import com.mashreq.transactionauth.annotations.RequiresAuthorization;
 import com.mashreq.transfercoreservice.client.service.AccountService;
@@ -39,16 +40,15 @@ import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
 import com.mashreq.webcore.dto.response.Response;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 @RequestMapping(CardLessCashConstants.URL.CARD_LESS_CASH_BASE_URL)
 @RestController
 @AllArgsConstructor
-@Api(tags = {"TransferCore MicroService"})
+@Tag(name = "CardLess Cash Controller")
 @Slf4j
 public class CardLessCashController {
 
@@ -64,10 +64,10 @@ public class CardLessCashController {
      * @param blockRequest CardLessCashBlockRequest
      * @return Response<CardLessCashBlockResponse>
      */
-    @ApiOperation("This operation is responsible for blocking/cancelling generated card less cash request.")
+    @Operation(summary= "This operation is responsible for blocking/cancelling generated card less cash request.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Response for card less cash block request."),
-            @ApiResponse(code = 401, message = "You are not authorized to view the resource")
+            @ApiResponse(responseCode = "200", description = "Response for card less cash block request."),
+            @ApiResponse(responseCode = "401", description = "You are not authorized to view the resource")
     })
     @PostMapping(CardLessCashConstants.URL.CLC_BLOCK_URL)
     public Response<CardLessCashBlockResponse> blockCardLessCashRequest(@RequestAttribute(X_REQUEST_METADATA) RequestMetaData metaData, @Valid @RequestBody CardLessCashBlockRequest blockRequest) {
@@ -83,13 +83,13 @@ public class CardLessCashController {
     /**
      * the CLC(Card Less Cash) generation request.
      *
-     * @param Request CardLessCashGenerationRequest
+     * @param //Request CardLessCashGenerationRequest
      * @return Response<CardLessCashGenerationResponse>
      */
-    @ApiOperation("This operation is responsible for remit generation for card less cash request.")
+    @Operation( summary="This operation is responsible for remit generation for card less cash request.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Response for card less cash generation request."),
-            @ApiResponse(code = 401, message = "You are not authorized to view the resource")
+            @ApiResponse(responseCode = "200", description = "Response for card less cash generation request."),
+            @ApiResponse(responseCode = "401", description = "You are not authorized to view the resource")
     })
     @PostMapping(CardLessCashConstants.URL.CLC_REQUEST_URL)
 	@RequiresAuthorization( serviceTypes = {"CLC"})
@@ -114,13 +114,13 @@ public class CardLessCashController {
     /**
      * the CLC(Card Less Cash) generation request.
      *
-     * @param Request CardLessCashGenerationRequest
+     * @param //Request CardLessCashGenerationRequest
      * @return Response<CardLessCashGenerationResponse>
      */
-    @ApiOperation("This operation is responsible for query details for card less cash.")
+    @Operation( summary="This operation is responsible for query details for card less cash.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Response for card less cash query details."),
-            @ApiResponse(code = 401, message = "You are not authorized to view the resource")
+            @ApiResponse(responseCode = "200", description = "Response for card less cash query details."),
+            @ApiResponse(responseCode = "401", description = "You are not authorized to view the resource")
     })
 	@GetMapping(CardLessCashConstants.URL.CLC_QUERY_URL)
 	public Response<List<CardLessCashQueryResponse>> cardLessCashRemitQuery(
@@ -167,7 +167,7 @@ public class CardLessCashController {
          */
      	if (mobileNumber.isEmpty()) {
          	asyncUserEventPublisher.publishFailedEsbEvent(FundTransferEventType.CARD_LESS_CASH_MOBILE_NUMBER_DOES_NOT_MATCH, metaData, CARD_LESS_CASH, metaData.getChannelTraceId(),
-         			TransferErrorCode.MOBILE_NUMBER_DOES_NOT_MATCH.toString(), TransferErrorCode.MOBILE_NUMBER_DOES_NOT_MATCH.getErrorMessage(),
+					TransferErrorCode.MOBILE_NUMBER_DOES_NOT_MATCH.toString(), TransferErrorCode.MOBILE_NUMBER_DOES_NOT_MATCH.getErrorMessage(),
        			TransferErrorCode.MOBILE_NUMBER_DOES_NOT_MATCH.getErrorMessage());
              GenericExceptionHandler.handleError(TransferErrorCode.MOBILE_NUMBER_DOES_NOT_MATCH, TransferErrorCode.MOBILE_NUMBER_DOES_NOT_MATCH.getErrorMessage());
          }

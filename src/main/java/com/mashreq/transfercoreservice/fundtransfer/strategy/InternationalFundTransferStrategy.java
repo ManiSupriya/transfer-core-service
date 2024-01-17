@@ -18,6 +18,7 @@ import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
 import com.mashreq.transfercoreservice.notification.service.NotificationService;
 import com.mashreq.transfercoreservice.notification.service.PostTransactionService;
 
+import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +35,7 @@ import java.util.Set;
 
 import static com.mashreq.transfercoreservice.notification.model.NotificationType.INFT_TRANSACTION;
 import static com.mashreq.transfercoreservice.notification.model.NotificationType.OTHER_ACCOUNT_TRANSACTION;
+import static java.util.Optional.ofNullable;
 
 
 /**
@@ -154,7 +155,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         final FundTransferResponse fundTransferResponse = processTransaction(metadata, txnRefNo, fundTransferRequest,request);
 
         handleSuccessfullTransaction(request, metadata, userDTO, validationResult, fundTransferRequest,
-				fundTransferResponse);
+				fundTransferResponse , beneficiaryDto);
 
         return prepareResponse(transferAmountInSrcCurrency, limitUsageAmount, validationResult, txnRefNo, fundTransferResponse);
     }
@@ -169,8 +170,8 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
 	}
 
 	protected void handleSuccessfullTransaction(FundTransferRequestDTO request, RequestMetaData metadata,
-			UserDTO userDTO, final LimitValidatorResponse validationResult,
-			final FundTransferRequest fundTransferRequest, final FundTransferResponse fundTransferResponse) {
+                                                UserDTO userDTO, final LimitValidatorResponse validationResult,
+                                                final FundTransferRequest fundTransferRequest, final FundTransferResponse fundTransferResponse, BeneficiaryDto beneficiaryDto) {
 		if(isSuccessOrProcessing(fundTransferResponse)){
         final CustomerNotification customerNotification = populateCustomerNotification(validationResult.getTransactionRefNo(),
                 request.getTxnCurrency(),request.getAmount(),fundTransferRequest.getBeneficiaryFullName(), fundTransferRequest.getToAccount());
@@ -178,7 +179,7 @@ public class InternationalFundTransferStrategy implements FundTransferStrategy {
         fundTransferRequest.setTransferType(INTERNATIONAL);
         fundTransferRequest.setNotificationType(OTHER_ACCOUNT_TRANSACTION);
         fundTransferRequest.setStatus(fundTransferResponse.getResponseDto().getMwResponseStatus().getName());
-        postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest, request);
+        postTransactionService.performPostTransactionActivities(metadata, fundTransferRequest, request, ofNullable(beneficiaryDto));
         }
 	}
 

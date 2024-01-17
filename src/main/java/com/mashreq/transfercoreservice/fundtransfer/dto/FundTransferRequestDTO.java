@@ -2,8 +2,6 @@ package com.mashreq.transfercoreservice.fundtransfer.dto;
 
 import java.math.BigDecimal;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
 
 import com.mashreq.transactionauth.twofa.TwoFaBaseModel;
 import com.mashreq.transfercoreservice.annotations.Account;
@@ -13,6 +11,8 @@ import com.mashreq.transfercoreservice.annotations.ValueOfEnum;
 import com.mashreq.transfercoreservice.paylater.enums.FTOrderType;
 import com.mashreq.transfercoreservice.paylater.enums.SIFrequencyType;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 /**

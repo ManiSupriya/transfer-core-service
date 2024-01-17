@@ -4,7 +4,11 @@ import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 import java.util.List;
 import java.util.Map;
 
-import javax.validation.Valid;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import com.mashreq.transfercoreservice.fundtransfer.service.TransferLimitService;
@@ -34,10 +38,6 @@ import com.mashreq.transfercoreservice.fundtransfer.service.NpssEnrolmentService
 import com.mashreq.transfercoreservice.transactionqueue.TransactionHistoryService;
 import com.mashreq.webcore.dto.response.Response;
 import com.mashreq.webcore.dto.response.ResponseStatus;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -45,7 +45,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestController
 @RequestMapping("/v1/transfer")
-@Api(value = "Fund Transfer")
+@Tag(name= "FundTransferController",description = "Fund Transfer")
 @RequiredArgsConstructor
 public class FundTransferController {
     private final FundTransferFactory serviceFactory;
@@ -53,10 +53,10 @@ public class FundTransferController {
     private final NpssEnrolmentService npssEnrolmentService;
     private final TransferLimitService transferLimitService;
 
-    @ApiOperation(value = "Processes to start payment", response = FundTransferRequestDTO.class)
+    @Operation(summary = "Processes to start payment")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successfully processed"),
-            @ApiResponse(code = 500, message = "Something went wrong")
+            @ApiResponse(responseCode = "200", description = "Successfully processed"),
+            @ApiResponse(responseCode = "500", description = "Something went wrong")
     })
     @PostMapping
     @RequiresAuthorization( failOnMissingOtp = false)
@@ -74,12 +74,12 @@ public class FundTransferController {
                 .data(serviceFactory.getServiceAppropriateService(request).transferFund(metaData, request)).build();
     }
     
-    @ApiOperation(
-    		value = "fund transfer eligibility to return supported payment types", 
-    		response = List.class)
+    @Operation(
+    		summary = "fund transfer eligibility to return supported payment types"
+    )
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successfully processed"),
-            @ApiResponse(code = 500, message = "Something went wrong")
+            @ApiResponse(responseCode = "200", description = "Successfully processed"),
+            @ApiResponse(responseCode = "500", description = "Something went wrong")
     })
     @PostMapping("/paymentType")
     public Response<Map<ServiceType,EligibilityResponse>> retrieveEligibleServiceType(
@@ -96,12 +96,11 @@ public class FundTransferController {
     }
 
 
-    @ApiOperation(
-    		value = "API to records the transfer limit",
-    		response = List.class)
+    @Operation(
+    		summary = "API to records the transfer limit")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successfully processed"),
-            @ApiResponse(code = 500, message = "Something went wrong")
+            @ApiResponse(responseCode = "200", description = "Successfully processed"),
+            @ApiResponse(responseCode = "500", description = "Something went wrong")
     })
     @PostMapping("/saveTransferDetails/{transactionRefNo}")
     public Response<TransferLimitResponseDto> saveTransferDetails(
@@ -116,12 +115,11 @@ public class FundTransferController {
     }
 
 
-    @ApiOperation(
-            value = "check npss enrolment of the user",
-            response = NpssEnrolmentStatusResponseDTO.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "successfully processed"),
-            @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
-            @ApiResponse(code = 500, message = "Something went wrong") })
+    @Operation(
+            summary = "check npss enrolment of the user")
+    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "successfully processed"),
+            @ApiResponse(responseCode = "401", description = "You are not authorized to view the resource"),
+            @ApiResponse(responseCode = "500", description = "Something went wrong") })
     @GetMapping("/enrolmentStatus")
     public Response retrieveNpssEnrolment(@RequestAttribute("X-REQUEST-METADATA") RequestMetaData metaData) {
         log.info("check npss enrolment of the user {} ", htmlEscape(metaData.getUserType()));
@@ -129,12 +127,11 @@ public class FundTransferController {
                 .status(ResponseStatus.SUCCESS)
                 .data(npssEnrolmentService.checkEnrolment(metaData)).build();
     }
-    @ApiOperation(
-            value = "update npss enrolment of the user",
-            response = NpssEnrolmentUpdateResponseDTO.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "successfully processed"),
-            @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
-            @ApiResponse(code = 500, message = "Something went wrong") })
+    @Operation(
+            summary = "update npss enrolment of the user")
+    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "successfully processed"),
+            @ApiResponse(responseCode = "401", description = "You are not authorized to view the resource"),
+            @ApiResponse(responseCode = "500", description = "Something went wrong") })
     @GetMapping("/updateEnrolmentStatus")
     public Response updateNpssEnrolment(@RequestAttribute("X-REQUEST-METADATA") RequestMetaData metaData) {
         log.info("check npss enrolment of the user {} ", htmlEscape(metaData.getUserType()));
@@ -143,10 +140,10 @@ public class FundTransferController {
                 .data(npssEnrolmentService.updateEnrolment(metaData)).build();
     }
 
-    @ApiOperation(value = "Handle Successful  Transaction of NPSS", response = NotificationRequestDto.class)
+    @Operation(summary = "Handle Successful  Transaction of NPSS")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successfully Handled Successful Transaction for NPSS"),
-            @ApiResponse(code = 401, message = "Unauthorized error")
+            @ApiResponse(responseCode = "200", description = "Successfully Handled Successful Transaction for NPSS"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized error")
     })
     @PostMapping("/npss/handle-transaction")
     public Response handleTransaction(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData requestMetaData,
@@ -159,10 +156,10 @@ public class FundTransferController {
                 .build();
     }
 
-    @ApiOperation(value = "Handle Successful  Transaction of NPSS")
+    @Operation(summary = "Handle Successful  Transaction of NPSS")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successfully Handled Successful Transaction for NPSS"),
-            @ApiResponse(code = 401, message = "Unauthorized error")
+            @ApiResponse(responseCode = "200", description = "Successfully Handled Successful Transaction for NPSS"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized error")
     })
     @PostMapping("/npss/notifications")
     public Response handleNotifications(@RequestAttribute(Constants.X_REQUEST_METADATA) RequestMetaData requestMetaData, @Valid @RequestBody NotificationRequestDto notificationRequestDto) {

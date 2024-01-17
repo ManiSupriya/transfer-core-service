@@ -1,9 +1,11 @@
   package com.mashreq.transfercoreservice.fundtransfer.strategy.paylater;
 
 import static com.mashreq.transfercoreservice.notification.model.NotificationType.LOCAL_PL_SI_CREATION;
+import static java.util.Optional.ofNullable;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import org.springframework.stereotype.Service;
@@ -109,8 +111,8 @@ public class LocalFundPayLaterTransferStrategy extends LocalFundTransferStrategy
 
     @Override
     protected void handleSuccessfulTransaction(FundTransferRequestDTO request, RequestMetaData metadata,
-			UserDTO userDTO, final LimitValidatorResponse validationResult,
-			final FundTransferRequest fundTransferRequest, final FundTransferResponse fundTransferResponse) {
+											   UserDTO userDTO, final LimitValidatorResponse validationResult,
+											   final FundTransferRequest fundTransferRequest, final FundTransferResponse fundTransferResponse, BeneficiaryDto beneficiaryDto) {
     	//TODO:change notification and post transaction events
 		if(isSuccess(fundTransferResponse)){
             final CustomerNotification customerNotification = this.populateCustomerNotification(validationResult.getTransactionRefNo(),request.getTxnCurrency(),
@@ -119,7 +121,7 @@ public class LocalFundPayLaterTransferStrategy extends LocalFundTransferStrategy
             fundTransferRequest.setTransferType(getTransferType(fundTransferRequest.getTxnCurrency()));
             fundTransferRequest.setNotificationType(LOCAL_PL_SI_CREATION);
             fundTransferRequest.setStatus(MwResponseStatus.S.getName());
-            getPostTransactionService().performPostTransactionActivities(metadata, fundTransferRequest, request);
+            getPostTransactionService().performPostTransactionActivities(metadata, fundTransferRequest, request, ofNullable(beneficiaryDto));
         }
 	}
     
@@ -152,7 +154,7 @@ public class LocalFundPayLaterTransferStrategy extends LocalFundTransferStrategy
 		order.setCreatedOn(LocalDateTime.now());
 		order.setBeneficiaryId(Long.valueOf(request.getBeneficiaryId()));
 		order.setChannel(metadata.getChannel());
-		order.setChargeBearer(ChargeBearer.valueOf(request.getChargeBearer()));
+		order.setChargeBearer(request.getChargeBearer());
 		order.setCif(metadata.getPrimaryCif());
 		order.setUserType(metadata.getUserType());
 		order.setCustomerSegment(metadata.getSegment());

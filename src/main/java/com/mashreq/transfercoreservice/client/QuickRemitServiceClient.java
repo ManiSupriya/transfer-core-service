@@ -1,6 +1,6 @@
 package com.mashreq.transfercoreservice.client;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;

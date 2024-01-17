@@ -5,20 +5,20 @@ import com.mashreq.mobcommons.cache.MobRedisService;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.commons.cache.IAMSessionUser;
 import com.mashreq.transfercoreservice.util.TestUtil;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class UserSessionCacheServiceTest {
 
     @Mock
@@ -30,36 +30,31 @@ public class UserSessionCacheServiceTest {
 
     @Test
     public void isAccountNumberBelongsToCif() {
-        when(redisService.get(any(), ArgumentMatchers.<Class>any())).thenReturn(new IAMSessionUser());
-        when(redisService.get(any(), ArgumentMatchers.<TypeReference>any())).thenReturn(TestUtil.getAccountContext());
+       when(redisService.get(any(), ArgumentMatchers.<TypeReference>any())).thenReturn(TestUtil.getAccountContext());
 
         assertTrue(userSessionCacheService.isAccountNumberBelongsToCif("0123456789","1234"));
     }
 
     @Test
     public void test_isMtAccountNumberBelongsToCif_withNormalAccount() {
-        when(redisService.get(any(), ArgumentMatchers.<Class>any())).thenReturn(new IAMSessionUser());
         when(redisService.get(any(), ArgumentMatchers.<TypeReference>any())).thenReturn(TestUtil.getAccountContext());
         assertTrue(userSessionCacheService.isMTAccountNumberBelongsToCif("0123456789","1234"));
     }
     
     @Test
     public void test_isMtAccountNumberBelongsToCif_withInvestmentAccount() {
-        when(redisService.get(any(), ArgumentMatchers.<Class>any())).thenReturn(new IAMSessionUser());
         when(redisService.get(any(), ArgumentMatchers.<TypeReference>any())).thenReturn(TestUtil.getMoneyTransferAccountContext());
         assertTrue(userSessionCacheService.isMTAccountNumberBelongsToCif("1123456789","1234"));
     }
     
     @Test
     public void test_isMtAccountNumberBelongsToCif_withUnknownAccount() {
-        when(redisService.get(any(), ArgumentMatchers.<Class>any())).thenReturn(new IAMSessionUser());
         when(redisService.get(any(), ArgumentMatchers.<TypeReference>any())).thenReturn(TestUtil.getMoneyTransferAccountContext());
         assertFalse(userSessionCacheService.isMTAccountNumberBelongsToCif("1123466789","1234"));
     }
     
     @Test
     public void isCardNumberBelongsToCif() {
-        when(redisService.get(any(), ArgumentMatchers.<Class>any())).thenReturn(new IAMSessionUser());
         when(redisService.get(any(), ArgumentMatchers.<TypeReference>any())).thenReturn(TestUtil.getCardsContext());
 
         assertTrue(userSessionCacheService.isCardNumberBelongsToCif("4444333322221111","1234"));
