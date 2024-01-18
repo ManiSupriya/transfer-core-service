@@ -15,7 +15,6 @@ import com.mashreq.transfercoreservice.notification.model.EmailTemplateParameter
 import com.mashreq.transfercoreservice.notification.model.SocialMediaLinks;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -112,7 +111,11 @@ public class EmailUtil {
     public static final String GOLD_SILVER_BUY_SUCCESS = "mt_buy_gold_silver_success";
     public static final String GOLD_SILVER_SELL_SUCCESS = "mt_sell_gold_silver_success";
     public static final String PL_SI_FUND_TRANSFER = "mt_pl_creation";
-    public static final String OTHER_FUND_TRANSFER = "mt_other_accounts";
+   /* TODO: Temp change to be removed
+       public static final String OTHER_FUND_TRANSFER = "mt_other_accounts";
+
+*/
+    public static final String OTHER_FUND_TRANSFER = "mt_other_accounts_v2";
     public static final String BUSINESS_TYPE = "RETAIL";
 
     public static final String MT_NPSS_EMAIL_PROXY_UPDATE = "mt_npss_email_proxy_update";
