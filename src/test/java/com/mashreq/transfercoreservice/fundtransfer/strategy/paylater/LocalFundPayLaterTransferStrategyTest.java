@@ -1,19 +1,19 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy.paylater;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach ;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
@@ -55,7 +55,7 @@ import com.mashreq.transfercoreservice.paylater.repository.FundTransferOrderRepo
 import com.mashreq.transfercoreservice.paylater.utils.SequenceNumberGenerator;
 import com.mashreq.transfercoreservice.repository.CountryRepository;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class LocalFundPayLaterTransferStrategyTest {
 	private LocalFundPayLaterTransferStrategy localFundPayLaterTransferStrategy;
 	@Mock
@@ -111,7 +111,7 @@ public class LocalFundPayLaterTransferStrategyTest {
 	@Mock
 	private MinTransactionAmountValidator minTransactionAmountValidator;
 
-	@Before
+	@BeforeEach
 	public void init() {
 		localFundPayLaterTransferStrategy = new  LocalFundPayLaterTransferStrategy(ibanValidator, accountBelongsToCifValidator, ccBelongsToCifValidator, beneficiaryValidator,
 				accountService, beneficiaryService, limitValidator, fundTransferMWService, paymentPurposeValidator,

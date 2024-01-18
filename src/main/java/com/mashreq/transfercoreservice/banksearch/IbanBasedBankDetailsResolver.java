@@ -3,6 +3,7 @@ package com.mashreq.transfercoreservice.banksearch;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.common.LocalIbanValidator;
+import com.mashreq.transfercoreservice.config.feign.OmwExternalConfigProperties;
 import com.mashreq.transfercoreservice.dto.BankResolverRequestDto;
 import com.mashreq.transfercoreservice.fundtransfer.dto.BankDetails;
 import com.mashreq.transfercoreservice.repository.BankRepository;
@@ -25,6 +26,8 @@ public class IbanBasedBankDetailsResolver implements BankDetailsResolver {
     private final IbanSearchMWService ibanSearchMWService;
 
     private final BankRepository bankRepository;
+    private final UAEAccountTitleFetchService uaeAccountTitleFetchService;
+    private final OmwExternalConfigProperties omwExternalConfigProperties;
 
     @Override
     public List<BankResultsDto> getBankDetails(BankResolverRequestDto bankResolverRequestDto) {
@@ -45,17 +48,18 @@ public class IbanBasedBankDetailsResolver implements BankDetailsResolver {
         List<BankDetails> bankDetailsList = bankRepository.findByBankCode(bankCode).orElseThrow(() -> genericException(BANK_NOT_FOUND_WITH_IBAN));
 
         // We can extract branch code from iban and set the branch name here(only for Egypt). Is it needed?
-            BankResultsDto bankResults = new BankResultsDto();
-            bankResults.setSwiftCode(bankDetailsList.get(0).getSwiftCode());
-            bankResults.setBankName(bankDetailsList.get(0).getBankName());
-            bankResults.setAccountNo(localIbanValidator.extractAccountNumberIfMashreqIban(iban, bankCode));
-            bankResults.setIbanNumber(iban);
-            bankResults.setIdentifierType(BankCodeType.IBAN.getName());
-            bankResults.setBankCode(bankDetailsList.get(0).getBankCode());
+        BankResultsDto bankResults = new BankResultsDto();
+        bankResults.setSwiftCode(bankDetailsList.get(0).getSwiftCode());
+        bankResults.setBankName(bankDetailsList.get(0).getBankName());
+        bankResults.setAccountNo(localIbanValidator.extractAccountNumberIfMashreqIban(iban, bankCode));
+        bankResults.setIbanNumber(iban);
+        bankResults.setIdentifierType(BankCodeType.IBAN.getName());
+        bankResults.setBankCode(bankDetailsList.get(0).getBankCode());
+        if (omwExternalConfigProperties.isTitleFetchEnabled()) {
+            bankResults.setAccountTitle(uaeAccountTitleFetchService.fetchAccountTitle(iban));
+        }
             return Collections.singletonList(bankResults);
 
     }
-
-
 
 }

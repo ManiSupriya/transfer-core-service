@@ -22,20 +22,20 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.rulespecificvalid
 import com.mashreq.transfercoreservice.fundtransfer.validators.rulespecificvalidators.currencyspecific.EGP_WAMA_TransactionValidator;
 import com.mashreq.transfercoreservice.fundtransfer.validators.rulespecificvalidators.currencyspecific.EGP_WYMA_TransactionValidator;
 import com.mashreq.transfercoreservice.util.TestUtil;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach ;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class WithinAccountEligibilityServiceTest {
 
 	private WithinAccountEligibilityService service;
@@ -68,7 +68,7 @@ public class WithinAccountEligibilityServiceTest {
 	private RuleSpecificValidatorImpl RuleSpecificValidatorProvider;
 	private EGP_WAMA_TransactionValidator egWamaValidator;
 	private EGP_WYMA_TransactionValidator egWymaValidator;
-	@Before
+	@BeforeEach
 	public void init() {
 		egWymaValidator = new EGP_WYMA_TransactionValidator();
 		egWamaValidator = new EGP_WAMA_TransactionValidator(egWymaValidator);

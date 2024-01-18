@@ -1,9 +1,11 @@
 package com.mashreq.transfercoreservice.fundtransfer.strategy.paylater;
 
 import static com.mashreq.transfercoreservice.notification.model.NotificationType.OWN_ACCOUNT_PL_SI_CREATION;
+import static java.util.Optional.empty;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import com.mashreq.transfercoreservice.fundtransfer.validators.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +28,6 @@ import com.mashreq.transfercoreservice.fundtransfer.service.FundTransferMWServic
 import com.mashreq.transfercoreservice.fundtransfer.strategy.OwnAccountStrategy;
 import com.mashreq.transfercoreservice.middleware.enums.MwResponseStatus;
 import com.mashreq.transfercoreservice.notification.model.CustomerNotification;
-import com.mashreq.transfercoreservice.notification.model.NotificationType;
 import com.mashreq.transfercoreservice.notification.service.DigitalUserSegment;
 import com.mashreq.transfercoreservice.notification.service.NotificationService;
 import com.mashreq.transfercoreservice.notification.service.PostTransactionService;
@@ -80,7 +81,7 @@ public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 			fundTransferRequest.setTransferType(OWN_ACCOUNT);
 			fundTransferRequest.setNotificationType(OWN_ACCOUNT_PL_SI_CREATION);
 			fundTransferRequest.setStatus(MwResponseStatus.S.getName());
-			this.getPostTransactionService().performPostTransactionActivities(metadata, fundTransferRequest, request);
+			this.getPostTransactionService().performPostTransactionActivities(metadata, fundTransferRequest, request, empty());
 		}
 	}
 

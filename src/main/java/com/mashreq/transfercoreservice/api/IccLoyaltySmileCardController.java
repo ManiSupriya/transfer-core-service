@@ -6,6 +6,10 @@ import static com.mashreq.transfercoreservice.loyaltysmilecard.common.CommonCons
 import static com.mashreq.transfercoreservice.loyaltysmilecard.common.CommonConstants.SMILE_REWARDS_VALIDATE;
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,25 +20,21 @@ import com.mashreq.ms.commons.cache.HeaderNames;
 import com.mashreq.transfercoreservice.loyaltysmilecard.service.IccLoyaltySmileCardService;
 import com.mashreq.webcore.dto.response.Response;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
 @RequestMapping(SMILE_REWARDS_URL)
-@Api(value = SMILE_REWARDS)
+@Tag(name = SMILE_REWARDS)
 @RequiredArgsConstructor
 public class IccLoyaltySmileCardController {
 	private final IccLoyaltySmileCardService iccLoyaltySmileCardService;
 	
-	@ApiOperation("This operation is responsible for generate session ID for loyalty rewards.")
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "successfully processed"),
-			@ApiResponse(code = 401, message = "You are not authorized to view the resource"),
-			@ApiResponse(code = 500, message = "Something went wrong") })
+	@Operation(summary = "This operation is responsible for generate session ID for loyalty rewards.")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "successfully processed"),
+			@ApiResponse(responseCode = "401", description = "You are not authorized to view the resource"),
+			@ApiResponse(responseCode = "500", description = "Something went wrong") })
 	@GetMapping(SMILE_REWARDS_GENERATE)
 	public Response<Object> generateRedeemID(@RequestHeader(HeaderNames.CIF_HEADER_NAME) final String cifId,
             @RequestHeader(HeaderNames.X_USSM_USER_REDIS_KEY) final String userCacheKey) {
@@ -43,10 +43,10 @@ public class IccLoyaltySmileCardController {
 
 	}
 	
-	@ApiOperation("This operation is responsible for validate session ID for loyalty rewards.")
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "successfully processed"),
-			@ApiResponse(code = 401, message = "You are not authorized to view the resource"),
-			@ApiResponse(code = 500, message = "Something went wrong") })
+	@Operation(summary = "This operation is responsible for validate session ID for loyalty rewards.")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "successfully processed"),
+			@ApiResponse(responseCode = "401", description = "You are not authorized to view the resource"),
+			@ApiResponse(responseCode = "500", description = "Something went wrong") })
 	@GetMapping(SMILE_REWARDS_VALIDATE)
 	public Response<Object> validateRedeemID(@RequestHeader(HeaderNames.CIF_HEADER_NAME) final String cifId,
 			@RequestParam(required = true) String sessionID) {

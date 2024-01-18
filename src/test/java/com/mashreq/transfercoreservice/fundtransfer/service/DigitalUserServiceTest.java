@@ -1,19 +1,22 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
 import com.mashreq.mobcommons.services.http.RequestMetaData;
+import com.mashreq.ms.exceptions.GenericException;
 import com.mashreq.transfercoreservice.fundtransfer.user.DigitalUserService;
 import com.mashreq.transfercoreservice.model.DigitalUser;
 import com.mashreq.transfercoreservice.repository.DigitalUserRepository;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-@RunWith(MockitoJUnitRunner.class)
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+@ExtendWith(MockitoExtension.class)
 public class DigitalUserServiceTest {
 
     @Mock
@@ -31,15 +34,15 @@ public class DigitalUserServiceTest {
         Mockito.when(digitalUserRepository.findByCifEquals(Mockito.any())).thenReturn(digitalUserOpr);
         digitalUserService.getDigitalUser(metaData);
     }
-    @Test(expected = Exception.class)
+    @Test()
     public void testGetDigitalUserNull() {
         RequestMetaData metaData = getMetaData("012960010");
         DigitalUser digitalUser = new DigitalUser();
         digitalUser.setCif("012960010");
         digitalUser.setCountry("EN");
-        Optional<DigitalUser> digitalUserOpr = Optional.of(null);
+        Optional<DigitalUser> digitalUserOpr = Optional.ofNullable(null);
         Mockito.when(digitalUserRepository.findByCifEquals(Mockito.any())).thenReturn(digitalUserOpr);
-        digitalUserService.getDigitalUser(metaData);
+        assertThrows(GenericException.class, () ->digitalUserService.getDigitalUser(metaData));
     }
     private RequestMetaData getMetaData(String cif) {
         RequestMetaData metaData = new RequestMetaData();

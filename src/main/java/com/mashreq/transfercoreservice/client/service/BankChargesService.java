@@ -3,6 +3,8 @@ package com.mashreq.transfercoreservice.client.service;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.BANK_CHARGES_EXTERNAL_SERVICE_ERROR;
 import static java.util.Objects.isNull;
 
+import com.mashreq.mobcommons.services.http.RequestMetadataInterceptor;
+import com.mashreq.transfercoreservice.client.RequestMetadataMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +19,8 @@ import com.mashreq.webcore.dto.response.ResponseStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Map;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -27,7 +31,8 @@ public class BankChargesService {
 
     public TransactionChargesDto getTransactionCharges(final String accountClass, final String transactionCurrency, RequestMetaData metaData) {
         log.info("Fetching TransactionCharges for accountClass = {} and transaction currency = {}", htmlEscape(accountClass),htmlEscape(transactionCurrency));
-        Response<TransactionChargesDto> response = bankChargesServiceClient.getTransactionCharges(accountClass,transactionCurrency);
+        Map<String,String> headerMap = RequestMetadataMapper.collectRequestMetadataAsMap(metaData);
+        Response<TransactionChargesDto> response = bankChargesServiceClient.getTransactionCharges(headerMap, accountClass,transactionCurrency);
 
         if (ResponseStatus.ERROR == response.getStatus() || isNull(response.getData())) {
             GenericExceptionHandler.handleError(BANK_CHARGES_EXTERNAL_SERVICE_ERROR, BANK_CHARGES_EXTERNAL_SERVICE_ERROR.getErrorMessage(),

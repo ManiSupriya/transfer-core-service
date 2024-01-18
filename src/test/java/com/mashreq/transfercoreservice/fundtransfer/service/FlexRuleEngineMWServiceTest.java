@@ -1,15 +1,13 @@
 package com.mashreq.transfercoreservice.fundtransfer.service;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.List;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.mashreq.esbcore.bindings.customer.mbcdm.FlexRuleEngineResType;
 import com.mashreq.esbcore.bindings.customer.mbcdm.GatewayDetailsType;
@@ -24,7 +22,9 @@ import com.mashreq.transfercoreservice.middleware.SoapServiceProperties;
 import com.mashreq.transfercoreservice.middleware.SoapServiceProperties.ServiceCodes;
 import com.mashreq.transfercoreservice.middleware.WebServiceClient;
 
-@RunWith(MockitoJUnitRunner.class)
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+@ExtendWith(MockitoExtension.class)
 public class FlexRuleEngineMWServiceTest {
 	
 	@InjectMocks

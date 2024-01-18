@@ -1,18 +1,18 @@
 package com.mashreq.transfercoreservice.fundtransfer.eligibility.validators;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach ;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
@@ -32,7 +32,7 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 import com.mashreq.webcore.dto.response.Response;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CurrencyValidatorTest {
 	private CurrencyValidator validator;
 	@Mock
@@ -43,7 +43,7 @@ public class CurrencyValidatorTest {
 	private RequestMetaData metadata = RequestMetaData.builder().country("AE").build();
 	private String currencyFunction = "INFTALL";
 
-	@Before
+	@BeforeEach
 	public void init() {
 		validator = new CurrencyValidator(auditEventPublisher, mobCommonClient);
 		ReflectionTestUtils.setField(validator, "localCurrency", localCurrency);

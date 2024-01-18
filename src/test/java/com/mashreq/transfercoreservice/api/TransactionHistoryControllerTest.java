@@ -6,23 +6,23 @@ import com.mashreq.transfercoreservice.dto.TransactionHistoryDto;
 import com.mashreq.transfercoreservice.transactionqueue.TransactionHistoryService;
 import com.mashreq.webcore.dto.response.Response;
 import lombok.RequiredArgsConstructor;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach ;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 @RequiredArgsConstructor
 public class TransactionHistoryControllerTest {
     @Mock
@@ -30,7 +30,7 @@ public class TransactionHistoryControllerTest {
 
     private TransactionHistoryController controller;
 
-    @Before
+    @BeforeEach
     public void init() {
         controller = new TransactionHistoryController(transactionHistoryService);
     }
