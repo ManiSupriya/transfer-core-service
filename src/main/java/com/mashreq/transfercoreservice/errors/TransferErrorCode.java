@@ -65,6 +65,8 @@ public enum TransferErrorCode implements ErrorCode {
     MIN_AMOUNT_LIMIT_REACHED("LM-2015", "Min Amount Limit Reached"),
     LIMIT_ELIGIBILITY_NOT_FOUND("LM-2016", "Limit Increase Not available at the moment"),
     DATE_PARSE_ERROR("LM-2019", "Exception occurred while parsing the date"),
+    LIMIT_CHANGE_COUNT_REACHED("LM-2020", "Limit change is not allowed"),
+
 
     MONTH_AMOUNT_LIMIT_REACHED("PM-1104", "Month Amount Limit Reached"),
     DAY_AMOUNT_LIMIT_REACHED("PM-1103", "Day Amount Limit Reached"),

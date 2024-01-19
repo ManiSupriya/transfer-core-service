@@ -201,7 +201,11 @@ public class LimitValidator implements ILimitValidator{
         if (Boolean.FALSE.equals(limitValidatorResultsDto.getIsValid())) {
             verificationType = FundsTransferEligibility.NOT_ELIGIBLE.name();
 
-            if(limitValidatorResultsDto.getCountRemark()!=null) {
+            if (limitValidatorResultsDto.getMaxMonthlyLimitChangeCount().equals(limitValidatorResultsDto.getUsedMonthlyLimitChangeCount())) {
+                auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, LIMIT_CHANGE_COUNT_REACHED.getCustomErrorCode(), LIMIT_CHANGE_COUNT_REACHED.getErrorMessage(), "limit check failed");
+                errorCode = LIMIT_CHANGE_COUNT_REACHED.getCustomErrorCode();
+                errorMessage = LIMIT_CHANGE_COUNT_REACHED.getErrorMessage();
+            } else if (limitValidatorResultsDto.getCountRemark() != null) {
 
                 if (LimitCheckType.MONTHLY_COUNT.name().equals(limitValidatorResultsDto.getCountRemark())) {
                     auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, MONTHLY_COUNT_REACHED.getCustomErrorCode(), MONTHLY_COUNT_REACHED.getErrorMessage(), "limit check failed");
@@ -231,7 +235,7 @@ public class LimitValidator implements ILimitValidator{
                     errorCode = DAILY_AMOUNT_REACHED.getCustomErrorCode();
                     errorMessage = DAILY_AMOUNT_REACHED.getErrorMessage();
                     verificationType = FundsTransferEligibility.LIMIT_INCREASE_ELIGIBLE.name();
-                }   else if (LimitCheckType.COOLING_LIMIT_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
+                } else if (LimitCheckType.COOLING_LIMIT_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())) {
                     auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, COOLING_LIMIT_AMOUNT_REACHED.getCustomErrorCode(), COOLING_LIMIT_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
                     errorCode = COOLING_LIMIT_AMOUNT_REACHED.getCustomErrorCode();
                     errorMessage = COOLING_LIMIT_AMOUNT_REACHED.getErrorMessage();
@@ -240,11 +244,11 @@ public class LimitValidator implements ILimitValidator{
                     errorCode = TRX_AMOUNT_REACHED.getCustomErrorCode();
                     errorMessage = TRX_AMOUNT_REACHED.getErrorMessage();
                     verificationType = FundsTransferEligibility.LIMIT_INCREASE_ELIGIBLE.name();
-                } else if (limitValidatorResultsDto.getNextLimitChangeDate()!=null) {
+                } else if (limitValidatorResultsDto.getNextLimitChangeDate() != null) {
                     verificationType = FundsTransferEligibility.NOT_ELIGIBLE.name();
                     errorCode = LIMIT_ELIGIBILITY_NOT_FOUND.getCustomErrorCode();
                     errorMessage = LIMIT_ELIGIBILITY_NOT_FOUND.getErrorMessage();
-                }else {
+                } else {
                     auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks, TRX_AMOUNT_REACHED.getCustomErrorCode(), TRX_AMOUNT_REACHED.getErrorMessage(), "limit check failed");
                     GenericExceptionHandler.handleError(LIMIT_PACKAGE_NOT_DEFINED,
                             LIMIT_PACKAGE_NOT_DEFINED.getErrorMessage());
