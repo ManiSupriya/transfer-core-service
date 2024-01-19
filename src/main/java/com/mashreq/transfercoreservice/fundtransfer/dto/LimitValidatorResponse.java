@@ -92,4 +92,6 @@ public class LimitValidatorResponse {
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Boolean allowedToChangeLimit;
+
+    private String errorMessage;
 }

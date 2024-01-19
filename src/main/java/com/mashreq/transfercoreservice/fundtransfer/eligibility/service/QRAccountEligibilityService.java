@@ -137,6 +137,7 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 							limitUsageAmount, metaData, Long.valueOf(request.getBeneficiaryId()));
 			response.setMaxAmountDaily(limitValidatorResponse.getMaxAmountDaily());
 			response.setErrorCode(limitValidatorResponse.getErrorCode());
+			response.setErrorMessage(limitValidatorResponse.getErrorMessage());
 			if(limitValidatorResponse.getVerificationType().equals(FundsTransferEligibility.LIMIT_INCREASE_ELIGIBLE.name())) {
 				status = FundsTransferEligibility.NOT_ELIGIBLE.name();
 			} else {
