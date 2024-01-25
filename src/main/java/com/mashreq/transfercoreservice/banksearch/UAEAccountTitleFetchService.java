@@ -38,6 +38,7 @@ public class UAEAccountTitleFetchService {
     }
 
     private String fetchTitleFromResponse(UaeIbanTitleFetchResponse uaeIbanTitleFetchResponse){
+        log.info("Response received {}", uaeIbanTitleFetchResponse);
         return Optional.ofNullable(uaeIbanTitleFetchResponse)
                 .map(UaeIbanTitleFetchResponse::getUaeIbanTitleFetch)
                 .map(UaeIbanTitleFetchDto::getUaeIbanTitleFetchDtoList)

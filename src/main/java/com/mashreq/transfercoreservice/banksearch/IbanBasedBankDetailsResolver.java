@@ -55,6 +55,7 @@ public class IbanBasedBankDetailsResolver implements BankDetailsResolver {
         bankResults.setIbanNumber(iban);
         bankResults.setIdentifierType(BankCodeType.IBAN.getName());
         bankResults.setBankCode(bankDetailsList.get(0).getBankCode());
+        log.info("Title fetch Flag is enabled {}",omwExternalConfigProperties.isTitleFetchEnabled());
         if (omwExternalConfigProperties.isTitleFetchEnabled()) {
             bankResults.setAccountTitle(uaeAccountTitleFetchService.fetchAccountTitle(iban));
         }
