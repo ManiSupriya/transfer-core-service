@@ -34,8 +34,7 @@
             **/repository/*,
             **/errors/*,
             **/dto/*,
-            **/config/**,
-            **/limits/**
+            **/config/**
         </sonar.exclusions>
         <sonar.test.exclusions>
             src/test/**/*
