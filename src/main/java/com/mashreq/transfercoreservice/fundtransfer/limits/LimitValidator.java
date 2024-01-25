@@ -39,22 +39,20 @@ public class LimitValidator implements ILimitValidator{
     private final LimitCheckService limitCheckService;
     private final MobCommonClient mobCommonClient;
 
-    private static final Map<String, TransferErrorCode>  limitErrorMap = Collections.unmodifiableMap(
-            new HashMap<>() {{
-                put(LimitCheckType.MONTHLY_COUNT.name(),MONTHLY_COUNT_REACHED);
-                put(LimitCheckType.DAILY_COUNT.name(), DAILY_COUNT_REACHED);
-                put(LimitCheckType.COOLING_LIMIT_COUNT.name(), COOLING_LIMIT_COUNT_REACHED);
-                put(LimitCheckType.MONTHLY_AMOUNT.name(), MONTHLY_AMOUNT_REACHED);
-                put(LimitCheckType.COOLING_LIMIT_AMOUNT.name(), COOLING_LIMIT_AMOUNT_REACHED);
-            }}
-    );
+    private static final Map<String, TransferErrorCode>  limitErrorMap =  new HashMap<>();
+    private static final Map<String, TransferErrorCode>  limitIncreaseEligibleMap = new HashMap<>();
 
-    private static final Map<String, TransferErrorCode>  limitIncreaseEligibleMap = Collections.unmodifiableMap(
-            new HashMap<>() {{
-                put(LimitCheckType.DAILY_AMOUNT.name(),DAILY_AMOUNT_REACHED);
-                put(LimitCheckType.TRX_AMOUNT.name(), TRX_AMOUNT_REACHED);
-            }}
-    );
+    static {
+        limitErrorMap.put(LimitCheckType.MONTHLY_COUNT.name(),MONTHLY_COUNT_REACHED);
+        limitErrorMap.put(LimitCheckType.DAILY_COUNT.name(), DAILY_COUNT_REACHED);
+        limitErrorMap.put(LimitCheckType.COOLING_LIMIT_COUNT.name(), COOLING_LIMIT_COUNT_REACHED);
+        limitErrorMap.put(LimitCheckType.MONTHLY_AMOUNT.name(), MONTHLY_AMOUNT_REACHED);
+        limitErrorMap.put(LimitCheckType.COOLING_LIMIT_AMOUNT.name(), COOLING_LIMIT_AMOUNT_REACHED);
+
+        limitIncreaseEligibleMap.put(LimitCheckType.DAILY_AMOUNT.name(),DAILY_AMOUNT_REACHED);
+        limitIncreaseEligibleMap.put(LimitCheckType.TRX_AMOUNT.name(), TRX_AMOUNT_REACHED);
+    }
+
 
     private String getRemarks(LimitValidatorResponse resultsDto, String cif, String paidAmount, String beneficiaryType) {
         return String.format(
