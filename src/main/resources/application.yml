@@ -166,7 +166,7 @@ app:
     quick-remit: ${QUICK_REMIT_SERVICE:http://mob-quickremit-service:8080}
     bank-charges: ${BANK_CHARGES_SERVICE:http://bank-charges-service:8080}
     omw-external:
-      titleFetchEnabled: ${TITLE_FETCH_FLAG:true}
+      titleFetchEnabled: ${TITLE_FETCH_FLAG:false}
       url: ${EXTERNAL_URL}
       tokenUrl: ${EXTERNAL_TOKEN_URL:/oauth-v6/oauth2/token}
       clientId: ${EXTERNAL_CLIENT_ID}
