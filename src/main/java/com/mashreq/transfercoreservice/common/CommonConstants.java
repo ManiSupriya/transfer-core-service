@@ -43,4 +43,11 @@ public interface CommonConstants {
 	String LICENCE_TEXT = "Apache 2.0";
 	String PROD_PROFILE = "prod";
     String CLIENT_ID_HEADER = "X-CLIENT-ID";
+	String X_MSG_ID = "x-msg-id";
+	String BEARER = "Bearer ";
+	String API_CONNECT_TOKEN_GRANT_TYPE_KEY = "grant_type";
+	String API_CONNECT_TOKEN_CLIENT_ID_KEY = "client_id";
+	String API_CONNECT_SCOPE_KEY = "scope";
+	String API_CONNECT_TOKEN_CLIENT_SECRET_KEY = "client_secret";
+	String OVERLAY_CLIENT_ID_KEY = "clientID";
 }
