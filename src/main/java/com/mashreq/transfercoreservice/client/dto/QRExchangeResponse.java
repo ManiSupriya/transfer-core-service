@@ -30,4 +30,5 @@ public class QRExchangeResponse {
 
     private String maxAmountDaily;
     private String errorCode;
+    private String errorMessage;
 }

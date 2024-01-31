@@ -19,9 +19,6 @@ import java.util.Objects;
 
 import com.mashreq.transfercoreservice.client.dto.*;
 import com.mashreq.transfercoreservice.client.mobcommon.MobCommonService;
-import com.mashreq.transfercoreservice.fundtransfer.dto.*;
-import com.mashreq.transfercoreservice.fundtransfer.limits.ILimitValidator;
-import com.mashreq.transfercoreservice.fundtransfer.limits.LimitManagementConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -38,6 +35,10 @@ import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.client.service.QuickRemitService;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
 import com.mashreq.transfercoreservice.event.FundTransferEventType;
+import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.QRDealDetails;
+import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
+import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.enums.FundsTransferEligibility;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.BeneficiaryValidator;
@@ -49,7 +50,6 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationContext
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.CollectionUtils;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -70,7 +70,6 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 	private final CardService cardService;
 	private final EncryptionService encryptionService = new EncryptionService();
 	private final MobCommonService mobCommonService;
-	private final LimitManagementConfig limitManagementConfig;
 
 
 	@Value("#{'${app.countriesWhereQrDisabledForCompany}'.split(',')}")
@@ -124,33 +123,12 @@ public class QRAccountEligibilityService implements TransferEligibilityService {
 		final BigDecimal limitUsageAmount = getLimitUsageAmount(request.getDealNumber(), sourceAccountDetailsDTO,
 				new BigDecimal(response.getDebitAmountWithoutCharges()));
 
-
-		List<String> allowedChannels = limitManagementConfig.getCountries().get(metaData.getCountry());
-
-		ILimitValidator limitValidator = limitValidatorFactory.getValidator(metaData);
-		String status = FundsTransferEligibility.ELIGIBLE.name();
-		if(!isSMESegment(metaData) && !CollectionUtils.isEmpty(allowedChannels) && allowedChannels.contains(metaData.getChannel())) {
-			LimitValidatorResponse  limitValidatorResponse = limitValidator
-					.validateAvailableLimits(
-							userDTO,
-							getCodeByName(beneficiaryDto.getBankCountryISO()),
-							limitUsageAmount, metaData, Long.valueOf(request.getBeneficiaryId()));
-			response.setMaxAmountDaily(limitValidatorResponse.getMaxAmountDaily());
-			response.setErrorCode(limitValidatorResponse.getErrorCode());
-			if(limitValidatorResponse.getVerificationType().equals(FundsTransferEligibility.LIMIT_INCREASE_ELIGIBLE.name())) {
-				status = FundsTransferEligibility.NOT_ELIGIBLE.name();
-			} else {
-				status = limitValidatorResponse.getVerificationType();
-			}
-		} else {
-			limitValidatorFactory.getValidator(metaData).validate(
-					userDTO,
-					getCodeByName(beneficiaryDto.getBankCountryISO()),
-					limitUsageAmount, metaData, Long.valueOf(request.getBeneficiaryId()));
-		}
-
+		limitValidatorFactory.getValidator(metaData).validate(
+				userDTO,
+				getCodeByName(beneficiaryDto.getBankCountryISO()),
+				limitUsageAmount, metaData, Long.valueOf(request.getBeneficiaryId()));
 		updateExchangeRateDisplay(response);
-		return EligibilityResponse.builder().status(FundsTransferEligibility.valueOf(status)).data(response).build();
+		return EligibilityResponse.builder().status(FundsTransferEligibility.ELIGIBLE).data(response).build();
 	}
 
 	private boolean checkIfBeneIsCompany(String countryCode, String accountType) {
