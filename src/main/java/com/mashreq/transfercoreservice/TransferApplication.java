@@ -25,7 +25,7 @@ import java.text.NumberFormat;
 @EnableTemplateNotificationClient
 @SpringBootApplication(
         scanBasePackages = {"com.mashreq.transfercoreservice",
-                "com.mashreq.ms"}
+                "com.mashreq.ms","com.mashreq.dedupe"}
         , exclude = {FeignInterceptorConfig.class})
 public class TransferApplication {
 
