@@ -8,6 +8,7 @@ import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.LimitValidatorResponse;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.enums.FundsTransferEligibility;
@@ -36,8 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.mashreq.transfercoreservice.util.TestUtil.getAdditionalFields;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -105,8 +105,10 @@ public class INFTAccountEligibilityServiceTest {
         when(limitValidator.validateAvailableLimits(any(), any(), any(), any(), any())).thenReturn(TestUtil.limitValidatorResultsDto(null));
 
         EligibilityResponse response = service.checkEligibility(metaData, fundTransferEligibiltyRequestDTO, userDTO);
+        LimitValidatorResponse limitValidatorResponse = (LimitValidatorResponse) response.getData();
 
         assertNotNull(response);
+        assertTrue(limitValidatorResponse.getIsValid());
         assertEquals(response.getStatus(), FundsTransferEligibility.ELIGIBLE);
     }
 

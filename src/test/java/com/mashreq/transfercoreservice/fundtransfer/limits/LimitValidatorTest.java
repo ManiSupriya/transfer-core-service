@@ -90,9 +90,11 @@ public class LimitValidatorTest {
 
         Mockito.when(mobCommonClient.getAvailableLimits(any())).thenReturn(response);
 
-        Assertions.assertThrows(GenericException.class, ()->{
+        GenericException exception = Assertions.assertThrows(GenericException.class, ()->{
             limitValidator.validateAvailableLimits(userDTO, beneficiaryType, paidAmount, metaData, benId);
         });
+
+        assertEquals(EXTERNAL_SERVICE_ERROR.getCustomErrorCode(), exception.getErrorCode());
     }
 
     @Test
