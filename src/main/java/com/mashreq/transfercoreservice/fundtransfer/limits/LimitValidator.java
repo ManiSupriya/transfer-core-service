@@ -190,7 +190,7 @@ public class LimitValidator implements ILimitValidator{
         Response<LimitValidatorResponse> response = mobCommonClient.getAvailableLimits(limitValidatorRequest);
         if (Objects.isNull(response.getData()) || ResponseStatus.ERROR == response.getStatus()) {
             log.error("Error while fetching available limits");
-            GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR, EXTERNAL_SERVICE_ERROR.getCustomErrorCode(), getErrorDetails(response));
+            GenericExceptionHandler.handleError(EXTERNAL_SERVICE_ERROR, getErrorDetails(response));
         }
         LimitValidatorResponse  limitValidatorResultsDto = response.getData();
         log.info("limitValidatorResultsDto {}",limitValidatorResultsDto);
