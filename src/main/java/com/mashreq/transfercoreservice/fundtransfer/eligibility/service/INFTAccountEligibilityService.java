@@ -163,7 +163,6 @@ public class INFTAccountEligibilityService implements TransferEligibilityService
     private boolean isEntitlementKeyAllowed(String entitlementKey, String redisKey){
         DerivedEntitlements entitlementsContext = userSessionCacheService.extractEntitlementContext(redisKey);
 
-        log.info("Entitlements Data: ",entitlementsContext);
         if(Objects.isNull(entitlementsContext))
             return false;
 
