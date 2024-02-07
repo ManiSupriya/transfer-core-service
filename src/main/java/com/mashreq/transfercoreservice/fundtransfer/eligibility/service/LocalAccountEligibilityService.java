@@ -1,6 +1,7 @@
 package com.mashreq.transfercoreservice.fundtransfer.eligibility.service;
 
 import com.mashreq.encryption.encryptor.EncryptionService;
+import com.mashreq.mobcommons.model.DerivedEntitlements;
 import com.mashreq.mobcommons.services.events.publisher.AuditEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
@@ -36,6 +37,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.*;
@@ -61,6 +63,8 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
     private final UserSessionCacheService userSessionCacheService;
     private final RuleSpecificValidatorImpl CountrySpecificValidatorProvider;
     private final LimitManagementConfig limitManagementConfig;
+
+    private static final String LIMIT_ENTRY_POINT_ENTITLEMENT = "Inline_MoneyTransfer_Limits_EntryPoint";
 
     @Value("${app.local.currency}")
     private String localCurrency;
@@ -144,7 +148,8 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
 
         ILimitValidator limitValidator = limitValidatorFactory.getValidator(metaData);
         LimitValidatorResponse limitValidatorResponse = null;
-        if(!CollectionUtils.isEmpty(allowedChannels) && allowedChannels.contains(metaData.getChannel())) {
+        if(isEntitlementKeyAllowed(LIMIT_ENTRY_POINT_ENTITLEMENT, metaData.getUserCacheKey())
+        && !CollectionUtils.isEmpty(allowedChannels) && allowedChannels.contains(metaData.getChannel())) {
             limitValidatorResponse = limitValidator
                     .validateAvailableLimits(userDTO, request.getServiceType(),
                             limitUsageAmount, metaData, bendId);
@@ -298,5 +303,14 @@ public class LocalAccountEligibilityService implements TransferEligibilityServic
         auditEventPublisher.publishFailureEvent(fundTransferEventType, requestMetaData,"",
                 fundTransferEventType.name(), fundTransferEventType.getDescription(), fundTransferEventType.getDescription());
         throw ExceptionUtils.genericException(errorCodeSet);
+    }
+
+    private boolean isEntitlementKeyAllowed(String entitlementKey, String redisKey){
+        DerivedEntitlements entitlementsContext = userSessionCacheService.extractEntitlementContext(redisKey);
+
+        if(Objects.isNull(entitlementsContext))
+            return false;
+
+        return entitlementsContext.getAllowedActions().contains(entitlementKey);
     }
 }
