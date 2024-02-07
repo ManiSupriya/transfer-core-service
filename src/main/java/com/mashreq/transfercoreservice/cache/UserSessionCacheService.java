@@ -1,28 +1,24 @@
 package com.mashreq.transfercoreservice.cache;
-import static com.mashreq.mobcommons.utils.ContextCacheKeysSuffix.ACCOUNTS;
-/**
- * Suresh Pasupuleti
- */
-import static com.mashreq.mobcommons.utils.ContextCacheKeysSuffix.ENTITLEMENTS;
-import static com.mashreq.ms.commons.CustomHtmlEscapeUtil.htmlEscape;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.USER_SESSION_CONTEXT_NOT_FOUND;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashreq.mobcommons.cache.MobRedisService;
 import com.mashreq.mobcommons.model.DerivedEntitlements;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.mobcommons.utils.ContextCacheKeysSuffix;
-import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.mashreq.ms.commons.cache.IAMSessionUser;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static com.mashreq.mobcommons.utils.ContextCacheKeysSuffix.ACCOUNTS;
+import static com.mashreq.ms.commons.CustomHtmlEscapeUtil.htmlEscape;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.USER_SESSION_CONTEXT_NOT_FOUND;
 
 @Slf4j
 @Service
@@ -34,6 +30,7 @@ public class UserSessionCacheService {
     public static final String INVESTMENT_ACCOUNT_NUMBERS = "investment-account-number";
     private static final String CARD_NUMBERS = "card-numbers";
     private final MobRedisService redisService;
+    private final ObjectMapper objectMapper;
     private static final TypeReference<Map<String, Object>> ACCOUNT_CONTEXT_TYPE_REFERENCE = new TypeReference<Map<String, Object>>() {};
     private static final TypeReference<Map<String, Object>> CARDS_CONTEXT_TYPE_REFERENCE = new TypeReference<Map<String, Object>>() {};
 
@@ -95,9 +92,10 @@ public class UserSessionCacheService {
     }
 
     public DerivedEntitlements extractEntitlementContext(final String redisKey){
-        final String entitlementsContextCacheKey = redisKey + ENTITLEMENTS.getSuffix();
-        DerivedEntitlements entitlementsContext = redisService.get(entitlementsContextCacheKey,DerivedEntitlements.class);
-        return entitlementsContext;
+        HashMap<String, Object> context = redisService.get(redisKey, HashMap.class);
+        DerivedEntitlements derivedEntitlements = objectMapper.convertValue(context.get(redisKey),
+                DerivedEntitlements.class);
+        return derivedEntitlements;
     }
 }
 
