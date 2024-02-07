@@ -252,25 +252,29 @@ public class LimitValidator implements ILimitValidator{
 
     private void handleErrorForLimits(LimitValidatorResponse  limitValidatorResultsDto, String remarks,
                                       RequestMetaData metaData){
-
+        TransferErrorCode transferErrorCode = null;
         if (limitErrorMap.containsKey(limitValidatorResultsDto.getCountRemark())
                 || limitErrorMap.containsKey(limitValidatorResultsDto.getAmountRemark())) {
 
             String remark = StringUtils.isNotBlank(limitValidatorResultsDto.getCountRemark()) ?
                     limitValidatorResultsDto.getCountRemark() : limitValidatorResultsDto.getAmountRemark();
 
-            TransferErrorCode transferErrorCode = limitErrorMap.get(remark);
+            transferErrorCode = limitErrorMap.get(remark);
+
+        } else if (limitValidatorResultsDto.getNextLimitChangeDate() != null &&
+             limitIncreaseEligibleMap.containsKey(limitValidatorResultsDto.getAmountRemark())) {
+
+            transferErrorCode = limitIncreaseEligibleMap.get(limitValidatorResultsDto.getAmountRemark());
+
+        }
+
+        if(transferErrorCode != null) {
             auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks,
                     transferErrorCode.getCustomErrorCode(), transferErrorCode.getErrorMessage(),
                     "limit check failed");
             GenericExceptionHandler.handleError(transferErrorCode, transferErrorCode.getErrorMessage());
-        } else if (limitValidatorResultsDto.getNextLimitChangeDate() != null &&
-             limitIncreaseEligibleMap.containsKey(limitValidatorResultsDto.getAmountRemark())) {
-            auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks,
-                    LIMIT_PACKAGE_NOT_DEFINED.getCustomErrorCode(), LIMIT_PACKAGE_NOT_DEFINED.getErrorMessage(),
-                    "limit check failed");
-            GenericExceptionHandler.handleError(LIMIT_PACKAGE_NOT_DEFINED, LIMIT_PACKAGE_NOT_DEFINED.getErrorMessage());
         }
+
     }
 
 }

@@ -3,6 +3,7 @@ import static com.mashreq.mobcommons.utils.ContextCacheKeysSuffix.ACCOUNTS;
 /**
  * Suresh Pasupuleti
  */
+import static com.mashreq.mobcommons.utils.ContextCacheKeysSuffix.ENTITLEMENTS;
 import static com.mashreq.ms.commons.CustomHtmlEscapeUtil.htmlEscape;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.USER_SESSION_CONTEXT_NOT_FOUND;
 
@@ -11,6 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.mashreq.mobcommons.cache.MobRedisService;
+import com.mashreq.mobcommons.model.DerivedEntitlements;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.mobcommons.utils.ContextCacheKeysSuffix;
 import org.springframework.stereotype.Service;
@@ -34,7 +36,7 @@ public class UserSessionCacheService {
     private final MobRedisService redisService;
     private static final TypeReference<Map<String, Object>> ACCOUNT_CONTEXT_TYPE_REFERENCE = new TypeReference<Map<String, Object>>() {};
     private static final TypeReference<Map<String, Object>> CARDS_CONTEXT_TYPE_REFERENCE = new TypeReference<Map<String, Object>>() {};
-    
+
     public boolean isAccountNumberBelongsToCif(final String accountNumber, final String redisKey) {
         Map<String, Object> accountsContext = validateAndReturnContext(redisKey);
         return Optional.ofNullable(accountsContext)
@@ -90,6 +92,12 @@ public class UserSessionCacheService {
                     .orElse(false);
         }
         return isOwnAccount;
+    }
+
+    public DerivedEntitlements extractEntitlementContext(final String redisKey){
+        final String entitlementsContextCacheKey = redisKey + ENTITLEMENTS.getSuffix();
+        DerivedEntitlements entitlementsContext = redisService.get(entitlementsContextCacheKey,DerivedEntitlements.class);
+        return entitlementsContext;
     }
 }
 

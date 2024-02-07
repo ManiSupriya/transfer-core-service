@@ -196,7 +196,7 @@ public class LimitValidatorTest {
             limitValidator.validateAvailableLimits(userDTO, beneficiaryType, paidAmount, metaData, benId);
         });
 
-        assertEquals(LIMIT_PACKAGE_NOT_DEFINED.getCustomErrorCode(), exception.getErrorCode());
+        assertEquals(DAILY_AMOUNT_REACHED.getCustomErrorCode(), exception.getErrorCode());
     }
 
     @Test
