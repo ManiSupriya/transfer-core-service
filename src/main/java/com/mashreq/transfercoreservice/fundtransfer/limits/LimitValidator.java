@@ -42,6 +42,8 @@ public class LimitValidator implements ILimitValidator{
     private static final Map<String, TransferErrorCode>  limitErrorMap =  new HashMap<>();
     private static final Map<String, TransferErrorCode>  limitIncreaseEligibleMap = new HashMap<>();
 
+    private static final List<String> blockedVerificationTypes = new ArrayList<>();
+
     static {
         limitErrorMap.put(LimitCheckType.MONTHLY_COUNT.name(),MONTHLY_COUNT_REACHED);
         limitErrorMap.put(LimitCheckType.DAILY_COUNT.name(), DAILY_COUNT_REACHED);
@@ -51,6 +53,9 @@ public class LimitValidator implements ILimitValidator{
 
         limitIncreaseEligibleMap.put(LimitCheckType.DAILY_AMOUNT.name(),DAILY_AMOUNT_REACHED);
         limitIncreaseEligibleMap.put(LimitCheckType.TRX_AMOUNT.name(), TRX_AMOUNT_REACHED);
+
+        blockedVerificationTypes.add(FundsTransferEligibility.NSTP.name());
+        blockedVerificationTypes.add(FundsTransferEligibility.STP_OTP_ELIGIBLE.name());
     }
 
 
@@ -266,6 +271,8 @@ public class LimitValidator implements ILimitValidator{
 
             transferErrorCode = limitIncreaseEligibleMap.get(limitValidatorResultsDto.getAmountRemark());
 
+        } else if(limitValidatorResultsDto.getVerificationType()!=null && blockedVerificationTypes.contains(limitValidatorResultsDto.getVerificationType())) {
+            transferErrorCode = LIMIT_PACKAGE_NOT_DEFINED;
         }
 
         if(transferErrorCode != null) {

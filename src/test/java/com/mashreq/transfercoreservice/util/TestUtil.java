@@ -166,6 +166,43 @@ public class TestUtil {
         return limitValidatorResultsDto;
     }
 
+    public static LimitValidatorResponse limitValidatorResultsDtoEligible(){
+        LimitValidatorResponse limitValidatorResultsDto = new LimitValidatorResponse();
+        limitValidatorResultsDto.setIsValid(true);
+        limitValidatorResultsDto.setTransactionRefNo("1234");
+        limitValidatorResultsDto.setMaxAmountMonthly("1500000");
+        limitValidatorResultsDto.setMonthlyUsedAmount("252003");
+        limitValidatorResultsDto.setMaxCountMonthly("1500");
+        limitValidatorResultsDto.setMonthlyUsedCount("3");
+        limitValidatorResultsDto.setMaxAmountDaily("200000");
+        limitValidatorResultsDto.setDailyUsedAmount("0");
+        limitValidatorResultsDto.setMaxCountDaily("300");
+        limitValidatorResultsDto.setDailyUsedCount("0");
+        limitValidatorResultsDto.setCoolingLimitAmount("20000");
+        limitValidatorResultsDto.setCoolingLimitCount("2");
+        limitValidatorResultsDto.setCoolingLimitAmount("0");
+        limitValidatorResultsDto.setCoolingLimitCount("0");
+        limitValidatorResultsDto.setMaxTrxAmount("200000");
+        limitValidatorResultsDto.setAmountRemark(null);
+        limitValidatorResultsDto.setCountRemark(null);
+        limitValidatorResultsDto.setCurrentAvailableAmount(BigDecimal.valueOf(200000));
+        limitValidatorResultsDto.setCoolingLimitCount("300");
+        limitValidatorResultsDto.setAllowedToChangeLimit(true);
+        limitValidatorResultsDto.setThreshold(BigDecimal.valueOf(500000));
+        limitValidatorResultsDto.setMinimumLimitAmount(1000);
+        limitValidatorResultsDto.setMaxMonthlyLimitChangeCount(1);
+        limitValidatorResultsDto.setUsedMonthlyLimitChangeCount(0);
+        limitValidatorResultsDto.setLimitChangeWindow("24");
+        limitValidatorResultsDto.setSegmentLimit(BigDecimal.valueOf(200000));
+        limitValidatorResultsDto.setLimitVersionUuid("C84495");
+        limitValidatorResultsDto.setTransactionRefNo("07022445416");
+        limitValidatorResultsDto.setErrorCode(null);
+        limitValidatorResultsDto.setLastLimitChangeDate("Fri Feb 02 15:36:26 GST 2024");
+        limitValidatorResultsDto.setNextLimitChangeDate(null);
+        limitValidatorResultsDto.setVerificationType("ELIGIBLE");
+        return limitValidatorResultsDto;
+    }
+
     public static LimitValidatorResponse limitValidatorResultsDtoWithErrorCodes(String txnRefNo){
         LimitValidatorResponse limitValidatorResultsDto = new LimitValidatorResponse();
         limitValidatorResultsDto.setIsValid(true);

@@ -102,6 +102,8 @@ public class INFTAccountEligibilityServiceTest {
                 .allowedActions(allowedActions)
                 .build();
 
+        LimitValidatorResponse expectedLimitResponse = TestUtil.limitValidatorResultsDtoEligible();
+
         when(currencyValidatorFactory.getValidator(any())).thenReturn(currencyValidator);
         when(limitValidatorFactory.getValidator(any())).thenReturn(limitValidator);
 		when(currencyValidator.validate(any(),any(),any())).thenReturn(validationResult);
@@ -111,7 +113,7 @@ public class INFTAccountEligibilityServiceTest {
         when(maintenanceService.convertCurrency(any())).thenReturn(TestUtil.getCurrencyConversionDto());
         when(accountService.getAccountDetailsFromCache(any(), any())).thenReturn(new AccountDetailsDTO());
         when(limitManagementConfig.getCountries()).thenReturn(configfields);
-        when(limitValidator.validateAvailableLimits(any(), any(), any(), any(), any())).thenReturn(TestUtil.limitValidatorResultsDto(null));
+        when(limitValidator.validateAvailableLimits(any(), any(), any(), any(), any())).thenReturn(expectedLimitResponse);
         when(userSessionCacheService.extractEntitlementContext(any())).thenReturn(derivedEntitlements);
 
         EligibilityResponse response = service.checkEligibility(metaData, fundTransferEligibiltyRequestDTO, userDTO);
@@ -119,6 +121,9 @@ public class INFTAccountEligibilityServiceTest {
 
         assertNotNull(response);
         assertTrue(limitValidatorResponse.getIsValid());
+        assertNull(limitValidatorResponse.getAmountRemark());
+        assertNull(limitValidatorResponse.getCountRemark());
+        assertNull(limitValidatorResponse.getNextLimitChangeDate());
         assertEquals(response.getStatus(), FundsTransferEligibility.ELIGIBLE);
     }
 

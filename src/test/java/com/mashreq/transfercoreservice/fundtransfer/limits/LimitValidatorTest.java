@@ -362,4 +362,38 @@ public class LimitValidatorTest {
 
         assertEquals(LIMIT_PACKAGE_NOT_DEFINED.getCustomErrorCode(), exception.getErrorCode());
     }
+
+    @Test
+    public void testValidateAvailableLimitsErrorEFRAndNSTPVerificationTypes() {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setCifId("123456");
+
+        String beneficiaryType = "INFT";
+        BigDecimal paidAmount = new BigDecimal(1000);
+
+        RequestMetaData metaData = RequestMetaData.builder()
+                .primaryCif("123456")
+                .channel("MOBILE")
+                .build();
+
+        Long benId = 654321L;
+
+
+        LimitValidatorResponse limitValidatorResponse = LimitValidatorResponse.builder()
+                .isValid(false)
+                .verificationType("NSTP")
+                .build();
+
+        Response<LimitValidatorResponse> response = new Response<>();
+        response.setStatus(ResponseStatus.SUCCESS);
+        response.setData(limitValidatorResponse);
+
+        Mockito.when(mobCommonClient.getAvailableLimits(any())).thenReturn(response);
+
+        GenericException exception = Assertions.assertThrows(GenericException.class, ()->{
+            limitValidator.validateAvailableLimits(userDTO, beneficiaryType, paidAmount, metaData, benId);
+        });
+
+        assertEquals(LIMIT_PACKAGE_NOT_DEFINED.getCustomErrorCode(), exception.getErrorCode());
+    }
 }
