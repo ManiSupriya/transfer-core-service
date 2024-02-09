@@ -166,6 +166,15 @@ public class INFTAccountEligibilityService implements TransferEligibilityService
         if(Objects.isNull(entitlementsContext))
             return false;
 
+        log.info("Dervived Entitlements: "+entitlementsContext);
+
+        boolean val = entitlementsContext.getAllowedActions().contains(entitlementKey);
+
+        log.info("Entitlement val: "+val);
+
+        log.info("Entitlement Key: "+entitlementKey);
+
+        log.info("Redis Key: "+redisKey);
         return entitlementsContext.getAllowedActions().contains(entitlementKey);
     }
 }
