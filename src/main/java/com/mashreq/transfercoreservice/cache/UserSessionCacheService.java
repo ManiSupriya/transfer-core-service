@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.mashreq.mobcommons.utils.ContextCacheKeysSuffix.ACCOUNTS;
+import static com.mashreq.mobcommons.utils.ContextCacheKeysSuffix.ENTITLEMENTS;
 import static com.mashreq.ms.commons.CustomHtmlEscapeUtil.htmlEscape;
 import static com.mashreq.transfercoreservice.errors.TransferErrorCode.USER_SESSION_CONTEXT_NOT_FOUND;
 
@@ -92,7 +93,8 @@ public class UserSessionCacheService {
     }
 
     public DerivedEntitlements extractEntitlementContext(final String redisKey){
-        HashMap<String, Object> context = redisService.get(redisKey, HashMap.class);
+        String entitlementsContextKey = redisKey + ENTITLEMENTS.getSuffix();
+        HashMap<String, Object> context = redisService.get(entitlementsContextKey, HashMap.class);
         DerivedEntitlements derivedEntitlements = objectMapper.convertValue(context.get(redisKey),
                 DerivedEntitlements.class);
         return derivedEntitlements;
