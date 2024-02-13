@@ -50,7 +50,7 @@
         <com.mashreq.ms.ms-commons>3.0.2-RELEASE</com.mashreq.ms.ms-commons>
         <com.mashreq.tracing>3.1.2-RELEASE</com.mashreq.tracing>
         <com.mashreq.mob-commons>3.5.3-RELEASE</com.mashreq.mob-commons>
-        <com.mashreq.dedupe-util>1.0.4</com.mashreq.dedupe-util>
+        <com.mashreq.dedupe-util>3.0.2-RELEASE</com.mashreq.dedupe-util>
         <com.mashreq.transaction-authorization-client.version>3.0.4-RELEASE</com.mashreq.transaction-authorization-client.version>
         <!-- additional deps and plugins versions -->
         <mapstruct.version>1.3.1.Final</mapstruct.version>
