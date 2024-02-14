@@ -192,11 +192,9 @@ public class LimitValidatorTest {
 
         Mockito.when(mobCommonClient.getAvailableLimits(any())).thenReturn(response);
 
-        GenericException exception = Assertions.assertThrows(GenericException.class, ()->{
-            limitValidator.validateAvailableLimits(userDTO, beneficiaryType, paidAmount, metaData, benId);
-        });
+        LimitValidatorResponse  limitValidatorResultsDto =  limitValidator.validateAvailableLimits(userDTO, beneficiaryType, paidAmount, metaData, benId);
 
-        assertEquals(DAILY_AMOUNT_REACHED.getCustomErrorCode(), exception.getErrorCode());
+        assertEquals(FundsTransferEligibility.LIMIT_INCREASE_NOT_ELIGIBLE.name(), limitValidatorResultsDto.getVerificationType());
     }
 
     @Test

@@ -55,7 +55,7 @@ public class LimitValidator implements ILimitValidator{
         limitIncreaseEligibleMap.put(LimitCheckType.TRX_AMOUNT.name(), TRX_AMOUNT_REACHED);
 
         blockedVerificationTypes.add(FundsTransferEligibility.NSTP.name());
-        blockedVerificationTypes.add(FundsTransferEligibility.STP_OTP_ELIGIBLE.name());
+        blockedVerificationTypes.add(FundsTransferEligibility.EFR_ELIGIBLE.name());
     }
 
 
@@ -223,9 +223,11 @@ public class LimitValidator implements ILimitValidator{
 
             if (!Objects.isNull(limitValidatorResultsDto.getMaxMonthlyLimitChangeCount())
                     && !Objects.isNull(limitValidatorResultsDto.getUsedMonthlyLimitChangeCount())
-            && limitValidatorResultsDto.getMaxMonthlyLimitChangeCount()
-                    .equals(limitValidatorResultsDto.getUsedMonthlyLimitChangeCount())
-                    || (limitValidatorResultsDto.getNextLimitChangeDate() != null)) {
+                    && limitValidatorResultsDto.getMaxMonthlyLimitChangeCount()
+                        .equals(limitValidatorResultsDto.getUsedMonthlyLimitChangeCount())
+                    || !(Objects.isNull(limitValidatorResultsDto.getNextLimitChangeDate()))
+                    || (!(Objects.isNull(limitValidatorResultsDto.getNextLimitChangeDate()))
+                    && limitIncreaseEligibleMap.containsKey(limitValidatorResultsDto.getAmountRemark()))) {
 
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks,
                         LIMIT_CHANGE_NOT_ELIGIBLE.getCustomErrorCode(),
@@ -266,17 +268,12 @@ public class LimitValidator implements ILimitValidator{
 
             transferErrorCode = limitErrorMap.get(remark);
 
-        } else if (limitValidatorResultsDto.getNextLimitChangeDate() != null
-                && limitIncreaseEligibleMap.containsKey(limitValidatorResultsDto.getAmountRemark())) {
-
-            transferErrorCode = limitIncreaseEligibleMap.get(limitValidatorResultsDto.getAmountRemark());
-
-        } else if(limitValidatorResultsDto.getVerificationType()!=null
+        }  else if(limitValidatorResultsDto.getVerificationType()!=null
                 && blockedVerificationTypes.contains(limitValidatorResultsDto.getVerificationType())) {
             transferErrorCode = LIMIT_PACKAGE_NOT_DEFINED;
         }
 
-        if(transferErrorCode != null) {
+        if(!Objects.isNull(transferErrorCode)) {
             auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks,
                     transferErrorCode.getCustomErrorCode(), transferErrorCode.getErrorMessage(),
                     "limit check failed");
