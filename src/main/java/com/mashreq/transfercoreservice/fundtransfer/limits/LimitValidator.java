@@ -221,19 +221,19 @@ public class LimitValidator implements ILimitValidator{
             // Error Handling for Limits
             handleErrorForLimits(limitValidatorResultsDto, remarks, metaData);
 
-            if (!Objects.isNull(limitValidatorResultsDto.getMaxMonthlyLimitChangeCount())
-                    && !Objects.isNull(limitValidatorResultsDto.getUsedMonthlyLimitChangeCount())
+            if (Objects.nonNull(limitValidatorResultsDto.getMaxMonthlyLimitChangeCount())
+                    && Objects.nonNull(limitValidatorResultsDto.getUsedMonthlyLimitChangeCount())
                     && limitValidatorResultsDto.getMaxMonthlyLimitChangeCount()
                         .equals(limitValidatorResultsDto.getUsedMonthlyLimitChangeCount())
-                    || !(Objects.isNull(limitValidatorResultsDto.getNextLimitChangeDate()))
-                    || (!(Objects.isNull(limitValidatorResultsDto.getNextLimitChangeDate()))
+                    || Objects.nonNull(limitValidatorResultsDto.getNextLimitChangeDate())
+                    || (Objects.nonNull(limitValidatorResultsDto.getNextLimitChangeDate())
                     && limitIncreaseEligibleMap.containsKey(limitValidatorResultsDto.getAmountRemark()))) {
 
                 auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks,
                         LIMIT_CHANGE_NOT_ELIGIBLE.getCustomErrorCode(),
                         LIMIT_CHANGE_NOT_ELIGIBLE.getErrorMessage(), "limit check failed");
                 limitValidatorResultsDto.setVerificationType(FundsTransferEligibility.LIMIT_INCREASE_NOT_ELIGIBLE.name());
-            } else if (!Objects.isNull(limitValidatorResultsDto.getAmountRemark())
+            } else if (Objects.nonNull(limitValidatorResultsDto.getAmountRemark())
                         && LimitCheckType.DAILY_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark())
                         || (LimitCheckType.TRX_AMOUNT.name().equals(limitValidatorResultsDto.getAmountRemark()))) {
 
@@ -273,7 +273,7 @@ public class LimitValidator implements ILimitValidator{
             transferErrorCode = LIMIT_PACKAGE_NOT_DEFINED;
         }
 
-        if(!Objects.isNull(transferErrorCode)) {
+        if(Objects.nonNull(transferErrorCode)) {
             auditEventPublisher.publishFailureEvent(LIMIT_VALIDATION, metaData, remarks,
                     transferErrorCode.getCustomErrorCode(), transferErrorCode.getErrorMessage(),
                     "limit check failed");
