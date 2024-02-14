@@ -266,12 +266,13 @@ public class LimitValidator implements ILimitValidator{
 
             transferErrorCode = limitErrorMap.get(remark);
 
-        } else if (limitValidatorResultsDto.getNextLimitChangeDate() != null &&
-             limitIncreaseEligibleMap.containsKey(limitValidatorResultsDto.getAmountRemark())) {
+        } else if (limitValidatorResultsDto.getNextLimitChangeDate() != null
+                && limitIncreaseEligibleMap.containsKey(limitValidatorResultsDto.getAmountRemark())) {
 
             transferErrorCode = limitIncreaseEligibleMap.get(limitValidatorResultsDto.getAmountRemark());
 
-        } else if(limitValidatorResultsDto.getVerificationType()!=null && blockedVerificationTypes.contains(limitValidatorResultsDto.getVerificationType())) {
+        } else if(limitValidatorResultsDto.getVerificationType()!=null
+                && blockedVerificationTypes.contains(limitValidatorResultsDto.getVerificationType())) {
             transferErrorCode = LIMIT_PACKAGE_NOT_DEFINED;
         }
 

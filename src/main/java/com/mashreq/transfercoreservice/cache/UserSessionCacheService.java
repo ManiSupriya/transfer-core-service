@@ -95,7 +95,7 @@ public class UserSessionCacheService {
     public DerivedEntitlements extractEntitlementContext(final String redisKey){
         String entitlementsContextKey = redisKey + ENTITLEMENTS.getSuffix();
         HashMap<String, Object> context = redisService.get(entitlementsContextKey, HashMap.class);
-        DerivedEntitlements derivedEntitlements = objectMapper.convertValue(context.get(redisKey),
+        DerivedEntitlements derivedEntitlements = objectMapper.convertValue(context.get(entitlementsContextKey),
                 DerivedEntitlements.class);
         return derivedEntitlements;
     }
