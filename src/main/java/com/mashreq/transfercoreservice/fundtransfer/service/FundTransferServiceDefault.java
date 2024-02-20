@@ -90,7 +90,6 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final TwoFactorAuthRequiredCheckService service;
 
     private final TransferLimitService transferLimitService;
-    private static final String WYMA_FUND_TRANSFER_POP = "Own Account Transfer";
 
     @Value("${spring.profiles.active}")
     private String activeProfile;
@@ -360,7 +359,7 @@ public class FundTransferServiceDefault implements FundTransferService {
                 .chargeBearer(StringUtils.isNotEmpty(request.getChargeBearer())? ChargeBearer.valueOf(request.getChargeBearer()):null)
                 .debitAmount(fundTransferResponse.getDebitAmount()!= null ? fundTransferResponse.getDebitAmount().toPlainString():null)
                 .beneficiaryId(StringUtils.isNotBlank(request.getBeneficiaryId())?Long.valueOf(request.getBeneficiaryId()):null)
-                .transferPurpose(Objects.equals(request.getServiceType(), "WYMA") ? WYMA_FUND_TRANSFER_POP :request.getPurposeDesc())
+                .transferPurpose(request.getPurposeDesc())
                 .dealNumber(request.getDealNumber())
                 .build();
     }
