@@ -49,7 +49,6 @@ import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.EnumMap;
-import java.util.Objects;
 import java.util.Optional;
 
 import static com.mashreq.transfercoreservice.common.HtmlEscapeCache.htmlEscape;
