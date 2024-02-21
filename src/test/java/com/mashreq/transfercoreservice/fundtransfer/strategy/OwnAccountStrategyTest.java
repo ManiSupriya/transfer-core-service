@@ -268,4 +268,5 @@ public class OwnAccountStrategyTest {
         assertNotNull(response);
     }
 
+    
 }
