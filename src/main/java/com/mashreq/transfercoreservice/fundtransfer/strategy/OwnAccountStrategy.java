@@ -395,8 +395,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
    	return request.getProductId();
    }
 
-    private FundTransferRequestDTO setPurposeOfPayment(FundTransferRequestDTO request) {
+    private void setPurposeOfPayment(FundTransferRequestDTO request) {
         request.setPurposeDesc(WYMA_FUND_TRANSFER_POP);
-        return request;
     }
 }
