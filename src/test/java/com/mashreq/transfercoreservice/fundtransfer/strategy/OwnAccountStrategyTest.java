@@ -110,6 +110,7 @@ public class OwnAccountStrategyTest {
         FundTransferResponse response = service.execute(fundTransferRequestDTO, metaData, userDTO);
         assertNotNull(response);
         assertEquals(txnRefNo, response.getTransactionRefNo());
+        assertEquals("Own Account Transfer", fundTransferRequestDTO.getPurposeDesc());
 
         when(fundTransferMWService.transfer(any(), any(),eq(txnRefNo))).thenReturn(fundTransferResponse(txnRefNo, MwResponseStatus.F));
         response = service.execute(fundTransferRequestDTO, metaData, userDTO);
@@ -146,6 +147,7 @@ public class OwnAccountStrategyTest {
         FundTransferResponse response = service.execute(fundTransferRequestDTO, metaData, userDTO);
         assertNotNull(response);
         assertEquals(txnRefNo, response.getTransactionRefNo());
+        assertEquals("Own Account Transfer", fundTransferRequestDTO.getPurposeDesc());
 
         when(fundTransferMWService.transfer(any(), any(),eq(txnRefNo))).thenReturn(fundTransferResponse(txnRefNo, MwResponseStatus.F));
         response = service.execute(fundTransferRequestDTO, metaData, userDTO);
@@ -183,6 +185,7 @@ public class OwnAccountStrategyTest {
         FundTransferResponse response = service.execute(fundTransferRequestDTO, metaData, userDTO);
         assertNotNull(response);
         assertEquals(txnRefNo, response.getTransactionRefNo());
+        assertEquals("Own Account Transfer", fundTransferRequestDTO.getPurposeDesc());
 
         when(fundTransferMWService.transfer(any(), any(),eq(txnRefNo))).thenReturn(fundTransferResponse(txnRefNo, MwResponseStatus.F));
         response = service.execute(fundTransferRequestDTO, metaData, userDTO);
@@ -220,6 +223,7 @@ public class OwnAccountStrategyTest {
         FundTransferResponse response = service.execute(fundTransferRequestDTO, metaData, userDTO);
         assertNotNull(response);
         assertEquals(txnRefNo, response.getTransactionRefNo());
+        assertEquals("Own Account Transfer", fundTransferRequestDTO.getPurposeDesc());
 
         when(fundTransferMWService.transfer(any(), any(),eq(txnRefNo))).thenReturn(fundTransferResponse(txnRefNo, MwResponseStatus.F));
         response = service.execute(fundTransferRequestDTO, metaData, userDTO);
@@ -257,12 +261,11 @@ public class OwnAccountStrategyTest {
         FundTransferResponse response = service.execute(fundTransferRequestDTO, metaData, userDTO);
         assertNotNull(response);
         assertEquals(txnRefNo, response.getTransactionRefNo());
+        assertEquals("Own Account Transfer", fundTransferRequestDTO.getPurposeDesc());
 
         when(fundTransferMWService.transfer(any(), any(),eq(txnRefNo))).thenReturn(fundTransferResponse(txnRefNo, MwResponseStatus.F));
         response = service.execute(fundTransferRequestDTO, metaData, userDTO);
         assertNotNull(response);
     }
-
-
 
 }
