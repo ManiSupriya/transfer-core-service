@@ -94,6 +94,8 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, RequestMetaData metadata, UserDTO userDTO) {
 
+        setPurposeOfPayment(request);
+
         Instant start = Instant.now();
 
         responseHandler(sameAccountValidator.validate(request, metadata));
@@ -183,8 +185,6 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         final FundTransferResponse fundTransferResponse = processTransfer(metadata, validationResult, fundTransferRequest,request);
 
         handleSuccessfulTransaction(request, metadata, userDTO, transactionAmount, validationResult, fundTransferResponse, fundTransferRequest);
-
-        popBuilder(request);
 
         log.info("Total time taken for {} strategy {} milli seconds ", htmlEscape(request.getServiceType()), htmlEscape(Long.toString(between(start, now()).toMillis())));
         prepareAndCallPostTransactionActivity(metadata,fundTransferRequest,request,fundTransferResponse,conversionResult);
@@ -395,7 +395,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
    	return request.getProductId();
    }
 
-    private FundTransferRequestDTO popBuilder(FundTransferRequestDTO request) {
+    private FundTransferRequestDTO setPurposeOfPayment(FundTransferRequestDTO request) {
         request.setPurposeDesc(WYMA_FUND_TRANSFER_POP);
         return request;
     }
