@@ -69,6 +69,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     private static final String MB_META = "MBMETA";
     private static final String MB_META_PROD_ID = "MT5I";
     public static final String TRANSFER_AMOUNT_FOR_MIN_VALIDATION = "transfer-amount-for-min-validation";
+    private static final String WYMA_FUND_TRANSFER_POP = "Own Account Transfer";
 
     private final AccountBelongsToCifValidator accountBelongsToCifValidator;
     private final SameAccountValidator sameAccountValidator;
@@ -93,6 +94,8 @@ public class OwnAccountStrategy implements FundTransferStrategy {
     @Override
     public FundTransferResponse execute(FundTransferRequestDTO request, RequestMetaData metadata, UserDTO userDTO) {
 
+        setPurposeOfPayment(request);
+
         Instant start = Instant.now();
 
         responseHandler(sameAccountValidator.validate(request, metadata));
@@ -102,7 +105,7 @@ public class OwnAccountStrategy implements FundTransferStrategy {
         validateAccountContext.add("account-details", accountsFromCore);
         validateAccountContext.add("validate-to-account", Boolean.TRUE);
         validateAccountContext.add("validate-from-account", Boolean.TRUE);
-        
+
         validateAccountFreezeDetails(request, metadata, validateAccountContext);
 
         responseHandler(accountBelongsToCifValidator.validate(request, metadata, validateAccountContext));
@@ -391,4 +394,8 @@ public class OwnAccountStrategy implements FundTransferStrategy {
    	}
    	return request.getProductId();
    }
+
+    private void setPurposeOfPayment(FundTransferRequestDTO request) {
+        request.setPurposeDesc(WYMA_FUND_TRANSFER_POP);
+    }
 }
