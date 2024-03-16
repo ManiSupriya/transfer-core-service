@@ -40,6 +40,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -76,6 +77,8 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final DigitalUserRepository digitalUserRepository;
     private final TransactionRepository transactionRepository;
     private final DigitalUserLimitUsageService digitalUserLimitUsageService;
+
+    @Qualifier("OwnAccountPayLaterStrategy")
     private final OwnAccountStrategy ownAccountStrategy;
     private final WithinMashreqStrategy withinMashreqStrategy;
     private final LocalFundTransferStrategy localFundTransferStrategy;

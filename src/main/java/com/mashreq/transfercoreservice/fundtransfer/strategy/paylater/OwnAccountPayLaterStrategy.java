@@ -44,7 +44,7 @@ import com.mashreq.transfercoreservice.paylater.utils.SequenceNumberGenerator;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Service
+@Service("OwnAccountPayLaterStrategy")
 public class OwnAccountPayLaterStrategy extends OwnAccountStrategy {
 	private final FundTransferOrderRepository fundTransferOrderRepository;
 	private final SequenceNumberGenerator seqGenerator;
