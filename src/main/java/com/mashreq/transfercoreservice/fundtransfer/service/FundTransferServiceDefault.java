@@ -77,12 +77,18 @@ public class FundTransferServiceDefault implements FundTransferService {
     private final DigitalUserRepository digitalUserRepository;
     private final TransactionRepository transactionRepository;
     private final DigitalUserLimitUsageService digitalUserLimitUsageService;
-
-    @Qualifier("OwnAccountPayLaterStrategy")
+    @Qualifier("ownAccountStrategy")
     private final OwnAccountStrategy ownAccountStrategy;
+
+    @Qualifier("withinMashreqStrategy")
     private final WithinMashreqStrategy withinMashreqStrategy;
+
+    @Qualifier("localFundTransferStrategy")
     private final LocalFundTransferStrategy localFundTransferStrategy;
+
+    @Qualifier("internationalFundTransferStrategy")
     private final InternationalFundTransferStrategy internationalFundTransferStrategy;
+
     private final CharityStrategyDefault charityStrategyDefault;
     private final AsyncUserEventPublisher auditEventPublisher;
     protected EnumMap<ServiceType, FundTransferStrategy> fundTransferStrategies;
