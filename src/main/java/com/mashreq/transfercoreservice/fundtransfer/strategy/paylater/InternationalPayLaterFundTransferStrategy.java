@@ -52,7 +52,7 @@ import com.mashreq.transfercoreservice.paylater.utils.SequenceNumberGenerator;
 
 import lombok.extern.slf4j.Slf4j;
 @Slf4j
-@Service
+@Service("internationalPayLaterFundTransferStrategy")
 public class InternationalPayLaterFundTransferStrategy extends InternationalFundTransferStrategy {
 	private final FundTransferOrderRepository fundTransferOrderRepository;
 	private final SequenceNumberGenerator seqGenerator;
