@@ -356,3 +356,5 @@ escrow-accounts:
   trustAccounts: ${TRUST_ACCOUNTS_LIST:CDPTRU,CLNRTN,ITRSTN,ITRSTR}
   oaAccounts: ${OA_ACCOUNTS_LIST:CTROAE,CTROAR,ITROWA,ITROAR}
   defaultProjectName: ${DEFAULT_PROJECT_NAME:DUMMY}
+twofa-client:
+  secretkey: ${TWOFA_CLIENT_SECRET}
