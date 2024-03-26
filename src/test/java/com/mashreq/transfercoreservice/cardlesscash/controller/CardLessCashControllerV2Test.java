@@ -91,14 +91,15 @@ public class CardLessCashControllerV2Test {
 			BigDecimal amount = new BigDecimal("1000");
 			String mobileNo = "";
 			String userId = "12345";
-			var cardLessCashGenerationRequestV2 = CardLessCashGenerationRequestV2.builder()
-					.accountNo(accountNumber)
-					.amount(amount)
-					.currencyCode("AED")
-					.sourceIdentifier("12312")
-					.sourceType("MOB")
-					.transactionType("Card Less Cash")
-					.build();
+
+			var cardLessCashGenerationRequestV2 = new CardLessCashGenerationRequestV2(
+					accountNumber,
+					amount,
+					"AED",
+					"12312",
+					"MOB",
+					"Card Less Cash",
+					"");
 			var cardLessCashGenerationRes = new CardLessCashGenerationResponse();
 			cardLessCashGenerationRes.setExpiryDateTime(LocalDateTime.now());
 			cardLessCashGenerationRes.setReferenceNumber("test");

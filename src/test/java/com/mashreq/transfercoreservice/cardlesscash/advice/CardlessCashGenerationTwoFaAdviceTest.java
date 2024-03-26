@@ -63,14 +63,13 @@ public class CardlessCashGenerationTwoFaAdviceTest {
                 "Call us at {callcenter_contact} if you haven't initiated this";
         ReflectionTestUtils.setField(cardlessCashGenerationTwoFaAdvice, "cardlessCashTxnOtpMsg", cardLessCashMsg);
 
-        var cardLessCashGenerationRequestV2 = CardLessCashGenerationRequestV2.builder()
-                .accountNo(accountNumber)
-                .amount(amount)
-                .currencyCode("AED")
-                .sourceIdentifier("12312")
-                .sourceType("MOB")
-                .transactionType("Card Less Cash")
-                .build();
+        var cardLessCashGenerationRequestV2 = new CardLessCashGenerationRequestV2();
+        cardLessCashGenerationRequestV2.setAccountNo(accountNumber);
+        cardLessCashGenerationRequestV2.setAmount(amount);
+        cardLessCashGenerationRequestV2.setCurrencyCode("AED");
+        cardLessCashGenerationRequestV2.setSourceIdentifier("12312");
+        cardLessCashGenerationRequestV2.setSourceType("MOB");
+        cardLessCashGenerationRequestV2.setTransactionType("Card Less Cash");
 
         var segment = new Segment();
         segment.setName("GOLD");
