@@ -28,14 +28,4 @@ public enum CardlessCashErrorCode implements ErrorCode {
         return errorCode;
     }
 
-    public String getMessage() {
-        return message;
-    }
-
-    public static CardlessCashErrorCode getMobCustomerErrorCode(String name) {
-        return Stream.of(CardlessCashErrorCode.values())
-                .filter(type -> type.name().equals(name))
-                .findFirst()
-                .orElse(null);
-    }
 }

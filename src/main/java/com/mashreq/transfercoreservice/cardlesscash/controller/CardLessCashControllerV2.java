@@ -65,8 +65,8 @@ public class CardLessCashControllerV2 {
 		log.info("cardLessCash GenerationRequest {} ", htmlEscape(cardLessCashGenerationRequestV2));
 		asyncUserEventPublisher.publishStartedEvent(FundTransferEventType.CARD_LESS_CASH_GENERATION_REQUEST, metaData,
 				CARD_LESS_CASH);
-		assertMobileNo(userMobileNumber, metaData);
-		checkAccountBelongsToUser(cardLessCashGenerationRequestV2.getAccountNo(), metaData);
+		assertMobileNumber(userMobileNumber, metaData);
+		checkAccountNumberBelongsToUser(cardLessCashGenerationRequestV2.getAccountNo(), metaData);
 
 		var cardlessCashRequest = CardLessCashGenerationRequest.builder()
 				.accountNo(cardLessCashGenerationRequestV2.getAccountNo())
@@ -80,11 +80,11 @@ public class CardLessCashControllerV2 {
 		return cardLessCashGenerationResponse;
 	}
     
-	private void checkAccountBelongsToUser(final String accountNumber, RequestMetaData metaData){
+	private void checkAccountNumberBelongsToUser(final String accountNumber, RequestMetaData metaData){
 		accountService.getAccountsIfNotInCache(metaData);
-		assertAccountBelongsToUser(accountNumber,metaData);
+		assertAccountNumberBelongsToUser(accountNumber,metaData);
 	}
-    private void assertAccountBelongsToUser(final String accountNumber, RequestMetaData metaData) {
+    private void assertAccountNumberBelongsToUser(final String accountNumber, RequestMetaData metaData) {
  	   log.info("cardLessCash  Account Details {} Validation with User", htmlEscape(accountNumber));
          if (!userSessionCacheService.isAccountNumberBelongsToCif(accountNumber, metaData.getUserCacheKey())) {
          	asyncUserEventPublisher.publishFailedEsbEvent(FundTransferEventType.CARD_LESS_CASH_ACCOUNT_NUMBER_DOES_NOT_MATCH,
@@ -98,7 +98,7 @@ public class CardLessCashControllerV2 {
      }
 
 
-	private void assertMobileNo(final String mobileNumber, RequestMetaData metaData) {
+	private void assertMobileNumber(final String mobileNumber, RequestMetaData metaData) {
      	log.info("cardLessCash  mobileNumber {} Validation", htmlEscape(mobileNumber));
      	 /*
          * Bug 35838 - BE|Cardless cash -Getting request failed due to validation of mobile digit number

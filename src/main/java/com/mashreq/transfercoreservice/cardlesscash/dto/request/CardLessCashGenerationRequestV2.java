@@ -18,7 +18,7 @@ import java.math.BigDecimal;
 @SuperBuilder
 public class CardLessCashGenerationRequestV2 extends TwoFaBaseModel {
 	@NotNull(message = "Account Number is manadatory field")
-    @Pattern(regexp = "^[0-9]{12}$", message = "accountNum should have only twelve nummbers")
+    @Pattern(regexp = "^\\d{12}$", message = "accountNum should have only twelve nummbers")
     private String accountNo;
     @DecimalMin(value = "100.00", message = "Amount should be multiples of hundred")
     @Digits(integer=4, fraction=2)

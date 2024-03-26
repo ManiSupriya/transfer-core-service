@@ -1,6 +1,5 @@
 package com.mashreq.transfercoreservice.cardlesscash.service;
 
-import com.mashreq.logcore.annotations.TrackExecTimeAndResult;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
 import com.mashreq.transfercoreservice.cardlesscash.repository.DigitalUserSegmentRepository;
 import com.mashreq.transfercoreservice.model.Segment;
@@ -19,7 +18,7 @@ public class DigitalUserSegmentService {
     
     public Segment getDigitalUserSegmentByName(String name) {
         var segment = digitalUserSegmentRepository.findByName(name);
-        if (!segment.isPresent()) {
+        if (segment.isEmpty()) {
             GenericExceptionHandler.handleError(SEGMENT_NOT_FOUND, SEGMENT_NOT_FOUND.getMessage());
         }
         return segment.get();
