@@ -70,6 +70,7 @@ public class CardlessCashGenerationTwoFaAdviceTest {
         cardLessCashGenerationRequestV2.setSourceIdentifier("12312");
         cardLessCashGenerationRequestV2.setSourceType("MOB");
         cardLessCashGenerationRequestV2.setTransactionType("Card Less Cash");
+        cardLessCashGenerationRequestV2.setBeneficiaryName("Bene1");
 
         var segment = new Segment();
         segment.setName("GOLD");
