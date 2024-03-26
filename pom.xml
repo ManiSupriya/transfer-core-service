@@ -34,7 +34,8 @@
             **/repository/*,
             **/errors/*,
             **/dto/*,
-            **/config/**
+            **/config/**,
+            **/cardlesscash/dto/request/*
         </sonar.exclusions>
         <sonar.test.exclusions>
             src/test/**/*
