@@ -358,3 +358,9 @@ escrow-accounts:
   defaultProjectName: ${DEFAULT_PROJECT_NAME:DUMMY}
 twofa-client:
   secretkey: ${TWOFA_CLIENT_SECRET}
+
+twofa:
+  otp:
+    cardless-cash:
+      msg: ${CARDLESS_CASH_TXN_OTP_MSG:is OTP for {txn_type} from {paymnt_source} ending {masked_account_no} for {currency} {amount}. Call us at {callcenter_contact} if you haven't initiated this}
+    count: ${OTP_MSG_REMAINING_CHAR:37}

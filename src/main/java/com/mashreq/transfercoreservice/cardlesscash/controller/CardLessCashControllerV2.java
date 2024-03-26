@@ -4,15 +4,12 @@ package com.mashreq.transfercoreservice.cardlesscash.controller;
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.ms.exceptions.GenericExceptionHandler;
-import com.mashreq.transactionauth.annotations.RequiresAuthorization;
 import com.mashreq.transfercoreservice.cache.UserSessionCacheService;
+import com.mashreq.transfercoreservice.cardlesscash.advice.CardlessCashGenerationTwoFaAdvice;
 import com.mashreq.transfercoreservice.cardlesscash.constants.CardLessCashConstants;
-import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashBlockRequest;
 import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashGenerationRequest;
-import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashQueryRequest;
-import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashBlockResponse;
+import com.mashreq.transfercoreservice.cardlesscash.dto.request.CardLessCashGenerationRequestV2;
 import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashGenerationResponse;
-import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashQueryResponse;
 import com.mashreq.transfercoreservice.cardlesscash.service.CardLessCashService;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
@@ -27,8 +24,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mashreq.twofa.annotations.RequiredTwoFa;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 import static com.mashreq.ms.commons.cache.HeaderNames.X_USSM_USER_LOGIN_ID;
 import static com.mashreq.ms.commons.cache.HeaderNames.X_USSM_USER_MOBILE_NUMBER;
@@ -52,7 +47,7 @@ public class CardLessCashControllerV2 {
     /**
      * the CLC(Card Less Cash) generation request.
      *
-     * @param //Request CardLessCashGenerationRequest
+     * @param //Request CardLessCashGenerationRequestV2
      * @return Response<CardLessCashGenerationResponse>
      */
     @Operation( summary="This operation is responsible for remit generation for card less cash request.")
@@ -61,19 +56,24 @@ public class CardLessCashControllerV2 {
             @ApiResponse(responseCode = "401", description = "You are not authorized to view the resource")
     })
     @PostMapping(CardLessCashConstants.URL.CLC_REQUEST_URL)
-	@RequiredTwoFa(transactionType = "CLC" )
+	@RequiredTwoFa(twoFaAdviceClass = CardlessCashGenerationTwoFaAdvice.class)
 	public Response<CardLessCashGenerationResponse> cardLessCashRemitGenerationRequest(
 			@RequestHeader(X_USSM_USER_LOGIN_ID) final String userId,
 			@RequestHeader(X_USSM_USER_MOBILE_NUMBER) final String userMobileNumber,
 			@RequestAttribute(X_REQUEST_METADATA) RequestMetaData metaData,
-			@Valid @RequestBody CardLessCashGenerationRequest cardLessCashGenerationRequest) {
-		log.info("cardLessCash GenerationRequest {} ", htmlEscape(cardLessCashGenerationRequest));
+			@Valid @RequestBody CardLessCashGenerationRequestV2 cardLessCashGenerationRequestV2) {
+		log.info("cardLessCash GenerationRequest {} ", htmlEscape(cardLessCashGenerationRequestV2));
 		asyncUserEventPublisher.publishStartedEvent(FundTransferEventType.CARD_LESS_CASH_GENERATION_REQUEST, metaData,
 				CARD_LESS_CASH);
 		assertMobileNo(userMobileNumber, metaData);
-		checkAccountBelongsToUser(cardLessCashGenerationRequest.getAccountNo(), metaData);
-		Response<CardLessCashGenerationResponse> cardLessCashGenerationResponse = cardLessCashService
-				.cardLessCashRemitGenerationRequest(cardLessCashGenerationRequest, userMobileNumber, userId, metaData);
+		checkAccountBelongsToUser(cardLessCashGenerationRequestV2.getAccountNo(), metaData);
+
+		var cardlessCashRequest = CardLessCashGenerationRequest.builder()
+				.accountNo(cardLessCashGenerationRequestV2.getAccountNo())
+				.amount(cardLessCashGenerationRequestV2.getAmount())
+				.build();
+		var cardLessCashGenerationResponse = cardLessCashService
+				.cardLessCashRemitGenerationRequest(cardlessCashRequest, userMobileNumber, userId, metaData);
 		log.info("cardLessCash generate Response {} ", htmlEscape(cardLessCashGenerationResponse));
 		asyncUserEventPublisher.publishSuccessEvent(FundTransferEventType.CARD_LESS_CASH_GENERATION_REQUEST, metaData,
 				CARD_LESS_CASH);
@@ -87,10 +87,13 @@ public class CardLessCashControllerV2 {
     private void assertAccountBelongsToUser(final String accountNumber, RequestMetaData metaData) {
  	   log.info("cardLessCash  Account Details {} Validation with User", htmlEscape(accountNumber));
          if (!userSessionCacheService.isAccountNumberBelongsToCif(accountNumber, metaData.getUserCacheKey())) {
-         	asyncUserEventPublisher.publishFailedEsbEvent(FundTransferEventType.CARD_LESS_CASH_ACCOUNT_NUMBER_DOES_NOT_MATCH, metaData, CARD_LESS_CASH, metaData.getChannelTraceId(),
-         			TransferErrorCode.ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF.toString(), TransferErrorCode.ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF.getErrorMessage(),
+         	asyncUserEventPublisher.publishFailedEsbEvent(FundTransferEventType.CARD_LESS_CASH_ACCOUNT_NUMBER_DOES_NOT_MATCH,
+					metaData, CARD_LESS_CASH, metaData.getChannelTraceId(),
+         			TransferErrorCode.ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF.toString(),
+					TransferErrorCode.ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF.getErrorMessage(),
          			TransferErrorCode.ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF.getErrorMessage());
-             GenericExceptionHandler.handleError(TransferErrorCode.ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF, TransferErrorCode.ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF.getErrorMessage());
+             GenericExceptionHandler.handleError(TransferErrorCode.ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF,
+					 TransferErrorCode.ACCOUNT_NUMBER_DOES_NOT_BELONG_TO_CIF.getErrorMessage());
          }
      }
 
@@ -105,10 +108,13 @@ public class CardLessCashControllerV2 {
          * 
          */
      	if (mobileNumber.isEmpty()) {
-         	asyncUserEventPublisher.publishFailedEsbEvent(FundTransferEventType.CARD_LESS_CASH_MOBILE_NUMBER_DOES_NOT_MATCH, metaData, CARD_LESS_CASH, metaData.getChannelTraceId(),
-					TransferErrorCode.MOBILE_NUMBER_DOES_NOT_MATCH.toString(), TransferErrorCode.MOBILE_NUMBER_DOES_NOT_MATCH.getErrorMessage(),
+         	asyncUserEventPublisher.publishFailedEsbEvent(FundTransferEventType.CARD_LESS_CASH_MOBILE_NUMBER_DOES_NOT_MATCH,
+					metaData, CARD_LESS_CASH, metaData.getChannelTraceId(),
+					TransferErrorCode.MOBILE_NUMBER_DOES_NOT_MATCH.toString(),
+					TransferErrorCode.MOBILE_NUMBER_DOES_NOT_MATCH.getErrorMessage(),
        			TransferErrorCode.MOBILE_NUMBER_DOES_NOT_MATCH.getErrorMessage());
-             GenericExceptionHandler.handleError(TransferErrorCode.MOBILE_NUMBER_DOES_NOT_MATCH, TransferErrorCode.MOBILE_NUMBER_DOES_NOT_MATCH.getErrorMessage());
+             GenericExceptionHandler.handleError(TransferErrorCode.MOBILE_NUMBER_DOES_NOT_MATCH,
+					 TransferErrorCode.MOBILE_NUMBER_DOES_NOT_MATCH.getErrorMessage());
          }
      }
 
