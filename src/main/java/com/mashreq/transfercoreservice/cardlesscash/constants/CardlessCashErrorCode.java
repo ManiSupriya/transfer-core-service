@@ -5,8 +5,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.util.stream.Stream;
-
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum CardlessCashErrorCode implements ErrorCode {

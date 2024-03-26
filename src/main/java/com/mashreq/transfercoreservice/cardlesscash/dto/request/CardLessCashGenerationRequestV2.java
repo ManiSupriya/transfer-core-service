@@ -1,6 +1,5 @@
 package com.mashreq.transfercoreservice.cardlesscash.dto.request;
 
-import com.mashreq.transactionauth.twofa.TwoFaBaseModel;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,7 +15,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class CardLessCashGenerationRequestV2 extends TwoFaBaseModel {
+public class CardLessCashGenerationRequestV2 {
 	@NotNull(message = "Account Number is manadatory field")
     @Pattern(regexp = "^\\d{12}$", message = "accountNum should have only twelve nummbers")
     private String accountNo;
