@@ -90,7 +90,7 @@ public class FundTransferServiceDefault implements FundTransferService {
 
     private final TransferLimitService transferLimitService;
 
-    @Value("${spring.profiles.active}")
+    //@Value("${spring.profiles.active}")
     private String activeProfile;
     @Value("${app.nonProd.otpRelaxed}")
     private boolean otpRelaxed;

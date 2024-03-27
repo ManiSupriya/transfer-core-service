@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.mashreq.twofa.client.dto.TwoFa;
 
 import java.math.BigDecimal;
 
@@ -31,5 +32,6 @@ public class CardLessCashGenerationRequestV2 {
     @NotEmpty(message = "currency code cannot be empty")
     private String currencyCode;
     private String beneficiaryName;
+    private TwoFa twofa;
 
 }
