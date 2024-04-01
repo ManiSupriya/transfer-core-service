@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 
 import com.mashreq.mobcommons.services.events.publisher.AsyncUserEventPublisher;
@@ -23,8 +24,6 @@ import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashBlo
 import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashGenerationResponse;
 import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashQueryResponse;
 import com.mashreq.transfercoreservice.cardlesscash.service.CardLessCashService;
-import com.mashreq.transfercoreservice.client.dto.VerifyOTPRequestDTO;
-import com.mashreq.transfercoreservice.client.dto.VerifyOTPResponseDTO;
 import com.mashreq.transfercoreservice.client.service.AccountService;
 import com.mashreq.transfercoreservice.common.CommonConstants;
 import com.mashreq.transfercoreservice.errors.TransferErrorCode;
@@ -87,7 +86,7 @@ public class CardLessCashServiceImpl implements CardLessCashService {
 
 	@Override
 	public Response<CardLessCashGenerationResponse> cardLessCashRemitGenerationRequest(
-			CardLessCashGenerationRequest cardLessCashGenerationRequest, String userMobileNumber, String userId,
+			@Valid CardLessCashGenerationRequest cardLessCashGenerationRequest, String userMobileNumber, String userId,
 			RequestMetaData metaData) {
 		log.info("cardLessCash GenerationRequest {} ", cardLessCashGenerationRequest);
 		Response<CardLessCashGenerationResponse> cardLessCashGenerationResponse = null;

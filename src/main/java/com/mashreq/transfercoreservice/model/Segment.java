@@ -32,4 +32,5 @@ public class Segment extends AbstractAuditingEntity {
     private String emailSignOffCompany;
     private String emailCprFooter;
     private String emailCprBankDesc;
+    private String localContactNumber;
 }
