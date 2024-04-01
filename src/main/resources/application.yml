@@ -364,6 +364,8 @@ limit:
 
 twofa-client:
   secretkey: ${TWOFA_CLIENT_SECRET}
+  services:
+    mob-common-service: ${app.services.mobcommon}
 
 twofa:
   otp:
