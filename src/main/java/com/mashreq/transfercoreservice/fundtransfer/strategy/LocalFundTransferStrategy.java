@@ -49,7 +49,7 @@ import static java.util.Optional.ofNullable;
  */
 
 @Slf4j
-@Service
+@Service("localFundTransferStrategy")
 @Getter
 @RequiredArgsConstructor
 public class LocalFundTransferStrategy implements FundTransferStrategy {

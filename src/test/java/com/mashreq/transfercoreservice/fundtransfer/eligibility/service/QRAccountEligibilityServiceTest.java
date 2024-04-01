@@ -1,13 +1,5 @@
 package com.mashreq.transfercoreservice.fundtransfer.eligibility.service;
 
-import static com.mashreq.transfercoreservice.util.TestUtil.qrExchangeResponse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
-
 import com.google.common.collect.ImmutableList;
 import com.mashreq.encryption.encryptor.EncryptionService;
 import com.mashreq.encryption.exception.EncryptionException;
@@ -28,21 +20,22 @@ import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.QRDealsService;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
 import com.mashreq.transfercoreservice.util.TestUtil;
-import org.junit.jupiter.api.BeforeEach ;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-
-
-import com.mashreq.transfercoreservice.client.dto.QRExchangeResponse;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
+
+import static com.mashreq.transfercoreservice.util.TestUtil.qrExchangeResponse;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class QRAccountEligibilityServiceTest {

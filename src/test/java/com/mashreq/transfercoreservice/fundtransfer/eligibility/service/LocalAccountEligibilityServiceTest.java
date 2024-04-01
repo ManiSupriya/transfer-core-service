@@ -1,6 +1,7 @@
 package com.mashreq.transfercoreservice.fundtransfer.eligibility.service;
 
 import com.mashreq.encryption.encryptor.EncryptionService;
+import com.mashreq.mobcommons.model.DerivedEntitlements;
 import com.mashreq.mobcommons.services.events.publisher.AuditEventPublisher;
 import com.mashreq.mobcommons.services.http.RequestMetaData;
 import com.mashreq.transfercoreservice.cache.UserSessionCacheService;
@@ -11,10 +12,12 @@ import com.mashreq.transfercoreservice.client.service.BeneficiaryService;
 import com.mashreq.transfercoreservice.client.service.CardService;
 import com.mashreq.transfercoreservice.client.service.MaintenanceService;
 import com.mashreq.transfercoreservice.fundtransfer.dto.FundTransferEligibiltyRequestDTO;
+import com.mashreq.transfercoreservice.fundtransfer.dto.LimitValidatorResponse;
 import com.mashreq.transfercoreservice.fundtransfer.dto.UserDTO;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.dto.EligibilityResponse;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.enums.FundsTransferEligibility;
 import com.mashreq.transfercoreservice.fundtransfer.eligibility.validators.*;
+import com.mashreq.transfercoreservice.fundtransfer.limits.LimitManagementConfig;
 import com.mashreq.transfercoreservice.fundtransfer.limits.LimitValidator;
 import com.mashreq.transfercoreservice.fundtransfer.service.QRDealsService;
 import com.mashreq.transfercoreservice.fundtransfer.validators.ValidationResult;
@@ -31,10 +34,11 @@ import com.mashreq.transfercoreservice.fundtransfer.validators.rulespecificvalid
 import com.mashreq.transfercoreservice.fundtransfer.validators.rulespecificvalidators.RuleSpecificValidatorImpl;
 
 import java.math.BigDecimal;
+import java.util.*;
 
 import static com.mashreq.transfercoreservice.util.TestUtil.getAdditionalFields;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -72,13 +76,21 @@ public class LocalAccountEligibilityServiceTest {
 	@Mock
 	private RuleSpecificValidatorImpl RuleSpecificValidatorImpl;
 
+	@Mock
+	private LimitManagementConfig limitManagementConfig;
+
 	private EncryptionService encryptionService = new EncryptionService();
 	private RequestMetaData metaData = RequestMetaData.builder().build();
 	private EGP_LOCAL_TransactionValidator egValidator;
 
+	HashMap<String, List<String>> configfields = new HashMap(){{
+		put("AE", Arrays.asList("MOBILE"));
+	}};
+
 
 	@BeforeEach
 	public void setUp() {
+
 		ReflectionTestUtils.setField(service, "localCurrency", "AED");
 	}
 	@Test
@@ -116,12 +128,90 @@ public class LocalAccountEligibilityServiceTest {
 		UserDTO userDTO = new UserDTO();
 
 		ValidationResult validationResult = ValidationResult.builder().success(true).build();
+		metaData.setCountry("AE");
+		metaData.setChannel("MOBILE");
+
+		Set<String> allowedActions = new HashSet<>();
+		allowedActions.add("Inline_MoneyTransfer_Limits_EntryPoint");
+		DerivedEntitlements derivedEntitlements = DerivedEntitlements.builder()
+				.allowedActions(allowedActions)
+				.build();
+		LimitValidatorResponse expectedLimitResponse = TestUtil.limitValidatorResultsDtoEligible();
+
 		when(currencyValidatorFactory.getValidator(any())).thenReturn(currencyValidator);
 		when(limitValidatorFactory.getValidator(any())).thenReturn(limitValidator);
 		when(currencyValidator.validate(any(),any(),any())).thenReturn(validationResult);
 		when(beneficiaryValidator.validate(any(),any(),any())).thenReturn(validationResult);
 		when(maintenanceService.convertBetweenCurrencies(any())).thenReturn(TestUtil.getCurrencyConversionDto());
 		when(maintenanceService.convertCurrency(any())).thenReturn(TestUtil.getCurrencyConversionDto());
+		when(limitManagementConfig.getCountries()).thenReturn(configfields);
+		when(limitValidator.validateAvailableLimits(any(),any(),any(),any(),any())).thenReturn(expectedLimitResponse);
+		when(accountService.getAccountDetailsFromCache(any(),any())).thenReturn(new AccountDetailsDTO());
+		when(userSessionCacheService.extractEntitlementContext(any())).thenReturn(derivedEntitlements);
+
+		EligibilityResponse response = service.checkEligibility(metaData, fundTransferEligibiltyRequestDTO, userDTO);
+
+		LimitValidatorResponse limitValidatorResponse = (LimitValidatorResponse) response.getData();
+
+		assertNotNull(response);
+		assertTrue(limitValidatorResponse.getIsValid());
+		assertNull(limitValidatorResponse.getAmountRemark());
+		assertNull(limitValidatorResponse.getCountRemark());
+		assertNull(limitValidatorResponse.getNextLimitChangeDate());
+		assertEquals(response.getStatus(), FundsTransferEligibility.ELIGIBLE);
+	}
+
+	@Test
+	public void checkEligibilityWithBeneUpdateEntitlementContextIsNull(){
+		FundTransferEligibiltyRequestDTO fundTransferEligibiltyRequestDTO = new FundTransferEligibiltyRequestDTO();
+		fundTransferEligibiltyRequestDTO.setBeneficiaryId("1");
+		fundTransferEligibiltyRequestDTO.setFromAccount("1234567890");
+		fundTransferEligibiltyRequestDTO.setBeneRequiredFields(getAdditionalFields());
+
+		UserDTO userDTO = new UserDTO();
+
+		ValidationResult validationResult = ValidationResult.builder().success(true).build();
+		metaData.setCountry("AE");
+		metaData.setChannel("MOBILE");
+
+		when(currencyValidatorFactory.getValidator(any())).thenReturn(currencyValidator);
+		when(limitValidatorFactory.getValidator(any())).thenReturn(limitValidator);
+		when(currencyValidator.validate(any(),any(),any())).thenReturn(validationResult);
+		when(beneficiaryValidator.validate(any(),any(),any())).thenReturn(validationResult);
+		when(maintenanceService.convertBetweenCurrencies(any())).thenReturn(TestUtil.getCurrencyConversionDto());
+		when(maintenanceService.convertCurrency(any())).thenReturn(TestUtil.getCurrencyConversionDto());
+		when(limitManagementConfig.getCountries()).thenReturn(configfields);
+		when(accountService.getAccountDetailsFromCache(any(),any())).thenReturn(new AccountDetailsDTO());
+		when(userSessionCacheService.extractEntitlementContext(any())).thenReturn(null);
+
+		EligibilityResponse response = service.checkEligibility(metaData, fundTransferEligibiltyRequestDTO, userDTO);
+
+		LimitValidatorResponse limitValidatorResponse = (LimitValidatorResponse) response.getData();
+
+		assertNotNull(response);
+		assertNull(limitValidatorResponse);
+		assertEquals(response.getStatus(), FundsTransferEligibility.ELIGIBLE);
+	}
+
+	@Test
+	public void checkEligibilityWithBeneUpdateWEB(){
+		FundTransferEligibiltyRequestDTO fundTransferEligibiltyRequestDTO = new FundTransferEligibiltyRequestDTO();
+		fundTransferEligibiltyRequestDTO.setBeneficiaryId("1");
+		fundTransferEligibiltyRequestDTO.setFromAccount("1234567890");
+		fundTransferEligibiltyRequestDTO.setBeneRequiredFields(getAdditionalFields());
+
+		UserDTO userDTO = new UserDTO();
+
+		ValidationResult validationResult = ValidationResult.builder().success(true).build();
+		metaData.setCountry("AE");
+		metaData.setChannel("WEB");
+		when(currencyValidatorFactory.getValidator(any())).thenReturn(currencyValidator);
+		when(limitValidatorFactory.getValidator(any())).thenReturn(limitValidator);
+		when(currencyValidator.validate(any(),any(),any())).thenReturn(validationResult);
+		when(beneficiaryValidator.validate(any(),any(),any())).thenReturn(validationResult);
+		when(maintenanceService.convertBetweenCurrencies(any())).thenReturn(TestUtil.getCurrencyConversionDto());
+		when(maintenanceService.convertCurrency(any())).thenReturn(TestUtil.getCurrencyConversionDto());
+		when(limitManagementConfig.getCountries()).thenReturn(configfields);
 		when(limitValidator.validate(any(),any(),any(),any(),any())).thenReturn(TestUtil.limitValidatorResultsDto(null));
 		when(accountService.getAccountDetailsFromCache(any(),any())).thenReturn(new AccountDetailsDTO());
 
@@ -141,11 +231,44 @@ public class LocalAccountEligibilityServiceTest {
 		UserDTO userDTO = new UserDTO();
 
 		ValidationResult validationResult = ValidationResult.builder().success(true).build();
+		metaData.setCountry("AE");
+		metaData.setChannel("MOBILE");
 		when(currencyValidatorFactory.getValidator(any())).thenReturn(currencyValidator);
 		when(limitValidatorFactory.getValidator(any())).thenReturn(limitValidator);
 		when(currencyValidator.validate(any(),any())).thenReturn(validationResult);
 		when(beneficiaryService.getByIdWithoutValidation(any(),any(),any(),any())).thenReturn(TestUtil.getBeneficiaryDto());
 		when(beneficiaryValidator.validate(any(),any(),any())).thenReturn(validationResult);
+		when(limitManagementConfig.getCountries()).thenReturn(configfields);
+		when(limitValidator.validateAvailableLimits(any(),any(),any(),any(),any())).thenReturn(TestUtil.limitValidatorResultsDto(null));
+		when(cardService.getCardDetailsFromCache(any(),any())).thenReturn(new CardDetailsDTO());
+		when(userSessionCacheService.isCardNumberBelongsToCif(any(),any())).thenReturn(true);
+		when(ccBalanceValidator.validate(any(),any(),any())).thenReturn(validationResult);
+		when(qrDealsService.getQRDealDetails(any(),any())).thenReturn(TestUtil.getQRDealsDetails());
+
+		EligibilityResponse response = service.checkEligibility(metaData, fundTransferEligibiltyRequestDTO, userDTO);
+
+		assertNotNull(response);
+		assertEquals(response.getStatus(), FundsTransferEligibility.ELIGIBLE);
+	}
+
+	@Test
+	public void checkCCEligibilityWithNoBeneUpdateWEB(){
+		FundTransferEligibiltyRequestDTO fundTransferEligibiltyRequestDTO = new FundTransferEligibiltyRequestDTO();
+		fundTransferEligibiltyRequestDTO.setBeneficiaryId("1");
+		fundTransferEligibiltyRequestDTO.setAmount(BigDecimal.ZERO);
+		fundTransferEligibiltyRequestDTO.setCardNo("7E0CF3390CFFE58BEE3D84583A435FC01F83E86CEB8B10A849AC63CA43E7D924");
+
+		UserDTO userDTO = new UserDTO();
+
+		ValidationResult validationResult = ValidationResult.builder().success(true).build();
+		metaData.setCountry("AE");
+		metaData.setChannel("WEB");
+		when(currencyValidatorFactory.getValidator(any())).thenReturn(currencyValidator);
+		when(limitValidatorFactory.getValidator(any())).thenReturn(limitValidator);
+		when(currencyValidator.validate(any(),any())).thenReturn(validationResult);
+		when(beneficiaryService.getByIdWithoutValidation(any(),any(),any(),any())).thenReturn(TestUtil.getBeneficiaryDto());
+		when(beneficiaryValidator.validate(any(),any(),any())).thenReturn(validationResult);
+		when(limitManagementConfig.getCountries()).thenReturn(configfields);
 		when(limitValidator.validate(any(),any(),any(),any(),any())).thenReturn(TestUtil.limitValidatorResultsDto(null));
 		when(cardService.getCardDetailsFromCache(any(),any())).thenReturn(new CardDetailsDTO());
 		when(userSessionCacheService.isCardNumberBelongsToCif(any(),any())).thenReturn(true);

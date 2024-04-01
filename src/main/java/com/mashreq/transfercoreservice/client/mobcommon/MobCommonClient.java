@@ -6,7 +6,7 @@ import java.util.Set;
 import jakarta.validation.constraints.NotNull;
 
 import com.mashreq.transfercoreservice.client.dto.*;
-import com.mashreq.transfercoreservice.fundtransfer.dto.ServiceType;
+import com.mashreq.transfercoreservice.fundtransfer.dto.*;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,8 +19,6 @@ import com.mashreq.ms.commons.cache.HeaderNames;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.CustomerDetailsDto;
 import com.mashreq.transfercoreservice.client.mobcommon.dto.MoneyTransferPurposeDto;
 import com.mashreq.transfercoreservice.config.feign.FeignConfig;
-import com.mashreq.transfercoreservice.fundtransfer.dto.DealConversionRateRequestDto;
-import com.mashreq.transfercoreservice.fundtransfer.dto.DealConversionRateResponseDto;
 import com.mashreq.transfercoreservice.model.ApplicationSettingDto;
 import com.mashreq.transfercoreservice.promo.dto.PromoCodeTransactionRequestDto;
 import com.mashreq.webcore.dto.response.Response;
@@ -73,4 +71,7 @@ public interface MobCommonClient {
 
     @GetMapping("/v1/countries/{countryCode}")
     Response<CountryDto> getCountryValidationRule(@PathVariable String countryCode);
+
+    @PostMapping("/v2/limit/available")
+    Response<LimitValidatorResponse> getAvailableLimits(@RequestBody LimitValidatorRequest limitValidatorRequest);
 }

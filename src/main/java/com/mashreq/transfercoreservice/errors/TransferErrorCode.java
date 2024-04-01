@@ -63,6 +63,8 @@ public enum TransferErrorCode implements ErrorCode {
     TRX_AMOUNT_REACHED("LM-2013", "Transaction amount is greater than allowed limit"),
     COOLING_LIMIT_AMOUNT_REACHED("LM-2014", "Cooling period transaction amount exceeded"),
     MIN_AMOUNT_LIMIT_REACHED("LM-2015", "Min Amount Limit Reached"),
+    LIMIT_CHANGE_NOT_ELIGIBLE("LM-2016", "Limit change is not allowed"),
+
 
     MONTH_AMOUNT_LIMIT_REACHED("PM-1104", "Month Amount Limit Reached"),
     DAY_AMOUNT_LIMIT_REACHED("PM-1103", "Day Amount Limit Reached"),

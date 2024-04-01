@@ -1,26 +1,25 @@
 package com.mashreq.transfercoreservice.cache;
-import static com.mashreq.mobcommons.utils.ContextCacheKeysSuffix.ACCOUNTS;
-/**
- * Suresh Pasupuleti
- */
-import static com.mashreq.ms.commons.CustomHtmlEscapeUtil.htmlEscape;
-import static com.mashreq.transfercoreservice.errors.TransferErrorCode.USER_SESSION_CONTEXT_NOT_FOUND;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mashreq.mobcommons.cache.MobRedisService;
+import com.mashreq.mobcommons.model.DerivedEntitlements;
+import com.mashreq.mobcommons.services.http.RequestMetaData;
+import com.mashreq.mobcommons.utils.ContextCacheKeysSuffix;
+import com.mashreq.ms.exceptions.GenericExceptionHandler;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.mashreq.mobcommons.cache.MobRedisService;
-import com.mashreq.mobcommons.services.http.RequestMetaData;
-import com.mashreq.mobcommons.utils.ContextCacheKeysSuffix;
-import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.mashreq.ms.commons.cache.IAMSessionUser;
-import com.mashreq.ms.exceptions.GenericExceptionHandler;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import static com.mashreq.mobcommons.utils.ContextCacheKeysSuffix.ACCOUNTS;
+import static com.mashreq.mobcommons.utils.ContextCacheKeysSuffix.ENTITLEMENTS;
+import static com.mashreq.ms.commons.CustomHtmlEscapeUtil.htmlEscape;
+import static com.mashreq.transfercoreservice.errors.TransferErrorCode.USER_SESSION_CONTEXT_NOT_FOUND;
 
 @Slf4j
 @Service
@@ -32,9 +31,10 @@ public class UserSessionCacheService {
     public static final String INVESTMENT_ACCOUNT_NUMBERS = "investment-account-number";
     private static final String CARD_NUMBERS = "card-numbers";
     private final MobRedisService redisService;
+    private final ObjectMapper objectMapper;
     private static final TypeReference<Map<String, Object>> ACCOUNT_CONTEXT_TYPE_REFERENCE = new TypeReference<Map<String, Object>>() {};
     private static final TypeReference<Map<String, Object>> CARDS_CONTEXT_TYPE_REFERENCE = new TypeReference<Map<String, Object>>() {};
-    
+
     public boolean isAccountNumberBelongsToCif(final String accountNumber, final String redisKey) {
         Map<String, Object> accountsContext = validateAndReturnContext(redisKey);
         return Optional.ofNullable(accountsContext)
@@ -90,6 +90,14 @@ public class UserSessionCacheService {
                     .orElse(false);
         }
         return isOwnAccount;
+    }
+
+    public DerivedEntitlements extractEntitlementContext(final String redisKey){
+        String entitlementsContextKey = redisKey + ENTITLEMENTS.getSuffix();
+        HashMap<String, Object> context = redisService.get(entitlementsContextKey, HashMap.class);
+        DerivedEntitlements derivedEntitlements = objectMapper.convertValue(context.get(entitlementsContextKey),
+                DerivedEntitlements.class);
+        return derivedEntitlements;
     }
 }
 
