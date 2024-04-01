@@ -5,8 +5,8 @@ import com.mashreq.transfercoreservice.cardlesscash.service.DigitalUserSegmentSe
 import com.mashreq.transfercoreservice.model.Segment;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mashreq.twofa.domain.TwoFaType;
-import org.mashreq.twofa.utils.http.TwoFaRequestHelper;
+import org.mashreq.twofa.core.aspect.TwoFaContext;
+import org.mashreq.twofa.core.types.TwoFaType;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -15,17 +15,14 @@ import org.mockito.quality.Strictness;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 public class CardlessCashGenerationTwoFaAdviceTest {
-
-    @Mock
-    private TwoFaRequestHelper twoFaRequestHelper;
 
     @Mock
     private DigitalUserSegmentService digitalUserSegmentService;
@@ -49,8 +46,10 @@ public class CardlessCashGenerationTwoFaAdviceTest {
                 .sourceType("MOB")
                 .transactionType("Card Less Cash")
                 .build();
-
-        assertTrue(cardlessCashGenerationTwoFaAdvice.isTwoFaRequired(cardLessCashGenerationRequestV2));
+        var twofaContext = TwoFaContext.builder()
+                .requestBody(cardLessCashGenerationRequestV2)
+                .build();
+        assertTrue(cardlessCashGenerationTwoFaAdvice.isTwoFaRequired(twofaContext));
     }
 
     @Test
@@ -77,15 +76,24 @@ public class CardlessCashGenerationTwoFaAdviceTest {
         segment.setCustomerCareNumber("+971 123 4567");
         segment.setLocalContactNumber("+971 456 789");
 
-        when(twoFaRequestHelper.getRequestHeaderValue("X-USSM-USER-CIF")).thenReturn("1213123");
-        when(twoFaRequestHelper.getRequestHeaderValue("X-MOB-CHANNEL-NAME")).thenReturn("MOBILE");
-        when(twoFaRequestHelper.getRequestHeaderValue("X-USSM-USER-COUNTRY")).thenReturn("AE");
-        when(twoFaRequestHelper.getRequestHeaderValue("X-USSM-USER-NAME")).thenReturn("cardlesscashuser");
-        when(twoFaRequestHelper.getRequestHeaderValue("X-USSM-SEGMENT")).thenReturn("GOLD");
+        var requestHeaderMap = new HashMap<String, String>();
+        requestHeaderMap.put("X-USSM-USER-CIF", "1213123");
+        requestHeaderMap.put("X-MOB-CHANNEL-NAME", "MOBILE");
+        requestHeaderMap.put("X-USSM-USER-COUNTRY", "AE");
+        requestHeaderMap.put("X-USSM-USER-NAME", "cardlesscashuser");
+        requestHeaderMap.put("X-USSM-SEGMENT", "GOLD");
+        var twofaContext = TwoFaContext.builder()
+                .headers(requestHeaderMap)
+                .requestBody(cardLessCashGenerationRequestV2)
+                .build();
+
+
         when(digitalUserSegmentService.getDigitalUserSegmentByName("GOLD")).thenReturn(segment);
 
-        var response = cardlessCashGenerationTwoFaAdvice.overrideAdvice(cardLessCashGenerationRequestV2);
+        var response = cardlessCashGenerationTwoFaAdvice.overrideAdvice(twofaContext);
 
-        assertEquals(TwoFaType.SMS, response.twoFaType());
+        assertNull(response.twoFaType());
+        assertEquals("is OTP for Card Less Cash from MOB ending 12312 for AED 1000. " +
+                "Call us at +971 456 789 if you haven't initiated this", response.smsParams().getMessage());
     }
 }

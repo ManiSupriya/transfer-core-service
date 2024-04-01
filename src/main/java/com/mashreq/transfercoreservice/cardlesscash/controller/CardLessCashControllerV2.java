@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.mashreq.transaction.annotations.TransactionType;
 import org.mashreq.twofa.annotations.RequiredTwoFa;
 import org.springframework.web.bind.annotation.*;
 
@@ -56,6 +57,7 @@ public class CardLessCashControllerV2 {
             @ApiResponse(responseCode = "401", description = "You are not authorized to view the resource")
     })
     @PostMapping(CardLessCashConstants.URL.CLC_REQUEST_URL)
+	@TransactionType(transactionType = "CARDLESS-CASH")
 	@RequiredTwoFa(twoFaAdviceClass = CardlessCashGenerationTwoFaAdvice.class)
 	public Response<CardLessCashGenerationResponse> cardLessCashRemitGenerationRequest(
 			@RequestHeader(X_USSM_USER_LOGIN_ID) final String userId,
