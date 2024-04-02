@@ -9,6 +9,7 @@ import com.mashreq.tracing.annotation.EnableMashreqTracing;
 import com.mashreq.transactionauth.annotations.EnableTransactionAuthorization;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.mashreq.twofa.annotations.EnableTwoFaSdk;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -23,6 +24,7 @@ import java.text.NumberFormat;
 @EnableMashreqTracing
 @EnableScheduling
 @EnableTemplateNotificationClient
+@EnableTwoFaSdk
 @SpringBootApplication(
         scanBasePackages = {"com.mashreq.transfercoreservice",
                 "com.mashreq.ms"}

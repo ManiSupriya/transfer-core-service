@@ -10,6 +10,7 @@ import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashBlo
 import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashGenerationResponse;
 import com.mashreq.transfercoreservice.cardlesscash.dto.response.CardLessCashQueryResponse;
 import com.mashreq.webcore.dto.response.Response;
+import jakarta.validation.Valid;
 
 /**
  * Interface for holding CLC operations.
@@ -17,6 +18,6 @@ import com.mashreq.webcore.dto.response.Response;
 public interface CardLessCashService {
 
     Response<CardLessCashBlockResponse> blockCardLessCashRequest(CardLessCashBlockRequest blockRequest, RequestMetaData metaData);
-    Response<CardLessCashGenerationResponse> cardLessCashRemitGenerationRequest(CardLessCashGenerationRequest cardLessCashGenerationRequest, String userMobileNumber, String userId, RequestMetaData metaData);
+    Response<CardLessCashGenerationResponse> cardLessCashRemitGenerationRequest(@Valid CardLessCashGenerationRequest cardLessCashGenerationRequest, String userMobileNumber, String userId, RequestMetaData metaData);
     Response<List<CardLessCashQueryResponse>> cardLessCashRemitQuery(CardLessCashQueryRequest cardLessCashQueryRequest, RequestMetaData metaData);
 }

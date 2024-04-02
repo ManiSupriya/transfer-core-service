@@ -28,4 +28,7 @@ public class QRExchangeResponse {
     private String gatewayType;
     private String exchangeRateDisplay;
 
+    private String maxAmountDaily;
+    private String errorCode;
+    private String errorMessage;
 }

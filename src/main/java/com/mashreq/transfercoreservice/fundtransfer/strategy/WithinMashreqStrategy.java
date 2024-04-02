@@ -12,6 +12,7 @@ import java.util.*;
 
 import com.mashreq.transfercoreservice.config.EscrowConfig;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -68,6 +69,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
+@Qualifier("withinMashreqStrategy")
 @Getter
 @RequiredArgsConstructor
 public class WithinMashreqStrategy implements FundTransferStrategy {

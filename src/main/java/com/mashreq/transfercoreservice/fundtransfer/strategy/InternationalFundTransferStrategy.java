@@ -44,7 +44,7 @@ import static java.util.Optional.ofNullable;
 @RequiredArgsConstructor
 @Slf4j
 @Getter
-@Service
+@Service("internationalFundTransferStrategy")
 public class InternationalFundTransferStrategy implements FundTransferStrategy {
 
     private static final String INTERNATIONAL_PRODUCT_ID = "DBFC";

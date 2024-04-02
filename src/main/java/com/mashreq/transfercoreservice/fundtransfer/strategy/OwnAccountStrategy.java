@@ -57,7 +57,7 @@ import lombok.extern.slf4j.Slf4j;
  * @date 3/12/20
  */
 @Slf4j
-@Service
+@Service("ownAccountStrategy")
 @Getter
 @RequiredArgsConstructor
 public class OwnAccountStrategy implements FundTransferStrategy {

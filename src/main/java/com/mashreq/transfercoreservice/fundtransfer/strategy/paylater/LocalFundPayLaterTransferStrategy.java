@@ -64,7 +64,7 @@ import com.mashreq.transfercoreservice.repository.CountryRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Service
+@Service("localFundPayLaterTransferStrategy")
 public class LocalFundPayLaterTransferStrategy extends LocalFundTransferStrategy {
 	private final FundTransferOrderRepository fundTransferOrderRepository;
 	private final SequenceNumberGenerator seqGenerator;

@@ -10,5 +10,6 @@ public interface CardLessCashConstants {
         String CLC_BLOCK_URL="/request-block";
         String CLC_REQUEST_URL="/request";
         String CLC_QUERY_URL="/query/{accountNumber}";
+        String CARD_LESS_CASH_BASE_URL_V2 = "/v2/cardless-cash";
     }
 }

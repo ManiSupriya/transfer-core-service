@@ -356,3 +356,19 @@ escrow-accounts:
   trustAccounts: ${TRUST_ACCOUNTS_LIST:CDPTRU,CLNRTN,ITRSTN,ITRSTR}
   oaAccounts: ${OA_ACCOUNTS_LIST:CTROAE,CTROAR,ITROWA,ITROAR}
   defaultProjectName: ${DEFAULT_PROJECT_NAME:DUMMY}
+
+limit:
+  eligible:
+    countries:
+      AE: ${ALLOWED_CHANNELS:MOBILE}
+
+twofa-client:
+  secretkey: ${TWOFA_CLIENT_SECRET}
+  services:
+    mob-common-service: ${app.services.mobcommon}
+
+twofa:
+  otp:
+    cardless-cash:
+      msg: ${CARDLESS_CASH_TXN_OTP_MSG:is OTP for {txn_type} from {paymnt_source} ending {masked_account_no} for {currency} {amount}. Call us at {callcenter_contact} if you haven't initiated this}
+    count: ${OTP_MSG_REMAINING_CHAR:37}
