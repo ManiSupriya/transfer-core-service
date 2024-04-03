@@ -108,6 +108,7 @@ public class EmailUtil {
     public static final String MT_NPSS_REQUEST_SENT_MULTIPLE = "mt_npss_request_sent_multiple";
     public static final String MT_NPSS_REQUEST_SENT_MULTIPLE_FAIL = "mt_npss_request_sent_multiple_failure";
     public static final String MT_NPSS_ENROLLMENT = "mt_npss_enrollment";
+    public static final String MT_NPSS_CRM_UNENROLLMENT = "mt_npss_crm_unenrollment";
     public static final String NOT_APPLICABLE = "NA";
     public static final String MT_NPSS_REQUEST_RECEIVED = "mt_npss_request_received";
     public static final String MT_NPSS_REQUEST_SENT_DECLINED = "mt_npss_request_sent_declined";
