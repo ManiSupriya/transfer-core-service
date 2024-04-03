@@ -19,6 +19,7 @@ public class NotificationType {
 	public static final String WITHIN_MASHREQ_FT = "WITHIN MASHREQ FUNDS TRANSFER";
 
 	public static final String CUSTOMER_ENROLMENT = "CUSTOMER_ENROLL_NPSS";
+	public static final String CUSTOMER_UNENROLL = "CUSTOMER_UNENROLL_NPSS";
 	public static final String PAYMENT_FAIL = "PAYMENT_FAIL_NPSS";
 	public static final String PAYMENT_SUCCESS = "PAYMENT_SUCCESS_NPSS";
 	public static final String PAYMENT_REQUEST_RECEIVED = "PAYMENT_REQUEST_RECEIVED_NPSS";
