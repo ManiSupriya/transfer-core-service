@@ -25,11 +25,6 @@ public class CardlessCashGenerationTwoFaAdvice implements TwoFaAdvisor {
     private final DigitalUserSegmentService digitalUserSegmentService;
 
     @Override
-    public boolean isTwoFaRequired(TwoFaContext twoFaContext) {
-        return true;
-    }
-
-    @Override
     public TwoFaAdvice overrideAdvice(TwoFaContext twoFaContext) {
         var requestHeaderData = twoFaContext.getHeaders();
         var username = requestHeaderData.get("X-USSM-USER-NAME");
