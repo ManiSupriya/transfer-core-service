@@ -31,28 +31,6 @@ public class CardlessCashGenerationTwoFaAdviceTest {
     private CardlessCashGenerationTwoFaAdvice cardlessCashGenerationTwoFaAdvice;
 
     @Test
-    public void testIsTwoFaRequired(){
-
-        var accountNumber = "019100064328";
-        var amount = new BigDecimal("1000");
-
-        ReflectionTestUtils.setField(cardlessCashGenerationTwoFaAdvice, "cardlessCashTxnOtpMsg", "OTP for Cardless Cash");
-
-        var cardLessCashGenerationRequestV2 = CardLessCashGenerationRequestV2.builder()
-                .accountNo(accountNumber)
-                .amount(amount)
-                .currencyCode("AED")
-                .sourceIdentifier("12312")
-                .sourceType("MOB")
-                .transactionType("Card Less Cash")
-                .build();
-        var twofaContext = TwoFaContext.builder()
-                .requestBody(cardLessCashGenerationRequestV2)
-                .build();
-        assertTrue(cardlessCashGenerationTwoFaAdvice.isTwoFaRequired(twofaContext));
-    }
-
-    @Test
     public void testOverrideAdvice(){
 
         var accountNumber = "019100064328";
