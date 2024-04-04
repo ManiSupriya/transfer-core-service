@@ -179,7 +179,9 @@ public class NpssNotificationService {
             return MT_NPSS_CRM_UNENROLLMENT;
         }else if (NotificationType.PAYMENT_SUCCESS.equalsIgnoreCase(type)) {
             return MT_NPSS_PAYMENT_SUCCESSFUL;
-        } else if (NotificationType.PAYMENT_FAIL.equalsIgnoreCase(type)) {
+        }else if (NotificationType.PAYMENT_IN_PROCESS.equalsIgnoreCase(type)) {
+            return MT_NPSS_PAYMENT_IN_PROCESS;
+        }else if (NotificationType.PAYMENT_FAIL.equalsIgnoreCase(type)) {
             return MT_NPSS_PAYMENT_FAILURE;
         } else if (NotificationType.PAYMENT_REQUEST_SENT_MULTIPLE_RTP.equalsIgnoreCase(type)) {
             return MT_NPSS_REQUEST_SENT_MULTIPLE;

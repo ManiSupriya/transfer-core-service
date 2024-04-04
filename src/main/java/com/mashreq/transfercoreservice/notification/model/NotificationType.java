@@ -22,6 +22,7 @@ public class NotificationType {
 	public static final String CUSTOMER_UNENROLL = "CUSTOMER_UNENROLL_NPSS";
 	public static final String PAYMENT_FAIL = "PAYMENT_FAIL_NPSS";
 	public static final String PAYMENT_SUCCESS = "PAYMENT_SUCCESS_NPSS";
+	public static final String PAYMENT_IN_PROCESS = "PAYMENT_IN_PROCESS_NPSS";
 	public static final String PAYMENT_REQUEST_RECEIVED = "PAYMENT_REQUEST_RECEIVED_NPSS";
 	public static final String PAYMENT_RECEIVED = "PAYMENT_RECEIVED_NPSS";
 
