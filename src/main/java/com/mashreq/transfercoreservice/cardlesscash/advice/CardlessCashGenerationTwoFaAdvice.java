@@ -25,7 +25,7 @@ public class CardlessCashGenerationTwoFaAdvice implements TwoFaAdvisor {
     private final DigitalUserSegmentService digitalUserSegmentService;
 
     @Override
-    public TwoFaAdvice overrideAdvice(TwoFaContext twoFaContext) {
+    public TwoFaAdvice advice(TwoFaContext twoFaContext) {
         var requestHeaderData = twoFaContext.getHeaders();
         var username = requestHeaderData.get("X-USSM-USER-NAME");
         var segment = requestHeaderData.get("X-USSM-SEGMENT");
@@ -43,7 +43,7 @@ public class CardlessCashGenerationTwoFaAdvice implements TwoFaAdvisor {
         var smsParams = SmsParams.builder()
                 .message(message)
                 .build();
-        return TwoFaAdvice.withSMSParams(smsParams);
+        return TwoFaAdvice.withSmsParams(smsParams);
     }
 
     private String getCustomerCareNumber(String username, String headerSegment) {
