@@ -6,7 +6,6 @@ import com.mashreq.transfercoreservice.model.Segment;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mashreq.twofa.core.aspect.TwoFaContext;
-import org.mashreq.twofa.core.types.TwoFaType;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -17,7 +16,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.math.BigDecimal;
 import java.util.HashMap;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -29,28 +29,6 @@ public class CardlessCashGenerationTwoFaAdviceTest {
 
     @InjectMocks
     private CardlessCashGenerationTwoFaAdvice cardlessCashGenerationTwoFaAdvice;
-
-    @Test
-    public void testIsTwoFaRequired(){
-
-        var accountNumber = "019100064328";
-        var amount = new BigDecimal("1000");
-
-        ReflectionTestUtils.setField(cardlessCashGenerationTwoFaAdvice, "cardlessCashTxnOtpMsg", "OTP for Cardless Cash");
-
-        var cardLessCashGenerationRequestV2 = CardLessCashGenerationRequestV2.builder()
-                .accountNo(accountNumber)
-                .amount(amount)
-                .currencyCode("AED")
-                .sourceIdentifier("12312")
-                .sourceType("MOB")
-                .transactionType("Card Less Cash")
-                .build();
-        var twofaContext = TwoFaContext.builder()
-                .requestBody(cardLessCashGenerationRequestV2)
-                .build();
-        assertTrue(cardlessCashGenerationTwoFaAdvice.isTwoFaRequired(twofaContext));
-    }
 
     @Test
     public void testOverrideAdvice(){
@@ -90,7 +68,7 @@ public class CardlessCashGenerationTwoFaAdviceTest {
 
         when(digitalUserSegmentService.getDigitalUserSegmentByName("GOLD")).thenReturn(segment);
 
-        var response = cardlessCashGenerationTwoFaAdvice.overrideAdvice(twofaContext);
+        var response = cardlessCashGenerationTwoFaAdvice.advice(twofaContext);
 
         assertNull(response.twoFaType());
         assertEquals("is OTP for Card Less Cash from MOB ending 12312 for AED 1000. " +
