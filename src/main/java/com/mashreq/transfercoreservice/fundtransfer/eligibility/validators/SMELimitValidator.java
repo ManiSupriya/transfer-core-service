@@ -31,4 +31,9 @@ public class SMELimitValidator implements ILimitValidator{
 		
 	}
 
+	@Override
+	public LimitValidatorResponse validateAvailableLimits(UserDTO userDTO, String serviceType, BigDecimal limitUsageAmount, RequestMetaData metaData, Long id) {
+		return null;
+	}
+
 }

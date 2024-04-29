@@ -103,11 +103,13 @@ public class EmailUtil {
     public static final String MT_NPSS_EMAIL_PROXY_UPDATE = "mt_npss_email_proxy_update";
     public static final String EMAIL_PROXY = "emailId";
     public static final String MT_NPSS_PAYMENT_SUCCESSFUL = "mt_npss_payment_successful";
+    public static final String MT_NPSS_PAYMENT_IN_PROCESS = "mt_npss_payment_process";
     public static final String MT_NPSS_PAYMENT_FAILURE = "mt_npss_payment_failure";
     public static final String MT_NPSS_REQUEST_SENT = "mt_npss_request_sent";
     public static final String MT_NPSS_REQUEST_SENT_MULTIPLE = "mt_npss_request_sent_multiple";
     public static final String MT_NPSS_REQUEST_SENT_MULTIPLE_FAIL = "mt_npss_request_sent_multiple_failure";
     public static final String MT_NPSS_ENROLLMENT = "mt_npss_enrollment";
+    public static final String MT_NPSS_CRM_UNENROLLMENT = "mt_npss_crm_unenrollment";
     public static final String NOT_APPLICABLE = "NA";
     public static final String MT_NPSS_REQUEST_RECEIVED = "mt_npss_request_received";
     public static final String MT_NPSS_REQUEST_SENT_DECLINED = "mt_npss_request_sent_declined";
